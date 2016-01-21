@@ -1,0 +1,107 @@
+{
+    "name": "vscode-react-native",
+    "displayName": "vscode-react-native",
+    "version": "0.0.1",
+    "private": true,
+    "publisher": "Microsoft",
+    "description": "VS Code Extension for React Native applications",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Microsoft/vscode-rnxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "engines": {
+        "vscode": "^0.10.1"
+    },
+    "categories": [
+        "Debuggers",
+        "Other"
+    ],
+    "activationEvents": [
+        "onLanguage:javascript",
+        "onLanguage:typescript",
+        "workspaceContains:config.xml"
+    ],
+    "main": "./out/rn-extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "reactNative.runAndroid",
+                "title": "React Native:  Run Android"
+            },
+            {
+                "command": "reactNative.runIos",
+                "title": "React Native:  Run iOS"
+            },
+            {
+                "command": "reactNative.startPackager",
+                "title": "React Native:  Start Packager"
+            },
+            {
+                "command": "reactNative.stopPackager",
+                "title": "React Native:  Stop Packager"
+            }
+        ],
+        "debuggers": [
+            {
+                "type": "node",
+                "enableBreakpointsFor": {
+                    "languageIds": [
+                        "javascript",
+                        "typescript",
+                        "typescriptreact"
+                    ]
+                },
+
+
+                "initialConfigurations": [
+                    {
+						"program": "out/launch-react-native.js",
+                        "name": "Run on Android",
+                        "type": "node",
+                        "request": "launch",
+                        "platform": "node",
+                        "target": "device",
+                        "sourceMaps": true
+                    },
+                    {
+                        "name": "Run on iOS",
+                        "type": "node",
+                        "request": "launch",
+                        "platform": "node",
+                        "target": "device",
+                        "sourceMaps": true
+                    }
+                ]
+            }
+        ]
+    },
+    "scripts": {
+        "start": "node node_modules/react-native/local-cli/cli.js start"
+    },
+    "dependencies": {
+        "ios-sim": "^5.0.6",
+        "q": "^1.4.1",
+        "react-native": "^0.18.0",
+        "request": "^2.67.0",
+        "shelljs": "^0.5.3",
+        "vscode": "^0.10.7",
+        "websocket": "^1.0.22"
+    },
+    "devDependencies": {
+        "gulp": "^3.9.0",
+        "gulp-mocha": "^2.1.3",
+        "gulp-sourcemaps": "^1.5.2",
+        "gulp-tslint": "^3.3.1",
+        "gulp-typescript": "^2.8.0",
+        "gulp-util": "^3.0.5",
+        "mocha": "^2.3.3",
+        "mockery": "^1.4.0",
+        "rimraf": "^2.5.0",
+        "should": "^4.6.5",
+        "sinon": "^1.17.2",
+        "tslint": "^2.5.1",
+        "typescript": "^1.6.2",
+        "vscode": "0.10.x"
+    }
+}

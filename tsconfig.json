@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": false,
+        "removeComments": false,
+        "target": "ES5",
+        "sourceMap": true,
+        "outDir": "out"
+    },
+    "exclude": [
+        "node_modules",
+        "debugger/testapp/node_modules"
+    ]
+}
