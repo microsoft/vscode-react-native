@@ -10,7 +10,8 @@
 				"--extensionDevelopmentPath=${workspaceRoot}"
 			],
 			"sourceMaps": true,
-			"outDir": "./out"
+			"outDir": "./out",
+            "preLaunchTask": "build"
 		},
 		{
 			"name": "mock-debug server",
@@ -41,7 +42,8 @@
 				"--colors"
 			],
 			"sourceMaps": true,
-			"outDir": "./out/"
+			"outDir": "./out/",
+            "preLaunchTask": "build"
 		}
 	]
 }

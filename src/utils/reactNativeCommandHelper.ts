@@ -6,9 +6,9 @@ import * as os from 'os';
 import {window} from 'vscode';
 
 export class ReactNativeCommandHelper {
-    private static CORDOVA_CMD_NAME = "react-native";
+    private static CORDOVA_CMD_NAME = 'react-native';
 
     public static executeReactNativeCommand(projectRoot: string, command: string) {
-        
+
     }
 }

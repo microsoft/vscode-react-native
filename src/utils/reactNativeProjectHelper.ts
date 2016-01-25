@@ -3,5 +3,5 @@
 
 import * as Q from 'q';
 
-export class ReactNativeProjectHelper {    
+export class ReactNativeProjectHelper {
 }

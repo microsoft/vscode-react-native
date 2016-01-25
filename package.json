@@ -44,10 +44,11 @@
         ],
         "debuggers": [
             {
-                "type": "node",
+                "type": "reactnative",
                 "enableBreakpointsFor": {
                     "languageIds": [
                         "javascript",
+                        "javascriptreact",
                         "typescript",
                         "typescriptreact"
                     ]
@@ -56,16 +57,8 @@
 
                 "initialConfigurations": [
                     {
-						"program": "out/launch-react-native.js",
+                        "program": "${workspaceRoot}/.vscode/launch-react-native.js",
                         "name": "Run on Android",
-                        "type": "node",
-                        "request": "launch",
-                        "platform": "node",
-                        "target": "device",
-                        "sourceMaps": true
-                    },
-                    {
-                        "name": "Run on iOS",
                         "type": "node",
                         "request": "launch",
                         "platform": "node",
@@ -81,9 +74,9 @@
     },
     "dependencies": {
         "ios-sim": "^5.0.6",
+        "lodash": "~4.0.0",
+        "plist-with-patches": "^0.5.1",
         "q": "^1.4.1",
-        "react-native": "^0.18.0",
-        "request": "^2.67.0",
         "shelljs": "^0.5.3",
         "vscode": "^0.10.7",
         "websocket": "^1.0.22"
@@ -97,11 +90,8 @@
         "gulp-util": "^3.0.5",
         "mocha": "^2.3.3",
         "mockery": "^1.4.0",
-        "rimraf": "^2.5.0",
         "should": "^4.6.5",
         "sinon": "^1.17.2",
-        "tslint": "^2.5.1",
-        "typescript": "^1.6.2",
-        "vscode": "0.10.x"
+        "tslint": "^2.5.1"
     }
 }
