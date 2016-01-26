@@ -37,6 +37,9 @@ gulp.task('default', ['build']);
 var lintSources = [
     'src',
 ].map(function(tsFolder) { return tsFolder + '/**/*.ts'; });
+lintSources = lintSources.concat([
+    '!src/typings/**'
+]);
 
 var tslint = require('gulp-tslint');
 gulp.task('tslint', function(){
