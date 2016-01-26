@@ -17,7 +17,7 @@ function dropDebuggerStub(): void {
     Q.nfcall(fs.stat, vscodeFolder).then((stat: fs.Stats) => {
         if (stat && !stat.isDirectory()) {
             // .vscode exists but is not a folder: bail out
-            throw new Error("Warning: Expected .vscode to be a folder. Debugging requires manual intervention.");
+            throw new Error('Warning: Expected .vscode to be a folder. Debugging requires manual intervention.');
         }
     }, (err: Error & {code: string}) => {
         if (err && err.code === 'ENOENT') {
@@ -30,14 +30,16 @@ function dropDebuggerStub(): void {
         // At this point, .vscode folder exists and is a folder
         return Q.nfcall(fs.stat, debugStub).then((stat: fs.Stats) => {
             if (!stat.isFile()) {
-                throw Error("Error: Expected .vscode/launchReactNative.js to be a file");
+                throw Error('Error: Expected .vscode/launchReactNative.js to be a file');
             }
             // File exists: lets leave it there and assume it was created by us
         }, (err: Error & {code: string}) => {
             if (err && err.code === 'ENOENT') {
                 fs.writeFileSync(debugStub, debuggerEntryCode);
+            } else {
+                throw err;
             }
-        })
+        });
     }).catch((err: Error) => {
         vscode.window.showErrorMessage(err.message);
     });
