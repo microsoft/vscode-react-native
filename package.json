@@ -45,15 +45,7 @@
         "debuggers": [
             {
                 "type": "reactnative",
-                "enableBreakpointsFor": {
-                    "languageIds": [
-                        "javascript",
-                        "javascriptreact",
-                        "typescript",
-                        "typescriptreact"
-                    ]
-                },
-
+                "label": "React Native",
 
                 "initialConfigurations": [
                     {
