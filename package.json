@@ -49,7 +49,7 @@
 
                 "initialConfigurations": [
                     {
-                        "program": "${workspaceRoot}/.vscode/launch-react-native.js",
+                        "program": "${workspaceRoot}/.vscode/launchReactNative.js",
                         "name": "Run on Android",
                         "type": "node",
                         "request": "launch",
@@ -65,13 +65,8 @@
         "start": "node node_modules/react-native/local-cli/cli.js start"
     },
     "dependencies": {
-        "ios-sim": "^5.0.6",
-        "lodash": "~4.0.0",
-        "plist-with-patches": "^0.5.1",
         "q": "^1.4.1",
-        "shelljs": "^0.5.3",
-        "vscode": "^0.10.7",
-        "websocket": "^1.0.22"
+        "vscode": "^0.10.7"
     },
     "devDependencies": {
         "gulp": "^3.9.0",
@@ -80,10 +75,6 @@
         "gulp-tslint": "^3.3.1",
         "gulp-typescript": "^2.8.0",
         "gulp-util": "^3.0.5",
-        "mocha": "^2.3.3",
-        "mockery": "^1.4.0",
-        "should": "^4.6.5",
-        "sinon": "^1.17.2",
         "tslint": "^2.5.1"
     }
 }

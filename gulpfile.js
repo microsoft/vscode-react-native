@@ -10,7 +10,6 @@ var ts = require('gulp-typescript');
 var log = require('gulp-util').log;
 var os = require('os');
 var path = require('path');
-var Q = require('q');
 
 var sources = [
     'src',
