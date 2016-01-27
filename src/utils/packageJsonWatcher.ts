@@ -9,14 +9,14 @@ import * as vscode from "vscode";
 import {FileSystemUtil} from "./fileSystemUtil";
 
 export class PackageJsonWatcher {
-    private filesystemWatcher: vscode.FileSystemWatcher;
+    private fileSystemWatcher: vscode.FileSystemWatcher;
     constructor() {
-        this.filesystemWatcher = vscode.workspace.createFileSystemWatcher("package.json");
+        this.fileSystemWatcher = vscode.workspace.createFileSystemWatcher("package.json");
     }
 
     public startWatching(): void {
-        this.filesystemWatcher.onDidChange((changeEvent: vscode.Uri) => this.configureReactNativeWorkspace());
-        this.filesystemWatcher.onDidCreate((changeEvent: vscode.Uri) => this.configureReactNativeWorkspace());
+        this.fileSystemWatcher.onDidChange((changeEvent: vscode.Uri) => this.configureReactNativeWorkspace());
+        this.fileSystemWatcher.onDidCreate((changeEvent: vscode.Uri) => this.configureReactNativeWorkspace());
         this.configureReactNativeWorkspace();
     }
 
