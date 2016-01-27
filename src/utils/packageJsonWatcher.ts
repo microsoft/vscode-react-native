@@ -6,6 +6,8 @@ import * as path from "path";
 import * as Q from "q";
 import * as vscode from "vscode";
 
+import {FileSystemUtil} from "./fileSystemUtil";
+
 export class PackageJsonWatcher {
     private filesystemWatcher: vscode.FileSystemWatcher;
     constructor() {
@@ -34,35 +36,13 @@ try {
         let vscodeFolder = path.join(vscode.workspace.rootPath, ".vscode");
         let debugStub = path.join(vscodeFolder, "launchReactNative.js");
 
-        Q.nfcall(fs.stat, vscodeFolder).then((stat: fs.Stats): any => {
-            if (stat && !stat.isDirectory()) {
-                // .vscode exists but is not a folder: bail out
-                throw new Error("Warning: Expected .vscode to be a folder. Debugging requires manual intervention.");
-            }
-        }, (err: Error & {code?: string}) => {
-            if (err && err.code === "ENOENT") {
-                // No .vscode folder: create one
-                return Q.nfcall(fs.mkdir, vscodeFolder);
-            } else {
-                throw err;
-            }
-        }).then(() => {
-            // At this point, .vscode folder exists and is a folder
-            return Q.nfcall(fs.stat, debugStub).then((stat: fs.Stats): any => {
-                if (!stat.isFile()) {
-                    throw Error("Error: Expected .vscode/launchReactNative.js to be a file");
-                }
-                // File exists: lets leave it there and assume it was created by us
-            }, (err: Error & {code?: string}) => {
-                if (err && err.code === "ENOENT") {
-                    return Q.nfcall(fs.writeFile, debugStub, debuggerEntryCode);
-                } else {
-                    throw err;
-                }
-            });
+        let fsUtil = new FileSystemUtil();
+
+        fsUtil.ensureDirectory(vscodeFolder).then(() => {
+            fsUtil.ensureFileWithContents(debugStub, debuggerEntryCode);
         }).catch((err: Error) => {
             vscode.window.showErrorMessage(err.message);
-        });
+        })
     }
 
     private configureReactNativeWorkspace(): void {
