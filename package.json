@@ -8,7 +8,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Microsoft/vscode-rnxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        "url": "https://github.com/Microsoft/vscode-react-native"
     },
     "engines": {
         "vscode": "^0.10.1"
@@ -18,9 +18,7 @@
         "Other"
     ],
     "activationEvents": [
-        "onLanguage:javascript",
-        "onLanguage:typescript",
-        "workspaceContains:config.xml"
+        "workspaceContains:package.json"
     ],
     "main": "./out/rn-extension",
     "contributes": {
@@ -50,12 +48,9 @@
                 "initialConfigurations": [
                     {
                         "program": "${workspaceRoot}/.vscode/launchReactNative.js",
-                        "name": "Run on Android",
+                        "name": "Launch app",
                         "type": "node",
-                        "request": "launch",
-                        "platform": "node",
-                        "target": "device",
-                        "sourceMaps": true
+                        "request": "launch"
                     }
                 ]
             }
