@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
-import * as path from "path";
 import * as Q from "q";
 
 export class FileSystemUtil {
@@ -15,7 +14,7 @@ export class FileSystemUtil {
                 throw new Error(`Expected ${dir} to be a directory`);
             }
         }, (err: Error & {code?: string}): Q.Promise<any> => {
-            if (err && err.code == "ENOENT") {
+            if (err && err.code === "ENOENT") {
                 return Q.nfcall(fs.mkdir, dir);
             } else {
                 throw err;
@@ -35,6 +34,6 @@ export class FileSystemUtil {
             } else {
                 throw err;
             }
-        })
+        });
     }
 }

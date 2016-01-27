@@ -22,7 +22,7 @@ gulp.task('build', function () {
     return tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(ts(tsProject))
-        .pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: 'file:///' + __dirname }))
+        .pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: 'file:///' + __dirname + '/src/' }))
         .pipe(gulp.dest('out'));
 });
 

@@ -21,7 +21,7 @@ export class PackageJsonWatcher {
     }
 
     private dropDebuggerStub(): void {
-        let debuggerEntryPath = require.resolve("../debugger/reactNative/reactNative");
+        let debuggerEntryPath = require.resolve("../debugger/debuggerEntry");
         // TODO: Update this stub to point to correct file/class once it is in
         const extensionVersionNumber = require("../../package.json").version;
         let debuggerEntryCode =
@@ -42,20 +42,20 @@ try {
             fsUtil.ensureFileWithContents(debugStub, debuggerEntryCode);
         }).catch((err: Error) => {
             vscode.window.showErrorMessage(err.message);
-        })
+        });
     }
 
     private configureReactNativeWorkspace(): void {
-        try {
-            let packageJsonPath = path.join(vscode.workspace.rootPath, "package.json");
-            let packageJsonContents = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+        let packageJsonPath = path.join(vscode.workspace.rootPath, "package.json");
+        Q.nfcall(fs.readFile, packageJsonPath, "utf-8").then((contents: string) => {
+            let packageJsonContents = JSON.parse(contents);
             if (packageJsonContents && packageJsonContents.dependencies
                 && "react-native" in packageJsonContents.dependencies) {
                 // Looks like a react native project: Set it up for debugging
                 this.dropDebuggerStub();
             }
-        } catch (e) {
-            // Project was malformed or not a react native project: do nothing.
-        }
+        }).catch(() => {});
+        // If the readFile fails, or the JSON.parse fails, then we ignore the exception
+        // and assume this is not a react-native project.
     }
 }
