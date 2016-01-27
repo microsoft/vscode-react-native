@@ -31,7 +31,7 @@ gulp.task('watch', ['build'], function(cb) {
     return gulp.watch(sources, ['build']);
 });
 
-gulp.task('default', ['build']);
+gulp.task('default', ['tslint', 'build']);
 
 var lintSources = [
     'src',
