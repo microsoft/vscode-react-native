@@ -8,7 +8,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Microsoft/vscode-rnxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        "url": "https://github.com/Microsoft/vscode-react-native"
     },
     "engines": {
         "vscode": "^0.10.1"
@@ -18,9 +18,7 @@
         "Other"
     ],
     "activationEvents": [
-        "onLanguage:javascript",
-        "onLanguage:typescript",
-        "workspaceContains:config.xml"
+        "workspaceContains:package.json"
     ],
     "main": "./out/rn-extension",
     "contributes": {
@@ -44,49 +42,27 @@
         ],
         "debuggers": [
             {
-                "type": "node",
-                "enableBreakpointsFor": {
-                    "languageIds": [
-                        "javascript",
-                        "typescript",
-                        "typescriptreact"
-                    ]
-                },
-
+                "type": "reactnative",
+                "label": "React Native",
 
                 "initialConfigurations": [
                     {
-						"program": "out/launch-react-native.js",
-                        "name": "Run on Android",
+                        "program": "${workspaceRoot}/.vscode/launchReactNative.js",
+                        "name": "Launch app",
                         "type": "node",
-                        "request": "launch",
-                        "platform": "node",
-                        "target": "device",
-                        "sourceMaps": true
-                    },
-                    {
-                        "name": "Run on iOS",
-                        "type": "node",
-                        "request": "launch",
-                        "platform": "node",
-                        "target": "device",
-                        "sourceMaps": true
+                        "request": "launch"
                     }
                 ]
             }
         ]
     },
     "scripts": {
-        "start": "node node_modules/react-native/local-cli/cli.js start"
+        "start": "node node_modules/react-native/local-cli/cli.js start",
+        "vscode:prepublish": "gulp"
     },
     "dependencies": {
-        "ios-sim": "^5.0.6",
         "q": "^1.4.1",
-        "react-native": "^0.18.0",
-        "request": "^2.67.0",
-        "shelljs": "^0.5.3",
-        "vscode": "^0.10.7",
-        "websocket": "^1.0.22"
+        "vscode": "^0.10.7"
     },
     "devDependencies": {
         "gulp": "^3.9.0",
@@ -95,13 +71,7 @@
         "gulp-tslint": "^3.3.1",
         "gulp-typescript": "^2.8.0",
         "gulp-util": "^3.0.5",
-        "mocha": "^2.3.3",
-        "mockery": "^1.4.0",
-        "rimraf": "^2.5.0",
-        "should": "^4.6.5",
-        "sinon": "^1.17.2",
         "tslint": "^2.5.1",
-        "typescript": "^1.6.2",
-        "vscode": "0.10.x"
+        "vsce": "^1.0.0"
     }
 }
