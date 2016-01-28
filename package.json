@@ -47,10 +47,18 @@
 
                 "initialConfigurations": [
                     {
+                        "name": "Debug Android",
                         "program": "${workspaceRoot}/.vscode/launchReactNative.js",
-                        "name": "Launch app",
                         "type": "node",
-                        "request": "launch"
+                        "request": "launch",
+                        "args": ["android"]
+                    },
+                    {
+                        "name": "Debug iOS",
+                        "program": "${workspaceRoot}/.vscode/launchReactNative.js",
+                        "type": "node",
+                        "request": "launch",
+                        "args": ["ios"]
                     }
                 ]
             }
@@ -72,6 +80,10 @@
         "gulp-typescript": "^2.8.0",
         "gulp-util": "^3.0.5",
         "tslint": "^2.5.1",
-        "vsce": "^1.0.0"
+        "vsce": "^1.0.0",
+        "run-sequence": "^1.1.5",
+        "websocket": "^1.0.22",
+        "lodash": "^4.0.1",
+        "request":"^2.69.0"
     }
 }
