@@ -40,8 +40,10 @@ export class ScriptImporter {
             if (sourceMappingUrl) {
                 /* handle source map - request it and store it locally */
                 return this.writeSourceMap(sourceMappingUrl, scriptUrl)
-                    .then(() => { scriptBody = this.updateScriptPaths(scriptBody, sourceMappingUrl); })
-                    .then(() => this.writeScript(scriptBody, scriptUrl))
+                    .then(() => {
+                        scriptBody = this.updateScriptPaths(scriptBody, sourceMappingUrl);
+                        return this.writeScript(scriptBody, scriptUrl);
+                    })
                     .then((scriptFilePath: string) => this.runScript(scriptBody, scriptFilePath));
             } else {
                 /* source map not specified - write the source file as is */

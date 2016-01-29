@@ -47,7 +47,7 @@ export class PlatformResolver {
                 let android = require("./androidPlatform");
                 return new android.AndroidPlatform();
             default:
-                throw new RangeError("The platform <" + mobilePlatformString + "> is not a valid react-native platform.");
+                return null;
         }
     }
 }

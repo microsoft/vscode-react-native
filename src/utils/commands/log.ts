@@ -30,7 +30,7 @@ export class Log {
     /**
      * Logs an error message to the console.
      */
-    public static logError(message: string, error: any) {
+    public static logError(message: string, error?: any) {
         console.error(`${Log.TAG} ${message} ${Log.getErrorMessage(error)}`);
     }
 

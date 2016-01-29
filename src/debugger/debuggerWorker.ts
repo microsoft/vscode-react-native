@@ -45,7 +45,7 @@ export class DebuggerWorker {
     };
 
     private createSocket() {
-        this.ws = new DebuggerWebSocket("ws://" + Packager.HOST + "/debugger-proxy");
+        this.ws = new DebuggerWebSocket(`ws://${Packager.HOST}/debugger-proxy`);
 
         this.ws.onopen = () => {
             Log.logMessage("WebSocket connection opened");
