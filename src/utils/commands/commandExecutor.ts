@@ -12,7 +12,6 @@ interface Options {
 }
 
 export class CommandExecutor {
-    private log = new Log();
     private currentWorkingDirectory: string;
 
     constructor(currentWorkingDirectory: string) {
@@ -21,22 +20,22 @@ export class CommandExecutor {
 
     public execute(subject: string, command: string, options: Options = {}): Q.Promise<void> {
         // let outputChannel = vscode.window.createOutputChannel("React Native: " + subject);
-        this.log.commandStarted(command);
+        Log.commandStarted(command);
         // outputChannel.show();
         // let process = child_process.exec(command, {cwd: vscode.workspace.rootPath});
-        return new Node.ChildProcess().execToString(command, {  cwd: this.currentWorkingDirectory, env: options.env })
+        return new Node.ChildProcess().execToString(command, { cwd: this.currentWorkingDirectory, env: options.env })
             .then(stdout => {
-                console.log(stdout);
-                this.log.commandEnded(command);
+                Log.logMessage(stdout);
+                Log.commandEnded(command);
             },
-            reason => this.log.commandFailed(command, reason));
+            reason => Log.commandFailed(command, reason));
     }
 
     public spawn(subject: string, command: string, args: string[], options: Options = {}): Q.Promise<void> {
-        let spawnOptions = _.extend({}, {  cwd: this.currentWorkingDirectory }, options);
+        let spawnOptions = _.extend({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
 
-        this.log.commandStarted(commandWithArgs);
+        Log.commandStarted(commandWithArgs);
         let result = new Node.ChildProcess().spawn(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
@@ -48,9 +47,9 @@ export class CommandExecutor {
         });
 
         return result.outcome.then(() => {
-                this.log.commandEnded(commandWithArgs);
-            },
-            reason => this.log.commandFailed(commandWithArgs, reason));
+            Log.commandEnded(commandWithArgs);
+        },
+            reason => Log.commandFailed(commandWithArgs, reason));
     }
 
 }

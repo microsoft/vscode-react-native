@@ -4,6 +4,7 @@ let PACKAGER = "localhost:8081";
 
 import * as websocket from "websocket";
 import {ScriptImporter}  from "./scriptImporter";
+import {Log} from "../utils/commands/log";
 
 let DebuggerWebSocket = (<any>websocket).w3cwebsocket;
 
@@ -21,11 +22,11 @@ export class DebuggerWorker {
 
     private messageHandlers: any = {
         "prepareJSRuntime": function (message: any, cb: any) {
-            console.log("React Native worker got prepareJSRuntime");
+            Log.logMessage("React Native worker got prepareJSRuntime");
             cb();
         },
         "executeApplicationScript": (message: any, cb: any) => {
-            console.log("React Native worker got executeApplicationScript");
+            Log.logMessage("React Native worker got executeApplicationScript");
             /* tslint:disable:forin */
             for (let key in message.inject) {
             /* tslint:enable:forin */
@@ -51,10 +52,10 @@ export class DebuggerWorker {
         this.ws = new DebuggerWebSocket("ws://" + PACKAGER + "/debugger-proxy");
 
         this.ws.onopen = () => {
-            console.log("WebSocket connection opened");
+            Log.logMessage("WebSocket connection opened");
         };
         this.ws.onclose = () => {
-            console.log("WebSocket connection closed");
+            Log.logMessage("WebSocket connection closed");
             setTimeout(() => this.ws = this.createSocket(), 1000);
         };
 

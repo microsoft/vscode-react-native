@@ -13,11 +13,10 @@ interface IDebugStrategy {
 }
 
 /**
- * Dev-machine platform dependent packager strategy.
- * It contains all the platform specific, packager related operations.
+ * Dev-machine platform dependent packager options.
+ * It contains all the platform specific, packager related options.
  */
-interface IPackagerStrategy {
-    startIfNeeded(): Q.Promise<number>;
-    packagerStartExtraParameters(): string[];
-    executableName(): string;
+interface IPackagerOptions {
+    executableName: string;
+    packagerStartExtraParameters: string[];
 }

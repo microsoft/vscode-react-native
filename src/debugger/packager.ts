@@ -1,17 +1,13 @@
 import {Request} from "../utils/node/request";
 import {StopWatch} from "../utils/node/stopWatch";
 import {CommandExecutor} from "../utils/commands/commandExecutor";
+import {Log} from "../utils/commands/log";
 import * as Q from "q";
 import * as _ from "lodash";
 
-export interface IPackagerOptions {
-    executableName: string;
-    packagerStartExtraParameters: string[];
-}
-
 export class Packager {
     private projectPath: string;
-    private strategy = this.createStrategy();
+    private packagerOptions = this.getPackagerOptions();
 
     constructor(projectPath: string) {
         this.projectPath = projectPath;
@@ -42,23 +38,10 @@ export class Packager {
         return result.promise;
     }
 
-    private createStrategy(): IPackagerStrategy {
-        let platform = process.platform;
-        switch (platform) {
-            case "darwin":
-                let packagerOSXStrategy = require("./packagerOSXStrategy");
-                return new packagerOSXStrategy.PackagerOSXStrategy(this);
-            case "win32":
-            default:
-                // By default we use the windows strategy, which is more conservative
-                let packagerWindowsStrategy = require("./packagerWindowsStrategy");
-                return new packagerWindowsStrategy.PackagerWindowsStrategy(this);
-        }
-    }
 
     // TODO: Remove either the old or the new createStrategy version
     /* tslint:disable:no-unused-variable */
-    private createStrategyNew(): IPackagerOptions {
+    private getPackagerOptions(): IPackagerOptions {
         let platform = process.platform;
         switch (platform) {
             case "darwin":
@@ -75,17 +58,17 @@ export class Packager {
         this.status().done(status => {
             if (status !== "running") {
                 let mandatoryArgs = ["start"];
-                let args = mandatoryArgs.concat(this.strategy.packagerStartExtraParameters());
+                let args = mandatoryArgs.concat(this.packagerOptions.packagerStartExtraParameters);
                 let childEnv = _.extend({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
-                new CommandExecutor(this.projectPath).spawn("Packager", this.strategy.executableName(), args, { env: childEnv }).done();
+                new CommandExecutor(this.projectPath).spawn("Packager", this.packagerOptions.executableName, args, { env: childEnv }).done();
             }
         });
 
         return this.awaitStart().then(timeToStart => {
-            console.log("Packager was started after " + timeToStart + " secs");
+            Log.logMessage("Packager was started after " + timeToStart + " secs");
             return timeToStart;
         });
     }

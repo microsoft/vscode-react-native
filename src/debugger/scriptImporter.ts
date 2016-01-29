@@ -1,5 +1,6 @@
 import fs = require("fs");
 import http = require("http");
+import {Log} from "../utils/commands/log";
 import path = require("path");
 import Q = require("q");
 import request = require("request");
@@ -68,7 +69,7 @@ export class ScriptImporter {
 
                 // The next line converts to any due to the incorrect typing on node.d.ts of vm.runInThisContext
                 vm.runInThisContext(scriptBody, <any>{ filename: scriptFilePath });
-                console.log("Imported script at " + scriptUrl + " locally stored on " + this.bundleFolderPath);
+                Log.logMessage("Imported script at " + scriptUrl + " locally stored on " + this.bundleFolderPath);
             });
         });
     }
@@ -80,7 +81,7 @@ export class ScriptImporter {
     private scheduleTemporaryFileCleanUp(filename: string) {
         process.on("exit", function (){
             fs.unlinkSync(filename);
-            console.log("Succesfully cleaned temporary file: " + filename);
+            Log.logMessage("Succesfully cleaned temporary file: " + filename);
         });
     }
 
