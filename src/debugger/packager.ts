@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+
 import {PlatformResolver} from "./platformResolver";
 import {Request} from "../utils/node/request";
 import {StopWatch} from "../utils/node/stopWatch";

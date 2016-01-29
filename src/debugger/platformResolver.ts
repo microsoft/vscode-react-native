@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+
 /**
  * Contains all the mobile platform specific debugging operations.
  */
@@ -20,7 +23,6 @@ export class PlatformResolver {
      * Resolves the dev machine, desktop platform.
      */
     public resolveDesktopPlatform(): IDesktopPlatform {
-        /* tslint:disable:no-unused-variable */
         let platform = process.platform;
         switch (platform) {
             case "darwin":
@@ -29,7 +31,6 @@ export class PlatformResolver {
             default:
                 return { packagerCommandName: "react-native.cmd", packagerStartExtraParameters: ["--nonPersistent"] };
         }
-        /* tslint:enable:no-unused-variable */
     }
 
     /**
