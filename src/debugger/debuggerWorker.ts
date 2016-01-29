@@ -1,14 +1,11 @@
-/// <reference path="../typings/vscode-react-native/vscode-react-native" />
-
 import * as websocket from "websocket";
 import {ScriptImporter}  from "./scriptImporter";
 import {Log} from "../utils/commands/log";
 import {Packager} from "./packager";
 
-let DebuggerWebSocket = (<any>websocket).w3cwebsocket;
+declare var __fbBatchedBridge: any;
 
-/* global __fbBatchedBridge */
-/* eslint no-unused-vars: 0 */
+let DebuggerWebSocket = (<any>websocket).w3cwebsocket;
 
 export class DebuggerWorker {
     private ws: any;

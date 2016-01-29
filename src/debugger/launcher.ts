@@ -1,5 +1,3 @@
-/// <reference path="../typings/vscode-react-native/vscode-react-native" />
-
 import * as Q from "q";
 import {DebuggerWorker} from "./debuggerWorker";
 import {Packager} from "./packager";

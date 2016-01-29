@@ -1,4 +1,21 @@
+/**
+ * Contains all the mobile platform specific debugging operations.
+ */
+export interface IMobilePlatform {
+    runApp(): Q.Promise<void>;
+    enableJSDebuggingMode(): Q.Promise<void>;
+}
+
+/**
+ * Contains all the desktop platform specific operations.
+ */
+export interface IDesktopPlatform {
+    packagerCommandName: string;
+    packagerStartExtraParameters: string[];
+}
+
 export class PlatformResolver {
+
     /**
      * Resolves the dev machine, desktop platform.
      */
@@ -14,7 +31,6 @@ export class PlatformResolver {
         }
         /* tslint:enable:no-unused-variable */
     }
-
 
     /**
      * Resolves the mobile application target platform.
@@ -33,5 +49,4 @@ export class PlatformResolver {
                 throw new RangeError("The platform <" + mobilePlatformString + "> is not a valid react-native platform.");
         }
     }
-
 }
