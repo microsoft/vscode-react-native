@@ -3,7 +3,6 @@
 
 import * as Q from "q";
 import {Node} from "../node/node";
-import * as _ from "lodash";
 import {Log} from "./log";
 
 interface EnvironmentOptions {
@@ -35,7 +34,7 @@ export class CommandExecutor {
     }
 
     public spawn(subject: string, command: string, args: string[], options: Options = {}): Q.Promise<void> {
-        let spawnOptions = _.extend({}, { cwd: this.currentWorkingDirectory }, options);
+        let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
 
         Log.commandStarted(commandWithArgs);

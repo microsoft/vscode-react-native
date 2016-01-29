@@ -7,12 +7,9 @@ import {StopWatch} from "../utils/node/stopWatch";
 import {CommandExecutor} from "../utils/commands/commandExecutor";
 import {Log} from "../utils/commands/log";
 import * as Q from "q";
-import * as _ from "lodash";
 
 export class Packager {
-    public static PROTOCOL = "http://";
     public static HOST = "localhost:8081";
-
     private projectPath: string;
 
     constructor(projectPath: string) {
@@ -20,7 +17,7 @@ export class Packager {
     }
 
     private isRunning(): Q.Promise<boolean> {
-        let statusURL = Packager.PROTOCOL + Packager.HOST + "/status";
+        let statusURL = `http://${Packager.HOST}/status`;
 
         return new Request().request(statusURL)
             .then((body: string) => {
@@ -58,7 +55,7 @@ export class Packager {
             if (running) {
                 let mandatoryArgs = ["start"];
                 let args = mandatoryArgs.concat(desktopPlatform.packagerStartExtraParameters);
-                let childEnv = _.extend({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
+                let childEnv = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish

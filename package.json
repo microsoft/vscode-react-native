@@ -83,7 +83,6 @@
         "vsce": "^1.0.0",
         "run-sequence": "^1.1.5",
         "websocket": "^1.0.22",
-        "lodash": "^4.0.1",
         "request":"^2.69.0"
     }
 }

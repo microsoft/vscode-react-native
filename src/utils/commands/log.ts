@@ -9,29 +9,29 @@ export class Log {
     private static TAG: string = "[vscode-react-native]";
 
     public static commandStarted(command: string) {
-        Log.logMessage("Executing: " + command);
+        Log.logMessage(`Executing: ${command}`);
     }
 
     public static commandEnded(command: string) {
-        Log.logMessage("Finished executing: " + command + "\n");
+        Log.logMessage(`Finished executing: ${command}\n`);
     }
 
     public static commandFailed(command: string, error: any) {
-        Log.logError("Error while executing " + command + ": ", error);
+        Log.logError(`Error while executing: ${command}`, error);
     }
 
     /**
      * Logs a message to the console.
      */
     public static logMessage(message: string) {
-        console.log(Log.TAG + " " + message);
+        console.log(`${Log.TAG} ${message}`);
     }
 
     /**
      * Logs an error message to the console.
      */
-    public static logError(mssage: string, error: any) {
-        console.error(Log.TAG + " " + mssage + " " + Log.getErrorMessage(error));
+    public static logError(message: string, error: any) {
+        console.error(`${Log.TAG} ${message} ${Log.getErrorMessage(error)}`);
     }
 
     /**
