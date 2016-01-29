@@ -1,10 +1,9 @@
 /// <reference path="../typings/vscode-react-native/vscode-react-native" />
 
-let PACKAGER = "localhost:8081";
-
 import * as websocket from "websocket";
 import {ScriptImporter}  from "./scriptImporter";
 import {Log} from "../utils/commands/log";
+import {Packager} from "./packager";
 
 let DebuggerWebSocket = (<any>websocket).w3cwebsocket;
 
@@ -21,7 +20,7 @@ export class DebuggerWorker {
     }
 
     private messageHandlers: any = {
-        "prepareJSRuntime": function (message: any, cb: any) {
+        "prepareJSRuntime": function(message: any, cb: any) {
             Log.logMessage("React Native worker got prepareJSRuntime");
             cb();
         },
@@ -29,19 +28,19 @@ export class DebuggerWorker {
             Log.logMessage("React Native worker got executeApplicationScript");
             /* tslint:disable:forin */
             for (let key in message.inject) {
-            /* tslint:enable:forin */
+                /* tslint:enable:forin */
                 (<any>global)[key] = JSON.parse(message.inject[key]);
             }
             // importScripts(message.url, cb);
             new ScriptImporter(this.projectRootPath).import(message.url).done(() => cb());
         },
-        "executeBridgeJSCall": function (object: any, cb: any) {
+        "executeBridgeJSCall": function(object: any, cb: any) {
             // Other methods get called on the bridge
             let returnValue: any[][] = [[], [], [], [], []];
             try {
-            if (typeof __fbBatchedBridge === "object") {
-                returnValue = __fbBatchedBridge[object.method].apply(null, object.arguments);
-            }
+                if (typeof __fbBatchedBridge === "object") {
+                    returnValue = __fbBatchedBridge[object.method].apply(null, object.arguments);
+                }
             } finally {
                 cb(JSON.stringify(returnValue));
             }
@@ -49,7 +48,7 @@ export class DebuggerWorker {
     };
 
     private createSocket() {
-        this.ws = new DebuggerWebSocket("ws://" + PACKAGER + "/debugger-proxy");
+        this.ws = new DebuggerWebSocket("ws://" + Packager.HOST + "/debugger-proxy");
 
         this.ws.onopen = () => {
             Log.logMessage("WebSocket connection opened");

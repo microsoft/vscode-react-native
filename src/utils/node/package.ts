@@ -2,7 +2,6 @@ import {Node} from "../node/node";
 import * as pathModule from "path";
 
 export interface IPackageInformation {
-    // Note: We should add whatever properties we need here, as needed
     name: string;
 }
 

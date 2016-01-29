@@ -4,19 +4,17 @@
 declare var __fbBatchedBridge: any;
 
 /**
- * Mobile platform dependent strategy.
- * It contains all the platform specific debugging operations.
+ * Contains all the mobile platform specific debugging operations.
  */
-interface IDebugStrategy {
+interface IMobilePlatform {
     runApp(): Q.Promise<void>;
     enableJSDebuggingMode(): Q.Promise<void>;
 }
 
 /**
- * Dev-machine platform dependent packager options.
- * It contains all the platform specific, packager related options.
+ * Contains all the desktop platform specific operations.
  */
-interface IPackagerOptions {
-    executableName: string;
+interface IDesktopPlatform {
+    packagerCommandName: string;
     packagerStartExtraParameters: string[];
 }

@@ -1,3 +1,4 @@
+import {PlatformResolver} from "./platformResolver";
 import {Request} from "../utils/node/request";
 import {StopWatch} from "../utils/node/stopWatch";
 import {CommandExecutor} from "../utils/commands/commandExecutor";
@@ -6,22 +7,30 @@ import * as Q from "q";
 import * as _ from "lodash";
 
 export class Packager {
+    public static PROTOCOL = "http://";
+    public static HOST = "localhost:8081";
+
     private projectPath: string;
-    private packagerOptions = this.getPackagerOptions();
 
     constructor(projectPath: string) {
         this.projectPath = projectPath;
     }
 
-    private status(): Q.Promise<string> {
-        return new Request().request("http://localhost:8081/status").then(
-            (body: string) => { return body === "packager-status:running" ? "running" : "unrecognized"; },
-            (error: any) => { return "not_running"; });
+    private isRunning(): Q.Promise<boolean> {
+        let statusURL = Packager.PROTOCOL + Packager.HOST + "/status";
+
+        return new Request().request(statusURL)
+            .then((body: string) => {
+                return body === "packager-status:running";
+            },
+            (error: any) => {
+                return false;
+            });
     }
 
     private awaitUntilRunning(callback: () => void, millisecondsUntilRetry: number): void {
-        this.status().done(status => {
-            if (status === "running") {
+        this.isRunning().done(running => {
+            if (running) {
                 callback();
             } else {
                 setTimeout(() => this.awaitUntilRunning(callback, millisecondsUntilRetry), millisecondsUntilRetry);
@@ -38,32 +47,19 @@ export class Packager {
         return result.promise;
     }
 
-
-    // TODO: Remove either the old or the new createStrategy version
-    /* tslint:disable:no-unused-variable */
-    private getPackagerOptions(): IPackagerOptions {
-        let platform = process.platform;
-        switch (platform) {
-            case "darwin":
-                return { executableName: "react-native", packagerStartExtraParameters: []};
-            case "win32":
-            default:
-                return { executableName: "react-native.cmd", packagerStartExtraParameters: ["--nonPersistent"]};
-        }
-    }
-    /* tslint:enable:no-unused-variable */
-
     public start(): Q.Promise<number> {
+        let resolver = new PlatformResolver();
+        let desktopPlatform = resolver.resolveDesktopPlatform();
 
-        this.status().done(status => {
-            if (status !== "running") {
+        this.isRunning().done(running => {
+            if (running) {
                 let mandatoryArgs = ["start"];
-                let args = mandatoryArgs.concat(this.packagerOptions.packagerStartExtraParameters);
+                let args = mandatoryArgs.concat(desktopPlatform.packagerStartExtraParameters);
                 let childEnv = _.extend({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
-                new CommandExecutor(this.projectPath).spawn("Packager", this.packagerOptions.executableName, args, { env: childEnv }).done();
+                new CommandExecutor(this.projectPath).spawn("Packager", desktopPlatform.packagerCommandName, args, { env: childEnv }).done();
             }
         });
 
