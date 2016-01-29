@@ -1,9 +1,8 @@
 import fs = require("fs");
-import http = require("http");
 import {Log} from "../utils/commands/log";
 import path = require("path");
 import Q = require("q");
-import request = require("request");
+import {Request} from "../utils/node/request";
 import url = require("url");
 import vm = require("vm");
 
@@ -27,9 +26,42 @@ export class ScriptImporter {
         this.bundleFolderPath = path.join(this.projectRootPath, ".vscode");
     }
 
-    private fixSourceMap(sourceMapBody: string, generatedCodeFilePath: string): string {
+    public import(scriptUrlString: string): Q.Promise<void> {
+
+        // We'll get the source code, and store it locally to have a better debugging experience
+        return new Request().request(scriptUrlString, true).then(scriptBody => {
+            // Extract sourceMappingURL from body
+            let scriptUrl = url.parse(scriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
+            let sourceMappingUrl = this.getSourceMapURL(scriptUrl, scriptBody); // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
+
+            if (sourceMappingUrl) {
+                /* handle source map - request it and store it locally */
+                return this.writeSourceMap(sourceMappingUrl, scriptUrl)
+                    .then(() => { scriptBody = this.updateScriptPaths(scriptBody, sourceMappingUrl); })
+                    .then(() => this.writeScript(scriptBody, scriptUrl))
+                    .then((scriptFilePath: string) => this.runScript(scriptBody, scriptFilePath));
+            } else {
+                /* source map not specified - write the source file as is */
+                return this.writeScript(scriptBody, scriptUrl)
+                    .then((scriptFilePath: string) => this.runScript(scriptBody, scriptFilePath));
+            }
+        });
+    }
+
+    /**
+     * Updates source map URLs in the script body.
+     */
+    private updateScriptPaths(scriptBody: string, sourceMappingUrl: url.Url) {
+        // Update the body with the new location of the source map on storage.
+        return scriptBody.replace(/^\/\/# sourceMappingURL=(.*)$/m, "//# sourceMappingURL=" + path.basename(sourceMappingUrl.path));
+    }
+
+    /**
+     * Updates paths in souce maps - VS code requires forward slash paths.
+     */
+    private updateSourceMapPaths(sourceMapBody: string, generatedCodeFilePath: string): string {
         try {
-            let sourceMap = <ISourceMap> JSON.parse(sourceMapBody);
+            let sourceMap = <ISourceMap>JSON.parse(sourceMapBody);
             sourceMap.sources = sourceMap.sources.map(source => {
                 // Make all paths relative to the location of the source map
                 let relativeSourcePath = path.relative(this.bundleFolderPath, source);
@@ -46,64 +78,74 @@ export class ScriptImporter {
         }
     }
 
-    public import(scriptUrl: string): Q.Promise<void> {
+    /**
+     * Runs a script in the node context.
+     */
+    private runScript(code: string, fileName: string) {
+        // The next line converts to any due to the incorrect typing on node.d.ts of vm.runInThisContext
+        vm.runInThisContext(code, <any>{ filename: fileName });
+    }
 
-        // We'll get the source code, and store it locally to have a better debugging experience
-        return this.request(scriptUrl).then(scriptBody => {
-            // Extract sourceMappingURL from body
-            let parsedUrl = url.parse(scriptUrl); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
-            let sourceMappingRelativeUrl = this.sourceMapRelativeUrl(scriptBody); // sourceMappingRelativeUrl = "/index.ios.map?platform=ios&dev=true"
-            let sourceMappingUrl = parsedUrl.protocol + "//" + parsedUrl.host + sourceMappingRelativeUrl; // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
-
-            // We'll get the source map, and story it locally, so we can debug the original files instead of the bundle
-            return this.request(sourceMappingUrl).then(sourceMapBody => {
-                let sourceMappingRelativePath = url.parse(sourceMappingRelativeUrl).pathname.substr(1); // sourceMappingRelativePath = "index.ios.map?platform=ios&dev=true"
-                let sourceMappingLocalPath = path.join(this.bundleFolderPath, sourceMappingRelativePath); // sourceMappingLocalPath = "$TMPDIR/index.ios.map?platform=ios&dev=true"
-                let scriptFileRelativePath = path.basename(parsedUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
-                this.writeTemporaryFileSync(sourceMappingLocalPath, this.fixSourceMap(sourceMapBody, scriptFileRelativePath));
-                // Update the body with the new location of the source map on storage
-                scriptBody = scriptBody.replace(/^\/\/# sourceMappingURL=(.*)$/m, "//# sourceMappingURL=" + sourceMappingRelativePath);
-            }).then(() => { // TODO: Figure out how to handle the case that the source mapping fails.
-                let scriptFilePath = path.join(this.bundleFolderPath, parsedUrl.pathname); // scriptFilePath = "$TMPDIR/index.ios.bundle"
-                this.writeTemporaryFileSync(scriptFilePath, scriptBody);
-
-                // The next line converts to any due to the incorrect typing on node.d.ts of vm.runInThisContext
-                vm.runInThisContext(scriptBody, <any>{ filename: scriptFilePath });
-                Log.logMessage("Imported script at " + scriptUrl + " locally stored on " + this.bundleFolderPath);
-            });
+    /**
+     * Writes the script file to the project temporary location.
+     */
+    private writeScript(scriptBody: string, scriptUrl: url.Url): Q.Promise<String> {
+        return Q.fcall(() => {
+            let scriptFilePath = path.join(this.bundleFolderPath, scriptUrl.pathname); // scriptFilePath = "$TMPDIR/index.ios.bundle"
+            this.writeTemporaryFileSync(scriptFilePath, scriptBody);
+            Log.logMessage("Imported script at " + scriptUrl.path + " locally stored on " + scriptFilePath);
+            return scriptFilePath;
         });
+    }
+
+    /**
+     * Writes the source map file to the project temporary location.
+     */
+    private writeSourceMap(sourceMapUrl: url.Url, scriptUrl: url.Url): Q.Promise<void> {
+        return new Request().request(sourceMapUrl.href, true)
+            .then((sourceMapBody: string) => {
+                let sourceMappingLocalPath = path.join(this.bundleFolderPath, sourceMapUrl.path); // sourceMappingLocalPath = "$TMPDIR/index.ios.map?platform=ios&dev=true"
+                let scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
+                this.writeTemporaryFileSync(sourceMappingLocalPath, this.updateSourceMapPaths(sourceMapBody, scriptFileRelativePath));
+            });
+    }
+
+    /**
+     * Given a script body and URL, this method parses the body and finds the corresponding source map URL.
+     * If the source map URL is not found in the body in the expected form, null is returned.
+     */
+    private getSourceMapURL(scriptUrl: url.Url, scriptBody: string): url.Url {
+        let result: url.Url = null;
+
+        // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
+        let sourceMappingRelativeUrl = this.sourceMapRelativeUrl(scriptBody); // sourceMappingRelativeUrl = "/index.ios.map?platform=ios&dev=true"
+        if (sourceMappingRelativeUrl) {
+            let sourceMapUrlString = scriptUrl.protocol + "//" + scriptUrl.host + sourceMappingRelativeUrl; // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
+            result = url.parse(sourceMapUrlString);
+        }
+
+        return result;
+    }
+
+    /**
+     * Parses the body of a script searching for a source map URL.
+     * Returns the first match if found, null otherwise.
+     */
+    private sourceMapRelativeUrl(body: string) {
+        let match = body.match(/^\/\/# sourceMappingURL=(.*)$/m);
+        // If match is null, the body doesn't contain the source map
+        return match ? match[1] : null;
     }
 
     private writeTemporaryFileSync(filename: string, data: string) {
         fs.writeFileSync(filename, data);
         this.scheduleTemporaryFileCleanUp(filename);
     }
+
     private scheduleTemporaryFileCleanUp(filename: string) {
-        process.on("exit", function (){
+        process.on("exit", function() {
             fs.unlinkSync(filename);
             Log.logMessage("Succesfully cleaned temporary file: " + filename);
         });
-    }
-
-    private sourceMapRelativeUrl(body: any) {
-        let match = body.match(/^\/\/# sourceMappingURL=(.*)$/m);
-        // If match is null, the body doesn't contain the source map
-        return match ? match[1] : null;
-    }
-
-    private request(uri: string): Q.Promise<any> {
-        let result = Q.defer<any>();
-        request(uri, function (error: any, response: http.IncomingMessage, body: any) {
-            if (!error) {
-                if (response.statusCode === 200) {
-                    result.resolve(body);
-                } else {
-                    result.reject(body);
-                }
-            } else {
-                result.reject(error);
-            }
-        });
-        return result.promise;
     }
 }

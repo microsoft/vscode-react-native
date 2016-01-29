@@ -3,12 +3,16 @@ import http = require("http");
 import Q = require("q");
 
 export class Request {
-    public request(uri: string): Q.Promise<any> {
+    public request(uri: string, expectStatusOK = false): Q.Promise<any> {
         let result = Q.defer<any>();
 
-        request(uri, function (error: any, response: http.IncomingMessage, body: any) {
+        request(uri, function(error: any, response: http.IncomingMessage, body: any) {
             if (!error) {
-                result.resolve(body);
+                if (expectStatusOK && response.statusCode !== 200) {
+                    result.reject(body);
+                } else {
+                    result.resolve(body);
+                }
             } else {
                 result.reject(error);
             }
