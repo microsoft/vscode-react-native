@@ -43,7 +43,7 @@ export class PlatformResolver {
             // We lazyly load the strategies, because some components might be
             // missing on some platforms (like XCode in Windows)
             case "ios":
-                let ios = require("./iOSPlatform");
+                let ios = require("./ios/iOSPlatform");
                 return new ios.IOSPlatform();
             case "android":
                 let android = require("./androidPlatform");

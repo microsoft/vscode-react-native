@@ -43,7 +43,14 @@ export class Launcher {
                 .then(() => Q.delay(new DebuggerWorker(this.projectRootPath).start(), 3000)) // Start the worker
                 .then(() => mobilePlatform.enableJSDebuggingMode(runOptions))
                 .done(() => { }, reason => {
-                    Log.logError("Cannot debug application.", reason);
+                    Log.logError("Cannot debug application.");
+
+                    // Exec'd processes which fail return an {error, stderr} tuple, we only want to print the error here.
+                    if (reason.error) {
+                        Log.logError(reason.error);
+                    } else {
+                        Log.logError(reason);
+                    }
                 });
         }
     }
