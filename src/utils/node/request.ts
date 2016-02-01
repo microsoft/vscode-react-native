@@ -1,26 +1,28 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import request = require("request");
 import http = require("http");
 import Q = require("q");
 
 export class Request {
-    public request(uri: string, expectStatusOK = false): Q.Promise<any> {
-        let result = Q.defer<any>();
-
-        request(uri, function(error: any, response: http.IncomingMessage, body: any) {
-            if (!error) {
-                if (expectStatusOK && response.statusCode !== 200) {
-                    result.reject(body);
+    public request(url: string, expectStatusOK = false): Q.Promise<any> {
+        let deferred = Q.defer<string>();
+        let req = http.get(url, function(res) {
+            let responseString = "";
+            res.on("data", (data: Buffer) => {
+                responseString += data.toString();
+            });
+            res.on("end", () => {
+                if (expectStatusOK && res.statusCode !== 200) {
+                    deferred.reject(responseString);
                 } else {
-                    result.resolve(body);
+                    deferred.resolve(responseString);
                 }
-            } else {
-                result.reject(error);
-            }
+            });
         });
-
-        return result.promise;
+        req.on("error", (err: Error) => {
+            deferred.reject(err);
+        });
+        return deferred.promise;
     }
 }

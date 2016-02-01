@@ -13,8 +13,8 @@ export interface IMobilePlatform {
  * Contains all the desktop platform specific operations.
  */
 export interface IDesktopPlatform {
-    packagerCommandName: string;
-    packagerStartExtraParameters: string[];
+    reactNativeCommandName: string;
+    reactPackagerExtraParameters: string[];
 }
 
 export class PlatformResolver {
@@ -26,10 +26,10 @@ export class PlatformResolver {
         let platform = process.platform;
         switch (platform) {
             case "darwin":
-                return { packagerCommandName: "react-native", packagerStartExtraParameters: [] };
+                return { reactNativeCommandName: "react-native", reactPackagerExtraParameters: [] };
             case "win32":
             default:
-                return { packagerCommandName: "react-native.cmd", packagerStartExtraParameters: ["--nonPersistent"] };
+                return { reactNativeCommandName: "react-native.cmd", reactPackagerExtraParameters: ["--nonPersistent"] };
         }
     }
 

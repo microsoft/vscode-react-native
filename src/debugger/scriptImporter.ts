@@ -142,15 +142,20 @@ export class ScriptImporter {
         return match ? match[1] : null;
     }
 
-    private writeTemporaryFileSync(filename: string, data: string) {
-        fs.writeFileSync(filename, data);
-        this.scheduleTemporaryFileCleanUp(filename);
+    private writeTemporaryFileSync(filename: string, data: string): Q.Promise<void> {
+        let writeFile = Q.nfbind<void>(fs.writeFile);
+
+        return writeFile(filename, data)
+            .then(() => this.scheduleTemporaryFileCleanUp(filename));
     }
 
-    private scheduleTemporaryFileCleanUp(filename: string) {
+    private scheduleTemporaryFileCleanUp(filename: string): void {
         process.on("exit", function() {
-            fs.unlinkSync(filename);
-            Log.logMessage("Succesfully cleaned temporary file: " + filename);
+            let unlink = Q.nfbind<void>(fs.unlink);
+            unlink(filename)
+                .then(() => {
+                    Log.logMessage("Succesfully cleaned temporary file: " + filename);
+                });
         });
     }
 }

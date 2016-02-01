@@ -21,10 +21,7 @@ export class CommandExecutor {
     }
 
     public execute(subject: string, command: string, options: Options = {}): Q.Promise<void> {
-        // let outputChannel = vscode.window.createOutputChannel("React Native: " + subject);
         Log.commandStarted(command);
-        // outputChannel.show();
-        // let process = child_process.exec(command, {cwd: vscode.workspace.rootPath});
         return new Node.ChildProcess().execToString(command, { cwd: this.currentWorkingDirectory, env: options.env })
             .then(stdout => {
                 Log.logMessage(stdout);

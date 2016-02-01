@@ -9,7 +9,7 @@ export class Log {
     private static TAG: string = "[vscode-react-native]";
 
     public static commandStarted(command: string) {
-        Log.logMessage(`Executing: ${command}`);
+        Log.logMessage(`Executing command: ${command}`);
     }
 
     public static commandEnded(command: string) {
@@ -30,8 +30,11 @@ export class Log {
     /**
      * Logs an error message to the console.
      */
-    public static logError(message: string, error?: any) {
+    public static logError(message: string, error?: any, logStack = true) {
         console.error(`${Log.TAG} ${message} ${Log.getErrorMessage(error)}`);
+        if (logStack && error && (<Error>error).stack) {
+            console.error(`Stack: ${(<Error>error).stack}`);
+        }
     }
 
     /**

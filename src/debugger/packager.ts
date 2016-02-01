@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {PlatformResolver} from "./platformResolver";
+import {PromiseUtil} from "../utils/node/promise";
 import {Request} from "../utils/node/request";
-import {StopWatch} from "../utils/node/stopWatch";
 import {CommandExecutor} from "../utils/commands/commandExecutor";
 import {Log} from "../utils/commands/log";
 import * as Q from "q";
@@ -28,44 +28,29 @@ export class Packager {
             });
     }
 
-    private awaitUntilRunning(callback: () => void, millisecondsUntilRetry: number): void {
-        this.isRunning().done(running => {
-            if (running) {
-                callback();
-            } else {
-                setTimeout(() => this.awaitUntilRunning(callback, millisecondsUntilRetry), millisecondsUntilRetry);
-            }
-        }, reason => {
-            setTimeout(() => this.awaitUntilRunning(callback, millisecondsUntilRetry), millisecondsUntilRetry);
-        });
+    private awaitStart(retryCount = 10, delay = 1000): Q.Promise<void> {
+        let pu: PromiseUtil<void> = new PromiseUtil<void>();
+        return pu.retryAsync(this.start, this.isRunning, retryCount, delay, "Could not start the packager.");
     }
 
-    private awaitStart(millisecondsUntilRetry: number = 1000): Q.Promise<number> {
-        let result = Q.defer<number>();
-        let stopWatch = new StopWatch();
-        this.awaitUntilRunning(() => result.resolve(stopWatch.stopAsSeconds()), millisecondsUntilRetry);
-        return result.promise;
-    }
-
-    public start(): Q.Promise<number> {
+    public start(): Q.Promise<void> {
         let resolver = new PlatformResolver();
         let desktopPlatform = resolver.resolveDesktopPlatform();
 
         this.isRunning().done(running => {
-            if (running) {
+            if (!running) {
                 let mandatoryArgs = ["start"];
-                let args = mandatoryArgs.concat(desktopPlatform.packagerStartExtraParameters);
+                let args = mandatoryArgs.concat(desktopPlatform.reactPackagerExtraParameters);
                 let childEnv = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
-                new CommandExecutor(this.projectPath).spawn("Packager", desktopPlatform.packagerCommandName, args, { env: childEnv }).done();
+                new CommandExecutor(this.projectPath).spawn("Packager", desktopPlatform.reactNativeCommandName, args, { env: childEnv }).done();
             }
         });
 
-        return this.awaitStart().then(timeToStart => {
-            Log.logMessage("Packager was started after " + timeToStart + " secs");
-            return timeToStart;
+        return this.awaitStart().then(() => {
+            Log.logMessage("Packager started.");
         });
     }
 }
