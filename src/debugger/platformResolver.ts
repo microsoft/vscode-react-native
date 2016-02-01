@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import {IRunOptions} from "./launchArgs";
+
 /**
  * Contains all the mobile platform specific debugging operations.
  */
 export interface IMobilePlatform {
-    runApp(): Q.Promise<void>;
+    runApp(runOptions: IRunOptions): Q.Promise<void>;
     enableJSDebuggingMode(): Q.Promise<void>;
 }
 

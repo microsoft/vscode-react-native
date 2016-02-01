@@ -28,7 +28,7 @@ export class Packager {
             });
     }
 
-    private awaitStart(retryCount = 10, delay = 1000): Q.Promise<void> {
+    private awaitStart(retryCount = 30, delay = 2000): Q.Promise<void> {
         let pu: PromiseUtil<void> = new PromiseUtil<void>();
         return pu.retryAsync(this.start, this.isRunning, retryCount, delay, "Could not start the packager.");
     }
@@ -45,7 +45,7 @@ export class Packager {
 
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
-                new CommandExecutor(this.projectPath).spawn("Packager", desktopPlatform.reactNativeCommandName, args, { env: childEnv }).done();
+                new CommandExecutor(this.projectPath).spawn(desktopPlatform.reactNativeCommandName, args, { env: childEnv }).done();
             }
         });
 

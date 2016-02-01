@@ -20,7 +20,7 @@ export class CommandExecutor {
         this.currentWorkingDirectory = currentWorkingDirectory;
     }
 
-    public execute(subject: string, command: string, options: Options = {}): Q.Promise<void> {
+    public execute(command: string, options: Options = {}): Q.Promise<void> {
         Log.commandStarted(command);
         return new Node.ChildProcess().execToString(command, { cwd: this.currentWorkingDirectory, env: options.env })
             .then(stdout => {
@@ -30,7 +30,7 @@ export class CommandExecutor {
             reason => Log.commandFailed(command, reason));
     }
 
-    public spawn(subject: string, command: string, args: string[], options: Options = {}): Q.Promise<void> {
+    public spawn(command: string, args: string[], options: Options = {}): Q.Promise<void> {
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
 

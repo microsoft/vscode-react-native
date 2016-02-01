@@ -98,7 +98,7 @@ export class ScriptImporter {
         return Q.fcall(() => {
             let scriptFilePath = path.join(this.bundleFolderPath, scriptUrl.pathname); // scriptFilePath = "$TMPDIR/index.ios.bundle"
             this.writeTemporaryFileSync(scriptFilePath, scriptBody);
-            Log.logMessage("Imported script at " + scriptUrl.path + " locally stored on " + scriptFilePath);
+            // Log.logMessage("Imported script at " + scriptUrl.path + " locally stored on " + scriptFilePath);
             return scriptFilePath;
         });
     }
@@ -125,8 +125,11 @@ export class ScriptImporter {
         // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
         let sourceMappingRelativeUrl = this.sourceMapRelativeUrl(scriptBody); // sourceMappingRelativeUrl = "/index.ios.map?platform=ios&dev=true"
         if (sourceMappingRelativeUrl) {
-            let sourceMapUrlString = scriptUrl.protocol + "//" + scriptUrl.host + sourceMappingRelativeUrl; // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
-            result = url.parse(sourceMapUrlString);
+            let sourceMappingUrl = url.parse(sourceMappingRelativeUrl);
+            sourceMappingUrl.protocol = scriptUrl.protocol;
+            sourceMappingUrl.host = scriptUrl.host;
+            // parse() repopulates all the properties of the URL
+            result = url.parse(url.format(sourceMappingUrl));
         }
 
         return result;
