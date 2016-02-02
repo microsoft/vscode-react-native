@@ -52,7 +52,9 @@
                         "request": "launch",
                         "args": [
                             "android"
-                        ]
+                        ],
+                        "sourceMaps": true,
+                        "outDir": "${workspaceRoot}/.vscode/"
                     },
                     {
                         "name": "Debug iOS",
@@ -61,7 +63,9 @@
                         "request": "launch",
                         "args": [
                             "ios"
-                        ]
+                        ],
+                        "sourceMaps": true,
+                        "outDir": "${workspaceRoot}/.vscode/"
                     }
                 ]
             }
