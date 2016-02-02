@@ -27,10 +27,10 @@ interface ISpawnOptions {
 }
 
 interface ISpawnResult {
+    spawnedProcess: child_process.ChildProcess;
     stdin: any;
     stdout: any;
     stderr: any;
-    spawnedProcess: child_process.ChildProcess;
     outcome: Q.Promise<number>;
 }
 

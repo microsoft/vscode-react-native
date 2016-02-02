@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
+import {ChildProcess} from "child_process";
 import {Log} from "./log";
 import {Node} from "../node/node";
 import {OutputChannel} from "vscode";
+import * as Q from "q";
 
 interface EnvironmentOptions {
     REACT_DEBUGGER?: string;
@@ -31,13 +32,12 @@ export class CommandExecutor {
             reason => Log.commandFailed(command, reason));
     }
 
-    public spawn(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<void> {
+    public spawn(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
 
         if (outputChannel) {
-            let commandExecuted = command + " " + args.concat(" ");
-            outputChannel.appendLine("######### Executing: " + commandExecuted + " ##########");
+            outputChannel.appendLine("######### Executing: " + commandWithArgs + " ##########");
             outputChannel.show();
         }
 
@@ -60,10 +60,14 @@ export class CommandExecutor {
             }
         });
 
-        return result.outcome.then(() => {
+        result.outcome.then(() => {
             Log.commandEnded(commandWithArgs);
         },
-            reason => Log.commandFailed(commandWithArgs, reason));
+        (reason) => {
+            Log.commandFailed(commandWithArgs, reason)
+        });
+
+        return Q.resolve(result.spawnedProcess);
     }
 
 }
