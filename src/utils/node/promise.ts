@@ -6,7 +6,7 @@ import * as Q from "q";
 /**
  * Utilities for working with promises.
  */
-export class PromiseUtil<T> {
+export class PromiseUtil {
     /**
      * Retries an operation a given number of times. For each retry, a condition is checked.
      * If the condition is not satisfied after the maximum number of retries, and error is thrown.

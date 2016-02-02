@@ -28,8 +28,8 @@ export class Packager {
             });
     }
 
-    private awaitStart(retryCount = 30, delay = 2000): Q.Promise<void> {
-        let pu: PromiseUtil<void> = new PromiseUtil<void>();
+    private awaitStart(retryCount = 30, delay = 2000): Q.Promise<boolean> {
+        let pu: PromiseUtil = new PromiseUtil();
         return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, "Could not start the packager.");
     }
 
