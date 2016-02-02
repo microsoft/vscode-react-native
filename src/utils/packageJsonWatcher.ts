@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as fs from "fs";
 import * as path from "path";
-import * as Q from "q";
 import * as vscode from "vscode";
-
-import {FileSystem} from "../utils/node/fileSystem";
+import {Package} from "./node/package";
+import {FileSystem} from "./node/fileSystem";
 
 export class PackageJsonWatcher {
     private fileSystemWatcher: vscode.FileSystemWatcher;
@@ -45,16 +43,14 @@ try {
     }
 
     private configureReactNativeWorkspace(): void {
-        let packageJsonPath = path.join(vscode.workspace.rootPath, "package.json");
-        Q.nfcall(fs.readFile, packageJsonPath, "utf-8").then((contents: string) => {
-            let packageJsonContents = JSON.parse(contents);
-            if (packageJsonContents && packageJsonContents.dependencies
-                && "react-native" in packageJsonContents.dependencies) {
+        let currentPackage = new Package(vscode.workspace.rootPath);
+        currentPackage.dependencies().then(dependencies => {
+            if (dependencies && "react-native" in dependencies) {
                 // Looks like a react native project: Set it up for debugging
                 this.dropDebuggerStub();
             }
-        }).catch(() => {});
+        }).catch(() => { });
         // If the readFile fails, or the JSON.parse fails, then we ignore the exception
-        // and assume this is not a react-native project.
+        // and assume this is not a react-native project.;
     }
 }
