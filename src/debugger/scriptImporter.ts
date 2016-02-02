@@ -58,7 +58,7 @@ export class ScriptImporter {
      */
     private updateScriptPaths(scriptBody: string, sourceMappingUrl: url.Url) {
         // Update the body with the new location of the source map on storage.
-        return scriptBody.replace(/^\/\/# sourceMappingURL=(.*)$/m, "//# sourceMappingURL=" + path.basename(sourceMappingUrl.path));
+        return scriptBody.replace(/^\/\/# sourceMappingURL=(.*)$/m, "//# sourceMappingURL=" + path.basename(sourceMappingUrl.pathname));
     }
 
     /**
@@ -109,7 +109,7 @@ export class ScriptImporter {
     private writeSourceMap(sourceMapUrl: url.Url, scriptUrl: url.Url): Q.Promise<void> {
         return new Request().request(sourceMapUrl.href, true)
             .then((sourceMapBody: string) => {
-                let sourceMappingLocalPath = path.join(this.bundleFolderPath, sourceMapUrl.path); // sourceMappingLocalPath = "$TMPDIR/index.ios.map?platform=ios&dev=true"
+                let sourceMappingLocalPath = path.join(this.bundleFolderPath, sourceMapUrl.pathname); // sourceMappingLocalPath = "$TMPDIR/index.ios.map"
                 let scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
                 this.writeTemporaryFileSync(sourceMappingLocalPath, this.updateSourceMapPaths(sourceMapBody, scriptFileRelativePath));
             });

@@ -8,7 +8,7 @@ import {IRunOptions} from "./launchArgs";
  */
 export interface IMobilePlatform {
     runApp(runOptions: IRunOptions): Q.Promise<void>;
-    enableJSDebuggingMode(): Q.Promise<void>;
+    enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void>;
 }
 
 /**

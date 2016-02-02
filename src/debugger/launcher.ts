@@ -41,7 +41,7 @@ export class Launcher {
                 .then(() => Q.delay(new Packager(this.projectRootPath).start(), 3000))
                 .then(() => Q.delay(mobilePlatform.runApp(runOptions), 3000))
                 .then(() => Q.delay(new DebuggerWorker(this.projectRootPath).start(), 3000)) // Start the worker
-                .then(() => mobilePlatform.enableJSDebuggingMode())
+                .then(() => mobilePlatform.enableJSDebuggingMode(runOptions))
                 .done(() => { }, reason => {
                     Log.logError("Cannot debug application.", reason);
                 });
