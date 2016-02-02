@@ -16,12 +16,12 @@ export function activate(context: vscode.ExtensionContext): void {
     // TODO: Change to a foreach if this implementation is appropriate
     // Register react native commands
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
-        () => ReactNativeCommandHelper.executeReactNativeCommand(vscode.workspace.rootPath, "runAndroid")));
+        () => ReactNativeCommandHelper.executeReactNativeCommand(vscode.workspace.rootPath, "run-android")));
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runIos",
-        () => ReactNativeCommandHelper.executeReactNativeCommand(vscode.workspace.rootPath, "runIos")));
+        () => ReactNativeCommandHelper.executeReactNativeCommand(vscode.workspace.rootPath, "run-ios")));
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.startPackager",
-        () => ReactNativeCommandHelper.executeReactNativeCommand(vscode.workspace.rootPath, "startPackager")));
+        () => ReactNativeCommandHelper.startPackager(vscode.workspace.rootPath)));
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.stopPackager",
-        () => ReactNativeCommandHelper.executeReactNativeCommand(vscode.workspace.rootPath, "stopPackager")));
+        () => ReactNativeCommandHelper.stopPackager(vscode.workspace.rootPath)));
 
 }

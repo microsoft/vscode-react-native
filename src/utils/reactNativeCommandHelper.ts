@@ -1,13 +1,34 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as child_process from "child_process";
+import {CommandExecutor} from "./commands/commandExecutor";
+import {PlatformResolver} from "./../debugger/platformResolver";
 
 export class ReactNativeCommandHelper {
-    private static CMD_NAME = "react-native";
+    public static executeReactNativeCommand(projectRoot: string, command: string): void {
+        let resolver = new PlatformResolver();
+        let desktopPlatform = resolver.resolveDesktopPlatform();
 
-    public static executeReactNativeCommand(projectRoot: string, command: string): child_process.ChildProcess {
-        // TODO: Update this to do more useful error checking
-        return child_process.spawn(ReactNativeCommandHelper.CMD_NAME, [command], {cwd: projectRoot});
+        // The packager will continue running while we debug the application, so we can"t
+        // wait for this command to finish
+        return new CommandExecutor(projectRoot).spawn(desktopPlatform.reactNativeCommandName, [command]).done();
+    }
+
+    public static startPackager(projectRoot: string): void {
+        let resolver = new PlatformResolver();
+        let desktopPlatform = resolver.resolveDesktopPlatform();
+
+        // The packager will continue running while we debug the application, so we can"t
+        // wait for this command to finish
+        return new CommandExecutor(projectRoot).spawn(desktopPlatform.reactNativeCommandName, ["start"]).done();
+    }
+
+    public static stopPackager(projectRoot: string): void {
+        let resolver = new PlatformResolver();
+        let desktopPlatform = resolver.resolveDesktopPlatform();
+
+        // The packager will continue running while we debug the application, so we can"t
+        // wait for this command to finish
+        return new CommandExecutor(projectRoot).spawn(desktopPlatform.reactNativeCommandName, ["start"]).done();
     }
 }

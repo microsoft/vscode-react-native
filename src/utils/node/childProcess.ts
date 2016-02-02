@@ -30,6 +30,7 @@ interface ISpawnResult {
     stdin: any;
     stdout: any;
     stderr: any;
+    spawnedProcess: child_process.ChildProcess;
     outcome: Q.Promise<number>;
 }
 
@@ -65,9 +66,11 @@ export class ChildProcess {
             }
         });
 
-        return { stdin: spawnedProcess.stdin,
-             stdout: spawnedProcess.stdout,
+        return {
+              spawnedProcess: spawnedProcess,
+              stdin: spawnedProcess.stdin,
+              stdout: spawnedProcess.stdout,
               stderr: spawnedProcess.stderr,
-               outcome: outcome.promise };
+              outcome: outcome.promise };
     }
 }

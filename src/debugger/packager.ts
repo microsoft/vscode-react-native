@@ -33,6 +33,11 @@ export class Packager {
         return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, "Could not start the packager.");
     }
 
+    /*private awaitStop(retryCount = 30, delay = 2000): Q.Promise<void> {
+        let pu: PromiseUtil<void> = new PromiseUtil<void>();
+        return pu.retryAsync(this.stop, !this.isRunning, retryCount, delay, "Could not start the packager.");
+    }*/
+
     public start(): Q.Promise<void> {
         let resolver = new PlatformResolver();
         let desktopPlatform = resolver.resolveDesktopPlatform();
