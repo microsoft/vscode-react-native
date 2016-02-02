@@ -59,9 +59,11 @@ export class ChildProcess {
         spawnedProcess.once("error", (error: any) => {
             outcome.reject({ error: error });
         });
-        spawnedProcess.once("end", (code: number) => {
+        spawnedProcess.once("exit", (code: number) => {
             if (code === 0) {
                 outcome.resolve(code);
+            } else {
+                outcome.reject({error: code});
             }
         });
 
