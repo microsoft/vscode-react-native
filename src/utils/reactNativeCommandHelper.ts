@@ -3,15 +3,15 @@
 
 import {CommandExecutor} from "./commands/commandExecutor";
 import {PlatformResolver} from "./../debugger/platformResolver";
+import {window} from "vscode";
 
 export class ReactNativeCommandHelper {
     public static executeReactNativeCommand(projectRoot: string, command: string): void {
         let resolver = new PlatformResolver();
         let desktopPlatform = resolver.resolveDesktopPlatform();
 
-        // The packager will continue running while we debug the application, so we can"t
-        // wait for this command to finish
-        return new CommandExecutor(projectRoot).spawn(desktopPlatform.reactNativeCommandName, [command]).done();
+        // Invoke "react-native" with the command passed
+        return new CommandExecutor(projectRoot).spawn(desktopPlatform.reactNativeCommandName, [command], {}, window.createOutputChannel("React-Native")).done();
     }
 
     public static startPackager(projectRoot: string): void {

@@ -2,8 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
-import {Node} from "../node/node";
 import {Log} from "./log";
+import {Node} from "../node/node";
+import {OutputChannel} from "vscode";
 
 interface EnvironmentOptions {
     REACT_DEBUGGER?: string;
@@ -30,19 +31,33 @@ export class CommandExecutor {
             reason => Log.commandFailed(command, reason));
     }
 
-    public spawn(command: string, args: string[], options: Options = {}): Q.Promise<void> {
+    public spawn(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<void> {
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
+
+        if (outputChannel) {
+            let commandExecuted = command + " " + args.concat(" ");
+            outputChannel.appendLine("######### Executing: " + commandExecuted + " ##########");
+            outputChannel.show();
+        }
 
         Log.commandStarted(commandWithArgs);
         let result = new Node.ChildProcess().spawn(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
-            process.stdout.write(data);
+            if (outputChannel) {
+                outputChannel.append(data.toString());
+            } else {
+                process.stderr.write(data);
+            }
         });
 
         result.stdout.on("data", (data: Buffer) => {
-            process.stdout.write(data);
+            if (outputChannel) {
+                outputChannel.append(data.toString());
+            } else {
+                process.stdout.write(data);
+            }
         });
 
         return result.outcome.then(() => {
