@@ -6,7 +6,7 @@ import * as pathModule from "path";
 
 export interface IPackageInformation {
     name: string;
-    dependencies: Array<any>;
+    dependencies: { [name: string]: string };
 }
 
 export class Package {
@@ -33,9 +33,8 @@ export class Package {
                 packageInformation.name);
     }
 
-    public dependencies(): Q.Promise<Array<any>> {
+    public dependencies(): Q.Promise<{ [name: string]: string }> {
         return this.parsePackageInformation()
-            .then(packageInformation =>
-                packageInformation.dependencies);
+            .then(packageInformation => packageInformation.dependencies);
     }
 }
