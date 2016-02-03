@@ -13,11 +13,13 @@ export function activate(context: vscode.ExtensionContext): void {
     let currentPackage = new Package(vscode.workspace.rootPath);
      currentPackage.dependencies().then(dependencies => {
         if (dependencies && dependencies["react-native"]) {
-            // Looks like a react native project: Set it up for debugging
+            // We are in a React Native project
+            // Setup the debugger for the project
             setupReactNativeDebugger();
 
             let reactNativeCommandExecutor = new ReactNativeCommandExecutor(vscode.workspace.rootPath);
 
+            // Register React Native commands
             context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
             () => reactNativeCommandExecutor.executeReactNativeCommand("run-android")));
             context.subscriptions.push(vscode.commands.registerCommand("reactNative.runIos",
@@ -30,6 +32,10 @@ export function activate(context: vscode.ExtensionContext): void {
     }).catch(() => { });
 }
 
+/**
+ * Sets up the debugger for the React Native project by dropping
+ * the debugger stub into the workspace
+ */
 function setupReactNativeDebugger(): void {
     let launcherPath = require.resolve("./debugger/launcher");
     const extensionVersionNumber = require("../package.json").version;

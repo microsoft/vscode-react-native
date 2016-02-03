@@ -15,6 +15,10 @@ export class ReactNativeCommandExecutor {
         this.reactNativePackager = new Packager(workspaceRoot);
     }
 
+    /**
+     * Executes a react-native command
+     * {command} - the react-native command to be executed
+     */
     public executeReactNativeCommand(command: string): void {
         let resolver = new PlatformResolver();
         let desktopPlatform = resolver.resolveDesktopPlatform();
@@ -23,10 +27,16 @@ export class ReactNativeCommandExecutor {
         return new CommandExecutor(this.workspaceRoot).spawn(desktopPlatform.reactNativeCommandName, [command], {}, window.createOutputChannel("React-Native")).done();
     }
 
+    /**
+     * Starts the React Native packager
+     */
     public startPackager(): void {
         return this.reactNativePackager.start(true, window.createOutputChannel("React-Native")).done();
     }
 
+    /**
+     * Kills the React Native packager invoked by the extension's packager
+     */
     public stopPackager(): void {
         return this.reactNativePackager.stop(window.createOutputChannel("React-Native"));
     }

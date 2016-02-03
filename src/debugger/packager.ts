@@ -56,7 +56,7 @@ export class Packager {
                 let spawnOptions = skipDebuggerEnvSetup ? {} : { env: childEnvForDebugging };
                 new CommandExecutor(this.projectPath).spawn(desktopPlatform.reactNativeCommandName, args, spawnOptions).then((packagerProcess) => {
                     this.packagerProcess = packagerProcess;
-                });
+                }).done();
             }
         });
 
