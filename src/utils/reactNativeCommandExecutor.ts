@@ -24,7 +24,7 @@ export class ReactNativeCommandExecutor {
     }
 
     public startPackager(): void {
-        return this.reactNativePackager.start(false, window.createOutputChannel("React-Native")).done();
+        return this.reactNativePackager.start(true, window.createOutputChannel("React-Native")).done();
     }
 
     public stopPackager(): void {

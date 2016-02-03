@@ -36,7 +36,7 @@ export class Packager {
         return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, "Could not start the packager.");
     }
 
-    public start(setDebuggerEnv?: boolean, outputChannel?: OutputChannel): Q.Promise<void> {
+    public start(skipDebuggerEnvSetup?: boolean, outputChannel?: OutputChannel): Q.Promise<void> {
         let resolver = new PlatformResolver();
         let desktopPlatform = resolver.resolveDesktopPlatform();
 
@@ -53,7 +53,7 @@ export class Packager {
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
 
-                let spawnOptions = setDebuggerEnv ? { env: childEnvForDebugging } : {};
+                let spawnOptions = skipDebuggerEnvSetup ? {} : { env: childEnvForDebugging };
                 new CommandExecutor(this.projectPath).spawn(desktopPlatform.reactNativeCommandName, args, spawnOptions).then((packagerProcess) => {
                     this.packagerProcess = packagerProcess;
                 });

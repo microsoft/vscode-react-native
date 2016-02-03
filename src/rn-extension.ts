@@ -15,8 +15,6 @@ export function activate(context: vscode.ExtensionContext): void {
 
     let reactNativeCommandExecutor = new ReactNativeCommandExecutor(vscode.workspace.rootPath);
 
-    // TODO: Change to a foreach if this implementation is appropriate
-    // Register react native commands
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
         () => reactNativeCommandExecutor.executeReactNativeCommand("run-android")));
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runIos",
