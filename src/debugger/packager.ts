@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {PlatformResolver} from "./platformResolver";
+import {IDesktopPlatform} from "./platformResolver";
 import {PromiseUtil} from "../utils/node/promise";
 import {Request} from "../utils/node/request";
 import {CommandExecutor} from "../utils/commands/commandExecutor";
@@ -11,9 +11,11 @@ import * as Q from "q";
 export class Packager {
     public static HOST = "localhost:8081";
     private projectPath: string;
+    private desktopPlatform: IDesktopPlatform;
 
-    constructor(projectPath: string) {
+    constructor(projectPath: string, desktopPlatform: IDesktopPlatform) {
         this.projectPath = projectPath;
+        this.desktopPlatform = desktopPlatform;
     }
 
     private isRunning(): Q.Promise<boolean> {
@@ -34,18 +36,15 @@ export class Packager {
     }
 
     public start(): Q.Promise<void> {
-        let resolver = new PlatformResolver();
-        let desktopPlatform = resolver.resolveDesktopPlatform();
-
         this.isRunning().done(running => {
             if (!running) {
                 let mandatoryArgs = ["start"];
-                let args = mandatoryArgs.concat(desktopPlatform.reactPackagerExtraParameters);
+                let args = mandatoryArgs.concat(this.desktopPlatform.reactPackagerExtraParameters);
                 let childEnv = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
-                new CommandExecutor(this.projectPath).spawn(desktopPlatform.reactNativeCommandName, args, { env: childEnv }).done();
+                new CommandExecutor(this.projectPath).spawn(this.desktopPlatform.reactNativeCommandName, args, { env: childEnv }).done();
             }
         });
 

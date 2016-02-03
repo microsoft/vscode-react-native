@@ -33,24 +33,18 @@ export class Launcher {
     public launch() {
         let resolver = new PlatformResolver();
         let runOptions = this.parseRunOptions();
-        let mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
+        let desktopPlatform = resolver.resolveDesktopPlatform();
+        let mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform, desktopPlatform);
         if (!mobilePlatform) {
             Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
         } else {
             Q({})
-                .then(() => Q.delay(new Packager(this.projectRootPath).start(), 3000))
+                .then(() => Q.delay(new Packager(this.projectRootPath, desktopPlatform).start(), 3000))
                 .then(() => Q.delay(mobilePlatform.runApp(runOptions), 3000))
                 .then(() => Q.delay(new DebuggerWorker(this.projectRootPath).start(), 3000)) // Start the worker
                 .then(() => mobilePlatform.enableJSDebuggingMode(runOptions))
                 .done(() => { }, reason => {
-                    Log.logError("Cannot debug application.");
-
-                    // Exec'd processes which fail return an {error, stderr} tuple, we only want to print the error here.
-                    if (reason.error) {
-                        Log.logError(reason.error);
-                    } else {
-                        Log.logError(reason);
-                    }
+                    Log.logError("Cannot debug application.", reason);
                 });
         }
     }

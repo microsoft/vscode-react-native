@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as Q from "q";
 
-import {IOSUtils} from "./utils";
+import {PlistBuddy} from "./plistBuddy";
 import {Node} from "../../utils/node/node";
 import {Log} from "../../utils/commands/log";
 
@@ -19,7 +19,7 @@ export class SimulatorPlist {
     public findPlistFile(): Q.Promise<string> {
 
         return Q.all<any>([
-            new IOSUtils().getBundleId(this.projectRoot), // Find the name of the application
+            new PlistBuddy().getBundleId(this.projectRoot), // Find the name of the application
             new Node.ChildProcess().exec("xcrun simctl getenv booted HOME").outcome]) // Find the path of the simulator we are running
         .spread((bundleId: string, pathBuffer: Buffer) => {
             const pathBefore = path.join(pathBuffer.toString().trim(), "Containers", "Data", "Application");

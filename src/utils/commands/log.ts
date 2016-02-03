@@ -40,7 +40,7 @@ export class Log {
     /**
      * Gets the message of an error, if any. Otherwise it returns the empty string.
      */
-    public static getErrorMessage(e: Error): string {
-        return e && e.message || e && e.toString() || "";
+    public static getErrorMessage(e: any): string {
+        return e && e.message || e && e.error && e.error.message || e && e.toString() || "";
     }
 }
