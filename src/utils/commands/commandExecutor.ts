@@ -61,10 +61,18 @@ export class CommandExecutor {
         });
 
         result.outcome.then(() => {
-            Log.commandEnded(commandWithArgs);
+            if (outputChannel) {
+                outputChannel.appendLine("######### Finished executing: " + commandWithArgs + " ##########");
+            } else {
+                Log.commandEnded(commandWithArgs);
+            }
         },
         (reason) => {
-            Log.commandFailed(commandWithArgs, reason)
+            if (outputChannel) {
+                outputChannel.appendLine("######### Failed executing: " + commandWithArgs + " ##########");
+            } else {
+                Log.commandFailed(commandWithArgs, reason)
+            }
         });
 
         return Q.resolve(result.spawnedProcess);
