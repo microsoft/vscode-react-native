@@ -31,7 +31,7 @@ export class PlatformResolver {
                 return { reactNativeCommandName: "react-native", reactPackagerExtraParameters: [] };
             case "win32":
             default:
-                return { reactNativeCommandName: "react-native.cmd", reactPackagerExtraParameters: ["--nonPersistent"] };
+                return { reactNativeCommandName: "react-native.cmd", reactPackagerExtraParameters: [] };
         }
     }
 
@@ -43,11 +43,11 @@ export class PlatformResolver {
             // We lazyly load the strategies, because some components might be
             // missing on some platforms (like XCode in Windows)
             case "ios":
-                let ios = require("./iOSPlatform");
-                return new ios.IOSPlatform();
+                let ios = require("./ios/iOSPlatform");
+                return new ios.IOSPlatform(this.resolveDesktopPlatform());
             case "android":
-                let android = require("./androidPlatform");
-                return new android.AndroidPlatform();
+                let android = require("./android/androidPlatform");
+                return new android.AndroidPlatform(this.resolveDesktopPlatform());
             default:
                 return null;
         }

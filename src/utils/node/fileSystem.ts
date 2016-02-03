@@ -65,4 +65,18 @@ export class FileSystem {
 
         return contents.promise;
     }
+
+    public writeFile(filename: string, data: any): Q.Promise<void> {
+        let contents = Q.defer<void>();
+
+        fs.writeFile(filename, data, (err: NodeJS.ErrnoException) => {
+            if (err) {
+                contents.reject(err);
+            } else {
+                contents.resolve(null);
+            }
+        });
+
+        return contents.promise;
+    }
 }

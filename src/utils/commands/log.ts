@@ -28,6 +28,15 @@ export class Log {
     }
 
     /**
+     * Logs an internal message for when someone is debugging the extension itself.
+     * Customers aren't interested in these messages, so we normally shouldn't show
+     * them to them.
+     */
+    public static logInternalMessage(message: string) {
+        console.log(`${Log.TAG}[Internal] ${message}`);
+    }
+
+    /**
      * Logs an error message to the console.
      */
     public static logError(message: string, error?: any, logStack = true) {
