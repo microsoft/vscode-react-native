@@ -5,7 +5,7 @@ import * as path from "path";
 import * as Q from "q";
 
 import {CommandExecutor} from "../../utils/commands/commandExecutor";
-import {Node} from "../../utils/node/node";
+import {Xcodeproj} from "./xcodeproj";
 
 export class Compiler {
     private projectRoot: string;
@@ -29,8 +29,8 @@ export class Compiler {
         if (this.simulator) {
             return Q.reject<string[]>(new Error("Error: Compiling for simulator; should be using 'react-native run-ios' instead"));
         }
-        return new Node.FileSystem().findFileByExtension(path.join(this.projectRoot, "ios"), "xcodeproj").then((projectFile: string) => {
-            const projectName = path.basename(projectFile);
+        return new Xcodeproj().findXcodeprojFile(this.projectRoot).then((projectFile: string) => {
+            const projectName = path.basename(projectFile, path.extname(projectFile));
             return [
                 "-project", path.join(this.projectRoot, "ios", projectFile),
                 "-scheme", projectName,

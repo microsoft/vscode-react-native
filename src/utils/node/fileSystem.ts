@@ -67,13 +67,13 @@ export class FileSystem {
         return contents.promise;
     }
 
-    public findFileByExtension(folder: string, extension: string): Q.Promise<string> {
+    public findFilesByExtension(folder: string, extension: string): Q.Promise<string[]> {
         return Q.nfcall(fs.readdir, folder).then((files: string[]) => {
             const extFiles = files.filter((file: string) => path.extname(file) === `.${extension}`);
             if (extFiles.length === 0) {
                 throw new Error(`Unable to find any ${extension} files.`);
             }
-            return extFiles[0];
+            return extFiles;
         });
     }
 }

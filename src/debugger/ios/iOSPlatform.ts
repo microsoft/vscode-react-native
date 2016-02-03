@@ -3,6 +3,7 @@
 
 import * as Q from "q";
 
+import {Log} from "../../utils/commands/log";
 import {CommandExecutor} from "../../utils/commands/commandExecutor";
 import {IMobilePlatform, IDesktopPlatform} from "../platformResolver";
 import {Compiler} from "./compiler";
@@ -53,7 +54,7 @@ export class IOSPlatform implements IMobilePlatform {
         const simulatorTarget: string = launchArgs.target || IOSPlatform.simulatorString;
         if (simulatorTarget.toLowerCase() === IOSPlatform.deviceString) {
             // Note that currently we cannot automatically switch the device into debug mode.
-            console.log("Application is running on a device, please shake device and select 'Debug in Javascript' to enable debugging.");
+            Log.logMessage("Application is running on a device, please shake device and select 'Debug in Javascript' to enable debugging.");
             return Q.resolve<void>(void 0);
         }
 

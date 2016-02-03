@@ -5,12 +5,13 @@ import * as path from "path";
 import * as Q from "q";
 
 import {Node} from "../../utils/node/node";
+import {Xcodeproj} from "./xcodeproj";
 
 export class PlistBuddy {
     private static plistBuddyExecutable = "/usr/libexec/PlistBuddy";
 
     public getBundleId(projectRoot: string, simulator: boolean = true): Q.Promise<string> {
-        return new Node.FileSystem().findFileByExtension(path.join(projectRoot, "ios"), "xcodeproj").then((projectFile: string) => {
+        return new Xcodeproj().findXcodeprojFile(projectRoot).then((projectFile: string) => {
             const appName = path.basename(projectFile, path.extname(projectFile));
             const infoPlistPath = path.join(projectRoot, "ios", "build", "Build", "Products", simulator ? "Debug-iphonesimulator" : "Debug-iphoneos", `${appName}.app`, "Info.plist");
 
