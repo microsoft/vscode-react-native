@@ -3,10 +3,11 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "../utils/commands/commandExecutor";
+import {Log} from "../utils/commands/log";
+import {OutputChannel} from "vscode";
 import {PlatformResolver} from "./platformResolver";
 import {PromiseUtil} from "../utils/node/promise";
 import {Request} from "../utils/node/request";
-import {Log} from "../utils/commands/log";
 import * as Q from "q";
 
 export class Packager {
@@ -35,7 +36,7 @@ export class Packager {
         return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, "Could not start the packager.");
     }
 
-    public start(): Q.Promise<void> {
+    public start(setDebuggerEnv?: boolean, outputChannel?: OutputChannel): Q.Promise<void> {
         let resolver = new PlatformResolver();
         let desktopPlatform = resolver.resolveDesktopPlatform();
 
@@ -43,24 +44,45 @@ export class Packager {
             if (!running) {
                 let mandatoryArgs = ["start"];
                 let args = mandatoryArgs.concat(desktopPlatform.reactPackagerExtraParameters);
-                let childEnv = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
+                let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
+                if (outputChannel) {
+                    outputChannel.appendLine("######### Starting the Packager ##########");
+                    outputChannel.show();
+                }
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
-                new CommandExecutor(this.projectPath).spawn(desktopPlatform.reactNativeCommandName, args, { env: childEnv }).then((packagerProcess) => {
+
+                let spawnOptions = setDebuggerEnv ? { env: childEnvForDebugging } : {};
+                new CommandExecutor(this.projectPath).spawn(desktopPlatform.reactNativeCommandName, args, spawnOptions).then((packagerProcess) => {
                     this.packagerProcess = packagerProcess;
                 });
             }
         });
 
         return this.awaitStart().then(() => {
-            Log.logMessage("Packager started.");
+            if (outputChannel) {
+                outputChannel.appendLine("######### Packager started ##########");
+            } else {
+                Log.logMessage("Packager started.");
+            }
         });
     }
 
-    public stop(): void {
+    public stop(outputChannel?: OutputChannel): void {
+        if (outputChannel) {
+            outputChannel.appendLine("######### Stopping the Packager ##########");
+            outputChannel.show();
+        }
+
         if (this.packagerProcess) {
             this.packagerProcess.kill();
+        }
+
+        if (outputChannel) {
+            outputChannel.appendLine("######### Packager stopped ##########");
+        } else {
+            Log.logMessage("Packager stopped.");
         }
     }
 }

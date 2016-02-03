@@ -4,7 +4,7 @@
 import * as vscode from "vscode";
 
 import {PackageJsonWatcher} from "./utils/packageJsonWatcher";
-import {ReactNativeCommandHelper} from "./utils/reactNativeCommandHelper";
+import {ReactNativeCommandExecutor} from "./utils/reactNativeCommandExecutor";
 
 export function activate(context: vscode.ExtensionContext): void {
     // TODO:  Get the project root (vscode.workspace.rootPath) and return if it is not a react-native project
@@ -13,15 +13,16 @@ export function activate(context: vscode.ExtensionContext): void {
     let packageJsonWatcher = new PackageJsonWatcher();
     packageJsonWatcher.startWatching();
 
+    let reactNativeCommandExecutor = new ReactNativeCommandExecutor(vscode.workspace.rootPath);
+
     // TODO: Change to a foreach if this implementation is appropriate
     // Register react native commands
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
-        () => ReactNativeCommandHelper.executeReactNativeCommand(vscode.workspace.rootPath, "run-android")));
+        () => reactNativeCommandExecutor.executeReactNativeCommand("run-android")));
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runIos",
-        () => ReactNativeCommandHelper.executeReactNativeCommand(vscode.workspace.rootPath, "run-ios")));
+        () => reactNativeCommandExecutor.executeReactNativeCommand("run-ios")));
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.startPackager",
-        () => ReactNativeCommandHelper.startPackager(vscode.workspace.rootPath)));
+        () => reactNativeCommandExecutor.startPackager()));
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.stopPackager",
-        () => ReactNativeCommandHelper.stopPackager(vscode.workspace.rootPath)));
-
+        () => reactNativeCommandExecutor.stopPackager()));
 }
