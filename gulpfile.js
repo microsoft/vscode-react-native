@@ -12,9 +12,13 @@ var path = require('path');
 var runSequence = require("run-sequence");
 var ts = require('gulp-typescript');
 
+var srcPath = 'src';
+var outPath = 'out';
+var typingsPath = 'typings';
+
 var sources = [
-    'src',
-    'typings',
+    srcPath,
+    typingsPath,
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; })
     .concat(['test/*.ts']);
 
@@ -23,8 +27,8 @@ gulp.task('build', function () {
     return tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(ts(tsProject))
-        .pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: 'file:///' + __dirname + '/src/' }))
-        .pipe(gulp.dest('out'));
+        .pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: 'file:///' + __dirname + '/' + srcPath + '/' }))
+        .pipe(gulp.dest(outPath));
 });
 
 gulp.task('watch', ['build'], function (cb) {
@@ -33,11 +37,11 @@ gulp.task('watch', ['build'], function (cb) {
 });
 
 gulp.task('default', function (callback) {
-    runSequence("build", "tslint", callback);
+    runSequence("clean", "build", "tslint", callback);
 });
 
 var lintSources = [
-    'src',
+    srcPath,
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; });
 lintSources = lintSources.concat([
     '!src/typings/**'
@@ -59,4 +63,9 @@ gulp.task('test', test);
 
 gulp.task('watch-build-test', ['build', 'build-test'], function () {
     return gulp.watch(sources, ['build', 'build-test']);
+});
+
+gulp.task("clean", function () {
+    var del = require("del");
+    return del([outPath + "/**"], { force: true });
 });
