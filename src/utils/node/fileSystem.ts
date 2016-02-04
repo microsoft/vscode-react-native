@@ -3,6 +3,7 @@
 
 import * as fs from "fs";
 import * as Q from "q";
+import * as path from "path";
 
 export class FileSystem {
 
@@ -13,7 +14,7 @@ export class FileSystem {
             } else {
                 throw new Error(`Expected ${dir} to be a directory`);
             }
-        }, (err: Error & {code?: string}): Q.Promise<any> => {
+        }, (err: Error & { code?: string }): Q.Promise<any> => {
             if (err && err.code === "ENOENT") {
                 return Q.nfcall(fs.mkdir, dir);
             } else {
@@ -28,7 +29,7 @@ export class FileSystem {
                 throw new Error(`Expected ${file} to be a file`);
             }
             // The file already exists, assume the contents are good and do not touch it.
-        }, (err: Error & {code?: string}): Q.Promise<any> => {
+        }, (err: Error & { code?: string }): Q.Promise<any> => {
             if (err && err.code === "ENOENT") {
                 return Q.nfcall(fs.writeFile, file, contents);
             } else {
@@ -37,17 +38,72 @@ export class FileSystem {
         });
     }
 
-    public fileExistsSync(filename: string) {
+    /**
+     *  Helper function to check if a file or directory exists
+     */
+    public existsSync(filename: string) {
         try {
-            fs.lstatSync(filename);
+            fs.statSync(filename);
             return true;
         } catch (error) {
             return false;
         }
     }
 
+    /**
+     *  Helper (synchronous) function to create a directory recursively
+     */
+    public makeDirectoryRecursive(dirPath: string): void {
+        let parentPath = path.dirname(dirPath);
+        if (!this.existsSync(parentPath)) {
+            this.makeDirectoryRecursive(parentPath);
+        }
+
+        fs.mkdirSync(dirPath)
+    }
+
+    /**
+     *  Helper function to asynchronously copy a file
+     */
+    public static copyFile(from: string, to: string, encoding?: string): Q.Promise<any> {
+        var deferred: Q.Deferred<any> = Q.defer();
+        var destFile: fs.WriteStream = fs.createWriteStream(to, { encoding: encoding });
+        var srcFile: fs.ReadStream = fs.createReadStream(from, { encoding: encoding });
+        destFile.on("finish", function(): void {
+            deferred.resolve({});
+        });
+
+        destFile.on("error", function(e: Error): void {
+            deferred.reject(e);
+        });
+
+        srcFile.on("error", function(e: Error): void {
+            deferred.reject(e);
+        });
+
+        srcFile.pipe(destFile);
+        return deferred.promise;
+    }
+
+    /**
+     *  Helper function to get the target path for the type definition files (to be used for intellisense).
+     *  Creates the target path if it does not exist already.
+     */
+    public getOrCreateTypingsTargetPath(projectRoot: string): string {
+        if (projectRoot) {
+            let targetPath = path.resolve(projectRoot, ".vscode", "typings");
+            if (!this.existsSync(targetPath)) {
+                this.makeDirectoryRecursive(targetPath);
+            }
+
+            return targetPath;
+        }
+
+        return null;
+    }
+
     public deleteFileIfExistsSync(filename: string) {
-        if (this.fileExistsSync(filename)) {
+        if (this.existsSync(filename)) {
             fs.unlinkSync(filename);
         }
     }

@@ -6,7 +6,10 @@ import * as path from "path";
 import * as Q from "q";
 import * as vscode from "vscode";
 
+import {TsConfigHelper} from "../utils/tsconfigHelper";
+import {TsdHelper} from "../utils/tsdHelper";
 import {FileSystem} from "../utils/node/fileSystem";
+
 
 export class PackageJsonWatcher {
     private fileSystemWatcher: vscode.FileSystemWatcher;
@@ -52,6 +55,23 @@ try {
                 && "react-native" in packageJsonContents.dependencies) {
                 // Looks like a react native project: Set it up for debugging
                 this.dropDebuggerStub();
+
+                // Enable JavaScript intellisense through Salsa language service
+                TsConfigHelper.compileJavaScript(true);
+
+                var fileSystem:FileSystem = new FileSystem();
+
+                var reactTypeDefsPath = path.resolve(__dirname, "..", "..", "reactTypings.json");
+                var reactTypeDefs:any = {};
+                var typeDefsToInstall:string[] = [];
+
+                if (fileSystem.existsSync(reactTypeDefsPath)) {
+                    reactTypeDefs = require(reactTypeDefsPath);
+                    typeDefsToInstall = reactTypeDefs.map(function(listing:{id:string, typingFile:string}){ return listing.typingFile });
+                }
+
+                // Add typings for React and React Native
+                TsdHelper.installTypings(fileSystem.getOrCreateTypingsTargetPath(vscode.workspace.rootPath),typeDefsToInstall);
             }
         }).catch(() => {});
         // If the readFile fails, or the JSON.parse fails, then we ignore the exception
