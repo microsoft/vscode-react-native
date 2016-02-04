@@ -20,48 +20,45 @@ export class Log {
     }
 
     public static commandStarted(command: string, outputChannel?: OutputChannel) {
-        let message = `Executing command: ${command}`;
-
-        if (outputChannel) {
-            Log.appendStringToOutputChannel(message, outputChannel);
-        } else {
-            Log.logMessage(message);
-        }
+        Log.logMessage(`Executing command: ${command}`, outputChannel);
     }
 
     public static commandEnded(command: string, outputChannel?: OutputChannel) {
-        let message = `Finished executing: ${command}\n`;
-
-        if (outputChannel) {
-            Log.appendStringToOutputChannel(message, outputChannel);
-        } else {
-            Log.logMessage(message);
-        }
+        Log.logMessage(`Finished executing: ${command}\n`);
     }
 
     public static commandFailed(command: string, error: any, outputChannel?: OutputChannel) {
-        let message = `Error while executing: ${command}`;
-
-        if (outputChannel) {
-            Log.appendStringToOutputChannel(message, outputChannel);
-        } else {
-            Log.logError(message, error);
-        }
+        Log.logError(`Error while executing: ${command}`, error, outputChannel);
     }
 
     /**
      * Logs a message to the console.
      */
-    public static logMessage(message: string) {
-        console.log(`${Log.TAG} ${message}`);
+    public static logMessage(message: string, outputChannel?: OutputChannel) {
+        let messageToLog = outputChannel ? message : `${Log.TAG} ${message}`;
+
+        if (outputChannel) {
+            Log.appendStringToOutputChannel(messageToLog, outputChannel);
+        } else {
+            console.log(messageToLog);
+        }
+
     }
 
     /**
      * Logs an error message to the console.
      */
-    public static logError(message: string, error?: any, logStack = true) {
-        console.error(`${Log.TAG} ${message} ${Log.getErrorMessage(error)}`);
-        if (logStack && error && (<Error>error).stack) {
+    public static logError(message: string, error?: any, outputChannel?: OutputChannel, logStack = true) {
+        let errorMessageToLog = outputChannel ? `${message} ${Log.getErrorMessage(error)}` : `${Log.TAG} ${message} ${Log.getErrorMessage(error)}`;
+
+        if (outputChannel) {
+            Log.appendStringToOutputChannel(errorMessageToLog, outputChannel);
+        } else {
+            console.error(errorMessageToLog);
+        }
+
+        // We will not need the stack trace when logging to the OutputChannel in VS Code
+        if (!outputChannel && logStack && error && (<Error>error).stack) {
             console.error(`Stack: ${(<Error>error).stack}`);
         }
     }

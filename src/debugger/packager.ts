@@ -46,10 +46,7 @@ export class Packager {
                 let args = mandatoryArgs.concat(desktopPlatform.reactPackagerExtraParameters);
                 let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
-                if (outputChannel) {
-                    outputChannel.appendLine("######### Starting the Packager ##########");
-                    outputChannel.show();
-                }
+                Log.logMessage("Starting Packager", outputChannel);
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
 
@@ -61,28 +58,17 @@ export class Packager {
         });
 
         return this.awaitStart().then(() => {
-            if (outputChannel) {
-                outputChannel.appendLine("######### Packager started ##########");
-            } else {
-                Log.logMessage("Packager started.");
-            }
+            Log.logMessage("Packager started.", outputChannel);
         });
     }
 
     public stop(outputChannel?: OutputChannel): void {
-        if (outputChannel) {
-            outputChannel.appendLine("######### Stopping the Packager ##########");
-            outputChannel.show();
-        }
+        Log.logMessage("Stopping Packager", outputChannel);
 
         if (this.packagerProcess) {
             this.packagerProcess.kill();
         }
 
-        if (outputChannel) {
-            outputChannel.appendLine("######### Packager stopped ##########");
-        } else {
-            Log.logMessage("Packager stopped.");
-        }
+        Log.logMessage("Packager stopped", outputChannel);
     }
 }
