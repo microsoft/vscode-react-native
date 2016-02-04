@@ -4,20 +4,49 @@
 /**
  * Logging utility class.
  */
+
+import {OutputChannel} from "vscode";
+
 export class Log {
 
     private static TAG: string = "[vscode-react-native]";
-
-    public static commandStarted(command: string) {
-        Log.logMessage(`Executing command: ${command}`);
+    private static formatStringForOutputChannel(message: string) {
+        return  "######### " + message + " ##########";
     }
 
-    public static commandEnded(command: string) {
-        Log.logMessage(`Finished executing: ${command}\n`);
+    public static appendStringToOutputChannel(message: string, outputChannel: OutputChannel) {
+        outputChannel.appendLine(Log.formatStringForOutputChannel(message));
+        outputChannel.show();
     }
 
-    public static commandFailed(command: string, error: any) {
-        Log.logError(`Error while executing: ${command}`, error);
+    public static commandStarted(command: string, outputChannel?: OutputChannel) {
+        let message = `Executing command: ${command}`;
+
+        if (outputChannel) {
+            Log.appendStringToOutputChannel(message, outputChannel);
+        } else {
+            Log.logMessage(message);
+        }
+    }
+
+    public static commandEnded(command: string, outputChannel?: OutputChannel) {
+        let message = `Finished executing: ${command}\n`;
+
+        if (outputChannel) {
+            Log.appendStringToOutputChannel(message, outputChannel);
+        } else {
+            Log.logMessage(message);
+        }
+    }
+
+    public static commandFailed(command: string, error: any, outputChannel?: OutputChannel) {
+        let message = `Error while executing: ${command}`;
+
+        if (outputChannel) {
+            Log.appendStringToOutputChannel(message, outputChannel);
+        } else {
+            Log.logError(message, error);
+        }
     }
 
     /**

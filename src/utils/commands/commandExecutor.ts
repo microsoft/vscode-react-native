@@ -36,12 +36,7 @@ export class CommandExecutor {
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
 
-        if (outputChannel) {
-            outputChannel.appendLine("######### Executing: " + commandWithArgs + " ##########");
-            outputChannel.show();
-        }
-
-        Log.commandStarted(commandWithArgs);
+        Log.commandStarted(commandWithArgs, outputChannel);
         let result = new Node.ChildProcess().spawn(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
@@ -61,18 +56,10 @@ export class CommandExecutor {
         });
 
         result.outcome.then(() => {
-            if (outputChannel) {
-                outputChannel.appendLine("######### Finished executing: " + commandWithArgs + " ##########");
-            } else {
-                Log.commandEnded(commandWithArgs);
-            }
+            Log.commandEnded(commandWithArgs, outputChannel);
         },
         (reason) => {
-            if (outputChannel) {
-                outputChannel.appendLine("######### Failed executing: " + commandWithArgs + " ##########");
-            } else {
-                Log.commandFailed(commandWithArgs, reason)
-            }
+            Log.commandFailed(commandWithArgs, reason, outputChannel);
         });
 
         return Q.resolve(result.spawnedProcess);

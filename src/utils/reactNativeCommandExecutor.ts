@@ -3,8 +3,9 @@
 
 import {CommandExecutor} from "./commands/commandExecutor";
 import {PlatformResolver} from "./../debugger/platformResolver";
+import {Package} from "./node/package";
 import {Packager} from "./../debugger/packager";
-import {window} from "vscode";
+import * as vscode from "vscode";
 
 export class ReactNativeCommandExecutor {
     private reactNativePackager: Packager;
@@ -16,28 +17,68 @@ export class ReactNativeCommandExecutor {
     }
 
     /**
-     * Executes a react-native command
-     * {command} - the react-native command to be executed
+     * Ensures that we are in a React Native project and then executes the operation
+     * Otherwise, displays an error message banner
+     * {operation} - a function that performs the expected operation
      */
-    public executeReactNativeCommand(command: string): void {
-        let resolver = new PlatformResolver();
-        let desktopPlatform = resolver.resolveDesktopPlatform();
-
-        // Invoke "react-native" with the command passed
-        return new CommandExecutor(this.workspaceRoot).spawn(desktopPlatform.reactNativeCommandName, [command], {}, window.createOutputChannel("React-Native")).done();
+    public executeCommandInContext(operation: () => void): void {
+        this.isReactNativeProject().done(isRNProject => {
+            if (isRNProject) {
+                operation();
+            } else {
+                vscode.window.showErrorMessage("Current workspace is not a React Native project.");
+            }
+        });
     }
 
     /**
      * Starts the React Native packager
      */
     public startPackager(): void {
-        return this.reactNativePackager.start(true, window.createOutputChannel("React-Native")).done();
+        this.reactNativePackager.start(true, vscode.window.createOutputChannel("React-Native"))
+        .done();
     }
 
     /**
      * Kills the React Native packager invoked by the extension's packager
      */
     public stopPackager(): void {
-        return this.reactNativePackager.stop(window.createOutputChannel("React-Native"));
+        this.reactNativePackager.stop(vscode.window.createOutputChannel("React-Native"));
+    }
+
+    /**
+     * Executes the 'react-native run-android' command
+     */
+    public runAndroid(): void {
+        this.executeReactNativeCommand("run-android");
+    }
+
+    /**
+     * Executes the 'react-native run-ios' command
+     */
+    public runIos(): void {
+        this.executeReactNativeCommand("run-ios");
+    }
+
+    public executeReactNativeCommand(command: string): void {
+        let resolver = new PlatformResolver();
+        let desktopPlatform = resolver.resolveDesktopPlatform();
+
+        // Invoke "react-native" with the command passed
+        new CommandExecutor(this.workspaceRoot).spawn(desktopPlatform.reactNativeCommandName, [command], {}, vscode.window.createOutputChannel("React-Native"))
+        .done();
+    }
+
+    private isReactNativeProject(): Q.Promise<boolean> {
+        let currentPackage = new Package(this.workspaceRoot);
+        return currentPackage.dependencies().then(dependencies => {
+            if (dependencies && dependencies["react-native"]) {
+                return true;
+            } else {
+                return false;
+            }
+        }).catch(() => {
+            return Q.resolve(false);
+        });
     }
 }

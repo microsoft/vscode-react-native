@@ -11,25 +11,25 @@ import {ReactNativeCommandExecutor} from "./utils/reactNativeCommandExecutor";
 
 export function activate(context: vscode.ExtensionContext): void {
     let currentPackage = new Package(vscode.workspace.rootPath);
-     currentPackage.dependencies().then(dependencies => {
+    currentPackage.dependencies().then(dependencies => {
         if (dependencies && dependencies["react-native"]) {
             // We are in a React Native project
             // Setup the debugger for the project
             setupReactNativeDebugger();
-
-            let reactNativeCommandExecutor = new ReactNativeCommandExecutor(vscode.workspace.rootPath);
-
-            // Register React Native commands
-            context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
-            () => reactNativeCommandExecutor.executeReactNativeCommand("run-android")));
-            context.subscriptions.push(vscode.commands.registerCommand("reactNative.runIos",
-            () => reactNativeCommandExecutor.executeReactNativeCommand("run-ios")));
-            context.subscriptions.push(vscode.commands.registerCommand("reactNative.startPackager",
-            () => reactNativeCommandExecutor.startPackager()));
-            context.subscriptions.push(vscode.commands.registerCommand("reactNative.stopPackager",
-            () => reactNativeCommandExecutor.stopPackager()));
         }
     }).catch(() => { });
+
+    let reactNativeCommandExecutor = new ReactNativeCommandExecutor(vscode.workspace.rootPath);
+
+    // Register React Native commands
+    context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
+    () => reactNativeCommandExecutor.executeCommandInContext(() => reactNativeCommandExecutor.runAndroid())));
+    context.subscriptions.push(vscode.commands.registerCommand("reactNative.runIos",
+    () => reactNativeCommandExecutor.executeCommandInContext(() => reactNativeCommandExecutor.runIos())));
+    context.subscriptions.push(vscode.commands.registerCommand("reactNative.startPackager",
+    () => reactNativeCommandExecutor.executeCommandInContext(() => reactNativeCommandExecutor.startPackager())));
+    context.subscriptions.push(vscode.commands.registerCommand("reactNative.stopPackager",
+    () => reactNativeCommandExecutor.executeCommandInContext(() => reactNativeCommandExecutor.stopPackager())));
 }
 
 /**
