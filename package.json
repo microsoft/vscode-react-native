@@ -77,7 +77,7 @@
     },
     "dependencies": {
         "q": "^1.4.1",
-        "websocket": "^1.0.22"
+        "ws": "^1.0.1"
     },
     "devDependencies": {
         "vscode": "^0.10.7",
