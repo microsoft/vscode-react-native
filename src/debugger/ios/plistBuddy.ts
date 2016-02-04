@@ -13,12 +13,11 @@ export class PlistBuddy {
     public getBundleId(projectRoot: string, simulator: boolean = true): Q.Promise<string> {
         return new Xcodeproj().findXcodeprojFile(projectRoot).then((projectFile: string) => {
             const appName = path.basename(projectFile, path.extname(projectFile));
-            const infoPlistPath = path.join(projectRoot, "ios", "build", "Build", "Products", simulator ? "Debug-iphonesimulator" : "Debug-iphoneos", `${appName}.app`, "Info.plist");
+            const infoPlistPath = path.join(projectRoot, "ios", "build", "Build", "Products",
+                simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
+                `${appName}.app`, "Info.plist");
 
-            return new Node.ChildProcess().exec(`${PlistBuddy.plistBuddyExecutable} -c Print:CFBundleIdentifier '${infoPlistPath}'`).outcome;
-        }).then((result: Buffer) => {
-            const appBundleId = result.toString().trim();
-            return appBundleId;
+            return this.invokePlistBuddy('Print:CFBundleIdentifier', infoPlistPath);
         });
     }
 
@@ -26,8 +25,14 @@ export class PlistBuddy {
         const nodeChildProc = new Node.ChildProcess();
 
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
-        return nodeChildProc.exec(`${PlistBuddy.plistBuddyExecutable} -c 'Set ${property} ${value}' ${plistFile}`).outcome.fail(() =>
-            nodeChildProc.exec(`${PlistBuddy.plistBuddyExecutable} -c 'Add ${property} string ${value}' ${plistFile}`).outcome
+        return this.invokePlistBuddy(`Set ${property} ${value}`, plistFile).fail(() =>
+            this.invokePlistBuddy(`Add ${property} string ${value}`, plistFile)
         ).then(() => {});
+    }
+
+    private invokePlistBuddy(command: string, plistFile: string): Q.Promise<string> {
+        return new Node.ChildProcess().exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`).outcome.then((result: Buffer) => {
+            return result.toString().trim();
+        });
     }
 }

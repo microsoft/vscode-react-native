@@ -19,40 +19,42 @@ export class IOSPlatform implements IMobilePlatform {
 
     private desktopPlatform: IDesktopPlatform;
 
+    private projectPath: string;
+    private simulatorTarget: string;
+    private isSimulator: boolean;
+
     constructor (desktopPlatform: IDesktopPlatform) {
         this.desktopPlatform = desktopPlatform;
     }
 
     public runApp(launchArgs: IRunOptions): Q.Promise<void> {
         // Compile, deploy, and launch the app on either a simulator or a device
-        const projectPath: string = launchArgs.projectRoot;
-        const simulatorTarget: string = launchArgs.target || IOSPlatform.simulatorString;
-        const isSimulator = simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;
+        this.consumeArguments(launchArgs);
 
-        if (isSimulator) {
+        if (this.isSimulator) {
             // React native supports running on the iOS simulator from the command line
             let runArguments = ["run-ios"];
-            if (simulatorTarget.toLowerCase() !== IOSPlatform.simulatorString) {
+            if (this.simulatorTarget.toLowerCase() !== IOSPlatform.simulatorString) {
                 runArguments.push("--simulator");
-                runArguments.push(simulatorTarget);
+                runArguments.push(this.simulatorTarget);
             }
 
-            return new CommandExecutor(projectPath).spawn(this.desktopPlatform.reactNativeCommandName, runArguments);
+            return new CommandExecutor(this.projectPath).spawn(this.desktopPlatform.reactNativeCommandName, runArguments);
         }
 
         // TODO: This is currently a stub, device debugging is not yet implemented
-        return new Compiler(projectPath, isSimulator).compile().then(() => {
-            return new DeviceDeployer(projectPath).deploy();
+        return new Compiler(this.projectPath, this.isSimulator).compile().then(() => {
+            return new DeviceDeployer(this.projectPath).deploy();
         }).then(() => {
-            return new DeviceRunner(projectPath).run();
+            return new DeviceRunner(this.projectPath).run();
         });
     }
 
     public enableJSDebuggingMode(launchArgs: IRunOptions): Q.Promise<void> {
         // Configure the app for debugging
+        this.consumeArguments(launchArgs);
 
-        const simulatorTarget: string = launchArgs.target || IOSPlatform.simulatorString;
-        if (simulatorTarget.toLowerCase() === IOSPlatform.deviceString) {
+        if (this.simulatorTarget.toLowerCase() === IOSPlatform.deviceString) {
             // Note that currently we cannot automatically switch the device into debug mode.
             Log.logMessage("Application is running on a device, please shake device and select 'Debug in Javascript' to enable debugging.");
             return Q.resolve<void>(void 0);
@@ -68,7 +70,13 @@ export class IOSPlatform implements IMobilePlatform {
             return plistBuddy.getBundleId(launchArgs.projectRoot);
         }).then((bundleId: string) => {
             // Relaunch the app so the new setting can take effect
-            return new CommandExecutor(".").execute(`xcrun simctl launch booted ${bundleId}`);
+            return new CommandExecutor().execute(`xcrun simctl launch booted ${bundleId}`);
         });
+    }
+
+    private consumeArguments(launchArgs: IRunOptions): void {
+        this.projectPath = launchArgs.projectRoot;
+        this.simulatorTarget = launchArgs.target || IOSPlatform.simulatorString;
+        this.isSimulator = this.simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;
     }
 }
