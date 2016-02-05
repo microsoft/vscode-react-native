@@ -1,6 +1,5 @@
 import * as vm from "vm";
 import * as Q from "q";
-import * as fs from "fs";
 import * as path from "path";
 import * as websocket from "websocket";
 import {ScriptImporter}  from "./scriptImporter";
@@ -49,8 +48,8 @@ export class SandboxedAppWorker {
             ? Q(fileContents)
             : this.readFileContents(filename);
 
-        return fileContentsPromise.then(fileContents => {
-                vm.runInContext(fileContents, this.sandboxContext, filename)
+        return fileContentsPromise.then(contents => {
+                vm.runInContext(contents, this.sandboxContext, filename);
             });
     }
 

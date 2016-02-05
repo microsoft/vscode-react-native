@@ -40,7 +40,7 @@ export class Log {
         // TODO: Improve this logic. Make it case insensitive, etc...
         let logLevelIndex = process.argv.indexOf("--extensionLogLevel");
         if (logLevelIndex >= 0 && logLevelIndex + 1 < process.argv.length) {
-            let logLevelText = process.argv[logLevelIndex + 1]
+            let logLevelText = process.argv[logLevelIndex + 1];
             return (<any>LogLevel)[logLevelText];
         } else {
             return LogLevel.None; // Default extension log level
