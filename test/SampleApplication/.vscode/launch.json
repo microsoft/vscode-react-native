@@ -1,0 +1,31 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Debug Android",
+			"program": "${workspaceRoot}/.vscode/launchReactNative.js",
+			"type": "node",
+			"request": "launch",
+			"args": [
+				"android"
+			],
+            "runtimeArgs": [ "--nolazy" ],
+            "cwd": "${workspaceRoot}",
+			"sourceMaps": true,
+			"outDir": "${workspaceRoot}/.vscode/"
+		},
+		{
+			"name": "Debug iOS",
+			"program": "${workspaceRoot}/.vscode/launchReactNative.js",
+			"type": "node",
+			"request": "launch",
+			"args": [
+				"ios"
+			],
+            "runtimeArgs": [ "--nolazy" ],
+            "cwd": "${workspaceRoot}",
+			"sourceMaps": true,
+			"outDir": "${workspaceRoot}/.vscode/"
+		}
+	]
+}
