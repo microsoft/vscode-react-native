@@ -17,13 +17,11 @@ export class PlistBuddy {
                 simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
                 `${appName}.app`, "Info.plist");
 
-            return this.invokePlistBuddy('Print:CFBundleIdentifier', infoPlistPath);
+            return this.invokePlistBuddy("Print:CFBundleIdentifier", infoPlistPath);
         });
     }
 
     public setPlistProperty(plistFile: string, property: string, value: string): Q.Promise<void> {
-        const nodeChildProc = new Node.ChildProcess();
-
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
         return this.invokePlistBuddy(`Set ${property} ${value}`, plistFile).fail(() =>
             this.invokePlistBuddy(`Add ${property} string ${value}`, plistFile)
