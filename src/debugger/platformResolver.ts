@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {IRunOptions} from "./launchArgs";
+import * as IOSPlatform from "./ios/iOSPlatform";
+import * as AndroidPlatform from "./android/androidPlatform";
 
 /**
  * Contains all the mobile platform specific debugging operations.
@@ -38,16 +40,16 @@ export class PlatformResolver {
     /**
      * Resolves the mobile application target platform.
      */
-    public resolveMobilePlatform(mobilePlatformString: string): IMobilePlatform {
+    public resolveMobilePlatform(mobilePlatformString: string, desktopPlatform: IDesktopPlatform): IMobilePlatform {
         switch (mobilePlatformString) {
             // We lazyly load the strategies, because some components might be
             // missing on some platforms (like XCode in Windows)
             case "ios":
-                let ios = require("./ios/iOSPlatform");
-                return new ios.IOSPlatform(this.resolveDesktopPlatform());
+                let ios: typeof IOSPlatform = require("./ios/iOSPlatform");
+                return new ios.IOSPlatform(desktopPlatform);
             case "android":
-                let android = require("./android/androidPlatform");
-                return new android.AndroidPlatform(this.resolveDesktopPlatform());
+                let android: typeof AndroidPlatform = require("./android/androidPlatform");
+                return new android.AndroidPlatform(desktopPlatform);
             default:
                 return null;
         }

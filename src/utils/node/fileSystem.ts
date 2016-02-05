@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
-import * as Q from "q";
 import * as path from "path";
+import * as Q from "q";
 
 export class FileSystem {
 
@@ -53,32 +53,22 @@ export class FileSystem {
         }
     }
 
-    public readFile(filename: string, encoding: string): Q.Promise<string> {
-        let contents = Q.defer<string>();
-
-        fs.readFile(filename, encoding, (err: NodeJS.ErrnoException, data: string) => {
-            if (err) {
-                contents.reject(err);
-            } else {
-                contents.resolve(data);
-            }
-        });
-
-        return contents.promise;
+    public readFile(filename: string, encoding: string = "utf8"): Q.Promise<string> {
+        return Q.nfcall<string>(fs.readFile, filename, encoding);
     }
 
     public writeFile(filename: string, data: any): Q.Promise<void> {
-        let contents = Q.defer<void>();
+        return Q.nfcall<void>(fs.writeFile, filename, data);
+    }
 
-        fs.writeFile(filename, data, (err: NodeJS.ErrnoException) => {
-            if (err) {
-                contents.reject(err);
-            } else {
-                contents.resolve(null);
+    public findFilesByExtension(folder: string, extension: string): Q.Promise<string[]> {
+        return Q.nfcall(fs.readdir, folder).then((files: string[]) => {
+            const extFiles = files.filter((file: string) => path.extname(file) === `.${extension}`);
+            if (extFiles.length === 0) {
+                throw new Error(`Unable to find any ${extension} files.`);
             }
+            return extFiles;
         });
-
-        return contents.promise;
     }
 
     public removePathRecursivelySync(p: string): void {
