@@ -3,20 +3,30 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "../utils/commands/commandExecutor";
+import {IDesktopPlatform} from "./platformResolver";
 import {Log} from "../utils/commands/log";
+import {Node} from "../utils/node/node";
 import {OutputChannel} from "vscode";
 import {PlatformResolver} from "./platformResolver";
 import {PromiseUtil} from "../utils/node/promise";
 import {Request} from "../utils/node/request";
+
 import * as Q from "q";
+import * as path from "path";
 
 export class Packager {
     public static HOST = "localhost:8081";
+    public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
+    public static DEBUGGER_WORKER_FILENAME = Packager.DEBUGGER_WORKER_FILE_BASENAME + ".js";
     private projectPath: string;
     private packagerProcess: ChildProcess;
+    private sourcesStoragePath: string;
+    private desktopPlatform: IDesktopPlatform;
 
-    constructor(projectPath: string) {
+    constructor(projectPath: string, desktopPlatform: IDesktopPlatform, sourcesStoragePath: string) {
         this.projectPath = projectPath;
+        this.desktopPlatform = desktopPlatform;
+        this.sourcesStoragePath = sourcesStoragePath;
     }
 
     private isRunning(): Q.Promise<boolean> {
@@ -36,14 +46,20 @@ export class Packager {
         return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, "Could not start the packager.");
     }
 
-    public start(skipDebuggerEnvSetup?: boolean, outputChannel?: OutputChannel): Q.Promise<void> {
-        let resolver = new PlatformResolver();
-        let desktopPlatform = resolver.resolveDesktopPlatform();
+    private downloadDebuggerWorker(): Q.Promise<void> {
+        let debuggerWorkerURL = `http://${Packager.HOST}/${Packager.DEBUGGER_WORKER_FILENAME}`;
+        let debuggerWorkerLocalPath = path.join(this.sourcesStoragePath, Packager.DEBUGGER_WORKER_FILENAME);
+        Log.logInternalMessage("About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
+        return new Request().request(debuggerWorkerURL, true).then((body: string) => {
+            return new Node.FileSystem().writeFile(debuggerWorkerLocalPath, body);
+        });
+    }
 
+    public start(skipDebuggerEnvSetup?: boolean, outputChannel?: OutputChannel): Q.Promise<void> {
         this.isRunning().done(running => {
             if (!running) {
                 let mandatoryArgs = ["start"];
-                let args = mandatoryArgs.concat(desktopPlatform.reactPackagerExtraParameters);
+                let args = mandatoryArgs.concat(this.desktopPlatform.reactPackagerExtraParameters);
                 let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
                 Log.logMessage("Starting Packager", outputChannel);
@@ -51,7 +67,7 @@ export class Packager {
                 // wait for this command to finish
 
                 let spawnOptions = skipDebuggerEnvSetup ? {} : { env: childEnvForDebugging };
-                new CommandExecutor(this.projectPath).spawn(desktopPlatform.reactNativeCommandName, args, spawnOptions).then((packagerProcess) => {
+                new CommandExecutor(this.projectPath).spawn(this.desktopPlatform.reactNativeCommandName, args, spawnOptions).then((packagerProcess) => {
                     this.packagerProcess = packagerProcess;
                 }).done();
             }
@@ -59,6 +75,9 @@ export class Packager {
 
         return this.awaitStart().then(() => {
             Log.logMessage("Packager started.", outputChannel);
+            return this.downloadDebuggerWorker();
+        }).then(() => {
+            Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
         });
     }
 

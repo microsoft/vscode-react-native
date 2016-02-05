@@ -18,7 +18,7 @@ interface Options {
 export class CommandExecutor {
     private currentWorkingDirectory: string;
 
-    constructor(currentWorkingDirectory: string) {
+    constructor(currentWorkingDirectory?: string) {
         this.currentWorkingDirectory = currentWorkingDirectory;
     }
 
