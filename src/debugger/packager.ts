@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {IDesktopPlatform} from "./platformResolver";
-import {PromiseUtil} from "../utils/node/promise";
-import {Request} from "../utils/node/request";
+import {ChildProcess} from "child_process";
 import {CommandExecutor} from "../utils/commands/commandExecutor";
+import {IDesktopPlatform} from "./platformResolver";
 import {Log} from "../utils/commands/log";
 import {Node} from "../utils/node/node";
+import {OutputChannel} from "vscode";
+import {PromiseUtil} from "../utils/node/promise";
+import {Request} from "../utils/node/request";
+
 import * as Q from "q";
 import * as path from "path";
 
@@ -15,10 +18,11 @@ export class Packager {
     public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
     public static DEBUGGER_WORKER_FILENAME = Packager.DEBUGGER_WORKER_FILE_BASENAME + ".js";
     private projectPath: string;
+    private packagerProcess: ChildProcess;
     private sourcesStoragePath: string;
     private desktopPlatform: IDesktopPlatform;
 
-    constructor(projectPath: string, desktopPlatform: IDesktopPlatform, sourcesStoragePath: string) {
+    constructor(projectPath: string, desktopPlatform: IDesktopPlatform, sourcesStoragePath?: string) {
         this.projectPath = projectPath;
         this.desktopPlatform = desktopPlatform;
         this.sourcesStoragePath = sourcesStoragePath;
@@ -50,24 +54,42 @@ export class Packager {
         });
     }
 
-    public start(): Q.Promise<void> {
+    public start(skipDebuggerEnvSetup?: boolean, outputChannel?: OutputChannel): Q.Promise<void> {
         this.isRunning().done(running => {
             if (!running) {
                 let mandatoryArgs = ["start"];
                 let args = mandatoryArgs.concat(this.desktopPlatform.reactPackagerExtraParameters);
-                let childEnv = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
+                let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
+                Log.logMessage("Starting Packager", outputChannel);
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
-                new CommandExecutor(this.projectPath).spawn(this.desktopPlatform.reactNativeCommandName, args, { env: childEnv }).done();
+
+                let spawnOptions = skipDebuggerEnvSetup ? {} : { env: childEnvForDebugging };
+                new CommandExecutor(this.projectPath).spawn(this.desktopPlatform.reactNativeCommandName, args, spawnOptions).then((packagerProcess) => {
+                    this.packagerProcess = packagerProcess;
+                }).done();
             }
         });
 
         return this.awaitStart().then(() => {
-            Log.logMessage("Packager started.");
-            return this.downloadDebuggerWorker();
-        }).then(() => {
-            Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
+            Log.logMessage("Packager started.", outputChannel);
+            if (this.sourcesStoragePath) {
+                return this.downloadDebuggerWorker().then(() => {
+                    Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
+                });
+            }
         });
+    }
+
+    public stop(outputChannel?: OutputChannel): void {
+        Log.logMessage("Stopping Packager", outputChannel);
+
+        if (this.packagerProcess) {
+            this.packagerProcess.kill();
+            this.packagerProcess = null;
+        }
+
+        Log.logMessage("Packager stopped", outputChannel);
     }
 }

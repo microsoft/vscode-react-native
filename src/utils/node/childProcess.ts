@@ -9,6 +9,14 @@ export interface IExecResult {
     outcome: Q.Promise<Buffer>;
 }
 
+export interface ISpawnResult {
+    spawnedProcess: child_process.ChildProcess;
+    stdin: any;
+    stdout: any;
+    stderr: any;
+    outcome: Q.Promise<number>;
+}
+
 interface IExecOptions {
     cwd?: string;
     stdio?: any;
@@ -24,13 +32,6 @@ interface ISpawnOptions {
     stdio?: any;
     env?: any;
     detached?: boolean;
-}
-
-interface ISpawnResult {
-    stdin: any;
-    stdout: any;
-    stderr: any;
-    outcome: Q.Promise<number>;
 }
 
 export class ChildProcess {
@@ -67,9 +68,11 @@ export class ChildProcess {
             }
         });
 
-        return { stdin: spawnedProcess.stdin,
-             stdout: spawnedProcess.stdout,
+        return {
+              spawnedProcess: spawnedProcess,
+              stdin: spawnedProcess.stdin,
+              stdout: spawnedProcess.stdout,
               stderr: spawnedProcess.stderr,
-               outcome: outcome.promise };
+              outcome: outcome.promise };
     }
 }
