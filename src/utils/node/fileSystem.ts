@@ -54,11 +54,11 @@ export class FileSystem {
     }
 
     public readFile(filename: string, encoding: string = "utf8"): Q.Promise<string> {
-        throw new Error("To implement with Q.denodeify");
+        return <Q.Promise<string>>Q.nfcall(fs.readFile, filename, encoding);
     }
 
     public writeFile(filename: string, data: any): Q.Promise<void> {
-        throw new Error("To implement with Q.denodeify");
+        return Q.nfcall(fs.writeFile, filename, data).then(() => {});
     }
 
     public findFilesByExtension(folder: string, extension: string): Q.Promise<string[]> {
@@ -71,7 +71,3 @@ export class FileSystem {
         });
     }
 }
-
-// We only copy these two methods, instead of all the methods of fs, because we need to remember to add the signatures manually
-// to class FileSystem with a throw new Error("To implement with Q.denodeify"); implementation before adding it here
-["writeFile", "readFile"].forEach(methodName => (<any>FileSystem.prototype)[methodName] = Q.denodeify((<any>fs)[methodName]));
