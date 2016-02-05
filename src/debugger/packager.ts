@@ -12,7 +12,8 @@ import * as path from "path";
 
 export class Packager {
     public static HOST = "localhost:8081";
-    public static DEBUGGER_WORKER_FILENAME = "debuggerWorker.js";
+    public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
+    public static DEBUGGER_WORKER_FILENAME = Packager.DEBUGGER_WORKER_FILE_BASENAME + ".js";
     private projectPath: string;
     private sourcesStoragePath: string;
 

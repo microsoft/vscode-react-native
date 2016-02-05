@@ -52,31 +52,15 @@ export class FileSystem {
         }
     }
 
-    public readFile(filename: string, encoding: string): Q.Promise<string> {
-        let contents = Q.defer<string>();
-
-        fs.readFile(filename, encoding, (err: NodeJS.ErrnoException, data: string) => {
-            if (err) {
-                contents.reject(err);
-            } else {
-                contents.resolve(data);
-            }
-        });
-
-        return contents.promise;
+    public readFile(filename: string, encoding: string = "utf8"): Q.Promise<string> {
+        throw new Error("To implement with Q.denodeify");
     }
 
     public writeFile(filename: string, data: any): Q.Promise<void> {
-        let contents = Q.defer<void>();
-
-        fs.writeFile(filename, data, (err: NodeJS.ErrnoException) => {
-            if (err) {
-                contents.reject(err);
-            } else {
-                contents.resolve(null);
-            }
-        });
-
-        return contents.promise;
+        throw new Error("To implement with Q.denodeify");
     }
 }
+
+// We only copy these two methods, instead of all the methods of fs, because we need to remember to add the signatures manually
+// to class FileSystem with a throw new Error("To implement with Q.denodeify"); implementation before adding it here
+["writeFile", "readFile"].forEach(methodName => (<any>FileSystem.prototype)[methodName] = Q.denodeify((<any>fs)[methodName]));

@@ -1,11 +1,12 @@
 import * as vm from "vm";
-import * as fs from "fs";
 import * as Q from "q";
+import * as fs from "fs";
 import * as path from "path";
 import * as websocket from "websocket";
 import {ScriptImporter}  from "./scriptImporter";
 import {Packager}  from "./packager";
 import {Log} from "../utils/commands/log";
+import {Node} from "../utils/node/node";
 
 import Module = require("module");
 
@@ -24,6 +25,11 @@ interface DebuggerWorkerSandbox {
     onmessage: (object: any) => void;
 }
 
+
+function printDebuggingFatalError(message: string, reason: any) {
+    Log.logError(`${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`, reason, true);
+}
+
 export class SandboxedAppWorker {
     private sourcesStoragePath: string;
     private postReplyToApp: (message: any) => void;
@@ -31,30 +37,35 @@ export class SandboxedAppWorker {
     private sandbox: DebuggerWorkerSandbox;
     private sandboxContext: vm.Context;
 
-    private isAnswerReady = Q({});
+    private pendingScriptImport = Q(void 0);
 
     constructor(sourcesStoragePath: string, postReplyToApp: (message: any) => void) {
         this.sourcesStoragePath = sourcesStoragePath;
         this.postReplyToApp = postReplyToApp;
     }
 
-    private runInSandbox(filename: string, fileContents?: string) {
-        if (!fileContents) {
-            fileContents = fs.readFileSync(filename).toString();
-        }
+    private runInSandbox(filename: string, fileContents?: string): Q.Promise<void> {
+        let fileContentsPromise = fileContents
+            ? Q(fileContents)
+            : this.readFileContents(filename);
 
-        vm.runInContext(fileContents, this.sandboxContext, filename);
+        return fileContentsPromise.then(fileContents => {
+                vm.runInContext(fileContents, this.sandboxContext, filename)
+            });
     }
 
-    public start(): SandboxedAppWorker {
-        let scriptToRunPath = require.resolve(path.join(this.sourcesStoragePath, "debuggerWorker"));
+    private readFileContents(filename: string) {
+        return new Node.FileSystem().readFile(filename).then(contents => contents.toString());
+    }
+
+    public start(): Q.Promise<void> {
+        let scriptToRunPath = require.resolve(path.join(this.sourcesStoragePath, Packager.DEBUGGER_WORKER_FILE_BASENAME));
         this.initializeSandboxAndContext(scriptToRunPath);
-        let fileContents = fs.readFileSync(scriptToRunPath).toString();
-        // On a debugger worker the onmessage variable already exist. We need to declare it before the
-        // javascript file can assign it. We do it in the first line without a new line to not break
-        // the debugging experience of debugging debuggerWorker.js itself (as part of the extension)
-        this.runInSandbox(scriptToRunPath, "var onmessage = null; " + fileContents);
-        return this;
+        return this.readFileContents(scriptToRunPath).then(fileContents =>
+            // On a debugger worker the onmessage variable already exist. We need to declare it before the
+            // javascript file can assign it. We do it in the first line without a new line to not break
+            // the debugging experience of debugging debuggerWorker.js itself (as part of the extension)
+            this.runInSandbox(scriptToRunPath, "var onmessage = null; " + fileContents));
     }
 
     public postMessage(object: any): void {
@@ -80,22 +91,32 @@ export class SandboxedAppWorker {
     }
 
     private importScripts(url: string): void {
-        // The debugger worker gives a replay synchronically. We use the promise to make that replay
-        // get blocked until the script gets actually imported
+        /* The debuggerWorker.js executes this code:
+            importScripts(message.url);
+            sendReply();
+
+            In the original code importScripts is a sync call. In our code it's async, so we need to mess with sendReply() so we won't
+            actually send the reply back to the application until after importScripts has finished executing. We use
+            this.pendingScriptImport to make the gotResponseFromDebuggerWorker() method hold the reply back, until've finished importing
+            and running the script */
         let defer = Q.defer<{}>();
-        this.isAnswerReady = defer.promise;
+        this.pendingScriptImport = defer.promise;
 
         // The next line converts to any due to the incorrect typing on node.d.ts of vm.runInThisContext
         new ScriptImporter(this.sourcesStoragePath).download(url)
             .then(downloadedScript =>
                 this.runInSandbox(downloadedScript.filepath, downloadedScript.contents))
-            .done(() =>
-                defer.resolve({})); // Now we let the reply to the app proceed
+            .done(() => {
+                    // Now we let the reply to the app proceed
+                    defer.resolve({});
+                }, reason => {
+                    printDebuggingFatalError(`Couldn't import script at <${url}>`, reason);
+                });
     }
 
     private gotResponseFromDebuggerWorker(object: any): void {
-        // We might need to hold the response until a script is imported
-        this.isAnswerReady.done(() =>
+        // We might need to hold the response until a script is imported. See comments on this.importScripts()
+        this.pendingScriptImport.done(() =>
             this.postReplyToApp(object));
     }
 }
@@ -109,10 +130,13 @@ export class MultipleLifetimesAppWorker {
         this.sourcesStoragePath = sourcesStoragePath;
     }
 
-    public start() {
-        this.singleLifetimeWorker = new SandboxedAppWorker(this.sourcesStoragePath, (message) =>
-            this.sendMessageToApp(message)).start();
-        this.socketToApp = this.createSocketToApp();
+    public start(): Q.Promise<void> {
+        this.singleLifetimeWorker = new SandboxedAppWorker(this.sourcesStoragePath, (message) => {
+            this.sendMessageToApp(message);
+        });
+        return this.singleLifetimeWorker.start().then(() => {
+            this.socketToApp = this.createSocketToApp();
+        });
     }
 
     private createSocketToApp() {
@@ -120,6 +144,7 @@ export class MultipleLifetimesAppWorker {
         socketToApp.onopen = () => this.socketToAppWasOpened();
         socketToApp.onclose = () => this.socketWasClosed();
         socketToApp.onmessage = (message: any) => this.messageReceivedFromApp(message);
+        // TODO: Add on error handler
         return socketToApp;
     }
 
@@ -132,21 +157,27 @@ export class MultipleLifetimesAppWorker {
     }
 
     private socketWasClosed() {
+        // TODO: Add some logic to not print this message that often, we'll spam the user
         Log.logMessage("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon...");
-        setTimeout(this.start, 100);
+        setTimeout(() => this.start(), 100);
     }
 
+    // TODO: Add proper typings for message
     private messageReceivedFromApp(message: any) {
-        let object = JSON.parse(message.data);
-        if (object.method === "prepareJSRuntime") {
-            // The MultipleLifetimesAppWorker will handle prepareJSRuntime aka create new lifetime
-            this.gotPrepareJSRuntime(object);
-        } else if (object.method) {
-            // All the other messages are handled by the single lifetime worker
-            this.singleLifetimeWorker.postMessage(object);
-        } else {
-            // Message doesn't have a method. Ignore it.
-            Log.logInternalMessage("The react-native app sent a message without specifying a method: " + message);
+        try {
+            let object = JSON.parse(message.data);
+            if (object.method === "prepareJSRuntime") {
+                // The MultipleLifetimesAppWorker will handle prepareJSRuntime aka create new lifetime
+                this.gotPrepareJSRuntime(object);
+            } else if (object.method) {
+                // All the other messages are handled by the single lifetime worker
+                this.singleLifetimeWorker.postMessage(object);
+            } else {
+                // Message doesn't have a method. Ignore it.
+                Log.logInternalMessage("The react-native app sent a message without specifying a method: " + message);
+            }
+        } catch (exception) {
+            printDebuggingFatalError(`Failed to process message from the React Native app. Message:\n${message}`, exception);
         }
     }
 

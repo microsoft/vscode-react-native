@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-// TODO: I'll rename this file to scriptDownloader.ts before pushing the PR
 import fs = require("fs");
 import {Log} from "../utils/commands/log";
 import path = require("path");

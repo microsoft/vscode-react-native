@@ -4,6 +4,15 @@
 /**
  * Logging utility class.
  */
+
+enum LogLevel {
+    None = 0,
+    Error = 1,
+    Warning = 2,
+    Debug = 3,
+    Trace = 4
+}
+
 export class Log {
 
     private static TAG: string = "[vscode-react-native]";
@@ -27,13 +36,29 @@ export class Log {
         console.log(`${Log.TAG} ${message}`);
     }
 
+    private static extensionLogLevel(): LogLevel {
+        // TODO: Improve this logic. Make it case insensitive, etc...
+        let logLevelIndex = process.argv.indexOf("--extensionLogLevel");
+        if (logLevelIndex + 1 < process.argv.length) {
+            let logLevelText = process.argv[logLevelIndex + 1]
+            return (<any>LogLevel)[logLevelText];
+        } else {
+            return LogLevel.None; // Default extension log level
+        }
+    }
+
+    private static shouldLogInternal(): boolean {
+        return this.extensionLogLevel() > LogLevel.None;
+    }
     /**
      * Logs an internal message for when someone is debugging the extension itself.
      * Customers aren't interested in these messages, so we normally shouldn't show
      * them to them.
      */
     public static logInternalMessage(message: string) {
-        console.log(`${Log.TAG}[Internal] ${message}`);
+        if (this.shouldLogInternal()) {
+            console.log(`${Log.TAG}[Internal] ${message}`);
+        }
     }
 
     /**
