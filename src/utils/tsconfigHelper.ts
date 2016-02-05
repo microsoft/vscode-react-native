@@ -23,11 +23,11 @@ export class TsConfigHelper {
         return fileSystem.exists(tsConfigPath)
         .then(function(exists:boolean): Q.Promise<void> {
             if (!exists) {
-                return Q.nfcall<void>(fs.writeFile, tsConfigPath, "{}");
+                return fileSystem.writeFile(tsConfigPath, "{}");
             }
         })
         .then(function(): Q.Promise<string> {
-            return Q.nfcall<string>(fs.readFile, tsConfigPath, "utf-8");
+            return fileSystem.readFile(tsConfigPath, "utf-8");
         })
         .then(function(jsonContents: string): Q.Promise<any> {
             return JSON.parse(jsonContents);
@@ -48,12 +48,17 @@ export class TsConfigHelper {
      */
     public static compileJavaScript(enabled:boolean): Q.Promise<void> {
         return TsConfigHelper.readConfigJson()
-        .then(function(tsConfigJson:any): Q.Promise<any> {
+        .then(function(tsConfigJson:any): Q.Promise<void> {
             tsConfigJson.compilerOptions = tsConfigJson.compilerOptions || {};
+
+            // Return if the setting is already correctly set.
+            if (tsConfigJson.compilerOptions.allowJs === enabled) {
+                return Q.resolve<void>(void 0);
+            }
+
             tsConfigJson.compilerOptions.allowJs = enabled;
 
-            return tsConfigJson;
-        })
-        .then(TsConfigHelper.writeConfigJson);
+            return TsConfigHelper.writeConfigJson(tsConfigJson);
+        });
     }
 }

@@ -53,7 +53,7 @@ try {
                 this.dropDebuggerStub();
 
                 // Enable JavaScript intellisense through Salsa language service
-                TsConfigHelper.compileJavaScript(true);
+                TsConfigHelper.compileJavaScript(true).done();
 
                 var fileSystem:FileSystem = new FileSystem();
                 var reactTypeDefsPath = path.resolve(__dirname, "..", "..", "reactTypings.json");
@@ -62,7 +62,7 @@ try {
                     var typeDefsToInstall:string[] = require(reactTypeDefsPath);
 
                     // Add typings for React and React Native
-                    TsdHelper.installTypings(fileSystem.getOrCreateTypingsTargetPath(vscode.workspace.rootPath),typeDefsToInstall);
+                    TsdHelper.installTypings(fileSystem.getOrCreateTypingsTargetPath(vscode.workspace.rootPath),typeDefsToInstall).done();
                 }
             }
         }).catch(() => { });
