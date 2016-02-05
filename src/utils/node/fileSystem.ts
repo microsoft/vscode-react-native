@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
+import * as path from "path";
 import * as Q from "q";
 
 export class FileSystem {
@@ -58,6 +59,16 @@ export class FileSystem {
 
     public writeFile(filename: string, data: any): Q.Promise<void> {
         throw new Error("To implement with Q.denodeify");
+    }
+
+    public findFilesByExtension(folder: string, extension: string): Q.Promise<string[]> {
+        return Q.nfcall(fs.readdir, folder).then((files: string[]) => {
+            const extFiles = files.filter((file: string) => path.extname(file) === `.${extension}`);
+            if (extFiles.length === 0) {
+                throw new Error(`Unable to find any ${extension} files.`);
+            }
+            return extFiles;
+        });
     }
 }
 

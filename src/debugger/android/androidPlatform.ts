@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
-import {IMobilePlatform} from "../platformResolver";
+import {IMobilePlatform, IDesktopPlatform} from "../platformResolver";
 import {IRunOptions} from "../launchArgs";
 import {CommandExecutor} from "../../utils/commands/commandExecutor";
 import {Package} from "../../utils/node/package";
