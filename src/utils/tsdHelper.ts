@@ -9,10 +9,10 @@ export class TsdHelper {
    private static REACT_TYPINGS_FOLDERNAME =  "ReactTypings";
    private static REACT_TYPINGS_PATH =  path.resolve(__dirname, "..", "..", TsdHelper.REACT_TYPINGS_FOLDERNAME);
 
-   private static installTypeDefinitionFile(src: string, dest: string): Q.Promise<any> {
+   private static installTypeDefinitionFile(src: string, dest: string): Q.Promise<void> {
        var fileSystem:FileSystem = new FileSystem();
        if (fileSystem.existsSync(dest)) {
-           return;
+           return Q.resolve<void>(void 0);
        }
 
        // Ensure that the parent folder exits; if not, create the hierarchy of directories
@@ -21,7 +21,7 @@ export class TsdHelper {
            fileSystem.makeDirectoryRecursive(parentFolder);
        }
 
-       return FileSystem.copyFile(src, dest);
+       return fileSystem.copyFile(src, dest);
    }
 
    /**
@@ -30,12 +30,11 @@ export class TsdHelper {
     *   {typeDefsPath} - the relative paths of all type definitions that need to be
     *                    installed (relative to <project_root>\.vscode\typings)
     */
-    public static installTypings(typingsFolderPath: string, typeDefsPath: string[]): void {
-        Q.all(typeDefsPath.map((relativePath: string): Q.Promise<void> => {
+    public static installTypings(typingsFolderPath: string, typeDefsPath: string[]): Q.Promise<any> {
+        return Q.all(typeDefsPath.map((relativePath: string): Q.Promise<void> => {
             let src = path.resolve(TsdHelper.REACT_TYPINGS_PATH, relativePath);
             let dest = path.resolve(typingsFolderPath, relativePath);
-            TsdHelper.installTypeDefinitionFile(src, dest);
-            return;
+            return TsdHelper.installTypeDefinitionFile(src, dest);
         }));
     }
 }

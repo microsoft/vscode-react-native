@@ -1,50 +1,14 @@
 [
-    {
-        "id": "react",
-        "typingFile": "react/react.d.ts"
-    },
-    {
-        "id": "react-addons-create-fragment",
-        "typingFile": "react/react-addons-create-fragment.d.ts"
-    },
-    {
-        "id": "react-addons-css-transition-group",
-        "typingFile": "react/react-addons-create-fragment.d.ts"
-    },
-    {
-        "id": "react-addons-linked-state-mixin",
-        "typingFile": "react/react-addons-linked-state-mixin.d.ts"
-    },
-    {
-        "id": "react-addons-perf",
-        "typingFile": "react/react-addons-perf.d.ts"
-    },
-    {
-        "id": "react-addons-pure-render-mixin",
-        "typingFile": "react/react-addons-pure-render-mixin.d.ts"
-    },
-    {
-        "id": "react-addons-test-utils",
-        "typingFile": "react/react-addons-test-utils.d.ts"
-    },
-    {
-        "id": "react-addons-transition-group",
-        "typingFile": "react/react-addons-transition-group.d.ts"
-    },
-    {
-        "id": "react-addons-update",
-        "typingFile": "react/react-addons-update.d.ts"
-    },
-    {
-        "id": "react-dom",
-        "typingFile": "react/react-dom.d.ts"
-    },
-    {
-        "id": "react-global",
-        "typingFile": "react/react-global.d.ts"
-    },
-    {
-        "id": "react-native",
-        "typingFile": "react-native/react-native.d.ts"
-    }
+    "react/react.d.ts",
+    "react/react-addons-create-fragment.d.ts",
+    "react/react-addons-create-fragment.d.ts",
+    "react/react-addons-linked-state-mixin.d.ts",
+    "react/react-addons-perf.d.ts",
+    "react/react-addons-pure-render-mixin.d.ts",
+    "react/react-addons-test-utils.d.ts",
+    "react/react-addons-transition-group.d.ts",
+    "react/react-addons-update.d.ts",
+    "react/react-dom.d.ts",
+    "react/react-global.d.ts",
+    "react-native/react-native.d.ts"
 ]

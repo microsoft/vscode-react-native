@@ -16,38 +16,44 @@ export class TsConfigHelper {
     /**
      * Constructs a JSON object from tsconfig.json. Will create the file if needed.
      */
-    public static readConfigJson(): any {
+    public static readConfigJson(): Q.Promise<any> {
         var tsConfigPath:string = TsConfigHelper.tsConfigPath;
         var fileSystem = new FileSystem();
-        if (!fileSystem.existsSync(tsConfigPath)) {
-            fs.writeFileSync(tsConfigPath, "{}");
-        }
 
-        try {
-            return JSON.parse(fs.readFileSync(tsConfigPath, "utf-8"));
-        } catch(err) {
-            throw new Error("Failed to parse tsconfig.json");
-        }
-
+        return fileSystem.exists(tsConfigPath)
+        .then(function(exists:boolean): Q.Promise<void> {
+            if (!exists) {
+                return Q.nfcall<void>(fs.writeFile, tsConfigPath, "{}");
+            }
+        })
+        .then(function(): Q.Promise<string> {
+            return Q.nfcall<string>(fs.readFile, tsConfigPath, "utf-8");
+        })
+        .then(function(jsonContents: string): Q.Promise<any> {
+            return JSON.parse(jsonContents);
+        })
     }
 
     /**
      * Writes out a JSON configuration object to the tsconfig.json file.
      */
-    public static writeConfigJson(json:any): void {
+    public static writeConfigJson(configJson:any): Q.Promise<void> {
         var tsConfigPath:string = TsConfigHelper.tsConfigPath;
-        fs.writeFileSync(tsConfigPath, JSON.stringify(json, null, 4));
+
+        return Q.nfcall<void>(fs.writeFile, tsConfigPath, JSON.stringify(configJson, null, 4));
     }
 
     /**
      * Enable javascript intellisense via typescript.
      */
-    public static compileJavaScript(enabled:boolean): void {
-        var tsConfigJson:any = TsConfigHelper.readConfigJson();
+    public static compileJavaScript(enabled:boolean): Q.Promise<void> {
+        return TsConfigHelper.readConfigJson()
+        .then(function(tsConfigJson:any): Q.Promise<any> {
+            tsConfigJson.compilerOptions = tsConfigJson.compilerOptions || {};
+            tsConfigJson.compilerOptions.allowJs = enabled;
 
-        tsConfigJson.compilerOptions = tsConfigJson.compilerOptions || {};
-        tsConfigJson.compilerOptions.allowJs = enabled;
-
-        TsConfigHelper.writeConfigJson(tsConfigJson);
+            return tsConfigJson;
+        })
+        .then(TsConfigHelper.writeConfigJson);
     }
 }

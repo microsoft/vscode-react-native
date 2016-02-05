@@ -51,6 +51,19 @@ export class FileSystem {
     }
 
     /**
+     *  Helper (asynchronous) function to check if a file or directory exists
+     */
+    public exists(filename: string): Q.Promise<boolean> {
+        return Q.nfcall(fs.stat, filename)
+            .then(function(){
+                return Q.resolve(true);
+            })
+            .catch(function(err) {
+                return Q.resolve(false);
+            })
+    }
+
+    /**
      *  Helper (synchronous) function to create a directory recursively
      */
     public makeDirectoryRecursive(dirPath: string): void {
@@ -65,12 +78,12 @@ export class FileSystem {
     /**
      *  Helper function to asynchronously copy a file
      */
-    public static copyFile(from: string, to: string, encoding?: string): Q.Promise<any> {
-        var deferred: Q.Deferred<any> = Q.defer();
+    public copyFile(from: string, to: string, encoding?: string): Q.Promise<void> {
+        var deferred: Q.Deferred<void> = Q.defer<void>();
         var destFile: fs.WriteStream = fs.createWriteStream(to, { encoding: encoding });
         var srcFile: fs.ReadStream = fs.createReadStream(from, { encoding: encoding });
         destFile.on("finish", function(): void {
-            deferred.resolve({});
+            deferred.resolve(void 0);
         });
 
         destFile.on("error", function(e: Error): void {
@@ -90,16 +103,12 @@ export class FileSystem {
      *  Creates the target path if it does not exist already.
      */
     public getOrCreateTypingsTargetPath(projectRoot: string): string {
-        if (projectRoot) {
-            let targetPath = path.resolve(projectRoot, ".vscode", "typings");
-            if (!this.existsSync(targetPath)) {
-                this.makeDirectoryRecursive(targetPath);
-            }
-
-            return targetPath;
+        let targetPath = path.resolve(projectRoot, ".vscode", "typings");
+        if (!this.existsSync(targetPath)) {
+            this.makeDirectoryRecursive(targetPath);
         }
 
-        return null;
+        return targetPath;
     }
 
     public deleteFileIfExistsSync(filename: string) {
