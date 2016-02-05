@@ -6,6 +6,7 @@ import * as pathModule from "path";
 
 export interface IPackageInformation {
     name: string;
+    dependencies: { [name: string]: string };
 }
 
 export class Package {
@@ -20,18 +21,20 @@ export class Package {
         return pathModule.resolve(this._path, this.INFORMATION_PACKAGE_FILENAME);
     }
 
-    public information(): Q.Promise<IPackageInformation> {
+    public parsePackageInformation(): Q.Promise<IPackageInformation> {
         return new Node.FileSystem().readFile(this.informationJsonFilePath(), "utf8")
             .then(data =>
                 <IPackageInformation>JSON.parse(data));
     }
 
     public name(): Q.Promise<string> {
-        return this.information().then(information =>
-            <string>information.name);
+        return this.parsePackageInformation()
+            .then(packageInformation =>
+                packageInformation.name);
     }
 
-    public path() {
-        return this._path;
+    public dependencies(): Q.Promise<{ [name: string]: string }> {
+        return this.parsePackageInformation()
+            .then(packageInformation => packageInformation.dependencies);
     }
 }

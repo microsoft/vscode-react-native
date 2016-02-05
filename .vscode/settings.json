@@ -4,5 +4,9 @@
 	"files.trimTrailingWhitespace": true,
 	"eslint.enable": false,
 	"editor.insertSpaces": true,
-	"editor.tabSize": 4
+	"editor.tabSize": 4,
+	"files.exclude": {
+		"**/node_modules": true,
+		"**/out": true
+	}
 }
