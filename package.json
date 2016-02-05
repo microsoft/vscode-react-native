@@ -54,7 +54,7 @@
                             "android"
                         ],
                         "sourceMaps": true,
-                        "outDir": "${workspaceRoot}/.vscode/"
+                        "outDir": "${workspaceRoot}/.vscode/.react"
                     },
                     {
                         "name": "Debug iOS",
@@ -65,7 +65,7 @@
                             "ios"
                         ],
                         "sourceMaps": true,
-                        "outDir": "${workspaceRoot}/.vscode/"
+                        "outDir": "${workspaceRoot}/.vscode/.react"
                     }
                 ]
             }

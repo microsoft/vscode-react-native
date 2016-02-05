@@ -3,6 +3,7 @@
 
 import * as fs from "fs";
 import * as Q from "q";
+import * as path from "path";
 
 export class FileSystem {
 
@@ -13,7 +14,7 @@ export class FileSystem {
             } else {
                 throw new Error(`Expected ${dir} to be a directory`);
             }
-        }, (err: Error & {code?: string}): Q.Promise<any> => {
+        }, (err: Error & { code?: string }): Q.Promise<any> => {
             if (err && err.code === "ENOENT") {
                 return Q.nfcall(fs.mkdir, dir);
             } else {
@@ -28,7 +29,7 @@ export class FileSystem {
                 throw new Error(`Expected ${file} to be a file`);
             }
             // The file already exists, assume the contents are good and do not touch it.
-        }, (err: Error & {code?: string}): Q.Promise<any> => {
+        }, (err: Error & { code?: string }): Q.Promise<any> => {
             if (err && err.code === "ENOENT") {
                 return Q.nfcall(fs.writeFile, file, contents);
             } else {
@@ -78,5 +79,20 @@ export class FileSystem {
         });
 
         return contents.promise;
+    }
+
+    public removePathRecursivelySync(p: string): void {
+        if (fs.existsSync(p)) {
+            let stats = fs.statSync(p);
+            if (stats.isDirectory()) {
+                let contents = fs.readdirSync(p);
+                contents.forEach(childPath =>
+                    this.removePathRecursivelySync(path.join(p, childPath)));
+                fs.rmdirSync(p);
+            } else {
+                /* file */
+                fs.unlinkSync(p);
+            }
+        }
     }
 }

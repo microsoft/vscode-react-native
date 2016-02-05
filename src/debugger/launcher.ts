@@ -38,7 +38,7 @@ export class Launcher {
         if (!mobilePlatform) {
             Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
         } else {
-            let sourcesStoragePath = path.join(this.projectRootPath, ".vscode");
+            let sourcesStoragePath = path.join(this.projectRootPath, ".vscode/.react");
             Q({})
                 .then(() => Q.delay(new Packager(this.projectRootPath, sourcesStoragePath).start(), 3000))
                 .then(() => Q.delay(mobilePlatform.runApp(runOptions), 3000))
