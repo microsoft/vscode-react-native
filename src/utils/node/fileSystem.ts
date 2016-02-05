@@ -60,7 +60,7 @@ export class FileSystem {
             })
             .catch(function(err) {
                 return Q.resolve(false);
-            })
+            });
     }
 
     /**
@@ -72,7 +72,7 @@ export class FileSystem {
             this.makeDirectoryRecursive(parentPath);
         }
 
-        fs.mkdirSync(dirPath)
+        fs.mkdirSync(dirPath);
     }
 
     /**

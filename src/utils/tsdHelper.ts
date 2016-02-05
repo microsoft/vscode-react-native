@@ -34,6 +34,7 @@ export class TsdHelper {
         return Q.all(typeDefsPath.map((relativePath: string): Q.Promise<void> => {
             let src = path.resolve(TsdHelper.REACT_TYPINGS_PATH, relativePath);
             let dest = path.resolve(typingsFolderPath, relativePath);
+
             return TsdHelper.installTypeDefinitionFile(src, dest);
         }));
     }

@@ -31,7 +31,7 @@ export class TsConfigHelper {
         })
         .then(function(jsonContents: string): Q.Promise<any> {
             return JSON.parse(jsonContents);
-        })
+        });
     }
 
     /**

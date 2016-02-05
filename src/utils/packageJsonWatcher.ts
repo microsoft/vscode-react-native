@@ -57,7 +57,7 @@ try {
                 this.dropDebuggerStub();
 
                 // Enable JavaScript intellisense through Salsa language service
-                TsConfigHelper.compileJavaScript(true)
+                TsConfigHelper.compileJavaScript(true);
 
                 var fileSystem:FileSystem = new FileSystem();
                 var reactTypeDefsPath = path.resolve(__dirname, "..", "..", "reactTypings.json");
