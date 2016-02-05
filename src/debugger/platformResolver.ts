@@ -33,7 +33,7 @@ export class PlatformResolver {
                 return { reactNativeCommandName: "react-native", reactPackagerExtraParameters: [] };
             case "win32":
             default:
-                return { reactNativeCommandName: "react-native.cmd", reactPackagerExtraParameters: ["--nonPersistent"] };
+                return { reactNativeCommandName: "react-native.cmd", reactPackagerExtraParameters: [] };
         }
     }
 

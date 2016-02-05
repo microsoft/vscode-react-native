@@ -53,18 +53,12 @@ export class FileSystem {
         }
     }
 
-    public readFile(filename: string, encoding: string): Q.Promise<string> {
-        let contents = Q.defer<string>();
+    public readFile(filename: string, encoding: string = "utf8"): Q.Promise<string> {
+        return Q.nfcall<string>(fs.readFile, filename, encoding);
+    }
 
-        fs.readFile(filename, encoding, (err: NodeJS.ErrnoException, data: string) => {
-            if (err) {
-                contents.reject(err);
-            } else {
-                contents.resolve(data);
-            }
-        });
-
-        return contents.promise;
+    public writeFile(filename: string, data: any): Q.Promise<void> {
+        return Q.nfcall<void>(fs.writeFile, filename, data);
     }
 
     public findFilesByExtension(folder: string, extension: string): Q.Promise<string[]> {

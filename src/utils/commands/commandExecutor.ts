@@ -38,7 +38,7 @@ export class CommandExecutor {
         let result = new Node.ChildProcess().spawn(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
-            process.stdout.write(data);
+            process.stderr.write(data);
         });
 
         result.stdout.on("data", (data: Buffer) => {

@@ -2,7 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
-import {DebuggerWorker} from "./debuggerWorker";
+import * as path from "path";
+import {MultipleLifetimesAppWorker} from "./appWorker";
 import {Packager} from "./packager";
 import {Log} from "../utils/commands/log";
 import {PlatformResolver} from "./platformResolver";
@@ -38,10 +39,12 @@ export class Launcher {
         if (!mobilePlatform) {
             Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
         } else {
+            let sourcesStoragePath = path.join(this.projectRootPath, ".vscode");
+            // TODO: We need to remove all the delays, yet make sure things work properly for both Android and iOS
             Q({})
-                .then(() => Q.delay(new Packager(this.projectRootPath, desktopPlatform).start(), 3000))
+                .then(() => Q.delay(new Packager(this.projectRootPath, desktopPlatform, sourcesStoragePath).start(), 3000))
                 .then(() => Q.delay(mobilePlatform.runApp(runOptions), 3000))
-                .then(() => Q.delay(new DebuggerWorker(this.projectRootPath).start(), 3000)) // Start the worker
+                .then(() => Q.delay(new MultipleLifetimesAppWorker(sourcesStoragePath).start(), 3000)) // Start the app worker
                 .then(() => mobilePlatform.enableJSDebuggingMode(runOptions))
                 .done(() => { }, reason => {
                     Log.logError("Cannot debug application.", reason);
