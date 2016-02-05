@@ -3,6 +3,7 @@
 
 import {Log} from "./commands/log";
 import {Package} from "./node/package";
+import * as vscode from "vscode";
 
 export class ReactNativeProjectHelper {
     private workspaceRoot: string;
@@ -21,7 +22,7 @@ export class ReactNativeProjectHelper {
         return currentPackage.dependencies().then(dependencies => {
             return dependencies && dependencies["react-native"];
         }).catch((err: Error) => {
-            Log.logMessage("Attempting to read package.json file failed with error: " + err + ". Please make sure that the package.json file exists and is readable.");
+            vscode.window.showErrorMessage("Attempting to read package.json file failed with error: " + err + ". Please make sure that the package.json file exists and is readable.");
             return Q.resolve(false);
         });
     }
