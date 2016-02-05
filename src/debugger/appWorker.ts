@@ -49,8 +49,8 @@ export class SandboxedAppWorker {
             : this.readFileContents(filename);
 
         return fileContentsPromise.then(contents => {
-                vm.runInContext(contents, this.sandboxContext, filename);
-            });
+            vm.runInContext(contents, this.sandboxContext, filename);
+        });
     }
 
     private readFileContents(filename: string) {
@@ -68,6 +68,7 @@ export class SandboxedAppWorker {
     }
 
     public postMessage(object: any): void {
+        // TODO: Run this call inside of the sandbox
         this.sandbox.onmessage({ data: object });
     }
 
@@ -106,11 +107,11 @@ export class SandboxedAppWorker {
             .then(downloadedScript =>
                 this.runInSandbox(downloadedScript.filepath, downloadedScript.contents))
             .done(() => {
-                    // Now we let the reply to the app proceed
-                    defer.resolve({});
-                }, reason => {
-                    printDebuggingFatalError(`Couldn't import script at <${url}>`, reason);
-                });
+                // Now we let the reply to the app proceed
+                defer.resolve({});
+            }, reason => {
+                printDebuggingFatalError(`Couldn't import script at <${url}>`, reason);
+            });
     }
 
     private gotResponseFromDebuggerWorker(object: any): void {
