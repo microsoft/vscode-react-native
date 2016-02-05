@@ -18,11 +18,26 @@ export class TsdHelper {
        // Ensure that the parent folder exits; if not, create the hierarchy of directories
        let parentFolder = path.resolve(dest, "..");
        if (!fileSystem.existsSync(parentFolder)) {
-           fileSystem.makeDirectoryRecursive(parentFolder);
+           fileSystem.makeDirectoryRecursiveSync(parentFolder);
        }
 
        return fileSystem.copyFile(src, dest);
    }
+
+    /**
+     *  Helper function to get the target path for the type definition files (to be used for intellisense).
+     *  Creates the target path if it does not exist already.
+     */
+    public static getOrCreateTypingsTargetPath(projectRoot: string): string {
+        let targetPath = path.resolve(projectRoot, ".vscode", "typings");
+        let fileSystem:FileSystem = new FileSystem();
+
+        if (!fileSystem.existsSync(targetPath)) {
+            fileSystem.makeDirectoryRecursiveSync(targetPath);
+        }
+
+        return targetPath;
+    }
 
    /**
     *   Helper to install type defintion files for React Native.

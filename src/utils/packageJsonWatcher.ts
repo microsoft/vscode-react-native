@@ -55,15 +55,10 @@ try {
                 // Enable JavaScript intellisense through Salsa language service
                 TsConfigHelper.compileJavaScript(true).done();
 
-                var fileSystem:FileSystem = new FileSystem();
+                // Add typings for React and React Native
                 var reactTypeDefsPath = path.resolve(__dirname, "..", "..", "reactTypings.json");
-
-                if (fileSystem.existsSync(reactTypeDefsPath)) {
-                    var typeDefsToInstall:string[] = require(reactTypeDefsPath);
-
-                    // Add typings for React and React Native
-                    TsdHelper.installTypings(fileSystem.getOrCreateTypingsTargetPath(vscode.workspace.rootPath),typeDefsToInstall).done();
-                }
+                var typeDefsToInstall:string[] = require(reactTypeDefsPath);
+                TsdHelper.installTypings(TsdHelper.getOrCreateTypingsTargetPath(vscode.workspace.rootPath),typeDefsToInstall).done();
             }
         }).catch(() => { });
         // If the readFile fails, or the JSON.parse fails, then we ignore the exception

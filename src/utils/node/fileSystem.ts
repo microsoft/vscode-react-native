@@ -4,7 +4,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as Q from "q";
-import * as path from "path";
 
 export class FileSystem {
 
@@ -67,10 +66,10 @@ export class FileSystem {
     /**
      *  Helper (synchronous) function to create a directory recursively
      */
-    public makeDirectoryRecursive(dirPath: string): void {
+    public makeDirectoryRecursiveSync(dirPath: string): void {
         let parentPath = path.dirname(dirPath);
         if (!this.existsSync(parentPath)) {
-            this.makeDirectoryRecursive(parentPath);
+            this.makeDirectoryRecursiveSync(parentPath);
         }
 
         fs.mkdirSync(dirPath);
@@ -97,19 +96,6 @@ export class FileSystem {
 
         srcFile.pipe(destFile);
         return deferred.promise;
-    }
-
-    /**
-     *  Helper function to get the target path for the type definition files (to be used for intellisense).
-     *  Creates the target path if it does not exist already.
-     */
-    public getOrCreateTypingsTargetPath(projectRoot: string): string {
-        let targetPath = path.resolve(projectRoot, ".vscode", "typings");
-        if (!this.existsSync(targetPath)) {
-            this.makeDirectoryRecursive(targetPath);
-        }
-
-        return targetPath;
     }
 
     public deleteFileIfExistsSync(filename: string) {
