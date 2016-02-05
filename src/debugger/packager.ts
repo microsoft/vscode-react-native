@@ -7,7 +7,6 @@ import {IDesktopPlatform} from "./platformResolver";
 import {Log} from "../utils/commands/log";
 import {Node} from "../utils/node/node";
 import {OutputChannel} from "vscode";
-import {PlatformResolver} from "./platformResolver";
 import {PromiseUtil} from "../utils/node/promise";
 import {Request} from "../utils/node/request";
 
@@ -23,7 +22,7 @@ export class Packager {
     private sourcesStoragePath: string;
     private desktopPlatform: IDesktopPlatform;
 
-    constructor(projectPath: string, desktopPlatform: IDesktopPlatform, sourcesStoragePath: string) {
+    constructor(projectPath: string, desktopPlatform: IDesktopPlatform, sourcesStoragePath?: string) {
         this.projectPath = projectPath;
         this.desktopPlatform = desktopPlatform;
         this.sourcesStoragePath = sourcesStoragePath;
@@ -75,9 +74,11 @@ export class Packager {
 
         return this.awaitStart().then(() => {
             Log.logMessage("Packager started.", outputChannel);
-            return this.downloadDebuggerWorker();
-        }).then(() => {
-            Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
+            if (this.sourcesStoragePath) {
+                return this.downloadDebuggerWorker().then(() => {
+                    Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
+                });
+            }
         });
     }
 

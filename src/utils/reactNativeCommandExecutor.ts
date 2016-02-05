@@ -3,7 +3,6 @@
 
 import {CommandExecutor} from "./commands/commandExecutor";
 import {PlatformResolver} from "./../debugger/platformResolver";
-import {Package} from "./node/package";
 import {Packager} from "./../debugger/packager";
 import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
 import * as vscode from "vscode";
@@ -13,8 +12,10 @@ export class ReactNativeCommandExecutor {
     private workspaceRoot: string;
 
     constructor(workspaceRoot: string) {
+        let resolver = new PlatformResolver();
+        let desktopPlatform = resolver.resolveDesktopPlatform();
         this.workspaceRoot = workspaceRoot;
-        this.reactNativePackager = new Packager(workspaceRoot);
+        this.reactNativePackager = new Packager(workspaceRoot, desktopPlatform);
     }
 
     /**
@@ -62,12 +63,25 @@ export class ReactNativeCommandExecutor {
         this.executeReactNativeCommand("run-ios");
     }
 
-    public executeReactNativeCommand(command: string): void {
+    /**
+     * Executes a react-native command passed
+     * {command} The command to be executed
+     * {args} The arguments to be passed to the command
+     */
+    public executeReactNativeCommand(command: string, args?: any[]): Q.Promise<void> {
         let resolver = new PlatformResolver();
         let desktopPlatform = resolver.resolveDesktopPlatform();
 
         // Invoke "react-native" with the command passed
-        new CommandExecutor(this.workspaceRoot).spawn(desktopPlatform.reactNativeCommandName, [command], {}, vscode.window.createOutputChannel("React-Native"))
-        .done();
+        let runArguments = [command];
+
+        if (args) {
+            runArguments.concat(args);
+        }
+
+        return new CommandExecutor(this.workspaceRoot).spawn(desktopPlatform.reactNativeCommandName, runArguments, {}, vscode.window.createOutputChannel("React-Native"))
+        .then(() => {
+            return Q.resolve<void>(void 0);
+        });
     }
 }

@@ -32,7 +32,7 @@ export class Log {
     }
 
     public static commandEnded(command: string, outputChannel?: OutputChannel) {
-        Log.logMessage(`Finished executing: ${command}\n`);
+        Log.logMessage(`Finished executing: ${command}\n`, outputChannel);
     }
 
     public static commandFailed(command: string, error: any, outputChannel?: OutputChannel) {

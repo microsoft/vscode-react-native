@@ -12,6 +12,7 @@ import {DeviceRunner} from "./deviceRunner";
 import {IRunOptions} from "../launchArgs";
 import {SimulatorPlist} from "./simulatorPlist";
 import {PlistBuddy} from "./plistBuddy";
+import {ReactNativeCommandExecutor} from "../../utils/reactNativeCommandExecutor";
 
 export class IOSPlatform implements IMobilePlatform {
     private static deviceString = "device";
@@ -39,7 +40,7 @@ export class IOSPlatform implements IMobilePlatform {
                 runArguments.push(this.simulatorTarget);
             }
 
-            return new CommandExecutor(this.projectPath).spawn(this.desktopPlatform.reactNativeCommandName, runArguments);
+            return new ReactNativeCommandExecutor(this.projectPath).executeReactNativeCommand(this.desktopPlatform.reactNativeCommandName, runArguments);
         }
 
         // TODO: This is currently a stub, device debugging is not yet implemented

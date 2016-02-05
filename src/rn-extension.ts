@@ -3,7 +3,6 @@
 
 
 import {FileSystem} from "./utils/node/fileSystem";
-import {Package} from "./utils/node/package";
 import * as path from "path";
 import * as vscode from "vscode";
 

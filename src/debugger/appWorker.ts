@@ -26,7 +26,7 @@ interface DebuggerWorkerSandbox {
 
 
 function printDebuggingFatalError(message: string, reason: any) {
-    Log.logError(`${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`, reason, true);
+    Log.logError(`${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`, reason);
 }
 
 export class SandboxedAppWorker {
