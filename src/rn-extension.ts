@@ -8,16 +8,15 @@ import * as path from "path";
 import * as vscode from "vscode";
 
 import {ReactNativeCommandExecutor} from "./utils/reactNativeCommandExecutor";
+import {ReactNativeProjectHelper} from "./utils/reactNativeProjectHelper";
 
 export function activate(context: vscode.ExtensionContext): void {
-    let currentPackage = new Package(vscode.workspace.rootPath);
-    currentPackage.dependencies().then(dependencies => {
-        if (dependencies && dependencies["react-native"]) {
-            // We are in a React Native project
-            // Setup the debugger for the project
+    let reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
+    reactNativeProjectHelper.isReactNativeProject().then(isRNProject => {
+        if (isRNProject) {
             setupReactNativeDebugger();
         }
-    }).catch(() => { });
+    });
 
     let reactNativeCommandExecutor = new ReactNativeCommandExecutor(vscode.workspace.rootPath);
 

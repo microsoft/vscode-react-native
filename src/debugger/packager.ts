@@ -67,6 +67,7 @@ export class Packager {
 
         if (this.packagerProcess) {
             this.packagerProcess.kill();
+            this.packagerProcess = null;
         }
 
         Log.logMessage("Packager stopped", outputChannel);

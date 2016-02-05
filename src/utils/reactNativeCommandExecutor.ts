@@ -5,6 +5,7 @@ import {CommandExecutor} from "./commands/commandExecutor";
 import {PlatformResolver} from "./../debugger/platformResolver";
 import {Package} from "./node/package";
 import {Packager} from "./../debugger/packager";
+import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
 import * as vscode from "vscode";
 
 export class ReactNativeCommandExecutor {
@@ -22,7 +23,8 @@ export class ReactNativeCommandExecutor {
      * {operation} - a function that performs the expected operation
      */
     public executeCommandInContext(operation: () => void): void {
-        this.isReactNativeProject().done(isRNProject => {
+        let reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
+        reactNativeProjectHelper.isReactNativeProject().done(isRNProject => {
             if (isRNProject) {
                 operation();
             } else {
@@ -67,18 +69,5 @@ export class ReactNativeCommandExecutor {
         // Invoke "react-native" with the command passed
         new CommandExecutor(this.workspaceRoot).spawn(desktopPlatform.reactNativeCommandName, [command], {}, vscode.window.createOutputChannel("React-Native"))
         .done();
-    }
-
-    private isReactNativeProject(): Q.Promise<boolean> {
-        let currentPackage = new Package(this.workspaceRoot);
-        return currentPackage.dependencies().then(dependencies => {
-            if (dependencies && dependencies["react-native"]) {
-                return true;
-            } else {
-                return false;
-            }
-        }).catch(() => {
-            return Q.resolve(false);
-        });
     }
 }
