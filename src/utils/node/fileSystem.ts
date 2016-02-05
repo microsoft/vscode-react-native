@@ -54,11 +54,11 @@ export class FileSystem {
     }
 
     public readFile(filename: string, encoding: string = "utf8"): Q.Promise<string> {
-        return <Q.Promise<string>>Q.nfcall(fs.readFile, filename, encoding);
+        return Q.nfcall<string>(fs.readFile, filename, encoding);
     }
 
     public writeFile(filename: string, data: any): Q.Promise<void> {
-        return Q.nfcall(fs.writeFile, filename, data).then(() => {});
+        return Q.nfcall<void>(fs.writeFile, filename, data);
     }
 
     public findFilesByExtension(folder: string, extension: string): Q.Promise<string[]> {
