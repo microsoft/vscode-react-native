@@ -54,22 +54,22 @@ export class ReactNativeCommandExecutor {
      * Executes the 'react-native run-android' command
      */
     public runAndroid(): void {
-        this.executeReactNativeCommand("run-android");
+        this.executeReactNativeRunCommand("run-android");
     }
 
     /**
      * Executes the 'react-native run-ios' command
      */
     public runIos(): void {
-        this.executeReactNativeCommand("run-ios");
+        this.executeReactNativeRunCommand("run-ios");
     }
 
     /**
-     * Executes a react-native command passed
+     * Executes a react-native command passed after starting the packager
      * {command} The command to be executed
      * {args} The arguments to be passed to the command
      */
-    public executeReactNativeCommand(command: string, args?: string[]): Q.Promise<void> {
+    public executeReactNativeRunCommand(command: string, args?: string[]): Q.Promise<void> {
         let resolver = new PlatformResolver();
         let desktopPlatform = resolver.resolveDesktopPlatform();
 
