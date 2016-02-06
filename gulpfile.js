@@ -14,11 +14,9 @@ var ts = require('gulp-typescript');
 
 var srcPath = 'src';
 var outPath = 'out';
-var typingsPath = 'typings';
 
 var sources = [
     srcPath,
-    typingsPath,
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; })
     .concat(['test/*.ts']);
 

@@ -39,7 +39,7 @@ export class Launcher {
         if (!mobilePlatform) {
             Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
         } else {
-            let sourcesStoragePath = path.join(this.projectRootPath, ".vscode/.react");
+            let sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
             // TODO: We need to remove all the delays, yet make sure things work properly for both Android and iOS
             Q({})
                 .then(() => Q.delay(new Packager(this.projectRootPath, desktopPlatform, sourcesStoragePath).start(), 3000))

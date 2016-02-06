@@ -12,6 +12,8 @@ interface ISourceMap {
 }
 
 export class SourceMapUtil {
+    private static SourceMapURLRegex: RegExp = /\/\/(#|@) sourceMappingURL=(.+?)\s*$/m;
+
     /**
      * Given a script body and URL, this method parses the body and finds the corresponding source map URL.
      * If the source map URL is not found in the body in the expected form, null is returned.
@@ -74,14 +76,8 @@ export class SourceMapUtil {
      * This method replaces all back-slash characters in a given string with forward-slash ones.
      */
     private makeUnixStylePath(p: string): string {
-        return p.replace(/\\/g, "/");
-    }
-
-    /**
-     * Returns the regex used for source map url matching.
-     */
-    private getSourceMapUrlRegex(): RegExp {
-        return /\/\/(#|@) sourceMappingURL=(.+?)\s*$/m;
+        let pathArgs = p.split(path.sep);
+        return path.posix.join.apply(null, pathArgs);
     }
 
     /**
@@ -93,7 +89,7 @@ export class SourceMapUtil {
      * Returns the first match if found, null otherwise.
      */
     private getSourceMapRelativeUrl(body: string) {
-        let match = body.match(this.getSourceMapUrlRegex());
+        let match = body.match(SourceMapUtil.SourceMapURLRegex);
         // If match is null, the body doesn't contain the source map
         return match ? match[2] : null;
     }
@@ -103,7 +99,7 @@ export class SourceMapUtil {
      */
     public updateScriptPaths(scriptBody: string, sourceMappingUrl: url.Url) {
         // Update the body with the new location of the source map on storage.
-        return scriptBody.replace(this.getSourceMapUrlRegex(),
+        return scriptBody.replace(SourceMapUtil.SourceMapURLRegex,
             "//# sourceMappingURL=" + path.basename(sourceMappingUrl.pathname));
     }
 }

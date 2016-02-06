@@ -3,7 +3,6 @@
 
 import * as vscode from "vscode";
 import {FileSystem} from "./utils/node/fileSystem";
-import * as fs from "fs";
 import * as path from "path";
 import {PackageJsonWatcher} from "./utils/packageJsonWatcher";
 import {ReactNativeCommandHelper} from "./utils/reactNativeCommandHelper";
@@ -40,12 +39,10 @@ class ReactDirManager implements vscode.Disposable {
     public static ReactDirPath = path.join(vscode.workspace.rootPath, ".vscode", ".react");
 
     public init(): void {
-        if (fs.existsSync(ReactDirManager.ReactDirPath)) {
-            /* delete old files, if any */
-            this.dispose();
-        }
-
-        fs.mkdirSync(ReactDirManager.ReactDirPath);
+        let fs = new FileSystem();
+        /* if the folder exists, remove it, then recreate it */
+        fs.removePathRecursivelyAsync(ReactDirManager.ReactDirPath)
+            .done(() => fs.mkDir(ReactDirManager.ReactDirPath));
     }
 
     public dispose(): void {
