@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {Log} from "./commands/log";
 import {Package} from "./node/package";
 import * as vscode from "vscode";
 
@@ -22,7 +21,6 @@ export class ReactNativeProjectHelper {
         return currentPackage.dependencies().then(dependencies => {
             return dependencies && dependencies["react-native"];
         }).catch((err: Error) => {
-            vscode.window.showErrorMessage("Attempting to read package.json file failed with error: " + err + ". Please make sure that the package.json file exists and is readable.");
             return Q.resolve(false);
         });
     }

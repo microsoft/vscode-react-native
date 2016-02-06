@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {CommandExecutor} from "./commands/commandExecutor";
+import {Log} from "./commands/log";
 import {PlatformResolver} from "./../debugger/platformResolver";
 import {Packager} from "./../debugger/packager";
 import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
@@ -38,7 +39,7 @@ export class ReactNativeCommandExecutor {
      * Starts the React Native packager
      */
     public startPackager(): void {
-        this.reactNativePackager.start(true, vscode.window.createOutputChannel("React-Native"))
+        this.reactNativePackager.start(vscode.window.createOutputChannel("React-Native"))
         .done();
     }
 
@@ -79,8 +80,14 @@ export class ReactNativeCommandExecutor {
             runArguments.concat(args);
         }
 
-        return new CommandExecutor(this.workspaceRoot).spawn(desktopPlatform.reactNativeCommandName, runArguments, {}, vscode.window.createOutputChannel("React-Native"))
+        // Start the packager before executing the React-Native command
+        let outputChannel = vscode.window.createOutputChannel("React-Native");
+        Log.appendStringToOutputChannel("Attempting to start the React Native packager", outputChannel);
+
+        return this.reactNativePackager.start(outputChannel)
         .then(() => {
+            return new CommandExecutor(this.workspaceRoot).spawn(desktopPlatform.reactNativeCommandName, runArguments, {}, vscode.window.createOutputChannel("React-Native"))
+        }).then(() => {
             return Q.resolve<void>(void 0);
         });
     }
