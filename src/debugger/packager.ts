@@ -3,7 +3,6 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "../utils/commands/commandExecutor";
-import {IDesktopPlatform} from "./platformResolver";
 import {Log} from "../utils/commands/log";
 import {Node} from "../utils/node/node";
 import {OutputChannel} from "vscode";
@@ -20,11 +19,9 @@ export class Packager {
     private projectPath: string;
     private packagerProcess: ChildProcess;
     private sourcesStoragePath: string;
-    private desktopPlatform: IDesktopPlatform;
 
-    constructor(projectPath: string, desktopPlatform: IDesktopPlatform, sourcesStoragePath?: string) {
+    constructor(projectPath: string, sourcesStoragePath?: string) {
         this.projectPath = projectPath;
-        this.desktopPlatform = desktopPlatform;
         this.sourcesStoragePath = sourcesStoragePath;
     }
 
@@ -57,8 +54,6 @@ export class Packager {
     public start(outputChannel?: OutputChannel): Q.Promise<void> {
         this.isRunning().done(running => {
             if (!running) {
-                let mandatoryArgs = ["start"];
-                let args = mandatoryArgs.concat(this.desktopPlatform.reactPackagerExtraParameters);
                 let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
                 Log.logMessage("Starting Packager", outputChannel);
@@ -66,7 +61,8 @@ export class Packager {
                 // wait for this command to finish
 
                 let spawnOptions = { env: childEnvForDebugging };
-                new CommandExecutor(this.projectPath).spawn(this.desktopPlatform.reactNativeCommandName, args, spawnOptions).then((packagerProcess) => {
+
+                new CommandExecutor(this.projectPath).spawnReactCommand("start", undefined, spawnOptions, outputChannel).then((packagerProcess) => {
                     this.packagerProcess = packagerProcess;
                 }).done();
             }

@@ -3,7 +3,6 @@
 
 import {CommandExecutor} from "./commands/commandExecutor";
 import {Log} from "./commands/log";
-import {PlatformResolver} from "./../debugger/platformResolver";
 import {Packager} from "./../debugger/packager";
 import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
 import * as vscode from "vscode";
@@ -13,10 +12,8 @@ export class ReactNativeCommandExecutor {
     private workspaceRoot: string;
 
     constructor(workspaceRoot: string) {
-        let resolver = new PlatformResolver();
-        let desktopPlatform = resolver.resolveDesktopPlatform();
         this.workspaceRoot = workspaceRoot;
-        this.reactNativePackager = new Packager(workspaceRoot, desktopPlatform);
+        this.reactNativePackager = new Packager(workspaceRoot);
     }
 
     /**
@@ -40,7 +37,7 @@ export class ReactNativeCommandExecutor {
      */
     public startPackager(): void {
         this.reactNativePackager.start(vscode.window.createOutputChannel("React-Native"))
-        .done();
+            .done();
     }
 
     /**
@@ -70,25 +67,15 @@ export class ReactNativeCommandExecutor {
      * {args} The arguments to be passed to the command
      */
     public executeReactNativeRunCommand(command: string, args?: string[]): Q.Promise<void> {
-        let resolver = new PlatformResolver();
-        let desktopPlatform = resolver.resolveDesktopPlatform();
-
-        // Invoke "react-native" with the command passed
-        let runArguments = [command];
-
-        if (args) {
-            runArguments.concat(args);
-        }
-
         // Start the packager before executing the React-Native command
         let outputChannel = vscode.window.createOutputChannel("React-Native");
         Log.appendStringToOutputChannel("Attempting to start the React Native packager", outputChannel);
 
         return this.reactNativePackager.start(outputChannel)
-        .then(() => {
-            return new CommandExecutor(this.workspaceRoot).spawn(desktopPlatform.reactNativeCommandName, runArguments, {}, vscode.window.createOutputChannel("React-Native"));
-        }).then(() => {
-            return Q.resolve<void>(void 0);
-        });
+            .then(() => {
+                return new CommandExecutor(this.workspaceRoot).spawnReactCommand(command, args, undefined, outputChannel);
+            }).then(() => {
+                return Q.resolve<void>(void 0);
+            });
     }
 }
