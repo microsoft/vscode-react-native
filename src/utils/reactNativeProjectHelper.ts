@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {Package} from "./node/package";
-import * as vscode from "vscode";
 
 export class ReactNativeProjectHelper {
     private workspaceRoot: string;

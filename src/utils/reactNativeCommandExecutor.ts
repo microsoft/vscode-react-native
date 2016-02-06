@@ -86,7 +86,7 @@ export class ReactNativeCommandExecutor {
 
         return this.reactNativePackager.start(outputChannel)
         .then(() => {
-            return new CommandExecutor(this.workspaceRoot).spawn(desktopPlatform.reactNativeCommandName, runArguments, {}, vscode.window.createOutputChannel("React-Native"))
+            return new CommandExecutor(this.workspaceRoot).spawn(desktopPlatform.reactNativeCommandName, runArguments, {}, vscode.window.createOutputChannel("React-Native"));
         }).then(() => {
             return Q.resolve<void>(void 0);
         });
