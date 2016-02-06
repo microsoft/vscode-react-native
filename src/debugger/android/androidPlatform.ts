@@ -6,7 +6,6 @@ import {IMobilePlatform, IDesktopPlatform} from "../platformResolver";
 import {IRunOptions} from "../launchArgs";
 import {CommandExecutor} from "../../utils/commands/commandExecutor";
 import {Package} from "../../utils/node/package";
-import {ReactNativeCommandExecutor} from "../../utils/reactNativeCommandExecutor";
 
 /**
  * Android specific platform implementation for debugging RN applications.
@@ -19,7 +18,7 @@ export class AndroidPlatform implements IMobilePlatform {
     }
 
     public runApp(runOptions: IRunOptions): Q.Promise<void> {
-        return new ReactNativeCommandExecutor(runOptions.projectRoot).executeReactNativeCommand("run-android");
+        return new CommandExecutor(runOptions.projectRoot).spawnAndWaitForCompletion(this.desktopPlatform.reactNativeCommandName, ["run-android"]);
     }
 
     public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {

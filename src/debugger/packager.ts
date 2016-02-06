@@ -54,7 +54,7 @@ export class Packager {
         });
     }
 
-    public start(skipDebuggerEnvSetup?: boolean, outputChannel?: OutputChannel): Q.Promise<void> {
+    public start(outputChannel?: OutputChannel): Q.Promise<void> {
         this.isRunning().done(running => {
             if (!running) {
                 let mandatoryArgs = ["start"];
@@ -65,7 +65,7 @@ export class Packager {
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
 
-                let spawnOptions = skipDebuggerEnvSetup ? {} : { env: childEnvForDebugging };
+                let spawnOptions = { env: childEnvForDebugging };
                 new CommandExecutor(this.projectPath).spawn(this.desktopPlatform.reactNativeCommandName, args, spawnOptions).then((packagerProcess) => {
                     this.packagerProcess = packagerProcess;
                 }).done();
@@ -88,8 +88,9 @@ export class Packager {
         if (this.packagerProcess) {
             this.packagerProcess.kill();
             this.packagerProcess = null;
+            Log.logMessage("Packager stopped", outputChannel);
+        } else {
+            Log.logMessage("Packager not found", outputChannel);
         }
-
-        Log.logMessage("Packager stopped", outputChannel);
     }
 }
