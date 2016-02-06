@@ -39,11 +39,14 @@ export class Launcher {
             Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
         } else {
             let sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-            // TODO: We need to remove all the delays, yet make sure things work properly for both Android and iOS
+            let packager = new Packager(this.projectRootPath, sourcesStoragePath);
             Q({})
-                .then(() => Q.delay(new Packager(this.projectRootPath, sourcesStoragePath).start(), 3000))
-                .then(() => Q.delay(mobilePlatform.runApp(runOptions), 3000))
-                .then(() => Q.delay(new MultipleLifetimesAppWorker(sourcesStoragePath).start(), 3000)) // Start the app worker
+                .then(() => packager.start())
+                // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                .then(() => packager.prewarmBundleCache(runOptions.platform))
+                .then(() => mobilePlatform.runApp(runOptions))
+                .then(() => new MultipleLifetimesAppWorker(sourcesStoragePath).start()) // Start the app worker
                 .then(() => mobilePlatform.enableJSDebuggingMode(runOptions))
                 .done(() => { }, reason => {
                     Log.logError("Cannot debug application.", reason);
