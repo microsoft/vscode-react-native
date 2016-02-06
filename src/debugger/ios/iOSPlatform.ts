@@ -33,13 +33,13 @@ export class IOSPlatform implements IMobilePlatform {
 
         if (this.isSimulator) {
             // React native supports running on the iOS simulator from the command line
-            let runArguments = ["run-ios"];
+            let runArguments: string[] = ["run-ios"];
             if (this.simulatorTarget.toLowerCase() !== IOSPlatform.simulatorString) {
                 runArguments.push("--simulator");
                 runArguments.push(this.simulatorTarget);
             }
 
-            return new CommandExecutor(this.projectPath).spawn(this.desktopPlatform.reactNativeCommandName, runArguments);
+            return new CommandExecutor(this.projectPath).spawnAndWaitForCompletion(this.desktopPlatform.reactNativeCommandName, runArguments);
         }
 
         // TODO: This is currently a stub, device debugging is not yet implemented

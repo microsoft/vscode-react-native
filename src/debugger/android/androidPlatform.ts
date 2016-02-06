@@ -18,7 +18,7 @@ export class AndroidPlatform implements IMobilePlatform {
     }
 
     public runApp(runOptions: IRunOptions): Q.Promise<void> {
-        return new CommandExecutor(runOptions.projectRoot).spawn(this.desktopPlatform.reactNativeCommandName, ["run-android"]);
+        return new CommandExecutor(runOptions.projectRoot).spawnAndWaitForCompletion(this.desktopPlatform.reactNativeCommandName, ["run-android"]);
     }
 
     public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {
