@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import fs = require("fs");
+import {FileSystem} from "../utils/node/fileSystem";
 import {Log} from "../utils/commands/log";
 import path = require("path");
 import Q = require("q");
@@ -53,11 +53,9 @@ export class ScriptImporter {
      * Writes the script file to the project temporary location.
      */
     private writeScript(scriptBody: string, scriptUrl: url.Url): Q.Promise<String> {
-        return Q.fcall(() => {
-            let scriptFilePath = path.join(this.sourcesStoragePath, scriptUrl.pathname); // scriptFilePath = "$TMPDIR/index.ios.bundle"
-            this.writeTemporaryFileSync(scriptFilePath, scriptBody);
-            return scriptFilePath;
-        });
+        let scriptFilePath = path.join(this.sourcesStoragePath, scriptUrl.pathname); // scriptFilePath = "$TMPDIR/index.ios.bundle"
+        return new FileSystem().writeFile(scriptFilePath, scriptBody)
+            .then(() => scriptFilePath);
     }
 
     /**
@@ -68,24 +66,8 @@ export class ScriptImporter {
             .then((sourceMapBody: string) => {
                 let sourceMappingLocalPath = path.join(this.sourcesStoragePath, sourceMapUrl.pathname); // sourceMappingLocalPath = "$TMPDIR/index.ios.map"
                 let scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
-                this.writeTemporaryFileSync(sourceMappingLocalPath, this.sourceMapUtil.updateSourceMapFile(sourceMapBody, scriptFileRelativePath, this.sourcesStoragePath));
+                let updatedContent = this.sourceMapUtil.updateSourceMapFile(sourceMapBody, scriptFileRelativePath, this.sourcesStoragePath);
+                return new FileSystem().writeFile(sourceMappingLocalPath, updatedContent);
             });
-    }
-
-    private writeTemporaryFileSync(filename: string, data: string): Q.Promise<void> {
-        let writeFile = Q.nfbind<void>(fs.writeFile);
-
-        return writeFile(filename, data)
-            .then(() => this.scheduleTemporaryFileCleanUp(filename));
-    }
-
-    private scheduleTemporaryFileCleanUp(filename: string): void {
-        process.on("exit", function() {
-            let unlink = Q.nfbind<void>(fs.unlink);
-            unlink(filename)
-                .then(() => {
-                    Log.logMessage("Succesfully cleaned temporary file: " + filename);
-                });
-        });
     }
 }
