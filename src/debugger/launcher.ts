@@ -34,17 +34,19 @@ export class Launcher {
     public launch() {
         let resolver = new PlatformResolver();
         let runOptions = this.parseRunOptions();
-        let desktopPlatform = resolver.resolveDesktopPlatform();
-        let mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform, desktopPlatform);
+        let mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
         if (!mobilePlatform) {
             Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
         } else {
-            let sourcesStoragePath = path.join(this.projectRootPath, ".vscode");
-            // TODO: We need to remove all the delays, yet make sure things work properly for both Android and iOS
+            let sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
+            let packager = new Packager(this.projectRootPath, sourcesStoragePath);
             Q({})
-                .then(() => Q.delay(new Packager(this.projectRootPath, desktopPlatform, sourcesStoragePath).start(), 3000))
-                .then(() => Q.delay(mobilePlatform.runApp(runOptions), 3000))
-                .then(() => Q.delay(new MultipleLifetimesAppWorker(sourcesStoragePath).start(), 3000)) // Start the app worker
+                .then(() => packager.start())
+                // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                .then(() => packager.prewarmBundleCache(runOptions.platform))
+                .then(() => mobilePlatform.runApp(runOptions))
+                .then(() => new MultipleLifetimesAppWorker(sourcesStoragePath).start()) // Start the app worker
                 .then(() => mobilePlatform.enableJSDebuggingMode(runOptions))
                 .done(() => { }, reason => {
                     Log.logError("Cannot debug application.", reason);

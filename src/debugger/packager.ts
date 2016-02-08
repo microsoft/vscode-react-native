@@ -3,7 +3,6 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "../utils/commands/commandExecutor";
-import {IDesktopPlatform} from "./platformResolver";
 import {Log} from "../utils/commands/log";
 import {Node} from "../utils/node/node";
 import {OutputChannel} from "vscode";
@@ -14,17 +13,17 @@ import * as Q from "q";
 import * as path from "path";
 
 export class Packager {
-    public static HOST = "localhost:8081";
+    // TODO: Make the port configurable via a launch argument
+    public static PORT = "8081";
+    public static HOST = `localhost:${Packager.PORT}`;
     public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
     public static DEBUGGER_WORKER_FILENAME = Packager.DEBUGGER_WORKER_FILE_BASENAME + ".js";
     private projectPath: string;
     private packagerProcess: ChildProcess;
     private sourcesStoragePath: string;
-    private desktopPlatform: IDesktopPlatform;
 
-    constructor(projectPath: string, desktopPlatform: IDesktopPlatform, sourcesStoragePath?: string) {
+    constructor(projectPath: string, sourcesStoragePath?: string) {
         this.projectPath = projectPath;
-        this.desktopPlatform = desktopPlatform;
         this.sourcesStoragePath = sourcesStoragePath;
     }
 
@@ -54,19 +53,19 @@ export class Packager {
         });
     }
 
-    public start(skipDebuggerEnvSetup?: boolean, outputChannel?: OutputChannel): Q.Promise<void> {
+    public start(outputChannel?: OutputChannel): Q.Promise<void> {
         this.isRunning().done(running => {
             if (!running) {
-                let mandatoryArgs = ["start"];
-                let args = mandatoryArgs.concat(this.desktopPlatform.reactPackagerExtraParameters);
+                let args = ["--port", Packager.PORT];
                 let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
                 Log.logMessage("Starting Packager", outputChannel);
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
 
-                let spawnOptions = skipDebuggerEnvSetup ? {} : { env: childEnvForDebugging };
-                new CommandExecutor(this.projectPath).spawn(this.desktopPlatform.reactNativeCommandName, args, spawnOptions).then((packagerProcess) => {
+                let spawnOptions = { env: childEnvForDebugging };
+
+                new CommandExecutor(this.projectPath).spawnReactCommand("start", args, spawnOptions, outputChannel).then((packagerProcess) => {
                     this.packagerProcess = packagerProcess;
                 }).done();
             }
@@ -88,8 +87,17 @@ export class Packager {
         if (this.packagerProcess) {
             this.packagerProcess.kill();
             this.packagerProcess = null;
+            Log.logMessage("Packager stopped", outputChannel);
+        } else {
+            Log.logMessage("Packager not found", outputChannel);
         }
+    }
 
-        Log.logMessage("Packager stopped", outputChannel);
+    public prewarmBundleCache(platform: string) {
+        let bundleURL = `http://${Packager.HOST}/index.${platform}.bundle`;
+        Log.logInternalMessage("About to get: " + bundleURL);
+        return new Request().request(bundleURL, true).then(() => {
+            Log.logMessage("The Bundle Cache was prewarmed.");
+        });
     }
 }

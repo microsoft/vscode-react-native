@@ -5,28 +5,21 @@ import * as Q from "q";
 
 import {Log} from "../../utils/commands/log";
 import {CommandExecutor} from "../../utils/commands/commandExecutor";
-import {IMobilePlatform, IDesktopPlatform} from "../platformResolver";
+import {IAppPlatform} from "../platformResolver";
 import {Compiler} from "./compiler";
 import {DeviceDeployer} from "./deviceDeployer";
 import {DeviceRunner} from "./deviceRunner";
 import {IRunOptions} from "../launchArgs";
 import {SimulatorPlist} from "./simulatorPlist";
 import {PlistBuddy} from "./plistBuddy";
-import {ReactNativeCommandExecutor} from "../../utils/reactNativeCommandExecutor";
 
-export class IOSPlatform implements IMobilePlatform {
+export class IOSPlatform implements IAppPlatform {
     private static deviceString = "device";
     private static simulatorString = "simulator";
-
-    private desktopPlatform: IDesktopPlatform;
 
     private projectPath: string;
     private simulatorTarget: string;
     private isSimulator: boolean;
-
-    constructor (desktopPlatform: IDesktopPlatform) {
-        this.desktopPlatform = desktopPlatform;
-    }
 
     public runApp(launchArgs: IRunOptions): Q.Promise<void> {
         // Compile, deploy, and launch the app on either a simulator or a device
@@ -34,14 +27,13 @@ export class IOSPlatform implements IMobilePlatform {
 
         if (this.isSimulator) {
             // React native supports running on the iOS simulator from the command line
-            let runCommand = "run-ios";
             let runArguments: string[] = [];
             if (this.simulatorTarget.toLowerCase() !== IOSPlatform.simulatorString) {
                 runArguments.push("--simulator");
                 runArguments.push(this.simulatorTarget);
             }
 
-            return new ReactNativeCommandExecutor(this.projectPath).executeReactNativeCommand(runCommand, runArguments);
+            return new CommandExecutor(this.projectPath).spawnAndWaitReactCommand("run-ios", runArguments);
         }
 
         // TODO: This is currently a stub, device debugging is not yet implemented

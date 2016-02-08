@@ -121,4 +121,50 @@ export class FileSystem {
             return extFiles;
         });
     }
+
+    public pathExists(p: string): Q.Promise<boolean> {
+        let deferred = Q.defer<boolean>();
+        fs.exists(p, deferred.resolve);
+        return deferred.promise;
+    }
+
+    public mkDir(p: string): Q.Promise<void> {
+        return Q.nfcall<void>(fs.mkdir, p);
+    }
+
+    public removePathRecursivelyAsync(p: string): Q.Promise<void> {
+        return this.pathExists(p).then(exists => {
+            if (exists) {
+                return Q.nfcall<fs.Stats>(fs.stat, p).then((stats: fs.Stats) => {
+                    if (stats.isDirectory()) {
+                        return Q.nfcall<string[]>(fs.readdir, p).then((childPaths: string[]) => {
+                            let result = Q<void>(void 0);
+                            childPaths.forEach(childPath =>
+                                result = result.then<void>(() => this.removePathRecursivelyAsync(path.join(p, childPath))));
+                            return result;
+                        }).then(() =>
+                            Q.nfcall<void>(fs.rmdir, p));
+                    } else {
+                        /* file */
+                        return Q.nfcall<void>(fs.unlink, p);
+                    }
+                });
+            }
+        });
+    }
+
+    public removePathRecursivelySync(p: string): void {
+        if (fs.existsSync(p)) {
+            let stats = fs.statSync(p);
+            if (stats.isDirectory()) {
+                let contents = fs.readdirSync(p);
+                contents.forEach(childPath =>
+                    this.removePathRecursivelySync(path.join(p, childPath)));
+                fs.rmdirSync(p);
+            } else {
+                /* file */
+                fs.unlinkSync(p);
+            }
+        }
+    }
 }

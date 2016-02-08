@@ -47,9 +47,9 @@ export class CommandExecutor {
             spawnResult.outcome.then(() => {
                 Log.commandEnded(commandWithArgs, outputChannel);
             },
-            (reason) => {
-                Log.commandFailed(commandWithArgs, reason, outputChannel);
-            });
+                (reason) => {
+                    Log.commandFailed(commandWithArgs, reason, outputChannel);
+                });
 
             return Q.resolve(spawnResult.spawnedProcess);
         });
@@ -69,10 +69,46 @@ export class CommandExecutor {
             return spawnResult.outcome.then(() => {
                 Log.commandEnded(commandWithArgs, outputChannel);
             },
-            (reason) => {
-                Log.commandFailed(commandWithArgs, reason, outputChannel);
-            });
+                (reason) => {
+                    Log.commandFailed(commandWithArgs, reason, outputChannel);
+                });
         });
+    }
+
+    /**
+     * Executes a react native command.
+     */
+    public spawnReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
+        let runArguments = [command];
+        if (args) {
+            runArguments.concat(args);
+        }
+        return this.spawn(this.getReactCommandName(), runArguments, options, outputChannel);
+    }
+
+    /**
+     * Executes a react native command and waits for its completion.
+     */
+    public spawnAndWaitReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<void> {
+        let runArguments = [command];
+        if (args) {
+            runArguments.concat(args);
+        }
+        return this.spawnAndWaitForCompletion(this.getReactCommandName(), runArguments, options, outputChannel);
+    }
+
+    /**
+     * Resolves the dev machine, desktop platform.
+     */
+    private getReactCommandName() {
+        let platform = process.platform;
+        switch (platform) {
+            case "darwin":
+                return "react-native";
+            case "win32":
+            default:
+                return "react-native.cmd";
+        }
     }
 
     private spawnChildProcess(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ISpawnResult> {
