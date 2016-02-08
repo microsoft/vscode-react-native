@@ -13,7 +13,9 @@ import * as Q from "q";
 import * as path from "path";
 
 export class Packager {
-    public static HOST = "localhost:8081";
+    // TODO: Make the port configurable via a launch argument
+    public static PORT = "8081";
+    public static HOST = `localhost:${Packager.PORT}`;
     public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
     public static DEBUGGER_WORKER_FILENAME = Packager.DEBUGGER_WORKER_FILE_BASENAME + ".js";
     private projectPath: string;
@@ -28,6 +30,7 @@ export class Packager {
     public start(outputChannel?: OutputChannel): Q.Promise<void> {
         this.isRunning().done(running => {
             if (!running) {
+                let args = ["--port", Packager.PORT];
                 let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
                 Log.logMessage("Starting Packager", outputChannel);
@@ -36,7 +39,7 @@ export class Packager {
 
                 let spawnOptions = { env: childEnvForDebugging };
 
-                new CommandExecutor(this.projectPath).spawnReactCommand("start", undefined, spawnOptions, outputChannel).then((packagerProcess) => {
+                new CommandExecutor(this.projectPath).spawnReactCommand("start", args, spawnOptions, outputChannel).then((packagerProcess) => {
                     this.packagerProcess = packagerProcess;
                 }).done();
             }
@@ -64,6 +67,14 @@ export class Packager {
         }
     }
 
+    public prewarmBundleCache(platform: string) {
+        let bundleURL = `http://${Packager.HOST}/index.${platform}.bundle`;
+        Log.logInternalMessage("About to get: " + bundleURL);
+        return new Request().request(bundleURL, true).then(() => {
+            Log.logMessage("The Bundle Cache was prewarmed.");
+        });
+    }
+
     private isRunning(): Q.Promise<boolean> {
         let statusURL = `http://${Packager.HOST}/status`;
 
@@ -89,5 +100,4 @@ export class Packager {
             return new Node.FileSystem().writeFile(debuggerWorkerLocalPath, body);
         });
     }
-
 }
