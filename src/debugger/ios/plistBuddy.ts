@@ -28,6 +28,10 @@ export class PlistBuddy {
         ).then(() => {});
     }
 
+    public readPlistProperty(plistFile: string, property: string): Q.Promise<string> {
+        return this.invokePlistBuddy(`Print ${property}`, plistFile);
+    }
+
     private invokePlistBuddy(command: string, plistFile: string): Q.Promise<string> {
         return new Node.ChildProcess().exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`).outcome.then((result: Buffer) => {
             return result.toString().trim();

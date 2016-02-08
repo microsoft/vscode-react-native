@@ -9,11 +9,9 @@ import {Xcodeproj} from "./xcodeproj";
 
 export class Compiler {
     private projectRoot: string;
-    private simulator: boolean;
 
-    constructor(projectRoot: string, simulator: boolean) {
+    constructor(projectRoot: string) {
         this.projectRoot = projectRoot;
-        this.simulator = simulator;
     }
 
     public compile(): Q.Promise<void> {
@@ -26,9 +24,6 @@ export class Compiler {
         Return the appropriate arguments for compiling a react native project
     */
     private xcodeBuildArguments(): Q.Promise<string[]> {
-        if (this.simulator) {
-            return Q.reject<string[]>(new Error("Error: Compiling for simulator; should be using 'react-native run-ios' instead"));
-        }
         return new Xcodeproj().findXcodeprojFile(this.projectRoot).then((projectFile: string) => {
             const projectName = path.basename(projectFile, path.extname(projectFile));
             return [
