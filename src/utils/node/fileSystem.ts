@@ -122,18 +122,41 @@ export class FileSystem {
         });
     }
 
-    public pathExists(p: string): Q.Promise<boolean> {
-        let deferred = Q.defer<boolean>();
-        fs.exists(p, deferred.resolve);
-        return deferred.promise;
-    }
-
     public mkDir(p: string): Q.Promise<void> {
         return Q.nfcall<void>(fs.mkdir, p);
     }
 
+    /**
+     * Recursively copy 'source' to 'target' asynchronously
+     *
+     * @param {string} source Location to copy from
+     * @param {string} target Location to copy to
+     * @returns {Q.Promise} A promise which is fulfilled when the copy completes, and is rejected on error
+     */
+    public copyRecursive(source: string, target: string): Q.Promise<void> {
+        return Q.nfcall<fs.Stats>(fs.stat, source).then(stats => {
+            if (stats.isDirectory()) {
+                return this.exists(target).then(exists => {
+                    if (!exists) {
+                        return Q.nfcall<void>(fs.mkdir, target);
+                    }
+                })
+                .then(() => {
+                    return Q.nfcall<string[]>(fs.readdir, source);
+                })
+                .then(contents => {
+                    Q.all(contents.map((childPath:string): Q.Promise<void> => {
+                        return this.copyRecursive(path.join(source, childPath), path.join(target, childPath));
+                    }));
+                });
+            } else {
+                return this.copyFile(source, target);
+            }
+        });
+    }
+
     public removePathRecursivelyAsync(p: string): Q.Promise<void> {
-        return this.pathExists(p).then(exists => {
+        return this.exists(p).then(exists => {
             if (exists) {
                 return Q.nfcall<fs.Stats>(fs.stat, p).then((stats: fs.Stats) => {
                     if (stats.isDirectory()) {

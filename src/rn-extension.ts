@@ -7,7 +7,6 @@ import * as vscode from "vscode";
 import {ReactNativeCommandExecutor} from "./utils/reactNativeCommandExecutor";
 import {ReactNativeProjectHelper} from "./utils/reactNativeProjectHelper";
 import {TsConfigHelper} from "./utils/tsconfigHelper";
-import {TsdHelper} from "./utils/tsdHelper";
 
 export function activate(context: vscode.ExtensionContext): void {
     let reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
@@ -65,13 +64,18 @@ try {
 }
 
 function setupReactNativeIntellisense(): void {
+    if (!process.env.VSCODE_TSJS) {
+        return;
+    }
+
     // Enable JavaScript intellisense through Salsa language service
     TsConfigHelper.compileJavaScript(true).done();
 
-    // Add typings for React and React Native
-    var reactTypeDefsPath = path.resolve(__dirname, "..", "reactTypings.json");
-    var typeDefsToInstall:string[] = require(reactTypeDefsPath);
-    TsdHelper.installTypings(TsdHelper.getOrCreateTypingsTargetPath(vscode.workspace.rootPath),typeDefsToInstall).done();
+    let reactTypingsSource = path.resolve(__dirname, "..", "ReactTypings");
+    let reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
+    let fileSystem = new FileSystem();
+
+    fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest);
 }
 
 /**
