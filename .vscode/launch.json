@@ -12,38 +12,99 @@
 			"sourceMaps": true,
 			"outDir": "${workspaceRoot}/out",
             "preLaunchTask": "build"
-		},
-		{
-			"name": "mock-debug server",
-			"type": "node",
-			"request": "launch",
-			"runtimeArgs": ["--harmony"],
-			"program": "./src/mockDebug.ts",
-			"stopOnEntry": false,
-			"args": [ "--server=4711" ],
-			"sourceMaps": true,
-			"outDir": "./out"
-		},
-		{
-			"name": "mock test",
-			"type": "mock",
-			"request": "launch",
-			"program": "README.md",
-			"stopOnEntry": true
-		},
-		{
-			"name": "Run Tests",
-			"type": "node",
-			"request": "launch",
-			"program": "node_modules/mocha/bin/_mocha",
-			"args": [
-				"./out/tests",
-				"--timeout", "999999",
-				"--colors"
-			],
-			"sourceMaps": true,
-			"outDir": "./out/",
+        },
+        {
+            "name": "mock-debug server",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--harmony"
+            ],
+            "program": "${workspaceRoot}/src/mockDebug.ts",
+            "stopOnEntry": false,
+            "args": [
+                "--server=4711"
+            ],
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/out"
+        },
+        {
+            "name": "mock test",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/README.md",
+            "stopOnEntry": true
+        },
+        {
+            "name": "Run Tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "./out/tests",
+                "--timeout",
+                "999999",
+                "--colors"
+            ],
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/out/",
             "preLaunchTask": "build"
-		}
-	]
+        },
+        {
+            "name": "Sample - Android App",
+            "program": "${workspaceRoot}/test/SampleApplication/.vscode/launchReactNative.js",
+            "type": "node",
+            "request": "launch",
+            "args": [
+                "android"
+            ],
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/test/SampleApplication/.vscode/"
+        },
+        {
+            "name": "Sample - iOS App",
+            "program": "${workspaceRoot}/test/SampleApplication/.vscode/launchReactNative.js",
+            "type": "node",
+            "request": "launch",
+            "args": [
+                "ios"
+            ],
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/test/SampleApplication/.vscode/"
+        },
+        {
+            "name": "Sample - Android Extension",
+            "program": "${workspaceRoot}/out/launchReactNative.js",
+            "type": "node",
+            "request": "launch",
+            "args": [
+                "android"
+            ],
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/out/"
+        },
+        {
+            "name": "Sample - iOS Extension",
+            "program": "${workspaceRoot}/out/launchReactNative.js",
+            "type": "node",
+            "request": "launch",
+            "args": [
+                "ios"
+            ],
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/out/"
+        }
+    ]
 }
