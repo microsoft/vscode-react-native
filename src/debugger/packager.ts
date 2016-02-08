@@ -25,32 +25,6 @@ export class Packager {
         this.sourcesStoragePath = sourcesStoragePath;
     }
 
-    private isRunning(): Q.Promise<boolean> {
-        let statusURL = `http://${Packager.HOST}/status`;
-
-        return new Request().request(statusURL)
-            .then((body: string) => {
-                return body === "packager-status:running";
-            },
-            (error: any) => {
-                return false;
-            });
-    }
-
-    private awaitStart(retryCount = 30, delay = 2000): Q.Promise<boolean> {
-        let pu: PromiseUtil = new PromiseUtil();
-        return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, "Could not start the packager.");
-    }
-
-    private downloadDebuggerWorker(): Q.Promise<void> {
-        let debuggerWorkerURL = `http://${Packager.HOST}/${Packager.DEBUGGER_WORKER_FILENAME}`;
-        let debuggerWorkerLocalPath = path.join(this.sourcesStoragePath, Packager.DEBUGGER_WORKER_FILENAME);
-        Log.logInternalMessage("About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
-        return new Request().request(debuggerWorkerURL, true).then((body: string) => {
-            return new Node.FileSystem().writeFile(debuggerWorkerLocalPath, body);
-        });
-    }
-
     public start(outputChannel?: OutputChannel): Q.Promise<void> {
         this.isRunning().done(running => {
             if (!running) {
@@ -89,4 +63,31 @@ export class Packager {
             Log.logMessage("Packager not found", outputChannel);
         }
     }
+
+    private isRunning(): Q.Promise<boolean> {
+        let statusURL = `http://${Packager.HOST}/status`;
+
+        return new Request().request(statusURL)
+            .then((body: string) => {
+                return body === "packager-status:running";
+            },
+            (error: any) => {
+                return false;
+            });
+    }
+
+    private awaitStart(retryCount = 30, delay = 2000): Q.Promise<boolean> {
+        let pu: PromiseUtil = new PromiseUtil();
+        return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, "Could not start the packager.");
+    }
+
+    private downloadDebuggerWorker(): Q.Promise<void> {
+        let debuggerWorkerURL = `http://${Packager.HOST}/${Packager.DEBUGGER_WORKER_FILENAME}`;
+        let debuggerWorkerLocalPath = path.join(this.sourcesStoragePath, Packager.DEBUGGER_WORKER_FILENAME);
+        Log.logInternalMessage("About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
+        return new Request().request(debuggerWorkerURL, true).then((body: string) => {
+            return new Node.FileSystem().writeFile(debuggerWorkerLocalPath, body);
+        });
+    }
+
 }

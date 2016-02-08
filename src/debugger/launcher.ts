@@ -16,6 +16,27 @@ export class Launcher {
         this.projectRootPath = projectRootPath;
     }
 
+    public launch() {
+        let resolver = new PlatformResolver();
+        let runOptions = this.parseRunOptions();
+        let mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
+        if (!mobilePlatform) {
+            Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
+            return;
+        }
+
+        let sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
+        // TODO: We need to remove all the delays, yet make sure things work properly for both Android and iOS
+        Q({})
+            .then(() => Q.delay(new Packager(this.projectRootPath, sourcesStoragePath).start(), 3000))
+            .then(() => Q.delay(mobilePlatform.runApp(runOptions), 3000))
+            .then(() => Q.delay(new MultipleLifetimesAppWorker(sourcesStoragePath).start(), 3000)) // Start the app worker
+            .then(() => mobilePlatform.enableJSDebuggingMode(runOptions))
+            .done(() => { }, reason => {
+                Log.logError("Cannot debug application.", reason);
+            });
+    }
+
     /**
      * Parses the launch arguments set in the launch configuration.
      */
@@ -27,28 +48,7 @@ export class Launcher {
         }
 
         result.target = process.argv[3];
-
         return result;
-    }
-
-    public launch() {
-        let resolver = new PlatformResolver();
-        let runOptions = this.parseRunOptions();
-        let mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
-        if (!mobilePlatform) {
-            Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
-        } else {
-            let sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-            // TODO: We need to remove all the delays, yet make sure things work properly for both Android and iOS
-            Q({})
-                .then(() => Q.delay(new Packager(this.projectRootPath, sourcesStoragePath).start(), 3000))
-                .then(() => Q.delay(mobilePlatform.runApp(runOptions), 3000))
-                .then(() => Q.delay(new MultipleLifetimesAppWorker(sourcesStoragePath).start(), 3000)) // Start the app worker
-                .then(() => mobilePlatform.enableJSDebuggingMode(runOptions))
-                .done(() => { }, reason => {
-                    Log.logError("Cannot debug application.", reason);
-                });
-        }
     }
 }
 
