@@ -2,10 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 import fs = require("fs");
 import path = require("path");
-import {FileSystem} from './node/fileSystem';
+import {FileSystem} from "./node/fileSystem";
 
 export class TsConfigHelper {
 
@@ -17,11 +17,11 @@ export class TsConfigHelper {
      * Constructs a JSON object from tsconfig.json. Will create the file if needed.
      */
     public static readConfigJson(): Q.Promise<any> {
-        var tsConfigPath:string = TsConfigHelper.tsConfigPath;
-        var fileSystem = new FileSystem();
+        let tsConfigPath: string = TsConfigHelper.tsConfigPath;
+        let fileSystem = new FileSystem();
 
         return fileSystem.exists(tsConfigPath)
-        .then(function(exists:boolean): Q.Promise<void> {
+        .then(function(exists: boolean): Q.Promise<void> {
             if (!exists) {
                 return fileSystem.writeFile(tsConfigPath, "{}");
             }
@@ -37,8 +37,8 @@ export class TsConfigHelper {
     /**
      * Writes out a JSON configuration object to the tsconfig.json file.
      */
-    public static writeConfigJson(configJson:any): Q.Promise<void> {
-        var tsConfigPath:string = TsConfigHelper.tsConfigPath;
+    public static writeConfigJson(configJson: any): Q.Promise<void> {
+        let tsConfigPath: string = TsConfigHelper.tsConfigPath;
 
         return Q.nfcall<void>(fs.writeFile, tsConfigPath, JSON.stringify(configJson, null, 4));
     }
@@ -46,9 +46,9 @@ export class TsConfigHelper {
     /**
      * Enable javascript intellisense via typescript.
      */
-    public static allowJs(enabled:boolean): Q.Promise<void> {
+    public static allowJs(enabled: boolean): Q.Promise<void> {
         return TsConfigHelper.readConfigJson()
-        .then(function(tsConfigJson:any): Q.Promise<void> {
+        .then(function(tsConfigJson: any): Q.Promise<void> {
             tsConfigJson.compilerOptions = tsConfigJson.compilerOptions || {};
 
             // Return if the setting is already correctly set.
