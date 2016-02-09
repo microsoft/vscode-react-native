@@ -4,7 +4,7 @@
 import {FileSystem} from "./utils/node/fileSystem";
 import * as path from "path";
 import * as vscode from "vscode";
-import {ReactNativeCommandExecutor} from "./utils/reactNativeCommandExecutor";
+import {CommandPaletteHandler} from "./utils/commandPaletteHandler";
 import {ReactNativeProjectHelper} from "./utils/reactNativeProjectHelper";
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -18,17 +18,17 @@ export function activate(context: vscode.ExtensionContext): void {
         }
     });
 
-    let reactNativeCommandExecutor = new ReactNativeCommandExecutor(vscode.workspace.rootPath);
+    let commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 
     // Register React Native commands
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
-        () => reactNativeCommandExecutor.executeCommandInContext(() => reactNativeCommandExecutor.runAndroid())));
+        () => commandPaletteHandler.executeCommandInContext(() => commandPaletteHandler.runAndroid())));
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runIos",
-        () => reactNativeCommandExecutor.executeCommandInContext(() => reactNativeCommandExecutor.runIos())));
+        () => commandPaletteHandler.executeCommandInContext(() => commandPaletteHandler.runIos())));
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.startPackager",
-        () => reactNativeCommandExecutor.executeCommandInContext(() => reactNativeCommandExecutor.startPackager())));
+        () => commandPaletteHandler.executeCommandInContext(() => commandPaletteHandler.startPackager())));
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.stopPackager",
-        () => reactNativeCommandExecutor.executeCommandInContext(() => reactNativeCommandExecutor.stopPackager())));
+        () => commandPaletteHandler.executeCommandInContext(() => commandPaletteHandler.stopPackager())));
 }
 
 /**
