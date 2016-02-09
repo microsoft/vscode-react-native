@@ -7,7 +7,7 @@ import {Packager} from "./../debugger/packager";
 import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
 import * as vscode from "vscode";
 
-export class ReactNativeCommandExecutor {
+export class CommandPaletteHandler {
     private reactNativePackager: Packager;
     private workspaceRoot: string;
 

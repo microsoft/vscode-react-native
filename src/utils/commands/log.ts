@@ -18,9 +18,6 @@ enum LogLevel {
 export class Log {
 
     private static TAG: string = "[vscode-react-native]";
-    private static formatStringForOutputChannel(message: string) {
-        return  "######### " + message + " ##########";
-    }
 
     public static appendStringToOutputChannel(message: string, outputChannel: OutputChannel) {
         outputChannel.appendLine(Log.formatStringForOutputChannel(message));
@@ -39,34 +36,6 @@ export class Log {
         Log.logError(`Error while executing: ${command}`, error, outputChannel);
     }
 
-    /**
-     * Logs a message to the console.
-     */
-    public static logMessage(message: string, outputChannel?: OutputChannel) {
-        let messageToLog = outputChannel ? message : `${Log.TAG} ${message}`;
-
-        if (outputChannel) {
-            Log.appendStringToOutputChannel(messageToLog, outputChannel);
-        } else {
-            console.log(messageToLog);
-        }
-
-    }
-
-    private static extensionLogLevel(): LogLevel {
-        // TODO: Improve this logic. Make it case insensitive, etc...
-        let logLevelIndex = process.argv.indexOf("--extensionLogLevel");
-        if (logLevelIndex >= 0 && logLevelIndex + 1 < process.argv.length) {
-            let logLevelText = process.argv[logLevelIndex + 1];
-            return (<any>LogLevel)[logLevelText];
-        } else {
-            return LogLevel.None; // Default extension log level
-        }
-    }
-
-    private static shouldLogInternal(): boolean {
-        return this.extensionLogLevel() > LogLevel.None;
-    }
     /**
      * Logs an internal message for when someone is debugging the extension itself.
      * Customers aren't interested in these messages, so we normally shouldn't show
@@ -101,5 +70,38 @@ export class Log {
      */
     public static getErrorMessage(e: any): string {
         return e && e.message || e && e.error && e.error.message || e && e.toString() || "";
+    }
+
+    /**
+     * Logs a message to the console.
+     */
+    public static logMessage(message: string, outputChannel?: OutputChannel) {
+        let messageToLog = outputChannel ? message : `${Log.TAG} ${message}`;
+
+        if (outputChannel) {
+            Log.appendStringToOutputChannel(messageToLog, outputChannel);
+        } else {
+            console.log(messageToLog);
+        }
+
+    }
+
+    private static extensionLogLevel(): LogLevel {
+        // TODO: Improve this logic. Make it case insensitive, etc...
+        let logLevelIndex = process.argv.indexOf("--extensionLogLevel");
+        if (logLevelIndex >= 0 && logLevelIndex + 1 < process.argv.length) {
+            let logLevelText = process.argv[logLevelIndex + 1];
+            return (<any>LogLevel)[logLevelText];
+        } else {
+            return LogLevel.None; // Default extension log level
+        }
+    }
+
+    private static shouldLogInternal(): boolean {
+        return this.extensionLogLevel() > LogLevel.None;
+    }
+
+    private static formatStringForOutputChannel(message: string) {
+        return "######### " + message + " ##########";
     }
 }
