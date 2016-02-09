@@ -22,11 +22,16 @@ export class FileSystem {
     }
 
     public ensureFileWithContents(file: string, contents: string): Q.Promise<void> {
-        return Q.nfcall(fs.stat, file).then((stat: fs.Stats): void => {
+        return Q.nfcall(fs.stat, file).then((stat: fs.Stats) => {
             if (!stat.isFile()) {
                 throw new Error(`Expected ${file} to be a file`);
             }
-            // The file already exists, assume the contents are good and do not touch it.
+
+            return this.readFile(file).then(existingContents => {
+                if (contents !== existingContents) {
+                    return this.writeFile(file, contents);
+                }
+            });
         }, (err: Error & { code?: string }): Q.Promise<any> => {
             if (err && err.code === "ENOENT") {
                 return Q.nfcall(fs.writeFile, file, contents);
