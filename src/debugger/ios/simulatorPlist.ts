@@ -28,7 +28,7 @@ export class SimulatorPlist {
             // Look through $SIMULATOR_HOME/Containers/Data/Application/*/Library/Preferences to find $BUNDLEID.plist
             return Q.nfcall(fs.readdir, pathBefore).then((apps: string[]) => {
                 const mockableFS = new Node.FileSystem();
-                const plistCandidates = apps.map((app: string) => path.join(pathBefore, app, pathAfter)).filter(mockableFS.fileExistsSync);
+                const plistCandidates = apps.map((app: string) => path.join(pathBefore, app, pathAfter)).filter(mockableFS.existsSync);
                 if (plistCandidates.length === 0) {
                     throw new Error(`Unable to find plist file for ${bundleId}`);
                 } else if (plistCandidates.length > 1) {

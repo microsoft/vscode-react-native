@@ -35,17 +35,68 @@ export class FileSystem {
         });
     }
 
-    public fileExistsSync(filename: string) {
+    /**
+     *  Helper function to check if a file or directory exists
+     */
+    public existsSync(filename: string) {
         try {
-            fs.lstatSync(filename);
+            fs.statSync(filename);
             return true;
         } catch (error) {
             return false;
         }
     }
 
+    /**
+     *  Helper (asynchronous) function to check if a file or directory exists
+     */
+    public exists(filename: string): Q.Promise<boolean> {
+        return Q.nfcall(fs.stat, filename)
+            .then(function(){
+                return Q.resolve(true);
+            })
+            .catch(function(err) {
+                return Q.resolve(false);
+            });
+    }
+
+    /**
+     *  Helper (synchronous) function to create a directory recursively
+     */
+    public makeDirectoryRecursiveSync(dirPath: string): void {
+        let parentPath = path.dirname(dirPath);
+        if (!this.existsSync(parentPath)) {
+            this.makeDirectoryRecursiveSync(parentPath);
+        }
+
+        fs.mkdirSync(dirPath);
+    }
+
+    /**
+     *  Helper function to asynchronously copy a file
+     */
+    public copyFile(from: string, to: string, encoding?: string): Q.Promise<void> {
+        var deferred: Q.Deferred<void> = Q.defer<void>();
+        var destFile: fs.WriteStream = fs.createWriteStream(to, { encoding: encoding });
+        var srcFile: fs.ReadStream = fs.createReadStream(from, { encoding: encoding });
+        destFile.on("finish", function(): void {
+            deferred.resolve(void 0);
+        });
+
+        destFile.on("error", function(e: Error): void {
+            deferred.reject(e);
+        });
+
+        srcFile.on("error", function(e: Error): void {
+            deferred.reject(e);
+        });
+
+        srcFile.pipe(destFile);
+        return deferred.promise;
+    }
+
     public deleteFileIfExistsSync(filename: string) {
-        if (this.fileExistsSync(filename)) {
+        if (this.existsSync(filename)) {
             fs.unlinkSync(filename);
         }
     }
@@ -68,18 +119,41 @@ export class FileSystem {
         });
     }
 
-    public pathExists(p: string): Q.Promise<boolean> {
-        let deferred = Q.defer<boolean>();
-        fs.exists(p, deferred.resolve);
-        return deferred.promise;
-    }
-
     public mkDir(p: string): Q.Promise<void> {
         return Q.nfcall<void>(fs.mkdir, p);
     }
 
+    /**
+     * Recursively copy 'source' to 'target' asynchronously
+     *
+     * @param {string} source Location to copy from
+     * @param {string} target Location to copy to
+     * @returns {Q.Promise} A promise which is fulfilled when the copy completes, and is rejected on error
+     */
+    public copyRecursive(source: string, target: string): Q.Promise<void> {
+        return Q.nfcall<fs.Stats>(fs.stat, source).then(stats => {
+            if (stats.isDirectory()) {
+                return this.exists(target).then(exists => {
+                    if (!exists) {
+                        return Q.nfcall<void>(fs.mkdir, target);
+                    }
+                })
+                .then(() => {
+                    return Q.nfcall<string[]>(fs.readdir, source);
+                })
+                .then(contents => {
+                    Q.all(contents.map((childPath:string): Q.Promise<void> => {
+                        return this.copyRecursive(path.join(source, childPath), path.join(target, childPath));
+                    }));
+                });
+            } else {
+                return this.copyFile(source, target);
+            }
+        });
+    }
+
     public removePathRecursivelyAsync(p: string): Q.Promise<void> {
-        return this.pathExists(p).then(exists => {
+        return this.exists(p).then(exists => {
             if (exists) {
                 return Q.nfcall<fs.Stats>(fs.stat, p).then((stats: fs.Stats) => {
                     if (stats.isDirectory()) {

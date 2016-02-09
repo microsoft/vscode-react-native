@@ -7,12 +7,14 @@ import * as vscode from "vscode";
 import {ReactNativeCommandExecutor} from "./utils/reactNativeCommandExecutor";
 import {ReactNativeProjectHelper} from "./utils/reactNativeProjectHelper";
 import {ReactDirManager} from "./utils/reactDirManager";
+import {TsConfigHelper} from "./utils/tsconfigHelper";
 
 export function activate(context: vscode.ExtensionContext): void {
     let reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
     reactNativeProjectHelper.isReactNativeProject().then(isRNProject => {
         if (isRNProject) {
             setupReactNativeDebugger();
+            setupReactNativeIntellisense();
             context.subscriptions.push(new ReactDirManager());
         }
     });
@@ -59,4 +61,19 @@ try {
     }).catch((err: Error) => {
         vscode.window.showErrorMessage(err.message);
     });
+}
+
+function setupReactNativeIntellisense(): void {
+    if (!process.env.VSCODE_TSJS) {
+        return;
+    }
+
+    // Enable JavaScript intellisense through Salsa language service
+    TsConfigHelper.allowJs(true).done();
+
+    let reactTypingsSource = path.resolve(__dirname, "..", "ReactTypings");
+    let reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
+    let fileSystem = new FileSystem();
+
+    fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest).done();
 }
