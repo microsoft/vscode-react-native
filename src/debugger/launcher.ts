@@ -16,21 +16,6 @@ export class Launcher {
         this.projectRootPath = projectRootPath;
     }
 
-    /**
-     * Parses the launch arguments set in the launch configuration.
-     */
-    private parseRunOptions(): IRunOptions {
-        let result: IRunOptions = { projectRoot: this.projectRootPath };
-
-        if (process.argv.length > 2) {
-            result.platform = process.argv[2].toLowerCase();
-        }
-
-        result.target = process.argv[3];
-
-        return result;
-    }
-
     public launch() {
         let resolver = new PlatformResolver();
         let runOptions = this.parseRunOptions();
@@ -52,6 +37,20 @@ export class Launcher {
                     Log.logError("Cannot debug application.", reason);
                 });
         }
+    }
+
+    /**
+     * Parses the launch arguments set in the launch configuration.
+     */
+    private parseRunOptions(): IRunOptions {
+        let result: IRunOptions = { projectRoot: this.projectRootPath };
+
+        if (process.argv.length > 2) {
+            result.platform = process.argv[2].toLowerCase();
+        }
+
+        result.target = process.argv[3];
+        return result;
     }
 }
 

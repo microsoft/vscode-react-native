@@ -11,15 +11,13 @@ export class FileSystem {
         return Q.nfcall(fs.stat, dir).then((stat: fs.Stats): void => {
             if (stat.isDirectory()) {
                 return;
-            } else {
-                throw new Error(`Expected ${dir} to be a directory`);
             }
+            throw new Error(`Expected ${dir} to be a directory`);
         }, (err: Error & { code?: string }): Q.Promise<any> => {
             if (err && err.code === "ENOENT") {
                 return Q.nfcall(fs.mkdir, dir);
-            } else {
-                throw err;
             }
+            throw err;
         });
     }
 
@@ -32,9 +30,8 @@ export class FileSystem {
         }, (err: Error & { code?: string }): Q.Promise<any> => {
             if (err && err.code === "ENOENT") {
                 return Q.nfcall(fs.writeFile, file, contents);
-            } else {
-                throw err;
             }
+            throw err;
         });
     }
 

@@ -4,3 +4,4 @@
 src/**
 out/tests/**
 **/*.js.map
+test/**
