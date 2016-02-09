@@ -3,7 +3,7 @@
 	"configurations": [
 		{
 			"name": "Debug Android",
-			"program": "${workspaceRoot}/.vscode/.react/launchReactNative.js",
+			"program": "${workspaceRoot}/.vscode/launchReactNative.js",
 			"type": "node",
 			"request": "launch",
 			"args": [
@@ -16,7 +16,7 @@
 		},
 		{
 			"name": "Debug iOS",
-			"program": "${workspaceRoot}/.vscode/.react/launchReactNative.js",
+			"program": "${workspaceRoot}/.vscode/launchReactNative.js",
 			"type": "node",
 			"request": "launch",
 			"args": [
