@@ -80,7 +80,7 @@
         },
         {
             "name": "Sample - Android Extension",
-            "program": "${workspaceRoot}/out/launchReactNative.js",
+            "program": "${workspaceRoot}/test/SampleApplication/.vscode/.react/launchReactNative.js",
             "type": "node",
             "request": "launch",
             "args": [
@@ -94,7 +94,7 @@
         },
         {
             "name": "Sample - iOS Extension",
-            "program": "${workspaceRoot}/out/launchReactNative.js",
+            "program": "${workspaceRoot}/test/SampleApplication/.vscode/.react/launchReactNative.js",
             "type": "node",
             "request": "launch",
             "args": [
