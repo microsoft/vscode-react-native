@@ -7,12 +7,13 @@
 
 import {OutputChannel} from "vscode";
 
-enum LogLevel {
+export enum LogLevel {
     None = 0,
     Error = 1,
     Warning = 2,
-    Debug = 3,
-    Trace = 4
+    Info = 3,
+    Debug = 4,
+    Trace = 5
 }
 
 export class Log {
@@ -41,9 +42,9 @@ export class Log {
      * Customers aren't interested in these messages, so we normally shouldn't show
      * them to them.
      */
-    public static logInternalMessage(message: string) {
-        if (this.shouldLogInternal()) {
-            console.log(`${Log.TAG}[Internal] ${message}`);
+    public static logInternalMessage(logLevel: LogLevel, message: string) {
+        if (this.extensionLogLevel() >= logLevel) {
+            this.logMessage(`[Internal-${logLevel}] ${message}`);
         }
     }
 
@@ -95,10 +96,6 @@ export class Log {
         } else {
             return LogLevel.None; // Default extension log level
         }
-    }
-
-    private static shouldLogInternal(): boolean {
-        return this.extensionLogLevel() > LogLevel.None;
     }
 
     private static formatStringForOutputChannel(message: string) {
