@@ -109,6 +109,10 @@ export class FileSystem {
         return Q.nfcall<void>(fs.writeFile, filename, data);
     }
 
+    public unlink(filename: string): Q.Promise<void> {
+        return Q.nfcall<void>(fs.unlink, filename);
+    }
+
     public findFilesByExtension(folder: string, extension: string): Q.Promise<string[]> {
         return Q.nfcall(fs.readdir, folder).then((files: string[]) => {
             const extFiles = files.filter((file: string) => path.extname(file) === `.${extension}`);

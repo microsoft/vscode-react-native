@@ -71,6 +71,7 @@ export class CommandExecutor {
             },
                 (reason) => {
                     Log.commandFailed(commandWithArgs, reason, outputChannel);
+                    throw reason;
                 });
         });
     }
