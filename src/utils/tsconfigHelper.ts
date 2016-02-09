@@ -46,7 +46,7 @@ export class TsConfigHelper {
     /**
      * Enable javascript intellisense via typescript.
      */
-    public static compileJavaScript(enabled:boolean): Q.Promise<void> {
+    public static allowJs(enabled:boolean): Q.Promise<void> {
         return TsConfigHelper.readConfigJson()
         .then(function(tsConfigJson:any): Q.Promise<void> {
             tsConfigJson.compilerOptions = tsConfigJson.compilerOptions || {};
