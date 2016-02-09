@@ -27,7 +27,8 @@
     "member-access": true,
     "member-ordering": [
       true,
-      "variables-before-functions"
+      "variables-before-functions",
+      "public-before-private"
     ],
     "no-any": false,
     "no-arg": true,
