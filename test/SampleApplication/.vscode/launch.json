@@ -3,7 +3,7 @@
 	"configurations": [
 		{
 			"name": "Debug Android",
-			"program": "${workspaceRoot}/.vscode/launchReactNative.js",
+			"program": "${workspaceRoot}/.vscode/.react/launchReactNative.js",
 			"type": "node",
 			"request": "launch",
 			"args": [
@@ -16,7 +16,7 @@
 		},
 		{
 			"name": "Debug iOS",
-			"program": "${workspaceRoot}/.vscode/launchReactNative.js",
+			"program": "${workspaceRoot}/.vscode/.react/launchReactNative.js",
 			"type": "node",
 			"request": "launch",
 			"args": [
@@ -25,7 +25,7 @@
             "runtimeArgs": [ "--nolazy" ],
             "cwd": "${workspaceRoot}",
 			"sourceMaps": true,
-			"outDir": "${workspaceRoot}/.vscode/"
+			"outDir": "${workspaceRoot}/.vscode/.react/"
 		}
 	]
 }

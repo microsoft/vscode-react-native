@@ -52,7 +52,7 @@
         },
         {
             "name": "Sample - Android App",
-            "program": "${workspaceRoot}/test/SampleApplication/.vscode/launchReactNative.js",
+            "program": "${workspaceRoot}/test/SampleApplication/.vscode/.react/launchReactNative.js",
             "type": "node",
             "request": "launch",
             "args": [
@@ -62,11 +62,11 @@
                 "--nolazy"
             ],
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/test/SampleApplication/.vscode/"
+            "outDir": "${workspaceRoot}/test/SampleApplication/.vscode/.react/"
         },
         {
             "name": "Sample - iOS App",
-            "program": "${workspaceRoot}/test/SampleApplication/.vscode/launchReactNative.js",
+            "program": "${workspaceRoot}/test/SampleApplication/.vscode/.react/launchReactNative.js",
             "type": "node",
             "request": "launch",
             "args": [
@@ -76,7 +76,7 @@
                 "--nolazy"
             ],
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/test/SampleApplication/.vscode/"
+            "outDir": "${workspaceRoot}/test/SampleApplication/.vscode/.react/"
         },
         {
             "name": "Sample - Android Extension",
