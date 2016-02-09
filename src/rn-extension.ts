@@ -75,5 +75,5 @@ function setupReactNativeIntellisense(): void {
     let reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
     let fileSystem = new FileSystem();
 
-    fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest);
+    fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest).done();
 }
