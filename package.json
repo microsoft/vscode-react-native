@@ -62,7 +62,8 @@
                         "type": "node",
                         "request": "launch",
                         "args": [
-                            "ios"
+                            "ios",
+                            "iPhone 5s"
                         ],
                         "sourceMaps": true,
                         "outDir": "${workspaceRoot}/.vscode/.react"

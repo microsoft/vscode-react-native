@@ -33,7 +33,29 @@ export class IOSPlatform implements IAppPlatform {
                 runArguments.push(this.simulatorTarget);
             }
 
-            return new CommandExecutor(this.projectPath).spawnAndWaitReactCommand("run-ios", runArguments);
+            return new CommandExecutor(this.projectPath).spawnReactCommand("run-ios", runArguments).then((runIos) => {
+                const deferred = Q.defer<void>();
+                runIos.on("error", (err: Error) => {
+                    deferred.reject(err);
+                });
+                runIos.stderr.on("data", (data: Buffer) => {
+                    const dataString = data.toString();
+                    if (dataString.indexOf("No devices are booted") !== -1 // No emulators are started
+                        || dataString.indexOf("FBSOpenApplicationErrorDomain") !== -1) { // The incorrect emulator is started
+                        deferred.reject(new Error("Unable to launch iOS simulator. Try specifying a different target."));
+                    }
+                });
+                runIos.on("exit", (code: number) => {
+                    if (code !== 0) {
+                        const err = new Error(`Command failed with exit code ${code}`);
+                        Log.commandFailed(["react-native", "run-ios"].concat(runArguments).join(" "), err);
+                        deferred.reject(err);
+                    } else {
+                        deferred.resolve(void 0);
+                    }
+                });
+                return deferred.promise;
+            });
         }
 
         // TODO: This is currently a stub, device debugging is not yet implemented
@@ -55,8 +77,13 @@ export class IOSPlatform implements IAppPlatform {
         }
 
         const plistBuddy = new PlistBuddy();
+        const simulatorPlist = new SimulatorPlist(launchArgs.projectRoot);
         // Find the plistFile with the configuration setting
-        return new SimulatorPlist(launchArgs.projectRoot).findPlistFile().then((plistFile: string) => {
+        return simulatorPlist.findPlistFile().catch(() => {
+            // There is a race here between us checking for the plist file, and the application starting up.
+            // We will attempt to find it twice before bailing
+            return Q.delay(1000).then(() => simulatorPlist.findPlistFile());
+        }).then((plistFile: string) => {
             // Set the executorClass to be RCTWebSocketExecutor so on the next startup it will default into debug mode
             // This is approximately equivalent to clicking the "Debug in Chrome" button
             return plistBuddy.setPlistProperty(plistFile, ":RCTDevMenu:executorClass", "RCTWebSocketExecutor");

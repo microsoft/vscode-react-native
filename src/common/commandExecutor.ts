@@ -82,7 +82,7 @@ export class CommandExecutor {
     public spawnReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
         let runArguments = [command];
         if (args) {
-            runArguments.concat(args);
+            runArguments = runArguments.concat(args);
         }
         return this.spawn(this.getReactCommandName(), runArguments, options, outputChannel);
     }
@@ -93,7 +93,7 @@ export class CommandExecutor {
     public spawnAndWaitReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<void> {
         let runArguments = [command];
         if (args) {
-            runArguments.concat(args);
+            runArguments = runArguments.concat(args);
         }
         return this.spawnAndWaitForCompletion(this.getReactCommandName(), runArguments, options, outputChannel);
     }
