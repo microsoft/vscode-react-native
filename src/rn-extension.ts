@@ -53,11 +53,17 @@ try {
 
     let fsUtil = new FileSystem();
 
-    fsUtil.ensureDirectory(vscodeFolder).then(() => {
-        fsUtil.ensureFileWithContents(debugStub, debuggerEntryCode);
-    }).catch((err: Error) => {
-        vscode.window.showErrorMessage(err.message);
-    });
+    fsUtil.ensureDirectory(vscodeFolder)
+        .then(() => fsUtil.pathExists(debugStub))
+        .then((fileExists) => {
+            if (fileExists) {
+                return fsUtil.removePathRecursivelyAsync(debugStub);
+            }
+        })
+        .then(() => fsUtil.ensureFileWithContents(debugStub, debuggerEntryCode))
+        .catch((err: Error) => {
+            vscode.window.showErrorMessage(err.message);
+        });
 }
 
 /**
