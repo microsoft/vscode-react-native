@@ -46,20 +46,6 @@ export class SandboxedAppWorker {
         this.postReplyToApp = postReplyToApp;
     }
 
-    private runInSandbox(filename: string, fileContents?: string): Q.Promise<void> {
-        let fileContentsPromise = fileContents
-            ? Q(fileContents)
-            : this.readFileContents(filename);
-
-        return fileContentsPromise.then(contents => {
-            vm.runInContext(contents, this.sandboxContext, filename);
-        });
-    }
-
-    private readFileContents(filename: string) {
-        return new Node.FileSystem().readFile(filename).then(contents => contents.toString());
-    }
-
     public start(): Q.Promise<void> {
         let scriptToRunPath = require.resolve(path.join(this.sourcesStoragePath, Packager.DEBUGGER_WORKER_FILE_BASENAME));
         this.initializeSandboxAndContext(scriptToRunPath);
@@ -91,6 +77,20 @@ export class SandboxedAppWorker {
         this.sandbox.self = this.sandbox;
 
         this.sandboxContext = vm.createContext(this.sandbox);
+    }
+
+    private runInSandbox(filename: string, fileContents?: string): Q.Promise<void> {
+        let fileContentsPromise = fileContents
+            ? Q(fileContents)
+            : this.readFileContents(filename);
+
+        return fileContentsPromise.then(contents => {
+            vm.runInContext(contents, this.sandboxContext, filename);
+        });
+    }
+
+    private readFileContents(filename: string) {
+        return new Node.FileSystem().readFile(filename).then(contents => contents.toString());
     }
 
     private importScripts(url: string): void {
