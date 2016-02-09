@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {FileSystem} from "../utils/node/fileSystem";
-import {Log} from "../utils/commands/log";
+import {Log, LogLevel} from "../utils/commands/log";
 import path = require("path");
 import Q = require("q");
 import {Request} from "../utils/node/request";
@@ -43,7 +43,7 @@ export class ScriptImporter {
             return waitForSourceMapping
                 .then(() => this.writeScript(scriptBody, scriptUrl))
                 .then((scriptFilePath: string) => {
-                    Log.logInternalMessage(`Script ${scriptUrlString} downloaded to ${scriptFilePath}`);
+                    Log.logInternalMessage(LogLevel.Info, `Script ${scriptUrlString} downloaded to ${scriptFilePath}`);
                     return { contents: scriptBody, filepath: scriptFilePath };
                 });
         });
