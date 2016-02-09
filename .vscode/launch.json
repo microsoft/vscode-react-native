@@ -10,7 +10,6 @@
 				"--extensionDevelopmentPath=${workspaceRoot}"
 			],
 			"sourceMaps": true,
-			"outDir": "${workspaceRoot}/out",
             "preLaunchTask": "build"
         },
         {

@@ -24,7 +24,7 @@ export class Packager {
     private sourcesStoragePath: string;
 
     private static JS_INJECTOR_FILENAME = "opn-main.js";
-    private static JS_INJECTOR_FILEPATH = path.resolve(__dirname, "..", "..", "src", "js-patched", Packager.JS_INJECTOR_FILENAME);
+    private static JS_INJECTOR_FILEPATH = path.resolve(path.dirname(path.dirname(__dirname)), "js-patched", Packager.JS_INJECTOR_FILENAME);
     private static NODE_MODULES_FODLER_NAME = "node_modules";
     private static OPN_PACKAGE_NAME = "opn";
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
@@ -151,13 +151,13 @@ export class Packager {
         .then((opnIndexFilePath) => {
             destnFilePath = opnIndexFilePath;
             // Read the package's "package.json"
-            packageJsonFilePath = path.resolve(destnFilePath, "..", "package.json");
+            packageJsonFilePath = path.resolve(path.dirname(destnFilePath), "package.json");
             return fsHelper.readFile(packageJsonFilePath);
         }).then((jsonContents) => {
             packageJson = JSON.parse(jsonContents);
             if (packageJson.main !== Packager.JS_INJECTOR_FILENAME) {
                 // Copy over the patched 'opn' main file
-                return fsHelper.copyFile(Packager.JS_INJECTOR_FILEPATH, path.resolve(destnFilePath, "..", Packager.JS_INJECTOR_FILENAME))
+                return fsHelper.copyFile(Packager.JS_INJECTOR_FILEPATH, path.resolve(path.dirname(destnFilePath), Packager.JS_INJECTOR_FILENAME))
                 .then(() => {
                     // Write/over-write the "main" attribute with the new file
                     packageJson.main = Packager.JS_INJECTOR_FILENAME;
