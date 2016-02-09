@@ -76,9 +76,9 @@ export class FileSystem {
      *  Helper function to asynchronously copy a file
      */
     public copyFile(from: string, to: string, encoding?: string): Q.Promise<void> {
-        var deferred: Q.Deferred<void> = Q.defer<void>();
-        var destFile: fs.WriteStream = fs.createWriteStream(to, { encoding: encoding });
-        var srcFile: fs.ReadStream = fs.createReadStream(from, { encoding: encoding });
+        let deferred: Q.Deferred<void> = Q.defer<void>();
+        let destFile: fs.WriteStream = fs.createWriteStream(to, { encoding: encoding });
+        let srcFile: fs.ReadStream = fs.createReadStream(from, { encoding: encoding });
         destFile.on("finish", function(): void {
             deferred.resolve(void 0);
         });
@@ -142,7 +142,7 @@ export class FileSystem {
                     return Q.nfcall<string[]>(fs.readdir, source);
                 })
                 .then(contents => {
-                    Q.all(contents.map((childPath:string): Q.Promise<void> => {
+                    Q.all(contents.map((childPath: string): Q.Promise<void> => {
                         return this.copyRecursive(path.join(source, childPath), path.join(target, childPath));
                     }));
                 });
