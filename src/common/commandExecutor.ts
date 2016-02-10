@@ -3,8 +3,8 @@
 
 import {ChildProcess} from "child_process";
 import {Log} from "./log";
-import {Node} from "../node/node";
-import {ISpawnResult} from "../node/childProcess";
+import {Node} from "./node/node";
+import {ISpawnResult} from "./node/childProcess";
 import {OutputChannel} from "vscode";
 import * as Q from "q";
 

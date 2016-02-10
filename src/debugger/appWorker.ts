@@ -6,9 +6,9 @@ import * as Q from "q";
 import * as path from "path";
 import * as WebSocket from "ws";
 import {ScriptImporter}  from "./scriptImporter";
-import {Packager}  from "./packager";
-import {Log, LogLevel} from "../utils/commands/log";
-import {Node} from "../utils/node/node";
+import {Packager}  from "../common/packager";
+import {Log, LogLevel} from "../common/log";
+import {Node} from "../common/node/node";
 
 import Module = require("module");
 

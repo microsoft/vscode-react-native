@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {CommandExecutor} from "./commands/commandExecutor";
-import {Log} from "./commands/log";
-import {Packager} from "./../debugger/packager";
-import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
+import {CommandExecutor} from "../common/commandExecutor";
+import {Log} from "../common/log";
+import {Packager} from "../common/packager";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import * as vscode from "vscode";
 
 export class CommandPaletteHandler {

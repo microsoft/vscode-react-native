@@ -5,7 +5,7 @@ import {ChildProcess} from "child_process";
 import * as net from "net";
 import * as Q from "q";
 
-import {Node} from "../../utils/node/node";
+import {Node} from "../../common/node/node";
 import {PlistBuddy} from "./plistBuddy";
 
 export class DeviceRunner {

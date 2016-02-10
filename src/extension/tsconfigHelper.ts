@@ -5,7 +5,7 @@ import * as Q from "q";
 import * as vscode from "vscode";
 import fs = require("fs");
 import path = require("path");
-import {FileSystem} from "./node/fileSystem";
+import {FileSystem} from "../common/node/fileSystem";
 
 export class TsConfigHelper {
 

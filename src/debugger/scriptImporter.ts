@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {FileSystem} from "../utils/node/fileSystem";
-import {Log, LogLevel} from "../utils/commands/log";
+import {FileSystem} from "../common/node/fileSystem";
+import {Log, LogLevel} from "../common/log";
 import path = require("path");
 import Q = require("q");
-import {Request} from "../utils/node/request";
-import {SourceMapUtil} from "../utils/sourceMap";
+import {Request} from "../common/node/request";
+import {SourceMapUtil} from "./sourceMap";
 import url = require("url");
 
 interface DownloadedScript {

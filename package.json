@@ -20,7 +20,7 @@
     "activationEvents": [
         "workspaceContains:package.json"
     ],
-    "main": "./out/rn-extension",
+    "main": "./out/extension/rn-extension",
     "contributes": {
         "commands": [
             {

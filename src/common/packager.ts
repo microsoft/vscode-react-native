@@ -2,12 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {ChildProcess} from "child_process";
-import {CommandExecutor} from "../utils/commands/commandExecutor";
-import {Log, LogLevel} from "../utils/commands/log";
-import {Node} from "../utils/node/node";
+import {CommandExecutor} from "./commandExecutor";
+import {Log, LogLevel} from "./log";
+import {Node} from "./node/node";
 import {OutputChannel} from "vscode";
-import {PromiseUtil} from "../utils/node/promise";
-import {Request} from "../utils/node/request";
+import {PromiseUtil} from "./node/promise";
+import {Request} from "./node/request";
 
 import * as Q from "q";
 import * as path from "path";

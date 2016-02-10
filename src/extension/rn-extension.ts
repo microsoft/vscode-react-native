@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {FileSystem} from "./utils/node/fileSystem";
+import {FileSystem} from "../common/node/fileSystem";
 import * as path from "path";
 import * as vscode from "vscode";
-import {CommandPaletteHandler} from "./utils/commandPaletteHandler";
-import {ReactNativeProjectHelper} from "./utils/reactNativeProjectHelper";
-import {ReactDirManager} from "./utils/reactDirManager";
-import {TsConfigHelper} from "./utils/tsconfigHelper";
+import {CommandPaletteHandler} from "./commandPaletteHandler";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import {ReactDirManager} from "../common/reactDirManager";
+import {TsConfigHelper} from "./tsconfigHelper";
 
 export function activate(context: vscode.ExtensionContext): void {
     let reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);

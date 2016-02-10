@@ -4,8 +4,8 @@
 import * as path from "path";
 import * as Q from "q";
 
-import {Log} from "../../utils/commands/log";
-import {Node} from "../../utils/node/node";
+import {Log} from "../../common/log";
+import {Node} from "../../common/node/node";
 
 export class Xcodeproj {
     public findXcodeprojFile(projectRoot: string): Q.Promise<string> {
