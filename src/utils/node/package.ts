@@ -4,9 +4,15 @@
 import {Node} from "../node/node";
 import * as pathModule from "path";
 
+interface IPackageDependencyDict {
+    [packageName: string]: string;
+}
+
 export interface IPackageInformation {
     name: string;
-    dependencies: { [name: string]: string };
+    version: string;
+    dependencies?: IPackageDependencyDict;
+    main?: string;
 }
 
 export class Package {
@@ -29,9 +35,17 @@ export class Package {
                 packageInformation.name);
     }
 
-    public dependencies(): Q.Promise<{ [name: string]: string }> {
+    public dependencies(): Q.Promise<IPackageDependencyDict> {
         return this.parsePackageInformation()
             .then(packageInformation => packageInformation.dependencies);
+    }
+
+    public setMainFile(value: string): Q.Promise<void> {
+        return this.parsePackageInformation()
+        .then(packageInformation => {
+            packageInformation.main = value;
+            return new Node.FileSystem().writeFile(this.informationJsonFilePath(), JSON.stringify(<Object>packageInformation));
+        });
     }
 
     private informationJsonFilePath(): string {

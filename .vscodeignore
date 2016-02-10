@@ -1,3 +1,5 @@
+!ReactTypings/**
+!js-patched/**
 .vscode/**/*
 .gitignore
 src/**

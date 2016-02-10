@@ -25,19 +25,19 @@
         "commands": [
             {
                 "command": "reactNative.runAndroid",
-                "title": "React Native:  Run Android"
+                "title": "React Native: Run Android"
             },
             {
                 "command": "reactNative.runIos",
-                "title": "React Native:  Run iOS"
+                "title": "React Native: Run iOS"
             },
             {
                 "command": "reactNative.startPackager",
-                "title": "React Native:  Start Packager"
+                "title": "React Native: Start Packager"
             },
             {
                 "command": "reactNative.stopPackager",
-                "title": "React Native:  Stop Packager"
+                "title": "React Native: Stop Packager"
             }
         ],
         "debuggers": [
