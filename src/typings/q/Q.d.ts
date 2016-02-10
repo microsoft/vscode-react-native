@@ -206,7 +206,12 @@ declare module Q {
      * Returns a promise that is fulfilled with an array containing the fulfillment value of each promise, or is rejected with the same rejection reason as the first promise to be rejected.
      */
     export function all<T>(promises: IPromise<T>[]): Promise<T[]>;
-    
+
+    /**
+     * Returns the first resolved promise of an array. Prior rejected promises are ignored.  Rejects only if all promises are rejected.
+     */
+    export function any<T>(promises: IPromise<T>[]): Promise<T>;
+
     /**
     * Returns a promise for the first of an array of promises to become settled.
     */

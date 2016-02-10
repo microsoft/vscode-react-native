@@ -69,8 +69,11 @@ function setupReactNativeIntellisense(): void {
         return;
     }
 
-    // Enable JavaScript intellisense through Salsa language service
-    TsConfigHelper.allowJs(true).done();
+    TsConfigHelper.allowJs(true)
+    .then(function() {
+        return TsConfigHelper.addExcludePaths(["node_modules"]);
+    })
+    .done();
 
     let reactTypingsSource = path.resolve(__dirname, "..", "ReactTypings");
     let reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");

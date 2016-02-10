@@ -61,4 +61,28 @@ export class TsConfigHelper {
             return TsConfigHelper.writeConfigJson(tsConfigJson);
         });
     }
+
+    /**
+     * Add directories to be excluded by the Typescript compiler.
+     */
+    public static addExcludePaths(excludePaths: string[]): Q.Promise<void> {
+        return TsConfigHelper.readConfigJson()
+        .then(function(tsConfigJson: any) {
+            let currentExcludes: string[] = tsConfigJson.exclude || [];
+            let isDirty: boolean = false;
+
+            excludePaths.forEach(function(exclude: string){
+                if (currentExcludes.indexOf(exclude) < 0) {
+                    currentExcludes.push(exclude);
+                    isDirty = true;
+                }
+            });
+
+            if (isDirty) {
+                tsConfigJson.exclude = currentExcludes;
+
+                return TsConfigHelper.writeConfigJson(tsConfigJson);
+            }
+        });
+    }
 }
