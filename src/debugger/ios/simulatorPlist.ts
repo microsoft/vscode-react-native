@@ -6,8 +6,8 @@ import * as path from "path";
 import * as Q from "q";
 
 import {PlistBuddy} from "./plistBuddy";
-import {Node} from "../../utils/node/node";
-import {Log} from "../../utils/commands/log";
+import {Node} from "../../common/node/node";
+import {Log} from "../../common/log";
 
 export class SimulatorPlist {
     private projectRoot: string;

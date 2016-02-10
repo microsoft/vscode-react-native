@@ -4,8 +4,8 @@
 import * as path from "path";
 import * as Q from "q";
 
-import {CommandExecutor} from "../../utils/commands/commandExecutor";
-import {Log} from "../../utils/commands/log";
+import {CommandExecutor} from "../../common/commandExecutor";
+import {Log} from "../../common/log";
 import {Xcodeproj} from "./xcodeproj";
 
 export class DeviceDeployer {

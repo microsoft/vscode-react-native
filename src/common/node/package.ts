@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {Node} from "../node/node";
+import {Node} from "./node";
 import * as pathModule from "path";
 
 interface IPackageDependencyDict {

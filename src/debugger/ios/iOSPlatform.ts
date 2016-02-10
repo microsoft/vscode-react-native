@@ -3,8 +3,8 @@
 
 import * as Q from "q";
 
-import {Log} from "../../utils/commands/log";
-import {CommandExecutor} from "../../utils/commands/commandExecutor";
+import {Log} from "../../common/log";
+import {CommandExecutor} from "../../common/commandExecutor";
 import {IAppPlatform} from "../platformResolver";
 import {Compiler} from "./compiler";
 import {DeviceDeployer} from "./deviceDeployer";

@@ -4,8 +4,8 @@
 import * as Q from "q";
 import {IAppPlatform} from "../platformResolver";
 import {IRunOptions} from "../launchArgs";
-import {CommandExecutor} from "../../utils/commands/commandExecutor";
-import {Package} from "../../utils/node/package";
+import {CommandExecutor} from "../../common/commandExecutor";
+import {Package} from "../../common/node/package";
 
 /**
  * Android specific platform implementation for debugging RN applications.

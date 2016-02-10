@@ -4,8 +4,8 @@
 import * as Q from "q";
 import * as path from "path";
 import {MultipleLifetimesAppWorker} from "./appWorker";
-import {Packager} from "./packager";
-import {Log} from "../utils/commands/log";
+import {Packager} from "../common/packager";
+import {Log} from "../common/log";
 import {PlatformResolver} from "./platformResolver";
 import {IRunOptions} from "./launchArgs";
 

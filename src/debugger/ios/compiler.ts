@@ -4,7 +4,7 @@
 import * as path from "path";
 import * as Q from "q";
 
-import {CommandExecutor} from "../../utils/commands/commandExecutor";
+import {CommandExecutor} from "../../common/commandExecutor";
 import {Xcodeproj} from "./xcodeproj";
 
 export class Compiler {
