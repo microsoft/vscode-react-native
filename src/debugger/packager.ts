@@ -6,6 +6,7 @@ import {CommandExecutor} from "../utils/commands/commandExecutor";
 import {Log} from "../utils/commands/log";
 import {Node} from "../utils/node/node";
 import {OutputChannel} from "vscode";
+import {Package} from "../utils/node/package";
 import {PromiseUtil} from "../utils/node/promise";
 import {Request} from "../utils/node/request";
 
@@ -124,44 +125,31 @@ export class Packager {
 
             // Attempt to find the 'opn' package directly under the project's node_modules folder (node4 +)
             // Else, attempt to find the package within the dependent node_modules of react-native package
-            return fsHelper.exists(flatDependencyPackagePath).then((opnFoundInFlatStructure) => {
-                return Q.resolve (opnFoundInFlatStructure ? flatDependencyPackagePath : null);
-            }).then((resolvedFileName) => {
-                if (!resolvedFileName) {
-                    fsHelper.exists(nestedDependencyPackagePath).then((opnFoundInNestedStructure) => {
-                        return Q.resolve (opnFoundInNestedStructure ? nestedDependencyPackagePath : null);
-                    });
-                } else {
-                   return Q.resolve(resolvedFileName);
-               }
-            });
+            let possiblePaths = [flatDependencyPackagePath, nestedDependencyPackagePath];
+            return Q.any(possiblePaths.map(path => fsHelper.exists(path).then(() => Q.resolve(path))));
         } catch (err) {
             console.error ("The package \'opn\' was not found." + err);
         }
     }
 
     private monkeyPatchOpnForRNPackager(): Q.Promise<void> {
-        let fsHelper = new Node.FileSystem();
+        let opnPackage: Package;
         let destnFilePath: string;
-        let packageJsonFilePath: string;
-        let packageJson: any;
 
         // Finds the 'opn' package
         return this.findOpnPackage()
         .then((opnIndexFilePath) => {
             destnFilePath = opnIndexFilePath;
             // Read the package's "package.json"
-            packageJsonFilePath = path.resolve(path.dirname(destnFilePath), "package.json");
-            return fsHelper.readFile(packageJsonFilePath);
-        }).then((jsonContents) => {
-            packageJson = JSON.parse(jsonContents);
+            opnPackage = new Package(path.resolve(path.dirname(destnFilePath)));
+            return opnPackage.parsePackageInformation();
+        }).then((packageJson) => {
             if (packageJson.main !== Packager.JS_INJECTOR_FILENAME) {
                 // Copy over the patched 'opn' main file
-                return fsHelper.copyFile(Packager.JS_INJECTOR_FILEPATH, path.resolve(path.dirname(destnFilePath), Packager.JS_INJECTOR_FILENAME))
+                return new Node.FileSystem().copyFile(Packager.JS_INJECTOR_FILEPATH, path.resolve(path.dirname(destnFilePath), Packager.JS_INJECTOR_FILENAME))
                 .then(() => {
                     // Write/over-write the "main" attribute with the new file
-                    packageJson.main = Packager.JS_INJECTOR_FILENAME;
-                    return fsHelper.writeFile(packageJsonFilePath, JSON.stringify(packageJson));
+                    return opnPackage.setMainFile(Packager.JS_INJECTOR_FILENAME);
                 });
             }
         });
