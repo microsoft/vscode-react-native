@@ -4,6 +4,7 @@
 import * as Q from "q";
 
 import {Log} from "../../common/log";
+import {PromiseUtil} from "../../common/node/promise";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {IAppPlatform} from "../platformResolver";
 import {Compiler} from "./compiler";
@@ -72,27 +73,27 @@ export class IOSPlatform implements IAppPlatform {
 
         if (this.simulatorTarget.toLowerCase() === IOSPlatform.deviceString) {
             // Note that currently we cannot automatically switch the device into debug mode.
-            Log.logMessage("Application is running on a device, please shake device and select 'Debug in Javascript' to enable debugging.");
+            Log.logMessage("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
             return Q.resolve<void>(void 0);
         }
 
         const plistBuddy = new PlistBuddy();
         const simulatorPlist = new SimulatorPlist(launchArgs.projectRoot);
+        const pu = new PromiseUtil();
         // Find the plistFile with the configuration setting
-        return simulatorPlist.findPlistFile().catch(() => {
-            // There is a race here between us checking for the plist file, and the application starting up.
-            // We will attempt to find it twice before bailing
-            return Q.delay(1000).then(() => simulatorPlist.findPlistFile());
-        }).then((plistFile: string) => {
-            // Set the executorClass to be RCTWebSocketExecutor so on the next startup it will default into debug mode
-            // This is approximately equivalent to clicking the "Debug in Chrome" button
-            return plistBuddy.setPlistProperty(plistFile, ":RCTDevMenu:executorClass", "RCTWebSocketExecutor");
-        }).then(() => {
-            return plistBuddy.getBundleId(launchArgs.projectRoot);
-        }).then((bundleId: string) => {
-            // Relaunch the app so the new setting can take effect
-            return new CommandExecutor().execute(`xcrun simctl launch booted ${bundleId}`);
-        });
+        // There is a race here between us checking for the plist file, and the application starting up.
+        return pu.retryAsync(() => simulatorPlist.findPlistFile().catch((): string => null),
+            (file: string) => file !== null, 5, 2000, "Unable to find plist file to enable debugging")
+            .then((plistFile: string) => {
+                // Set the executorClass to be RCTWebSocketExecutor so on the next startup it will default into debug mode
+                // This is approximately equivalent to clicking the "Debug in Chrome" button
+                return plistBuddy.setPlistProperty(plistFile, ":RCTDevMenu:executorClass", "RCTWebSocketExecutor");
+            }).then(() => {
+                return plistBuddy.getBundleId(launchArgs.projectRoot);
+            }).then((bundleId: string) => {
+                // Relaunch the app so the new setting can take effect
+                return new CommandExecutor().execute(`xcrun simctl launch booted ${bundleId}`);
+            });
     }
 
     private consumeArguments(launchArgs: IRunOptions): void {
