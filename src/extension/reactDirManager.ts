@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {FileSystem} from "./node/fileSystem";
+import {FileSystem} from "../common/node/fileSystem";
 import * as vscode from "vscode";
 import * as path from "path";
 

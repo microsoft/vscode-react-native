@@ -6,7 +6,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
-import {ReactDirManager} from "../common/reactDirManager";
+import {ReactDirManager} from "./reactDirManager";
 import {TsConfigHelper} from "./tsconfigHelper";
 
 export function activate(context: vscode.ExtensionContext): void {
