@@ -3,7 +3,7 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "../utils/commands/commandExecutor";
-import {Log} from "../utils/commands/log";
+import {Log, LogLevel} from "../utils/commands/log";
 import {Node} from "../utils/node/node";
 import {OutputChannel} from "vscode";
 import {Package} from "../utils/node/package";
@@ -81,7 +81,7 @@ export class Packager {
 
     public prewarmBundleCache(platform: string) {
         let bundleURL = `http://${Packager.HOST}/index.${platform}.bundle`;
-        Log.logInternalMessage("About to get: " + bundleURL);
+        Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
         return new Request().request(bundleURL, true).then(() => {
             Log.logMessage("The Bundle Cache was prewarmed.");
         });
@@ -107,7 +107,7 @@ export class Packager {
     private downloadDebuggerWorker(): Q.Promise<void> {
         let debuggerWorkerURL = `http://${Packager.HOST}/${Packager.DEBUGGER_WORKER_FILENAME}`;
         let debuggerWorkerLocalPath = path.join(this.sourcesStoragePath, Packager.DEBUGGER_WORKER_FILENAME);
-        Log.logInternalMessage("About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
+        Log.logInternalMessage(LogLevel.Info, "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
         return new Request().request(debuggerWorkerURL, true).then((body: string) => {
             return new Node.FileSystem().writeFile(debuggerWorkerLocalPath, body);
         });

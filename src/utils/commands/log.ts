@@ -7,20 +7,18 @@
 
 import {OutputChannel} from "vscode";
 
-enum LogLevel {
+export enum LogLevel {
     None = 0,
     Error = 1,
     Warning = 2,
-    Debug = 3,
-    Trace = 4
+    Info = 3,
+    Debug = 4,
+    Trace = 5
 }
 
 export class Log {
 
     private static TAG: string = "[vscode-react-native]";
-    private static formatStringForOutputChannel(message: string) {
-        return  "######### " + message + " ##########";
-    }
 
     public static appendStringToOutputChannel(message: string, outputChannel: OutputChannel) {
         outputChannel.appendLine(Log.formatStringForOutputChannel(message));
@@ -37,6 +35,42 @@ export class Log {
 
     public static commandFailed(command: string, error: any, outputChannel?: OutputChannel) {
         Log.logError(`Error while executing: ${command}`, error, outputChannel);
+    }
+
+    /**
+     * Logs an internal message for when someone is debugging the extension itself.
+     * Customers aren't interested in these messages, so we normally shouldn't show
+     * them to them.
+     */
+    public static logInternalMessage(logLevel: LogLevel, message: string) {
+        if (this.extensionLogLevel() >= logLevel) {
+            this.logMessage(`[Internal-${logLevel}] ${message}`);
+        }
+    }
+
+    /**
+     * Logs an error message to the console.
+     */
+    public static logError(message: string, error?: any, outputChannel?: OutputChannel, logStack = true) {
+        let errorMessageToLog = outputChannel ? `${message} ${Log.getErrorMessage(error)}` : `${Log.TAG} ${message} ${Log.getErrorMessage(error)}`;
+
+        if (outputChannel) {
+            Log.appendStringToOutputChannel(errorMessageToLog, outputChannel);
+        } else {
+            console.error(errorMessageToLog);
+        }
+
+        // We will not need the stack trace when logging to the OutputChannel in VS Code
+        if (!outputChannel && logStack && error && (<Error>error).stack) {
+            console.error(`Stack: ${(<Error>error).stack}`);
+        }
+    }
+
+    /**
+     * Gets the message of an error, if any. Otherwise it returns the empty string.
+     */
+    public static getErrorMessage(e: any): string {
+        return e && e.message || e && e.error && e.error.message || e && e.toString() || "";
     }
 
     /**
@@ -64,42 +98,7 @@ export class Log {
         }
     }
 
-    private static shouldLogInternal(): boolean {
-        return this.extensionLogLevel() > LogLevel.None;
-    }
-    /**
-     * Logs an internal message for when someone is debugging the extension itself.
-     * Customers aren't interested in these messages, so we normally shouldn't show
-     * them to them.
-     */
-    public static logInternalMessage(message: string) {
-        if (this.shouldLogInternal()) {
-            console.log(`${Log.TAG}[Internal] ${message}`);
-        }
-    }
-
-    /**
-     * Logs an error message to the console.
-     */
-    public static logError(message: string, error?: any, outputChannel?: OutputChannel, logStack = true) {
-        let errorMessageToLog = outputChannel ? `${message} ${Log.getErrorMessage(error)}` : `${Log.TAG} ${message} ${Log.getErrorMessage(error)}`;
-
-        if (outputChannel) {
-            Log.appendStringToOutputChannel(errorMessageToLog, outputChannel);
-        } else {
-            console.error(errorMessageToLog);
-        }
-
-        // We will not need the stack trace when logging to the OutputChannel in VS Code
-        if (!outputChannel && logStack && error && (<Error>error).stack) {
-            console.error(`Stack: ${(<Error>error).stack}`);
-        }
-    }
-
-    /**
-     * Gets the message of an error, if any. Otherwise it returns the empty string.
-     */
-    public static getErrorMessage(e: any): string {
-        return e && e.message || e && e.error && e.error.message || e && e.toString() || "";
+    private static formatStringForOutputChannel(message: string) {
+        return "######### " + message + " ##########";
     }
 }

@@ -65,6 +65,15 @@ export class SourceMapUtil {
     }
 
     /**
+     * Updates source map URLs in the script body.
+     */
+    public updateScriptPaths(scriptBody: string, sourceMappingUrl: url.Url) {
+        // Update the body with the new location of the source map on storage.
+        return scriptBody.replace(SourceMapUtil.SourceMapURLRegex,
+            "//# sourceMappingURL=" + path.basename(sourceMappingUrl.pathname));
+    }
+
+    /**
      * Given an absolute source path, this method does two things:
      * 1. It changes the path from absolute to be relative to the sourcesRootPath parameter.
      * 2. It changes the path separators to Unix style.
@@ -97,12 +106,5 @@ export class SourceMapUtil {
         return match ? match[2] : null;
     }
 
-    /**
-     * Updates source map URLs in the script body.
-     */
-    public updateScriptPaths(scriptBody: string, sourceMappingUrl: url.Url) {
-        // Update the body with the new location of the source map on storage.
-        return scriptBody.replace(SourceMapUtil.SourceMapURLRegex,
-            "//# sourceMappingURL=" + path.basename(sourceMappingUrl.pathname));
-    }
+
 }

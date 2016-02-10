@@ -3,9 +3,9 @@ node_modules/
 out/
 
 # Sample Application
-test/SampleApplication/.vscode/debuggerWorker.js
-test/SampleApplication/.vscode/index.android.bundle
-test/SampleApplication/.vscode/index.android.map
+test/SampleApplication/.vscode/.react/debuggerWorker.js
+test/SampleApplication/.vscode/.react/index.android.bundle
+test/SampleApplication/.vscode/.react/index.android.map
 test/SampleApplication/android/
 test/SampleApplication/ios/
 test/SampleApplication/.flowconfig

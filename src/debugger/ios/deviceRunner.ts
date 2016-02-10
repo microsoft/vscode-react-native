@@ -158,7 +158,7 @@ export class DeviceRunner {
 
     // Attempt to start the app on the device, using the debug server proxy on a given port.
     // Returns a socket speaking remote gdb protocol with the debug server proxy.
-    public startAppViaDebugger(portNumber: number, packagePath: string, appLaunchStepTimeout: number): Q.Promise<string> {
+    private startAppViaDebugger(portNumber: number, packagePath: string, appLaunchStepTimeout: number): Q.Promise<string> {
         const encodedPath: string = this.encodePath(packagePath);
 
         // We need to send 3 messages to the proxy, waiting for responses between each message:

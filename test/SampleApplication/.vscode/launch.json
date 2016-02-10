@@ -25,7 +25,7 @@
             "runtimeArgs": [ "--nolazy" ],
             "cwd": "${workspaceRoot}",
 			"sourceMaps": true,
-			"outDir": "${workspaceRoot}/.vscode/"
+			"outDir": "${workspaceRoot}/.vscode/.react/"
 		}
 	]
 }

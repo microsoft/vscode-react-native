@@ -23,10 +23,6 @@ export class Package {
         this._path = path;
     }
 
-    private informationJsonFilePath(): string {
-        return pathModule.resolve(this._path, this.INFORMATION_PACKAGE_FILENAME);
-    }
-
     public parsePackageInformation(): Q.Promise<IPackageInformation> {
         return new Node.FileSystem().readFile(this.informationJsonFilePath(), "utf8")
             .then(data =>
@@ -50,5 +46,9 @@ export class Package {
             packageInformation.main = value;
             return new Node.FileSystem().writeFile(this.informationJsonFilePath(), JSON.stringify(<Object>packageInformation));
         });
+    }
+
+    private informationJsonFilePath(): string {
+        return pathModule.resolve(this._path, this.INFORMATION_PACKAGE_FILENAME);
     }
 }
