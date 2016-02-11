@@ -215,8 +215,14 @@ export class MultipleLifetimesAppWorker {
     }
 
     private sendMessageToApp(message: any) {
-        let stringified = JSON.stringify(message);
-        Log.logInternalMessage(LogLevel.Trace, "To RN APP: " + stringified);
-        this.socketToApp.send(stringified);
+        let stringified: string = null;
+        try {
+            stringified = JSON.stringify(message);
+            Log.logInternalMessage(LogLevel.Trace, "To RN APP: " + stringified);
+            this.socketToApp.send(stringified);
+        } catch (exception) {
+            let messageToShow = stringified || ("" + message); // Try to show the stringified version, but show the toString if unavailable
+            printDebuggingFatalError(`Failed to send message to the React Native app. Message:\n${messageToShow}`, exception);
+        }
     }
 }
