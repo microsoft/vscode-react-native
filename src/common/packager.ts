@@ -126,7 +126,11 @@ export class Packager {
             // Attempt to find the 'opn' package directly under the project's node_modules folder (node4 +)
             // Else, attempt to find the package within the dependent node_modules of react-native package
             let possiblePaths = [flatDependencyPackagePath, nestedDependencyPackagePath];
-            return Q.any(possiblePaths.map(path => fsHelper.exists(path).then(() => Q.resolve(path))));
+            return Q.any(possiblePaths.map(path =>
+                fsHelper.exists(path).then(exists =>
+                    exists
+                        ? Q.resolve(path)
+                        : Q.reject<string>("opn package location not found"))));
         } catch (err) {
             console.error ("The package \'opn\' was not found." + err);
         }
