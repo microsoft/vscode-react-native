@@ -37,8 +37,8 @@ export function activate(context: vscode.ExtensionContext): void {
  * the debugger stub into the workspace
  */
 function setupReactNativeDebugger(): void {
-    let launcherPath = require.resolve("./debugger/launcher");
-    let pkg = require("../package.json");
+    let launcherPath = require.resolve("../debugger/launcher");
+    let pkg = require("../../package.json");
     const extensionVersionNumber = pkg.version;
     const extensionName = pkg.name;
 
@@ -75,7 +75,7 @@ function setupReactNativeIntellisense(): void {
     })
     .done();
 
-    let reactTypingsSource = path.resolve(__dirname, "..", "ReactTypings");
+    let reactTypingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
     let reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
     let fileSystem = new FileSystem();
 
