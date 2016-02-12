@@ -2,12 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {FileSystem} from "../common/node/fileSystem";
+import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
+import {Node} from "../common/node/node";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {TsConfigHelper} from "./tsconfigHelper";
+import {SettingsHelper} from "./settingsHelper";
 
 export function activate(context: vscode.ExtensionContext): void {
     let reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
@@ -66,18 +69,66 @@ try {
 
 function setupReactNativeIntellisense(): void {
     if (!process.env.VSCODE_TSJS) {
-        return;
+        vscode.window.showInformationMessage("Turn on Salsa intellisense for VS Code?", "Yes")
+            .then(function(result: string) {
+                if (result === "Yes") {
+                    enableSalsa();
+                }
+            });
     }
 
     TsConfigHelper.allowJs(true)
-    .then(function() {
-        return TsConfigHelper.addExcludePaths(["node_modules"]);
-    })
-    .done();
+        .then(function() {
+            return TsConfigHelper.addExcludePaths(["node_modules"]);
+        })
+        .done();
 
     let reactTypingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
     let reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
     let fileSystem = new FileSystem();
 
-    fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest).done();
+    fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest)
+        .then(function() {
+            return installTypescriptNext();
+        })
+        .done();
+}
+
+function installTypescriptNext(): Q.Promise<void> {
+    let typeScriptNextSource = path.resolve(__dirname, "..", "..", "TypescriptNext");
+    let typeScriptNextDest = path.resolve(vscode.workspace.rootPath, ".vscode");
+    let typeScriptNextLibPath = path.join(typeScriptNextDest, "typescript", "lib");
+    let fileSystem: FileSystem = new FileSystem();
+
+    let p = process.env.HOME || process.env.USERPROFILE;
+
+    return fileSystem.exists(typeScriptNextLibPath)
+        .then(function(exists: boolean) {
+            if (!exists) {
+                return fileSystem.copyRecursive(typeScriptNextSource, typeScriptNextDest);
+            }
+        })
+        .then(function() {
+            return SettingsHelper.typescriptTsdk(typeScriptNextLibPath);
+        });
+}
+
+function enableSalsa(): void {
+    if (!process.env.VSCODE_TSJS) {
+        let setSalsaEnvVariable: string = "";
+        if (os.type() === "Darwin") {
+            setSalsaEnvVariable = "launchctl setenv VSCODE_TSJS 1";
+        } else if (os.type() === "Windows") {
+            setSalsaEnvVariable = "setx VSCODE_TSJS 1";
+        }
+
+        let childProcess = new Node.ChildProcess();
+        childProcess.exec(setSalsaEnvVariable);
+
+        installTypescriptNext()
+            .then(function() {
+                vscode.window.showInformationMessage("Salsa intellisense for VS Code was turned on. Restart to enable it.");
+            })
+            .done();
+    }
 }
