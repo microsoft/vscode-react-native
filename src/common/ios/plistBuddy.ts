@@ -28,6 +28,10 @@ export class PlistBuddy {
         ).then(() => {});
     }
 
+    public deletePlistProperty(plistFile: string, property: string): Q.Promise<void> {
+        return this.invokePlistBuddy(`Delete ${property}`, plistFile).then(() => {});
+    }
+
     public readPlistProperty(plistFile: string, property: string): Q.Promise<string> {
         return this.invokePlistBuddy(`Print ${property}`, plistFile);
     }

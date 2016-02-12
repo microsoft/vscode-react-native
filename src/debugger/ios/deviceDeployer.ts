@@ -6,7 +6,7 @@ import * as Q from "q";
 
 import {CommandExecutor} from "../../common/commandExecutor";
 import {Log} from "../../common/log";
-import {Xcodeproj} from "./xcodeproj";
+import {Xcodeproj} from "../../common/ios/xcodeproj";
 
 export class DeviceDeployer {
     private projectRoot: string;
