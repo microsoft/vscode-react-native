@@ -57,6 +57,7 @@ export class SandboxedAppWorker {
 
     constructor(sourcesStoragePath: string, debugAdapterPort: number, postReplyToApp: (message: any) => void) {
         this.sourcesStoragePath = sourcesStoragePath;
+        this.debugAdapterPort = debugAdapterPort;
         this.postReplyToApp = postReplyToApp;
         this.scriptToReceiveMessageInSandbox = new vm.Script(SandboxedAppWorker.PROCESS_MESSAGE_INSIDE_SANDBOX);
     }

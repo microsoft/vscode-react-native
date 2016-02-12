@@ -107,8 +107,8 @@ nodeDebug.NodeDebugSession.prototype.launchRequest = function(request, args) {
     // We do not permit arbitrary args to be passed to our process
     args.args = [
         args.platform,
-        debugServerListeningPort,
-        args.target
+        debugServerListeningPort.toString(),
+        args.target || "simulator"
     ];
 
     originalNodeDebugSessionLaunchRequest.call(this, request, args);
