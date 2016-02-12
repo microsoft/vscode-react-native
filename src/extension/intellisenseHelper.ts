@@ -3,7 +3,9 @@
 
 import {FileSystem} from "../common/node/fileSystem";
 import * as os from "os";
+import * as npm from "npm";
 import * as path from "path";
+import * as Q from "q";
 import * as vscode from "vscode";
 import {Node} from "../common/node/node";
 import {TsConfigHelper} from "./tsconfigHelper";
@@ -38,15 +40,20 @@ export class IntellisenseHelper {
     }
 
     public static installTypescriptNext(): Q.Promise<void> {
-        let typeScriptNextSource = path.resolve(__dirname, "..", "..", "TypescriptNext");
-        let typeScriptNextDest = path.resolve(vscode.workspace.rootPath, ".vscode");
-        let typeScriptNextLibPath = path.join(typeScriptNextDest, "typescript", "lib");
+        let homeDirectory = process.env.HOME || process.env.USERPROFILE;
+        let typeScriptNextDest = path.resolve(homeDirectory, ".vscode");
+        let typeScriptNextLibPath = path.join(typeScriptNextDest, "node_modules", "typescript", "lib");
         let fileSystem: FileSystem = new FileSystem();
 
         return fileSystem.exists(typeScriptNextLibPath)
             .then(function(exists: boolean) {
                 if (!exists) {
-                    return fileSystem.copyRecursive(typeScriptNextSource, typeScriptNextDest);
+                    return Q({})
+                        .then(() => Q.nfcall(npm.load, {}))
+                        .then(() => {
+                            npm.prefix = typeScriptNextDest;
+                            return Q.ninvoke(npm.commands, "install", ["typescript@next"]);
+                        });
                 }
             })
             .then(function() {
