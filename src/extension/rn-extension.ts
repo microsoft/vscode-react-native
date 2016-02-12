@@ -104,8 +104,6 @@ function installTypescriptNext(): Q.Promise<void> {
     let typeScriptNextLibPath = path.join(typeScriptNextDest, "typescript", "lib");
     let fileSystem: FileSystem = new FileSystem();
 
-    let p = process.env.HOME || process.env.USERPROFILE;
-
     return fileSystem.exists(typeScriptNextLibPath)
         .then(function(exists: boolean) {
             if (!exists) {
