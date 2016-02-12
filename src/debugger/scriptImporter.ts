@@ -68,6 +68,10 @@ export class ScriptImporter {
                 let scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
                 let updatedContent = this.sourceMapUtil.updateSourceMapFile(sourceMapBody, scriptFileRelativePath, this.sourcesStoragePath);
                 return new FileSystem().writeFile(sourceMappingLocalPath, updatedContent);
+            }).then(() => {
+                // TODO: update port based on command line arguments
+                // Request that the debug adapter update breakpoints and sourcemaps now that we have written them
+                return new Request().request("http://localhost:8080/refreshBreakpoints");
             });
     }
 }
