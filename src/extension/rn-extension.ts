@@ -10,7 +10,7 @@ import {ReactDirManager} from "./reactDirManager";
 import {TsConfigHelper} from "./tsconfigHelper";
 
 export function activate(context: vscode.ExtensionContext): void {
-    let reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
+    const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
     reactNativeProjectHelper.isReactNativeProject().then(isRNProject => {
         if (isRNProject) {
             setupReactNativeDebugger();
@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext): void {
         }
     });
 
-    let commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
+    const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 
     // Register React Native commands
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
@@ -30,6 +30,10 @@ export function activate(context: vscode.ExtensionContext): void {
         () => commandPaletteHandler.startPackager()));
     context.subscriptions.push(vscode.commands.registerCommand("reactNative.stopPackager",
         () => commandPaletteHandler.stopPackager()));
+
+    const nodeDebugPath = vscode.extensions.getExtension("andreweinand.node-debug").extensionPath;
+    const fsUtil = new FileSystem();
+    fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({nodeDebugPath})).done();
 }
 
 /**
@@ -37,8 +41,8 @@ export function activate(context: vscode.ExtensionContext): void {
  * the debugger stub into the workspace
  */
 function setupReactNativeDebugger(): void {
-    let launcherPath = require.resolve("../debugger/launcher");
-    let pkg = require("../../package.json");
+    const launcherPath = require.resolve("../debugger/launcher");
+    const pkg = require("../../package.json");
     const extensionVersionNumber = pkg.version;
     const extensionName = pkg.name;
 
@@ -53,9 +57,9 @@ try {
     throw new Error("Unable to launch application. Try deleting .vscode/launchReactNative.js and restarting vscode.");
 }`;
 
-    let vscodeFolder = path.join(vscode.workspace.rootPath, ".vscode");
-    let debugStub = path.join(vscodeFolder, "launchReactNative.js");
-    let fsUtil = new FileSystem();
+    const vscodeFolder = path.join(vscode.workspace.rootPath, ".vscode");
+    const debugStub = path.join(vscodeFolder, "launchReactNative.js");
+    const fsUtil = new FileSystem();
 
     fsUtil.ensureDirectory(vscodeFolder)
         .then(() => fsUtil.ensureFileWithContents(debugStub, debuggerEntryCode))
@@ -75,9 +79,9 @@ function setupReactNativeIntellisense(): void {
     })
     .done();
 
-    let reactTypingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
-    let reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
-    let fileSystem = new FileSystem();
+    const reactTypingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
+    const reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
+    const fileSystem = new FileSystem();
 
     fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest).done();
 }

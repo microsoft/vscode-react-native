@@ -44,11 +44,13 @@
             {
                 "type": "reactnative",
                 "label": "React Native",
+                "program": "./out/debugger/nodeDebugWrapper.js",
+                "runtime": "node",
                 "initialConfigurations": [
                     {
                         "name": "Debug Android",
                         "program": "${workspaceRoot}/.vscode/launchReactNative.js",
-                        "type": "node",
+                        "type": "reactnative",
                         "request": "launch",
                         "args": [
                             "android"
@@ -59,7 +61,7 @@
                     {
                         "name": "Debug iOS",
                         "program": "${workspaceRoot}/.vscode/launchReactNative.js",
-                        "type": "node",
+                        "type": "reactnative",
                         "request": "launch",
                         "args": [
                             "ios",
@@ -76,6 +78,7 @@
         "start": "node node_modules/react-native/local-cli/cli.js start",
         "vscode:prepublish": "gulp"
     },
+    "extensionDependencies": ["andreweinand.node-debug"],
     "dependencies": {
         "q": "^1.4.1",
         "ws": "^1.0.1"
