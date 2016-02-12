@@ -53,7 +53,7 @@
                         "type": "reactnative",
                         "request": "launch",
                         "platform": "android",
-                        "reactNativeDebuggerPort": 9090,
+                        "internalDebuggerPort": 9090,
                         "sourceMaps": true,
                         "outDir": "${workspaceRoot}/.vscode/.react"
                     },
@@ -64,7 +64,7 @@
                         "request": "launch",
                         "platform": "ios",
                         "target": "iPhone 5s",
-                        "reactNativeDebuggerPort": 9090,
+                        "internalDebuggerPort": 9090,
                         "sourceMaps": true,
                         "outDir": "${workspaceRoot}/.vscode/.react"
                     }
@@ -78,19 +78,19 @@
                         "properties": {
                             "platform": {
                                 "type": "string",
-                                "description": "The platform to run on"
+                                "description": "The platform ('ios' or 'android') to target"
                             },
                             "program": {
                                 "type": "string",
-                                "decsription": "The path to launchReactNative.js in the vscode folder"
+                                "description": "The path to launchReactNative.js in the vscode folder"
                             },
                             "target": {
                                 "type": "string",
                                 "description": "'simulator', 'device', or the name of the emulator to run on"
                             },
-                            "reactNativeDebuggerPort": {
+                            "internalDebuggerPort": {
                                 "type": "number",
-                                "descrpition": "A port to be used to enable automatic reloading of breakpoints when sourcemaps change.",
+                                "description": "A port to be used to enable automatic reloading of breakpoints when sourcemaps change.",
                                 "default": 9090
                             }
                         }
