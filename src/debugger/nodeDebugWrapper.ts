@@ -28,6 +28,8 @@ declare class NodeDebugSession {
     public start(): any;
 }
 
+/* tslint:disable:no-var-requires */
+
 // nodeDebugLocation.json is dynamically generated on extension activation.
 // If it fails, we must not have been in a react native project
 const nodeDebugFolder = require("./nodeDebugLocation.json").nodeDebugPath;
@@ -40,6 +42,8 @@ vscodeDebugAdapterPackage.DebugSession.run = function () {};
 
 const nodeDebug: {NodeDebugSession: typeof NodeDebugSession} = require(path.join(nodeDebugFolder, "out", "node", "nodeDebug"));
 
+/* tslint:enable:no-var-requires */
+
 vscodeDebugAdapterPackage.DebugSession.run = originalDebugSessionRun;
 
 // Intercept the "start" instance method of NodeDebugSession to keep a reference to the instance itself
@@ -48,7 +52,7 @@ const originalNodeDebugSessionStart = nodeDebug.NodeDebugSession.prototype.start
 nodeDebug.NodeDebugSession.prototype.start = function () {
     nodeDebugSession = this;
     return originalNodeDebugSessionStart.apply(this, arguments);
-}
+};
 
 // Create a server waiting for messages to re-initialize the debug session;
 const reinitializeServer = http.createServer((request, response) => {
