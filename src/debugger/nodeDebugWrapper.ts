@@ -35,6 +35,13 @@ declare class NodeDebugSession extends VSCodeDebugAdapter.DebugSession {
     public _sourceMaps: SourceMaps;
 }
 
+interface ILaunchArgs {
+    platform: string;
+    target?: string;
+    internalDebuggerPort?: any;
+    args: string[];
+}
+
 let nodeDebugFolder: string;
 let vscodeDebugAdapterPackage: typeof VSCodeDebugAdapter;
 
@@ -76,7 +83,7 @@ vscodeDebugAdapterPackage.DebugSession.run = originalDebugSessionRun;
 
 // Intecept the "launchRequest" instance method of NodeDebugSession to interpret arguments
 const originalNodeDebugSessionLaunchRequest = nodeDebug.NodeDebugSession.prototype.launchRequest;
-nodeDebug.NodeDebugSession.prototype.launchRequest = function(request, args) {
+nodeDebug.NodeDebugSession.prototype.launchRequest = function(request: any, args: ILaunchArgs) {
     // Create a server waiting for messages to re-initialize the debug session;
     const reinitializeServer = http.createServer((req, res) => {
         res.statusCode = 404;
@@ -96,12 +103,12 @@ nodeDebug.NodeDebugSession.prototype.launchRequest = function(request, args) {
         }
         res.end();
     });
-    const debugServerListeningPort = parseInt(args.reactNativeDebuggerPort, 10) || 9090;
+    const debugServerListeningPort = parseInt(args.internalDebuggerPort, 10) || 9090;
 
     reinitializeServer.listen(debugServerListeningPort);
     reinitializeServer.on("error", (err: Error) => {
         this.sendEvent(new vscodeDebugAdapterPackage.OutputEvent("Error in debug adapter server: " + err.toString(), "stderr"));
-        this.sendEvent(new vscodeDebugAdapterPackage.OutputEvent("Breakpoints may not update. Consider restarting and specifying a different 'reactNativeDebuggerPort' in launch.json"));
+        this.sendEvent(new vscodeDebugAdapterPackage.OutputEvent("Breakpoints may not update. Consider restarting and specifying a different 'internalDebuggerPort' in launch.json"));
     });
 
     // We do not permit arbitrary args to be passed to our process
