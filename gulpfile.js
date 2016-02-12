@@ -20,7 +20,19 @@ var sources = [
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; })
     .concat(['test/*.ts']);
 
-gulp.task('build', function () {
+
+gulp.task('build', function (callback) {
+    var compileCommand = "node ./node_modules/vscode/bin/compile -p .";
+    console.log("Executing: " + compileCommand);
+    child_process.exec(compileCommand, function (err, stdout, stderr) {
+        console.log(stdout);
+        console.error(stderr);
+        callback(err);
+    });
+});
+
+// We should eventually fix and use this build. Until we do that, we'll keep it as "old_build"
+gulp.task('old_build', function () {
     var tsProject = ts.createProject('src/tsconfig.json');
     return tsProject.src()
         .pipe(sourcemaps.init())
