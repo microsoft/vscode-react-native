@@ -31,7 +31,7 @@ export class Launcher {
                 // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                 .then(() => packager.prewarmBundleCache(runOptions.platform))
                 .then(() => mobilePlatform.runApp(runOptions))
-                .then(() => new MultipleLifetimesAppWorker(sourcesStoragePath).start()) // Start the app worker
+                .then(() => new MultipleLifetimesAppWorker(sourcesStoragePath, runOptions.debugAdapterPort).start()) // Start the app worker
                 .then(() => mobilePlatform.enableJSDebuggingMode(runOptions))
                 .done(() => { }, reason => {
                     Log.logError("Cannot debug application.", reason);
@@ -44,12 +44,12 @@ export class Launcher {
      */
     private parseRunOptions(): IRunOptions {
         let result: IRunOptions = { projectRoot: this.projectRootPath };
+        // We expect our debugAdapter to pass in arguments as [platform, debugAdapterPort, target?];
 
-        if (process.argv.length > 2) {
-            result.platform = process.argv[2].toLowerCase();
-        }
+        result.platform = process.argv[2].toLowerCase();
+        result.debugAdapterPort = parseInt(process.argv[3], 10) || 9090;
+        result.target = process.argv[4];
 
-        result.target = process.argv[3];
         return result;
     }
 }

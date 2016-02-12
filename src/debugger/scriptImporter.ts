@@ -16,10 +16,12 @@ interface DownloadedScript {
 
 export class ScriptImporter {
     private sourcesStoragePath: string;
+    private debugAdapterPort: number;
     private sourceMapUtil: SourceMapUtil;
 
-    constructor(sourcesStoragePath: string) {
+    constructor(sourcesStoragePath: string, debugAdapterPort: number) {
         this.sourcesStoragePath = sourcesStoragePath;
+        this.debugAdapterPort = debugAdapterPort;
         this.sourceMapUtil = new SourceMapUtil();
     }
 
@@ -71,7 +73,7 @@ export class ScriptImporter {
             }).then(() => {
                 // TODO: update port based on command line arguments
                 // Request that the debug adapter update breakpoints and sourcemaps now that we have written them
-                return new Request().request("http://localhost:8080/refreshBreakpoints");
+                return new Request().request(`http://localhost:${this.debugAdapterPort}/refreshBreakpoints`);
             });
     }
 }

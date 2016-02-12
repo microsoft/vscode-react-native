@@ -44,6 +44,7 @@ export class SandboxedAppWorker {
      * to download any script used by debuggerWorker.js
      */
     private sourcesStoragePath: string;
+    private debugAdapterPort: number;
     private postReplyToApp: (message: any) => void;
 
     private sandbox: DebuggerWorkerSandbox;
@@ -54,7 +55,7 @@ export class SandboxedAppWorker {
 
     private static PROCESS_MESSAGE_INSIDE_SANDBOX = "onmessage({ data: postMessageArgument });";
 
-    constructor(sourcesStoragePath: string, postReplyToApp: (message: any) => void) {
+    constructor(sourcesStoragePath: string, debugAdapterPort: number, postReplyToApp: (message: any) => void) {
         this.sourcesStoragePath = sourcesStoragePath;
         this.postReplyToApp = postReplyToApp;
         this.scriptToReceiveMessageInSandbox = new vm.Script(SandboxedAppWorker.PROCESS_MESSAGE_INSIDE_SANDBOX);
@@ -121,7 +122,7 @@ export class SandboxedAppWorker {
         this.pendingScriptImport = defer.promise;
 
         // The next line converts to any due to the incorrect typing on node.d.ts of vm.runInThisContext
-        new ScriptImporter(this.sourcesStoragePath).download(url)
+        new ScriptImporter(this.sourcesStoragePath, this.debugAdapterPort).download(url)
             .then(downloadedScript =>
                 this.runInSandbox(downloadedScript.filepath, downloadedScript.contents))
             .done(() => {
@@ -146,16 +147,18 @@ export class MultipleLifetimesAppWorker {
      * When the socket closes, we'll create a new SandboxedAppWorker and a new socket pair and discard the old ones.
      */
     private sourcesStoragePath: string;
+    private debugAdapterPort: number;
     private socketToApp: WebSocket;
     private singleLifetimeWorker: SandboxedAppWorker;
 
-    constructor(sourcesStoragePath: string) {
+    constructor(sourcesStoragePath: string, debugAdapterPort: number) {
         this.sourcesStoragePath = sourcesStoragePath;
+        this.debugAdapterPort = debugAdapterPort;
         console.assert(!!this.sourcesStoragePath, "The sourcesStoragePath argument was null or empty");
     }
 
     public start(): Q.Promise<void> {
-        this.singleLifetimeWorker = new SandboxedAppWorker(this.sourcesStoragePath, (message) => {
+        this.singleLifetimeWorker = new SandboxedAppWorker(this.sourcesStoragePath, this.debugAdapterPort, (message) => {
             this.sendMessageToApp(message);
         });
         return this.singleLifetimeWorker.start().then(() => {

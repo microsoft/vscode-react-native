@@ -10,9 +10,18 @@ import * as http from "http";
 declare module VSCodeDebugAdapter {
     class DebugSession {
         public static run: Function;
+        public sendEvent(event: VSCodeDebugAdapter.InitializedEvent): void;
+        public start(input: any, output: any): void;
+        public launchRequest(response: any, args: any): void;
     }
     class InitializedEvent {
-        // Nothing relevant
+        constructor();
+    }
+    class OutputEvent {
+        constructor(message: string, destination?: string);
+    }
+    class TerminatedEvent {
+        constructor();
     }
 }
 
@@ -22,59 +31,88 @@ declare class SourceMaps {
     public _allSourceMaps: {};
 }
 
-declare class NodeDebugSession {
+declare class NodeDebugSession extends VSCodeDebugAdapter.DebugSession {
     public _sourceMaps: SourceMaps;
-    public sendEvent(event: VSCodeDebugAdapter.InitializedEvent): void;
-    public start(): any;
 }
+
+let nodeDebugFolder: string;
+let vscodeDebugAdapterPackage: typeof VSCodeDebugAdapter;
 
 /* tslint:disable:no-var-requires */
 
 // nodeDebugLocation.json is dynamically generated on extension activation.
 // If it fails, we must not have been in a react native project
-const nodeDebugFolder = require("./nodeDebugLocation.json").nodeDebugPath;
+try {
+    nodeDebugFolder = require("./nodeDebugLocation.json").nodeDebugPath;
 
-const vscodeDebugAdapterPackage: typeof VSCodeDebugAdapter = require(path.join(nodeDebugFolder, "node_modules", "vscode-debugadapter"));
+    vscodeDebugAdapterPackage = require(path.join(nodeDebugFolder, "node_modules", "vscode-debugadapter"));
+} catch (e) {
+    // Nothing we can do here: can't even communicate back because we don't know how to speak debug adapter
+    process.exit(1);
+}
 
 // Temporarily dummy out the DebugSession.run function so we do not start the debug adapter until we are ready
 const originalDebugSessionRun = vscodeDebugAdapterPackage.DebugSession.run;
-vscodeDebugAdapterPackage.DebugSession.run = function () {};
+vscodeDebugAdapterPackage.DebugSession.run = function() { };
 
-const nodeDebug: {NodeDebugSession: typeof NodeDebugSession} = require(path.join(nodeDebugFolder, "out", "node", "nodeDebug"));
+let nodeDebug: { NodeDebugSession: typeof NodeDebugSession };
+
+try {
+    nodeDebug = require(path.join(nodeDebugFolder, "out", "node", "nodeDebug"));
+} catch (e) {
+    // Unable to find nodeDebug, but we can make our own communication channel now
+    const debugSession = new vscodeDebugAdapterPackage.DebugSession();
+    // Note: this will not work in the context of debugging the debug adapter and communicating over a socket,
+    // but in that case we have much better ways to investigate errors.
+    debugSession.start(process.stdin, process.stdout);
+    debugSession.sendEvent(new vscodeDebugAdapterPackage.OutputEvent("Unable to start debug adapter: " + e.toString(), "stderr"));
+    debugSession.sendEvent(new vscodeDebugAdapterPackage.TerminatedEvent());
+    process.exit(1);
+}
 
 /* tslint:enable:no-var-requires */
 
 vscodeDebugAdapterPackage.DebugSession.run = originalDebugSessionRun;
 
-// Intercept the "start" instance method of NodeDebugSession to keep a reference to the instance itself
-let nodeDebugSession: NodeDebugSession;
-const originalNodeDebugSessionStart = nodeDebug.NodeDebugSession.prototype.start;
-nodeDebug.NodeDebugSession.prototype.start = function () {
-    nodeDebugSession = this;
-    return originalNodeDebugSessionStart.apply(this, arguments);
-};
-
-// Create a server waiting for messages to re-initialize the debug session;
-const reinitializeServer = http.createServer((request, response) => {
-    if (nodeDebugSession) {
-        const sourceMaps = nodeDebugSession._sourceMaps;
-        if (sourceMaps) {
-            // Flush any cached source maps
-            sourceMaps._allSourceMaps = {};
-            sourceMaps._generatedToSourceMaps = {};
-            sourceMaps._sourceToGeneratedMaps = {};
+// Intecept the "launchRequest" instance method of NodeDebugSession to interpret arguments
+const originalNodeDebugSessionLaunchRequest = nodeDebug.NodeDebugSession.prototype.launchRequest;
+nodeDebug.NodeDebugSession.prototype.launchRequest = function(request, args) {
+    // Create a server waiting for messages to re-initialize the debug session;
+    const reinitializeServer = http.createServer((req, res) => {
+        res.statusCode = 404;
+        if (req.url === "/refreshBreakpoints") {
+            res.statusCode = 200;
+            if (this) {
+                const sourceMaps = this._sourceMaps;
+                if (sourceMaps) {
+                    // Flush any cached source maps
+                    sourceMaps._allSourceMaps = {};
+                    sourceMaps._generatedToSourceMaps = {};
+                    sourceMaps._sourceToGeneratedMaps = {};
+                }
+                // Send an "initialized" event to trigger breakpoints to be re-sent
+                this.sendEvent(new vscodeDebugAdapterPackage.InitializedEvent());
+            }
         }
-        // Send an "initialized" event to trigger breakpoints to be re-sent
-        nodeDebugSession.sendEvent(new vscodeDebugAdapterPackage.InitializedEvent());
-    }
-    response.end();
-});
+        res.end();
+    });
+    const debugServerListeningPort = parseInt(args.reactNativeDebuggerPort, 10) || 9090;
 
-// Determine which port to listen on:
-const ourDebugPortIndexSentinel = process.argv.indexOf("--reactNativeDebuggerPort");
-const debugServerListeningPort = parseInt(process.argv[ourDebugPortIndexSentinel + 1], 10) || 8080;
+    reinitializeServer.listen(debugServerListeningPort);
+    reinitializeServer.on("error", (err: Error) => {
+        this.sendEvent(new vscodeDebugAdapterPackage.OutputEvent("Error in debug adapter server: " + err.toString(), "stderr"));
+        this.sendEvent(new vscodeDebugAdapterPackage.OutputEvent("Breakpoints may not update. Consider restarting and specifying a different 'reactNativeDebuggerPort' in launch.json"));
+    });
 
-reinitializeServer.listen(debugServerListeningPort);
+    // We do not permit arbitrary args to be passed to our process
+    args.args = [
+        args.platform,
+        debugServerListeningPort,
+        args.target
+    ];
+
+    originalNodeDebugSessionLaunchRequest.call(this, request, args);
+};
 
 // Launch the modified debug adapter
 vscodeDebugAdapterPackage.DebugSession.run(nodeDebug.NodeDebugSession);
