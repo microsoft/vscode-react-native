@@ -4,11 +4,9 @@
 		{
 			"name": "Debug Android",
 			"program": "${workspaceRoot}/.vscode/launchReactNative.js",
-			"type": "node",
+			"type": "reactnative",
 			"request": "launch",
-			"args": [
-				"android"
-			],
+			"platform": "android",
             "runtimeArgs": [ "--nolazy" ],
             "cwd": "${workspaceRoot}",
 			"sourceMaps": true,
@@ -17,11 +15,10 @@
 		{
 			"name": "Debug iOS",
 			"program": "${workspaceRoot}/.vscode/launchReactNative.js",
-			"type": "node",
+			"type": "reactnative",
 			"request": "launch",
-			"args": [
-				"ios"
-			],
+			"platform": "ios",
+            "target": "iPhone 5s",
             "runtimeArgs": [ "--nolazy" ],
             "cwd": "${workspaceRoot}",
 			"sourceMaps": true,

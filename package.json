@@ -44,31 +44,58 @@
             {
                 "type": "reactnative",
                 "label": "React Native",
+                "program": "./out/debugger/nodeDebugWrapper.js",
+                "runtime": "node",
                 "initialConfigurations": [
                     {
                         "name": "Debug Android",
                         "program": "${workspaceRoot}/.vscode/launchReactNative.js",
-                        "type": "node",
+                        "type": "reactnative",
                         "request": "launch",
-                        "args": [
-                            "android"
-                        ],
+                        "platform": "android",
+                        "internalDebuggerPort": 9090,
                         "sourceMaps": true,
                         "outDir": "${workspaceRoot}/.vscode/.react"
                     },
                     {
                         "name": "Debug iOS",
                         "program": "${workspaceRoot}/.vscode/launchReactNative.js",
-                        "type": "node",
+                        "type": "reactnative",
                         "request": "launch",
-                        "args": [
-                            "ios",
-                            "iPhone 5s"
-                        ],
+                        "platform": "ios",
+                        "target": "iPhone 5s",
+                        "internalDebuggerPort": 9090,
                         "sourceMaps": true,
                         "outDir": "${workspaceRoot}/.vscode/.react"
                     }
-                ]
+                ],
+                "configurationAttributes": {
+                    "launch": {
+                        "required": [
+                            "platform",
+                            "program"
+                        ],
+                        "properties": {
+                            "platform": {
+                                "type": "string",
+                                "description": "The platform ('ios' or 'android') to target"
+                            },
+                            "program": {
+                                "type": "string",
+                                "description": "The path to launchReactNative.js in the vscode folder"
+                            },
+                            "target": {
+                                "type": "string",
+                                "description": "'simulator', 'device', or the name of the emulator to run on"
+                            },
+                            "internalDebuggerPort": {
+                                "type": "number",
+                                "description": "A port to be used to enable automatic reloading of breakpoints when sourcemaps change.",
+                                "default": 9090
+                            }
+                        }
+                    }
+                }
             }
         ]
     },
@@ -76,6 +103,7 @@
         "start": "node node_modules/react-native/local-cli/cli.js start",
         "vscode:prepublish": "gulp"
     },
+    "extensionDependencies": ["andreweinand.node-debug"],
     "dependencies": {
         "q": "^1.4.1",
         "ws": "^1.0.1"
