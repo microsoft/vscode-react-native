@@ -48,12 +48,12 @@ export class SettingsHelper {
      */
     public static typescriptTsdk(path: string): Q.Promise<void> {
         return SettingsHelper.readSettingsJson()
-        .then(function(settingsJson: any): Q.Promise<void> {
-            if (settingsJson["typescript.tsdk"] !== path) {
-                settingsJson["typescript.tsdk"] = path;
+            .then(function(settingsJson: any): Q.Promise<void> {
+                if (settingsJson["typescript.tsdk"] !== path) {
+                    settingsJson["typescript.tsdk"] = path;
 
-                return SettingsHelper.writeSettingsJson(settingsJson);
-            }
-        });
+                    return SettingsHelper.writeSettingsJson(settingsJson);
+                }
+            });
     }
 }
