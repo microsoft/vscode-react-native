@@ -101,6 +101,7 @@
     },
     "scripts": {
         "start": "node node_modules/react-native/local-cli/cli.js start",
+        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
         "vscode:prepublish": "gulp"
     },
     "extensionDependencies": ["andreweinand.node-debug"],
@@ -113,6 +114,7 @@
     },
     "devDependencies": {
         "vscode": "^0.10.7",
+        "typescript": "^1.7.5",
         "vsce": "^1.0.0",
         "run-sequence": "^1.1.5",
         "gulp": "^3.9.0",
