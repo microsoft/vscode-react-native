@@ -56,4 +56,11 @@ export class SettingsHelper {
                 }
             });
     }
+
+    public static getTypescriptTsdk(): Q.Promise<string> {
+        return SettingsHelper.readSettingsJson()
+            .then(function(settingsJson: any): Q.Promise<string> {
+                return settingsJson["typescript.tsdk"] || "";
+            });
+    }
 }

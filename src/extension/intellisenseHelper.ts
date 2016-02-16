@@ -17,16 +17,16 @@ export class IntellisenseHelper {
      */
     public static setupReactNativeIntellisense(): void {
         if (!process.env.VSCODE_TSJS) {
-            vscode.window.showInformationMessage("Turn on Salsa intellisense for VS Code?", "Yes")
+            vscode.window.showInformationMessage("Turn on React Native intellisense for VS Code?", "Yes")
                 .then(function(result: string) {
                     if (result === "Yes") {
                         IntellisenseHelper.enableSalsa();
                         IntellisenseHelper.prepareWorkspace();
                     }
                 });
+        } else {
+            IntellisenseHelper.prepareWorkspace();
         }
-
-        IntellisenseHelper.prepareWorkspace();
     }
 
     /**
@@ -43,46 +43,77 @@ export class IntellisenseHelper {
             .done();
 
         Q({})
-            .then(() => IntellisenseHelper.installReactNativeTypings())
-            .then(() => IntellisenseHelper.installTypescriptNext())
+            .then(() => IntellisenseHelper.installReactNativeTypings(false))
+            .then((isRestartRequired: boolean) => IntellisenseHelper.installTypescriptNext(isRestartRequired))
+            .then((isRestartRequired: boolean) => IntellisenseHelper.configureWorkspaceSettings(isRestartRequired))
+            .then((isRestartRequired: boolean) => IntellisenseHelper.warnIfRestartIsRequired(isRestartRequired))
             .done();
     }
 
     /**
      * Helper method that install typings for React Native.
      */
-    public static installReactNativeTypings(): Q.Promise<void> {
+    public static installReactNativeTypings(isRestartRequired: boolean): Q.Promise<boolean> {
         let reactTypingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
         let reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
         let fileSystem = new FileSystem();
 
-        return fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest);
+        return fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest)
+            .then(() => { return isRestartRequired; });
     }
 
     /**
      * Helper method that installs Typescript into a global location.
      */
-    public static installTypescriptNext(): Q.Promise<void> {
-        let homeDirectory: string = "";
-        if (os.type() === "Darwin") {
-            homeDirectory = process.env.HOME;
-        } else if (os.type() === "Windows") {
-            homeDirectory = process.env.USERPROFILE;
-        }
-
-        let typeScriptNextDest: string = path.resolve(homeDirectory, ".vscode");
+    public static installTypescriptNext(isRestartRequired: boolean): Q.Promise<boolean> {
+        let typeScriptNextDest: string = path.resolve(IntellisenseHelper.getUserHomePath(), ".vscode");
         let typeScriptNextLibPath: string = path.join(typeScriptNextDest, "node_modules", "typescript", "lib");
         let fileSystem: FileSystem = new FileSystem();
 
         return fileSystem.exists(typeScriptNextLibPath)
             .then(function(exists: boolean) {
                 if (!exists) {
-                    return Q.nfcall(child_process.exec, `npm install --prefix ${typeScriptNextDest} typescript@next`);
+                    return Q.nfcall(child_process.exec, `npm install --prefix ${typeScriptNextDest} typescript@next`)
+                        .then(() => { return true; });
                 }
-            })
-            .then(function() {
-                return SettingsHelper.typescriptTsdk(typeScriptNextLibPath);
+
+                return isRestartRequired;
             });
+    }
+
+    public static getUserHomePath(): string {
+        let homeDirectory: string = "";
+
+        if (os.type() === "Darwin") {
+            homeDirectory = process.env.HOME;
+        } else if (os.type() === "Windows") {
+            homeDirectory = process.env.USERPROFILE;
+        }
+
+        return homeDirectory;
+    }
+
+    public static configureWorkspaceSettings(isRestartRequired: boolean): Q.Promise<boolean> {
+        let typeScriptNextDest: string = path.resolve(IntellisenseHelper.getUserHomePath(), ".vscode");
+        let typeScriptNextLibPath: string = path.join(typeScriptNextDest, "node_modules", "typescript", "lib");
+
+        return SettingsHelper.getTypescriptTsdk()
+            .then((tsdkPath: string) => {
+                if (!tsdkPath) {
+                    return SettingsHelper.typescriptTsdk(typeScriptNextLibPath)
+                        .then(() => { return true; });
+                }
+
+                return isRestartRequired;
+            });
+    }
+
+    public static warnIfRestartIsRequired(isRestartRequired: boolean): Q.Promise<void> {
+        if (isRestartRequired) {
+            vscode.window.showInformationMessage("React Native intellisense for VS Code was successfully configured for this project. Restart to enable it.");
+        }
+
+        return;
     }
 
     /**
@@ -100,7 +131,6 @@ export class IntellisenseHelper {
 
             Q({})
                 .then(() => Q.nfcall(child_process.exec, setEnvironmentVariableCommand))
-                .then(() => vscode.window.showInformationMessage("Salsa intellisense for VS Code was turned on. Restart to enable it."))
                 .done();
         }
     }
