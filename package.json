@@ -3,7 +3,7 @@
     "displayName": "vscode-react-native",
     "version": "0.0.1",
     "private": true,
-    "publisher": "Microsoft",
+    "publisher": "vsmobile",
     "description": "VS Code Extension for React Native applications",
     "license": "MIT",
     "repository": {
