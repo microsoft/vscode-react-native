@@ -24,7 +24,7 @@ export class CommandPaletteHandler {
         TelemetryHelper.generate("RNCommand", (generator) => {
             generator.add("command", "startPackager", false);
             return this.executeCommandInContext(() => this.reactNativePackager.start(vscode.window.createOutputChannel("React-Native")).done());
-        });
+        }).done();
     }
 
     /**
@@ -34,7 +34,7 @@ export class CommandPaletteHandler {
         TelemetryHelper.generate("RNCommand", (generator) => {
             generator.add("command", "stopPackager", false);
             return this.executeCommandInContext(() => this.reactNativePackager.stop(vscode.window.createOutputChannel("React-Native")));
-        });
+        }).done();
     }
 
     /**
@@ -44,7 +44,7 @@ export class CommandPaletteHandler {
         TelemetryHelper.generate("RNCommand", (generator) => {
             generator.add("command", "runAndroid", false);
             return this.executeCommandInContext(() => this.executeReactNativeRunCommand("run-android"));
-        });
+        }).done();
     }
 
     /**
@@ -54,7 +54,7 @@ export class CommandPaletteHandler {
         TelemetryHelper.generate("RNCommand", (generator) => {
             generator.add("command", "runIos", false);
             return this.executeCommandInContext(() => this.executeReactNativeRunCommand("run-ios"));
-        });
+        }).done();
     }
 
     /**

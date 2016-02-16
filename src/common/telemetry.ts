@@ -102,11 +102,18 @@ export module Telemetry {
                 try {
                     if (event instanceof TelemetryActivity) {
                         (<TelemetryActivity> event).end();
+                        console.log("!!! Telemetry Event !!!");
+                        console.log(event);
+                        console.log("!!! End - Telemetry Event !!!");
                     }
 
                     if (appInsights.client) { // no-op if telemetry is not initialized
                         appInsights.client.trackEvent(event.name, event.properties);
+                        console.log("!!! Telemetry Event !!!");
+                        console.log(event);
+                        console.log("!!! End - Telemetry Event !!!");
                     }
+
                 } catch (err) {
                     console.error(err);
                 }
