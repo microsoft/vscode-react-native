@@ -43,9 +43,9 @@ export class IntellisenseHelper {
             .done();
 
         Q({})
-            .then(() => IntellisenseHelper.installReactNativeTypings(false))
-            .then((isRestartRequired: boolean) => IntellisenseHelper.installTypescriptNext(isRestartRequired))
+            .then(() => IntellisenseHelper.installTypescriptNext(false))
             .then((isRestartRequired: boolean) => IntellisenseHelper.configureWorkspaceSettings(isRestartRequired))
+            .then((isRestartRequired: boolean) => IntellisenseHelper.installReactNativeTypings(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.warnIfRestartIsRequired(isRestartRequired))
             .done();
     }
