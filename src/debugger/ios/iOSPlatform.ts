@@ -12,7 +12,7 @@ import {DeviceDeployer} from "./deviceDeployer";
 import {DeviceRunner} from "./deviceRunner";
 import {IRunOptions} from "../launchArgs";
 import {PlistBuddy} from "../../common/ios/plistBuddy";
-import {iOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
+import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
 
 export class IOSPlatform implements IAppPlatform {
     private static deviceString = "device";
@@ -79,7 +79,7 @@ export class IOSPlatform implements IAppPlatform {
             return Q.resolve<void>(void 0);
         }
 
-        return new iOSDebugModeManager(this.projectPath).setSimulatorJSDebuggingModeSetting(/*enable=*/ true)
+        return new IOSDebugModeManager(this.projectPath).setSimulatorJSDebuggingModeSetting(/*enable=*/ true)
             .then(() => {
                 return this.plistBuddy.getBundleId(launchArgs.projectRoot);
             }).then((bundleId: string) => {
