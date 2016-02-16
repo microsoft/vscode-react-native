@@ -1,35 +1,30 @@
-﻿/**
- *******************************************************
- *                                                     *
- *   Copyright (C) Microsoft. All rights reserved.     *
- *                                                     *
- *******************************************************
- */
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
 
-/// <reference path='../typings/applicationinsights/applicationinsights.d.ts' />
-/// <reference path='../typings/winreg/winreg.d.ts' />
+/// <reference path="../typings/applicationinsights/applicationinsights.d.ts" />
+/// <reference path="../typings/winreg/winreg.d.ts" />
 
-import * as appInsights from 'applicationinsights';
-import * as crypto from 'crypto';
-import * as fs from 'fs';
-import * as getmac from 'getmac';
-import * as os from 'os';
-import * as path from 'path';
-import * as Q from 'q';
-import * as readline from 'readline';
-import * as winreg from 'winreg';
+import * as appInsights from "applicationinsights";
+import * as crypto from "crypto";
+import * as fs from "fs";
+import * as getmac from "getmac";
+import * as os from "os";
+import * as path from "path";
+import * as Q from "q";
+import * as winreg from "winreg";
 
 // for poking around at internal applicationinsights options
-var sender = require ('applicationinsights/Library/Sender');
-var telemetryLogger = require ('applicationinsights/Library/Logging');
-
+/* tslint:disable:no-var-requires */
+let sender = require ("applicationinsights/Library/Sender");
+let telemetryLogger = require ("applicationinsights/Library/Logging");
+/* tslint:enable:no-var-requires */
 
 /**
  * Telemetry module specialized for vscode integration.
  */
 export module Telemetry {
-        export var appName: string;
-        export var isOptedIn: boolean = false;
+        export let appName: string;
+        export let isOptedIn: boolean = false;
 
         export interface ITelemetryProperties {
             [propertyName: string]: any;
@@ -39,9 +34,9 @@ export module Telemetry {
          * TelemetryEvent represents a basic telemetry data point
          */
         export class TelemetryEvent {
-            private static PII_HASH_KEY: string = '959069c9-9e93-4fa1-bf16-3f8120d7db0c';
             public name: string;
             public properties: ITelemetryProperties;
+            private static PII_HASH_KEY: string = "959069c9-9e93-4fa1-bf16-3f8120d7db0c";
             private eventId: string;
 
             constructor(name: string, properties?: ITelemetryProperties) {
@@ -52,13 +47,13 @@ export module Telemetry {
             }
 
             public setPiiProperty(name: string, value: string): void {
-                var hmac: any = crypto.createHmac('sha256', new Buffer(TelemetryEvent.PII_HASH_KEY, 'utf8'));
-                var hashedValue: any = hmac.update(value).digest('hex');
+                let hmac: any = crypto.createHmac("sha256", new Buffer(TelemetryEvent.PII_HASH_KEY, "utf8"));
+                let hashedValue: any = hmac.update(value).digest("hex");
 
                 this.properties[name] = hashedValue;
 
                 if (Telemetry.isInternal()) {
-                    this.properties[name + '.nothashed'] = value;
+                    this.properties[name + ".nothashed"] = value;
                 }
             }
         };
@@ -86,7 +81,7 @@ export module Telemetry {
                     this.endTime = process.hrtime(this.startTime);
 
                     // convert [seconds, nanoseconds] to milliseconds and include as property
-                    this.properties['reserved.activity.duration'] = this.endTime[0] * 1000 + this.endTime[1] / 1000000;
+                    this.properties["reserved.activity.duration"] = this.endTime[0] * 1000 + this.endTime[1] / 1000000;
                 }
             }
         };
@@ -119,7 +114,7 @@ export module Telemetry {
         }
 
         export function sendPendingData(): Q.Promise<string> {
-            var defer: Q.Deferred<string> = Q.defer<string>();
+            let defer: Q.Deferred<string> = Q.defer<string>();
             appInsights.client.sendPendingData((result: string) => defer.resolve(result));
             return defer.promise;
         }
@@ -145,8 +140,8 @@ export module Telemetry {
         }
 
         class TelemetryUtils {
-            public static USERTYPE_INTERNAL: string = 'Internal';
-            public static USERTYPE_EXTERNAL: string = 'External';
+            public static USERTYPE_INTERNAL: string = "Internal";
+            public static USERTYPE_EXTERNAL: string = "External";
             public static userType: string;
             public static sessionId: string;
             public static optInCollectedForCurrentSession: boolean;
@@ -154,24 +149,23 @@ export module Telemetry {
             private static userId: string;
             private static machineId: string;
             private static telemetrySettings: ITelemetrySettings = null;
-            private static TELEMETRY_SETTINGS_FILENAME: string = 'VSCodeTelemetrySettings.json';
-            private static APPINSIGHTS_INSTRUMENTATIONKEY: string = 'AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217'; // Matches vscode telemetry key
-            private static REGISTRY_SQMCLIENT_NODE: string = '\\SOFTWARE\\Microsoft\\SQMClient';
-            private static REGISTRY_USERID_VALUE: string = 'UserId';
-            private static REGISTRY_MACHINEID_VALUE: string = 'MachineId';
-            private static INTERNAL_DOMAIN_SUFFIX: string = 'microsoft.com';
-            private static INTERNAL_USER_ENV_VAR: string = 'TACOINTERNAL';
+            private static TELEMETRY_SETTINGS_FILENAME: string = "VSCodeTelemetrySettings.json";
+            private static APPINSIGHTS_INSTRUMENTATIONKEY: string = "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217"; // Matches vscode telemetry key
+            private static REGISTRY_SQMCLIENT_NODE: string = "\\SOFTWARE\\Microsoft\\SQMClient";
+            private static REGISTRY_USERID_VALUE: string = "UserId";
+            private static INTERNAL_DOMAIN_SUFFIX: string = "microsoft.com";
+            private static INTERNAL_USER_ENV_VAR: string = "TACOINTERNAL";
 
             private static get settingsHome(): string {
                 switch (os.platform()) {
-                    case 'win32':
-                        return path.join(process.env['APPDATA'], 'vscode-react-native');
-                    case 'darwin':
-                    case 'linux':
-                        return path.join(process.env['HOME'], '.vscode-react-native');
+                    case "win32":
+                        return path.join(process.env.APPDATA, "vscode-react-native");
+                    case "darwin":
+                    case "linux":
+                        return path.join(process.env.HOME, ".vscode-react-native");
                     default:
-                        throw new Error('UnexpectedPlatform');
-                };
+                        throw new Error("UnexpectedPlatform");
+                }
             }
 
             private static get telemetrySettingsFile(): string {
@@ -195,11 +189,11 @@ export module Telemetry {
                 if (client && client.context && client.context.keys && client.context.tags) {
                     // Remove potential PII
                     let machineNameKey = client.context.keys.deviceMachineName;
-                    client.context.tags[machineNameKey] = '';
+                    client.context.tags[machineNameKey] = "";
                 }
 
                 if (appVersion) {
-                    var context: Context = appInsights.client.context;
+                    let context: Context = appInsights.client.context;
                     context.tags[context.keys.applicationVersion] = appVersion;
                 }
 
@@ -220,31 +214,31 @@ export module Telemetry {
 
             public static addCommonProperties(event: any): void {
                 if (Telemetry.isOptedIn) {
-                    // for the opt out event, don't include tracking properties
-                    event.properties['RN.userId'] = TelemetryUtils.userId;
-                    event.properties['RN.machineId'] = TelemetryUtils.machineId;
+                    // for the opt out event, don"t include tracking properties
+                    event.properties["RN.userId"] = TelemetryUtils.userId;
+                    event.properties["RN.machineId"] = TelemetryUtils.machineId;
                 }
 
-                event.properties['RN.sessionId'] = TelemetryUtils.sessionId;
-                event.properties['RN.userType'] = TelemetryUtils.userType;
-                event.properties['RN.hostOS'] = os.platform();
-                event.properties['RN.hostOSRelease'] = os.release();
+                event.properties["RN.sessionId"] = TelemetryUtils.sessionId;
+                event.properties["RN.userType"] = TelemetryUtils.userType;
+                event.properties["RN.hostOS"] = os.platform();
+                event.properties["RN.hostOSRelease"] = os.release();
             }
 
             public static generateGuid(): string {
-                var hexValues: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+                let hexValues: string[] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
                 // c.f. rfc4122 (UUID version 4 = xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx)
-                var oct: string = '';
-                var tmp: number;
+                let oct: string = "";
+                let tmp: number;
                 /* tslint:disable:no-bitwise */
-                for (var a: number = 0; a < 4; a++) {
+                for (let a: number = 0; a < 4; a++) {
                     tmp = (4294967296 * Math.random()) | 0;
                     oct += hexValues[tmp & 0xF] + hexValues[tmp >> 4 & 0xF] + hexValues[tmp >> 8 & 0xF] + hexValues[tmp >> 12 & 0xF] + hexValues[tmp >> 16 & 0xF] + hexValues[tmp >> 20 & 0xF] + hexValues[tmp >> 24 & 0xF] + hexValues[tmp >> 28 & 0xF];
                 }
 
-                // 'Set the two most significant bits (bits 6 and 7) of the clock_seq_hi_and_reserved to zero and one, respectively'
-                var clockSequenceHi: string = hexValues[8 + (Math.random() * 4) | 0];
-                return oct.substr(0, 8) + '-' + oct.substr(9, 4) + '-4' + oct.substr(13, 3) + '-' + clockSequenceHi + oct.substr(16, 3) + '-' + oct.substr(19, 12);
+                // "Set the two most significant bits (bits 6 and 7) of the clock_seq_hi_and_reserved to zero and one, respectively"
+                let clockSequenceHi: string = hexValues[8 + (Math.random() * 4) | 0];
+                return oct.substr(0, 8) + "-" + oct.substr(9, 4) + "-4" + oct.substr(13, 3) + "-" + clockSequenceHi + oct.substr(16, 3) + "-" + oct.substr(19, 12);
                 /* tslint:enable:no-bitwise */
             }
 
@@ -261,7 +255,7 @@ export module Telemetry {
                 TelemetryUtils.telemetrySettings.optIn = optIn;
 
                 if (!optIn) {
-                    Telemetry.send(new TelemetryEvent(Telemetry.appName + '/telemetryOptOut'), true);
+                    Telemetry.send(new TelemetryEvent(Telemetry.appName + "/telemetryOptOut"), true);
                 }
 
                 TelemetryUtils.optInCollectedForCurrentSession = true;
@@ -269,13 +263,13 @@ export module Telemetry {
             }
 
             private static getUserType(): string {
-                var userType: string = TelemetryUtils.telemetrySettings.userType;
+                let userType: string = TelemetryUtils.telemetrySettings.userType;
 
                 if (userType === undefined) {
                     if (process.env[TelemetryUtils.INTERNAL_USER_ENV_VAR]) {
                         userType = TelemetryUtils.USERTYPE_INTERNAL;
-                    } else if (os.platform() === 'win32') {
-                        var domain: string = process.env['USERDNSDOMAIN'];
+                    } else if (os.platform() === "win32") {
+                        let domain: string = process.env.USERDNSDOMAIN;
                         domain = domain ? domain.toLowerCase().substring(domain.length - TelemetryUtils.INTERNAL_DOMAIN_SUFFIX.length) : null;
                         userType = domain === TelemetryUtils.INTERNAL_DOMAIN_SUFFIX ? TelemetryUtils.USERTYPE_INTERNAL : TelemetryUtils.USERTYPE_EXTERNAL;
                     } else {
@@ -289,8 +283,8 @@ export module Telemetry {
             }
 
             private static getRegistryValue(key: string, value: string, hive: string): Q.Promise<string> {
-                var deferred: Q.Deferred<string> = Q.defer<string>();
-                var regKey = new winreg({
+                let deferred: Q.Deferred<string> = Q.defer<string>();
+                let regKey = new winreg({
                                         hive: hive,
                                         key:  key
                                 });
@@ -298,8 +292,7 @@ export module Telemetry {
                     if (err) {
                         // Fail gracefully by returning null if there was an error.
                         deferred.resolve(null);
-                    }
-                    else {
+                    } else {
                         deferred.resolve(itemValue.value);
                     }
                 });
@@ -333,13 +326,12 @@ export module Telemetry {
             }
 
             private static getUniqueId(regValue: string, regHive: string, fallback: () => string): Q.Promise<any> {
-                var uniqueId: string;
-                var deferred: Q.Deferred<string> = Q.defer<string>();
-                if (os.platform() === 'win32') {
+                let uniqueId: string;
+                if (os.platform() === "win32") {
                     return TelemetryUtils.getRegistryValue(TelemetryUtils.REGISTRY_SQMCLIENT_NODE, regValue, regHive)
                     .then(function(id: string): Q.Promise<string> {
                         if (id) {
-                            uniqueId = id.replace(/[{}]/g, '');
+                            uniqueId = id.replace(/[{}]/g, "");
                             return Q.resolve(uniqueId);
                         } else {
                             return Q.resolve(fallback());
@@ -352,12 +344,12 @@ export module Telemetry {
 
             private static generateMachineId(): Q.Promise<string> {
                 return TelemetryUtils.getMacAddress().then((macAddress: string) => {
-                    return crypto.createHash('sha256').update(macAddress, 'utf8').digest('hex');
+                    return crypto.createHash("sha256").update(macAddress, "utf8").digest("hex");
                 });
             }
 
             private static getMachineId(): Q.Promise<string> {
-                var machineId: string = TelemetryUtils.telemetrySettings.machineId;
+                let machineId: string = TelemetryUtils.telemetrySettings.machineId;
                 if (!machineId) {
                     return TelemetryUtils.generateMachineId()
                     .then(function(id: string): Q.Promise<string> {
@@ -379,7 +371,7 @@ export module Telemetry {
             }
 
             private static getUserId(): Q.Promise<string> {
-                var userId: string = TelemetryUtils.telemetrySettings.userId;
+                let userId: string = TelemetryUtils.telemetrySettings.userId;
                 if (!userId) {
                     return TelemetryUtils.getUniqueId(TelemetryUtils.REGISTRY_USERID_VALUE, winreg.HKCU, TelemetryUtils.generateGuid)
                     .then(function(id: string): Q.Promise<string> {

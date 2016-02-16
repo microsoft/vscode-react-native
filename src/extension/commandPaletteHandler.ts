@@ -5,6 +5,7 @@ import {CommandExecutor} from "../common/commandExecutor";
 import {Log} from "../common/log";
 import {Packager} from "../common/packager";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import {TelemetryHelper} from "../common/telemetryHelper";
 import * as vscode from "vscode";
 
 export class CommandPaletteHandler {
@@ -20,28 +21,40 @@ export class CommandPaletteHandler {
      * Starts the React Native packager
      */
     public startPackager(): void {
-        this.executeCommandInContext(() => this.reactNativePackager.start(vscode.window.createOutputChannel("React-Native")).done());
+        TelemetryHelper.generate("RNCommand", (generator) => {
+            generator.add("command", "startPackager", false);
+            return this.executeCommandInContext(() => this.reactNativePackager.start(vscode.window.createOutputChannel("React-Native")).done());
+        });
     }
 
     /**
      * Kills the React Native packager invoked by the extension's packager
      */
     public stopPackager(): void {
-        this.executeCommandInContext(() => this.reactNativePackager.stop(vscode.window.createOutputChannel("React-Native")));
+        TelemetryHelper.generate("RNCommand", (generator) => {
+            generator.add("command", "stopPackager", false);
+            return this.executeCommandInContext(() => this.reactNativePackager.stop(vscode.window.createOutputChannel("React-Native")));
+        });
     }
 
     /**
      * Executes the 'react-native run-android' command
      */
     public runAndroid(): void {
-        this.executeCommandInContext(() => this.executeReactNativeRunCommand("run-android"));
+        TelemetryHelper.generate("RNCommand", (generator) => {
+            generator.add("command", "runAndroid", false);
+            return this.executeCommandInContext(() => this.executeReactNativeRunCommand("run-android"));
+        });
     }
 
     /**
      * Executes the 'react-native run-ios' command
      */
     public runIos(): void {
-        this.executeCommandInContext(() => this.executeReactNativeRunCommand("run-ios"));
+        TelemetryHelper.generate("RNCommand", (generator) => {
+            generator.add("command", "runIos", false);
+            return this.executeCommandInContext(() => this.executeReactNativeRunCommand("run-ios"));
+        });
     }
 
     /**
@@ -67,11 +80,11 @@ export class CommandPaletteHandler {
      * Otherwise, displays an error message banner
      * {operation} - a function that performs the expected operation
      */
-    private executeCommandInContext(operation: () => void): void {
+    private executeCommandInContext(operation: () => void): Q.Promise<void> {
         let reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
-        reactNativeProjectHelper.isReactNativeProject().done(isRNProject => {
+        return reactNativeProjectHelper.isReactNativeProject().then(isRNProject => {
             if (isRNProject) {
-                operation();
+                return operation();
             } else {
                 vscode.window.showErrorMessage("Current workspace is not a React Native project.");
             }

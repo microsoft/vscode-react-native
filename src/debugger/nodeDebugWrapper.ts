@@ -1,8 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as fs from "fs";
 import * as path from "path";
 import * as http from "http";
+
+import {Telemetry} from "../common/telemetry";
 
 // These typings do not reflect the typings as intended to be used
 // but rather as they exist in truth, so we can reach into the internals
@@ -121,5 +124,10 @@ nodeDebug.NodeDebugSession.prototype.launchRequest = function(request: any, args
     originalNodeDebugSessionLaunchRequest.call(this, request, args);
 };
 
-// Launch the modified debug adapter
-vscodeDebugAdapterPackage.DebugSession.run(nodeDebug.NodeDebugSession);
+let version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "..", "package.json"), "utf-8")).version;
+
+// Enable telemetry
+Telemetry.init("vscode-react-native-debug-adapter", version, true).then(() => {
+    // Launch the modified debug adapter
+    vscodeDebugAdapterPackage.DebugSession.run(nodeDebug.NodeDebugSession);
+});
