@@ -7,9 +7,13 @@ import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
+import {Telemetry} from '../common/telemetry';
+import {TelemetryHelper} from '../common/telemetryHelper';
 import {TsConfigHelper} from "./tsconfigHelper";
 
 export function activate(context: vscode.ExtensionContext): void {
+    // Asynchronously enable telemetry
+    Telemetry.init('vscode-react-native', require("../../package.json").version, true);
     const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
     reactNativeProjectHelper.isReactNativeProject().then(isRNProject => {
         if (isRNProject) {

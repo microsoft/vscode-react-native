@@ -105,7 +105,10 @@
     },
     "extensionDependencies": ["andreweinand.node-debug"],
     "dependencies": {
+        "applicationinsights": "^0.15.8",
+        "getmac": "1.0.7",
         "q": "^1.4.1",
+        "winreg": "0.0.13",
         "ws": "^1.0.1"
     },
     "devDependencies": {
