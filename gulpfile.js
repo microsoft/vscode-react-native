@@ -20,24 +20,20 @@ var sources = [
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; })
     .concat(['test/*.ts']);
 
-
-gulp.task('build', function (callback) {
-    var compileCommand = "node ./node_modules/vscode/bin/compile -p .";
-    console.log("Executing: " + compileCommand);
-    child_process.exec(compileCommand, function (err, stdout, stderr) {
-        console.log(stdout);
-        console.error(stderr);
-        callback(err);
-    });
-});
-
-// We should eventually fix and use this build. Until we do that, we'll keep it as "old_build"
-gulp.task('old_build', function () {
-    var tsProject = ts.createProject('src/tsconfig.json');
+// TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
+// We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
+// be an issue on Windows platforms)
+gulp.task('build', function () {
+    var tsProject = ts.createProject('tsconfig.json');
     return tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(ts(tsProject))
-        .pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: 'file:///' + __dirname + '/' + srcPath + '/' }))
+        .pipe(sourcemaps.write('.', {
+            includeContent: false,
+            sourceRoot: function (file) {
+                return path.relative(path.dirname(file.path), __dirname + '/src');
+            }
+        }))
         .pipe(gulp.dest(outPath));
 });
 
