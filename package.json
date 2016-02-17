@@ -1,6 +1,6 @@
 {
     "name": "vscode-react-native",
-    "displayName": "vscode-react-native",
+    "displayName": "React Native Tools",
     "version": "0.0.1",
     "private": true,
     "publisher": "vsmobile",
