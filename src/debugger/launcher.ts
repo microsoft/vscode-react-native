@@ -23,9 +23,9 @@ export class Launcher {
         if (!mobilePlatform) {
             Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
         } else {
-            let sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-            let packager = new Packager(this.projectRootPath, sourcesStoragePath);
             TelemetryHelper.generate("launch", (generator) => {
+                let sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
+                let packager = new Packager(this.projectRootPath, sourcesStoragePath);
                 return packager.start()
                 // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
                 // and the user needs to Reload JS manually. We prewarm it to prevent that issue

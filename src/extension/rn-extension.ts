@@ -13,7 +13,7 @@ import {TsConfigHelper} from "./tsconfigHelper";
 
 export function activate(context: vscode.ExtensionContext): void {
     // Asynchronously enable telemetry
-    Telemetry.init("vscode-react-native", require("../../package.json").version, true)
+    Telemetry.init("react-native", require("../../package.json").version, true)
     .then(() => {
         const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
         return reactNativeProjectHelper.isReactNativeProject()
