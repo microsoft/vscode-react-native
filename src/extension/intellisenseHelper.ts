@@ -110,7 +110,7 @@ export class IntellisenseHelper {
 
             return Q({})
                 .then(() => Q.nfcall(child_process.exec, setEnvironmentVariableCommand))
-                .then(() => { return true; })
+                .then(() => { return true; });
         }
 
         return Q(isRestartRequired);
