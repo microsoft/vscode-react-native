@@ -12,38 +12,17 @@ import {SettingsHelper} from "./settingsHelper";
 
 export class IntellisenseHelper {
     /**
-     * Helper method to configure the project for Salsa intellisense. Will prompt
-     * the user before taking action.
+     * Helper method that configures the workspace for Salsa intellisense.
      */
     public static setupReactNativeIntellisense(): void {
-        if (!process.env.VSCODE_TSJS) {
-            vscode.window.showInformationMessage("Turn on React Native intellisense for VS Code?", "Yes")
-                .then(function(result: string) {
-                    if (result === "Yes") {
-                        IntellisenseHelper.enableSalsa();
-                        IntellisenseHelper.prepareWorkspace();
-                    }
-                });
-        } else {
-            IntellisenseHelper.prepareWorkspace();
-        }
-    }
-
-    /**
-     * Helper method that does the following to configure the workspace.
-     * - Configures the tsconfig.json to allow Salsa to process JavaScript files.
-     * - Configures the tsconfig.json to ignore node_modules.
-     * - Installs typing files
-     * - Installs Typescript
-     */
-    public static prepareWorkspace() {
         Q({})
             .then(() => TsConfigHelper.allowJs(true))
             .then(() => TsConfigHelper.addExcludePaths(["node_modules"]))
             .done();
 
         Q({})
-            .then(() => IntellisenseHelper.installTypescriptNext(false))
+            .then(() => IntellisenseHelper.enableSalsa(false))
+            .then((isRestartRequired: boolean) => IntellisenseHelper.installTypescriptNext(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.configureWorkspaceSettings(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.installReactNativeTypings(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.warnIfRestartIsRequired(isRestartRequired))
@@ -120,7 +99,7 @@ export class IntellisenseHelper {
      * Helper method that sets the environment variable and informs the user they need to restart
      * in order to enable the Salsa intellisense.
      */
-    public static enableSalsa(): void {
+    public static enableSalsa(isRestartRequired: boolean): Q.Promise<boolean> {
         if (!process.env.VSCODE_TSJS) {
             let setEnvironmentVariableCommand: string = "";
             if (os.type() === "Darwin") {
@@ -129,9 +108,11 @@ export class IntellisenseHelper {
                 setEnvironmentVariableCommand = "setx VSCODE_TSJS 1";
             }
 
-            Q({})
+            return Q({})
                 .then(() => Q.nfcall(child_process.exec, setEnvironmentVariableCommand))
-                .done();
+                .then(() => { return true; })
         }
+
+        return Q(isRestartRequired);
     }
 }
