@@ -14,33 +14,33 @@ import {TsConfigHelper} from "./tsconfigHelper";
 export function activate(context: vscode.ExtensionContext): void {
     // Asynchronously enable telemetry
     Telemetry.init("react-native", require("../../package.json").version, true)
-    .then(() => {
-        const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
-        return reactNativeProjectHelper.isReactNativeProject()
-        .then(isRNProject => {
-            if (isRNProject) {
-                setupReactNativeDebugger();
-                setupReactNativeIntellisense();
-                context.subscriptions.push(new ReactDirManager());
-            }
-        }).then(() => {
-            const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
+        .then(() => {
+            const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
+            return reactNativeProjectHelper.isReactNativeProject()
+                .then(isRNProject => {
+                    if (isRNProject) {
+                        setupReactNativeDebugger();
+                        setupReactNativeIntellisense();
+                        context.subscriptions.push(new ReactDirManager());
+                    }
+                }).then(() => {
+                    const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 
-            // Register React Native commands
-            context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
-                () => commandPaletteHandler.runAndroid()));
-            context.subscriptions.push(vscode.commands.registerCommand("reactNative.runIos",
-                () => commandPaletteHandler.runIos()));
-            context.subscriptions.push(vscode.commands.registerCommand("reactNative.startPackager",
-                () => commandPaletteHandler.startPackager()));
-            context.subscriptions.push(vscode.commands.registerCommand("reactNative.stopPackager",
-                () => commandPaletteHandler.stopPackager()));
+                    // Register React Native commands
+                    context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
+                        () => commandPaletteHandler.runAndroid()));
+                    context.subscriptions.push(vscode.commands.registerCommand("reactNative.runIos",
+                        () => commandPaletteHandler.runIos()));
+                    context.subscriptions.push(vscode.commands.registerCommand("reactNative.startPackager",
+                        () => commandPaletteHandler.startPackager()));
+                    context.subscriptions.push(vscode.commands.registerCommand("reactNative.stopPackager",
+                        () => commandPaletteHandler.stopPackager()));
 
-            const nodeDebugPath = vscode.extensions.getExtension("andreweinand.node-debug").extensionPath;
-            const fsUtil = new FileSystem();
-            fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({nodeDebugPath})).done();
-        });
-    }).done();
+                    const nodeDebugPath = vscode.extensions.getExtension("andreweinand.node-debug").extensionPath;
+                    const fsUtil = new FileSystem();
+                    fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath })).done();
+                });
+        }).done();
 }
 
 /**
@@ -86,10 +86,10 @@ function setupReactNativeIntellisense(): void {
     }
 
     TsConfigHelper.allowJs(true)
-    .then(function() {
-        return TsConfigHelper.addExcludePaths(["node_modules"]);
-    })
-    .done();
+        .then(function() {
+            return TsConfigHelper.addExcludePaths(["node_modules"]);
+        })
+        .done();
 
     const reactTypingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
     const reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");

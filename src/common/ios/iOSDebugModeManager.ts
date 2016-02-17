@@ -45,7 +45,8 @@ export class IOSDebugModeManager {
 
         const failureString = `Unable to find plist file to ${actionText} debugging`;
 
-        return pu.retryAsync(() =>
+        return pu.retryAsync(
+            () =>
                 this.tryOneAttemptToFindPListFile(), // Operation to retry until succesful
             (file: string) =>
                 file !== null, // Condition to check if the operation was succesful, and this logic is done

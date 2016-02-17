@@ -21,17 +21,17 @@ export class TsConfigHelper {
         let fileSystem = new FileSystem();
 
         return fileSystem.exists(tsConfigPath)
-        .then(function(exists: boolean): Q.Promise<void> {
-            if (!exists) {
-                return fileSystem.writeFile(tsConfigPath, "{}");
-            }
-        })
-        .then(function(): Q.Promise<string> {
-            return fileSystem.readFile(tsConfigPath, "utf-8");
-        })
-        .then(function(jsonContents: string): Q.Promise<any> {
-            return JSON.parse(jsonContents);
-        });
+            .then(function(exists: boolean): Q.Promise<void> {
+                if (!exists) {
+                    return fileSystem.writeFile(tsConfigPath, "{}");
+                }
+            })
+            .then(function(): Q.Promise<string> {
+                return fileSystem.readFile(tsConfigPath, "utf-8");
+            })
+            .then(function(jsonContents: string): Q.Promise<any> {
+                return JSON.parse(jsonContents);
+            });
     }
 
     /**
@@ -48,18 +48,18 @@ export class TsConfigHelper {
      */
     public static allowJs(enabled: boolean): Q.Promise<void> {
         return TsConfigHelper.readConfigJson()
-        .then(function(tsConfigJson: any): Q.Promise<void> {
-            tsConfigJson.compilerOptions = tsConfigJson.compilerOptions || {};
+            .then(function(tsConfigJson: any): Q.Promise<void> {
+                tsConfigJson.compilerOptions = tsConfigJson.compilerOptions || {};
 
-            // Return if the setting is already correctly set.
-            if (tsConfigJson.compilerOptions.allowJs === enabled) {
-                return Q.resolve<void>(void 0);
-            }
+                // Return if the setting is already correctly set.
+                if (tsConfigJson.compilerOptions.allowJs === enabled) {
+                    return Q.resolve<void>(void 0);
+                }
 
-            tsConfigJson.compilerOptions.allowJs = enabled;
+                tsConfigJson.compilerOptions.allowJs = enabled;
 
-            return TsConfigHelper.writeConfigJson(tsConfigJson);
-        });
+                return TsConfigHelper.writeConfigJson(tsConfigJson);
+            });
     }
 
     /**
@@ -67,22 +67,22 @@ export class TsConfigHelper {
      */
     public static addExcludePaths(excludePaths: string[]): Q.Promise<void> {
         return TsConfigHelper.readConfigJson()
-        .then(function(tsConfigJson: any) {
-            let currentExcludes: string[] = tsConfigJson.exclude || [];
-            let isDirty: boolean = false;
+            .then(function(tsConfigJson: any) {
+                let currentExcludes: string[] = tsConfigJson.exclude || [];
+                let isDirty: boolean = false;
 
-            excludePaths.forEach(function(exclude: string){
-                if (currentExcludes.indexOf(exclude) < 0) {
-                    currentExcludes.push(exclude);
-                    isDirty = true;
+                excludePaths.forEach(function(exclude: string) {
+                    if (currentExcludes.indexOf(exclude) < 0) {
+                        currentExcludes.push(exclude);
+                        isDirty = true;
+                    }
+                });
+
+                if (isDirty) {
+                    tsConfigJson.exclude = currentExcludes;
+
+                    return TsConfigHelper.writeConfigJson(tsConfigJson);
                 }
             });
-
-            if (isDirty) {
-                tsConfigJson.exclude = currentExcludes;
-
-                return TsConfigHelper.writeConfigJson(tsConfigJson);
-            }
-        });
     }
 }
