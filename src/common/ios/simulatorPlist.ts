@@ -35,8 +35,7 @@ export class SimulatorPlist {
                 if (plistCandidates.length === 0) {
                     throw new Error(`Unable to find plist file for ${bundleId}`);
                 } else if (plistCandidates.length > 1) {
-                    const event = TelemetryHelper.createTelemetryEvent("multipleDebugPlistFound");
-                    Telemetry.send(event);
+                    TelemetryHelper.sendSimpleEvent("multipleDebugPlistFound");
                     Log.logMessage("Warning: Multiple plist candidates found. Application may not be in debug mode");
                 }
 
