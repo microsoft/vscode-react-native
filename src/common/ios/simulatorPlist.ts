@@ -10,7 +10,6 @@ import {Node} from "../../common/node/node";
 import {Log} from "../../common/log";
 
 import {TelemetryHelper} from "../../common/telemetryHelper";
-import {Telemetry} from "../../common/telemetry";
 
 export class SimulatorPlist {
     private projectRoot: string;
@@ -41,5 +40,6 @@ export class SimulatorPlist {
 
                     return plistCandidates[0];
                 });
-            }
+            });
+    }
 }

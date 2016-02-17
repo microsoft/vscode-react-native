@@ -8,7 +8,6 @@ import {Log} from "../../common/log";
 import {Node} from "../../common/node/node";
 
 import {TelemetryHelper} from "../../common/telemetryHelper";
-import {Telemetry} from "../../common/telemetry";
 
 export class Xcodeproj {
     public findXcodeprojFile(projectRoot: string): Q.Promise<string> {
