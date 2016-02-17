@@ -84,6 +84,9 @@ export class Packager {
         Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
         return new Request().request(bundleURL, true).then(() => {
             Log.logMessage("The Bundle Cache was prewarmed.");
+        }).catch(() => {
+            // The attempt to prefetch the bundle failed.
+            // This may be because the bundle is not index.* so we shouldn't treat this as fatal.
         });
     }
 
