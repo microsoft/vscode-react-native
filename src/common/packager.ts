@@ -40,20 +40,20 @@ export class Packager {
         this.isRunning().done(running => {
             if (!running) {
                 return this.monkeyPatchOpnForRNPackager()
-                .then(() => {
-                    let args = ["--port", Packager.PORT];
-                    let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
+                    .then(() => {
+                        let args = ["--port", Packager.PORT];
+                        let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
-                    Log.logMessage("Starting Packager", outputChannel);
-                    // The packager will continue running while we debug the application, so we can"t
-                    // wait for this command to finish
+                        Log.logMessage("Starting Packager", outputChannel);
+                        // The packager will continue running while we debug the application, so we can"t
+                        // wait for this command to finish
 
-                    let spawnOptions = { env: childEnvForDebugging };
+                        let spawnOptions = { env: childEnvForDebugging };
 
-                    new CommandExecutor(this.projectPath).spawnReactCommand("start", args, spawnOptions, outputChannel).then((packagerProcess) => {
-                        this.packagerProcess = packagerProcess;
-                    });
-                }).done();
+                        new CommandExecutor(this.projectPath).spawnReactCommand("start", args, spawnOptions, outputChannel).then((packagerProcess) => {
+                            this.packagerProcess = packagerProcess;
+                        });
+                    }).done();
             }
         });
 
@@ -135,7 +135,7 @@ export class Packager {
                         ? Q.resolve(path)
                         : Q.reject<string>("opn package location not found"))));
         } catch (err) {
-            console.error ("The package \'opn\' was not found." + err);
+            console.error("The package \'opn\' was not found." + err);
         }
     }
 
@@ -145,20 +145,20 @@ export class Packager {
 
         // Finds the 'opn' package
         return this.findOpnPackage()
-        .then((opnIndexFilePath) => {
-            destnFilePath = opnIndexFilePath;
-            // Read the package's "package.json"
-            opnPackage = new Package(path.resolve(path.dirname(destnFilePath)));
-            return opnPackage.parsePackageInformation();
-        }).then((packageJson) => {
-            if (packageJson.main !== Packager.JS_INJECTOR_FILENAME) {
-                // Copy over the patched 'opn' main file
-                return new Node.FileSystem().copyFile(Packager.JS_INJECTOR_FILEPATH, path.resolve(path.dirname(destnFilePath), Packager.JS_INJECTOR_FILENAME))
-                .then(() => {
-                    // Write/over-write the "main" attribute with the new file
-                    return opnPackage.setMainFile(Packager.JS_INJECTOR_FILENAME);
-                });
-            }
-        });
+            .then((opnIndexFilePath) => {
+                destnFilePath = opnIndexFilePath;
+                // Read the package's "package.json"
+                opnPackage = new Package(path.resolve(path.dirname(destnFilePath)));
+                return opnPackage.parsePackageInformation();
+            }).then((packageJson) => {
+                if (packageJson.main !== Packager.JS_INJECTOR_FILENAME) {
+                    // Copy over the patched 'opn' main file
+                    return new Node.FileSystem().copyFile(Packager.JS_INJECTOR_FILEPATH, path.resolve(path.dirname(destnFilePath), Packager.JS_INJECTOR_FILENAME))
+                        .then(() => {
+                            // Write/over-write the "main" attribute with the new file
+                            return opnPackage.setMainFile(Packager.JS_INJECTOR_FILENAME);
+                        });
+                }
+            });
     }
 }
