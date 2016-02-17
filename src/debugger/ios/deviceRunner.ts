@@ -6,7 +6,7 @@ import * as net from "net";
 import * as Q from "q";
 
 import {Node} from "../../common/node/node";
-import {PlistBuddy} from "./plistBuddy";
+import {PlistBuddy} from "../../common/ios/plistBuddy";
 
 export class DeviceRunner {
     private projectRoot: string;

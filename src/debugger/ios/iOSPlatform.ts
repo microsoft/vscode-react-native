@@ -4,19 +4,20 @@
 import * as Q from "q";
 
 import {Log} from "../../common/log";
-import {PromiseUtil} from "../../common/node/promise";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {IAppPlatform} from "../platformResolver";
 import {Compiler} from "./compiler";
 import {DeviceDeployer} from "./deviceDeployer";
 import {DeviceRunner} from "./deviceRunner";
 import {IRunOptions} from "../launchArgs";
-import {SimulatorPlist} from "./simulatorPlist";
-import {PlistBuddy} from "./plistBuddy";
+import {PlistBuddy} from "../../common/ios/plistBuddy";
+import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
 
 export class IOSPlatform implements IAppPlatform {
     private static deviceString = "device";
     private static simulatorString = "simulator";
+
+    private plistBuddy = new PlistBuddy();
 
     private projectPath: string;
     private simulatorTarget: string;
@@ -77,19 +78,9 @@ export class IOSPlatform implements IAppPlatform {
             return Q.resolve<void>(void 0);
         }
 
-        const plistBuddy = new PlistBuddy();
-        const simulatorPlist = new SimulatorPlist(launchArgs.projectRoot);
-        const pu = new PromiseUtil();
-        // Find the plistFile with the configuration setting
-        // There is a race here between us checking for the plist file, and the application starting up.
-        return pu.retryAsync(() => simulatorPlist.findPlistFile().catch((): string => null),
-            (file: string) => file !== null, 5, 2000, "Unable to find plist file to enable debugging")
-            .then((plistFile: string) => {
-                // Set the executorClass to be RCTWebSocketExecutor so on the next startup it will default into debug mode
-                // This is approximately equivalent to clicking the "Debug in Chrome" button
-                return plistBuddy.setPlistProperty(plistFile, ":RCTDevMenu:executorClass", "RCTWebSocketExecutor");
-            }).then(() => {
-                return plistBuddy.getBundleId(launchArgs.projectRoot);
+        return new IOSDebugModeManager(this.projectPath).setSimulatorJSDebuggingModeSetting(/*enable=*/ true)
+            .then(() => {
+                return this.plistBuddy.getBundleId(launchArgs.projectRoot);
             }).then((bundleId: string) => {
                 // Relaunch the app so the new setting can take effect
                 return new CommandExecutor().execute(`xcrun simctl launch booted ${bundleId}`);

@@ -7,6 +7,7 @@ import {Packager} from "../common/packager";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import * as vscode from "vscode";
+import {IOSDebugModeManager} from "../common/ios/iOSDebugModeManager";
 
 export class CommandPaletteHandler {
     private reactNativePackager: Packager;
@@ -42,7 +43,10 @@ export class CommandPaletteHandler {
      * Executes the 'react-native run-ios' command
      */
     public runIos(): void {
-        this.executeCommandInContext("runIos", () => this.executeReactNativeRunCommand("run-ios"));
+        // Set the Debugging setting to disabled
+        new IOSDebugModeManager(this.workspaceRoot).setSimulatorJSDebuggingModeSetting(/*enable=*/ false)
+            .catch(() => {}) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+            .done(() => this.executeCommandInContext("runIos", () => this.executeReactNativeRunCommand("run-ios")));
     }
 
     /**
