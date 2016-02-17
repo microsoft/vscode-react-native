@@ -4,7 +4,6 @@
 import * as Q from "q";
 
 import {Log} from "../../common/log";
-import {PromiseUtil} from "../../common/node/promise";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {IAppPlatform} from "../platformResolver";
 import {Compiler} from "./compiler";
