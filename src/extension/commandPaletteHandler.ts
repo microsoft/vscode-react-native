@@ -21,28 +21,28 @@ export class CommandPaletteHandler {
      * Starts the React Native packager
      */
     public startPackager(): void {
-        return this.executeCommandInContext("startPackager", () => this.reactNativePackager.start(vscode.window.createOutputChannel("React-Native")).done());
+        this.executeCommandInContext("startPackager", () => this.reactNativePackager.start(vscode.window.createOutputChannel("React-Native")));
     }
 
     /**
      * Kills the React Native packager invoked by the extension's packager
      */
     public stopPackager(): void {
-        return this.executeCommandInContext("stopPackager", () => this.reactNativePackager.stop(vscode.window.createOutputChannel("React-Native")));
+        this.executeCommandInContext("stopPackager", () => this.reactNativePackager.stop(vscode.window.createOutputChannel("React-Native")));
     }
 
     /**
      * Executes the 'react-native run-android' command
      */
     public runAndroid(): void {
-        return this.executeCommandInContext("runAndroid", () => this.executeReactNativeRunCommand("run-android"));
+        this.executeCommandInContext("runAndroid", () => this.executeReactNativeRunCommand("run-android"));
     }
 
     /**
      * Executes the 'react-native run-ios' command
      */
     public runIos(): void {
-        return this.executeCommandInContext("runIos", () => this.executeReactNativeRunCommand("run-ios"));
+        this.executeCommandInContext("runIos", () => this.executeReactNativeRunCommand("run-ios"));
     }
 
     /**
@@ -73,6 +73,7 @@ export class CommandPaletteHandler {
         TelemetryHelper.generate("RNCommand", (generator) => {
             generator.add("command", rnCommand, false);
             return reactNativeProjectHelper.isReactNativeProject().then(isRNProject => {
+                generator.add("isRNProject", isRNProject, false);
                 if (isRNProject) {
                     return operation();
                 } else {

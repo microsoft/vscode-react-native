@@ -18,7 +18,7 @@ export class ReactNativeProjectHelper {
     public isReactNativeProject(): Q.Promise<boolean> {
         let currentPackage = new Package(this.workspaceRoot);
         return currentPackage.dependencies().then(dependencies => {
-            return dependencies && dependencies["react-native"];
+            return !!(dependencies && dependencies["react-native"]);
         }).catch((err: Error) => {
             return Q.resolve(false);
         });
