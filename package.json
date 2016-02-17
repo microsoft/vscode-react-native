@@ -4,6 +4,11 @@
     "version": "0.0.1",
     "private": true,
     "publisher": "vsmobile",
+    "icon": "images/icon.svg",
+    "galleryBanner": {
+        "color": "#222222",
+	"theme": "dark"
+    },
     "description": "VS Code Extension for React Native applications",
     "license": "MIT",
     "repository": {
