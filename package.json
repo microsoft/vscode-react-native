@@ -4,6 +4,7 @@
     "version": "0.0.1",
     "private": true,
     "publisher": "Microsoft",
+    "icon": "images/icon.svg",
     "description": "VS Code Extension for React Native applications",
     "license": "MIT",
     "repository": {
