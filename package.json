@@ -104,7 +104,9 @@
         "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
         "vscode:prepublish": "gulp"
     },
-    "extensionDependencies": ["andreweinand.node-debug"],
+    "extensionDependencies": [
+        "andreweinand.node-debug"
+    ],
     "dependencies": {
         "q": "^1.4.1",
         "ws": "^1.0.1"

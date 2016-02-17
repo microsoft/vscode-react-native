@@ -3,7 +3,7 @@
     "command": "gulp",
     "isShellCommand": true,
     "tasks": [
-       {
+        {
             "taskName": "watch",
             "args": [],
             "isBuildCommand": true,

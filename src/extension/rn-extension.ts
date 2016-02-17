@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     const nodeDebugPath = vscode.extensions.getExtension("andreweinand.node-debug").extensionPath;
     const fsUtil = new FileSystem();
-    fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({nodeDebugPath})).done();
+    fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath })).done();
 }
 
 /**
@@ -74,10 +74,10 @@ function setupReactNativeIntellisense(): void {
     }
 
     TsConfigHelper.allowJs(true)
-    .then(function() {
-        return TsConfigHelper.addExcludePaths(["node_modules"]);
-    })
-    .done();
+        .then(function() {
+            return TsConfigHelper.addExcludePaths(["node_modules"]);
+        })
+        .done();
 
     const reactTypingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
     const reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
