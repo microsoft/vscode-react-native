@@ -6,6 +6,7 @@ import * as path from "path";
 import * as http from "http";
 
 import {Telemetry} from "../common/telemetry";
+import {TelemetryHelper} from "../common/telemetryHelper";
 
 // These typings do not reflect the typings as intended to be used
 // but rather as they exist in truth, so we can reach into the internals
@@ -60,8 +61,12 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
         nodeDebugFolder = require("./nodeDebugLocation.json").nodeDebugPath;
         vscodeDebugAdapterPackage = require(path.join(nodeDebugFolder, "node_modules", "vscode-debugadapter"));
     } catch (e) {
-        // Nothing we can do here: can't even communicate back because we don't know how to speak debug adapter
-        process.exit(1);
+        const event = TelemetryHelper.createTelemetryEvent("cannotFindDebugAdapter");
+        Telemetry.send(event);
+        Telemetry.sendPendingData().finally(() => {
+            // Nothing we can do here: can't even communicate back because we don't know how to speak debug adapter
+            process.exit(1);
+        });
     }
 
     // Temporarily dummy out the DebugSession.run function so we do not start the debug adapter until we are ready
@@ -80,6 +85,13 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
         debugSession.start(process.stdin, process.stdout);
         debugSession.sendEvent(new vscodeDebugAdapterPackage.OutputEvent("Unable to start debug adapter: " + e.toString(), "stderr"));
         debugSession.sendEvent(new vscodeDebugAdapterPackage.TerminatedEvent());
+
+        const event = TelemetryHelper.createTelemetryEvent("cannotFindNodeDebugAdapter");
+        Telemetry.send(event);
+        Telemetry.sendPendingData().finally(() => {
+            // Nothing we can do here: can't even communicate back because we don't know how to speak debug adapter
+            process.exit(1);
+        });
         process.exit(1);
     }
 

@@ -23,39 +23,41 @@ export class Launcher {
 
         // Enable telemetry
         Telemetry.init("react-native-debug-process", version, true).then(() => {
-            const resolver = new PlatformResolver();
-            const runOptions = this.parseRunOptions();
-            const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
-            if (!mobilePlatform) {
-                Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
-            } else {
-                TelemetryHelper.generate("launch", (generator) => {
+            TelemetryHelper.generate("launch", (generator) => {
+                const resolver = new PlatformResolver();
+                const runOptions = this.parseRunOptions();
+                const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
+                if (!mobilePlatform) {
+                    Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
+                } else {
                     const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
                     const packager = new Packager(this.projectRootPath, sourcesStoragePath);
+                    generator.step("startPackager");
                     return packager.start()
-                    // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
-                    // and the user needs to Reload JS manually. We prewarm it to prevent that issue
-                    .then(() => {
-                        generator.step("prewarmBundleCache");
-                        return packager.prewarmBundleCache(runOptions.platform);
-                    })
-                    .then(() => {
-                        generator.step("mobilePlatform.runApp");
-                        return mobilePlatform.runApp(runOptions);
-                    })
-                    .then(() => {
-                        generator.step("Starting App Worker");
-                        return new MultipleLifetimesAppWorker(sourcesStoragePath, runOptions.debugAdapterPort).start();
-                    }) // Start the app worker
-                    .then(() => {
-                        generator.step("mobilePlatform.enableJSDebuggingMode");
-                        return mobilePlatform.enableJSDebuggingMode(runOptions);
-                    });
-                }).done(() => { }, reason => {
-                Log.logError("Cannot debug application.", reason);
+                        // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                        // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                        .then(() => {
+                            generator.step("prewarmBundleCache");
+                            return packager.prewarmBundleCache(runOptions.platform);
+                        })
+                        .then(() => {
+                            generator.step("mobilePlatform.runApp");
+                            return mobilePlatform.runApp(runOptions);
+                        })
+                        .then(() => {
+                            generator.step("Starting App Worker");
+                            return new MultipleLifetimesAppWorker(sourcesStoragePath, runOptions.debugAdapterPort).start();
+                        }) // Start the app worker
+                        .then(() => {
+                            generator.step("mobilePlatform.enableJSDebuggingMode");
+                            return mobilePlatform.enableJSDebuggingMode(runOptions);
+                        });
+                }
+            }).done(() => { },
+                reason => {
+                    Log.logError("Cannot debug application.", reason);
                 });
-            }
-        })
+        });
     }
 
     /**
