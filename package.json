@@ -6,7 +6,7 @@
     "publisher": "vsmobile",
     "icon": "images/icon.svg",
     "galleryBanner": {
-        "color": "#222222",
+        "color": "#05A5D1",
 	"theme": "dark"
     },
     "description": "VS Code Extension for React Native applications",
