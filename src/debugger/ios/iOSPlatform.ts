@@ -13,6 +13,7 @@ import {DeviceRunner} from "./deviceRunner";
 import {IRunOptions} from "../launchArgs";
 import {PlistBuddy} from "../../common/ios/plistBuddy";
 import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
+import {MakeOutcomeFailDependingOnOutput, PatternToFailure} from "../../common/MakeOutcomeFailDependingOnOutput";
 
 export class IOSPlatform implements IAppPlatform {
     private static deviceString = "device";
@@ -23,6 +24,13 @@ export class IOSPlatform implements IAppPlatform {
     private projectPath: string;
     private simulatorTarget: string;
     private isSimulator: boolean;
+
+    // We should add the common iOS build/run erros we find to this list
+    private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure = {
+        "No devices are booted": "Unable to launch iOS simulator. Try specifying a different target.",
+        "FBSOpenApplicationErrorDomain": "Unable to launch iOS simulator. Try specifying a different target." };
+
+    private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
     public runApp(launchArgs: IRunOptions): Q.Promise<void> {
         // Compile, deploy, and launch the app on either a simulator or a device
@@ -37,19 +45,11 @@ export class IOSPlatform implements IAppPlatform {
             }
 
             const runIosSpawn = new CommandExecutor(this.projectPath).spawnChildReactCommandProcess("run-ios", runArguments);
-            const deferred = Q.defer<void>();
-            runIosSpawn.stderr.on("data", (data: Buffer) => {
-                const dataString = data.toString();
-                if (dataString.indexOf("No devices are booted") !== -1 // No emulators are started
-                    || dataString.indexOf("FBSOpenApplicationErrorDomain") !== -1) { // The incorrect emulator is started
-                    deferred.reject(new Error("Unable to launch iOS simulator. Try specifying a different target."));
-                }
-            });
-
-            return runIosSpawn.outcome.then(() => {
-                deferred.resolve(void 0); // We resolve deferred when the process ends, in case it wasn't already rejected
-                return deferred.promise; // We return the promise. If an error was detected on stderr, this will be a rejection
-            });
+            return new MakeOutcomeFailDependingOnOutput(
+                () =>
+                    this.generateSuccessPatterns(launchArgs),
+                () =>
+                    Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS)).process(runIosSpawn);
         }
 
         return new Compiler(this.projectPath).compile().then(() => {
@@ -107,5 +107,10 @@ export class IOSPlatform implements IAppPlatform {
         this.projectPath = launchArgs.projectRoot;
         this.simulatorTarget = launchArgs.target || IOSPlatform.simulatorString;
         this.isSimulator = this.simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;
+    }
+
+    private generateSuccessPatterns(launchArgs: IRunOptions): Q.Promise<string[]> {
+        return this.plistBuddy.getBundleId(launchArgs.projectRoot).then(bundleId =>
+            IOSPlatform.RUN_IOS_SUCCESS_PATTERNS.concat([`Launching ${bundleId}\n${bundleId}: `]));
     }
 }
