@@ -11,9 +11,9 @@ export interface IExecResult {
 
 export interface ISpawnResult {
     spawnedProcess: child_process.ChildProcess;
-    stdin: any;
-    stdout: any;
-    stderr: any;
+    stdin: NodeJS.WritableStream;
+    stdout: NodeJS.ReadableStream;
+    stderr: NodeJS.ReadableStream;
     outcome: Q.Promise<number>;
 }
 

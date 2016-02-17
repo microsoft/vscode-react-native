@@ -50,9 +50,7 @@ export class Packager {
 
                         let spawnOptions = { env: childEnvForDebugging };
 
-                        new CommandExecutor(this.projectPath).spawnReactCommand("start", args, spawnOptions, outputChannel).then((packagerProcess) => {
-                            this.packagerProcess = packagerProcess;
-                        });
+                        this.packagerProcess = new CommandExecutor(this.projectPath).spawnReactCommand("start", args, spawnOptions, outputChannel);
                     }).done();
             }
         });

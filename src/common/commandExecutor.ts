@@ -41,18 +41,8 @@ export class CommandExecutor {
      * {options} - additional options with which the child process needs to be spawned
      * {outputChannel} - optional object of type vscode.OutputChannel where logs need to be printed
      */
-    public spawn(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
-        return this.spawnChildProcess(command, args, options, outputChannel).then(spawnResult => {
-            let commandWithArgs = command + " " + args.join(" ");
-            spawnResult.outcome.then(() => {
-                Log.commandEnded(commandWithArgs, outputChannel);
-            },
-                (reason) => {
-                    Log.commandFailed(commandWithArgs, reason, outputChannel);
-                });
-
-            return Q.resolve(spawnResult.spawnedProcess);
-        });
+    public spawn(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): ChildProcess {
+        return this.spawnChildProcess(command, args, options, outputChannel).spawnedProcess;
     }
 
     /**
@@ -63,39 +53,27 @@ export class CommandExecutor {
      * {options} - additional options with which the child process needs to be spawned
      * {outputChannel} - optional object of type vscode.OutputChannel where logs need to be printed
      */
-    public spawnAndWaitForCompletion(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<void> {
-        return this.spawnChildProcess(command, args, options, outputChannel).then(spawnResult => {
-            let commandWithArgs = command + " " + args.join(" ");
-            return spawnResult.outcome.then(() => {
-                Log.commandEnded(commandWithArgs, outputChannel);
-            },
-                (reason) => {
-                    Log.commandFailed(commandWithArgs, reason, outputChannel);
-                    throw reason;
-                });
-        });
+    public spawnAndWaitForCompletion(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<number> {
+        return this.spawnChildProcess(command, args, options, outputChannel).outcome;
     }
 
-    /**
-     * Executes a react native command.
-     */
-    public spawnReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
-        let runArguments = [command];
-        if (args) {
-            runArguments = runArguments.concat(args);
-        }
-        return this.spawn(this.getReactCommandName(), runArguments, options, outputChannel);
+    public spawnReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): ChildProcess {
+        return this.spawnChildReactCommandProcess(command, args, options, outputChannel).spawnedProcess;
     }
 
     /**
      * Executes a react native command and waits for its completion.
      */
-    public spawnAndWaitReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<void> {
+    public spawnAndWaitReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<number> {
+        return this.spawnChildReactCommandProcess(command, args, options, outputChannel).outcome;
+    }
+
+    public spawnChildReactCommandProcess(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): ISpawnResult {
         let runArguments = [command];
         if (args) {
             runArguments = runArguments.concat(args);
         }
-        return this.spawnAndWaitForCompletion(this.getReactCommandName(), runArguments, options, outputChannel);
+        return this.spawnChildProcess(this.getReactCommandName(), runArguments, options, outputChannel);
     }
 
     /**
@@ -112,7 +90,7 @@ export class CommandExecutor {
         }
     }
 
-    private spawnChildProcess(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ISpawnResult> {
+    private spawnChildProcess(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): ISpawnResult {
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
 
@@ -135,6 +113,12 @@ export class CommandExecutor {
             }
         });
 
-        return Q.resolve(result);
+        result.outcome.done(() => {
+            Log.commandEnded(commandWithArgs, outputChannel);
+        }, (reason) => {
+            Log.commandFailed(commandWithArgs, reason, outputChannel);
+        });
+
+        return result;
     }
 }

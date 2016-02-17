@@ -35,29 +35,28 @@ export class IOSPlatform implements IAppPlatform {
                 runArguments.push(this.simulatorTarget);
             }
 
-            return new CommandExecutor(this.projectPath).spawnReactCommand("run-ios", runArguments).then((runIos) => {
-                const deferred = Q.defer<void>();
-                runIos.on("error", (err: Error) => {
-                    deferred.reject(err);
-                });
-                runIos.stderr.on("data", (data: Buffer) => {
-                    const dataString = data.toString();
-                    if (dataString.indexOf("No devices are booted") !== -1 // No emulators are started
-                        || dataString.indexOf("FBSOpenApplicationErrorDomain") !== -1) { // The incorrect emulator is started
-                        deferred.reject(new Error("Unable to launch iOS simulator. Try specifying a different target."));
-                    }
-                });
-                runIos.on("exit", (code: number) => {
-                    if (code !== 0) {
-                        const err = new Error(`Command failed with exit code ${code}`);
-                        Log.commandFailed(["react-native", "run-ios"].concat(runArguments).join(" "), err);
-                        deferred.reject(err);
-                    } else {
-                        deferred.resolve(void 0);
-                    }
-                });
-                return deferred.promise;
+            const runIos = new CommandExecutor(this.projectPath).spawnReactCommand("run-ios", runArguments);
+            const deferred = Q.defer<void>();
+            runIos.on("error", (err: Error) => {
+                deferred.reject(err);
             });
+            runIos.stderr.on("data", (data: Buffer) => {
+                const dataString = data.toString();
+                if (dataString.indexOf("No devices are booted") !== -1 // No emulators are started
+                    || dataString.indexOf("FBSOpenApplicationErrorDomain") !== -1) { // The incorrect emulator is started
+                    deferred.reject(new Error("Unable to launch iOS simulator. Try specifying a different target."));
+                }
+            });
+            runIos.on("exit", (code: number) => {
+                if (code !== 0) {
+                    const err = new Error(`Command failed with exit code ${code}`);
+                    Log.commandFailed(["react-native", "run-ios"].concat(runArguments).join(" "), err);
+                    deferred.reject(err);
+                } else {
+                    deferred.resolve(void 0);
+                }
+            });
+            return deferred.promise;
         }
 
         // TODO: This is currently a stub, device debugging is not yet implemented
