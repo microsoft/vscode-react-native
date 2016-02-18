@@ -60,10 +60,16 @@ export class ChildProcess {
         spawnedProcess.once("error", (error: any) => {
             outcome.reject({ error: error });
         });
-        spawnedProcess.once("exit", (code: number) => {
+        spawnedProcess.once("exit", (code: number, signal: string) => {
+            /* If the process exit code was success error code 0,
+             * then resolve the promise with the same success code.
+             * If the spawned process was killed with the "SIGTERM" signal (ex, stop packager command),
+             * Do not consider it as an error. Exit silently.
+             * Otherwise, reject the promise with the error code.
+             */
             if (code === 0) {
                 outcome.resolve(code);
-            } else {
+            } else if (signal !== "SIGTERM") {
                 outcome.reject({error: code});
             }
         });
