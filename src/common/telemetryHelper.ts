@@ -145,8 +145,12 @@ export class TelemetryGenerator extends TelemetryGeneratorBase {
 }
 
 export class TelemetryHelper {
-    public static createTelemetryEvent(eventName: string): Telemetry.TelemetryEvent {
-        return new Telemetry.TelemetryEvent(Telemetry.appName + "/" + eventName);
+    public static sendSimpleEvent(eventName: string, properties?: Telemetry.ITelemetryProperties): void {
+        const event = TelemetryHelper.createTelemetryEvent(eventName, properties);
+        Telemetry.send(event);
+    }
+    public static createTelemetryEvent(eventName: string, properties?: Telemetry.ITelemetryProperties): Telemetry.TelemetryEvent {
+        return new Telemetry.TelemetryEvent(Telemetry.appName + "/" + eventName, properties);
     }
 
     public static telemetryProperty(propertyValue: any, pii?: boolean): ITelemetryPropertyInfo {
