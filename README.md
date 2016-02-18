@@ -47,7 +47,7 @@ Chances are that you have started the React Packager outside VS Code. To fix thi
 >If you receive an error `adb: command not found`, you need to update your path variable to include the location of your *ADB* executable.
 The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
 
-Note that there is a known issue [Issue #FIX_THIS](https://github.com/facebook/react-native/issues/5850) while running an app targeting iPhone 6
+Note that there is a known issue [#5850](https://github.com/facebook/react-native/issues/5850) while running an app targeting iPhone 6
 
 ### Debugging on iOS device
 Debugging on iOS device isn't straightforward and requires following manual steps:
@@ -74,14 +74,12 @@ IntelliSense helps you discover objects, functions, and parameters in React Nati
 
 ### Enabling IntelliSense
 React Native IntelliSense depends on experimental features to support JSX in VS Code.
-To enable these experimental features, you will see following prompt immediately after opening a React Native project in VS Code after installing the extension.
+To enable these experimental features, you will see following prompt immediately after opening a React Native project.
 
 ![IntelliSense prompt](images/intellisense-prompt.png)
 
-This is a one-time prompt and will enable JSX support.
-Click **yes** to automatically configure your environment for enabling IntelliSense in your project.
+This is a one-time prompt and will enable JSX support. You will need to restart VS Code once for changes to take effect.
 
-You will need to restart VS Code once for changes to take effect.
 You can verify that you have Salsa enabled and you have an installed TypeScript version that supports Salsa by checking the status indicator in the Status Bar. This shows that all is OK
 
 ![Salsa Enabled](https://code.visualstudio.com/images/January_salsa-status.png)
