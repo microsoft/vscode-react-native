@@ -24,7 +24,7 @@ export class SettingsHelper {
         .then(function(exists: boolean): Q.Promise<string> {
             if (!exists) {
                 return fileSystem.writeFile(settingsJsonPath, "{}")
-                    .then(() => { return "{}" });
+                    .then(() => { return "{}"; });
             }
 
             return fileSystem.readFile(settingsJsonPath, "utf-8");
