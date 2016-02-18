@@ -6,6 +6,7 @@ import * as path from "path";
 import * as http from "http";
 
 import {Telemetry} from "../common/telemetry";
+import {TelemetryHelper} from "../common/telemetryHelper";
 
 // These typings do not reflect the typings as intended to be used
 // but rather as they exist in truth, so we can reach into the internals
@@ -47,6 +48,14 @@ interface ILaunchArgs {
 
 let version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
 
+function bailOut(reason: string): void {
+    // Things have gone wrong in initialization: Report the error to telemetry and exit
+    TelemetryHelper.sendSimpleEvent(reason);
+    Telemetry.sendPendingData().finally(() => {
+        process.exit(1);
+    });
+}
+
 // Enable telemetry
 Telemetry.init("react-native-debug-adapter", version, true).then(() => {
     let nodeDebugFolder: string;
@@ -61,7 +70,7 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
         vscodeDebugAdapterPackage = require(path.join(nodeDebugFolder, "node_modules", "vscode-debugadapter"));
     } catch (e) {
         // Nothing we can do here: can't even communicate back because we don't know how to speak debug adapter
-        process.exit(1);
+        return bailOut("cannotFindDebugAdapter");
     }
 
     // Temporarily dummy out the DebugSession.run function so we do not start the debug adapter until we are ready
@@ -80,7 +89,8 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
         debugSession.start(process.stdin, process.stdout);
         debugSession.sendEvent(new vscodeDebugAdapterPackage.OutputEvent("Unable to start debug adapter: " + e.toString(), "stderr"));
         debugSession.sendEvent(new vscodeDebugAdapterPackage.TerminatedEvent());
-        process.exit(1);
+
+        return bailOut("cannotFindNodeDebugAdapter");
     }
 
     /* tslint:enable:no-var-requires */
@@ -113,6 +123,7 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
 
         reinitializeServer.listen(debugServerListeningPort);
         reinitializeServer.on("error", (err: Error) => {
+            TelemetryHelper.sendSimpleEvent("reinitializeServerError");
             this.sendEvent(new vscodeDebugAdapterPackage.OutputEvent("Error in debug adapter server: " + err.toString(), "stderr"));
             this.sendEvent(new vscodeDebugAdapterPackage.OutputEvent("Breakpoints may not update. Consider restarting and specifying a different 'internalDebuggerPort' in launch.json"));
         });
