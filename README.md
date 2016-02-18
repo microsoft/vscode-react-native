@@ -1,7 +1,7 @@
 # React Native Tools (Preview)
 
-This extension provides development environment for React Native projects.
-You can debug your code, quickly run `react-native` commands from command palette and use IntelliSense to browse objects, functions and parameters for React Native APIs.
+This extension provides a development environment for React Native projects.
+You can debug your code, quickly run `react-native` commands from the command palette and use IntelliSense to browse objects, functions and parameters for React Native APIs.
 
 ![React Native features](images/react-features.gif)
 
@@ -9,13 +9,13 @@ You can debug your code, quickly run `react-native` commands from command palett
 
 * Install the extension in VS Code (0.10.8+)
 * Run `npm install -g react-native-cli` to install React Native CLI (0.1.10+)
-* Set up ReactNative (0.20+) using the steps detailed on the ReactNative [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
-* Open your React Native project in VS Code.
+* Set up React Native (0.19+) using the steps detailed on the React Native [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
+* Open your React Native project root directory in VS Code.
 * (Optional) [Enable IntelliSense](#enabling-intellisense) support (experimental)
 
 ## Setup debug environment
 
-Click the debug icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configure gear icon ![Configure-gear](images/configure-gear-icon.png) to choose the React Native debug environment.
+Click the debugging icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configure gear icon ![Configure-gear](images/configure-gear-icon.png) to choose the React Native debug environment.
 
 ![Choose React Native debugger](images/choose-debugger.png)
 
@@ -29,18 +29,18 @@ For example, you can modify the `target` field to specify the simulator you want
 
 ## Debugging
 
-To start the debugger, choose a target from the target drop-down list, and then click the start button ![Configure-gear](images/debug-icon.png) (or press F5).
+To start the debug session, select a configuration from the Configuration dropdown, and then click the start button ![Configure-gear](images/debug-icon.png) (or press F5).
 
 ![React Native launch targets](images/debug-targets.png)
 
-You can debug your app on an Android emulator, Android device and iOS simulator.
+You can debug your app on an Android emulator, Android device or iOS simulator. Extension provides [experiemental support](#debugging-on-ios-device) for iOS devices.
 
-More information about using debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging)
+More information about debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging)
 
 ### Troubleshooting
 
 >#### Debugger doesn't stop at breakpoints
->We use some smart tricks to enable app debugging inside VS code but that currently works only if packager is started by VS Code.
+>We use some smart tricks to enable React Native app debugging but that currently works only if packager is started by VS Code.
 Chances are that you have started the React Packager outside VS Code. To fix this, kill the packager process and try again.
 
 >#### 'adb: command not found'
@@ -51,8 +51,8 @@ Note that there is a known issue [Issue #FIX_THIS](https://github.com/facebook/r
 
 ### Debugging on iOS device
 Debugging on iOS device isn't straightforward and requires following manual steps:
-* step1
-* step2
+* TODO 1
+* TODO 2
 
 ## Using React Native commands in the Command Palette
 
@@ -98,10 +98,10 @@ Here is what happens behind the scenes to enable JSX support
 
 ## Known Issues
 Here is the list of known issues you may experience while using the extension
-* Issue 1
-* Issue 2
+* TODO 1
+* TODO 2
 
-## How to disable telemetry reporting
+## Disable telemetry reporting
 VS Code React Native extension collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://www.visualstudio.com/en-us/dn948229) to learn more.
 
 If you don’t wish to send usage data to Microsoft, please follow the instructions below to disable its collection.
