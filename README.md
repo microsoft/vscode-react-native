@@ -11,7 +11,7 @@ You can debug your code, quickly run `react-native` commands from command palett
 * Run `npm install -g react-native-cli` to install React Native CLI (0.1.10+)
 * Set up ReactNative (0.20+) using the steps detailed on the ReactNative [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
 * Open your React Native project in VS Code.
-* (Optional) [Enable intellisense](#use-intellisense) support (experiemental)
+* (Optional) [Enable intellisense](#enabing-intellisense) support (experiemental)
 
 ## Setup debug environment
 
@@ -29,7 +29,7 @@ For example, you can modify the `target` field to specify the simular you want t
 
 ## Debugging
 
-To start the debugger, choose a target from the target drop-down list, and then click the start button (![Configure-gear](images/debug-icon.png)) (or press F5).
+To start the debugger, choose a target from the target drop-down list, and then click the start button ![Configure-gear](images/debug-icon.png) (or press F5).
 
 ![React Native launch targets](images/debug-targets.png)
 
@@ -37,7 +37,7 @@ You can debug your app on an Android emulator, Android device and iOS simulator.
 
 More information about using debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging)
 
-### **Troubleshooting **
+### Troubleshooting
 
 >#### Debugger doesn't stop at breakpoints
 >We use some smart tricks to enable app debugging inside VS code but that currently works only if packager is started by VS Code.
@@ -105,11 +105,5 @@ Here is the list of known issues you may experience while using the extension
 VS Code React Native extension collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://www.visualstudio.com/en-us/dn948229) to learn more.
 
 If you don’t wish to send usage data to Microsoft, please follow the instructions below to disable its collection.
-
-### Windows
-
-* Edit VSCodeTelemetrySettings.json file at %appdata%\vscode-react-native and add "optIn":false.
-
-### OS X / Linux
 
 * Edit VSCodeTelemetrySettings.json file at ~/.vscode-react-native and add "optIn":false.
