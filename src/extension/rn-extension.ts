@@ -7,9 +7,9 @@ import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
+import {IntellisenseHelper} from "./IntellisenseHelper";
 import {Telemetry} from "../common/telemetry";
-import {TelemetryHelper} from "../common/telemetryHelper";
-import {TsConfigHelper} from "./tsconfigHelper";
+
 
 export function activate(context: vscode.ExtensionContext): void {
     // Asynchronously enable telemetry
@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 .then(isRNProject => {
                     if (isRNProject) {
                         setupReactNativeDebugger();
-                        setupReactNativeIntellisense();
+                        IntellisenseHelper.setupReactNativeIntellisense();
                         context.subscriptions.push(new ReactDirManager());
                     }
                 }).then(() => {
@@ -73,27 +73,4 @@ try {
         .catch((err: Error) => {
             vscode.window.showErrorMessage(err.message);
         });
-}
-
-function setupReactNativeIntellisense(): void {
-    // Telemetry - Send Salsa Environment setup information
-    let tsSalsaEnvSetup = TelemetryHelper.createTelemetryEvent("RNIntellisense");
-    TelemetryHelper.addTelemetryEventProperty(tsSalsaEnvSetup, "TsSalsaEnvSetup", !!process.env.VSCODE_TSJS, false);
-    Telemetry.send(tsSalsaEnvSetup);
-
-    if (!process.env.VSCODE_TSJS) {
-        return;
-    }
-
-    TsConfigHelper.allowJs(true)
-        .then(function() {
-            return TsConfigHelper.addExcludePaths(["node_modules"]);
-        })
-        .done();
-
-    const reactTypingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
-    const reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
-    const fileSystem = new FileSystem();
-
-    fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest).done();
 }
