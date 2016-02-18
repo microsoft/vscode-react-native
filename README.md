@@ -12,8 +12,7 @@ Currently extension is only supported for `android` and `ios`.
 * Please follow the steps outlined [here](https://facebook.github.io/react-native/docs/getting-started.html) to setup your environment for the target platform.
 * Open your React Native project in VS Code.
 
-### <a name="enableintellisense"></a>
-### Enabing Intellisense
+### Enabing Intellisense <a name="enableintellisense"></a>
 Due to some technical reasons, Intellisense is currently not supported out of the box. After opening your React Native project for the first time, you will see following prompt
 ![Intellisense dialog](images/intellisense-dialog.gif)
 
@@ -33,9 +32,9 @@ You can modify these configurations or add new ones to the list. You can use oth
 
 For example:
 
-Name                               | Description                                                                                                  | Defaults
----------------------------------- | -------------------------------------------------------------------------------------------------------------| ---------
-`target`                           | The 'simulator', 'device', or the name of the emulator to run on. `target` is not supported for android yet  | 'iPhone 5s' for ios
+Name                    | Description                                                                                                  | Defaults
+------------------------| -------------------------------------------------------------------------------------------------------------| ---------
+`target`                | The 'simulator', 'device', or the name of the emulator to run on. `target` is not supported for android yet  | 'iPhone 5s' for ios
 
 
 ## Debug your React Native project
@@ -44,19 +43,25 @@ To start the debugger, choose a target from the target drop-down list, and then 
 
 ![Cordova launch targets](images/debug-targets.png)
 
-You can debug your app on an Android emulator/device, iOS simulator. Debugging on ios device is not yet supported.
+You can debug your app on an Android emulator, Android device and iOS simulator.
+
 
 We won't go into all of the great things that you can do with the Visual Studio Code debugger, but you can read about it [here](https://code.visualstudio.com/docs/editor/debugging).
 
-> **Troubleshooting tip:**
-If you receive an error stating that ADB is not recognized as an internal or external command, you'll have to update your path variable to include the location of your *ADB* executable.
+> **Troubleshooting tips **
+>#### Debugger doesn't stop at breakpoints
+>We use some smart tricks to enable app debugging inside VS code but that currently works only if packager is started by VS Code.
+Chances are that you have started the React Packager outside VS Code. To fix this, kill the packager process and try again.
+>#### `adb: command not found`
+If you receive an error `adb: command not found`, you need to update your path variable to include the location of your *ADB* executable.
 The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
 
 
-### Debugging on ios device
+### Debugging on iOS device
 Debugging on iOS device isn't straightforward and requires following manual steps:
 * step1
 * step2
+
 
 ## Using React Native commands in the Command Palette
 
@@ -66,7 +71,7 @@ In the Command Palette, type ```React Native``` and choose a command.
 
 The **Run Android** command triggers ```react-native run-android``` and starts your app for android.
 
-The **Run iOS** command similarly triggers ```react-native run-ios``` and starts your app for ios.
+The **Run iOS** command similarly triggers ```react-native run-ios``` and starts your app for iOS.
 
 The **Packager** commands allow you to start/stop the [**React-packager**](https://github.com/facebook/react-native/tree/master/packager).
 
