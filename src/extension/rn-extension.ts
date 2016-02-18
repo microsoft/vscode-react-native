@@ -10,6 +10,7 @@ import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./IntellisenseHelper";
 import {Telemetry} from "../common/telemetry";
 
+
 export function activate(context: vscode.ExtensionContext): void {
     // Asynchronously enable telemetry
     Telemetry.init("react-native", require("../../package.json").version, true)
