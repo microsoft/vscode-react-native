@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "outDir": "out",
+        "noLib": true,
+        "sourceMap": true,
+        "rootDir": "src",
+        "noImplicitAny": true,
+        "removeComments": false
+    },
+    "exclude": [
+        "node_modules",
+        "test/SampleApplication/",
+        "test/SampleApplication/node_modules",
+        "test/SampleApplication/.vscode",
+        "ReactTypings"
+    ]
+}

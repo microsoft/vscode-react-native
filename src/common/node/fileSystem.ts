@@ -57,7 +57,7 @@ export class FileSystem {
      */
     public exists(filename: string): Q.Promise<boolean> {
         return Q.nfcall(fs.stat, filename)
-            .then(function(){
+            .then(function() {
                 return Q.resolve(true);
             })
             .catch(function(err) {
@@ -147,14 +147,14 @@ export class FileSystem {
                         return Q.nfcall<void>(fs.mkdir, target);
                     }
                 })
-                .then(() => {
-                    return Q.nfcall<string[]>(fs.readdir, source);
-                })
-                .then(contents => {
-                    Q.all(contents.map((childPath: string): Q.Promise<void> => {
-                        return this.copyRecursive(path.join(source, childPath), path.join(target, childPath));
-                    }));
-                });
+                    .then(() => {
+                        return Q.nfcall<string[]>(fs.readdir, source);
+                    })
+                    .then(contents => {
+                        Q.all(contents.map((childPath: string): Q.Promise<void> => {
+                            return this.copyRecursive(path.join(source, childPath), path.join(target, childPath));
+                        }));
+                    });
             } else {
                 return this.copyFile(source, target);
             }

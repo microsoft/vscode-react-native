@@ -7,6 +7,8 @@ import * as os from "os";
 import * as path from "path";
 import * as Q from "q";
 import * as vscode from "vscode";
+import {Telemetry} from "../common/telemetry";
+import {TelemetryHelper} from "../common/telemetryHelper";
 import {TsConfigHelper} from "./tsconfigHelper";
 import {SettingsHelper} from "./settingsHelper";
 
@@ -15,6 +17,11 @@ export class IntellisenseHelper {
      * Helper method that configures the workspace for Salsa intellisense.
      */
     public static setupReactNativeIntellisense(): void {
+        // Telemetry - Send Salsa Environment setup information
+        let tsSalsaEnvSetup = TelemetryHelper.createTelemetryEvent("RNIntellisense");
+        TelemetryHelper.addTelemetryEventProperty(tsSalsaEnvSetup, "TsSalsaEnvSetup", !!process.env.VSCODE_TSJS, false);
+        Telemetry.send(tsSalsaEnvSetup);
+
         Q({})
             .then(() => TsConfigHelper.allowJs(true))
             .then(() => TsConfigHelper.addExcludePaths(["node_modules"]))
@@ -89,7 +96,7 @@ export class IntellisenseHelper {
 
     public static warnIfRestartIsRequired(isRestartRequired: boolean): Q.Promise<void> {
         if (isRestartRequired) {
-            vscode.window.showInformationMessage("React Native intellisense for VS Code was successfully configured for this project. Restart to enable it.");
+            vscode.window.showInformationMessage("React Native intellisense was successfully configured for this project. Restart to enable it.");
         }
 
         return;

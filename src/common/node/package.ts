@@ -42,10 +42,10 @@ export class Package {
 
     public setMainFile(value: string): Q.Promise<void> {
         return this.parsePackageInformation()
-        .then(packageInformation => {
-            packageInformation.main = value;
-            return new Node.FileSystem().writeFile(this.informationJsonFilePath(), JSON.stringify(<Object>packageInformation));
-        });
+            .then(packageInformation => {
+                packageInformation.main = value;
+                return new Node.FileSystem().writeFile(this.informationJsonFilePath(), JSON.stringify(<Object>packageInformation));
+            });
     }
 
     private informationJsonFilePath(): string {
