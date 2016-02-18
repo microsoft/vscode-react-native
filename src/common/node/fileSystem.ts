@@ -57,7 +57,7 @@ export class FileSystem {
      */
     public exists(filename: string): Q.Promise<boolean> {
         return Q.nfcall(fs.stat, filename)
-            .then(function(){
+            .then(function() {
                 return Q.resolve(true);
             })
             .catch(function(err) {
@@ -147,14 +147,14 @@ export class FileSystem {
                         return Q.nfcall<void>(fs.mkdir, target);
                     }
                 })
-                .then(() => {
-                    return Q.nfcall<string[]>(fs.readdir, source);
-                })
-                .then(contents => {
-                    Q.all(contents.map((childPath: string): Q.Promise<void> => {
-                        return this.copyRecursive(path.join(source, childPath), path.join(target, childPath));
-                    }));
-                });
+                    .then(() => {
+                        return Q.nfcall<string[]>(fs.readdir, source);
+                    })
+                    .then(contents => {
+                        Q.all(contents.map((childPath: string): Q.Promise<void> => {
+                            return this.copyRecursive(path.join(source, childPath), path.join(target, childPath));
+                        }));
+                    });
             } else {
                 return this.copyFile(source, target);
             }
@@ -195,5 +195,40 @@ export class FileSystem {
                 fs.unlinkSync(p);
             }
         }
+    }
+
+    /**
+     * Recursively finds the first occurence of a file in a directory.
+     */
+    public findFile(p: string, fileName: string): Q.Promise<string> {
+        return this.exists(p).then(exists => {
+            if (exists) {
+                return Q.nfcall<fs.Stats>(fs.stat, p).then((stats: fs.Stats) => {
+                    if (stats.isDirectory()) {
+                        return Q.nfcall<string[]>(fs.readdir, p).then((childPaths: string[]) => {
+                            let result = Q<string>(null);
+                            childPaths.forEach(childPath =>
+                                result = result.then<string>((findResult) => {
+                                    if (!findResult) {
+                                        /* keep searching, file not found */
+                                        return this.findFile(path.join(p, childPath), fileName);
+                                    } else {
+                                        /* file found, returning first occurence */
+                                        return findResult;
+                                    }
+                                }));
+                            return result;
+                        });
+                    } else {
+                        /* file */
+                        if (path.parse(p).base === fileName) {
+                            return p;
+                        } else {
+                            return null;
+                        }
+                    }
+                });
+            }
+        });
     }
 }
