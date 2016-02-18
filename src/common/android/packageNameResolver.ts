@@ -14,6 +14,10 @@ export class PackageNameResolver {
     private static SourceRootRelPath: string[] = ["android", "app", "src"];
     private static DefaultManifestLocation: string[] = PackageNameResolver.SourceRootRelPath.concat("main", PackageNameResolver.ManifestName);
 
+    /**
+     * Tries to find the package name in AndroidManifest.xml. If not found, it returns the default package name,
+     * which is the application name prefixed with the default prefix.
+     */
     public resolvePackageName(projectRoot: string, appName: string): Q.Promise<string> {
         let fs = new FileSystem();
         let expectedAndroidManifestPath = path.join.apply(this, [projectRoot].concat(PackageNameResolver.DefaultManifestLocation));
@@ -58,6 +62,9 @@ export class PackageNameResolver {
         }
     }
 
+    /**
+     * Gets the default package name, based on the applicaiton name.
+     */
     private getDefaultPackageName(applicationName: string): string {
         return PackageNameResolver.DefaultPackagePrefix + applicationName;
     }
