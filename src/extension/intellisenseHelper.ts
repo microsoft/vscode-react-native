@@ -25,13 +25,14 @@ export class IntellisenseHelper {
         Q({})
             .then(() => TsConfigHelper.allowJs(true))
             .then(() => TsConfigHelper.addExcludePaths(["node_modules"]))
+            .then(() => IntellisenseHelper.installReactNativeTypings())
             .done();
 
-        Q({})
-            .then(() => IntellisenseHelper.enableSalsa(false))
+        // The actions taken in the promise chain below may result in requring a restart.
+        Q(false)
+            .then((isRestartRequired: boolean) => IntellisenseHelper.enableSalsa(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.installTypescriptNext(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.configureWorkspaceSettings(isRestartRequired))
-            .then((isRestartRequired: boolean) => IntellisenseHelper.installReactNativeTypings(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.warnIfRestartIsRequired(isRestartRequired))
             .done();
     }
@@ -39,13 +40,12 @@ export class IntellisenseHelper {
     /**
      * Helper method that install typings for React Native.
      */
-    public static installReactNativeTypings(isRestartRequired: boolean): Q.Promise<boolean> {
+    public static installReactNativeTypings(): Q.Promise<void> {
         let reactTypingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
         let reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
         let fileSystem = new FileSystem();
 
-        return fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest)
-            .then(() => { return isRestartRequired; });
+        return fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest);
     }
 
     /**

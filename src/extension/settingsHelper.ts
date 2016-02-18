@@ -21,12 +21,12 @@ export class SettingsHelper {
         let fileSystem = new FileSystem();
 
         return fileSystem.exists(settingsJsonPath)
-        .then(function(exists: boolean): Q.Promise<void> {
+        .then(function(exists: boolean): Q.Promise<string> {
             if (!exists) {
-                return fileSystem.writeFile(settingsJsonPath, "{}");
+                return fileSystem.writeFile(settingsJsonPath, "{}")
+                    .then(() => { return "{}" });
             }
-        })
-        .then(function(): Q.Promise<string> {
+
             return fileSystem.readFile(settingsJsonPath, "utf-8");
         })
         .then(function(jsonContents: string): Q.Promise<any> {
