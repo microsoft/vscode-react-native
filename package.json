@@ -1,10 +1,15 @@
 {
     "name": "vscode-react-native",
-    "displayName": "vscode-react-native",
-    "version": "0.0.1",
+    "displayName": "React Native Tools (Preview)",
+    "version": "0.1.0-alpha",
     "private": true,
-    "publisher": "Microsoft",
-    "description": "VS Code Extension for React Native applications",
+    "publisher": "vsmobile",
+    "icon": "images/icon.svg",
+    "galleryBanner": {
+        "color": "#3B3738",
+	"theme": "dark"
+    },
+    "description": "Code-hinting, debugging and integrated commands for React Native",
     "license": "MIT",
     "repository": {
         "type": "git",
