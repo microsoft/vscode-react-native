@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as child_process from "child_process";
+import {ChildProcess} from "child_process";
 import {Log} from "./log";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
@@ -41,7 +41,7 @@ export class CommandExecutor {
      * {options} - additional options with which the child process needs to be spawned
      * {outputChannel} - optional object of type vscode.OutputChannel where logs need to be printed
      */
-    public spawn(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<child_process.ChildProcess> {
+    public spawn(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
         return this.spawnChildProcess(command, args, options, outputChannel).then(spawnResult => {
             let commandWithArgs = command + " " + args.join(" ");
             spawnResult.outcome.then(() => {
@@ -79,7 +79,7 @@ export class CommandExecutor {
     /**
      * Executes a react native command.
      */
-    public spawnReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<child_process.ChildProcess> {
+    public spawnReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
         let runArguments = [command];
         if (args) {
             runArguments = runArguments.concat(args);
@@ -90,8 +90,8 @@ export class CommandExecutor {
     /**
      * Spawns the React Native packager in a child process.
      */
-    public spawnReactPackager(args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<child_process.ChildProcess> {
-        let deferred = Q.defer<child_process.ChildProcess>();
+    public spawnReactPackager(args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
+        let deferred = Q.defer<ChildProcess>();
         let command = this.getReactCommandName();
         let runArguments = ["start"];
 
@@ -129,7 +129,7 @@ export class CommandExecutor {
     /**
      * Kills the React Native packager in a child process.
      */
-    public killReactPackager(packagerProcess: child_process.ChildProcess, outputChannel?: OutputChannel): void {
+    public killReactPackager(packagerProcess: ChildProcess, outputChannel?: OutputChannel): void {
         Log.logMessage("Stopping Packager", outputChannel);
 
         if (packagerProcess) {
