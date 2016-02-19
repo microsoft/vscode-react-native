@@ -11,6 +11,7 @@ import {PromiseUtil} from "./node/promise";
 import {Request} from "./node/request";
 
 import * as Q from "q";
+import * as os from "os";
 import * as path from "path";
 
 export class Packager {
@@ -78,26 +79,7 @@ export class Packager {
     }
 
     public stop(outputChannel?: OutputChannel): void {
-        Log.logMessage("Stopping Packager", outputChannel);
-        let os = require("os");
-
-        if (this.packagerProcess) {
-            if (os.platform() === "win32") {
-                child_process.exec("taskkill /pid " + this.packagerProcess.pid + " /T /F",
-                    function (error) {
-                        if (error) {
-                            Log.logError("Failed to exit the React Native packager");
-                        }
-                    });
-            } else {
-                this.packagerProcess.kill();
-            }
-
-            this.packagerProcess = null;
-            Log.logMessage("Packager stopped", outputChannel);
-        } else {
-            Log.logMessage("Packager not found", outputChannel);
-        }
+        new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess, outputChannel);
     }
 
     public prewarmBundleCache(platform: string) {

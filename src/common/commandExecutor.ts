@@ -89,6 +89,7 @@ export class CommandExecutor {
 
     /**
      * Spawns the React Native packager in a child process.
+     * TODO - The following method should be refactored into commandExecutor class
      */
     public spawnReactPackager(args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<any> {
         let command = this.getReactCommandName();
@@ -99,14 +100,9 @@ export class CommandExecutor {
         }
 
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
-        let commandWithArgs = command + " " + runArguments.join(" ");
 
-        let spawnedProcess = child_process.spawn(command, runArguments, spawnOptions);
-        spawnedProcess.once("error", (error: any) => {
-            return Q.reject({ error: error });
-        });
-
-        spawnedProcess.stderr.on("data", (data: Buffer) => {
+        let result = new Node.ChildProcess().spawn(command, runArguments, spawnOptions);
+        result.stderr.on("data", (data: Buffer) => {
             if (outputChannel) {
                 outputChannel.append(data.toString());
             } else {
@@ -114,7 +110,7 @@ export class CommandExecutor {
             }
         });
 
-        spawnedProcess.stdout.on("data", (data: Buffer) => {
+        result.stdout.on("data", (data: Buffer) => {
             if (outputChannel) {
                 outputChannel.append(data.toString());
             } else {
@@ -122,8 +118,36 @@ export class CommandExecutor {
             }
         });
 
-        return Q.resolve(spawnedProcess);
+        return Q.resolve(result.spawnedProcess);
     }
+
+    /**
+     * Kills the React Native packager in a child process.
+     */
+    public killReactPackager(packagerProcess: child_process.ChildProcess, outputChannel?: OutputChannel): void {
+        Log.logMessage("Stopping Packager", outputChannel);
+
+        if (process) {
+            /* To reliably, kill the child process on all versions of Windows,
+             * please use taskkill to end the packager process */
+            if (process.platform === "win32") {
+                new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome.then(() => {
+                    Log.logMessage("Packager stopped", outputChannel);
+                }, function() {
+                    Log.logError("Failed to exit the React Native packager", outputChannel);
+                });
+            } else {
+                packagerProcess.kill();
+                Log.logMessage("Packager stopped", outputChannel);
+            }
+
+            packagerProcess = null;
+        } else {
+            Log.logMessage("Packager not found", outputChannel);
+        }
+    }
+
+
 
     /**
      * Executes a react native command and waits for its completion.
@@ -155,7 +179,7 @@ export class CommandExecutor {
         let commandWithArgs = command + " " + args.join(" ");
 
         Log.commandStarted(commandWithArgs, outputChannel);
-        let result = new Node.ChildProcess().spawn(command, args, spawnOptions);
+        let result = new Node.ChildProcess().spawnWithExitHandler(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
             if (outputChannel) {
