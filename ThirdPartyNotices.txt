@@ -135,7 +135,7 @@ React logo (https://github.com/facebook/react/blob/master/docs/img/logo.svg)
 
 BSD License 
  
-For React Native software 
+For React software 
 
 Copyright (c) 2015-present, Facebook, Inc. All rights reserved. 
  
