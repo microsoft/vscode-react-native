@@ -37,8 +37,8 @@ export class PackageNameResolver {
             return fs.exists(manifestPath).then(exists => {
                 if (exists) {
                     return fs.readFile(manifestPath)
-                        .then(manifestContent => this.parsePackageName(manifestContent))
-                        .then(packageName => {
+                        .then(manifestContent => {
+                            let packageName = this.parsePackageName(manifestContent);
                             if (!packageName) {
                                 packageName = this.getDefaultPackageName(this.applicationName);
                             }
