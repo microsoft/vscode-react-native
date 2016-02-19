@@ -18,8 +18,15 @@ To avoid a conflict, delete the installed extension at `~/.vscode/extensions/vsm
 * Run `gulp build`
 
 
-## Debugging
-In VS Code, run the `launch as server` launch config - it will start the adapter as a server listening on port 4712. In your test app launch.json, include this flag at the top level: `"debugServer": "4712"`. Then you'll be able to debug the adapter in the first instance of VS Code, in its original TypeScript, using sourcemaps.
+##Debugging
+There are currently 3 components to our extension: The extension running in the vscode process, the debug adapter, and some code wrapping the user react-native code which is launched by the debug adapter. These are all debugged in different ways:
+
+* To debug the extension process itself, in VS Code run the `Launch Extension` debug target which will spawn a new instance of VS code with the extension installed. You can set breakpoints in the typescript and debug things such as extension activation and the command palette.
+
+* To debug the code running in the same process as the react-native code, open up an instance of VS code running the extension on a react-native project. From this instance, open up the typescript file in the extension codebase that you wish to debug and add breakpoints. Now when you launch the react-native project, you should hit breakpoints in the extension code wrapper.
+
+* Currently the codebase is not configured for easy debugging of the debug adapter, and we plan significant changes in the near future. However, if you ensure that `out/debugger/nodeDebugLocation.json` contains a `nodeDebugPath` entry which points to the location of the node debug adapter extension (Run the extension normally and open up a react-native project to generate this file), then you can run `node --harmony --server=4712 out/debugger/nodeDebugWrapper.js` to start a standalone instance of the debug adapter (optionally with a debugger attached to it) and then inside a react-native project add `"debugServer": 4712` to the top-level launch.json to get it to use the standalone instance.
+
 
 ## Testing
 There is a set of mocha tests for the debug adapter which can be run with `npm test`, and a set of mocha tests for the other functionality run as part of the `test` launch config. Also run `gulp tslint` to check your code against our tslint rules.
