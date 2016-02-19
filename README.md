@@ -33,9 +33,15 @@ To start the debug session, select a configuration from the Configuration dropdo
 
 ![React Native launch targets](images/debug-targets.png)
 
-You can debug your app on an Android emulator, Android device or iOS simulator. Extension provides [experiemental support](#debugging-on-ios-device) for iOS devices.
+You can debug your app on an Android emulator, Android device or iOS simulator. This extension provides [experiemental support](#debugging-on-ios-device) for iOS devices.
 
 More information about debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging)
+
+### Debugging on iOS device
+Debugging on iOS device isn't straightforward and requires following manual steps
+* Change the `jsCodeLocation` IP in your app using the steps detailed [here](https://facebook.github.io/react-native/docs/running-on-device-ios.html#accessing-development-server-from-device)
+* Choose **Debug iOS** configuration from the Configuration dropdown and press F5.
+* Shake the device to open development menu and select "Debug in Chrome"
 
 ### Troubleshooting
 
@@ -49,11 +55,6 @@ The *ADB* executable file is located in a subdirectory along with your other And
 
 Note that there is a known issue [#5850](https://github.com/facebook/react-native/issues/5850) while running an app targeting iPhone 6
 
-### Debugging on iOS device
-Debugging on iOS device isn't straightforward and requires following manual steps:
-* TODO 1
-* TODO 2
-
 ## Using React Native commands in the Command Palette
 
 In the Command Palette, type ```React Native``` and choose a command.
@@ -66,7 +67,7 @@ The **Run iOS** command similarly triggers ```react-native run-ios``` and starts
 
 The **Packager** commands allow you to start/stop the [**React-packager**](https://github.com/facebook/react-native/tree/master/packager).
 
-## Use IntelliSense
+## Using IntelliSense
 
 IntelliSense helps you discover objects, functions, and parameters in React Native.
 
@@ -74,7 +75,7 @@ IntelliSense helps you discover objects, functions, and parameters in React Nati
 
 ### Enabling IntelliSense
 React Native IntelliSense depends on experimental features to support JSX in VS Code.
-To enable these experimental features, you will see following prompt immediately after opening a React Native project.
+To enable these experimental features, you will see the following prompt immediately after opening a React Native project.
 
 ![IntelliSense prompt](images/intellisense-prompt.png)
 
@@ -84,15 +85,17 @@ You can verify that you have Salsa enabled and you have an installed TypeScript 
 
 ![Salsa Enabled](https://code.visualstudio.com/images/January_salsa-status.png)
 
-Once you have enabled IntelliSense by following above steps, you can start typing in the code editor to see the objects, functions, and parameters of your React Native libraries and your own code.
+Once you have enabled IntelliSense by following the above steps, you can start typing in the code editor to see the objects, functions, and parameters of your React Native libraries and your own code.
 
 ####TL;DR
 
 Here is what happens behind the scenes to enable JSX support
 
-1. Extension sets environment variable VSCODE_TSJS=1 to enable [Salsa](https://github.com/Microsoft/TypeScript/issues/4789)
-2. Salsa requires TypeScript 1.8 but the final 1.8 release isn't available yet. Extension installs `typescript@next` in your user directory
-3. Extension drops tsconfig.json in .vscode directory with `typescript.tsdk` pointing to the installed typescript
+1. The environment variable VSCODE_TSJS=1 is set to enable [Salsa](https://github.com/Microsoft/TypeScript/issues/4789)
+2. Salsa requires TypeScript 1.8 but the final 1.8 release isn't available yet. Extension installs `typescript@next` in `~/.vscode`
+3. A settings.json file is created in the .vscode directory with typescript.tsdk pointing to the typescript@next install location.
+4. A tsconfig.json file is created in the project root with `allowJs: true` to allow TypeScript to process JavaScript files.
+5. Typings for React Native are copied into the .vscode directory.
 
 ## Known Issues
 Here is the list of known issues you may experience while using the extension
