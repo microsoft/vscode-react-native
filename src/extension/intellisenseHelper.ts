@@ -72,7 +72,7 @@ export class IntellisenseHelper {
 
         if (os.type() === "Darwin") {
             homeDirectory = process.env.HOME;
-        } else if (os.type() === "Windows") {
+        } else if (os.type() === "Windows_NT") {
             homeDirectory = process.env.USERPROFILE;
         }
 
