@@ -10,7 +10,7 @@ import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./IntellisenseHelper";
 import {Telemetry} from "../common/telemetry";
 
-
+const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 export function activate(context: vscode.ExtensionContext): void {
     // Asynchronously enable telemetry
     Telemetry.init("react-native", require("../../package.json").version, true)
@@ -24,8 +24,6 @@ export function activate(context: vscode.ExtensionContext): void {
                         context.subscriptions.push(new ReactDirManager());
                     }
                 }).then(() => {
-                    const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
-
                     // Register React Native commands
                     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
                         () => commandPaletteHandler.runAndroid()));
@@ -41,6 +39,11 @@ export function activate(context: vscode.ExtensionContext): void {
                     fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath })).done();
                 });
         }).done();
+}
+
+export function deactivate(): void {
+    // Kill any packager processes that we spawned
+    commandPaletteHandler.stopPackager();
 }
 
 /**

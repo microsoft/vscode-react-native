@@ -41,7 +41,7 @@ export class DeviceRunner {
         this.cleanup();
 
         return this.mountDeveloperImage().then(function(): Q.Promise<void> {
-            const {spawnedProcess} = new Node.ChildProcess().spawn("idevicedebugserverproxy", [proxyPort.toString()]);
+            const {spawnedProcess} = new Node.ChildProcess().spawnWithExitHandler("idevicedebugserverproxy", [proxyPort.toString()]);
             this.nativeDebuggerProxyInstance = spawnedProcess;
             const deferred = Q.defer<ChildProcess>();
 
@@ -56,7 +56,7 @@ export class DeviceRunner {
 
     private mountDeveloperImage(): Q.Promise<void> {
         return this.getDiskImage().then(function(path: string): Q.Promise<void> {
-            const imagemounter = new Node.ChildProcess().spawn("ideviceimagemounter", [path]).spawnedProcess;
+            const imagemounter = new Node.ChildProcess().spawnWithExitHandler("ideviceimagemounter", [path]).spawnedProcess;
             const deferred = Q.defer<void>();
             let stdout: string = "";
             imagemounter.stdout.on("data", function(data: any): void {

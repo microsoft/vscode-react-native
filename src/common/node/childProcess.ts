@@ -53,7 +53,7 @@ export class ChildProcess {
         return this.exec(command).outcome.then(stdout => stdout.toString());
     }
 
-    public spawn(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
+    public spawnWithExitHandler(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
         let outcome = Q.defer<number>();
 
         let spawnedProcess = child_process.spawn(command, args, options);
@@ -74,5 +74,21 @@ export class ChildProcess {
               stdout: spawnedProcess.stdout,
               stderr: spawnedProcess.stderr,
               outcome: outcome.promise };
+    }
+
+    public spawn(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
+        let outcome = Q.defer<number>();
+        let spawnedProcess = child_process.spawn(command, args, options);
+        spawnedProcess.once("error", (error: any) => {
+            outcome.reject({ error: error });
+        });
+
+        return {
+              spawnedProcess: spawnedProcess,
+              stdin: spawnedProcess.stdin,
+              stdout: spawnedProcess.stdout,
+              stderr: spawnedProcess.stderr,
+              outcome: outcome.promise
+        };
     }
 }
