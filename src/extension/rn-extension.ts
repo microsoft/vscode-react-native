@@ -12,7 +12,7 @@ import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/TelemetryHelper";
 import {Log} from "../common/log";
 
-
+const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 export function activate(context: vscode.ExtensionContext): void {
     let workspaceRootPath = vscode.workspace.rootPath;
 
@@ -33,8 +33,6 @@ export function activate(context: vscode.ExtensionContext): void {
                         context.subscriptions.push(new ReactDirManager());
                     }
                 }).then(() => {
-                    const commandPaletteHandler = new CommandPaletteHandler(workspaceRootPath);
-
                     // Register React Native commands
                     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
                         () => commandPaletteHandler.runAndroid()));
@@ -50,6 +48,11 @@ export function activate(context: vscode.ExtensionContext): void {
                     fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath })).done();
                 });
         }).done();
+}
+
+export function deactivate(): void {
+    // Kill any packager processes that we spawned
+    commandPaletteHandler.stopPackager();
 }
 
 /**

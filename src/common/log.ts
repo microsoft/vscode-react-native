@@ -52,7 +52,9 @@ export class Log {
      * Logs an error message to the console.
      */
     public static logError(message: string, error?: any, outputChannel?: OutputChannel, logStack = true) {
-        let errorMessageToLog = outputChannel ? `${message} ${Log.getErrorMessage(error)}` : `${Log.TAG} ${message} ${Log.getErrorMessage(error)}`;
+        let errorMessagePrefix = outputChannel ? "" : `${Log.TAG} `;
+        let errorMessagePostfix =  error ? `: ${Log.getErrorMessage(error)}` : "";
+        let errorMessageToLog = errorMessagePrefix + message + errorMessagePostfix;
 
         if (outputChannel) {
             Log.appendStringToOutputChannel(errorMessageToLog, outputChannel);
@@ -67,13 +69,6 @@ export class Log {
     }
 
     /**
-     * Gets the message of an error, if any. Otherwise it returns the empty string.
-     */
-    public static getErrorMessage(e: any): string {
-        return e && e.message || e && e.error && e.error.message || e && e.toString() || "";
-    }
-
-    /**
      * Logs a message to the console.
      */
     public static logMessage(message: string, outputChannel?: OutputChannel) {
@@ -83,6 +78,25 @@ export class Log {
             Log.appendStringToOutputChannel(messageToLog, outputChannel);
         } else {
             console.log(messageToLog);
+        }
+
+    }
+
+    /**
+     * Gets the message of a non null error, if any. Otherwise it returns the empty string.
+     */
+    private static getErrorMessage(e: any): string {
+        let message = e.message || e.error && e.error.message;
+        if (!message) {
+            try {
+                return JSON.stringify(e);
+            } catch (exception) {
+                // This is a best-effort feature, so we ignore any exceptions. If possible we'll print the error stringified.
+                // If not, we'll just use one of the fallbacks
+                return e.error || e.toString() || "";
+            }
+        } else {
+            return message;
         }
 
     }
