@@ -36,10 +36,6 @@ export class Launcher {
                     const packager = new Packager(this.projectRootPath, sourcesStoragePath);
                     return Q({})
                         .then(() => {
-                            generator.step("validateReactNativeVersion");
-                            return new ReactNativeProjectHelper(this.projectRootPath).validateReactNativeVersion();
-                        })
-                        .then(() => {
                             generator.step("startPackager");
                             return packager.start();
                         })

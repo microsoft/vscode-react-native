@@ -9,22 +9,29 @@ import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./IntellisenseHelper";
 import {Telemetry} from "../common/telemetry";
+import {Log} from "../common/log";
 
 
 export function activate(context: vscode.ExtensionContext): void {
+    let workspaceRootPath = vscode.workspace.rootPath;
+
     // Asynchronously enable telemetry
     Telemetry.init("react-native", require("../../package.json").version, true)
         .then(() => {
-            const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
+            const reactNativeProjectHelper = new ReactNativeProjectHelper(workspaceRootPath);
             return reactNativeProjectHelper.isReactNativeProject()
                 .then(isRNProject => {
                     if (isRNProject) {
+                        reactNativeProjectHelper.validateReactNativeVersion().fail(reason => {
+                            const message = `React Native Tools only supports React Native versions 0.19 and later: ${reason}`;
+                            vscode.window.showWarningMessage(message);
+                        }).done();
                         setupReactNativeDebugger();
                         IntellisenseHelper.setupReactNativeIntellisense();
                         context.subscriptions.push(new ReactDirManager());
                     }
                 }).then(() => {
-                    const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
+                    const commandPaletteHandler = new CommandPaletteHandler(workspaceRootPath);
 
                     // Register React Native commands
                     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",

@@ -31,14 +31,15 @@ export class ReactNativeProjectHelper {
             // TODO-V1: Use semver instead of all this logic
             const components = version.split(".");
             if (components.length >= 2) { // Even though react-native versions have 3 components, we only care about the first 2
-                if (components[0] !== "0" || parseInt(components[1], 10) >= 19) {
+                let minorVersion = parseInt(components[1], 10);
+                if (components[0] !== "0" || minorVersion >= 19) {
                     return Q.resolve<void>(void 0);
-                } else {
-                    return Q.reject<void>(`Only react-native versions 0.19+ are supported. Current installed version = ${version}`);
-                }
+                } else if (!(<any>Number).isNaN(minorVersion)) {
+                    return Q.reject<void>(`Project version = ${version}`);
+                } // else minor version is nan. Continue to return parse error
             }
 
-            return Q.reject<void>(`Couldn't parse the installed version of the react-native package: version = ${version}`);
+            return Q.reject<void>(`Unable to read version = ${version}`);
         });
     }
 }
