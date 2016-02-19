@@ -66,7 +66,6 @@ export class Launcher {
             reason => {
                 Log.logError("Cannot debug application.", reason);
                 // This is the top level handler of the app, so when we get an error we exit
-                TelemetryHelper.sendSimpleEvent("launchDebuggerError");
                 Telemetry.sendPendingData().finally(() => {
                     process.exit(1);
                 });
