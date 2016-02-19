@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {ChildProcess} from "child_process";
+import * as child_process from "child_process";
 import {CommandExecutor} from "./commandExecutor";
 import {Log, LogLevel} from "./log";
 import {Node} from "./node/node";
@@ -21,7 +21,7 @@ export class Packager {
     public static DEBUGGER_WORKER_FILENAME = Packager.DEBUGGER_WORKER_FILE_BASENAME + ".js";
 
     private projectPath: string;
-    private packagerProcess: ChildProcess;
+    private packagerProcess: child_process.ChildProcess;
     private sourcesStoragePath: string;
 
     private static JS_INJECTOR_FILENAME = "opn-main.js";
@@ -37,6 +37,7 @@ export class Packager {
     }
 
     public start(outputChannel?: OutputChannel): Q.Promise<void> {
+        let executedStartPackagerCmd = false;
         this.isRunning().done(running => {
             if (!running) {
                 return this.monkeyPatchOpnForRNPackager()
@@ -50,15 +51,24 @@ export class Packager {
 
                         let spawnOptions = { env: childEnvForDebugging };
 
-                        new CommandExecutor(this.projectPath).spawnReactCommand("start", args, spawnOptions, outputChannel).then((packagerProcess) => {
+                        new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions, outputChannel).then((packagerProcess) => {
                             this.packagerProcess = packagerProcess;
+                            executedStartPackagerCmd = true;
                         });
                     }).done();
             }
         });
 
         return this.awaitStart().then(() => {
-            Log.logMessage("Packager started.", outputChannel);
+            if (executedStartPackagerCmd) {
+                Log.logMessage("Packager started.", outputChannel);
+            } else {
+                Log.logMessage("Packager is already running.", outputChannel);
+                if (!outputChannel) {
+                    Log.logMessage("If debugging fails, please kill other active React Native packager processes and retry.", outputChannel);
+                }
+            }
+
             if (this.sourcesStoragePath) {
                 return this.downloadDebuggerWorker().then(() => {
                     Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
@@ -69,9 +79,20 @@ export class Packager {
 
     public stop(outputChannel?: OutputChannel): void {
         Log.logMessage("Stopping Packager", outputChannel);
+        let os = require("os");
 
         if (this.packagerProcess) {
-            this.packagerProcess.kill();
+            if (os.platform() === "win32") {
+                child_process.exec("taskkill /pid " + this.packagerProcess.pid + " /T /F",
+                    function (error) {
+                        if (error) {
+                            Log.logError("Failed to exit the React Native packager");
+                        }
+                    });
+            } else {
+                this.packagerProcess.kill();
+            }
+
             this.packagerProcess = null;
             Log.logMessage("Packager stopped", outputChannel);
         } else {

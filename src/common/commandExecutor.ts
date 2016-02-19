@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {ChildProcess} from "child_process";
+import * as child_process from "child_process";
 import {Log} from "./log";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
@@ -41,7 +41,7 @@ export class CommandExecutor {
      * {options} - additional options with which the child process needs to be spawned
      * {outputChannel} - optional object of type vscode.OutputChannel where logs need to be printed
      */
-    public spawn(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
+    public spawn(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<child_process.ChildProcess> {
         return this.spawnChildProcess(command, args, options, outputChannel).then(spawnResult => {
             let commandWithArgs = command + " " + args.join(" ");
             spawnResult.outcome.then(() => {
@@ -79,12 +79,50 @@ export class CommandExecutor {
     /**
      * Executes a react native command.
      */
-    public spawnReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
+    public spawnReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<child_process.ChildProcess> {
         let runArguments = [command];
         if (args) {
             runArguments = runArguments.concat(args);
         }
         return this.spawn(this.getReactCommandName(), runArguments, options, outputChannel);
+    }
+
+    /**
+     * Spawns the React Native packager in a child process.
+     */
+    public spawnReactPackager(args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<any> {
+        let command = this.getReactCommandName();
+        let runArguments = ["start"];
+
+        if (args) {
+            runArguments = runArguments.concat(args);
+        }
+
+        let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
+        let commandWithArgs = command + " " + runArguments.join(" ");
+
+        let spawnedProcess = child_process.spawn(command, runArguments, spawnOptions);
+        spawnedProcess.once("error", (error: any) => {
+            return Q.reject({ error: error });
+        });
+
+        spawnedProcess.stderr.on("data", (data: Buffer) => {
+            if (outputChannel) {
+                outputChannel.append(data.toString());
+            } else {
+                process.stderr.write(data);
+            }
+        });
+
+        spawnedProcess.stdout.on("data", (data: Buffer) => {
+            if (outputChannel) {
+                outputChannel.append(data.toString());
+            } else {
+                process.stdout.write(data);
+            }
+        });
+
+        return Q.resolve(spawnedProcess);
     }
 
     /**
