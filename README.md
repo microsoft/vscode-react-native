@@ -38,22 +38,10 @@ You can debug your app on an Android emulator, Android device or iOS simulator. 
 More information about debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging)
 
 ### Debugging on iOS device
-Debugging on iOS device isn't straightforward and requires following manual steps
+Debugging on iOS device would require following manual steps
 * Change the `jsCodeLocation` IP in your app using the steps detailed [here](https://facebook.github.io/react-native/docs/running-on-device-ios.html#accessing-development-server-from-device)
 * Choose **Debug iOS** configuration from the Configuration dropdown and press F5.
 * Shake the device to open development menu and select "Debug in Chrome"
-
-### Troubleshooting
-
->#### Debugger doesn't stop at breakpoints
->We use some smart tricks to enable React Native app debugging but that currently works only if packager is started by VS Code.
-Chances are that you have started the React Packager outside VS Code. To fix this, kill the packager process and try again.
-
->#### 'adb: command not found'
->If you receive an error `adb: command not found`, you need to update your path variable to include the location of your *ADB* executable.
-The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
-
-Note that there is a known issue [#5850](https://github.com/facebook/react-native/issues/5850) while running an app targeting iPhone 6
 
 ## Using React Native commands in the Command Palette
 
@@ -87,8 +75,6 @@ You can verify that you have Salsa enabled and you have an installed TypeScript 
 
 Once you have enabled IntelliSense by following the above steps, you can start typing in the code editor to see the objects, functions, and parameters of your React Native libraries and your own code.
 
-####TL;DR
-
 Here is what happens behind the scenes to enable JSX support
 
 1. The environment variable VSCODE_TSJS=1 is set to enable [Salsa](https://github.com/Microsoft/TypeScript/issues/4789)
@@ -99,8 +85,16 @@ Here is what happens behind the scenes to enable JSX support
 
 ## Known Issues
 Here is the list of known issues you may experience while using the extension
-* TODO 1
-* TODO 2
+
+>#### Debugger doesn't stop at breakpoints
+>The debugger only works if the packager is started by VS Code. Stop the packager if it is already running outside VSCode.
+
+>#### 'adb: command not found'
+>If you receive an error `adb: command not found`, you need to update your path variable to include the location of your *ADB* executable.
+The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
+
+>#### Targeting iPhone 6 doesn't work
+>There is a known issue [#5850](https://github.com/facebook/react-native/issues/5850) while running an app targeting iPhone 6
 
 ## Disable telemetry reporting
 VS Code React Native extension collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://www.visualstudio.com/en-us/dn948229) to learn more.
