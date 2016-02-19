@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as child_process from "child_process";
+import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
 import {Log, LogLevel} from "./log";
 import {Node} from "./node/node";
@@ -11,7 +11,6 @@ import {PromiseUtil} from "./node/promise";
 import {Request} from "./node/request";
 
 import * as Q from "q";
-import * as os from "os";
 import * as path from "path";
 
 export class Packager {
@@ -22,7 +21,7 @@ export class Packager {
     public static DEBUGGER_WORKER_FILENAME = Packager.DEBUGGER_WORKER_FILE_BASENAME + ".js";
 
     private projectPath: string;
-    private packagerProcess: child_process.ChildProcess;
+    private packagerProcess: ChildProcess;
     private sourcesStoragePath: string;
 
     private static JS_INJECTOR_FILENAME = "opn-main.js";
@@ -80,6 +79,7 @@ export class Packager {
 
     public stop(outputChannel?: OutputChannel): void {
         new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess, outputChannel);
+        this.packagerProcess = null;
     }
 
     public prewarmBundleCache(platform: string) {

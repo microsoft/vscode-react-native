@@ -89,9 +89,9 @@ export class CommandExecutor {
 
     /**
      * Spawns the React Native packager in a child process.
-     * TODO - The following method should be refactored into commandExecutor class
      */
-    public spawnReactPackager(args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<any> {
+    public spawnReactPackager(args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<child_process.ChildProcess> {
+        let deferred = Q.defer<child_process.ChildProcess>();
         let command = this.getReactCommandName();
         let runArguments = ["start"];
 
@@ -102,6 +102,10 @@ export class CommandExecutor {
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
 
         let result = new Node.ChildProcess().spawn(command, runArguments, spawnOptions);
+        result.spawnedProcess.once("error", (error: any) => {
+            deferred.reject({ error: error });
+        });
+
         result.stderr.on("data", (data: Buffer) => {
             if (outputChannel) {
                 outputChannel.append(data.toString());
@@ -118,7 +122,8 @@ export class CommandExecutor {
             }
         });
 
-        return Q.resolve(result.spawnedProcess);
+        Q.delay(300).then(() => deferred.resolve(result.spawnedProcess));
+        return deferred.promise;
     }
 
     /**
@@ -127,8 +132,8 @@ export class CommandExecutor {
     public killReactPackager(packagerProcess: child_process.ChildProcess, outputChannel?: OutputChannel): void {
         Log.logMessage("Stopping Packager", outputChannel);
 
-        if (process) {
-            /* To reliably, kill the child process on all versions of Windows,
+        if (packagerProcess) {
+            /* To reliably kill the child process on all versions of Windows,
              * please use taskkill to end the packager process */
             if (process.platform === "win32") {
                 new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome.then(() => {
