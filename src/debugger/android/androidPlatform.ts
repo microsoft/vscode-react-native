@@ -19,10 +19,9 @@ export class AndroidPlatform implements IAppPlatform {
 
     public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {
         let pkg = new Package(runOptions.projectRoot);
-        let packageNameResolver = new PackageNameResolver();
 
         return pkg.name()
-            .then(appName => packageNameResolver.resolvePackageName(runOptions.projectRoot, appName))
+            .then(appName => new PackageNameResolver(appName).resolvePackageName(runOptions.projectRoot))
             .then(packageName => {
                 let enableDebugCommand = `adb shell am broadcast -a "${packageName.toLowerCase()}.RELOAD_APP_ACTION" --ez jsproxy true`;
                 let cexec = new CommandExecutor(runOptions.projectRoot);

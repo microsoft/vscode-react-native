@@ -7,40 +7,31 @@ import * as path from "path";
 
 export class PackageNameResolver {
 
-    private static PackageNameRegexp: RegExp = /<(?:.|\n)*?manifest(?:.|\n)+?package\s*=\s*"(.+?)"(?:.|\n)*?>/m;
-    private static CommentsRegexp: RegExp = /(<!--.*?-->)/g;
+    private static PackageNameRegexp: RegExp = /package="(.+?)"/;
     private static ManifestName = "AndroidManifest.xml";
     private static DefaultPackagePrefix = "com.";
-    private static SourceRootRelPath: string[] = ["android", "app", "src"];
-    private static DefaultManifestLocation: string[] = PackageNameResolver.SourceRootRelPath.concat("main", PackageNameResolver.ManifestName);
+    private static SourceRootRelPath: string[] = ["android", "app", "src", "main"];
+    private static DefaultManifestLocation: string[] = PackageNameResolver.SourceRootRelPath.concat(PackageNameResolver.ManifestName);
+    private applicationName: string;
+
+    constructor(applicationName: string) {
+        this.applicationName = applicationName;
+    }
 
     /**
      * Tries to find the package name in AndroidManifest.xml. If not found, it returns the default package name,
      * which is the application name prefixed with the default prefix.
      */
-    public resolvePackageName(projectRoot: string, appName: string): Q.Promise<string> {
-        let fs = new FileSystem();
+    public resolvePackageName(projectRoot: string): Q.Promise<string> {
         let expectedAndroidManifestPath = path.join.apply(this, [projectRoot].concat(PackageNameResolver.DefaultManifestLocation));
-
-        return fs.exists(expectedAndroidManifestPath).then(exists => {
-            if (exists) {
-                return this.readPackageName(expectedAndroidManifestPath, appName);
-            } else {
-                /* search for the manifest in the source folder */
-                let androidSrcPath = path.join.apply(this, [projectRoot].concat(PackageNameResolver.SourceRootRelPath));
-                return fs.findFile(androidSrcPath, PackageNameResolver.ManifestName)
-                    .then(actualManifestPath => {
-                        return this.readPackageName(actualManifestPath, appName);
-                    });
-            }
-        });
+        return this.readPackageName(expectedAndroidManifestPath);
     }
 
     /**
      * Given a manifest file path, it parses the file and returns the package name.
      * If the package name cannot be parsed, the default packge name is returned.
      */
-    private readPackageName(manifestPath: string, applicationName: string): Q.Promise<string> {
+    private readPackageName(manifestPath: string): Q.Promise<string> {
         if (manifestPath) {
             let fs = new FileSystem();
             return fs.exists(manifestPath).then(exists => {
@@ -49,16 +40,16 @@ export class PackageNameResolver {
                         .then(manifestContent => this.parsePackageName(manifestContent))
                         .then(packageName => {
                             if (!packageName) {
-                                packageName = this.getDefaultPackageName(applicationName);
+                                packageName = this.getDefaultPackageName(this.applicationName);
                             }
                             return packageName;
                         });
                 } else {
-                    return this.getDefaultPackageName(applicationName);
+                    return this.getDefaultPackageName(this.applicationName);
                 }
             });
         } else {
-            return Q.resolve(this.getDefaultPackageName(applicationName));
+            return Q.resolve(this.getDefaultPackageName(this.applicationName));
         }
     }
 
@@ -75,8 +66,7 @@ export class PackageNameResolver {
      */
     private parsePackageName(manifestContents: string) {
         // first we remove all the comments from the file
-        let noCommentsManifest = manifestContents.replace(PackageNameResolver.CommentsRegexp, "");
-        let match = noCommentsManifest.match(PackageNameResolver.PackageNameRegexp);
+        let match = manifestContents.match(PackageNameResolver.PackageNameRegexp);
         return match ? match[1] : null;
     }
 }
