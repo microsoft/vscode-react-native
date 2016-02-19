@@ -13,7 +13,9 @@ You can debug your code, quickly run `react-native` commands from the command pa
 * Open your React Native project root directory in VS Code.
 * (Optional) [Enable IntelliSense](#enabling-intellisense) support (experimental)
 
-## Setup debug environment
+## Debugging
+
+### Setup debug environment
 
 Click the debugging icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configure gear icon ![Configure-gear](images/configure-gear-icon.png) to choose the React Native debug environment.
 
@@ -27,8 +29,7 @@ You can modify these configurations or add new ones to the list. You can use oth
 
 For example, you can modify the `target` field to specify the simulator you want to target for iOS debugging.
 
-## Debugging
-
+### Start debug session
 To start the debug session, select a configuration from the Configuration dropdown, and then click the start button ![Configure-gear](images/debug-icon.png) (or press F5).
 
 ![React Native launch targets](images/debug-targets.png)
@@ -37,7 +38,7 @@ You can debug your app on an Android emulator, Android device or iOS simulator. 
 
 More information about debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging)
 
-### Debugging on iOS device
+#### Debugging on iOS device
 Debugging on iOS device would require following manual steps
 * Change the `jsCodeLocation` IP in your app using the steps detailed [here](https://facebook.github.io/react-native/docs/running-on-device-ios.html#accessing-development-server-from-device)
 * Choose **Debug iOS** configuration from the Configuration dropdown and press F5.
