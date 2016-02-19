@@ -85,17 +85,16 @@ Here is what happens behind the scenes to enable JSX support
 5. Typings for React Native are copied into the .vscode directory.
 
 ## Known Issues
-Here is the list of known issues you may experience while using the extension
 
->#### Debugger doesn't stop at breakpoints
->The debugger only works if the packager is started by VS Code. Stop the packager if it is already running outside VSCode.
+Here is the list of common known issues you may experience while using the extension
 
->#### 'adb: command not found'
->If you receive an error `adb: command not found`, you need to update your path variable to include the location of your *ADB* executable.
-The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
+Issue                                | Description
+------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------
+Debugger doesn't stop at breakpoints | The debugger only works if the packager is started by VS Code. Stop the packager if it is already running outside VSCode.
+'adb: command not found'             | If you receive an error `adb: command not found`, you need to update your path variable to include the location of your *ADB* executable.The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
+Targeting iPhone 6 doesn't work      | There is a known issue [#5850](https://github.com/facebook/react-native/issues/5850) while running an app targeting iPhone 6
 
->#### Targeting iPhone 6 doesn't work
->There is a known issue [#5850](https://github.com/facebook/react-native/issues/5850) while running an app targeting iPhone 6
+Click [here](https://github.com/Microsoft/vscode-react-native/issues?q=is%3Aopen+is%3Aissue+label%3Apreview-known-issues) for the complete list of known issues.
 
 ## Disable telemetry reporting
 VS Code React Native extension collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://www.visualstudio.com/en-us/dn948229) to learn more.
