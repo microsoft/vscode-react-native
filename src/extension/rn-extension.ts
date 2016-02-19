@@ -25,8 +25,12 @@ export function activate(context: vscode.ExtensionContext): void {
                     if (isRNProject) {
                         reactNativeProjectHelper.validateReactNativeVersion().fail(reason => {
                             TelemetryHelper.sendSimpleEvent("launchDebuggerError", { rnVersion: reason });
-                            const message = `React Native Tools only supports React Native versions 0.19 and later: ${reason}`;
-                            vscode.window.showWarningMessage(message);
+                            const shortMessage = `React Native Tools only supports React Native versions 0.19 and later`;
+                            const longMessage = `${shortMessage}: ${reason}`;
+                            vscode.window.showWarningMessage(shortMessage);
+                            let output = vscode.window.createOutputChannel("React-Native");
+                            output.appendLine(longMessage);
+                            output.show();
                         }).done();
                         setupReactNativeDebugger();
                         IntellisenseHelper.setupReactNativeIntellisense();
