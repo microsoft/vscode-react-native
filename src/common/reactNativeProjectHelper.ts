@@ -6,7 +6,7 @@ import {Package} from "./node/package";
 
 export class ReactNativeProjectHelper {
     private workspaceRoot: string;
-    private REACT_NATIVE_NPM_LIB_NAME = "react-native";
+    private static REACT_NATIVE_NPM_LIB_NAME = "react-native";
 
     constructor(workspaceRoot: string) {
         this.workspaceRoot = workspaceRoot;
@@ -27,7 +27,7 @@ export class ReactNativeProjectHelper {
     }
 
     public validateReactNativeVersion(): Q.Promise<void> {
-        return new Package(this.workspaceRoot).dependencyPackage(this.REACT_NATIVE_NPM_LIB_NAME).version().then(version => {
+        return new Package(this.workspaceRoot).dependencyPackage(ReactNativeProjectHelper.REACT_NATIVE_NPM_LIB_NAME).version().then(version => {
             // TODO-V1: Use semver instead of all this logic
             const components = version.split(".");
             if (components.length >= 2) { // Even though react-native versions have 3 components, we only care about the first 2
