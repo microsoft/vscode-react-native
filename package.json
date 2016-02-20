@@ -113,11 +113,15 @@
         "andreweinand.node-debug"
     ],
     "dependencies": {
-        "applicationinsights": "^0.15.8",
+        "applicationinsights": "0.15.8",
+        "extract-opts": "2.2.0",
         "getmac": "1.0.7",
-        "q": "^1.4.1",
-        "winreg": "0.0.13",
-        "ws": "^1.0.1"
+        "options": "0.0.6",
+        "q": "1.4.1",
+        "typechecker": "2.0.8",
+        "ultron": "1.0.2",
+        "winreg": "0.0.16",
+        "ws": "1.0.1"
     },
     "devDependencies": {
         "vscode": "^0.10.7",
