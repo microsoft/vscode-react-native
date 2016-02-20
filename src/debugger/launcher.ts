@@ -11,7 +11,6 @@ import {PlatformResolver} from "./platformResolver";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IRunOptions} from "./launchArgs";
-import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 
 export class Launcher {
     private projectRootPath: string;

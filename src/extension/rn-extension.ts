@@ -10,7 +10,6 @@ import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./IntellisenseHelper";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/TelemetryHelper";
-import {Log} from "../common/log";
 
 const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 export function activate(context: vscode.ExtensionContext): void {
