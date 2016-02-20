@@ -9,16 +9,29 @@ import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./IntellisenseHelper";
 import {Telemetry} from "../common/telemetry";
+import {TelemetryHelper} from "../common/TelemetryHelper";
+import {Log} from "../common/log";
 
 const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 export function activate(context: vscode.ExtensionContext): void {
+    let workspaceRootPath = vscode.workspace.rootPath;
+
     // Asynchronously enable telemetry
     Telemetry.init("react-native", require("../../package.json").version, true)
         .then(() => {
-            const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
+            const reactNativeProjectHelper = new ReactNativeProjectHelper(workspaceRootPath);
             return reactNativeProjectHelper.isReactNativeProject()
                 .then(isRNProject => {
                     if (isRNProject) {
+                        reactNativeProjectHelper.validateReactNativeVersion().fail(reason => {
+                            TelemetryHelper.sendSimpleEvent("launchDebuggerError", { rnVersion: reason });
+                            const shortMessage = `React Native Tools only supports React Native versions 0.19.0 and later`;
+                            const longMessage = `${shortMessage}: ${reason}`;
+                            vscode.window.showWarningMessage(shortMessage);
+                            let output = vscode.window.createOutputChannel("React-Native");
+                            output.appendLine(longMessage);
+                            output.show();
+                        }).done();
                         setupReactNativeDebugger();
                         IntellisenseHelper.setupReactNativeIntellisense();
                         context.subscriptions.push(new ReactDirManager());

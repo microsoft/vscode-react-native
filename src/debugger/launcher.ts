@@ -3,6 +3,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import * as Q from "q";
 import {MultipleLifetimesAppWorker} from "./appWorker";
 import {Packager} from "../common/packager";
 import {Log} from "../common/log";
@@ -10,6 +11,7 @@ import {PlatformResolver} from "./platformResolver";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IRunOptions} from "./launchArgs";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 
 export class Launcher {
     private projectRootPath: string;
@@ -23,7 +25,7 @@ export class Launcher {
 
         // Enable telemetry
         Telemetry.init("react-native-debug-process", version, true).then(() => {
-            TelemetryHelper.generate("launch", (generator) => {
+            return TelemetryHelper.generate("launch", (generator) => {
                 const resolver = new PlatformResolver();
                 const runOptions = this.parseRunOptions();
                 const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
@@ -32,8 +34,11 @@ export class Launcher {
                 } else {
                     const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
                     const packager = new Packager(this.projectRootPath, sourcesStoragePath);
-                    generator.step("startPackager");
-                    return packager.start()
+                    return Q({})
+                        .then(() => {
+                            generator.step("startPackager");
+                            return packager.start();
+                        })
                         // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
                         // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                         .then(() => {
@@ -53,11 +58,14 @@ export class Launcher {
                             return mobilePlatform.enableJSDebuggingMode(runOptions);
                         });
                 }
-            }).done(() => { },
-                reason => {
-                    Log.logError("Cannot debug application.", reason);
-                });
-        });
+            });
+        }).done(
+            () => {
+                Log.logMessage("Debugging session started succesfuly.");
+            },
+            reason => {
+                Log.logError("Cannot debug application.", reason);
+            });
     }
 
     /**
