@@ -10,7 +10,8 @@
 	"theme": "dark"
     },
     "description": "Code-hinting, debugging and integrated commands for React Native",
-    "license": "MIT",
+    "bugs": "https://github.com/Microsoft/vscode-react-native/issues",
+    "license": "SEE LICENSE IN LICENSE.txt",
     "repository": {
         "type": "git",
         "url": "https://github.com/Microsoft/vscode-react-native"
