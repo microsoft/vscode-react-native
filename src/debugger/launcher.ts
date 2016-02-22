@@ -53,6 +53,11 @@ export class Launcher {
                             return new MultipleLifetimesAppWorker(sourcesStoragePath, runOptions.debugAdapterPort).start();
                         }) // Start the app worker
                         .then(() => {
+                            // We wait until a bundle is requested, that means that the app was likely just started
+                            generator.step("Wait for bundle request");
+                            return packager.waitForBundleRequest();
+                        })
+                        .then(() => {
                             generator.step("mobilePlatform.enableJSDebuggingMode");
                             return mobilePlatform.enableJSDebuggingMode(runOptions);
                         });

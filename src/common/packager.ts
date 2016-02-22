@@ -31,9 +31,38 @@ export class Packager {
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
 
+    private pendingGettingBundleRequest = Q.defer<void>();
+
     constructor(projectPath: string, sourcesStoragePath?: string) {
         this.projectPath = projectPath;
         this.sourcesStoragePath = sourcesStoragePath;
+    }
+
+    private spawnPackagerProcess(outputChannel?: OutputChannel): void {
+        let args = ["--port", Packager.PORT];
+        let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
+
+        Log.logMessage("Starting Packager", outputChannel);
+        // The packager will continue running while we debug the application, so we can"t
+        // wait for this command to finish
+
+        let spawnOptions = { env: childEnvForDebugging };
+
+        new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions, outputChannel).then((packagerProcess) => {
+            this.packagerProcess = packagerProcess;
+            // We need to wait until we get a bundle request to know when the app was started
+            packagerProcess.stdout.on('data', (data: Buffer) => {
+                /* Sample output:
+                    [5:02:20 PM] <START> request:/index.android.bundle?platform=android&dev=true&hot=false
+                    [5:02:20 PM] <END>   request:/index.android.bundle?platform=android&dev=true&hot=false (12ms)
+                */
+                const bundleRequest = /request:\/.*\.bundle\?/
+                const match = data.toString().match(bundleRequest);
+                if (match) {
+                this.pendingGettingBundleRequest.resolve(void 0);
+                }
+            });
+        });
     }
 
     public start(outputChannel?: OutputChannel): Q.Promise<void> {
@@ -41,21 +70,10 @@ export class Packager {
         this.isRunning().done(running => {
             if (!running) {
                 return this.monkeyPatchOpnForRNPackager()
-                    .then(() => {
-                        let args = ["--port", Packager.PORT];
-                        let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
-
-                        Log.logMessage("Starting Packager", outputChannel);
-                        // The packager will continue running while we debug the application, so we can"t
-                        // wait for this command to finish
-
-                        let spawnOptions = { env: childEnvForDebugging };
-
-                        new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions, outputChannel).then((packagerProcess) => {
-                            this.packagerProcess = packagerProcess;
-                            executedStartPackagerCmd = true;
-                        });
-                    }).done();
+                .then(() => {
+                    executedStartPackagerCmd = true;
+                    this.spawnPackagerProcess(outputChannel);
+                }).done();
             }
         });
 
@@ -163,5 +181,9 @@ export class Packager {
                         });
                 }
             });
+    }
+
+    public waitForBundleRequest() {
+        return this.pendingGettingBundleRequest.promise;
     }
 }
