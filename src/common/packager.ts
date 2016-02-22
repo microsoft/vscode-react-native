@@ -37,6 +37,7 @@ export class Packager {
     }
 
     public start(outputChannel?: OutputChannel): Q.Promise<void> {
+        let executedStartPackagerCmd = false;
         this.isRunning().done(running => {
             if (!running) {
                 return this.monkeyPatchOpnForRNPackager()
@@ -50,13 +51,24 @@ export class Packager {
 
                         let spawnOptions = { env: childEnvForDebugging };
 
-                        this.packagerProcess = new CommandExecutor(this.projectPath).spawnReactCommand("start", args, spawnOptions, outputChannel);
+                        new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions, outputChannel).then((packagerProcess) => {
+                            this.packagerProcess = packagerProcess;
+                            executedStartPackagerCmd = true;
+                        });
                     }).done();
             }
         });
 
         return this.awaitStart().then(() => {
-            Log.logMessage("Packager started.", outputChannel);
+            if (executedStartPackagerCmd) {
+                Log.logMessage("Packager started.", outputChannel);
+            } else {
+                Log.logMessage("Packager is already running.", outputChannel);
+                if (!outputChannel) {
+                    Log.logMessage("Warning: Debugging is not supported if the React Native Packager is not started within VS Code. If debugging fails, please kill other active React Native packager processes and retry.", outputChannel);
+                }
+            }
+
             if (this.sourcesStoragePath) {
                 return this.downloadDebuggerWorker().then(() => {
                     Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
@@ -66,15 +78,8 @@ export class Packager {
     }
 
     public stop(outputChannel?: OutputChannel): void {
-        Log.logMessage("Stopping Packager", outputChannel);
-
-        if (this.packagerProcess) {
-            this.packagerProcess.kill();
-            this.packagerProcess = null;
-            Log.logMessage("Packager stopped", outputChannel);
-        } else {
-            Log.logMessage("Packager not found", outputChannel);
-        }
+        new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess, outputChannel);
+        this.packagerProcess = null;
     }
 
     public prewarmBundleCache(platform: string) {

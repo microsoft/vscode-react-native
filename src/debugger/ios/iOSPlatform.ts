@@ -59,7 +59,6 @@ export class IOSPlatform implements IAppPlatform {
             return deferred.promise;
         }
 
-        // TODO: This is currently a stub, device debugging is not yet implemented
         return new Compiler(this.projectPath).compile().then(() => {
             return new DeviceDeployer(this.projectPath).deploy();
         }).then(() => {

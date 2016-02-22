@@ -7,25 +7,35 @@ import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
+import {IntellisenseHelper} from "./IntellisenseHelper";
 import {Telemetry} from "../common/telemetry";
-import {TelemetryHelper} from "../common/telemetryHelper";
-import {TsConfigHelper} from "./tsconfigHelper";
+import {TelemetryHelper} from "../common/TelemetryHelper";
 
+const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 export function activate(context: vscode.ExtensionContext): void {
+    let workspaceRootPath = vscode.workspace.rootPath;
+
     // Asynchronously enable telemetry
     Telemetry.init("react-native", require("../../package.json").version, true)
         .then(() => {
-            const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
+            const reactNativeProjectHelper = new ReactNativeProjectHelper(workspaceRootPath);
             return reactNativeProjectHelper.isReactNativeProject()
                 .then(isRNProject => {
                     if (isRNProject) {
+                        reactNativeProjectHelper.validateReactNativeVersion().fail(reason => {
+                            TelemetryHelper.sendSimpleEvent("launchDebuggerError", { rnVersion: reason });
+                            const shortMessage = `React Native Tools only supports React Native versions 0.19.0 and later`;
+                            const longMessage = `${shortMessage}: ${reason}`;
+                            vscode.window.showWarningMessage(shortMessage);
+                            let output = vscode.window.createOutputChannel("React-Native");
+                            output.appendLine(longMessage);
+                            output.show();
+                        }).done();
                         setupReactNativeDebugger();
-                        setupReactNativeIntellisense();
+                        IntellisenseHelper.setupReactNativeIntellisense();
                         context.subscriptions.push(new ReactDirManager());
                     }
                 }).then(() => {
-                    const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
-
                     // Register React Native commands
                     context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
                         () => commandPaletteHandler.runAndroid()));
@@ -41,6 +51,11 @@ export function activate(context: vscode.ExtensionContext): void {
                     fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath })).done();
                 });
         }).done();
+}
+
+export function deactivate(): void {
+    // Kill any packager processes that we spawned
+    commandPaletteHandler.stopPackager();
 }
 
 /**
@@ -73,27 +88,4 @@ try {
         .catch((err: Error) => {
             vscode.window.showErrorMessage(err.message);
         });
-}
-
-function setupReactNativeIntellisense(): void {
-    // Telemetry - Send Salsa Environment setup information
-    let tsSalsaEnvSetup = TelemetryHelper.createTelemetryEvent("RNIntellisense");
-    TelemetryHelper.addTelemetryEventProperty(tsSalsaEnvSetup, "TsSalsaEnvSetup", !!process.env.VSCODE_TSJS, false);
-    Telemetry.send(tsSalsaEnvSetup);
-
-    if (!process.env.VSCODE_TSJS) {
-        return;
-    }
-
-    TsConfigHelper.allowJs(true)
-        .then(function() {
-            return TsConfigHelper.addExcludePaths(["node_modules"]);
-        })
-        .done();
-
-    const reactTypingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
-    const reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
-    const fileSystem = new FileSystem();
-
-    fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest).done();
 }

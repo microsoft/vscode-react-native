@@ -1,10 +1,15 @@
 {
     "name": "vscode-react-native",
-    "displayName": "vscode-react-native",
-    "version": "0.0.1",
+    "displayName": "React Native Tools (Preview)",
+    "version": "0.1.0",
     "private": true,
-    "publisher": "Microsoft",
-    "description": "VS Code Extension for React Native applications",
+    "publisher": "vsmobile",
+    "icon": "images/icon.svg",
+    "galleryBanner": {
+        "color": "#3B3738",
+	"theme": "dark"
+    },
+    "description": "Code-hinting, debugging and integrated commands for React Native",
     "license": "MIT",
     "repository": {
         "type": "git",
@@ -108,16 +113,20 @@
         "andreweinand.node-debug"
     ],
     "dependencies": {
-        "applicationinsights": "^0.15.8",
+        "applicationinsights": "0.15.8",
+        "extract-opts": "2.2.0",
         "getmac": "1.0.7",
-        "q": "^1.4.1",
-        "winreg": "0.0.13",
-        "ws": "^1.0.1"
+        "options": "0.0.6",
+        "q": "1.4.1",
+        "typechecker": "2.0.8",
+        "ultron": "1.0.2",
+        "winreg": "0.0.16",
+        "ws": "1.0.1"
     },
     "devDependencies": {
         "vscode": "^0.10.7",
         "typescript": "^1.7.5",
-        "vsce": "^1.0.0",
+        "vsce": "1.0.0",
         "run-sequence": "^1.1.5",
         "gulp": "^3.9.0",
         "gulp-mocha": "^2.1.3",

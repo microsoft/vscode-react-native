@@ -9,6 +9,8 @@ import {PlistBuddy} from "./plistBuddy";
 import {Node} from "../../common/node/node";
 import {Log} from "../../common/log";
 
+import {TelemetryHelper} from "../../common/telemetryHelper";
+
 export class SimulatorPlist {
     private projectRoot: string;
 
@@ -32,6 +34,7 @@ export class SimulatorPlist {
                     if (plistCandidates.length === 0) {
                         throw new Error(`Unable to find plist file for ${bundleId}`);
                     } else if (plistCandidates.length > 1) {
+                        TelemetryHelper.sendSimpleEvent("multipleDebugPlistFound");
                         Log.logMessage("Warning: Multiple plist candidates found. Application may not be in debug mode");
                     }
 

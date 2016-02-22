@@ -6,6 +6,7 @@ import {IAppPlatform} from "../platformResolver";
 import {IRunOptions} from "../launchArgs";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {Package} from "../../common/node/package";
+import {PackageNameResolver} from "../../common/android/packageNameResolver";
 
 /**
  * Android specific platform implementation for debugging RN applications.
@@ -18,9 +19,11 @@ export class AndroidPlatform implements IAppPlatform {
 
     public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {
         let pkg = new Package(runOptions.projectRoot);
+
         return pkg.name()
-            .then(name => {
-                let enableDebugCommand = `adb shell am broadcast -a "com.${name.toLowerCase()}.RELOAD_APP_ACTION" --ez jsproxy true`;
+            .then(appName => new PackageNameResolver(appName).resolvePackageName(runOptions.projectRoot))
+            .then(packageName => {
+                let enableDebugCommand = `adb shell am broadcast -a "${packageName.toLowerCase()}.RELOAD_APP_ACTION" --ez jsproxy true`;
                 let cexec = new CommandExecutor(runOptions.projectRoot);
                 return cexec.execute(enableDebugCommand);
             });
