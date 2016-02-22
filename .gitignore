@@ -6,6 +6,7 @@ out/
 test/SampleApplication/.vscode/.react/debuggerWorker.js
 test/SampleApplication/.vscode/.react/index.android.bundle
 test/SampleApplication/.vscode/.react/index.android.map
+test/SampleApplication/.vscode/.react/.vscode/launchReactNative.js
 test/SampleApplication/android/
 test/SampleApplication/ios/
 test/SampleApplication/.flowconfig
