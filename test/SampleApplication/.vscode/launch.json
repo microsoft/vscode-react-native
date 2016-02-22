@@ -7,10 +7,9 @@
 			"type": "reactnative",
 			"request": "launch",
 			"platform": "android",
-            "runtimeArgs": [ "--nolazy" ],
-            "cwd": "${workspaceRoot}",
+			"internalDebuggerPort": 9090,
 			"sourceMaps": true,
-			"outDir": "${workspaceRoot}/.vscode/"
+			"outDir": "${workspaceRoot}/.vscode/.react"
 		},
 		{
 			"name": "Debug iOS",
@@ -18,11 +17,10 @@
 			"type": "reactnative",
 			"request": "launch",
 			"platform": "ios",
-            "target": "iPhone 5s",
-            "runtimeArgs": [ "--nolazy" ],
-            "cwd": "${workspaceRoot}",
+			"target": "iPhone 5s",
+			"internalDebuggerPort": 9090,
 			"sourceMaps": true,
-			"outDir": "${workspaceRoot}/.vscode/.react/"
+			"outDir": "${workspaceRoot}/.vscode/.react"
 		}
 	]
 }

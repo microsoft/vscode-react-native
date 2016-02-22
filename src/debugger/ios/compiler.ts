@@ -16,7 +16,7 @@ export class Compiler {
 
     public compile(): Q.Promise<void> {
         return this.xcodeBuildArguments().then((xcodeArguments: string[]) => {
-            return new CommandExecutor(this.projectRoot).spawnAndWaitForCompletion("xcodebuild", xcodeArguments).then(() => {});
+            return new CommandExecutor(this.projectRoot).spawnAndWaitForCompletion("xcodebuild", xcodeArguments);
         });
     }
 

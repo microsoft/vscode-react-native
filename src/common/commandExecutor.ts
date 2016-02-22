@@ -53,7 +53,7 @@ export class CommandExecutor {
      * {options} - additional options with which the child process needs to be spawned
      * {outputChannel} - optional object of type vscode.OutputChannel where logs need to be printed
      */
-    public spawnAndWaitForCompletion(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<number> {
+    public spawnAndWaitForCompletion(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<void> {
         return this.spawnChildProcess(command, args, options, outputChannel).outcome;
     }
 
@@ -131,7 +131,7 @@ export class CommandExecutor {
     /**
      * Executes a react native command and waits for its completion.
      */
-    public spawnAndWaitReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<number> {
+    public spawnAndWaitReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<void> {
         return this.spawnChildReactCommandProcess(command, args, options, outputChannel).outcome;
     }
 

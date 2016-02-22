@@ -14,7 +14,7 @@ import {PackageNameResolver} from "../../common/android/packageNameResolver";
 export class AndroidPlatform implements IAppPlatform {
 
     public runApp(runOptions: IRunOptions): Q.Promise<void> {
-        return new CommandExecutor(runOptions.projectRoot).spawnAndWaitReactCommand("run-android").then(() => {});
+        return new CommandExecutor(runOptions.projectRoot).spawnAndWaitReactCommand("run-android");
     }
 
     public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {
