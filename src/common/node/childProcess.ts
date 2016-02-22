@@ -11,10 +11,10 @@ export interface IExecResult {
 
 export interface ISpawnResult {
     spawnedProcess: child_process.ChildProcess;
-    stdin: any;
-    stdout: any;
-    stderr: any;
-    outcome: Q.Promise<number>;
+    stdin: NodeJS.WritableStream;
+    stdout: NodeJS.ReadableStream;
+    stderr: NodeJS.ReadableStream;
+    outcome: Q.Promise<void>;
 }
 
 interface IExecOptions {
@@ -54,7 +54,7 @@ export class ChildProcess {
     }
 
     public spawnWithExitHandler(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
-        let outcome = Q.defer<number>();
+        let outcome = Q.defer<void>();
 
         let spawnedProcess = child_process.spawn(command, args, options);
         spawnedProcess.once("error", (error: any) => {
@@ -62,7 +62,7 @@ export class ChildProcess {
         });
         spawnedProcess.once("exit", (code: number) => {
             if (code === 0) {
-                outcome.resolve(code);
+                outcome.resolve(void 0);
             } else {
                 outcome.reject({error: code});
             }
@@ -77,7 +77,7 @@ export class ChildProcess {
     }
 
     public spawn(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
-        let outcome = Q.defer<number>();
+        let outcome = Q.defer<void>();
         let spawnedProcess = child_process.spawn(command, args, options);
         spawnedProcess.once("error", (error: any) => {
             outcome.reject({ error: error });
