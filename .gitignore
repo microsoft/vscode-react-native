@@ -2,7 +2,7 @@
 node_modules/
 out/
 
-# Sample Application
+# Sample Application auto-generated files
 test/SampleApplication/.vscode/.react/debuggerWorker.js
 test/SampleApplication/.vscode/.react/index.android.bundle
 test/SampleApplication/.vscode/.react/index.android.map
@@ -12,3 +12,7 @@ test/SampleApplication/ios/
 test/SampleApplication/.flowconfig
 test/SampleApplication/.gitignore
 test/SampleApplication/.watchmanconfig
+test/SampleApplication/.vscode/launchReactNative.js
+test/SampleApplication/.vscode/settings.json
+test/SampleApplication/tsconfig.json
+test/SampleApplication/.vscode/typings/
