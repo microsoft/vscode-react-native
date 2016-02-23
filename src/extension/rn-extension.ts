@@ -10,6 +10,7 @@ import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./IntellisenseHelper";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/TelemetryHelper";
+import {ExtensionServer} from "./extensionServer";
 
 const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 export function activate(context: vscode.ExtensionContext): void {
@@ -49,6 +50,10 @@ export function activate(context: vscode.ExtensionContext): void {
                     const nodeDebugPath = vscode.extensions.getExtension("andreweinand.node-debug").extensionPath;
                     const fsUtil = new FileSystem();
                     fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath })).done();
+                }).then(() => {
+                    let server = new ExtensionServer();
+                    server.setup();
+                    context.subscriptions.push(server);
                 });
         }).done();
 }
