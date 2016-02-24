@@ -1,8 +1,8 @@
 !ReactTypings/**
 !js-patched/**
 .vscode/**/*
+.vscode-test/**/*
 .gitignore
 src/**
 out/tests/**
 **/*.js.map
-test/**
