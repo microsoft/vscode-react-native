@@ -101,7 +101,9 @@
                 "--extensionTestsPath=${workspaceRoot}/out/test"
             ],
             "stopOnEntry": false,
-            "sourceMaps": true
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/out",
+            "preLaunchTask": "build"
         }
     ]
 }
