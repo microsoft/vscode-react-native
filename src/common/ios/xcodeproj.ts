@@ -16,7 +16,7 @@ export class Xcodeproj {
             .then((projectFiles: string[]) => {
                 if (projectFiles.length > 1) {
                     TelemetryHelper.sendSimpleEvent("multipleXcodeprojFound");
-                    Log.logError(`Warning: more than one xcodeproj found. Using ${projectFiles[0]}`);
+                    Log.logWarning(`Warning: more than one xcodeproj found. Using ${projectFiles[0]}`);
                 }
                 return projectFiles[0];
             });

@@ -33,10 +33,6 @@ export class Log {
         Log.logMessage(`Finished executing: ${command}\n`, outputChannel);
     }
 
-    public static commandFailed(command: string, error: any, outputChannel?: OutputChannel) {
-        Log.logError(`Error while executing: ${command}`, error, outputChannel);
-    }
-
     /**
      * Logs an internal message for when someone is debugging the extension itself.
      * Customers aren't interested in these messages, so we normally shouldn't show
@@ -46,6 +42,14 @@ export class Log {
         if (this.extensionLogLevel() >= logLevel) {
             this.logMessage(`[Internal-${logLevel}] ${message}`);
         }
+    }
+
+    /**
+     * Logs a warning message to the console.
+     */
+    public static logWarning(message: string, error?: any, outputChannel?: OutputChannel, logStack = true) {
+        // TODO: Refactor this code and create a better implementation
+        this.logError(`WARNING: ${message}`, error, outputChannel, logStack);
     }
 
     /**

@@ -32,7 +32,7 @@ interface RNAppMessage {
 }
 
 function printDebuggingFatalError(message: string, reason: any) {
-    Log.logError(`${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`, reason);
+    Log.logWarning(`${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`, reason);
 }
 
 export class SandboxedAppWorker {
@@ -137,7 +137,9 @@ export class SandboxedAppWorker {
     private gotResponseFromDebuggerWorker(object: any): void {
         // We might need to hold the response until a script is imported. See comments on this.importScripts()
         this.pendingScriptImport.done(() =>
-            this.postReplyToApp(object));
+            this.postReplyToApp(object), reason => {
+                printDebuggingFatalError(`Unexpected internal error while processing a message from the RN App.`, reason);
+            });
     }
 }
 
