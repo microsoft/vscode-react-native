@@ -80,7 +80,7 @@ function registerVSCodeCommand(
         `reactNative.${commandName}`,
         () =>
             entryPoint.runCode(
-                `commandPalette.${commandName}`, `Failed to execute command ${commandName}`,
+                `commandPalette.${commandName}`, errorDescription,
                 commandHandler, /*areErrorsFatal*/ false)));
 }
 

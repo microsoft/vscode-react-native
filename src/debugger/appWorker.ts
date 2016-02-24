@@ -31,7 +31,7 @@ interface RNAppMessage {
     // These objects have also other properties but that we don't currently use
 }
 
-function printDebuggingFatalError(message: string, reason: any) {
+function printDebuggingError(message: string, reason: any) {
     Log.logWarning(`${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`, reason);
 }
 
@@ -130,7 +130,7 @@ export class SandboxedAppWorker {
                 // Now we let the reply to the app proceed
                 defer.resolve({});
             }, reason => {
-                printDebuggingFatalError(`Couldn't import script at <${url}>`, reason);
+                printDebuggingError(`Couldn't import script at <${url}>`, reason);
             });
     }
 
@@ -138,7 +138,7 @@ export class SandboxedAppWorker {
         // We might need to hold the response until a script is imported. See comments on this.importScripts()
         this.pendingScriptImport.done(() =>
             this.postReplyToApp(object), reason => {
-                printDebuggingFatalError(`Unexpected internal error while processing a message from the RN App.`, reason);
+                printDebuggingError("Unexpected internal error while processing a message from the RN App.", reason);
             });
     }
 }
@@ -178,7 +178,7 @@ export class MultipleLifetimesAppWorker {
         socketToApp.on("message",
             (message: any) => this.onMessage(message));
         socketToApp.on("error",
-            (error: Error) => printDebuggingFatalError("An error ocurred while using the socket to communicate with the React Native app", error));
+            (error: Error) => printDebuggingError("An error ocurred while using the socket to communicate with the React Native app", error));
         return socketToApp;
     }
 
@@ -211,7 +211,7 @@ export class MultipleLifetimesAppWorker {
                 Log.logInternalMessage(LogLevel.Info, "The react-native app sent a message without specifying a method: " + message);
             }
         } catch (exception) {
-            printDebuggingFatalError(`Failed to process message from the React Native app. Message:\n${message}`, exception);
+            printDebuggingError(`Failed to process message from the React Native app. Message:\n${message}`, exception);
         }
     }
 
@@ -228,7 +228,7 @@ export class MultipleLifetimesAppWorker {
             this.socketToApp.send(stringified);
         } catch (exception) {
             let messageToShow = stringified || ("" + message); // Try to show the stringified version, but show the toString if unavailable
-            printDebuggingFatalError(`Failed to send message to the React Native app. Message:\n${messageToShow}`, exception);
+            printDebuggingError(`Failed to send message to the React Native app. Message:\n${messageToShow}`, exception);
         }
     }
 }

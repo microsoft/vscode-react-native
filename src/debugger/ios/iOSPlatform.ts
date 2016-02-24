@@ -45,7 +45,10 @@ export class IOSPlatform implements IAppPlatform {
                 }
             });
 
-            return Q.all<void>([deferred.promise, runIosSpawn.outcome.then(() => deferred.resolve(void 0))]).then(() => {});
+            return runIosSpawn.outcome.then(() => {
+                deferred.resolve(void 0); // We resolve deferred when the process ends, in case it wasn't already rejected
+                return deferred.promise; // We return the promise. If an error was detected on stderr, this will be a rejection
+            });
         }
 
         return new Compiler(this.projectPath).compile().then(() => {
