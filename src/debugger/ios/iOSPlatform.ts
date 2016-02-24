@@ -86,18 +86,17 @@ export class IOSPlatform implements IAppPlatform {
         ]).spread((debugModeSetting: string, bundleId: string) => {
             if (debugModeSetting !== IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME) {
                 // Debugging must still be enabled
-                const commandExecutor = new CommandExecutor();
                 const childProcess = new ChildProcess();
-                const launchAppString = `xcrun simctl launch booted ${bundleId}`;
-                // simctl launch returns the process ID of the app in the simulator
-                return childProcess.exec(launchAppString).outcome.then((buffer: Buffer) => {
-                    // Kill the simulated app
-                    const pidMatch = buffer.toString().match(/: ([0-9]+)/);
-                    const pid = pidMatch[1];
-                    return commandExecutor.execute(`kill ${pid} # Restarting app`);
-                }).then(() => {
-                    // Give the process some time to exit
-                    return Q.delay(1000);
+
+                return childProcess.exec("xcrun simctl spawn booted launchctl list").outcome.then((buffer: Buffer) => {
+                    // Try to find an entry that looks like UIKitApplication:com.example.myApp[0x4f37]
+                    const regex = new RegExp(`(\\S+${bundleId}\\S+)`);
+                    const match = regex.exec(buffer.toString());
+
+                    // If we don't find a match, the app must not be running and so we do not need to close it
+                    if (match) {
+                        return childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`);
+                    }
                 }).then(() => {
                     // Write to the settings file while the app is not running to avoid races
                     return iosDebugModeManager.setSimulatorJSDebuggingModeSetting(/*enable=*/ true);
