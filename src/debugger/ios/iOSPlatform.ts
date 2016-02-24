@@ -86,6 +86,9 @@ export class IOSPlatform implements IAppPlatform {
         ]).spread((debugModeSetting: string, bundleId: string) => {
             if (debugModeSetting !== IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME) {
                 // Debugging must still be enabled
+                // We enable debugging by writing to a plist file that backs a NSUserDefaults object,
+                // but that file is written to by the app on occasion. To avoid races, we shut the app
+                // down before writing to the file.
                 const childProcess = new ChildProcess();
 
                 return childProcess.exec("xcrun simctl spawn booted launchctl list").outcome.then((buffer: Buffer) => {
