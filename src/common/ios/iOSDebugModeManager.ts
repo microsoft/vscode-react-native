@@ -8,6 +8,7 @@ import {PlistBuddy} from "./plistBuddy";
 import {SimulatorPlist} from "./simulatorPlist";
 
 export class IOSDebugModeManager {
+    public static WEBSOCKET_EXECUTOR_NAME = "RCTWebSocketExecutor";
     private static EXECUTOR_CLASS_SETTING_NAME = ":RCTDevMenu:executorClass";
     private static MAX_RETRIES = 5;
     private static DELAY_UNTIL_RETRY = 2000;
@@ -25,25 +26,27 @@ export class IOSDebugModeManager {
 
         // Find the plistFile with the configuration setting
         // There is a race here between us checking for the plist file, and the application starting up.
-        return this.findPListFile(enable)
+        return this.findPListFile()
             .then((plistFile: string) => {
                 // Set the executorClass to be RCTWebSocketExecutor so on the next startup it will default into debug mode
                 // This is approximately equivalent to clicking the "Debug in Chrome" button
                 return enable
-                    ? plistBuddy.setPlistProperty(plistFile, IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME, "RCTWebSocketExecutor")
+                    ? plistBuddy.setPlistProperty(plistFile, IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME, IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME)
                     : plistBuddy.deletePlistProperty(plistFile, IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME);
             });
     }
 
-    private tryOneAttemptToFindPListFile() {
-        return this.simulatorPlist.findPlistFile().catch((): string => null);
+    public getSimulatorJSDebuggingModeSetting(): Q.Promise<string> {
+        return this.findPListFile().then((plistFile: string) => {
+            // Attempt to read from the file, but if the property is not defined then return the empty string
+            return new PlistBuddy().readPlistProperty(plistFile, IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME)
+                .catch(() => "");
+        });
     }
 
-    private findPListFile(enable: boolean): Q.Promise<string> {
+    public findPListFile(): Q.Promise<string> {
         const pu = new PromiseUtil();
-        const actionText = enable ? "enable" : "disable";
-
-        const failureString = `Unable to find plist file to ${actionText} debugging`;
+        const failureString = `Unable to find plist file to configure debugging`;
 
         return pu.retryAsync(
             () =>
@@ -53,5 +56,9 @@ export class IOSDebugModeManager {
             IOSDebugModeManager.MAX_RETRIES,
             IOSDebugModeManager.DELAY_UNTIL_RETRY,
             failureString); // Error to show in case all retries fail
+    }
+
+    private tryOneAttemptToFindPListFile() {
+        return this.simulatorPlist.findPlistFile().catch((): string => null);
     }
 }

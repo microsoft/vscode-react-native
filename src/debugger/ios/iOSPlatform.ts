@@ -4,6 +4,7 @@
 import * as Q from "q";
 
 import {Log} from "../../common/log";
+import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {IAppPlatform} from "../platformResolver";
 import {Compiler} from "./compiler";
@@ -76,13 +77,36 @@ export class IOSPlatform implements IAppPlatform {
             return Q.resolve<void>(void 0);
         }
 
-        return new IOSDebugModeManager(this.projectPath).setSimulatorJSDebuggingModeSetting(/*enable=*/ true)
-            .then(() => {
-                return this.plistBuddy.getBundleId(launchArgs.projectRoot);
-            }).then((bundleId: string) => {
-                // Relaunch the app so the new setting can take effect
-                return new CommandExecutor().execute(`xcrun simctl launch booted ${bundleId}`);
-            });
+        const iosDebugModeManager = new IOSDebugModeManager(this.projectPath);
+
+        // Wait until the configuration file exists, and check to see if debugging is enabled
+        return Q.all([
+            iosDebugModeManager.getSimulatorJSDebuggingModeSetting(),
+            this.plistBuddy.getBundleId(launchArgs.projectRoot)
+        ]).spread((debugModeSetting: string, bundleId: string) => {
+            if (debugModeSetting !== IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME) {
+                // Debugging must still be enabled
+                const commandExecutor = new CommandExecutor();
+                const childProcess = new ChildProcess();
+                const launchAppString = `xcrun simctl launch booted ${bundleId}`;
+                // simctl launch returns the process ID of the app in the simulator
+                return childProcess.exec(launchAppString).outcome.then((buffer: Buffer) => {
+                    // Kill the simulated app
+                    const pidMatch = buffer.toString().match(/: ([0-9]+)/);
+                    const pid = pidMatch[1];
+                    return commandExecutor.execute(`kill ${pid} # Restarting app`);
+                }).then(() => {
+                    // Give the process some time to exit
+                    return Q.delay(1000);
+                }).then(() => {
+                    // Write to the settings file while the app is not running to avoid races
+                    return iosDebugModeManager.setSimulatorJSDebuggingModeSetting(/*enable=*/ true);
+                }).then(() => {
+                    // Relaunch the app
+                    return this.runApp(launchArgs);
+                });
+            }
+        });
     }
 
     private consumeArguments(launchArgs: IRunOptions): void {
