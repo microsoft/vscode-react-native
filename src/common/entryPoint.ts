@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+
 import {TelemetryHelper} from "../common/TelemetryHelper";
 import {Telemetry} from "../common/Telemetry";
 import {Log} from "../common/Log";

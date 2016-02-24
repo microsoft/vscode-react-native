@@ -108,18 +108,15 @@ export class CommandExecutor {
         if (packagerProcess) {
             /* To reliably kill the child process on all versions of Windows,
              * please use taskkill to end the packager process */
-            let waitForKill: Q.Promise<void>;
             if (process.platform === "win32") {
-                waitForKill = new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome.then(() => {
+                return new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome.then(() => {
                     Log.logMessage("Packager stopped", outputChannel);
                 });
             } else {
-                waitForKill = Q.resolve<void>(void 0);
                 packagerProcess.kill();
                 Log.logMessage("Packager stopped", outputChannel);
+                return Q.resolve<void>(void 0);
             }
-
-            return waitForKill.then(() => packagerProcess = null);
         } else {
             Log.logMessage("Packager not found", outputChannel);
             return Q.resolve<void>(void 0);

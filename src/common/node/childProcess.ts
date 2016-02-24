@@ -70,7 +70,7 @@ export class ChildProcess {
             if (code === 0) {
                 outcome.resolve(void 0);
             } else {
-                outcome.reject(code);
+                outcome.reject(new Error(`Command ${command} failed with error code ${code}`));
             }
         });
 
