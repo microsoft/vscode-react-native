@@ -8,6 +8,12 @@ sudo: false
 os:
   - osx
 
+before_install:
+  - if [ $TRAVIS_OS_NAME == "darwin" ]; then
+      git clone https://github.com/creationix/nvm.git /tmp/.nvm;
+      source /tmp/.nvm/nvm.sh;
+    fi
+
 install:
   - npm install
   - npm run vscode:prepublish
