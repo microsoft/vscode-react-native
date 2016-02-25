@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {TelemetryHelper} from "../common/TelemetryHelper";
-import {Telemetry} from "../common/Telemetry";
+import {TelemetryHelper} from "../common/telemetryHelper";
+import {Telemetry} from "../common/telemetry";
 import {Log} from "../common/Log";
 import {OutputChannel} from "vscode";
 
@@ -37,7 +37,7 @@ export class EntryPoint {
         try { // try-catch for sync errors in init telemetry
             return this.handleErrors(telemetryErrorDescription, // handleErrors for async errors in init telemetry
                 Telemetry.init("react-native", getAppVersion(), true).then(() =>
-                // After telemetry is initialized, we run the code. Errors in this main path are fatal so we rethrow them
+                    // After telemetry is initialized, we run the code. Errors in this main path are fatal so we rethrow them
                     this.runCode(appName, errorDescription, codeToRun, /*areErrorsFatal*/ true)), /*areErrorsFatal*/ true);
         } catch (error) {
             Log.logError(telemetryErrorDescription, error, this.outputChannel, /*logStack*/ false); // Print the error and re-throw the exception
@@ -46,10 +46,22 @@ export class EntryPoint {
     }
 
     private handleErrors(errorDescription: string, codeToRun: Q.Promise<void>, areErrorsFatal: boolean): void {
+        const isDebugeedProcess = !this.outputChannel;
         codeToRun.done(() => { }, reason => {
-            Log.logError(errorDescription, reason, this.outputChannel, /*logStack*/ !areErrorsFatal);
+            const shouldLogStack = !areErrorsFatal || isDebugeedProcess;
+            Log.logError(errorDescription, reason, this.outputChannel, /*logStack*/ shouldLogStack);
             if (areErrorsFatal) {
-              throw reason;
+                /* The process is likely going to exit if errors are fatal, so we first
+                send the telemetry, and then we exit or rethrow the exception */
+                Telemetry.sendPendingData().finally(() => {
+                    if (isDebugeedProcess) {
+                        /* HACK: For the debugee process we don't want to throw an exception because the debugger
+                                 will appear to the user if he turned on the VS Code uncaught exceptions feature. */
+                        process.exit(1);
+                    } else {
+                        throw reason;
+                    }
+                });
             }
         });
     }
