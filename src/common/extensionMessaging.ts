@@ -7,7 +7,7 @@ import * as http from "http";
 /**
  * Message server parameters.
  */
-export let ServerParams = {
+export let ServerDefaultParams = {
     PORT: 8099,
     HOST: "127.0.0.1"
 };
@@ -22,25 +22,17 @@ export enum ExtensionIncomingMessage {
 }
 
 /**
- * Generic interface for messages with arguments.
- */
-export interface MessageWithArgs<T> {
-    message: T;
-    args?: any[];
-}
-
-/**
  * Sends messages to the extension.
  */
 export class ExtensionMessageSender {
 
-    public sendMessage(message: MessageWithArgs<ExtensionIncomingMessage>): Q.Promise<any> {
+    public sendMessage(message: ExtensionIncomingMessage, args?: any, port?: number): Q.Promise<any> {
         let deferred = Q.defer<any>();
 
         let options = {
-            host: ServerParams.HOST,
-            port: ServerParams.PORT,
-            path: "/",
+            host: ServerDefaultParams.HOST,
+            port: port || ServerDefaultParams.PORT,
+            path: "/" + ExtensionIncomingMessage[message],
             method: "POST",
             headers: { "Content-Type": "application/json" }
         };
@@ -60,7 +52,7 @@ export class ExtensionMessageSender {
         };
 
         let postRequest = http.request(options, responseCallback);
-        postRequest.write(JSON.stringify(message));
+        postRequest.write(JSON.stringify(args));
         postRequest.end();
 
         return deferred.promise;

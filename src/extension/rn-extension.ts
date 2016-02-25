@@ -52,8 +52,14 @@ export function activate(context: vscode.ExtensionContext): void {
                     fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath })).done();
                 }).then(() => {
                     let server = new ExtensionServer();
-                    server.setup();
-                    context.subscriptions.push(server);
+                    return server.setup()
+                        .then(() => {
+                            context.subscriptions.push(server);
+                        })
+                        .fail(reason => {
+                            // TODO @digeff - update error reporting call
+                            vscode.window.showErrorMessage("Could not start the react-native extension server. Please check your launch.json configuration and try to change the port.");
+                        });
                 });
         }).done();
 }

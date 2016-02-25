@@ -7,7 +7,7 @@
     "icon": "images/icon.svg",
     "galleryBanner": {
         "color": "#3B3738",
-	"theme": "dark"
+        "theme": "dark"
     },
     "description": "Code-hinting, debugging and integrated commands for React Native",
     "bugs": "https://github.com/Microsoft/vscode-react-native/issues",
@@ -60,6 +60,7 @@
                         "request": "launch",
                         "platform": "android",
                         "internalDebuggerPort": 9090,
+                        "extensionServerPort": 8099,
                         "sourceMaps": true,
                         "outDir": "${workspaceRoot}/.vscode/.react"
                     },
@@ -71,6 +72,7 @@
                         "platform": "ios",
                         "target": "iPhone 5s",
                         "internalDebuggerPort": 9090,
+                        "extensionServerPort": 8099,
                         "sourceMaps": true,
                         "outDir": "${workspaceRoot}/.vscode/.react"
                     }
@@ -98,6 +100,11 @@
                                 "type": "number",
                                 "description": "A port to be used to enable automatic reloading of breakpoints when sourcemaps change.",
                                 "default": 9090
+                            },
+                            "extensionServerPort": {
+                                "type": "number",
+                                "description": "A port to be used by the extension process for hosting a its server.",
+                                "default": 8099
                             }
                         }
                     }

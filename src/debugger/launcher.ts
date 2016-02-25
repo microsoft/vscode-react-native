@@ -10,7 +10,8 @@ import {Log} from "../common/log";
 import {PlatformResolver} from "./platformResolver";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
-import {IRunOptions} from "./launchArgs";
+import {IRunOptions} from "../common/launchArgs";
+import {ServerDefaultParams} from "../common/extensionMessaging";
 
 export class Launcher {
     private projectRootPath: string;
@@ -76,7 +77,8 @@ export class Launcher {
 
         result.platform = process.argv[2].toLowerCase();
         result.debugAdapterPort = parseInt(process.argv[3], 10) || 9090;
-        result.target = process.argv[4];
+        result.extensionServerPort = parseInt(process.argv[4], 10) || ServerDefaultParams.PORT;
+        result.target = process.argv[5];
 
         return result;
     }

@@ -13,6 +13,10 @@ export class SettingsHelper {
         return path.join(vscode.workspace.rootPath, ".vscode", "settings.json");
     }
 
+    public static get launchJsonPath(): string {
+        return path.join(vscode.workspace.rootPath, ".vscode", "launch.json");
+    }
+
     /**
      * Constructs a JSON object from tsconfig.json. Will create the file if needed.
      */
@@ -21,17 +25,17 @@ export class SettingsHelper {
         let fileSystem = new FileSystem();
 
         return fileSystem.exists(settingsJsonPath)
-        .then(function(exists: boolean): Q.Promise<string> {
-            if (!exists) {
-                return fileSystem.writeFile(settingsJsonPath, "{}")
-                    .then(() => { return "{}"; });
-            }
+            .then(function(exists: boolean): Q.Promise<string> {
+                if (!exists) {
+                    return fileSystem.writeFile(settingsJsonPath, "{}")
+                        .then(() => { return "{}"; });
+                }
 
-            return fileSystem.readFile(settingsJsonPath, "utf-8");
-        })
-        .then(function(jsonContents: string): Q.Promise<any> {
-            return JSON.parse(jsonContents);
-        });
+                return fileSystem.readFile(settingsJsonPath, "utf-8");
+            })
+            .then(function(jsonContents: string): Q.Promise<any> {
+                return JSON.parse(jsonContents);
+            });
     }
 
     /**
@@ -61,6 +65,24 @@ export class SettingsHelper {
         return SettingsHelper.readSettingsJson()
             .then(function(settingsJson: any): Q.Promise<string> {
                 return settingsJson["typescript.tsdk"] || "";
+            });
+    }
+
+    /**
+     * Reads and parses the launch.json file.
+     */
+    public static readLaunchJson(): Q.Promise<any> {
+        let fileSystem = new FileSystem();
+        let launchJsonPath = SettingsHelper.launchJsonPath;
+
+        return fileSystem.exists(launchJsonPath)
+            .then(exists => {
+                if (exists) {
+                    return fileSystem.readFile(launchJsonPath)
+                        .then(content => { return JSON.parse(content); });
+                } else {
+                    return null;
+                }
             });
     }
 }

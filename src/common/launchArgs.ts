@@ -12,8 +12,12 @@ export interface IRunOptions extends ILaunchArgs {
  * Defines the supported launch arguments.
  * Add more arguments here as needed.
  */
-interface ILaunchArgs {
+export interface ILaunchArgs {
     platform?: string;
     target?: string;
     debugAdapterPort?: number;
+    extensionServerPort?: number;
+    /* internal properties */
+    internalDebuggerPort?: any;
+    args?: string[];
 }
