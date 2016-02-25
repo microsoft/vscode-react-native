@@ -1,18 +1,17 @@
-language: node_js
-
-node_js:
-  - "4.1"
-
 sudo: false
 
 os:
   - osx
 
+env:
+  - NODE_VERSION="4.1"
+
 before_install:
-  - if [ $TRAVIS_OS_NAME == "darwin" ]; then
-      git clone https://github.com/creationix/nvm.git /tmp/.nvm;
-      source /tmp/.nvm/nvm.sh;
-    fi
+  # nvm is not yet supported on osx, manually install
+  - git clone https://github.com/creationix/nvm.git /tmp/.nvm
+  - source /tmp/.nvm/nvm.sh
+  - nvm install $NODE_VERSION
+  - nvm use $NODE_VERSION
 
 install:
   - npm install
