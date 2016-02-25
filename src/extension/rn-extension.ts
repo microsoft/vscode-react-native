@@ -5,11 +5,11 @@ import {FileSystem} from "../common/node/fileSystem";
 import * as path from "path";
 import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
+import {EntryPoint} from "../common/entryPoint";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
-import {IntellisenseHelper} from "./IntellisenseHelper";
-import {TelemetryHelper} from "../common/TelemetryHelper";
-import {EntryPoint} from "../common/entryPoint";
+import {IntellisenseHelper} from "./intellisenseHelper";
+import {TelemetryHelper} from "../common/telemetryHelper";
 
 const outputChannel = vscode.window.createOutputChannel("React-Native");
 const entryPoint = new EntryPoint(outputChannel);
