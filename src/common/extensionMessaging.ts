@@ -26,7 +26,7 @@ export enum ExtensionIncomingMessage {
  */
 export class ExtensionMessageSender {
 
-    public sendMessage(message: ExtensionIncomingMessage, args?: any, port?: number): Q.Promise<any> {
+    public sendMessage(message: ExtensionIncomingMessage, args?: any[], port?: number): Q.Promise<any> {
         let deferred = Q.defer<any>();
 
         let options = {

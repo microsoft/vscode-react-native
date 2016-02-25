@@ -77,9 +77,10 @@ export class Packager {
         });
     }
 
-    public stop(outputChannel?: OutputChannel): void {
-        new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess, outputChannel);
+    public stop(outputChannel?: OutputChannel): Q.Promise<void> {
+        let processToKill = this.packagerProcess;
         this.packagerProcess = null;
+        return new CommandExecutor(this.projectPath).killReactPackager(processToKill, outputChannel);
     }
 
     public prewarmBundleCache(platform: string) {

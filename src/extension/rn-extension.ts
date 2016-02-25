@@ -5,6 +5,7 @@ import {FileSystem} from "../common/node/fileSystem";
 import * as path from "path";
 import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
+import {Packager} from "../common/packager";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./IntellisenseHelper";
@@ -12,7 +13,11 @@ import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/TelemetryHelper";
 import {ExtensionServer} from "./extensionServer";
 
-const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
+/* all components use the same packager instance */
+const globalPackager = new Packager(vscode.workspace.rootPath);
+const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath, globalPackager);
+const extensionServer = new ExtensionServer(globalPackager);
+
 export function activate(context: vscode.ExtensionContext): void {
     let workspaceRootPath = vscode.workspace.rootPath;
 
@@ -51,10 +56,9 @@ export function activate(context: vscode.ExtensionContext): void {
                     const fsUtil = new FileSystem();
                     fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath })).done();
                 }).then(() => {
-                    let server = new ExtensionServer();
-                    return server.setup()
+                    return extensionServer.setup()
                         .then(() => {
-                            context.subscriptions.push(server);
+                            context.subscriptions.push(extensionServer);
                         })
                         .fail(reason => {
                             // TODO @digeff - update error reporting call

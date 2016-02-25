@@ -103,14 +103,14 @@ export class CommandExecutor {
     /**
      * Kills the React Native packager in a child process.
      */
-    public killReactPackager(packagerProcess: ChildProcess, outputChannel?: OutputChannel): void {
+    public killReactPackager(packagerProcess: ChildProcess, outputChannel?: OutputChannel): Q.Promise<void> {
         Log.logMessage("Stopping Packager", outputChannel);
 
         if (packagerProcess) {
             /* To reliably kill the child process on all versions of Windows,
              * please use taskkill to end the packager process */
             if (process.platform === "win32") {
-                new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome.then(() => {
+                return new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome.then(() => {
                     Log.logMessage("Packager stopped", outputChannel);
                 }, function() {
                     Log.logError("Failed to exit the React Native packager", outputChannel);

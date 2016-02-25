@@ -4,6 +4,7 @@
 import * as em from "../common/extensionMessaging";
 import * as http from "http";
 import {ILaunchArgs} from "../common/launchArgs";
+import {Packager} from "../common/packager";
 import * as Q from "q";
 import {SettingsHelper} from "./settingsHelper";
 import * as vscode from "vscode";
@@ -12,6 +13,16 @@ import * as vscode from "vscode";
 export class ExtensionServer implements vscode.Disposable {
 
     private serverInstance: http.Server = null;
+    private messageHandlerDictionary: { [id: number]: ((args?: any[]) => Q.Promise<any>) } = {};
+    private reactNativePackager: Packager;
+
+    public constructor(reactNativePackager: Packager) {
+        this.reactNativePackager = reactNativePackager;
+
+        /* register handlers for all messages */
+        this.messageHandlerDictionary[em.ExtensionIncomingMessage.START_PACKAGER] = this.startPackager;
+        this.messageHandlerDictionary[em.ExtensionIncomingMessage.STOP_PACKAGER] = this.stopPackager;
+    }
 
     /**
      * Starts the server.
@@ -64,6 +75,20 @@ export class ExtensionServer implements vscode.Disposable {
     }
 
     /**
+     * Message handler for START_PACKAGER.
+     */
+    private startPackager(): Q.Promise<any> {
+        return this.reactNativePackager.start(vscode.window.createOutputChannel("React-Native"));
+    }
+
+    /**
+     * Message handler for STOP_PACKAGER.
+     */
+    private stopPackager(): Q.Promise<any> {
+        return this.reactNativePackager.stop(vscode.window.createOutputChannel("React-Native"));
+    }
+
+    /**
      * HTTP request handler.
      */
     private handleIncomingMessage(message: http.IncomingMessage, response: http.ServerResponse): void {
@@ -73,11 +98,11 @@ export class ExtensionServer implements vscode.Disposable {
         });
 
         message.on("end", () => {
-            let arg: any = JSON.parse(body);
+            let args: Array<any> = JSON.parse(body);
             let extensionMessage: em.ExtensionIncomingMessage = <any>em.ExtensionIncomingMessage[<any>message.url.substring(1)];
             console.log("Received message: " + message.url);
 
-            this.handleExtensionMessage(extensionMessage, arg)
+            this.handleExtensionMessage(extensionMessage, args)
                 .then(result => {
                     response.writeHead(200, "OK", { "Content-Type": "application/json" });
                     response.end(JSON.stringify(result));
@@ -93,18 +118,14 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Extension message handler.
      */
-    private handleExtensionMessage(message: em.ExtensionIncomingMessage, args: any): Q.Promise<any> {
+    private handleExtensionMessage(message: em.ExtensionIncomingMessage, args: any[]): Q.Promise<any> {
         let deferred = Q.defer<any>();
-        /* handle each extension message here and return the result */
-        switch (message) {
-            case em.ExtensionIncomingMessage.START_PACKAGER:
-                /* TODO */
-                break;
-            case em.ExtensionIncomingMessage.STOP_PACKAGER:
-                /* TODO */
-                break;
-            default:
-                throw new Error("Invalid message: " + message);
+
+        let handler = this.messageHandlerDictionary[message];
+        if (handler) {
+            handler.apply(this, args);
+        } else {
+            throw new Error("Invalid message: " + message);
         }
 
         return deferred.promise;
