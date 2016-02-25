@@ -15,20 +15,8 @@ export class EntryPoint {
     }
 
     /* This method should wrap any async entry points to the code, so we handle telemetry and error reporting properly */
-    public runCode(taskName: string, errorDescription: string, codeToRun: () => Q.Promise<void>, areErrorsFatal: boolean): void {
+    public runCode(taskName: string, errorDescription: string, codeToRun: () => Q.Promise<void> | void, areErrorsFatal: boolean): void {
         return this.handleErrors(errorDescription, TelemetryHelper.generate(taskName, codeToRun), /*areErrorsFatal*/ areErrorsFatal);
-    }
-
-    /* This method should wrap any 100% sync entry points to the code, so we handle telemetry and error reporting properly */
-    public runSyncCode(taskName: string, errorDescription: string, codeToRun: () => void): void {
-        try {
-            TelemetryHelper.sendSimpleEvent(taskName + ".starting"); // We call sendSimpleEvent because generate is async only
-            codeToRun();
-            TelemetryHelper.sendSimpleEvent(taskName + ".succesfull");
-        } catch (error) {
-            Log.logError(errorDescription, error, this.outputChannel, /*logStack*/ true);
-            TelemetryHelper.sendSimpleEvent(taskName + ".failed");
-        }
     }
 
     /* This method should wrap the entry point of the whole app, so we handle telemetry and error reporting properly */
@@ -46,15 +34,15 @@ export class EntryPoint {
     }
 
     private handleErrors(errorDescription: string, codeToRun: Q.Promise<void>, areErrorsFatal: boolean): void {
-        const isDebugeedProcess = !this.outputChannel;
+        const isDebugeeProcess = !this.outputChannel;
         codeToRun.done(() => { }, reason => {
-            const shouldLogStack = !areErrorsFatal || isDebugeedProcess;
+            const shouldLogStack = !areErrorsFatal || isDebugeeProcess;
             Log.logError(errorDescription, reason, this.outputChannel, /*logStack*/ shouldLogStack);
             if (areErrorsFatal) {
                 /* The process is likely going to exit if errors are fatal, so we first
                 send the telemetry, and then we exit or rethrow the exception */
                 Telemetry.sendPendingData().finally(() => {
-                    if (isDebugeedProcess) {
+                    if (isDebugeeProcess) {
                         /* HACK: For the debugee process we don't want to throw an exception because the debugger
                                  will appear to the user if he turned on the VS Code uncaught exceptions feature. */
                         process.exit(1);

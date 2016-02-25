@@ -23,9 +23,9 @@ export class ReactDirManager implements vscode.Disposable {
     }
 
     public dispose(): void {
-        new EntryPoint(vscode.window.createOutputChannel("React-Native")).runSyncCode("extension.deleteTemporaryFolder",
+        new EntryPoint(vscode.window.createOutputChannel("React-Native")).runCode("extension.deleteTemporaryFolder",
             "Couldn't delete the temporary folder ${ReactDirManager.ReactDirPath}",
             () =>
-                new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath));
+                new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath), /*areErrorsFatal*/ true);
     }
 }
