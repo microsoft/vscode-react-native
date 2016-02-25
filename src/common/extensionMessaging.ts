@@ -16,9 +16,10 @@ export let ServerDefaultParams = {
  * Defines the messages sent to the extension.
  * Add new messages to this enum.
  */
-export enum ExtensionIncomingMessage {
+export enum ExtensionMessage {
     START_PACKAGER,
-    STOP_PACKAGER
+    STOP_PACKAGER,
+    PREWARM_BUNDLE_CACHE
 }
 
 /**
@@ -26,13 +27,13 @@ export enum ExtensionIncomingMessage {
  */
 export class ExtensionMessageSender {
 
-    public sendMessage(message: ExtensionIncomingMessage, args?: any[], port?: number): Q.Promise<any> {
+    public sendMessage(message: ExtensionMessage, args?: any[], port?: number): Q.Promise<any> {
         let deferred = Q.defer<any>();
 
         let options = {
             host: ServerDefaultParams.HOST,
             port: port || ServerDefaultParams.PORT,
-            path: "/" + ExtensionIncomingMessage[message],
+            path: "/" + ExtensionMessage[message],
             method: "POST",
             headers: { "Content-Type": "application/json" }
         };
@@ -45,14 +46,15 @@ export class ExtensionMessageSender {
             });
 
             response.on("end", function() {
-                let responseBody: any = JSON.parse(body);
-                console.log("Response: " + body);
+                let responseBody: any = body ? JSON.parse(body) : null;
                 deferred.resolve(responseBody);
             });
         };
 
         let postRequest = http.request(options, responseCallback);
-        postRequest.write(JSON.stringify(args));
+        if (args) {
+            postRequest.write(JSON.stringify(args));
+        }
         postRequest.end();
 
         return deferred.promise;

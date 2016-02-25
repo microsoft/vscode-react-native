@@ -5,13 +5,13 @@ import * as fs from "fs";
 import * as path from "path";
 import * as Q from "q";
 import {MultipleLifetimesAppWorker} from "./appWorker";
-import {Packager} from "../common/packager";
+import {ScriptImporter} from "./scriptImporter";
 import {Log} from "../common/log";
 import {PlatformResolver} from "./platformResolver";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IRunOptions} from "../common/launchArgs";
-import {ServerDefaultParams} from "../common/extensionMessaging";
+import * as em from "../common/extensionMessaging";
 
 export class Launcher {
     private projectRootPath: string;
@@ -22,6 +22,7 @@ export class Launcher {
 
     public launch() {
         let version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
+        let extensionMessageSender = new em.ExtensionMessageSender();
 
         // Enable telemetry
         Telemetry.init("react-native-debug-process", version, true).then(() => {
@@ -33,17 +34,22 @@ export class Launcher {
                     Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
                 } else {
                     const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-                    const packager = new Packager(this.projectRootPath, sourcesStoragePath);
                     return Q({})
                         .then(() => {
                             generator.step("startPackager");
-                            return packager.start();
+                            return extensionMessageSender.sendMessage(em.ExtensionMessage.START_PACKAGER);
+                        })
+                        .then(() => {
+                            let scriptImporter = new ScriptImporter(sourcesStoragePath);
+                            return scriptImporter.downloadDebuggerWorker(sourcesStoragePath).then(() => {
+                                Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
+                            });
                         })
                         // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
                         // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                         .then(() => {
                             generator.step("prewarmBundleCache");
-                            return packager.prewarmBundleCache(runOptions.platform);
+                            return extensionMessageSender.sendMessage(em.ExtensionMessage.PREWARM_BUNDLE_CACHE, [runOptions.platform]);
                         })
                         .then(() => {
                             generator.step("mobilePlatform.runApp");
@@ -77,7 +83,7 @@ export class Launcher {
 
         result.platform = process.argv[2].toLowerCase();
         result.debugAdapterPort = parseInt(process.argv[3], 10) || 9090;
-        result.extensionServerPort = parseInt(process.argv[4], 10) || ServerDefaultParams.PORT;
+        result.extensionServerPort = parseInt(process.argv[4], 10) || em.ServerDefaultParams.PORT;
         result.target = process.argv[5];
 
         return result;

@@ -17,12 +17,9 @@ export class Packager {
     // TODO: Make the port configurable via a launch argument
     public static PORT = "8081";
     public static HOST = `localhost:${Packager.PORT}`;
-    public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
-    public static DEBUGGER_WORKER_FILENAME = Packager.DEBUGGER_WORKER_FILE_BASENAME + ".js";
 
     private projectPath: string;
     private packagerProcess: ChildProcess;
-    private sourcesStoragePath: string;
 
     private static JS_INJECTOR_FILENAME = "opn-main.js";
     private static JS_INJECTOR_FILEPATH = path.resolve(path.dirname(path.dirname(__dirname)), "js-patched", Packager.JS_INJECTOR_FILENAME);
@@ -31,9 +28,8 @@ export class Packager {
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
 
-    constructor(projectPath: string, sourcesStoragePath?: string) {
+    constructor(projectPath: string) {
         this.projectPath = projectPath;
-        this.sourcesStoragePath = sourcesStoragePath;
     }
 
     public start(outputChannel?: OutputChannel): Q.Promise<void> {
@@ -67,12 +63,6 @@ export class Packager {
                 if (!outputChannel) {
                     Log.logMessage("Warning: Debugging is not supported if the React Native Packager is not started within VS Code. If debugging fails, please kill other active React Native packager processes and retry.", outputChannel);
                 }
-            }
-
-            if (this.sourcesStoragePath) {
-                return this.downloadDebuggerWorker().then(() => {
-                    Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
-                });
             }
         });
     }
@@ -109,15 +99,6 @@ export class Packager {
     private awaitStart(retryCount = 30, delay = 2000): Q.Promise<boolean> {
         let pu: PromiseUtil = new PromiseUtil();
         return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, "Could not start the packager.");
-    }
-
-    private downloadDebuggerWorker(): Q.Promise<void> {
-        let debuggerWorkerURL = `http://${Packager.HOST}/${Packager.DEBUGGER_WORKER_FILENAME}`;
-        let debuggerWorkerLocalPath = path.join(this.sourcesStoragePath, Packager.DEBUGGER_WORKER_FILENAME);
-        Log.logInternalMessage(LogLevel.Info, "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
-        return new Request().request(debuggerWorkerURL, true).then((body: string) => {
-            return new Node.FileSystem().writeFile(debuggerWorkerLocalPath, body);
-        });
     }
 
     private findOpnPackage(): Q.Promise<string> {
