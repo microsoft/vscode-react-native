@@ -23,13 +23,13 @@ export function activate(context: vscode.ExtensionContext): void {
             .then(isRNProject => {
                 if (isRNProject) {
                     warnWhenReactNativeVersionIsNotSupported();
-                    entryPoint.runCode("debugger.setupLauncherStub", "Failed to setup the stub launcher for the debugger", () =>
+                    entryPoint.runFunction("debugger.setupLauncherStub", "Failed to setup the stub launcher for the debugger", () =>
                         setupReactNativeDebugger().then(() =>
                             setupReactDir(context)), /*areErrorsFatal*/ false);
-                    entryPoint.runCode("intelliSense.setup", "Failed to setup IntelliSense", () =>
+                    entryPoint.runFunction("intelliSense.setup", "Failed to setup IntelliSense", () =>
                         IntellisenseHelper.setupReactNativeIntellisense(), /*areErrorsFatal*/ false);
                 }
-                entryPoint.runCode("debugger.setupNodeDebuggerLocation", "Failed to configure the node debugger location for the debugger", () =>
+                entryPoint.runFunction("debugger.setupNodeDebuggerLocation", "Failed to configure the node debugger location for the debugger", () =>
                     configureNodeDebuggerLocation(), /*areErrorsFatal*/ false);
                 registerReactNativeCommands(context);
             });
@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
 export function deactivate(): void {
     // Kill any packager processes that we spawned
-    entryPoint.runCode("extension.deactivate", "Failed to stop the packager while closing React Native Tools",
+    entryPoint.runFunction("extension.deactivate", "Failed to stop the packager while closing React Native Tools",
         () => commandPaletteHandler.stopPackager(), /*areErrorsFatal*/ true);
 }
 
@@ -79,7 +79,7 @@ function registerVSCodeCommand(
     context.subscriptions.push(vscode.commands.registerCommand(
         `reactNative.${commandName}`,
         () =>
-            entryPoint.runCode(
+            entryPoint.runFunction(
                 `commandPalette.${commandName}`, errorDescription,
                 commandHandler, /*areErrorsFatal*/ false)));
 }

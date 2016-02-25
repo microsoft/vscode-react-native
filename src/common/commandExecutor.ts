@@ -32,7 +32,7 @@ export class CommandExecutor {
                 Log.commandEnded(command);
             },
             (reason: IExecRejection) =>
-                this.rejectionForCommand(command, reason.error));
+                this.generateRejectionForCommand(command, reason.error));
     }
 
     /**
@@ -181,12 +181,12 @@ export class CommandExecutor {
             () =>
                 Log.commandEnded(commandWithArgs, outputChannel),
             reason =>
-                this.rejectionForCommand(command, reason));
+                this.generateRejectionForCommand(command, reason));
 
         return result;
     }
 
-    private rejectionForCommand(command: string, reason: any): Q.Promise<void> {
+    private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {
         return Q.reject<void>(new NestedError(`Error while executing: ${command}`, reason));
     }
 }
