@@ -15,8 +15,8 @@ export class EntryPoint {
     }
 
     /* This method should wrap any async entry points to the code, so we handle telemetry and error reporting properly */
-    public runCode(taskName: string, errorDescription: string, codeToRun: () => Q.Promise<void> | void, areErrorsFatal: boolean): void {
-        return this.handleErrors(errorDescription, TelemetryHelper.generate(taskName, codeToRun), /*areErrorsFatal*/ areErrorsFatal);
+    public runCode(taskName: string, errorDescription: string, codeToRun: () => Q.Promise<void> | void, errorsAreFatal: boolean): void {
+        return this.handleErrors(errorDescription, TelemetryHelper.generate(taskName, codeToRun), /*errorsAreFatal*/ errorsAreFatal);
     }
 
     /* This method should wrap the entry point of the whole app, so we handle telemetry and error reporting properly */
@@ -26,19 +26,19 @@ export class EntryPoint {
             return this.handleErrors(telemetryErrorDescription, // handleErrors for async errors in init telemetry
                 Telemetry.init("react-native", getAppVersion(), true).then(() =>
                     // After telemetry is initialized, we run the code. Errors in this main path are fatal so we rethrow them
-                    this.runCode(appName, errorDescription, codeToRun, /*areErrorsFatal*/ true)), /*areErrorsFatal*/ true);
+                    this.runCode(appName, errorDescription, codeToRun, /*errorsAreFatal*/ true)), /*errorsAreFatal*/ true);
         } catch (error) {
             Log.logError(telemetryErrorDescription, error, this.outputChannel, /*logStack*/ false); // Print the error and re-throw the exception
             throw error;
         }
     }
 
-    private handleErrors(errorDescription: string, codeToRun: Q.Promise<void>, areErrorsFatal: boolean): void {
+    private handleErrors(errorDescription: string, resultOfCode: Q.Promise<void>, errorsAreFatal: boolean): void {
         const isDebugeeProcess = !this.outputChannel;
-        codeToRun.done(() => { }, reason => {
-            const shouldLogStack = !areErrorsFatal || isDebugeeProcess;
+        resultOfCode.done(() => { }, reason => {
+            const shouldLogStack = !errorsAreFatal || isDebugeeProcess;
             Log.logError(errorDescription, reason, this.outputChannel, /*logStack*/ shouldLogStack);
-            if (areErrorsFatal) {
+            if (errorsAreFatal) {
                 /* The process is likely going to exit if errors are fatal, so we first
                 send the telemetry, and then we exit or rethrow the exception */
                 Telemetry.sendPendingData().finally(() => {
