@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as vscode from "vscode";
+import * as Q from "q";
 import {CommandExecutor} from "../common/commandExecutor";
 import {Log} from "../common/log";
 import {Packager} from "../common/packager";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
-import * as vscode from "vscode";
 import {IOSDebugModeManager} from "../common/ios/iOSDebugModeManager";
 
 export class CommandPaletteHandler {
