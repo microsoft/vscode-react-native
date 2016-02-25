@@ -50,7 +50,7 @@ export class EntryPoint {
                     } else {
                         throw reason;
                     }
-                });
+                }).done();
             }
         });
     }
