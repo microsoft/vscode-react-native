@@ -91,10 +91,10 @@ export class IOSPlatform implements IAppPlatform {
                 // down before writing to the file.
                 const childProcess = new ChildProcess();
 
-                return childProcess.exec("xcrun simctl spawn booted launchctl list").outcome.then((buffer: Buffer) => {
+                return childProcess.execToString("xcrun simctl spawn booted launchctl list").then((output: string) => {
                     // Try to find an entry that looks like UIKitApplication:com.example.myApp[0x4f37]
                     const regex = new RegExp(`(\\S+${bundleId}\\S+)`);
-                    const match = regex.exec(buffer.toString());
+                    const match = regex.exec(output);
 
                     // If we don't find a match, the app must not be running and so we do not need to close it
                     if (match) {
