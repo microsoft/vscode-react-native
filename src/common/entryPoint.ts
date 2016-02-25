@@ -14,8 +14,9 @@ export class EntryPoint {
         this.outputChannel = outputChannel;
     }
 
+
     /* This method should wrap any async entry points to the code, so we handle telemetry and error reporting properly */
-    public runCode(taskName: string, errorDescription: string, codeToRun: () => Q.Promise<void> | void, errorsAreFatal: boolean): void {
+    public runFunction(taskName: string, errorDescription: string, codeToRun: () => Q.Promise<void> | void, errorsAreFatal: boolean): void {
         return this.handleErrors(errorDescription, TelemetryHelper.generate(taskName, codeToRun), /*errorsAreFatal*/ errorsAreFatal);
     }
 
@@ -26,7 +27,7 @@ export class EntryPoint {
             return this.handleErrors(telemetryErrorDescription, // handleErrors for async errors in init telemetry
                 Telemetry.init("react-native", getAppVersion(), true).then(() =>
                     // After telemetry is initialized, we run the code. Errors in this main path are fatal so we rethrow them
-                    this.runCode(appName, errorDescription, codeToRun, /*errorsAreFatal*/ true)), /*errorsAreFatal*/ true);
+                    this.runFunction(appName, errorDescription, codeToRun, /*errorsAreFatal*/ true)), /*errorsAreFatal*/ true);
         } catch (error) {
             Log.logError(telemetryErrorDescription, error, this.outputChannel, /*logStack*/ false); // Print the error and re-throw the exception
             throw error;
