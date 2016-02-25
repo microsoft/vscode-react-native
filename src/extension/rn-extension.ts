@@ -8,7 +8,7 @@ import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {Packager} from "../common/packager";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
-import {IntellisenseHelper} from "./IntellisenseHelper";
+import {IntellisenseHelper} from "./intellisenseHelper";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/TelemetryHelper";
 import {ExtensionServer} from "./extensionServer";
