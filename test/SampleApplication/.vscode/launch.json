@@ -8,7 +8,7 @@
 			"request": "launch",
 			"platform": "android",
 			"internalDebuggerPort": 9090,
-            "extensionServerPort": 8099,
+            "internalExtensionPort": 8099,
 			"sourceMaps": true,
 			"outDir": "${workspaceRoot}/.vscode/.react"
 		},
@@ -20,7 +20,7 @@
 			"platform": "ios",
 			"target": "iPhone 5s",
 			"internalDebuggerPort": 9090,
-            "extensionServerPort": 8099,
+            "internalExtensionPort": 8099,
 			"sourceMaps": true,
 			"outDir": "${workspaceRoot}/.vscode/.react"
 		}

@@ -13,7 +13,7 @@ import * as vscode from "vscode";
 export class ExtensionServer implements vscode.Disposable {
 
     private serverInstance: http.Server = null;
-    private messageHandlerDictionary: { [id: number]: ((args?: any[]) => Q.Promise<any>) } = {};
+    private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
     private reactNativePackager: Packager;
 
     public constructor(reactNativePackager: Packager) {
@@ -51,8 +51,8 @@ export class ExtensionServer implements vscode.Disposable {
                     /* take the fist configuration that specifies the port */
                     port = (<Array<ILaunchArgs>>launchJson.configurations)
                         .filter((configuration: ILaunchArgs, index: number, array: any[]) => {
-                            return !!configuration.extensionServerPort;
-                        })[0].extensionServerPort;
+                            return !!configuration.internalExtensionPort;
+                        })[0].internalExtensionPort;
                 }
             })
             .fail(() => { /* using default port in case of any error */ })
@@ -91,8 +91,8 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Message handler for PREWARM_BUNDLE_CACHE.
      */
-    private prewarmBundleCache(args: any[]): Q.Promise<any> {
-        let platform: string = args[0];
+    private prewarmBundleCache(platform: string): Q.Promise<any> {
+        console.log("Prewarming bundle cache for platform: " + platform);
         return this.reactNativePackager.prewarmBundleCache(platform);
     }
 

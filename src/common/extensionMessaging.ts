@@ -46,8 +46,12 @@ export class ExtensionMessageSender {
             });
 
             response.on("end", function() {
-                let responseBody: any = body ? JSON.parse(body) : null;
-                deferred.resolve(responseBody);
+                try {
+                    let responseBody: any = body ? JSON.parse(body) : null;
+                    deferred.resolve(responseBody);
+                } catch (e) {
+                    deferred.reject(e);
+                }
             });
         };
 
