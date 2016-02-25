@@ -25,12 +25,12 @@ export function activate(context: vscode.ExtensionContext): void {
                     warnWhenReactNativeVersionIsNotSupported();
                     entryPoint.runFunction("debugger.setupLauncherStub", "Failed to setup the stub launcher for the debugger", () =>
                         setupReactNativeDebugger().then(() =>
-                            setupReactDir(context)), /*areErrorsFatal*/ false);
+                            setupReactDir(context)));
                     entryPoint.runFunction("intelliSense.setup", "Failed to setup IntelliSense", () =>
-                        IntellisenseHelper.setupReactNativeIntellisense(), /*areErrorsFatal*/ false);
+                        IntellisenseHelper.setupReactNativeIntellisense());
                 }
                 entryPoint.runFunction("debugger.setupNodeDebuggerLocation", "Failed to configure the node debugger location for the debugger", () =>
-                    configureNodeDebuggerLocation(), /*areErrorsFatal*/ false);
+                    configureNodeDebuggerLocation());
                 registerReactNativeCommands(context);
             });
     });
@@ -39,7 +39,9 @@ export function activate(context: vscode.ExtensionContext): void {
 export function deactivate(): void {
     // Kill any packager processes that we spawned
     entryPoint.runFunction("extension.deactivate", "Failed to stop the packager while closing React Native Tools",
-        () => commandPaletteHandler.stopPackager(), /*areErrorsFatal*/ true);
+        () => {
+            commandPaletteHandler.stopPackager();
+        }, /*errorsAreFatal*/ true);
 }
 
 function configureNodeDebuggerLocation(): Q.Promise<void> {
@@ -81,7 +83,7 @@ function registerVSCodeCommand(
         () =>
             entryPoint.runFunction(
                 `commandPalette.${commandName}`, errorDescription,
-                commandHandler, /*areErrorsFatal*/ false)));
+                commandHandler)));
 }
 
 /**

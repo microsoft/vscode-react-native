@@ -16,7 +16,7 @@ export class EntryPoint {
 
 
     /* This method should wrap any async entry points to the code, so we handle telemetry and error reporting properly */
-    public runFunction(taskName: string, errorDescription: string, codeToRun: () => Q.Promise<void> | void, errorsAreFatal: boolean): void {
+    public runFunction(taskName: string, errorDescription: string, codeToRun: () => Q.Promise<void> | void, errorsAreFatal: boolean = false): void {
         return this.handleErrors(errorDescription, TelemetryHelper.generate(taskName, codeToRun), /*errorsAreFatal*/ errorsAreFatal);
     }
 
