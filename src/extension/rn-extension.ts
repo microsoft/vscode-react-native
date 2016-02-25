@@ -51,9 +51,10 @@ function configureNodeDebuggerLocation(): Q.Promise<void> {
 
 function setupReactDir(context: vscode.ExtensionContext): Q.Promise<void> {
     const reactDirManager = new ReactDirManager();
-    let createdDir = reactDirManager.create();
-    context.subscriptions.push(reactDirManager);
-    return createdDir;
+    return reactDirManager.create()
+        .then(() => {
+            context.subscriptions.push(reactDirManager);
+        });
 }
 
 function warnWhenReactNativeVersionIsNotSupported(): void {
