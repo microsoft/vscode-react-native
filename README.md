@@ -1,4 +1,5 @@
 # React Native Tools (Preview)
+[![Build Status](https://travis-ci.org/Microsoft/vscode-react-native.svg?branch=master)](https://travis-ci.org/Microsoft/vscode-react-native)
 
 This extension provides a development environment for React Native projects.
 You can debug your code, quickly run `react-native` commands from the command palette and use IntelliSense to browse objects, functions and parameters for React Native APIs.

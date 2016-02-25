@@ -1,18 +1,19 @@
 .DS_Store
 node_modules/
 out/
+.vscode-test/
 
 # Sample Application auto-generated files
-test/SampleApplication/.vscode/.react/debuggerWorker.js
-test/SampleApplication/.vscode/.react/index.android.bundle
-test/SampleApplication/.vscode/.react/index.android.map
-test/SampleApplication/.vscode/.react/.vscode/launchReactNative.js
-test/SampleApplication/android/
-test/SampleApplication/ios/
-test/SampleApplication/.flowconfig
-test/SampleApplication/.gitignore
-test/SampleApplication/.watchmanconfig
-test/SampleApplication/.vscode/launchReactNative.js
-test/SampleApplication/.vscode/settings.json
-test/SampleApplication/tsconfig.json
-test/SampleApplication/.vscode/typings/
+src/test/SampleApplication/.vscode/.react/debuggerWorker.js
+src/test/SampleApplication/.vscode/.react/index.android.bundle
+src/test/SampleApplication/.vscode/.react/index.android.map
+src/test/SampleApplication/.vscode/.react/.vscode/launchReactNative.js
+src/test/SampleApplication/android/
+src/test/SampleApplication/ios/
+src/test/SampleApplication/.flowconfig
+src/test/SampleApplication/.gitignore
+src/test/SampleApplication/.watchmanconfig
+src/test/SampleApplication/.vscode/launchReactNative.js
+src/test/SampleApplication/.vscode/settings.json
+src/test/SampleApplication/tsconfig.json
+src/test/SampleApplication/.vscode/typings/
