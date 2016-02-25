@@ -34,7 +34,11 @@ export class IntellisenseHelper {
             .then((isRestartRequired: boolean) => IntellisenseHelper.configureWorkspaceSettings(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.warnIfRestartIsRequired(isRestartRequired));
 
-        return Q.all([configureWorkspace, configureTypescript]).then(() => {});
+        /* TODO: Refactor this code to
+            Q.all([enableSalsa(), installTypescript(), configureWorkspace()])
+            .then((result) => warnIfRestartIsRequired(result.any((x) => x)))
+        */
+        return Q.all([configureWorkspace, configureTypescript]).then(() => { });
     }
 
     /**
