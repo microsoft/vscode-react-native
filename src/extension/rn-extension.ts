@@ -7,9 +7,9 @@ import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
-import {IntellisenseHelper} from "./IntellisenseHelper";
+import {IntellisenseHelper} from "./intellisenseHelper";
 import {Telemetry} from "../common/telemetry";
-import {TelemetryHelper} from "../common/TelemetryHelper";
+import {TelemetryHelper} from "../common/telemetryHelper";
 
 const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 export function activate(context: vscode.ExtensionContext): void {
