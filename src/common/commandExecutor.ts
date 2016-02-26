@@ -94,7 +94,7 @@ export class CommandExecutor {
             }
         });
 
-        // TODO - PROMISE: We need to consume result.outcome here
+        // TODO #83 - PROMISE: We need to consume result.outcome here
         Q.delay(300).done(() => deferred.resolve(result.spawnedProcess));
         return deferred.promise;
     }

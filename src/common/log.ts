@@ -48,7 +48,7 @@ export class Log {
      * Logs a warning message to the console.
      */
     public static logWarning(message: string, error?: any, outputChannel?: OutputChannel, logStack = true) {
-        // TODO: Refactor this code and create a better implementation
+        // TODO #83: Refactor this code and create a better implementation
         this.logError(`WARNING: ${message}`, error, outputChannel, logStack);
     }
 

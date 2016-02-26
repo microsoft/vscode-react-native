@@ -53,7 +53,7 @@ export class Packager {
 
                             let spawnOptions = { env: childEnvForDebugging };
 
-                            // TODO - PROMISE: We need to consume the result of this spawn
+                            // TODO #83 - PROMISE: We need to consume the result of this spawn
                             new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions, outputChannel).then((packagerProcess) => {
                                 this.packagerProcess = packagerProcess;
                                 executedStartPackagerCmd = true;
@@ -69,7 +69,7 @@ export class Packager {
                 } else {
                     Log.logMessage("Packager is already running.", outputChannel);
                     if (!outputChannel) {
-                        // TODO: This warning is printted incorrectly when the packager was started from the command palette. Fix it.
+                        // TODO #83: This warning is printted incorrectly when the packager was started from the command palette. Fix it.
                         Log.logWarning("Debugging is not supported if the React Native Packager is not started within VS Code. If debugging fails, please kill other active React Native packager processes and retry.", outputChannel);
                     }
                 }
