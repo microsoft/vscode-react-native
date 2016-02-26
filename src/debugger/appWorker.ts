@@ -181,7 +181,7 @@ export class MultipleLifetimesAppWorker {
     }
 
     private debuggerProxyUrl() {
-        return `ws://${Packager.HOST}/debugger-proxy`;
+        return `ws://${Packager.HOST}/debugger-proxy?role=debugger&name=React%20Native%20Tools`;
     }
 
     private onSocketOpened() {
