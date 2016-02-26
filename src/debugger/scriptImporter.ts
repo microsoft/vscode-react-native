@@ -3,7 +3,7 @@
 
 import {FileSystem} from "../common/node/fileSystem";
 import {Log, LogLevel} from "../common/log";
-import {Packager} from "../common/Packager";
+import {Packager} from "../common/packager";
 import path = require("path");
 import Q = require("q");
 import {Request} from "../common/node/request";

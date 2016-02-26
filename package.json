@@ -103,7 +103,7 @@
                             },
                             "internalExtensionPort": {
                                 "type": "number",
-                                "description": "A port to be used by the extension process for hosting a its server. If you modify this value, restarting VS Code is required.",
+                                "description": "A port to be used by the extension process for hosting a its server. If you need to modify this value, please update all instances (for all platform configurations), otherwise debugging will not work. Also, restarting VS Code is required after update.",
                                 "default": 8099
                             }
                         }
