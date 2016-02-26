@@ -3,7 +3,7 @@
 
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {Telemetry} from "../common/telemetry";
-import {Log} from "../common/Log";
+import {Log} from "../common/log";
 import {OutputChannel} from "vscode";
 
 /* This class should we used for each entry point of the code, so we handle telemetry and error reporting properly */
