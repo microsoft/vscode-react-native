@@ -9,7 +9,7 @@ import {Packager} from "../common/packager";
 import {Log} from "../common/log";
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
-import {EntryPoint} from "../common/entryPoint";
+import {EntryPointHandler} from "../common/entryPointHandler";
 import {IRunOptions} from "./launchArgs";
 
 export class Launcher {
@@ -21,7 +21,7 @@ export class Launcher {
 
     public launch(): void {
         // Enable telemetry
-        new EntryPoint().runApp("react-native-debug-process", () => this.getAppVersion(), "Cannot debug application", () => {
+        new EntryPointHandler().runApp("react-native-debug-process", () => this.getAppVersion(), "Cannot debug application", () => {
             return TelemetryHelper.generate("launch", (generator) => {
                 const resolver = new PlatformResolver();
                 const runOptions = this.parseRunOptions();

@@ -5,31 +5,31 @@ import {FileSystem} from "../common/node/fileSystem";
 import * as path from "path";
 import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
-import {EntryPoint} from "../common/entryPoint";
+import {EntryPointHandler} from "../common/entryPointHandler";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./intellisenseHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 
 const outputChannel = vscode.window.createOutputChannel("React-Native");
-const entryPoint = new EntryPoint(outputChannel);
+const entryPointHandler = new EntryPointHandler(outputChannel);
 const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
 const fsUtil = new FileSystem();
 
 export function activate(context: vscode.ExtensionContext): void {
-    entryPoint.runApp("react-native", () => <string>require("../../package.json").version, "Failed to activate the React Native Tools extension", () => {
+    entryPointHandler.runApp("react-native", () => <string>require("../../package.json").version, "Failed to activate the React Native Tools extension", () => {
         return reactNativeProjectHelper.isReactNativeProject()
             .then(isRNProject => {
                 if (isRNProject) {
                     warnWhenReactNativeVersionIsNotSupported();
-                    entryPoint.runFunction("debugger.setupLauncherStub", "Failed to setup the stub launcher for the debugger", () =>
+                    entryPointHandler.runFunction("debugger.setupLauncherStub", "Failed to setup the stub launcher for the debugger", () =>
                         setupReactNativeDebugger().then(() =>
                             setupReactDir(context)));
-                    entryPoint.runFunction("intelliSense.setup", "Failed to setup IntelliSense", () =>
+                    entryPointHandler.runFunction("intelliSense.setup", "Failed to setup IntelliSense", () =>
                         IntellisenseHelper.setupReactNativeIntellisense());
                 }
-                entryPoint.runFunction("debugger.setupNodeDebuggerLocation", "Failed to configure the node debugger location for the debugger", () =>
+                entryPointHandler.runFunction("debugger.setupNodeDebuggerLocation", "Failed to configure the node debugger location for the debugger", () =>
                     configureNodeDebuggerLocation());
                 registerReactNativeCommands(context);
             });
@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
 export function deactivate(): void {
     // Kill any packager processes that we spawned
-    entryPoint.runFunction("extension.deactivate", "Failed to stop the packager while closing React Native Tools",
+    entryPointHandler.runFunction("extension.deactivate", "Failed to stop the packager while closing React Native Tools",
         () => {
             commandPaletteHandler.stopPackager();
         }, /*errorsAreFatal*/ true);
@@ -82,7 +82,7 @@ function registerVSCodeCommand(
     context.subscriptions.push(vscode.commands.registerCommand(
         `reactNative.${commandName}`,
         () =>
-            entryPoint.runFunction(
+            entryPointHandler.runFunction(
                 `commandPalette.${commandName}`, errorDescription,
                 commandHandler)));
 }

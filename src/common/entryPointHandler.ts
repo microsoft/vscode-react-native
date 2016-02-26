@@ -7,7 +7,7 @@ import {Log} from "../common/Log";
 import {OutputChannel} from "vscode";
 
 /* This class should we used for each entry point of the code, so we handle telemetry and error reporting properly */
-export class EntryPoint {
+export class EntryPointHandler {
     private outputChannel: OutputChannel;
 
     constructor(outputChannel?: OutputChannel) {

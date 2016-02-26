@@ -5,7 +5,7 @@ import * as Q from "q";
 import * as vscode from "vscode";
 import * as path from "path";
 import {FileSystem} from "../common/node/fileSystem";
-import {EntryPoint} from "../common/entryPoint";
+import {EntryPointHandler} from "../common/entryPointHandler";
 
 /**
  * Manages the lifecycle of the .vscode/.react folder, which hosts the temporary source/map files we need for debugging.
@@ -23,7 +23,7 @@ export class ReactDirManager implements vscode.Disposable {
     }
 
     public dispose(): void {
-        new EntryPoint(vscode.window.createOutputChannel("React-Native")).runFunction("extension.deleteTemporaryFolder",
+        new EntryPointHandler(vscode.window.createOutputChannel("React-Native")).runFunction("extension.deleteTemporaryFolder",
             "Couldn't delete the temporary folder ${ReactDirManager.ReactDirPath}",
             () =>
                 new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath));
