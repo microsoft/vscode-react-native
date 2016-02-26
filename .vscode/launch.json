@@ -36,23 +36,8 @@
             "stopOnEntry": true
         },
         {
-            "name": "Run Tests",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "args": [
-                "./out/tests",
-                "--timeout",
-                "999999",
-                "--colors"
-            ],
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out/",
-            "preLaunchTask": "build"
-        },
-        {
             "name": "Sample - Android App",
-            "program": "${workspaceRoot}/test/SampleApplication/.vscode/launchReactNative.js",
+            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
             "type": "node",
             "request": "launch",
             "args": [
@@ -62,11 +47,11 @@
                 "--nolazy"
             ],
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/test/SampleApplication/.vscode/.react/"
+            "outDir": "${workspaceRoot}/SampleApplication/.vscode/.react/"
         },
         {
             "name": "Sample - iOS App",
-            "program": "${workspaceRoot}/test/SampleApplication/.vscode/launchReactNative.js",
+            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
             "type": "node",
             "request": "launch",
             "args": [
@@ -76,11 +61,11 @@
                 "--nolazy"
             ],
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/test/SampleApplication/.vscode/.react/"
+            "outDir": "${workspaceRoot}/SampleApplication/.vscode/.react/"
         },
         {
             "name": "Sample - Android Extension",
-            "program": "${workspaceRoot}/test/SampleApplication/.vscode/launchReactNative.js",
+            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
             "type": "node",
             "request": "launch",
             "args": [
@@ -94,7 +79,7 @@
         },
         {
             "name": "Sample - iOS Extension",
-            "program": "${workspaceRoot}/test/SampleApplication/.vscode/launchReactNative.js",
+            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
             "type": "node",
             "request": "launch",
             "args": [
@@ -105,6 +90,20 @@
             ],
             "sourceMaps": true,
             "outDir": "${workspaceRoot}/out/"
+        },
+        {
+            "name": "Launch Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceRoot}",
+                "--extensionTestsPath=${workspaceRoot}/out/test"
+            ],
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/out",
+            "preLaunchTask": "build"
         }
     ]
 }
