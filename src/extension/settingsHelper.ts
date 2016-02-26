@@ -75,14 +75,8 @@ export class SettingsHelper {
         let fileSystem = new FileSystem();
         let launchJsonPath = SettingsHelper.launchJsonPath;
 
-        return fileSystem.exists(launchJsonPath)
-            .then(exists => {
-                if (exists) {
-                    return fileSystem.readFile(launchJsonPath)
-                        .then(content => { return JSON.parse(content); });
-                } else {
-                    return null;
-                }
-            });
+        return fileSystem.readFile(launchJsonPath)
+            .then(content => { return JSON.parse(content); });
+
     }
 }

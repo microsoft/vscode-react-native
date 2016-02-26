@@ -92,7 +92,6 @@ export class ExtensionServer implements vscode.Disposable {
      * Message handler for PREWARM_BUNDLE_CACHE.
      */
     private prewarmBundleCache(platform: string): Q.Promise<any> {
-        console.log("Prewarming bundle cache for platform: " + platform);
         return this.reactNativePackager.prewarmBundleCache(platform);
     }
 
@@ -106,22 +105,27 @@ export class ExtensionServer implements vscode.Disposable {
         });
 
         message.on("end", () => {
-            let args: any[];
-            if (body) {
-                args = JSON.parse(body);
-            }
-            let extensionMessage: em.ExtensionMessage = <any>em.ExtensionMessage[<any>message.url.substring(1)];
+            try {
+                let args: any[];
+                if (body) {
+                    args = JSON.parse(body);
+                }
+                let extensionMessage: em.ExtensionMessage = <any>em.ExtensionMessage[<any>message.url.substring(1)];
 
-            this.handleExtensionMessage(extensionMessage, args)
-                .then(result => {
-                    response.writeHead(200, "OK", { "Content-Type": "application/json" });
-                    response.end(JSON.stringify(result));
-                })
-                .catch(() => {
-                    response.writeHead(404, "Not Found");
-                    response.end();
-                })
-                .done();
+                this.handleExtensionMessage(extensionMessage, args)
+                    .then(result => {
+                        response.writeHead(200, "OK", { "Content-Type": "application/json" });
+                        response.end(JSON.stringify(result));
+                    })
+                    .catch(() => {
+                        response.writeHead(404, "Not Found");
+                        response.end();
+                    })
+                    .done();
+            } catch (e) {
+                response.writeHead(404, "Not Found");
+                response.end();
+            }
         });
     }
 

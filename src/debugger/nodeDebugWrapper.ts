@@ -7,7 +7,6 @@ import * as http from "http";
 
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
-import {ILaunchArgs} from "../common/launchArgs";
 
 // These typings do not reflect the typings as intended to be used
 // but rather as they exist in truth, so we can reach into the internals
@@ -38,6 +37,14 @@ declare class SourceMaps {
 
 declare class NodeDebugSession extends VSCodeDebugAdapter.DebugSession {
     public _sourceMaps: SourceMaps;
+}
+
+interface ILaunchArgs {
+    platform: string;
+    target?: string;
+    internalDebuggerPort?: any;
+    internalExtensionPort?: number;
+    args: string[];
 }
 
 let version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
@@ -126,6 +133,7 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
         args.args = [
             args.platform,
             debugServerListeningPort.toString(),
+            args.internalExtensionPort.toString(),
             args.target || "simulator"
         ];
 
