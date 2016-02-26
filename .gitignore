@@ -4,16 +4,16 @@ out/
 .vscode-test/
 
 # Sample Application auto-generated files
-src/test/SampleApplication/.vscode/.react/debuggerWorker.js
-src/test/SampleApplication/.vscode/.react/index.android.bundle
-src/test/SampleApplication/.vscode/.react/index.android.map
-src/test/SampleApplication/.vscode/.react/.vscode/launchReactNative.js
-src/test/SampleApplication/android/
-src/test/SampleApplication/ios/
-src/test/SampleApplication/.flowconfig
-src/test/SampleApplication/.gitignore
-src/test/SampleApplication/.watchmanconfig
-src/test/SampleApplication/.vscode/launchReactNative.js
-src/test/SampleApplication/.vscode/settings.json
-src/test/SampleApplication/tsconfig.json
-src/test/SampleApplication/.vscode/typings/
+SampleApplication/.vscode/.react/debuggerWorker.js
+SampleApplication/.vscode/.react/index.android.bundle
+SampleApplication/.vscode/.react/index.android.map
+SampleApplication/.vscode/.react/.vscode/launchReactNative.js
+SampleApplication/android/
+SampleApplication/ios/
+SampleApplication/.flowconfig
+SampleApplication/.gitignore
+SampleApplication/.watchmanconfig
+SampleApplication/.vscode/launchReactNative.js
+SampleApplication/.vscode/settings.json
+SampleApplication/tsconfig.json
+SampleApplication/.vscode/typings/
