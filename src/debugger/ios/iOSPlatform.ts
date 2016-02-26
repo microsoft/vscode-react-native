@@ -4,6 +4,7 @@
 import * as Q from "q";
 
 import {Log} from "../../common/log";
+import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {IAppPlatform} from "../platformResolver";
 import {Compiler} from "./compiler";
@@ -76,13 +77,38 @@ export class IOSPlatform implements IAppPlatform {
             return Q.resolve<void>(void 0);
         }
 
-        return new IOSDebugModeManager(this.projectPath).setSimulatorJSDebuggingModeSetting(/*enable=*/ true)
-            .then(() => {
-                return this.plistBuddy.getBundleId(launchArgs.projectRoot);
-            }).then((bundleId: string) => {
-                // Relaunch the app so the new setting can take effect
-                return new CommandExecutor().execute(`xcrun simctl launch booted ${bundleId}`);
-            });
+        const iosDebugModeManager = new IOSDebugModeManager(this.projectPath);
+
+        // Wait until the configuration file exists, and check to see if debugging is enabled
+        return Q.all([
+            iosDebugModeManager.getSimulatorJSDebuggingModeSetting(),
+            this.plistBuddy.getBundleId(launchArgs.projectRoot)
+        ]).spread((debugModeSetting: string, bundleId: string) => {
+            if (debugModeSetting !== IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME) {
+                // Debugging must still be enabled
+                // We enable debugging by writing to a plist file that backs a NSUserDefaults object,
+                // but that file is written to by the app on occasion. To avoid races, we shut the app
+                // down before writing to the file.
+                const childProcess = new ChildProcess();
+
+                return childProcess.execToString("xcrun simctl spawn booted launchctl list").then((output: string) => {
+                    // Try to find an entry that looks like UIKitApplication:com.example.myApp[0x4f37]
+                    const regex = new RegExp(`(\\S+${bundleId}\\S+)`);
+                    const match = regex.exec(output);
+
+                    // If we don't find a match, the app must not be running and so we do not need to close it
+                    if (match) {
+                        return childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`);
+                    }
+                }).then(() => {
+                    // Write to the settings file while the app is not running to avoid races
+                    return iosDebugModeManager.setSimulatorJSDebuggingModeSetting(/*enable=*/ true);
+                }).then(() => {
+                    // Relaunch the app
+                    return this.runApp(launchArgs);
+                });
+            }
+        });
     }
 
     private consumeArguments(launchArgs: IRunOptions): void {
