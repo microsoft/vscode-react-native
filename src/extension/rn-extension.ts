@@ -59,7 +59,7 @@ function setupReactDir(context: vscode.ExtensionContext): Q.Promise<void> {
 
 function warnWhenReactNativeVersionIsNotSupported(): void {
     return reactNativeProjectHelper.validateReactNativeVersion().done(() => { }, reason => {
-        TelemetryHelper.sendSimpleEvent("launchDebuggerError", { rnVersion: reason });
+        TelemetryHelper.sendSimpleEvent("unsupportedRNVersion", { rnVersion: reason });
         const shortMessage = `React Native Tools only supports React Native versions 0.19.0 and later`;
         const longMessage = `${shortMessage}: ${reason}`;
         vscode.window.showWarningMessage(shortMessage);
