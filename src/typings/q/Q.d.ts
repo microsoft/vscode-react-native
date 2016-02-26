@@ -15,15 +15,15 @@ declare function Q<T>(value: T): Q.Promise<T>;
 
 declare module Q {
     interface IPromise<T> {
-        then<U>(onFulfill?: (value: T) => U | IPromise<U>, onReject?: (error: any) => U | IPromise<U>): IPromise<U>;
+        then<U>(onFulfill?: (value: T) => U | IPromise<U>, onReject?: (error: Error) => U | IPromise<U>): IPromise<U>;
     }
 
     interface Deferred<T> {
         promise: Promise<T>;
         resolve(value: T): void;
-        reject(reason: any): void;
+        reject(reason: Error): void;
         notify(value: any): void;
-        makeNodeResolver(): (reason: any, value: T) => void;
+        makeNodeResolver(): (reason: Error, value: T) => void;
     }
 
     interface Promise<T> {
@@ -43,21 +43,21 @@ declare module Q {
         /**
          * The then method from the Promises/A+ specification, with an additional progress handler.
          */
-        then<U>(onFulfill?: (value: T) => U | IPromise<U>, onReject?: (error: any) => U | IPromise<U>, onProgress?: Function): Promise<U>;
+        then<U>(onFulfill?: (value: T) => U | IPromise<U>, onReject?: (error: Error) => U | IPromise<U>, onProgress?: Function): Promise<U>;
 
         /**
          * Like then, but "spreads" the array into a variadic fulfillment handler. If any of the promises in the array are rejected, instead calls onRejected with the first rejected promise's rejection reason.
          *
          * This is especially useful in conjunction with all
          */
-        spread<U>(onFulfill: (...args: any[]) => IPromise<U> | U, onReject?: (reason: any) => IPromise<U> | U): Promise<U>;
+        spread<U>(onFulfill: (...args: any[]) => IPromise<U> | U, onReject?: (reason: Error) => IPromise<U> | U): Promise<U>;
 
-        fail<U>(onRejected: (reason: any) => U | IPromise<U>): Promise<U>;
+        fail<U>(onRejected: (reason: Error) => U | IPromise<U>): Promise<U>;
 
         /**
          * A sugar method, equivalent to promise.then(undefined, onRejected).
          */
-        catch<U>(onRejected: (reason: any) => U | IPromise<U>): Promise<U>;
+        catch<U>(onRejected: (reason: Error) => U | IPromise<U>): Promise<U>;
 
         /**
          * A sugar method, equivalent to promise.then(undefined, undefined, onProgress).
@@ -73,12 +73,12 @@ declare module Q {
          *
          * The Golden Rule of done vs. then usage is: either return your promise to someone else, or if the chain ends with you, call done to terminate it.
          */
-        done(onFulfilled?: (value: T) => any, onRejected?: (reason: any) => any, onProgress?: (progress: any) => any): void;
+        done(onFulfilled?: (value: T) => any, onRejected?: (reason: Error) => any, onProgress?: (progress: any) => any): void;
 
         /**
          * If callback is a function, assumes it's a Node.js-style callback, and calls it as either callback(rejectionReason) when/if promise becomes rejected, or as callback(null, fulfillmentValue) when/if promise becomes fulfilled. If callback is not a function, simply returns promise.
          */
-        nodeify(callback: (reason: any, value: any) => void): Promise<T>;
+        nodeify(callback: (reason: Error, value: any) => void): Promise<T>;
 
         /**
          * Returns a promise to get the named property of an object. Essentially equivalent to
@@ -121,7 +121,7 @@ declare module Q {
         /**
          * A sugar method, equivalent to promise.then(function () { throw reason; }).
          */
-        thenReject(reason: any): Promise<T>;
+        thenReject(reason: Error): Promise<T>;
 
         /**
          * Attaches a handler that will observe the value of the promise when it becomes fulfilled, returning a promise for that same value, perhaps deferred but not replaced by the promise returned by the onFulfilled handler.
@@ -165,7 +165,7 @@ declare module Q {
          */
         state: string;
         value?: T;
-        reason?: any;
+        reason?: Error;
     }
 
     // If no value provided, returned promise will be of void type
@@ -175,7 +175,7 @@ declare module Q {
     export function when<T>(value: T | IPromise<T>): Promise<T>;
 
     // If a non-promise value is provided, it will not reject or progress
-    export function when<T, U>(value: T | IPromise<T>, onFulfilled: (val: T) => U | IPromise<U>, onRejected?: (reason: any) => U | IPromise<U>, onProgress?: (progress: any) => any): Promise<U>;
+    export function when<T, U>(value: T | IPromise<T>, onFulfilled: (val: T) => U | IPromise<U>, onRejected?: (reason: Error) => U | IPromise<U>, onProgress?: (progress: any) => any): Promise<U>;
 
     /**
      * Currently "impossible" (and I use the term loosely) to implement due to TypeScript limitations as it is now.
@@ -228,7 +228,7 @@ declare module Q {
      * Like then, but "spreads" the array into a variadic fulfillment handler. If any of the promises in the array are rejected, instead calls onRejected with the first rejected promise's rejection reason.
      * This is especially useful in conjunction with all.
      */
-    export function spread<T, U>(promises: IPromise<T>[], onFulfilled: (...args: T[]) => U | IPromise<U>, onRejected?: (reason: any) => U | IPromise<U>): Promise<U>;
+    export function spread<T, U>(promises: IPromise<T>[], onFulfilled: (...args: T[]) => U | IPromise<U>, onRejected?: (reason: Error) => U | IPromise<U>): Promise<U>;
 
     /**
      * Returns a promise that will have the same result as promise, except that if promise is not fulfilled or rejected before ms milliseconds, the returned promise will be rejected with an Error with the given message. If message is not supplied, the message will be "Timed out after " + ms + " ms".
@@ -275,7 +275,7 @@ declare module Q {
      */
     export function reject<T>(reason?: any): Promise<T>;
 
-    export function Promise<T>(resolver: (resolve: (val: T | IPromise<T>) => void , reject: (reason: any) => void , notify: (progress: any) => void ) => void ): Promise<T>;
+    export function Promise<T>(resolver: (resolve: (val: T | IPromise<T>) => void , reject: (reason: Error) => void , notify: (progress: any) => void ) => void ): Promise<T>;
 
     /**
      * Creates a new version of func that accepts any combination of promise and non-promise values, converting them to their fulfillment values before calling the original func. The returned version also always returns a promise: if func does a return or throw, then Q.promised(func) will return fulfilled or rejected promise, respectively.
@@ -306,7 +306,7 @@ declare module Q {
     /**
      * A settable property that will intercept any uncaught errors that would otherwise be thrown in the next tick of the event loop, usually as a result of done. Can be useful for getting the full stack trace of an error in browsers, which is not usually possible with window.onerror.
      */
-    export var onerror: (reason: any) => void;
+    export var onerror: (reason: Error) => void;
     /**
      * A settable property that lets you turn on long stack trace support. If turned on, "stack jumps" will be tracked across asynchronous promise operations, so that if an uncaught error is thrown by done or a rejection reason's stack property is inspected in a rejection callback, a long stack trace is produced.
      */

@@ -67,10 +67,10 @@ export class DeviceRunner {
                     if (stdout.indexOf("Error:") !== -1) {
                         deferred.resolve(void 0); // Technically failed, but likely caused by the image already being mounted.
                     } else if (stdout.indexOf("No device found, is it plugged in?") !== -1) {
-                        deferred.reject("Unable to find device. Is the device plugged in?");
+                        deferred.reject(new Error("Unable to find device. Is the device plugged in?"));
                     }
 
-                    deferred.reject("Unable to mount developer disk image.");
+                    deferred.reject(new Error("Unable to mount developer disk image."));
                 } else {
                     deferred.resolve(void 0);
                 }
@@ -106,13 +106,13 @@ export class DeviceRunner {
                 const dataStr: string = data.toString();
                 const path: string = dataStr.split("\n")[0].trim();
                 if (!path) {
-                    deferred.reject("Unable to find developer disk image");
+                    deferred.reject(new Error("Unable to find developer disk image"));
                 } else {
                     deferred.resolve(path);
                 }
             });
             find.on("exit", function(code: number): void {
-                deferred.reject("Unable to find developer disk image");
+                deferred.reject(new Error("Unable to find developer disk image"));
             });
 
             return deferred.promise;
@@ -207,17 +207,19 @@ export class DeviceRunner {
                     }
                 } else if (data[1] === "E") {
                     // An error has occurred, with error code given by data[2-3]: parseInt(data.substring(2, 4), 16)
-                    deferred1.reject("Unable to launch application.");
-                    deferred2.reject("Unable to launch application.");
-                    deferred3.reject("Unable to launch application.");
+                    const error = new Error("Unable to launch application.");
+                    deferred1.reject(error);
+                    deferred2.reject(error);
+                    deferred3.reject(error);
                 }
             }
         });
 
         socket.on("end", function(): void {
-            deferred1.reject("Unable to launch application.");
-            deferred2.reject("Unable to launch application.");
-            deferred3.reject("Unable to launch application.");
+            const error = new Error("Unable to launch application.");
+            deferred1.reject(error);
+            deferred2.reject(error);
+            deferred3.reject(error);
         });
 
         socket.on("error", function(err: Error): void {
@@ -232,7 +234,7 @@ export class DeviceRunner {
             initState++;
             socket.write(cmd);
             setTimeout(function(): void {
-                deferred1.reject("Timeout launching application. Is the device locked?");
+                deferred1.reject(new Error("Timeout launching application. Is the device locked?"));
             }, appLaunchStepTimeout);
         });
 
@@ -242,7 +244,7 @@ export class DeviceRunner {
             initState++;
             sock.write(cmd);
             setTimeout(function(): void {
-                deferred2.reject("Timeout launching application. Is the device locked?");
+                deferred2.reject(new Error("Timeout launching application. Is the device locked?"));
             }, appLaunchStepTimeout);
             return deferred2.promise;
         }).then((sock: net.Socket): Q.Promise<net.Socket> => {
@@ -251,7 +253,7 @@ export class DeviceRunner {
             initState++;
             sock.write(cmd);
             setTimeout(function(): void {
-                deferred3.reject("Timeout launching application. Is the device locked?");
+                deferred3.reject(new Error("Timeout launching application. Is the device locked?"));
             }, appLaunchStepTimeout);
             return deferred3.promise;
         }).then(() => packagePath);
