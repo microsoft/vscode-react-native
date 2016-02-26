@@ -34,13 +34,19 @@ interface ISpawnOptions {
     detached?: boolean;
 }
 
+export interface IExecRejection {
+    error: Error;
+    stderr: Buffer;
+}
+
 export class ChildProcess {
     public exec(command: string, options: IExecOptions = {}): IExecResult {
         let outcome = Q.defer<Buffer>();
 
         let execProcess = child_process.exec(command, options, (error: Error, stdout: Buffer, stderr: Buffer) => {
             if (error) {
-                outcome.reject({ error: error, stderr: stderr});
+                const rejection: IExecRejection = { error: error, stderr: stderr};
+                outcome.reject(rejection);
             } else {
                 outcome.resolve(stdout);
             }
@@ -58,13 +64,13 @@ export class ChildProcess {
 
         let spawnedProcess = child_process.spawn(command, args, options);
         spawnedProcess.once("error", (error: any) => {
-            outcome.reject({ error: error });
+            outcome.reject(error);
         });
         spawnedProcess.once("exit", (code: number) => {
             if (code === 0) {
                 outcome.resolve(void 0);
             } else {
-                outcome.reject({error: code});
+                outcome.reject(new Error(`Command ${command} failed with error code ${code}`));
             }
         });
 

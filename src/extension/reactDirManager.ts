@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {FileSystem} from "../common/node/fileSystem";
+import * as Q from "q";
 import * as vscode from "vscode";
 import * as path from "path";
+import {FileSystem} from "../common/node/fileSystem";
+import {EntryPointHandler} from "../common/entryPointHandler";
 
 /**
  * Manages the lifecycle of the .vscode/.react folder, which hosts the temporary source/map files we need for debugging.
@@ -12,14 +14,18 @@ import * as path from "path";
 export class ReactDirManager implements vscode.Disposable {
     public static ReactDirPath = path.join(vscode.workspace.rootPath, ".vscode", ".react");
 
-    constructor() {
+    public create(): Q.Promise<void> {
         let fs = new FileSystem();
         /* if the folder exists, remove it, then recreate it */
-        fs.removePathRecursivelyAsync(ReactDirManager.ReactDirPath)
-            .done(() => fs.mkDir(ReactDirManager.ReactDirPath));
+        return fs.removePathRecursivelyAsync(ReactDirManager.ReactDirPath)
+            .then(() =>
+                fs.mkDir(ReactDirManager.ReactDirPath));
     }
 
     public dispose(): void {
-        new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath);
+        new EntryPointHandler(vscode.window.createOutputChannel("React-Native")).runFunction("extension.deleteTemporaryFolder",
+            "Couldn't delete the temporary folder ${ReactDirManager.ReactDirPath}",
+            () =>
+                new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath));
     }
 }

@@ -5,64 +5,93 @@ import {FileSystem} from "../common/node/fileSystem";
 import * as path from "path";
 import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
+import {EntryPointHandler} from "../common/entryPointHandler";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./intellisenseHelper";
-import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 
+const outputChannel = vscode.window.createOutputChannel("React-Native");
+const entryPointHandler = new EntryPointHandler(outputChannel);
 const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
+const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
+const fsUtil = new FileSystem();
+
 export function activate(context: vscode.ExtensionContext): void {
-    let workspaceRootPath = vscode.workspace.rootPath;
-
-    // Asynchronously enable telemetry
-    Telemetry.init("react-native", require("../../package.json").version, true)
-        .then(() => {
-            const reactNativeProjectHelper = new ReactNativeProjectHelper(workspaceRootPath);
-            return reactNativeProjectHelper.isReactNativeProject()
-                .then(isRNProject => {
-                    if (isRNProject) {
-                        reactNativeProjectHelper.validateReactNativeVersion().fail(reason => {
-                            TelemetryHelper.sendSimpleEvent("launchDebuggerError", { rnVersion: reason });
-                            const shortMessage = `React Native Tools only supports React Native versions 0.19.0 and later`;
-                            const longMessage = `${shortMessage}: ${reason}`;
-                            vscode.window.showWarningMessage(shortMessage);
-                            let output = vscode.window.createOutputChannel("React-Native");
-                            output.appendLine(longMessage);
-                            output.show();
-                        }).done();
-                        setupReactNativeDebugger();
-                        IntellisenseHelper.setupReactNativeIntellisense();
-                        context.subscriptions.push(new ReactDirManager());
-                    }
-                }).then(() => {
-                    // Register React Native commands
-                    context.subscriptions.push(vscode.commands.registerCommand("reactNative.runAndroid",
-                        () => commandPaletteHandler.runAndroid()));
-                    context.subscriptions.push(vscode.commands.registerCommand("reactNative.runIos",
-                        () => commandPaletteHandler.runIos()));
-                    context.subscriptions.push(vscode.commands.registerCommand("reactNative.startPackager",
-                        () => commandPaletteHandler.startPackager()));
-                    context.subscriptions.push(vscode.commands.registerCommand("reactNative.stopPackager",
-                        () => commandPaletteHandler.stopPackager()));
-
-                    const nodeDebugPath = vscode.extensions.getExtension("andreweinand.node-debug").extensionPath;
-                    const fsUtil = new FileSystem();
-                    fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath })).done();
-                });
-        }).done();
+    entryPointHandler.runApp("react-native", () => <string>require("../../package.json").version, "Failed to activate the React Native Tools extension", () => {
+        return reactNativeProjectHelper.isReactNativeProject()
+            .then(isRNProject => {
+                if (isRNProject) {
+                    warnWhenReactNativeVersionIsNotSupported();
+                    entryPointHandler.runFunction("debugger.setupLauncherStub", "Failed to setup the stub launcher for the debugger", () =>
+                        setupReactNativeDebugger().then(() =>
+                            setupReactDir(context)));
+                    entryPointHandler.runFunction("intelliSense.setup", "Failed to setup IntelliSense", () =>
+                        IntellisenseHelper.setupReactNativeIntellisense());
+                }
+                entryPointHandler.runFunction("debugger.setupNodeDebuggerLocation", "Failed to configure the node debugger location for the debugger", () =>
+                    configureNodeDebuggerLocation());
+                registerReactNativeCommands(context);
+            });
+    });
 }
 
 export function deactivate(): void {
     // Kill any packager processes that we spawned
-    commandPaletteHandler.stopPackager();
+    entryPointHandler.runFunction("extension.deactivate", "Failed to stop the packager while closing React Native Tools",
+        () => {
+            commandPaletteHandler.stopPackager();
+        }, /*errorsAreFatal*/ true);
+}
+
+function configureNodeDebuggerLocation(): Q.Promise<void> {
+    const nodeDebugPath = vscode.extensions.getExtension("andreweinand.node-debug").extensionPath;
+    return fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath }));
+}
+
+function setupReactDir(context: vscode.ExtensionContext): Q.Promise<void> {
+    const reactDirManager = new ReactDirManager();
+    return reactDirManager.create()
+        .then(() => {
+            context.subscriptions.push(reactDirManager);
+        });
+}
+
+function warnWhenReactNativeVersionIsNotSupported(): void {
+    return reactNativeProjectHelper.validateReactNativeVersion().done(() => { }, reason => {
+        TelemetryHelper.sendSimpleEvent("unsupportedRNVersion", { rnVersion: reason });
+        const shortMessage = `React Native Tools only supports React Native versions 0.19.0 and later`;
+        const longMessage = `${shortMessage}: ${reason}`;
+        vscode.window.showWarningMessage(shortMessage);
+        outputChannel.appendLine(longMessage);
+        outputChannel.show();
+    });
+}
+
+function registerReactNativeCommands(context: vscode.ExtensionContext): void {
+    // Register React Native commands
+    registerVSCodeCommand(context, "runAndroid", "Failed to run the application in Android", () => commandPaletteHandler.runAndroid());
+    registerVSCodeCommand(context, "runIos", "Failed to run the application in iOS", () => commandPaletteHandler.runIos());
+    registerVSCodeCommand(context, "startPackager", "Failed to start the React Native packager", () => commandPaletteHandler.startPackager());
+    registerVSCodeCommand(context, "stopPackager", "Failed to stop the React Native packager", () => commandPaletteHandler.stopPackager());
+}
+
+function registerVSCodeCommand(
+    context: vscode.ExtensionContext, commandName: string,
+    errorDescription: string, commandHandler: () => Q.Promise<void>): void {
+    context.subscriptions.push(vscode.commands.registerCommand(
+        `reactNative.${commandName}`,
+        () =>
+            entryPointHandler.runFunction(
+                `commandPalette.${commandName}`, errorDescription,
+                commandHandler)));
 }
 
 /**
  * Sets up the debugger for the React Native project by dropping
  * the debugger stub into the workspace
  */
-function setupReactNativeDebugger(): void {
+function setupReactNativeDebugger(): Q.Promise<void> {
     const launcherPath = require.resolve("../debugger/launcher");
     const pkg = require("../../package.json");
     const extensionVersionNumber = pkg.version;
@@ -81,9 +110,8 @@ try {
 
     const vscodeFolder = path.join(vscode.workspace.rootPath, ".vscode");
     const debugStub = path.join(vscodeFolder, "launchReactNative.js");
-    const fsUtil = new FileSystem();
 
-    fsUtil.ensureDirectory(vscodeFolder)
+    return fsUtil.ensureDirectory(vscodeFolder)
         .then(() => fsUtil.ensureFileWithContents(debugStub, debuggerEntryCode))
         .catch((err: Error) => {
             vscode.window.showErrorMessage(err.message);
