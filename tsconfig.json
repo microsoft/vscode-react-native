@@ -11,9 +11,9 @@
     },
     "exclude": [
         "node_modules",
-        "src/test/SampleApplication/",
-        "src/test/SampleApplication/node_modules",
-        "src/test/SampleApplication/.vscode",
+        "SampleApplication/",
+        "SampleApplication/node_modules",
+        "SampleApplication/.vscode",
         "ReactTypings"
     ]
 }
