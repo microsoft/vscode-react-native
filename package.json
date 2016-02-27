@@ -60,7 +60,6 @@
                         "request": "launch",
                         "platform": "android",
                         "internalDebuggerPort": 9090,
-                        "internalExtensionPort": 8099,
                         "sourceMaps": true,
                         "outDir": "${workspaceRoot}/.vscode/.react"
                     },
@@ -72,7 +71,6 @@
                         "platform": "ios",
                         "target": "iPhone 5s",
                         "internalDebuggerPort": 9090,
-                        "internalExtensionPort": 8099,
                         "sourceMaps": true,
                         "outDir": "${workspaceRoot}/.vscode/.react"
                     }
@@ -100,11 +98,6 @@
                                 "type": "number",
                                 "description": "A port to be used to enable automatic reloading of breakpoints when sourcemaps change.",
                                 "default": 9090
-                            },
-                            "internalExtensionPort": {
-                                "type": "number",
-                                "description": "A port to be used by the extension process for hosting a its server. If you need to modify this value, please update all instances (for all platform configurations), otherwise debugging will not work. Also, restarting VS Code is required after update.",
-                                "default": 8099
                             }
                         }
                     }

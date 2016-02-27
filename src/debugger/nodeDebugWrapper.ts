@@ -7,7 +7,6 @@ import * as http from "http";
 
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
-import {ServerDefaultParams} from "../common/extensionMessaging";
 
 // These typings do not reflect the typings as intended to be used
 // but rather as they exist in truth, so we can reach into the internals
@@ -44,7 +43,6 @@ interface ILaunchArgs {
     platform: string;
     target?: string;
     internalDebuggerPort?: any;
-    internalExtensionPort?: any;
     args: string[];
 }
 
@@ -122,7 +120,6 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
             res.end();
         });
         const debugServerListeningPort = parseInt(args.internalDebuggerPort, 10) || 9090;
-        const internalExtensionPort = parseInt(args.internalExtensionPort, 10) || ServerDefaultParams.PORT;
 
         reinitializeServer.listen(debugServerListeningPort);
         reinitializeServer.on("error", (err: Error) => {
@@ -135,7 +132,6 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
         args.args = [
             args.platform,
             debugServerListeningPort.toString(),
-            internalExtensionPort.toString(),
             args.target || "simulator"
         ];
 

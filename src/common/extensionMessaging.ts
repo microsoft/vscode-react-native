@@ -2,14 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
-import * as http from "http";
+import * as net from "net";
 
 /**
- * Message server parameters.
+ * Pipe path used for communicating with the server.
  */
-export let ServerDefaultParams = {
-    PORT: 8099,
-    HOST: "127.0.0.1"
+let WIN_ServerPipePath = "\\\\?\\pipe\\vscodereactnative";
+let UNIX_ServerPipePath = "/tmp/vscodereactnative.sock";
+
+export let getPipePath = (): string => {
+    return (process.platform === "win32" ? WIN_ServerPipePath : UNIX_ServerPipePath);
 };
 
 /**
@@ -22,44 +24,38 @@ export enum ExtensionMessage {
     PREWARM_BUNDLE_CACHE
 }
 
+export interface MessageWithArguments {
+    message: ExtensionMessage;
+    args: any[];
+}
+
 /**
  * Sends messages to the extension.
  */
 export class ExtensionMessageSender {
 
-    public sendMessage(message: ExtensionMessage, args?: any[], port?: number): Q.Promise<any> {
+    public sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any> {
         let deferred = Q.defer<any>();
+        let messageWithArguments: MessageWithArguments = { message: message, args: args };
+        let body = "";
 
-        let options = {
-            host: ServerDefaultParams.HOST,
-            port: port || ServerDefaultParams.PORT,
-            path: "/" + ExtensionMessage[message],
-            method: "POST",
-            headers: { "Content-Type": "application/json" }
-        };
+        let socket = net.connect(getPipePath(), function() {
+            let messageJson = JSON.stringify(messageWithArguments);
+            socket.write(messageJson);
+        });
 
-        let responseCallback = (response: http.IncomingMessage) => {
-            let body = "";
+        socket.on("data", function(data: any) {
+            body += data;
+        });
 
-            response.on("data", function(data: any) {
-                body += data;
-            });
-
-            response.on("end", function() {
-                try {
-                    let responseBody: any = body ? JSON.parse(body) : null;
-                    deferred.resolve(responseBody);
-                } catch (e) {
-                    deferred.reject(e);
-                }
-            });
-        };
-
-        let postRequest = http.request(options, responseCallback);
-        if (args) {
-            postRequest.write(JSON.stringify(args));
-        }
-        postRequest.end();
+        socket.on("end", function() {
+            try {
+                let responseBody: any = body ? JSON.parse(body) : null;
+                deferred.resolve(responseBody);
+            } catch (e) {
+                deferred.reject(e);
+            }
+        });
 
         return deferred.promise;
     }

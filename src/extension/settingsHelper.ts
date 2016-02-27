@@ -67,16 +67,4 @@ export class SettingsHelper {
                 return settingsJson["typescript.tsdk"] || "";
             });
     }
-
-    /**
-     * Reads and parses the launch.json file.
-     */
-    public static readLaunchJson(): Q.Promise<any> {
-        let fileSystem = new FileSystem();
-        let launchJsonPath = SettingsHelper.launchJsonPath;
-
-        return fileSystem.readFile(launchJsonPath)
-            .then(content => { return JSON.parse(content); });
-
-    }
 }

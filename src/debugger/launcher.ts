@@ -37,7 +37,7 @@ export class Launcher {
                     return Q({})
                         .then(() => {
                             generator.step("startPackager");
-                            return extensionMessageSender.sendMessage(em.ExtensionMessage.START_PACKAGER, null, runOptions.internalExtensionPort);
+                            return extensionMessageSender.sendMessage(em.ExtensionMessage.START_PACKAGER);
                         })
                         .then(() => {
                             let scriptImporter = new ScriptImporter(sourcesStoragePath);
@@ -49,7 +49,7 @@ export class Launcher {
                         // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                         .then(() => {
                             generator.step("prewarmBundleCache");
-                            return extensionMessageSender.sendMessage(em.ExtensionMessage.PREWARM_BUNDLE_CACHE, [runOptions.platform], runOptions.internalExtensionPort);
+                            return extensionMessageSender.sendMessage(em.ExtensionMessage.PREWARM_BUNDLE_CACHE, [runOptions.platform]);
                         })
                         .then(() => {
                             generator.step("mobilePlatform.runApp");
@@ -83,8 +83,7 @@ export class Launcher {
 
         result.platform = process.argv[2].toLowerCase();
         result.debugAdapterPort = parseInt(process.argv[3], 10) || 9090;
-        result.internalExtensionPort = parseInt(process.argv[4], 10) || em.ServerDefaultParams.PORT;
-        result.target = process.argv[5];
+        result.target = process.argv[4];
 
         return result;
     }

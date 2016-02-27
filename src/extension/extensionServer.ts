@@ -2,21 +2,22 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as em from "../common/extensionMessaging";
-import * as http from "http";
-import {ILaunchArgs} from "../common/launchArgs";
+import {FileSystem} from "../common/node/fileSystem";
 import {Packager} from "../common/packager";
+import {Log} from "../common/log";
 import * as Q from "q";
-import {SettingsHelper} from "./settingsHelper";
+import * as net from "net";
 import * as vscode from "vscode";
 
 
 export class ExtensionServer implements vscode.Disposable {
-
-    private serverInstance: http.Server = null;
+    private outputChannel: any;
+    private serverInstance: net.Server = null;
     private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
     private reactNativePackager: Packager;
 
     public constructor(reactNativePackager: Packager) {
+        this.outputChannel = vscode.window.createOutputChannel("React-Native");
         this.reactNativePackager = reactNativePackager;
 
         /* register handlers for all messages */
@@ -32,11 +33,8 @@ export class ExtensionServer implements vscode.Disposable {
 
         let deferred = Q.defer<void>();
 
-        let requestHandler = (request: http.IncomingMessage, response: http.ServerResponse) => {
-            this.handleIncomingMessage(request, response);
-        };
-
         let launchCallback = (error: any) => {
+            Log.logMessage("Server started." + (error ? error : ""));
             if (error) {
                 deferred.reject(error);
             } else {
@@ -44,22 +42,9 @@ export class ExtensionServer implements vscode.Disposable {
             }
         };
 
-        let port = em.ServerDefaultParams.PORT;
-        SettingsHelper.readLaunchJson()
-            .then((launchJson: any) => {
-                if (launchJson) {
-                    /* take the fist configuration that specifies the port */
-                    port = (<Array<ILaunchArgs>>launchJson.configurations)
-                        .filter((configuration: ILaunchArgs, index: number, array: any[]) => {
-                            return !!configuration.internalExtensionPort;
-                        })[0].internalExtensionPort;
-                }
-            })
-            .fail(() => { /* using default port in case of any error */ })
-            .done(() => {
-                this.serverInstance = http.createServer(requestHandler);
-                this.serverInstance.listen(port, null, null, launchCallback);
-            });
+        this.serverInstance = net.createServer(this.handleSocket.bind(this));
+        this.serverInstance.on("error", this.recoverServer.bind(this));
+        this.serverInstance.listen(em.getPipePath(), launchCallback);
 
         return deferred.promise;
     }
@@ -78,14 +63,14 @@ export class ExtensionServer implements vscode.Disposable {
      * Message handler for START_PACKAGER.
      */
     private startPackager(): Q.Promise<any> {
-        return this.reactNativePackager.start(vscode.window.createOutputChannel("React-Native"));
+        return this.reactNativePackager.start(this.outputChannel);
     }
 
     /**
      * Message handler for STOP_PACKAGER.
      */
     private stopPackager(): Q.Promise<any> {
-        return this.reactNativePackager.stop(vscode.window.createOutputChannel("React-Native"));
+        return this.reactNativePackager.stop(this.outputChannel);
     }
 
     /**
@@ -96,48 +81,61 @@ export class ExtensionServer implements vscode.Disposable {
     }
 
     /**
-     * HTTP request handler.
+     * Extension message handler.
      */
-    private handleIncomingMessage(message: http.IncomingMessage, response: http.ServerResponse): void {
-        let body = "";
-        message.on("data", (chunk: string) => {
-            body += chunk;
-        });
-
-        message.on("end", () => {
-            try {
-                let args: any[];
-                if (body) {
-                    args = JSON.parse(body);
-                }
-                let extensionMessage: em.ExtensionMessage = <any>em.ExtensionMessage[<any>message.url.substring(1)];
-
-                this.handleExtensionMessage(extensionMessage, args)
-                    .then(result => {
-                        response.writeHead(200, "OK", { "Content-Type": "application/json" });
-                        response.end(JSON.stringify(result));
-                    })
-                    .catch(() => {
-                        response.writeHead(404, "Not Found");
-                        response.end();
-                    })
-                    .done();
-            } catch (e) {
-                response.writeHead(404, "Not Found");
-                response.end();
-            }
-        });
+    private handleExtensionMessage(messageWithArgs: em.MessageWithArguments): Q.Promise<any> {
+        let handler = this.messageHandlerDictionary[messageWithArgs.message];
+        if (handler) {
+            Log.logMessage("Handling message: " + em.ExtensionMessage[messageWithArgs.message]);
+            return handler.apply(this, messageWithArgs.args);
+        } else {
+            return Q.reject("Invalid message: " + messageWithArgs.message);
+        }
     }
 
     /**
-     * Extension message handler.
+     * Handles connections to the server.
      */
-    private handleExtensionMessage(message: em.ExtensionMessage, args?: any[]): Q.Promise<any> {
-        let handler = this.messageHandlerDictionary[message];
-        if (handler) {
-            return handler.apply(this, args);
-        } else {
-            return Q.reject("Invalid message: " + message);
+    private handleSocket(socket: net.Socket): void {
+        let dataCallback = (data: any) => {
+            try {
+                let messageWithArgs: em.MessageWithArguments = JSON.parse(data);
+                this.handleExtensionMessage(messageWithArgs)
+                    .then(result => {
+                        socket.end(JSON.stringify(result));
+                    })
+                    .catch(() => { socket.end(); })
+                    .done();
+            } catch (e) {
+                socket.end();
+            }
+        };
+
+        socket.on("data", dataCallback);
+    };
+
+    /**
+     * Recovers the server in case the named socket we use already exists, but no other instance of VSCode is active.
+     */
+    private recoverServer(error: any): void {
+        let errorHandler = (e: any) => {
+            /* The named socket is not used. */
+            if (e.code === "ECONNREFUSED") {
+                new FileSystem().removePathRecursivelyAsync(em.getPipePath())
+                    .then(() => {
+                        this.serverInstance.listen(em.getPipePath());
+                    })
+                    .done();
+            }
+        };
+
+        /* The named socket already exists. */
+        if (error.code === "EADDRINUSE") {
+            let clientSocket = new net.Socket();
+            clientSocket.on("error", errorHandler);
+            clientSocket.connect(em.getPipePath(), function() {
+                clientSocket.end();
+            });
         }
     }
 }
