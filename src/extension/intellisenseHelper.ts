@@ -16,25 +16,29 @@ export class IntellisenseHelper {
     /**
      * Helper method that configures the workspace for Salsa intellisense.
      */
-    public static setupReactNativeIntellisense(): void {
+    public static setupReactNativeIntellisense(): Q.Promise<void> {
         // Telemetry - Send Salsa Environment setup information
-        let tsSalsaEnvSetup = TelemetryHelper.createTelemetryEvent("RNIntellisense");
+        const tsSalsaEnvSetup = TelemetryHelper.createTelemetryEvent("RNIntellisense");
         TelemetryHelper.addTelemetryEventProperty(tsSalsaEnvSetup, "TsSalsaEnvSetup", !!process.env.VSCODE_TSJS, false);
         Telemetry.send(tsSalsaEnvSetup);
 
-        Q({})
+        const configureWorkspace = Q({})
             .then(() => TsConfigHelper.allowJs(true))
             .then(() => TsConfigHelper.addExcludePaths(["node_modules"]))
-            .then(() => IntellisenseHelper.installReactNativeTypings())
-            .done();
+            .then(() => IntellisenseHelper.installReactNativeTypings());
 
         // The actions taken in the promise chain below may result in requring a restart.
-        Q(false)
+        const configureTypescript = Q(false)
             .then((isRestartRequired: boolean) => IntellisenseHelper.enableSalsa(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.installTypescriptNext(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.configureWorkspaceSettings(isRestartRequired))
-            .then((isRestartRequired: boolean) => IntellisenseHelper.warnIfRestartIsRequired(isRestartRequired))
-            .done();
+            .then((isRestartRequired: boolean) => IntellisenseHelper.warnIfRestartIsRequired(isRestartRequired));
+
+        /* TODO #83: Refactor this code to
+            Q.all([enableSalsa(), installTypescript(), configureWorkspace()])
+            .then((result) => warnIfRestartIsRequired(result.any((x) => x)))
+        */
+        return Q.all([configureWorkspace, configureTypescript]).then(() => { });
     }
 
     /**

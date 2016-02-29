@@ -36,28 +36,20 @@ export class IOSPlatform implements IAppPlatform {
                 runArguments.push(this.simulatorTarget);
             }
 
-            const runIos = new CommandExecutor(this.projectPath).spawnReactCommand("run-ios", runArguments);
+            const runIosSpawn = new CommandExecutor(this.projectPath).spawnChildReactCommandProcess("run-ios", runArguments);
             const deferred = Q.defer<void>();
-            runIos.on("error", (err: Error) => {
-                deferred.reject(err);
-            });
-            runIos.stderr.on("data", (data: Buffer) => {
+            runIosSpawn.stderr.on("data", (data: Buffer) => {
                 const dataString = data.toString();
                 if (dataString.indexOf("No devices are booted") !== -1 // No emulators are started
                     || dataString.indexOf("FBSOpenApplicationErrorDomain") !== -1) { // The incorrect emulator is started
                     deferred.reject(new Error("Unable to launch iOS simulator. Try specifying a different target."));
                 }
             });
-            runIos.on("exit", (code: number) => {
-                if (code !== 0) {
-                    const err = new Error(`Command failed with exit code ${code}`);
-                    Log.commandFailed(["react-native", "run-ios"].concat(runArguments).join(" "), err);
-                    deferred.reject(err);
-                } else {
-                    deferred.resolve(void 0);
-                }
+
+            return runIosSpawn.outcome.then(() => {
+                deferred.resolve(void 0); // We resolve deferred when the process ends, in case it wasn't already rejected
+                return deferred.promise; // We return the promise. If an error was detected on stderr, this will be a rejection
             });
-            return deferred.promise;
         }
 
         return new Compiler(this.projectPath).compile().then(() => {

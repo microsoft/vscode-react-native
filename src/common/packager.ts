@@ -32,45 +32,49 @@ export class Packager {
         this.projectPath = projectPath;
     }
 
+
     public start(outputChannel?: OutputChannel): Q.Promise<void> {
         let executedStartPackagerCmd = false;
-        this.isRunning().done(running => {
-            if (!running) {
-                return this.monkeyPatchOpnForRNPackager()
-                    .then(() => {
-                        let args = ["--port", Packager.PORT];
-                        let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
+        return this.isRunning()
+            .then(running => {
+                if (!running) {
+                    return this.monkeyPatchOpnForRNPackager()
+                        .then(() => {
+                            let args = ["--port", Packager.PORT];
+                            let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
-                        Log.logMessage("Starting Packager", outputChannel);
-                        // The packager will continue running while we debug the application, so we can"t
-                        // wait for this command to finish
+                            Log.logMessage("Starting Packager", outputChannel);
+                            // The packager will continue running while we debug the application, so we can"t
+                            // wait for this command to finish
 
-                        let spawnOptions = { env: childEnvForDebugging };
+                            let spawnOptions = { env: childEnvForDebugging };
 
-                        new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions, outputChannel).then((packagerProcess) => {
-                            this.packagerProcess = packagerProcess;
-                            executedStartPackagerCmd = true;
+                            // TODO #83 - PROMISE: We need to consume the result of this spawn
+                            new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions, outputChannel).then((packagerProcess) => {
+                                this.packagerProcess = packagerProcess;
+                                executedStartPackagerCmd = true;
+                            });
                         });
-                    }).done();
-            }
-        });
-
-        return this.awaitStart().then(() => {
-            if (executedStartPackagerCmd) {
-                Log.logMessage("Packager started.", outputChannel);
-            } else {
-                Log.logMessage("Packager is already running.", outputChannel);
-                if (!outputChannel) {
-                    Log.logMessage("Warning: Debugging is not supported if the React Native Packager is not started within VS Code. If debugging fails, please kill other active React Native packager processes and retry.", outputChannel);
                 }
-            }
-        });
+            })
+            .then(() =>
+                this.awaitStart())
+            .then(() => {
+                if (executedStartPackagerCmd) {
+                    Log.logMessage("Packager started.", outputChannel);
+                } else {
+                    Log.logMessage("Packager is already running.", outputChannel);
+                    if (!outputChannel) {
+                        // TODO #83: This warning is printted incorrectly when the packager was started from the command palette. Fix it.
+                        Log.logWarning("Debugging is not supported if the React Native Packager is not started within VS Code. If debugging fails, please kill other active React Native packager processes and retry.", outputChannel);
+                    }
+                }
+            });
     }
 
     public stop(outputChannel?: OutputChannel): Q.Promise<void> {
-        let processToKill = this.packagerProcess;
-        this.packagerProcess = null;
-        return new CommandExecutor(this.projectPath).killReactPackager(processToKill, outputChannel);
+        return new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess, outputChannel).then(() =>
+            this.packagerProcess = null);
     }
 
     public prewarmBundleCache(platform: string) {

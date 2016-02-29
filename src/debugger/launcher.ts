@@ -8,10 +8,10 @@ import {MultipleLifetimesAppWorker} from "./appWorker";
 import {ScriptImporter} from "./scriptImporter";
 import {Log} from "../common/log";
 import {PlatformResolver} from "./platformResolver";
-import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IRunOptions} from "../common/launchArgs";
 import * as em from "../common/extensionMessaging";
+import {EntryPointHandler} from "../common/entryPointHandler";
 
 export class Launcher {
     private projectRootPath: string;
@@ -20,20 +20,18 @@ export class Launcher {
         this.projectRootPath = projectRootPath;
     }
 
-    public launch() {
-        let version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
-        let extensionMessageSender = new em.ExtensionMessageSender();
-
+    public launch(): void {
         // Enable telemetry
-        Telemetry.init("react-native-debug-process", version, true).then(() => {
+        new EntryPointHandler().runApp("react-native-debug-process", () => this.getAppVersion(), "Cannot debug application", () => {
             return TelemetryHelper.generate("launch", (generator) => {
                 const resolver = new PlatformResolver();
                 const runOptions = this.parseRunOptions();
                 const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
                 if (!mobilePlatform) {
-                    Log.logError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
+                    throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
                 } else {
                     const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
+                    let extensionMessageSender = new em.ExtensionMessageSender();
                     return Q({})
                         .then(() => {
                             generator.step("startPackager");
@@ -62,16 +60,15 @@ export class Launcher {
                         .then(() => {
                             generator.step("mobilePlatform.enableJSDebuggingMode");
                             return mobilePlatform.enableJSDebuggingMode(runOptions);
-                        });
+                        }).then(() =>
+                            Log.logMessage("Debugging session started succesfuly."));
                 }
             });
-        }).done(
-            () => {
-                Log.logMessage("Debugging session started succesfuly.");
-            },
-            reason => {
-                Log.logError("Cannot debug application.", reason);
-            });
+        });
+    }
+
+    private getAppVersion() {
+        return JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
     }
 
     /**
@@ -88,4 +85,3 @@ export class Launcher {
         return result;
     }
 }
-

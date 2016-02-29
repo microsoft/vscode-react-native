@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as Q from "q";
 import {ChildProcess} from "child_process";
 import {Log} from "./log";
 import {Node} from "./node/node";
-import {ISpawnResult} from "./node/childProcess";
+import {ISpawnResult, IExecRejection} from "./node/childProcess";
 import {OutputChannel} from "vscode";
-import * as Q from "q";
+import {NestedError} from "./nestedError";
 
 interface EnvironmentOptions {
     REACT_DEBUGGER?: string;
@@ -30,7 +31,8 @@ export class CommandExecutor {
                 Log.logMessage(stdout);
                 Log.commandEnded(command);
             },
-            reason => Log.commandFailed(command, reason));
+            (reason: IExecRejection) =>
+                this.generateRejectionForCommand(command, reason.error));
     }
 
     /**
@@ -55,10 +57,6 @@ export class CommandExecutor {
      */
     public spawnAndWaitForCompletion(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<void> {
         return this.spawnChildProcess(command, args, options, outputChannel).outcome;
-    }
-
-    public spawnReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): ChildProcess {
-        return this.spawnChildReactCommandProcess(command, args, options, outputChannel).spawnedProcess;
     }
 
     /**
@@ -96,7 +94,8 @@ export class CommandExecutor {
             }
         });
 
-        Q.delay(300).then(() => deferred.resolve(result.spawnedProcess));
+        // TODO #83 - PROMISE: We need to consume result.outcome here
+        Q.delay(300).done(() => deferred.resolve(result.spawnedProcess));
         return deferred.promise;
     }
 
@@ -112,17 +111,15 @@ export class CommandExecutor {
             if (process.platform === "win32") {
                 return new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome.then(() => {
                     Log.logMessage("Packager stopped", outputChannel);
-                }, function() {
-                    Log.logError("Failed to exit the React Native packager", outputChannel);
                 });
             } else {
                 packagerProcess.kill();
                 Log.logMessage("Packager stopped", outputChannel);
+                return Q.resolve<void>(void 0);
             }
-
-            packagerProcess = null;
         } else {
             Log.logMessage("Packager not found", outputChannel);
+            return Q.resolve<void>(void 0);
         }
     }
 
@@ -180,12 +177,16 @@ export class CommandExecutor {
             }
         });
 
-        result.outcome.done(() => {
-            Log.commandEnded(commandWithArgs, outputChannel);
-        }, (reason) => {
-            Log.commandFailed(commandWithArgs, reason, outputChannel);
-        });
+        result.outcome = result.outcome.then(
+            () =>
+                Log.commandEnded(commandWithArgs, outputChannel),
+            reason =>
+                this.generateRejectionForCommand(command, reason));
 
         return result;
+    }
+
+    private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {
+        return Q.reject<void>(new NestedError(`Error while executing: ${command}`, reason));
     }
 }
