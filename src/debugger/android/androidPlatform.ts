@@ -17,7 +17,8 @@ export class AndroidPlatform implements IAppPlatform {
     private static RUN_ANDROID_FAILURE_PATTERNS: PatternToFailure = {
         "Failed to install on any devices": "Could not install the app on any available device. Make sure you have a correctly"
          + " configured device or emulator running. See https://facebook.github.io/react-native/docs/android-setup.html",
-    "com.android.ddmlib.ShellCommandUnresponsiveException": "An Android shell command timed-out. Please retry the operation." };
+    "com.android.ddmlib.ShellCommandUnresponsiveException": "An Android shell command timed-out. Please retry the operation.",
+    "Android project not found": "Android project not found." };
 
     private static RUN_ANDROID_SUCCESS_PATTERNS: string[] = ["BUILD SUCCESSFUL", "Starting the app", "Starting: Intent"];
 

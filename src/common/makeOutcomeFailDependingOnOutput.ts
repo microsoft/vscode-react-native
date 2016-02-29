@@ -49,8 +49,9 @@ export class MakeOutcomeFailDependingOnOutput {
 
     // We check the failure patterns one by one, to see if any of those appeared on the errors. If they did, we return the associated error
     private findAnyFailurePattern(patternToFailure: PatternToFailure): string {
+        const errorsAndOutput = this.errors + this.output;
         const patternThatAppeared = Object.keys(patternToFailure).find(pattern =>
-            this.errors.indexOf(pattern) !== -1);
+            errorsAndOutput.indexOf(pattern) !== -1);
         return patternThatAppeared ? patternToFailure[patternThatAppeared] : null;
     }
 
