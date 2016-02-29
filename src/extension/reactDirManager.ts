@@ -4,7 +4,7 @@
 import * as Q from "q";
 import * as vscode from "vscode";
 import * as path from "path";
-import {ErrorHelper} from "../common/error/ErrorHelper";
+import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {FileSystem} from "../common/node/fileSystem";
 import {EntryPointHandler} from "../common/entryPointHandler";

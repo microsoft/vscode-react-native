@@ -7,7 +7,7 @@ import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {Packager} from "../common/packager";
 import {EntryPointHandler} from "../common/entryPointHandler";
-import {ErrorHelper} from "../common/error/ErrorHelper";
+import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalError} from "../common/error/internalError";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
