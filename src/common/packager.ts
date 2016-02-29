@@ -3,7 +3,8 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
-import {Log, LogLevel} from "./log";
+import {Log} from "./log";
+import {LogLevel} from "./logHelper";
 import {Node} from "./node/node";
 import {OutputChannel} from "vscode";
 import {Package} from "./node/package";
@@ -39,6 +40,7 @@ export class Packager {
 
     public start(outputChannel?: OutputChannel): Q.Promise<void> {
         let executedStartPackagerCmd = false;
+        let targetLogChannel = outputChannel || console;
         return this.isRunning()
             .then(running => {
                 if (!running) {
@@ -47,7 +49,7 @@ export class Packager {
                             let args = ["--port", Packager.PORT];
                             let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
-                            Log.logMessage("Starting Packager", outputChannel);
+                            Log.logMessage("Starting Packager", targetLogChannel);
                             // The packager will continue running while we debug the application, so we can"t
                             // wait for this command to finish
 
@@ -65,9 +67,9 @@ export class Packager {
                 this.awaitStart())
             .then(() => {
                 if (executedStartPackagerCmd) {
-                    Log.logMessage("Packager started.", outputChannel);
+                    Log.logMessage("Packager started.", targetLogChannel);
                 } else {
-                    Log.logMessage("Packager is already running.", outputChannel);
+                    Log.logMessage("Packager is already running.", targetLogChannel);
                     if (!outputChannel) {
                         // TODO #83: This warning is printted incorrectly when the packager was started from the command palette. Fix it.
                         Log.logWarning("Debugging is not supported if the React Native Packager is not started within VS Code. If debugging fails, please kill other active React Native packager processes and retry.", outputChannel);
@@ -76,7 +78,7 @@ export class Packager {
 
                 if (this.sourcesStoragePath) {
                     return this.downloadDebuggerWorker().then(() => {
-                        Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
+                        Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.", [console]);
                     });
                 }
             });
@@ -91,7 +93,7 @@ export class Packager {
         let bundleURL = `http://${Packager.HOST}/index.${platform}.bundle`;
         Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
         return new Request().request(bundleURL, true).then(() => {
-            Log.logMessage("The Bundle Cache was prewarmed.");
+            Log.logMessage("The Bundle Cache was prewarmed.", [console]);
         }).catch(() => {
             // The attempt to prefetch the bundle failed.
             // This may be because the bundle is not index.* so we shouldn't treat this as fatal.

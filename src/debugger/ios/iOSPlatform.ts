@@ -65,7 +65,7 @@ export class IOSPlatform implements IAppPlatform {
 
         if (this.simulatorTarget.toLowerCase() === IOSPlatform.deviceString) {
             // Note that currently we cannot automatically switch the device into debug mode.
-            Log.logMessage("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
+            Log.logToConsole("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
             return Q.resolve<void>(void 0);
         }
 

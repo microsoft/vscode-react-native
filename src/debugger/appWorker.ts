@@ -7,7 +7,8 @@ import * as path from "path";
 import * as WebSocket from "ws";
 import {ScriptImporter}  from "./scriptImporter";
 import {Packager}  from "../common/packager";
-import {Log, LogLevel} from "../common/log";
+import {Log} from "../common/log";
+import {LogLevel} from "../common/logHelper";
 import {Node} from "../common/node/node";
 
 import Module = require("module");
@@ -187,12 +188,12 @@ export class MultipleLifetimesAppWorker {
     }
 
     private onSocketOpened() {
-        Log.logMessage("Established a connection with the Proxy (Packager) to the React Native application");
+        Log.logToConsole("Established a connection with the Proxy (Packager) to the React Native application");
     }
 
     private onSocketClose() {
         // TODO: Add some logic to not print this message that often, we'll spam the user
-        Log.logMessage("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon...");
+        Log.logToConsole("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon...");
         setTimeout(() => this.start(), 100);
     }
 

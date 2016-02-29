@@ -6,7 +6,8 @@ import * as Q from "q";
 
 import {CommandExecutor} from "../../common/commandExecutor";
 import {Xcodeproj} from "../../common/ios/xcodeproj";
-import {NestedError} from "../../common/nestedError";
+import {ErrorHelper} from "../../common/errorHelper";
+import {InternalErrorCode} from "../../common/internalErrorCode";
 
 export class DeviceDeployer {
     private projectRoot: string;
@@ -23,7 +24,7 @@ export class DeviceDeployer {
             return new CommandExecutor(this.projectRoot)
                 .spawnAndWaitForCompletion("ideviceinstaller", ["-i", pathToCompiledApp]).catch((err) => {
                     if (err.code === "ENOENT") {
-                        throw new NestedError("Unable to find ideviceinstaller. Please make sure to install Homebrew (http://brew.sh) and then 'brew install ideviceinstaller'", err);
+                        throw ErrorHelper.getNestedError(InternalErrorCode.IDeviceInstallerNotFound, err);
                     }
                     throw err;
                 });
