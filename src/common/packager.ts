@@ -3,8 +3,8 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
-import {Log} from "./log";
-import {LogLevel} from "./logHelper";
+import {Log} from "./log/log";
+import {LogLevel} from "./log/logHelper";
 import {Node} from "./node/node";
 import {OutputChannel} from "vscode";
 import {Package} from "./node/package";

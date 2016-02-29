@@ -7,8 +7,8 @@ import * as path from "path";
 import * as WebSocket from "ws";
 import {ScriptImporter}  from "./scriptImporter";
 import {Packager}  from "../common/packager";
-import {Log} from "../common/log";
-import {LogLevel} from "../common/logHelper";
+import {Log} from "../common/log/log";
+import {LogLevel} from "../common/log/logHelper";
 import {Node} from "../common/node/node";
 
 import Module = require("module");

@@ -5,17 +5,14 @@
  * Logging utility class.
  */
 
-import {CommandStatus} from "./commandExecutor";
+import {CommandStatus} from "../commandExecutor";
 import {LogHelper, LogChannelType, LogLevel} from "./logHelper";
 import {OutputChannelLogFormatter} from "./outputChannelLogFormatter";
 import {StreamLogFormatter} from "./streamLogFormatter";
 import {OutputChannel} from "vscode";
 
 export class Log {
-
-    private static TAG: string = "[vscode-react-native]";
-
-    public static logCommandStatus(command: string, status: CommandStatus, targetLogChannel?: any) {
+    public static logCommandStatus(command: string, status: CommandStatus, targetLogChannel: any = null) {
         console.assert(status >= CommandStatus.Start && status <= CommandStatus.End, "Unsupported Command Status");
 
         let statusMessage = Log.getCommandStatusString(command, status);
@@ -27,7 +24,7 @@ export class Log {
      * Customers aren't interested in these messages, so we normally shouldn't show
      * them to them.
      */
-    public static logInternalMessage(logLevel: LogLevel, message: string, targetChannel?: any) {
+    public static logInternalMessage(logLevel: LogLevel, message: string, targetChannel: any = null) {
         if (LogHelper.getExtensionLogLevel() >= logLevel) {
             this.logMessage(`[Internal-${logLevel}] ${message}`, targetChannel);
         }
@@ -36,18 +33,15 @@ export class Log {
     /**
      * Logs a warning message to the console.
      */
-    public static logWarning(message: string, error?: any, outputChannel?: OutputChannel, logStack = true) {
-        // TODO #83: Refactor this code and create a better implementation
-        this.logError(`WARNING: ${message}`, error, outputChannel, logStack);
+    public static logWarning(error?: any, outputChannel: OutputChannel = null, logStack = true) {
+        this.logError(error, outputChannel, logStack);
     }
 
     /**
      * Logs an error message to the console.
      */
-    public static logError(message: string, error?: any, outputChannel?: OutputChannel, logStack = true) {
-        let errorMessagePrefix = outputChannel ? "" : `${Log.TAG} `;
-        let errorMessagePostfix =  error ? `: ${LogHelper.getErrorMessage(error)}` : "";
-        let errorMessageToLog = errorMessagePrefix + message + errorMessagePostfix;
+    public static logError(error?: any, outputChannel?: OutputChannel, logStack = true) {
+        let errorMessageToLog = LogHelper.getErrorString(error, outputChannel || console);
 
         if (outputChannel) {
             Log.logToOutputChannel(errorMessageToLog, outputChannel);
@@ -64,7 +58,7 @@ export class Log {
     /**
      * Logs a message to the console or the OutputChannel
      */
-    public static logMessage(message: string, targetLogChannel?: any, formatMessage: boolean = true) {
+    public static logMessage(message: string, targetLogChannel: any = null, formatMessage: boolean = true) {
         Log.log(message, targetLogChannel || console, formatMessage);
     }
 
@@ -82,14 +76,6 @@ export class Log {
             OutputChannelLogFormatter.getFormattedMessage(message) :
             message);
         outputChannel.show();
-    }
-
-    public static stdout(message: string, targetChannel?: any) {
-        Log.log(message, targetChannel, false);
-    }
-
-    public static stderr(message: string, targetChannel?: any) {
-        Log.log(message, targetChannel, false);
     }
 
     private static getCommandStatusString(command: string, status: CommandStatus) {

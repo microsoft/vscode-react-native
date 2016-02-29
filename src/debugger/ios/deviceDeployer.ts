@@ -6,8 +6,8 @@ import * as Q from "q";
 
 import {CommandExecutor} from "../../common/commandExecutor";
 import {Xcodeproj} from "../../common/ios/xcodeproj";
-import {ErrorHelper} from "../../common/errorHelper";
-import {InternalErrorCode} from "../../common/internalErrorCode";
+import {ErrorHelper} from "../../common/error/errorHelper";
+import {InternalErrorCode} from "../../common/error/internalErrorCode";
 
 export class DeviceDeployer {
     private projectRoot: string;
@@ -24,7 +24,7 @@ export class DeviceDeployer {
             return new CommandExecutor(this.projectRoot)
                 .spawnAndWaitForCompletion("ideviceinstaller", ["-i", pathToCompiledApp]).catch((err) => {
                     if (err.code === "ENOENT") {
-                        throw ErrorHelper.getNestedError(InternalErrorCode.IDeviceInstallerNotFound, err);
+                        throw ErrorHelper.getNestedError(err, InternalErrorCode.IDeviceInstallerNotFound);
                     }
                     throw err;
                 });

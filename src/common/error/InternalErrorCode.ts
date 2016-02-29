@@ -5,6 +5,10 @@ export enum InternalErrorCode {
         // Command Executor errors
         CommandExecutionFailed = 101,
         PackagerStartFailed = 102,
+        FailedToRunOnAndroid = 103,
+        FailedToRunOnIos = 104,
+        FailedToStartPackager = 105,
+        FailedToStopPackager = 106,
 
         // Device Deployer errors
         IDeviceInstallerNotFound = 201,
@@ -21,9 +25,19 @@ export enum InternalErrorCode {
         // Packager errors
         OpnPackagerLocationNotFound = 501,
         OpnPackagerNotFound = 502,
+        FailedToStopPackagerOnExit = 503,
 
         // React Native Project errors
         ProjectVersionNotParsable = 601,
         ProjectVersionUnsupported = 602,
-        ProjectVersionNotReadable = 603
+        ProjectVersionNotReadable = 603,
+
+        // Miscellaneous errors
+        TelemetryInitializationFailed = 701,
+        ExtensionActivationFailed = 702,
+        DebuggerStubLauncherFailed = 703,
+        IntellisenseSetupFailed = 704,
+        NodeDebuggerConfigurationFailed = 705,
+        DebuggingFailed = 706,
+        RNTempFolderDeletionFailed = 707
     }

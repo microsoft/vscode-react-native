@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {FileSystem} from "../common/node/fileSystem";
-import {Log} from "../common/log";
-import {LogLevel} from "../common/logHelper";
+import {Log} from "../common/log/log";
+import {LogLevel} from "../common/log/logHelper";
 import path = require("path");
 import Q = require("q");
 import {Request} from "../common/node/request";

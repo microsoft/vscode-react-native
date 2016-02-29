@@ -3,12 +3,12 @@
 
 import * as Q from "q";
 import {ChildProcess} from "child_process";
-import {Log} from "./log";
+import {Log} from "./log/log";
 import {Node} from "./node/node";
 import {ISpawnResult, IExecRejection} from "./node/childProcess";
 import {OutputChannel} from "vscode";
-import {ErrorHelper} from "./errorHelper";
-import {InternalErrorCode} from "./internalErrorCode";
+import {ErrorHelper} from "./error/errorHelper";
+import {InternalErrorCode} from "./error/internalErrorCode";
 
 interface EnvironmentOptions {
     REACT_DEBUGGER?: string;

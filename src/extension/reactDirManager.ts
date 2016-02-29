@@ -4,6 +4,8 @@
 import * as Q from "q";
 import * as vscode from "vscode";
 import * as path from "path";
+import {ErrorHelper} from "../common/error/ErrorHelper";
+import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {FileSystem} from "../common/node/fileSystem";
 import {EntryPointHandler} from "../common/entryPointHandler";
 
@@ -24,7 +26,7 @@ export class ReactDirManager implements vscode.Disposable {
 
     public dispose(): void {
         new EntryPointHandler(vscode.window.createOutputChannel("React-Native")).runFunction("extension.deleteTemporaryFolder",
-            "Couldn't delete the temporary folder ${ReactDirManager.ReactDirPath}",
+            ErrorHelper.getInternalError(InternalErrorCode.RNTempFolderDeletionFailed, ReactDirManager.ReactDirPath),
             () =>
                 new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath));
     }

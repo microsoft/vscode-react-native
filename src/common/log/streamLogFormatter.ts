@@ -13,15 +13,7 @@ export class StreamLogFormatter {
         return `${LogHelper.MESSAGE_TAG} ${message}\n`;
     }
 
-    public static getFormattedWarning(message: string) {
-        return `${LogHelper.WARN_TAG} ${message}\n`;
-    }
-
     public static getFormattedInternalMessage(logLevel: string, message: string) {
         return (`${LogHelper.INTERNAL_TAG} [${logLevel}] ${message}\n`);
-    }
-
-    public static getFormattedErrorMessage(message: string) {
-        return `${LogHelper.ERROR_TAG} ${message}`;
     }
 }

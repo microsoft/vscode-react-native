@@ -11,5 +11,17 @@
     "PackageNotFound": "Attempting to find package {0} failed with error: {1}",
     "ProjectVersionNotParsable": "Couldn't parse the version component of the package at {0}: version = {1}",
     "ProjectVersionUnsupported": "Project version = {0}",
-    "ProjectVersionNotReadable":"Unable to read version = {0}"
+    "ProjectVersionNotReadable":"Unable to read version = {0}",
+    "TelemetryInitializationFailed":"{0}. Couldn't initialize telemetry",
+    "ExtensionActivationFailed": "Failed to activate the React Native Tools extension",
+    "DebuggerStubLauncherFailed": "Failed to setup the stub launcher for the debugger",
+    "IntellisenseSetupFailed": "Failed to setup IntelliSense",
+    "NodeDebuggerConfigurationFailed": "Failed to configure the node debugger location for the debugger",
+    "FailedToStopPackagerOnExit": "Failed to stop the packager while closing React Native Tools",
+    "FailedToRunOnAndroid": "Failed to run the application in Android",
+    "FailedToRunOnIos": "Failed to run the application in iOS",
+    "FailedToStartPackager": "Failed to start the React Native packager",
+    "FailedToStopPackager": "Failed to stop the React Native packager",
+    "DebuggingFailed": "Cannot debug application",
+    "RNTempFolderDeletionFailed": "Couldn't delete the temporary folder {0}"
 }

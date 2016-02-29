@@ -7,7 +7,7 @@ import * as Q from "q";
 
 import {PlistBuddy} from "./plistBuddy";
 import {Node} from "../../common/node/node";
-import {Log} from "../../common/log";
+import {Log} from "../../common/log/log";
 
 import {TelemetryHelper} from "../../common/telemetryHelper";
 

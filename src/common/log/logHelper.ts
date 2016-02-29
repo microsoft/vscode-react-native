@@ -5,6 +5,8 @@
  * Logging utility class.
  */
 
+import * as util from "util";
+import {InternalErrorLevel} from "../error/internalError";
 
 export enum LogLevel {
     None = 0,
@@ -24,8 +26,9 @@ export enum LogChannelType {
 export class LogHelper {
     public static MESSAGE_TAG: string = "[vscode-react-native]";
     public static INTERNAL_TAG: string = "[Internal]";
-    public static ERROR_TAG: string = `${LogHelper.MESSAGE_TAG} [Error]`;
-    public static WARN_TAG: string = `${LogHelper.MESSAGE_TAG} [Warning]`;
+    public static ERROR_TAG_FORMATSTRING: string = "[Error: %s]";
+    public static WARN_TAG: string = "[Warning]";
+    private static ERROR_CODE_WIDTH: string = "0000";
 
     public static getLogChannelType(targetChannel: any): LogChannelType {
         if (!targetChannel) {
@@ -59,6 +62,40 @@ export class LogHelper {
             return message;
         }
 
+    }
+
+    public static getErrorString(e: any, targetChannel: any): string {
+        let errorMessageTag = LogHelper.getLogChannelType(targetChannel) === LogChannelType.OutputChannel ?
+                                        "" :
+                                        `${LogHelper.MESSAGE_TAG}`;
+
+        if (e.isInternalError()) {
+            let errorMessage = e.message;
+            let errorMessagePrefix = `${LogHelper.WARN_TAG}`;
+            switch (e.errorLevel) {
+                case InternalErrorLevel.Error: {
+                    // Transforms 32 to say "0032" (for fixed width = 4)
+                    let errorCodeString = (LogHelper.ERROR_CODE_WIDTH + e.errorCode).slice(-LogHelper.ERROR_CODE_WIDTH.length);
+                    errorMessagePrefix = util.format(LogHelper.ERROR_TAG_FORMATSTRING, errorCodeString);
+                    break;
+                }
+
+                case InternalErrorLevel.Warning:
+                default:
+                    errorMessagePrefix = `${LogHelper.WARN_TAG}`;
+                    break;
+            }
+
+            return errorMessageTag + errorMessagePrefix + errorMessage;
+       } else {
+            try {
+                return JSON.stringify(e);
+            } catch (exception) {
+                // This is a best-effort feature, so we ignore any exceptions. If possible we'll print the error stringified.
+                // If not, we'll just use one of the fallbacks
+                return e.error || e.toString() || "";
+            }
+        }
     }
 
     public static getExtensionLogLevel(): LogLevel {

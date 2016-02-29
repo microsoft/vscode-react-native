@@ -13,16 +13,8 @@ export class OutputChannelLogFormatter {
         return OutputChannelLogFormatter.getFormattedOutputChannelString(message);
     }
 
-    public static getFormattedWarning(message: string, targetChannel: any) {
-        return OutputChannelLogFormatter.getFormattedOutputChannelString(message);
-    }
-
     public static getFormattedInternalMessage(logLevel: string, message: string) {
         return (`${LogHelper.INTERNAL_TAG} [${logLevel}] ${message}`);
-    }
-
-    public static getFormattedErrorMessage(message: string) {
-        return OutputChannelLogFormatter.getFormattedOutputChannelString(message);
     }
 
     private static getFormattedOutputChannelString(message: string) {

@@ -4,7 +4,7 @@
 import * as vscode from "vscode";
 import * as Q from "q";
 import {CommandExecutor} from "../common/commandExecutor";
-import {Log} from "../common/log";
+import {Log} from "../common/log/log";
 import {Packager} from "../common/packager";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
