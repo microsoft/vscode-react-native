@@ -63,7 +63,7 @@ export class SandboxedAppWorker {
     }
 
     public start(): Q.Promise<void> {
-        let scriptToRunPath = require.resolve(path.join(this.sourcesStoragePath, Packager.DEBUGGER_WORKER_FILE_BASENAME));
+        let scriptToRunPath = require.resolve(path.join(this.sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME));
         this.initializeSandboxAndContext(scriptToRunPath);
         return this.readFileContents(scriptToRunPath).then(fileContents =>
             // On a debugger worker the onmessage variable already exist. We need to declare it before the
@@ -123,7 +123,7 @@ export class SandboxedAppWorker {
         this.pendingScriptImport = defer.promise;
 
         // The next line converts to any due to the incorrect typing on node.d.ts of vm.runInThisContext
-        new ScriptImporter(this.sourcesStoragePath, this.debugAdapterPort).download(url)
+        new ScriptImporter(this.sourcesStoragePath).downloadAppScript(url, this.debugAdapterPort)
             .then(downloadedScript =>
                 this.runInSandbox(downloadedScript.filepath, downloadedScript.contents))
             .done(() => {
@@ -183,7 +183,7 @@ export class MultipleLifetimesAppWorker {
     }
 
     private debuggerProxyUrl() {
-        return `ws://${Packager.HOST}/debugger-proxy`;
+        return `ws://${Packager.HOST}/debugger-proxy?role=debugger&name=vscode`;
     }
 
     private onSocketOpened() {

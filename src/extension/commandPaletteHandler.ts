@@ -14,9 +14,9 @@ export class CommandPaletteHandler {
     private reactNativePackager: Packager;
     private workspaceRoot: string;
 
-    constructor(workspaceRoot: string) {
+    constructor(workspaceRoot: string, reactNativePackager: Packager) {
         this.workspaceRoot = workspaceRoot;
-        this.reactNativePackager = new Packager(workspaceRoot);
+        this.reactNativePackager = reactNativePackager;
     }
 
     /**

@@ -21,7 +21,7 @@ var sources = [
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task('build', function () {
+gulp.task('build', ['checkImports'], function () {
     var tsProject = ts.createProject('tsconfig.json');
     return tsProject.src()
         .pipe(sourcemaps.init())
@@ -64,6 +64,22 @@ function test() {
 
 gulp.task('build-test', ['build'], test);
 gulp.task('test', test);
+
+gulp.task('checkImports', function (cb) {
+    var checkProcess = child_process.fork(path.join(__dirname, "tools", "checkCasing.js"),
+        {
+            cwd: path.resolve(__dirname, "src"),
+            stdio: "inherit"
+        });
+    checkProcess.on("error", cb);
+    checkProcess.on("exit", function (code, signal) {
+        if (code || signal) {
+            cb(new Error("Mismatches found in import casing"));
+        } else {
+            cb();
+        }
+    });
+});
 
 gulp.task('watch-build-test', ['build', 'build-test'], function () {
     return gulp.watch(sources, ['build', 'build-test']);

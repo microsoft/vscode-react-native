@@ -5,15 +5,21 @@ import {FileSystem} from "../common/node/fileSystem";
 import * as path from "path";
 import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
+import {Packager} from "../common/packager";
 import {EntryPointHandler} from "../common/entryPointHandler";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./intellisenseHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
+import {ExtensionServer} from "./extensionServer";
+
+/* all components use the same packager instance */
+const globalPackager = new Packager(vscode.workspace.rootPath);
+const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath, globalPackager);
+const extensionServer = new ExtensionServer(globalPackager);
 
 const outputChannel = vscode.window.createOutputChannel("React-Native");
 const entryPointHandler = new EntryPointHandler(outputChannel);
-const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath);
 const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
 const fsUtil = new FileSystem();
 
@@ -24,8 +30,9 @@ export function activate(context: vscode.ExtensionContext): void {
                 if (isRNProject) {
                     warnWhenReactNativeVersionIsNotSupported();
                     entryPointHandler.runFunction("debugger.setupLauncherStub", "Failed to setup the stub launcher for the debugger", () =>
-                        setupReactNativeDebugger().then(() =>
-                            setupReactDir(context)));
+                        setupReactNativeDebugger()
+                            .then(() => setupReactDir(context))
+                            .then(() => setupExtensionServer(context)));
                     entryPointHandler.runFunction("intelliSense.setup", "Failed to setup IntelliSense", () =>
                         IntellisenseHelper.setupReactNativeIntellisense());
                 }
@@ -54,6 +61,13 @@ function setupReactDir(context: vscode.ExtensionContext): Q.Promise<void> {
     return reactDirManager.create()
         .then(() => {
             context.subscriptions.push(reactDirManager);
+        });
+}
+
+function setupExtensionServer(context: vscode.ExtensionContext): Q.Promise<void> {
+    return extensionServer.setup()
+        .then(() => {
+            context.subscriptions.push(extensionServer);
         });
 }
 
