@@ -72,8 +72,8 @@ gulp.task('checkImports', function (cb) {
             stdio: "inherit"
         });
     checkProcess.on("error", cb);
-    checkProcess.on("exit", function (code) {
-        if (code) {
+    checkProcess.on("exit", function (code, signal) {
+        if (code || signal) {
             cb(new Error("Mismatches found in import casing"));
         } else {
             cb();
