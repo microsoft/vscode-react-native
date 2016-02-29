@@ -18,7 +18,8 @@ export class AndroidPlatform implements IAppPlatform {
         "Failed to install on any devices": "Could not install the app on any available device. Make sure you have a correctly"
          + " configured device or emulator running. See https://facebook.github.io/react-native/docs/android-setup.html",
     "com.android.ddmlib.ShellCommandUnresponsiveException": "An Android shell command timed-out. Please retry the operation.",
-    "Android project not found": "Android project not found." };
+    "Android project not found": "Android project not found.",
+    "error: more than one device/emulator": "You have more than a single device/emulator running. Please make sure you have a single one (you can verify it by running adb devices)" };
 
     private static RUN_ANDROID_SUCCESS_PATTERNS: string[] = ["BUILD SUCCESSFUL", "Starting the app", "Starting: Intent"];
 
