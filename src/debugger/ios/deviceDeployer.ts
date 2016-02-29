@@ -13,7 +13,7 @@ export class DeviceDeployer {
     private projectRoot: string;
 
     constructor(projectRoot: string) {
-        this.projectRoot = projectRoot;
+        this.projectRoot =  projectRoot.match(/(.*)ios\/?$/) ? projectRoot.match(/(.*)ios\/?$/)[1] : projectRoot;
     }
 
     public deploy(): Q.Promise<void> {

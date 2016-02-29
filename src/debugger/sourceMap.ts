@@ -15,7 +15,7 @@ interface ISourceMap {
 }
 
 export class SourceMapUtil {
-    private static SourceMapURLRegex: RegExp = /\/\/(#|@) sourceMappingURL=(.+?)\s*$/m;
+    private static SourceMapURLRegex: RegExp = /\/\/(#|@) sourceMappingURL=(.+index\.ios\.map.*?)\s*$/m;
 
     /**
      * Given a script body and URL, this method parses the body and finds the corresponding source map URL.

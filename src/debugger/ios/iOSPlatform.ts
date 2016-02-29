@@ -24,6 +24,7 @@ export class IOSPlatform implements IAppPlatform {
     private projectPath: string;
     private simulatorTarget: string;
     private isSimulator: boolean;
+    private iosProjectPath: string;
 
     // We should add the common iOS build/run erros we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure = {
@@ -37,6 +38,7 @@ export class IOSPlatform implements IAppPlatform {
         this.projectPath = this.runOptions.projectRoot;
         this.simulatorTarget = this.runOptions.target || IOSPlatform.simulatorString;
         this.isSimulator = this.simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;
+        this.iosProjectPath = this.runOptions.iosProjectPath || null;
     }
 
     public runApp(): Q.Promise<void> {
@@ -45,8 +47,11 @@ export class IOSPlatform implements IAppPlatform {
             // React native supports running on the iOS simulator from the command line
             let runArguments: string[] = [];
             if (this.simulatorTarget.toLowerCase() !== IOSPlatform.simulatorString) {
-                runArguments.push("--simulator");
-                runArguments.push(this.simulatorTarget);
+                runArguments.push("--simulator", this.simulatorTarget);
+            }
+
+            if (this.iosProjectPath) {
+                runArguments.push("--project-path", this.iosProjectPath);
             }
 
             const runIosSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-ios", runArguments);
@@ -57,10 +62,10 @@ export class IOSPlatform implements IAppPlatform {
                     Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS)).process(runIosSpawn);
         }
 
-        return new Compiler(this.projectPath).compile().then(() => {
-            return new DeviceDeployer(this.projectPath).deploy();
+        return new Compiler(this.iosProjectPath || this.projectPath).compile().then(() => {
+            return new DeviceDeployer(this.iosProjectPath || this.projectPath).deploy();
         }).then(() => {
-            return new DeviceRunner(this.projectPath).run();
+            return new DeviceRunner(this.iosProjectPath || this.projectPath).run();
         });
     }
 
@@ -72,12 +77,12 @@ export class IOSPlatform implements IAppPlatform {
             return Q.resolve<void>(void 0);
         }
 
-        const iosDebugModeManager = new IOSDebugModeManager(this.projectPath);
+        const iosDebugModeManager = new IOSDebugModeManager(this.iosProjectPath || this.projectPath);
 
         // Wait until the configuration file exists, and check to see if debugging is enabled
         return Q.all([
             iosDebugModeManager.getSimulatorJSDebuggingModeSetting(),
-            this.getBundleId(),
+            this.plistBuddy.getBundleId(this.iosProjectPath || this.projectPath),
         ]).spread((debugModeSetting: string, bundleId: string) => {
             if (debugModeSetting !== IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME) {
                 // Debugging must still be enabled
@@ -112,6 +117,6 @@ export class IOSPlatform implements IAppPlatform {
     }
 
     private getBundleId(): Q.Promise<string> {
-        return this.plistBuddy.getBundleId(this.projectPath);
+        return this.plistBuddy.getBundleId(this.iosProjectPath || this.projectPath);
     }
 }

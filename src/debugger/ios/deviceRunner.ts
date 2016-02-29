@@ -14,7 +14,7 @@ export class DeviceRunner {
     private childProcess = new Node.ChildProcess();
 
     constructor(projectRoot: string) {
-        this.projectRoot = projectRoot;
+        this.projectRoot =  projectRoot.match(/(.*)ios\/?$/) ? projectRoot.match(/(.*)ios\/?$/)[1] : projectRoot;
         process.on("exit", () => this.cleanup());
     }
 

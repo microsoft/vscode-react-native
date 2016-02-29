@@ -71,7 +71,7 @@ export class ScriptImporter {
      * Writes the script file to the project temporary location.
      */
     private writeAppScript(scriptBody: string, scriptUrl: url.Url): Q.Promise<String> {
-        let scriptFilePath = path.join(this.sourcesStoragePath, scriptUrl.pathname); // scriptFilePath = "$TMPDIR/index.ios.bundle"
+        let scriptFilePath = path.join(this.sourcesStoragePath, scriptUrl.pathname.replace(/\//g, '_')); // scriptFilePath = "$TMPDIR/index.ios.bundle"
         return new FileSystem().writeFile(scriptFilePath, scriptBody)
             .then(() => scriptFilePath);
     }
@@ -82,7 +82,7 @@ export class ScriptImporter {
     private writeAppSourceMap(sourceMapUrl: url.Url, scriptUrl: url.Url): Q.Promise<void> {
         return new Request().request(sourceMapUrl.href, true)
             .then((sourceMapBody: string) => {
-                let sourceMappingLocalPath = path.join(this.sourcesStoragePath, sourceMapUrl.pathname); // sourceMappingLocalPath = "$TMPDIR/index.ios.map"
+                let sourceMappingLocalPath = path.join(this.sourcesStoragePath, sourceMapUrl.pathname.replace(/\//g, '_')); // sourceMappingLocalPath = "$TMPDIR/index.ios.map"
                 let scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
                 let updatedContent = this.sourceMapUtil.updateSourceMapFile(sourceMapBody, scriptFileRelativePath, this.sourcesStoragePath);
                 return new FileSystem().writeFile(sourceMappingLocalPath, updatedContent);

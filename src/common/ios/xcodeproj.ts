@@ -20,6 +20,7 @@ export class Xcodeproj {
     }
 
     public findXcodeprojFile(projectRoot: string): Q.Promise<string> {
+        projectRoot =  projectRoot.match(/(.*)ios\/?$/) ? projectRoot.match(/(.*)ios\/?$/)[1] : projectRoot;
         return this.nodeFileSystem
             .findFilesByExtension(path.join(projectRoot, "ios"), "xcodeproj")
             .then((projectFiles: string[]) => {
