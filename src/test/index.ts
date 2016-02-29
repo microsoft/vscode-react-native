@@ -6,7 +6,9 @@ var testRunner = require("vscode/lib/testrunner");
 
 let mochaOptions: any = {
     ui: "tdd",
-    useColors: true
+    useColors: true,
+    invert: true,
+    grep: "debuggerContext" // Do not run tests intended for the debuggerContext
 };
 
 // Look for the env variable to decide wheter to use the TeamCity reporter or not
