@@ -2,11 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 /**
- * Logging utility class.
+ * Helper for the log utility.
  */
 
 import * as util from "util";
-import {InternalErrorLevel} from "../error/internalError";
+import {InternalError, InternalErrorLevel} from "../error/internalError";
 
 export enum LogLevel {
     None = 0,
@@ -26,10 +26,10 @@ export enum LogChannelType {
 export class LogHelper {
     public static MESSAGE_TAG: string = "[vscode-react-native]";
     public static INTERNAL_TAG: string = "[Internal]";
-    public static ERROR_TAG_FORMATSTRING: string = "[Error: %s]";
+    public static ERROR_TAG_FORMATSTRING: string = "[Error : %s] ";
     public static WARN_TAG: string = "[Warning]";
     private static ERROR_CODE_WIDTH: string = "0000";
-    private static LOG_LEVEL_NAME: string = "TACO_LOG_LEVEL";
+    private static LOG_LEVEL_NAME: string = "RN_LOG_LEVEL";
 
     public static get logLevel(): LogLevel {
         let valName: string = process.env[LogHelper.LOG_LEVEL_NAME];
@@ -49,7 +49,7 @@ export class LogHelper {
      * Determines the type of the log channel (LogChannelType).
      */
     public static getLogChannelType(targetChannel: any): LogChannelType {
-        console.assert(!!targetChannel, "targetChannl is undefined");
+        console.assert(!!targetChannel, "targetChannel is undefined");
         if (typeof targetChannel.log === "function") {
             return LogChannelType.Console;
         } else if (typeof targetChannel.append === "function") {
@@ -70,23 +70,9 @@ export class LogHelper {
                                         "" :
                                         `${LogHelper.MESSAGE_TAG}`;
 
-        if (e.isInternalError()) {
+        if (e.isInternalError) {
             let errorMessage = e.message;
-            let errorMessagePrefix = `${LogHelper.WARN_TAG}`;
-            switch (e.errorLevel) {
-                case InternalErrorLevel.Error: {
-                    // Encode the error code to a four-char code - ex, 0198
-                    let errorCodeString = (LogHelper.ERROR_CODE_WIDTH + e.errorCode).slice(-LogHelper.ERROR_CODE_WIDTH.length);
-                    errorMessagePrefix = util.format(LogHelper.ERROR_TAG_FORMATSTRING, errorCodeString);
-                    break;
-                }
-
-                case InternalErrorLevel.Warning:
-                default:
-                    errorMessagePrefix = `${LogHelper.WARN_TAG}`;
-                    break;
-            }
-
+            let errorMessagePrefix = LogHelper.getErrorMessagePrefix(e);
             return errorMessageTag + errorMessagePrefix + errorMessage;
        } else {
             try {
@@ -96,6 +82,24 @@ export class LogHelper {
                 // If not, we'll just use one of the fallbacks
                 return e.error || e.toString() || "";
             }
+        }
+    }
+
+    private static getErrorMessagePrefix(error: InternalError) {
+        if (!error) {
+            return "";
+        }
+
+        switch (error.errorLevel) {
+            case InternalErrorLevel.Error: {
+                // Encode the error code to a four-char code - ex, 0198
+                let errorCodeString = (LogHelper.ERROR_CODE_WIDTH + error.errorCode).slice(-LogHelper.ERROR_CODE_WIDTH.length);
+                return util.format(LogHelper.ERROR_TAG_FORMATSTRING, errorCodeString);
+            }
+
+            case InternalErrorLevel.Warning:
+            default:
+                 return `${LogHelper.WARN_TAG}`;
         }
     }
 }
