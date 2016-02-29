@@ -29,18 +29,35 @@ export class LogHelper {
     public static ERROR_TAG_FORMATSTRING: string = "[Error: %s]";
     public static WARN_TAG: string = "[Warning]";
     private static ERROR_CODE_WIDTH: string = "0000";
+    private static LOG_LEVEL_NAME: string = "TACO_LOG_LEVEL";
 
+    public static get logLevel(): LogLevel {
+        let valName: string = process.env[LogHelper.LOG_LEVEL_NAME];
+        return (<any> LogLevel)[valName];
+    }
+
+    public static set logLevel(level: LogLevel) {
+        if (!level) {
+            return;
+        }
+
+        // Set the process env value
+        process.env[LogHelper.LOG_LEVEL_NAME] = LogLevel[level];
+    }
+
+    /**
+     * Determines the type of the log channel (LogChannelType).
+     */
     public static getLogChannelType(targetChannel: any): LogChannelType {
-        if (!targetChannel) {
-            return -1;
-        } else if (typeof targetChannel.log === "function") {
+        console.assert(!!targetChannel, "targetChannl is undefined");
+        if (typeof targetChannel.log === "function") {
             return LogChannelType.Console;
         } else if (typeof targetChannel.append === "function") {
             return LogChannelType.OutputChannel;
         } else if (typeof targetChannel.write === "function") {
             return LogChannelType.WritableStream;
         } else {
-            return 0;
+            return LogChannelType.Console;
         }
     }
 
@@ -48,23 +65,7 @@ export class LogHelper {
     /**
      * Gets the message of a non null error, if any. Otherwise it returns the empty string.
      */
-    public static getErrorMessage(e: any): string {
-        let message = e.message || e.error && e.error.message;
-        if (!message) {
-            try {
-                return JSON.stringify(e);
-            } catch (exception) {
-                // This is a best-effort feature, so we ignore any exceptions. If possible we'll print the error stringified.
-                // If not, we'll just use one of the fallbacks
-                return e.error || e.toString() || "";
-            }
-        } else {
-            return message;
-        }
-
-    }
-
-    public static getErrorString(e: any, targetChannel: any): string {
+     public static getErrorString(e: any, targetChannel: any): string {
         let errorMessageTag = LogHelper.getLogChannelType(targetChannel) === LogChannelType.OutputChannel ?
                                         "" :
                                         `${LogHelper.MESSAGE_TAG}`;
@@ -74,7 +75,7 @@ export class LogHelper {
             let errorMessagePrefix = `${LogHelper.WARN_TAG}`;
             switch (e.errorLevel) {
                 case InternalErrorLevel.Error: {
-                    // Transforms 32 to say "0032" (for fixed width = 4)
+                    // Encode the error code to a four-char code - ex, 0198
                     let errorCodeString = (LogHelper.ERROR_CODE_WIDTH + e.errorCode).slice(-LogHelper.ERROR_CODE_WIDTH.length);
                     errorMessagePrefix = util.format(LogHelper.ERROR_TAG_FORMATSTRING, errorCodeString);
                     break;
@@ -95,17 +96,6 @@ export class LogHelper {
                 // If not, we'll just use one of the fallbacks
                 return e.error || e.toString() || "";
             }
-        }
-    }
-
-    public static getExtensionLogLevel(): LogLevel {
-        // TODO: Improve this logic. Make it case insensitive, etc...
-        let logLevelIndex = process.argv.indexOf("--extensionLogLevel");
-        if (logLevelIndex >= 0 && logLevelIndex + 1 < process.argv.length) {
-            let logLevelText = process.argv[logLevelIndex + 1];
-            return (<any>LogLevel)[logLevelText];
-        } else {
-            return LogLevel.None; // Default extension log level
         }
     }
 }

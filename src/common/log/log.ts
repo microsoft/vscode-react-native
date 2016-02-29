@@ -12,33 +12,15 @@ import {StreamLogFormatter} from "./streamLogFormatter";
 import {OutputChannel} from "vscode";
 
 export class Log {
-    public static logCommandStatus(command: string, status: CommandStatus, targetLogChannel: any = null) {
-        console.assert(status >= CommandStatus.Start && status <= CommandStatus.End, "Unsupported Command Status");
-
-        let statusMessage = Log.getCommandStatusString(command, status);
-        Log.log(statusMessage, targetLogChannel || console);
-    }
-
     /**
-     * Logs an internal message for when someone is debugging the extension itself.
-     * Customers aren't interested in these messages, so we normally shouldn't show
-     * them to them.
+     * Logs a message.
      */
-    public static logInternalMessage(logLevel: LogLevel, message: string, targetChannel: any = null) {
-        if (LogHelper.getExtensionLogLevel() >= logLevel) {
-            this.logMessage(`[Internal-${logLevel}] ${message}`, targetChannel);
-        }
+    public static logMessage(message: string, targetLogChannel: any = null, formatMessage: boolean = true) {
+        Log.log(message, targetLogChannel || console, formatMessage);
     }
 
     /**
-     * Logs a warning message to the console.
-     */
-    public static logWarning(error?: any, outputChannel: OutputChannel = null, logStack = true) {
-        this.logError(error, outputChannel, logStack);
-    }
-
-    /**
-     * Logs an error message to the console.
+     * Logs an error message.
      */
     public static logError(error?: any, outputChannel?: OutputChannel, logStack = true) {
         let errorMessageToLog = LogHelper.getErrorString(error, outputChannel || console);
@@ -56,10 +38,31 @@ export class Log {
     }
 
     /**
-     * Logs a message to the console or the OutputChannel
+     * Logs a warning message.
      */
-    public static logMessage(message: string, targetLogChannel: any = null, formatMessage: boolean = true) {
-        Log.log(message, targetLogChannel || console, formatMessage);
+    public static logWarning(error?: any, outputChannel: OutputChannel = null, logStack = true) {
+        this.logError(error, outputChannel, logStack);
+    }
+
+    /**
+     * Logs an internal message for when someone is debugging the extension itself.
+     * Customers aren't interested in these messages, so we normally shouldn't show
+     * them to them.
+     */
+    public static logInternalMessage(logLevel: LogLevel, message: string, targetChannel: any = null) {
+        if (LogHelper.logLevel >= logLevel) {
+            this.logMessage(`[Internal-${logLevel}] ${message}`, targetChannel);
+        }
+    }
+
+    /**
+     * Logs the status (Start/End) of a command.
+     */
+    public static logCommandStatus(command: string, status: CommandStatus, targetLogChannel: any = null) {
+        console.assert(status >= CommandStatus.Start && status <= CommandStatus.End, "Unsupported Command Status");
+
+        let statusMessage = Log.getCommandStatusString(command, status);
+        Log.log(statusMessage, targetLogChannel || console);
     }
 
     /**
@@ -71,6 +74,9 @@ export class Log {
             message);
     }
 
+    /**
+     * Logs a message to VS Code's Output Channel.
+     */
     public static logToOutputChannel(message: string, outputChannel: OutputChannel, formatMessage: boolean = true) {
         outputChannel.appendLine(formatMessage ?
             OutputChannelLogFormatter.getFormattedMessage(message) :

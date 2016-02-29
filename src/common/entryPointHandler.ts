@@ -26,7 +26,7 @@ export class EntryPointHandler {
 
     /* This method should wrap the entry point of the whole app, so we handle telemetry and error reporting properly */
     public runApp(appName: string, getAppVersion: () => string, error: InternalError, codeToRun: () => Q.Promise<void>): void {
-        let telemetryError = ErrorHelper.getInternalError(InternalErrorCode.TelemetryInitializationFailed);
+        let telemetryError = ErrorHelper.getInternalError(InternalErrorCode.TelemetryInitializationFailed, error.message);
         try { // try-catch for sync errors in init telemetry
             return this.handleErrors(telemetryError, // handleErrors for async errors in init telemetry
                 Telemetry.init("react-native", getAppVersion(), true).then(() =>

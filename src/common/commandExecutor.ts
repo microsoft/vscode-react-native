@@ -85,11 +85,11 @@ export class CommandExecutor {
         });
 
         result.stderr.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), outputChannel || process.stderr);
+            Log.logMessage(data.toString(), outputChannel || process.stderr, /*formatMessage*/false);
         });
 
         result.stdout.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), outputChannel || process.stdout);
+            Log.logMessage(data.toString(), outputChannel || process.stdout, /*formatMessage*/false);
         });
 
         // TODO #83 - PROMISE: We need to consume result.outcome here

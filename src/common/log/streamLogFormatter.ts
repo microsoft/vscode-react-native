@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 /**
- * Logging utility class.
+ * Formatter for Console/WritableStream.
  */
 
 import {LogHelper} from "./logHelper";

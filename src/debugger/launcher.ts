@@ -5,14 +5,15 @@ import * as fs from "fs";
 import * as path from "path";
 import * as Q from "q";
 import {MultipleLifetimesAppWorker} from "./appWorker";
-import {Packager} from "../common/packager";
 import {Log} from "../common/log/log";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
+import {ScriptImporter} from "./scriptImporter";
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
+import {IRunOptions} from "../common/launchArgs";
+import * as em from "../common/extensionMessaging";
 import {EntryPointHandler} from "../common/entryPointHandler";
-import {IRunOptions} from "./launchArgs";
 
 export class Launcher {
     private projectRootPath: string;
@@ -33,17 +34,23 @@ export class Launcher {
                     throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
                 } else {
                     const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-                    const packager = new Packager(this.projectRootPath, sourcesStoragePath);
+                    let extensionMessageSender = new em.ExtensionMessageSender();
                     return Q({})
                         .then(() => {
                             generator.step("startPackager");
-                            return packager.start();
+                            return extensionMessageSender.sendMessage(em.ExtensionMessage.START_PACKAGER);
+                        })
+                        .then(() => {
+                            let scriptImporter = new ScriptImporter(sourcesStoragePath);
+                            return scriptImporter.downloadDebuggerWorker(sourcesStoragePath).then(() => {
+                                Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
+                            });
                         })
                         // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
                         // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                         .then(() => {
                             generator.step("prewarmBundleCache");
-                            return packager.prewarmBundleCache(runOptions.platform);
+                            return extensionMessageSender.sendMessage(em.ExtensionMessage.PREWARM_BUNDLE_CACHE, [runOptions.platform]);
                         })
                         .then(() => {
                             generator.step("mobilePlatform.runApp");
@@ -81,4 +88,3 @@ export class Launcher {
         return result;
     }
 }
-
