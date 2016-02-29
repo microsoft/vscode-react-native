@@ -3,6 +3,7 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
+import {ErrorHelper} from "./error/errorHelper";
 import {Log} from "./log/log";
 import {LogLevel} from "./log/logHelper";
 import {Node} from "./node/node";
@@ -68,7 +69,7 @@ export class Packager {
                     Log.logMessage("Packager is already running.", targetLogChannel);
                     if (!outputChannel) {
                         // TODO #83: This warning is printted incorrectly when the packager was started from the command palette. Fix it.
-                        Log.logWarning("Debugging is not supported if the React Native Packager is not started within VS Code. If debugging fails, please kill other active React Native packager processes and retry.", outputChannel);
+                        Log.logWarning(ErrorHelper.getWarning("Debugging is not supported if the React Native Packager is not started within VS Code. If debugging fails, please kill other active React Native packager processes and retry."), outputChannel);
                     }
                 }
             });

@@ -25,8 +25,8 @@ export class InternalError extends Error {
 export class NestedError extends InternalError {
     public innerError: Error | any; // Normally this should be an error, but we support any value
 
-    constructor(errorCode: number, message: string, innerError: any) {
-        super(errorCode, message);
+    constructor(errorCode: number, message: string, innerError: any = null, errorLevel: InternalErrorLevel = InternalErrorLevel.Error) {
+        super(errorCode, message, errorLevel);
         this.innerError = innerError;
         this.name = innerError ? innerError.name : null;
         const innerMessage = innerError ? innerError.message : null;

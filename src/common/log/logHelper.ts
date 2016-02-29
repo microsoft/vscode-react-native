@@ -73,7 +73,7 @@ export class LogHelper {
         if (e.isInternalError) {
             let errorMessage = e.message;
             let errorMessagePrefix = LogHelper.getErrorMessagePrefix(e);
-            return errorMessageTag + errorMessagePrefix + errorMessage;
+            return errorMessageTag + errorMessagePrefix + " " + errorMessage;
        } else {
             try {
                 return JSON.stringify(e);

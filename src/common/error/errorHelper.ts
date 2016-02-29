@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as util from "util";
 import * as path from "path";
 import {InternalError, NestedError, InternalErrorLevel} from "./internalError";
 import {InternalErrorCode} from "./internalErrorCode";
@@ -14,44 +13,43 @@ export class ErrorHelper {
     }
 
     public static getNestedError(innerError: Error, errorCode: InternalErrorCode, ...optionalArgs: any[]): NestedError {
-        let message = util.format(ErrorHelper.getErrorMessage(errorCode), ...optionalArgs);
+        let message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
         return new NestedError(<number> errorCode, message, innerError);
     }
 
     public static wrapError(error: InternalError, innerError: Error): NestedError {
         return NestedError.getWrappedError(error, innerError);
     }
-    public static getWarning(warningMessage: string, ...optionalArgs: any[]): InternalError {
-        let message = util.format(warningMessage, ...optionalArgs);
-
-        // Warnings do  not use error codes
+    public static getWarning(message: string, ...optionalArgs: any[]): InternalError {
         return new InternalError(-1, message, InternalErrorLevel.Warning);
     }
 
+    public static getNestedWarning(innerError: Error, message: string, ...optionalArgs: any[]): NestedError {
+        return new NestedError(-1, message, innerError, InternalErrorLevel.Warning);
+    }
+
     private static getErrorMessage(errorCode: InternalErrorCode, ...optionalArgs: any[]): string {
-        console.log(optionalArgs);
         let errorStrings = require (ErrorHelper.errorStringsJsonLoc);
         return ErrorHelper.formatErrorMessage(errorStrings[InternalErrorCode[errorCode]], ...optionalArgs);
     }
 
     private static formatErrorMessage(errorMessage: string, ...optionalArgs: any[]): string {
-        console.log(optionalArgs);
-            if (!errorMessage) {
-                return errorMessage;
-            }
+         if (!errorMessage) {
+             return errorMessage;
+         }
 
-            let result: string = <string> errorMessage;
-            let args: string[] = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
-            if (args) {
-                for (var i: number = 0; i < args.length; i++) {
-                    result = result.replace(new RegExp("\\{" + i + "\\}", "g"), args[i]);
-                }
+         let result: string = <string> errorMessage;
+         let args: string[] = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
+         if (args) {
+            for (var i: number = 0; i < args.length; i++) {
+                result = result.replace(new RegExp("\\{" + i + "\\}", "g"), args[i]);
             }
+         }
 
-            return result;
+         return result;
     }
 
-    public static getOptionalArgsArrayFromFunctionCall(functionArguments: IArguments, startIndex: number): any[] {
+    private static getOptionalArgsArrayFromFunctionCall(functionArguments: IArguments, startIndex: number): any[] {
         if (functionArguments.length <= startIndex) {
             return null;
         }
