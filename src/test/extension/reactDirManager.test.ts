@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+
 // The module "assert" provides assertion methods from node
 import * as assert from "assert";
 import * as path from "path";
