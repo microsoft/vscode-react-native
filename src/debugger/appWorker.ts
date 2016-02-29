@@ -13,7 +13,6 @@ import {Node} from "../common/node/node";
 import Module = require("module");
 
 // This file is a replacement of: https://github.com/facebook/react-native/blob/8d397b4cbc05ad801cfafb421cee39bcfe89711d/local-cli/server/util/debugger.html for Node.JS
-
 interface DebuggerWorkerSandbox {
     __filename: string;
     __dirname: string;
@@ -161,12 +160,16 @@ export class MultipleLifetimesAppWorker {
     }
 
     public start(): Q.Promise<void> {
+        this.socketToApp = this.createSocketToApp();
+        return Q.resolve<void>(void 0); // Currently this method is sync
+    }
+
+    private startNewWorkerLifetime(): Q.Promise<void> {
         this.singleLifetimeWorker = new SandboxedAppWorker(this.sourcesStoragePath, this.debugAdapterPort, (message) => {
             this.sendMessageToApp(message);
         });
-        return this.singleLifetimeWorker.start().then(() => {
-            this.socketToApp = this.createSocketToApp();
-        });
+        Log.logInternalMessage(LogLevel.Info, "A new app worker lifetime was created.");
+        return this.singleLifetimeWorker.start();
     }
 
     private createSocketToApp() {
@@ -203,6 +206,9 @@ export class MultipleLifetimesAppWorker {
             if (object.method === "prepareJSRuntime") {
                 // The MultipleLifetimesAppWorker will handle prepareJSRuntime aka create new lifetime
                 this.gotPrepareJSRuntime(object);
+            } else if (object.method === "$disconnected") {
+                // We need to shutdown the current app worker, and create a new lifetime
+                this.singleLifetimeWorker = null;
             } else if (object.method) {
                 // All the other messages are handled by the single lifetime worker
                 this.singleLifetimeWorker.postMessage(object);
@@ -217,10 +223,12 @@ export class MultipleLifetimesAppWorker {
 
     private gotPrepareJSRuntime(message: any): void {
         // Create the sandbox, and replay that we finished processing the message
-        this.sendMessageToApp({ replyID: parseInt(message.id, 10) });
+        this.startNewWorkerLifetime().done(() => {
+            this.sendMessageToApp({ replyID: parseInt(message.id, 10) });
+        }, error => printDebuggingError(`Failed to prepare the JavaScript runtime environment. Message:\n${message}`, error));
     }
 
-    private sendMessageToApp(message: any) {
+    private sendMessageToApp(message: any): void {
         let stringified: string = null;
         try {
             stringified = JSON.stringify(message);
