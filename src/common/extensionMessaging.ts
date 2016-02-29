@@ -10,6 +10,8 @@ import * as net from "net";
 let WIN_ServerPipePath = "\\\\?\\pipe\\vscodereactnative";
 let UNIX_ServerPipePath = "/tmp/vscodereactnative.sock";
 
+export let ErrorMarker = "vscodereactnative-error-marker";
+
 export let getPipePath = (): string => {
     return (process.platform === "win32" ? WIN_ServerPipePath : UNIX_ServerPipePath);
 };
@@ -50,8 +52,12 @@ export class ExtensionMessageSender {
 
         socket.on("end", function() {
             try {
-                let responseBody: any = body ? JSON.parse(body) : null;
-                deferred.resolve(responseBody);
+                if (body === ErrorMarker) {
+                    deferred.reject("An error ocurred while handling message: " + ExtensionMessage[message]);
+                } else {
+                    let responseBody: any = body ? JSON.parse(body) : null;
+                    deferred.resolve(responseBody);
+                }
             } catch (e) {
                 deferred.reject(e);
             }

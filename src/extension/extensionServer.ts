@@ -11,7 +11,7 @@ import * as vscode from "vscode";
 
 
 export class ExtensionServer implements vscode.Disposable {
-    private outputChannel: any;
+    private outputChannel: vscode.OutputChannel;
     private serverInstance: net.Server = null;
     private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
     private reactNativePackager: Packager;
@@ -34,7 +34,7 @@ export class ExtensionServer implements vscode.Disposable {
         let deferred = Q.defer<void>();
 
         let launchCallback = (error: any) => {
-            Log.logMessage("Server started." + (error ? error : ""));
+            Log.logMessage("Extension messaging server started.");
             if (error) {
                 deferred.reject(error);
             } else {
@@ -97,6 +97,11 @@ export class ExtensionServer implements vscode.Disposable {
      * Handles connections to the server.
      */
     private handleSocket(socket: net.Socket): void {
+        let handleError = (e: any) => {
+            Log.logError("An error ocurred. ", e);
+            socket.end(em.ErrorMarker);
+        };
+
         let dataCallback = (data: any) => {
             try {
                 let messageWithArgs: em.MessageWithArguments = JSON.parse(data);
@@ -104,10 +109,10 @@ export class ExtensionServer implements vscode.Disposable {
                     .then(result => {
                         socket.end(JSON.stringify(result));
                     })
-                    .catch(() => { socket.end(); })
+                    .catch((e) => { handleError(e); })
                     .done();
             } catch (e) {
-                socket.end();
+                handleError(e);
             }
         };
 
