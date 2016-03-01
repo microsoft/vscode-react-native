@@ -4,6 +4,7 @@
 import {PlistBuddy} from "../../../common/ios/plistBuddy";
 
 import * as Q from "q";
+import * as sinon from "sinon";
 
 suite("plistBuddy", function() {
     suite("commonContext", function() {
@@ -12,33 +13,28 @@ suite("plistBuddy", function() {
             const plistProperty = "myProperty";
             const plistValue = "myValue";
 
-            const deferred1 = Q.defer<void>();
-            const deferred2 = Q.defer<void>();
+            const mockedExecFunc = sinon.stub();
+            mockedExecFunc.onFirstCall().returns({ outcome: Q.reject(new Error("Setting does not exist")) });
+            mockedExecFunc.onSecondCall().returns({ outcome: Q.resolve("stdout") });
+            mockedExecFunc.throws();
 
             const mockExec: any = {
-                exec: (command: string, opts: any) => {
-                    if (command.match(/Set/)) {
-                        deferred1.resolve(void 0);
-                        return { outcome: Q.reject(new Error("Setting does not exist")) };
-                    } else if (command.match("Add")) {
-                        deferred1.reject(new Error("Adding before setting"));
-                        deferred2.resolve(void 0);
-                        return { outcome: Q.resolve("stdout") };
-                    } else {
-                        const err = new Error(`Unexpected Command: ${command}`);
-                        deferred1.reject(err);
-                        deferred2.reject(err);
-                        return { outcome: Q.reject(err) };
-                    }
-                }
+                exec: mockedExecFunc
             };
             const plistBuddy = new PlistBuddy({ nodeChildProcess: mockExec });
 
-            return Q.all([
-                plistBuddy.setPlistProperty(plistFileName, plistProperty, plistValue),
-                deferred1.promise,
-                deferred2.promise
-            ]);
+            return plistBuddy.setPlistProperty(plistFileName, plistProperty, plistValue)
+                .then(() => {
+                    if (!mockedExecFunc.calledWithMatch(/Set/)) {
+                        throw new Error("plistBuddy did not attempt to set first");
+                    }
+                    if (!mockedExecFunc.calledWithMatch(/Add/)) {
+                        throw new Error("plistBuddy did not attempt to add after set failed");
+                    }
+                    if (mockedExecFunc.callCount > 2) {
+                        throw new Error("plistBuddy attempted to execute too often");
+                    }
+                });
         });
     });
 });

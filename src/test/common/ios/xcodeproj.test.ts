@@ -15,19 +15,20 @@ suite("xcodeproj", function() {
             const mockFileSystem: any = {
                 findFilesByExtension: (path: string, ext: string) => {
                     if (extension !== ext) {
-                        throw new Error(`Expected ${xcodeproj} got ${ext}`);
+                        throw new Error(`Expected ${extension} got ${ext}`);
                     }
                     return Q(testFiles);
                 }
-            }
+            };
+
             const xcodeproj = new Xcodeproj({ nodeFileSystem: mockFileSystem });
 
             return xcodeproj.findXcodeprojFile(projectRoot)
                 .then((file) => {
-                    if (path.extname(file) !== '.' + extension) {
-                        throw new Error(`Expected *.${extension}, got ${file}`)
+                    if (path.extname(file) !== "." + extension) {
+                        throw new Error(`Expected *.${extension}, got ${file}`);
                     }
-                })
+                });
         });
     });
 });

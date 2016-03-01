@@ -5,7 +5,7 @@ import * as path from "path";
 import * as Q from "q";
 
 import {Log} from "../../common/log";
-import {FileSystem} from "../../common/node/fileSystem"
+import {FileSystem} from "../../common/node/fileSystem";
 
 import {TelemetryHelper} from "../../common/telemetryHelper";
 
