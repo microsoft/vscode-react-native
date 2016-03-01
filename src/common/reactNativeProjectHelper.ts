@@ -33,7 +33,7 @@ export class ReactNativeProjectHelper {
                 if (semver.gte(version, "0.19.0")) {
                     return Q.resolve<void>(void 0);
                 } else {
-                    return Q.reject<void>(`Project version = ${version}`);
+                    return Q.reject<void>(new RangeError(`Project version = ${version}`));
                 }
             });
     }
