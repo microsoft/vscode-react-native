@@ -12,6 +12,6 @@ export class NestedError extends Error {
     }
 
     public get extras(): any {
-        return this.extras;
+        return this._extras;
     }
 }
