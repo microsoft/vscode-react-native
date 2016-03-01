@@ -64,9 +64,9 @@ export class Packager {
                     Log.logMessage("Packager started.", outputChannel);
                 } else {
                     Log.logMessage("Packager is already running.", outputChannel);
-                    if (!outputChannel) {
-                        // TODO #83: This warning is printted incorrectly when the packager was started from the command palette. Fix it.
-                        Log.logWarning("Debugging is not supported if the React Native Packager is not started within VS Code. If debugging fails, please kill other active React Native packager processes and retry.", outputChannel);
+                    if (!this.packagerProcess) {
+                        Log.logWarning("Debugging is not supported if the React Native Packager is not started within VS Code. "
+                            + "If debugging fails, please kill other active React Native packager processes and retry.", null, outputChannel);
                     }
                 }
             });
