@@ -14,10 +14,10 @@ export class PlistBuddy {
     private nodeChildProcess: ChildProcess;
     private xcodeproj: Xcodeproj;
 
-    constructor(
-        nodeChildProcess: ChildProcess = new Node.ChildProcess(),
-        xcodeproj: Xcodeproj = new Xcodeproj()
-    ) {
+    constructor({
+        nodeChildProcess = new Node.ChildProcess(),
+        xcodeproj = new Xcodeproj()
+    } = {}) {
         this.nodeChildProcess = nodeChildProcess;
         this.xcodeproj = xcodeproj;
     }

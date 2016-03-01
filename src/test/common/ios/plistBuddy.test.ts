@@ -7,7 +7,7 @@ import * as Q from "q";
 
 suite("plistBuddy", function() {
     suite("commonContext", function() {
-        test("Should attempt to set plist properties correctly", function() {
+        test("should attempt to modify, then add, plist properties", function() {
             const plistFileName = "testFile.plist";
             const plistProperty = "myProperty";
             const plistValue = "myValue";
@@ -32,13 +32,13 @@ suite("plistBuddy", function() {
                     }
                 }
             };
-            const plistBuddy = new PlistBuddy(mockExec);
+            const plistBuddy = new PlistBuddy({ nodeChildProcess: mockExec });
 
             return Q.all([
                 plistBuddy.setPlistProperty(plistFileName, plistProperty, plistValue),
                 deferred1.promise,
                 deferred2.promise
             ]);
+        });
     });
-});
 });

@@ -4,15 +4,18 @@
 import {SourceMapUtil} from "../../debugger/sourceMap";
 
 import * as assert from "assert";
+import * as path from "path";
 
 suite("sourceMap", function() {
     suite("debuggerContext", function() {
-        test("should convert windows-style-paths to unix-style-paths", function () {
+        test("should convert host filesystem paths to URL-style-paths", function() {
             const sourceMap = new SourceMapUtil();
-            const windowsPath = "foo\\bar\\baz";
-            const unixPath = "foo/bar/baz";
-            const result = (<any>sourceMap).makeUnixStylePath(windowsPath);
-            assert(result === unixPath, `Expected "${unixPath}", found "${result}`);
+            const filePath = path.join("foo", "bar", "baz");
+            const urlPath = "foo/bar/baz";
+            const result = (<any>sourceMap).makeUnixStylePath(filePath);
+            assert(result === urlPath, `Expected "${urlPath}", found "${result}`);
         });
+
+        // TODO: This class definitely needs more tests
     });
 });
