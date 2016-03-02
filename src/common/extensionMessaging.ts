@@ -53,7 +53,7 @@ export class ExtensionMessageSender {
         socket.on("end", function() {
             try {
                 if (body === ErrorMarker) {
-                    deferred.reject("An error ocurred while handling message: " + ExtensionMessage[message]);
+                    deferred.reject(new Error("An error ocurred while handling message: " + ExtensionMessage[message]));
                 } else {
                     let responseBody: any = body ? JSON.parse(body) : null;
                     deferred.resolve(responseBody);

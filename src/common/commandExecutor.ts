@@ -5,7 +5,7 @@ import * as Q from "q";
 import {ChildProcess} from "child_process";
 import {Log} from "./log";
 import {Node} from "./node/node";
-import {ISpawnResult, IExecRejection} from "./node/childProcess";
+import {ISpawnResult} from "./node/childProcess";
 import {OutputChannel} from "vscode";
 import {NestedError} from "./nestedError";
 
@@ -31,8 +31,8 @@ export class CommandExecutor {
                 Log.logMessage(stdout);
                 Log.commandEnded(command);
             },
-            (reason: IExecRejection) =>
-                this.generateRejectionForCommand(command, reason.error));
+            (reason: Error) =>
+                this.generateRejectionForCommand(command, reason));
     }
 
     /**
@@ -75,7 +75,7 @@ export class CommandExecutor {
 
         let result = new Node.ChildProcess().spawn(command, runArguments, spawnOptions);
         result.spawnedProcess.once("error", (error: any) => {
-            deferred.reject({ error: error });
+            deferred.reject(new NestedError(`Error while executing React Native Packager`, error));
         });
 
         result.stderr.on("data", (data: Buffer) => {

@@ -22,7 +22,7 @@ export class DeviceDeployer {
                 "Build", "Products", "Debug-iphoneos", `${projectName}.app`);
             return new CommandExecutor(this.projectRoot)
                 .spawnAndWaitForCompletion("ideviceinstaller", ["-i", pathToCompiledApp]).catch((err) => {
-                    if (err.code === "ENOENT") {
+                    if ((<any>err).code === "ENOENT") {
                         throw new NestedError("Unable to find ideviceinstaller. Please make sure to install Homebrew (http://brew.sh) and then 'brew install ideviceinstaller'", err);
                     }
                     throw err;
