@@ -140,21 +140,7 @@ export class CommandExecutor {
         return this.spawnChildProcess(this.getReactCommandName(), runArguments, options, outputChannel);
     }
 
-    /**
-     * Resolves the dev machine, desktop platform.
-     */
-    private getReactCommandName() {
-        let platform = process.platform;
-        switch (platform) {
-            case "darwin":
-                return "react-native";
-            case "win32":
-            default:
-                return "react-native.cmd";
-        }
-    }
-
-    private spawnChildProcess(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): ISpawnResult {
+    public spawnChildProcess(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): ISpawnResult {
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
 
@@ -184,6 +170,20 @@ export class CommandExecutor {
                 this.generateRejectionForCommand(command, reason));
 
         return result;
+    }
+
+    /**
+     * Resolves the dev machine, desktop platform.
+     */
+    private getReactCommandName() {
+        let platform = process.platform;
+        switch (platform) {
+            case "darwin":
+                return "react-native";
+            case "win32":
+            default:
+                return "react-native.cmd";
+        }
     }
 
     private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {

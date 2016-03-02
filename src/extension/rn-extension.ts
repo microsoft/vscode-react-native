@@ -12,6 +12,7 @@ import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./intellisenseHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
+import {LogCatMonitor} from "./android/logCatMonitor";
 
 /* all components use the same packager instance */
 const globalPackager = new Packager(vscode.workspace.rootPath);
@@ -23,6 +24,10 @@ const entryPointHandler = new EntryPointHandler(outputChannel);
 const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
 const fsUtil = new FileSystem();
 
+interface ISetupableDisposable extends vscode.Disposable {
+    setup(): Q.Promise<any>;
+}
+
 export function activate(context: vscode.ExtensionContext): void {
     entryPointHandler.runApp("react-native", () => <string>require("../../package.json").version, "Failed to activate the React Native Tools extension", () => {
         return reactNativeProjectHelper.isReactNativeProject()
@@ -31,10 +36,12 @@ export function activate(context: vscode.ExtensionContext): void {
                     warnWhenReactNativeVersionIsNotSupported();
                     entryPointHandler.runFunction("debugger.setupLauncherStub", "Failed to setup the stub launcher for the debugger", () =>
                         setupReactNativeDebugger()
-                            .then(() => setupReactDir(context))
-                            .then(() => setupExtensionServer(context)));
+                            .then(() => setupAndDispose(new ReactDirManager(), context))
+                            .then(() => setupAndDispose(extensionServer, context)));
                     entryPointHandler.runFunction("intelliSense.setup", "Failed to setup IntelliSense", () =>
                         IntellisenseHelper.setupReactNativeIntellisense());
+                    entryPointHandler.runFunction("logCatMonitor.setup", "Failed to setup the LogCat monitor", () =>
+                        setupAndDispose(new LogCatMonitor(), context));
                 }
                 entryPointHandler.runFunction("debugger.setupNodeDebuggerLocation", "Failed to configure the node debugger location for the debugger", () =>
                     configureNodeDebuggerLocation());
@@ -56,16 +63,8 @@ function configureNodeDebuggerLocation(): Q.Promise<void> {
     return fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath }));
 }
 
-function setupReactDir(context: vscode.ExtensionContext): Q.Promise<void> {
-    const reactDirManager = new ReactDirManager();
-    return reactDirManager.create()
-        .then(() => {
-            context.subscriptions.push(reactDirManager);
-        });
-}
-
-function setupExtensionServer(context: vscode.ExtensionContext): Q.Promise<void> {
-    return extensionServer.setup()
+function setupAndDispose(setuptableDisposable: ISetupableDisposable, context: vscode.ExtensionContext): Q.Promise<void> {
+    return setuptableDisposable.setup()
         .then(() => {
             context.subscriptions.push(extensionServer);
         });
