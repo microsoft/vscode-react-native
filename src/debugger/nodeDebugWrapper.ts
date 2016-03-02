@@ -44,6 +44,7 @@ interface ILaunchArgs {
     target?: string;
     internalDebuggerPort?: any;
     args: string[];
+    logCatArguments: any;
 }
 
 let version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
@@ -135,8 +136,22 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
             args.target || "simulator"
         ];
 
+        if (!isNullOrUndefined(args.logCatArguments)) { // We add the parameter if it's defined (adapter crashes otherwise)
+            args.args = args.args.concat([parseLogCatArguments(args.logCatArguments)]);
+        }
+
         originalNodeDebugSessionLaunchRequest.call(this, request, args);
     };
 
     vscodeDebugAdapterPackage.DebugSession.run(nodeDebug.NodeDebugSession);
 });
+
+function parseLogCatArguments(userProvidedLogCatArguments: any) {
+    return Array.isArray(userProvidedLogCatArguments)
+        ? userProvidedLogCatArguments.join(" ") // If it's an array, we join the arguments
+        : userProvidedLogCatArguments; // If not, we leave it as-is
+}
+
+function isNullOrUndefined(value: any): boolean {
+    return typeof value === "undefined" || value === null;
+}

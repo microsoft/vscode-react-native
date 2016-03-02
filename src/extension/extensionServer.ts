@@ -1,20 +1,22 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as em from "../common/extensionMessaging";
-import {FileSystem} from "../common/node/fileSystem";
-import {Packager} from "../common/packager";
-import {Log} from "../common/log";
-import * as Q from "q";
 import * as net from "net";
+import * as Q from "q";
 import * as vscode from "vscode";
 
+import * as em from "../common/extensionMessaging";
+import {Log} from "../common/log";
+import {Packager} from "../common/packager";
+import {LogCatMonitor} from "./android/logCatMonitor";
+import {FileSystem} from "../common/node/fileSystem";
 
 export class ExtensionServer implements vscode.Disposable {
     private outputChannel: vscode.OutputChannel;
     private serverInstance: net.Server = null;
     private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
     private reactNativePackager: Packager;
+    private logCatMonitor: LogCatMonitor = null;
 
     public constructor(reactNativePackager: Packager) {
         this.outputChannel = vscode.window.createOutputChannel("React-Native");
@@ -24,6 +26,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.START_PACKAGER] = this.startPackager;
         this.messageHandlerDictionary[em.ExtensionMessage.STOP_PACKAGER] = this.stopPackager;
         this.messageHandlerDictionary[em.ExtensionMessage.PREWARM_BUNDLE_CACHE] = this.prewarmBundleCache;
+        this.messageHandlerDictionary[em.ExtensionMessage.START_MONITORING_LOGCAT] = this.startMonitoringLogCat;
     }
 
     /**
@@ -57,6 +60,8 @@ export class ExtensionServer implements vscode.Disposable {
             this.serverInstance.close();
             this.serverInstance = null;
         }
+
+        this.stopLogCatMonitor();
     }
 
     /**
@@ -78,6 +83,30 @@ export class ExtensionServer implements vscode.Disposable {
      */
     private prewarmBundleCache(platform: string): Q.Promise<any> {
         return this.reactNativePackager.prewarmBundleCache(platform);
+    }
+
+    /**
+     * Message handler for START_MONITORING_LOGCAT.
+     */
+    private startMonitoringLogCat(logCatArguments: string): Q.Promise<any> {
+        this.stopLogCatMonitor(); // Stop previous logcat monitor if it's running
+
+        this.logCatMonitor = new LogCatMonitor(logCatArguments);
+        this.logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
+            .catch(error =>
+                // TODO #103: After the refactoring of the CommandExecutor is finished, we need to update this logic
+                // to not show an error when a command was killed on purpose by us
+                Log.logWarning("Error while monitoring LogCat", error, this.logCatMonitor.outputChannel))
+            .done();
+
+        return Q.resolve<void>(void 0);
+    }
+
+    private stopLogCatMonitor(): void {
+        if (this.logCatMonitor) {
+            this.logCatMonitor.dispose();
+            this.logCatMonitor = null;
+        }
     }
 
     /**

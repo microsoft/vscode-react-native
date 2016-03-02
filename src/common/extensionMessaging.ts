@@ -23,7 +23,8 @@ export let getPipePath = (): string => {
 export enum ExtensionMessage {
     START_PACKAGER,
     STOP_PACKAGER,
-    PREWARM_BUNDLE_CACHE
+    PREWARM_BUNDLE_CACHE,
+    START_MONITORING_LOGCAT
 }
 
 export interface MessageWithArguments {
