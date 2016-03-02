@@ -3,12 +3,13 @@
 
 import {PlistBuddy} from "../../../common/ios/plistBuddy";
 
+import * as assert from "assert";
 import * as Q from "q";
 import * as sinon from "sinon";
 
 suite("plistBuddy", function() {
     suite("commonContext", function() {
-        test("should attempt to modify, then add, plist properties", function() {
+        test("setPlistProperty should attempt to modify, then add, plist properties", function() {
             const plistFileName = "testFile.plist";
             const plistProperty = "myProperty";
             const plistValue = "myValue";
@@ -25,15 +26,11 @@ suite("plistBuddy", function() {
 
             return plistBuddy.setPlistProperty(plistFileName, plistProperty, plistValue)
                 .then(() => {
-                    if (!mockedExecFunc.calledWithMatch(/Set/)) {
-                        throw new Error("plistBuddy did not attempt to set first");
-                    }
-                    if (!mockedExecFunc.calledWithMatch(/Add/)) {
-                        throw new Error("plistBuddy did not attempt to add after set failed");
-                    }
-                    if (mockedExecFunc.callCount > 2) {
-                        throw new Error("plistBuddy attempted to execute too often");
-                    }
+                    const setRegex = new RegExp(`Set\s+${plistProperty}\s+${plistValue}`);
+                    const addRegex = new RegExp(`Add\s+${plistProperty}\s+string\s+${plistValue}`);
+                    assert(mockedExecFunc.calledWithMatch(setRegex), "plistBuddy did not attempt to set first");
+                    assert(mockedExecFunc.calledWithMatch(addRegex), "plistBuddy did not attempt to add after set failed");
+                    assert(mockedExecFunc.callCount === 2, "plistBuddy executed the wrong number of times");
                 });
         });
     });

@@ -3,6 +3,7 @@
 
 import {SimulatorPlist} from "../../../common/ios/simulatorPlist";
 
+import * as assert from "assert";
 import * as path from "path";
 import * as Q from "q";
 import * as sinon from "sinon";
@@ -66,9 +67,7 @@ suite("plistBuddy", function() {
             });
 
             return simulatorPlist.findPlistFile().then((plistFile) => {
-                if (plistFile !== existingPlistFile) {
-                    throw new Error("Returned incorrect value");
-                }
+                assert(plistFile === existingPlistFile, "Returned incorrect value");
             });
         });
     });

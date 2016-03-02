@@ -3,6 +3,7 @@
 
 import {Xcodeproj} from "../../../common/ios/xcodeproj";
 
+import * as assert from "assert";
 import * as path from "path";
 import * as Q from "q";
 
@@ -25,9 +26,7 @@ suite("xcodeproj", function() {
 
             return xcodeproj.findXcodeprojFile(projectRoot)
                 .then((file) => {
-                    if (path.extname(file) !== "." + extension) {
-                        throw new Error(`Expected *.${extension}, got ${file}`);
-                    }
+                    assert(path.extname(file) === "." + extension, `Expected *.${extension}, got ${file}`);
                 });
         });
     });
