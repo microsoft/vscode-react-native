@@ -56,7 +56,7 @@ export class ChildProcess {
     }
 
     public execToString(command: string, options: IExecOptions = {}): Q.Promise<string> {
-        return this.exec(command).outcome.then(stdout => stdout.toString());
+        return this.exec(command, options).outcome.then(stdout => stdout.toString());
     }
 
     public spawnWithExitHandler(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
