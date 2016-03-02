@@ -67,4 +67,11 @@ export class SettingsHelper {
                 return settingsJson["typescript.tsdk"] || "";
             });
     }
+
+    public static read(name: string): Q.Promise<any> {
+        return SettingsHelper.readSettingsJson().then(settings =>
+            settings.hasOwnProperty(name)
+                ? settings[name]
+                : Q.reject(new RangeError(`Setting ${name} is not defined in ${SettingsHelper.settingsJsonPath}`)));
+    }
 }

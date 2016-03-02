@@ -14,7 +14,7 @@ import {EntryPointHandler} from "../common/entryPointHandler";
 export class ReactDirManager implements vscode.Disposable {
     public static ReactDirPath = path.join(vscode.workspace.rootPath, ".vscode", ".react");
 
-    public create(): Q.Promise<void> {
+    public setup(): Q.Promise<void> {
         let fs = new FileSystem();
         /* if the folder exists, remove it, then recreate it */
         return fs.removePathRecursivelyAsync(ReactDirManager.ReactDirPath)
