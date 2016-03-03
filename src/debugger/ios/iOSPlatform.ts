@@ -13,7 +13,7 @@ import {DeviceRunner} from "./deviceRunner";
 import {IRunOptions} from "../launchArgs";
 import {PlistBuddy} from "../../common/ios/plistBuddy";
 import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
-import {MakeOutcomeFailDependingOnOutput, PatternToFailure} from "../../common/MakeOutcomeFailDependingOnOutput";
+import {MakeOutcomeFailDependingOnOutput, PatternToFailure} from "../../common/makeOutcomeFailDependingOnOutput";
 
 export class IOSPlatform implements IAppPlatform {
     private static deviceString = "device";

@@ -7,7 +7,7 @@ import {IRunOptions} from "../launchArgs";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {Package} from "../../common/node/package";
 import {PackageNameResolver} from "../../common/android/packageNameResolver";
-import {MakeOutcomeFailDependingOnOutput, PatternToFailure} from "../../common/MakeOutcomeFailDependingOnOutput";
+import {MakeOutcomeFailDependingOnOutput, PatternToFailure} from "../../common/makeOutcomeFailDependingOnOutput";
 
 /**
  * Android specific platform implementation for debugging RN applications.
