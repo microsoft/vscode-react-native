@@ -10,7 +10,7 @@ import * as Q from "q";
 suite("xcodeproj", function() {
     suite("commonContext", function() {
         test("should look in the correct location for xcodeproj files and return one", function() {
-            const projectRoot = "projectRoot";
+            const projectRoot = path.join("/", "tmp", "myProject");
             const extension = "xcodeproj";
             const testFiles = ["foo.xcodeproj"];
             const mockFileSystem: any = {
@@ -26,7 +26,7 @@ suite("xcodeproj", function() {
 
             return xcodeproj.findXcodeprojFile(projectRoot)
                 .then((file) => {
-                    assert(path.extname(file) === "." + extension, `Expected *.${extension}, got ${file}`);
+                    assert.equal(file, testFiles[0]);
                 });
         });
     });

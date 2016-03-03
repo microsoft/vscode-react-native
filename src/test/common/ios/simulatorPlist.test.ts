@@ -10,28 +10,30 @@ import * as sinon from "sinon";
 
 suite("plistBuddy", function() {
     suite("commonContext", function() {
-        test("Should correctly find the NSUserDefaults plist file for the simulator", function() {
-            const projectRoot = path.join("project", "root");
+        test("findPlistFile should correctly find the NSUserDefaults plist file for the simulator", function() {
+            const projectRoot = path.join("/", "tmp", "myProject");
 
             const bundleId = "com.contoso.app";
 
             const findSimulatorHomeCommand = "xcrun simctl getenv booted HOME";
             // The emulator's home folder is /simulator/home
-            const findSimulatorHomeResult = path.join("/", "simulator", "home");
+            const findSimulatorHomeResult = path.join("/", "Users", "theUser", "Library", "Developer", "CoreSimulaotr", "Devices", "FA511653-BA51-479F-A218-1DBD1910D5E5/data");
 
             const prefix = path.join("Containers", "Data", "Application");
             const suffix = path.join("Library", "Preferences");
 
-            // The emulator has 3 apps, app1 app2 and app3
-            const appIds = ["app1", "app2", "app3"];
+            // The emulator has 3 apps
+            const appIds = ["17F3AED1-5B1D-4F97-B419-D1F079D9DE2D",
+                "957660FD-3417-474E-B2AC-8AA0A05AD9A0",
+                "18319C8B-0583-4967-8023-15859A0BF0F3"];
 
             // readdir finds appIds
             const mockReadDir = sinon.stub();
             mockReadDir.withArgs(path.join(findSimulatorHomeResult, prefix)).returns(Q.resolve(appIds));
             mockReadDir.throws();
 
-            // Only app2 has a plist file with thus bundle name
-            const existingPlistFile = path.join(findSimulatorHomeResult, prefix, "app2", suffix, `${bundleId}.plist`);
+            // Only the second app has a plist file with thus bundle name
+            const existingPlistFile = path.join(findSimulatorHomeResult, prefix, "957660FD-3417-474E-B2AC-8AA0A05AD9A0", suffix, `${bundleId}.plist`);
 
             // existsSync only finds existingPlistFile to exist
             const mockExistsSync = sinon.stub();
