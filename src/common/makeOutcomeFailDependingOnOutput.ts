@@ -6,7 +6,7 @@ import {ISpawnResult} from "./node/childProcess";
 
 export type PatternToFailure = { [pattern: string]: string };
 
-/* This class will transform a spawn process to only succed if all defined success patterns
+/* This class transforms a spawn process to only succeed if all defined success patterns
    are found on stdout, and none of the failure patterns were found on stderr */
 export class MakeOutcomeFailDependingOnOutput {
     private generatePatternsForSuccess: () => Q.Promise<string[]>;
