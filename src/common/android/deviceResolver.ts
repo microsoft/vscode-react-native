@@ -3,7 +3,7 @@ import * as Q from "q";
 
 export interface IDevice {
     id: string;
-    status: string;
+    isOnline: boolean;
 }
 
 export class DeviceResolver {
@@ -12,24 +12,19 @@ export class DeviceResolver {
      * Gets the list of Android connected devices and emulators.
      */
     public getConnectedDevices(): Q.Promise<IDevice[]> {
-        let deferred = Q.defer<IDevice[]>();
-
         let childProcess = new ChildProcess();
-        childProcess.execToString("adb devices")
+        return childProcess.execToString("adb devices")
             .then(output => {
-                let devices = this.parseConnectedDevices(output);
-                deferred.resolve(devices);
+                return this.parseConnectedDevices(output);
             });
-
-        return deferred.promise;
     }
 
-    public parseConnectedDevices(input: string): IDevice[] {
+    private parseConnectedDevices(input: string): IDevice[] {
         let result: IDevice[] = [];
         let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
         let match = regex.exec(input);
         while (match != null) {
-            result.push({ id: match[1], status: match[2] });
+            result.push({ id: match[1], isOnline: match[2] === "device" });
             match = regex.exec(input);
         }
         return result;

@@ -14,37 +14,37 @@ import {DeviceResolver, IDevice} from "../../common/android/deviceResolver";
  */
 export class AndroidPlatform implements IAppPlatform {
 
-    public runApp(runOptions: IRunOptions): Q.Promise<void> {
-        return new CommandExecutor(runOptions.projectRoot).spawnAndWaitReactCommand("run-android");
-    }
+    private debugTarget: string;
+    private packageName: string;
 
-    public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {
+    public runApp(runOptions: IRunOptions): Q.Promise<void> {
         let pkg = new Package(runOptions.projectRoot);
-        return pkg.name()
+        return new CommandExecutor(runOptions.projectRoot).spawnAndWaitReactCommand("run-android")
+            .then(() => pkg.name())
             .then(appName => new PackageNameResolver(appName).resolvePackageName(runOptions.projectRoot))
             .then(packageName => {
-                let deviceResolver = new DeviceResolver();
+                this.packageName = packageName;
                 let cexec = new CommandExecutor(runOptions.projectRoot);
-                let debugTarget: string = null;
+                let deviceResolver = new DeviceResolver();
                 return deviceResolver.getConnectedDevices()
                     .then((devices: IDevice[]) => {
                         if (devices.length > 1) {
                             /* more than one device or emulator */
-                            debugTarget = this.getTargetEmulator(runOptions, devices);
+                            this.debugTarget = this.getTargetEmulator(runOptions, devices);
+                            if (this.debugTarget) {
+                                /* Launching is needed only if we have more than one device active */
+                                let launchAppCommand = `adb -s ${this.debugTarget} shell am start -n ${packageName.toLowerCase()}/.MainActivity`;
+                                return cexec.execute(launchAppCommand);
+                            }
                         }
-                    })
-                    .then(() => {
-                        if (debugTarget) {
-                            /* Launching is needed only if we have more than one device available */
-                            let launchAppCommand = `adb -s ${debugTarget} shell am start -n com.awesomeproject/.MainActivity`;
-                            return cexec.execute(launchAppCommand);
-                        }
-                    })
-                    .then(() => {
-                        let enableDebugCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am broadcast -a "${packageName.toLowerCase()}.RELOAD_APP_ACTION" --ez jsproxy true`;
-                        return cexec.execute(enableDebugCommand);
                     });
             });
+    }
+
+    public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {
+        let cexec = new CommandExecutor(runOptions.projectRoot);
+        let enableDebugCommand = `adb ${this.debugTarget ? "-s " + this.debugTarget : ""} shell am broadcast -a "${this.packageName.toLowerCase()}.RELOAD_APP_ACTION" --ez jsproxy true`;
+        return cexec.execute(enableDebugCommand);
     }
 
     /**
@@ -54,16 +54,16 @@ export class AndroidPlatform implements IAppPlatform {
      */
     private getTargetEmulator(runOptions: IRunOptions, devices: IDevice[]): string {
         let activeFilterFunction = (device: IDevice) => {
-            return device.status === "device";
+            return device.isOnline;
         };
 
         let targetFilterFunction = (device: IDevice) => {
             return device.id === runOptions.target && activeFilterFunction(device);
         };
 
-        if (runOptions.target && devices) {
+        if (runOptions && runOptions.target && devices) {
             /* check if the specified target is active */
-            if (devices.filter(targetFilterFunction).length > 0) {
+            if (devices.some(targetFilterFunction)) {
                 return runOptions.target;
             }
         }
