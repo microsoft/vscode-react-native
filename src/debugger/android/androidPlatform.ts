@@ -3,7 +3,7 @@
 
 import * as Q from "q";
 import {IAppPlatform} from "../platformResolver";
-import {IRunOptions} from "../launchArgs";
+import {IRunOptions} from "../../common/launchArgs";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {Package} from "../../common/node/package";
 import {PackageNameResolver} from "../../common/android/packageNameResolver";

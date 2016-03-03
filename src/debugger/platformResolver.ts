@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {IRunOptions} from "./launchArgs";
+import {IRunOptions} from "../common/launchArgs";
 import * as IOSPlatform from "./ios/iOSPlatform";
 import * as AndroidPlatform from "./android/androidPlatform";
 

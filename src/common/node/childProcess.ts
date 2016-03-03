@@ -3,6 +3,7 @@
 
 import * as child_process from "child_process";
 import Q = require("q");
+import {NestedError} from "../nestedError";
 
 export interface IExecResult {
     process: child_process.ChildProcess;
@@ -34,19 +35,13 @@ interface ISpawnOptions {
     detached?: boolean;
 }
 
-export interface IExecRejection {
-    error: Error;
-    stderr: Buffer;
-}
-
 export class ChildProcess {
     public exec(command: string, options: IExecOptions = {}): IExecResult {
         let outcome = Q.defer<Buffer>();
 
         let execProcess = child_process.exec(command, options, (error: Error, stdout: Buffer, stderr: Buffer) => {
             if (error) {
-                const rejection: IExecRejection = { error: error, stderr: stderr};
-                outcome.reject(rejection);
+                outcome.reject(new NestedError(`Error while executing command ${command}`, error, stderr));
             } else {
                 outcome.resolve(stdout);
             }
@@ -86,7 +81,7 @@ export class ChildProcess {
         let outcome = Q.defer<void>();
         let spawnedProcess = child_process.spawn(command, args, options);
         spawnedProcess.once("error", (error: any) => {
-            outcome.reject({ error: error });
+            outcome.reject(new NestedError(`Error while executing command ${command}`, error));
         });
 
         return {

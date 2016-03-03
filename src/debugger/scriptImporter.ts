@@ -3,6 +3,7 @@
 
 import {FileSystem} from "../common/node/fileSystem";
 import {Log, LogLevel} from "../common/log";
+import {Packager} from "../common/packager";
 import path = require("path");
 import Q = require("q");
 import {Request} from "../common/node/request";
@@ -15,17 +16,17 @@ interface DownloadedScript {
 }
 
 export class ScriptImporter {
+    public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
+    public static DEBUGGER_WORKER_FILENAME = ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME + ".js";
     private sourcesStoragePath: string;
-    private debugAdapterPort: number;
     private sourceMapUtil: SourceMapUtil;
 
-    constructor(sourcesStoragePath: string, debugAdapterPort: number) {
+    constructor(sourcesStoragePath: string) {
         this.sourcesStoragePath = sourcesStoragePath;
-        this.debugAdapterPort = debugAdapterPort;
         this.sourceMapUtil = new SourceMapUtil();
     }
 
-    public download(scriptUrlString: string): Q.Promise<DownloadedScript> {
+    public downloadAppScript(scriptUrlString: string, debugAdapterPort: number): Q.Promise<DownloadedScript> {
 
         // We'll get the source code, and store it locally to have a better debugging experience
         return new Request().request(scriptUrlString, true).then(scriptBody => {
@@ -36,28 +37,37 @@ export class ScriptImporter {
             let waitForSourceMapping = Q<void>(null);
             if (sourceMappingUrl) {
                 /* handle source map - request it and store it locally */
-                waitForSourceMapping = this.writeSourceMap(sourceMappingUrl, scriptUrl)
+                waitForSourceMapping = this.writeAppSourceMap(sourceMappingUrl, scriptUrl)
                     .then(() => {
                         scriptBody = this.sourceMapUtil.updateScriptPaths(scriptBody, sourceMappingUrl);
                     });
             }
 
             return waitForSourceMapping
-                .then(() => this.writeScript(scriptBody, scriptUrl))
+                .then(() => this.writeAppScript(scriptBody, scriptUrl))
                 .then((scriptFilePath: string) => {
                     Log.logInternalMessage(LogLevel.Info, `Script ${scriptUrlString} downloaded to ${scriptFilePath}`);
                     return { contents: scriptBody, filepath: scriptFilePath };
                 }).finally(() => {
                     // Request that the debug adapter update breakpoints and sourcemaps now that we have written them
-                    return new Request().request(`http://localhost:${this.debugAdapterPort}/refreshBreakpoints`);
+                    return new Request().request(`http://localhost:${debugAdapterPort}/refreshBreakpoints`);
                 });
+        });
+    }
+
+    public downloadDebuggerWorker(sourcesStoragePath: string): Q.Promise<void> {
+        let debuggerWorkerURL = `http://${Packager.HOST}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
+        let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
+        Log.logInternalMessage(LogLevel.Info, "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
+        return new Request().request(debuggerWorkerURL, true).then((body: string) => {
+            return new FileSystem().writeFile(debuggerWorkerLocalPath, body);
         });
     }
 
     /**
      * Writes the script file to the project temporary location.
      */
-    private writeScript(scriptBody: string, scriptUrl: url.Url): Q.Promise<String> {
+    private writeAppScript(scriptBody: string, scriptUrl: url.Url): Q.Promise<String> {
         let scriptFilePath = path.join(this.sourcesStoragePath, scriptUrl.pathname); // scriptFilePath = "$TMPDIR/index.ios.bundle"
         return new FileSystem().writeFile(scriptFilePath, scriptBody)
             .then(() => scriptFilePath);
@@ -66,7 +76,7 @@ export class ScriptImporter {
     /**
      * Writes the source map file to the project temporary location.
      */
-    private writeSourceMap(sourceMapUrl: url.Url, scriptUrl: url.Url): Q.Promise<void> {
+    private writeAppSourceMap(sourceMapUrl: url.Url, scriptUrl: url.Url): Q.Promise<void> {
         return new Request().request(sourceMapUrl.href, true)
             .then((sourceMapBody: string) => {
                 let sourceMappingLocalPath = path.join(this.sourcesStoragePath, sourceMapUrl.pathname); // sourceMappingLocalPath = "$TMPDIR/index.ios.map"
