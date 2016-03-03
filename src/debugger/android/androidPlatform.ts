@@ -30,15 +30,14 @@ export class AndroidPlatform implements IAppPlatform {
             .then(appName => new PackageNameResolver(appName).resolvePackageName(runOptions.projectRoot))
             .then(packageName => {
                 this.packageName = packageName;
-                let deviceHelper = new DeviceHelper();
-                return deviceHelper.getConnectedDevices()
+                return this.deviceHelper.getConnectedDevices()
                     .then((devices: IDevice[]) => {
                         if (devices.length > 1) {
                             /* more than one device or emulator */
                             this.debugTarget = this.getTargetEmulator(runOptions, devices);
                             if (this.debugTarget) {
                                 /* Launching is needed only if we have more than one device active */
-                                return deviceHelper.launchApp(runOptions.projectRoot, packageName, this.debugTarget);
+                                return this.deviceHelper.launchApp(runOptions.projectRoot, packageName, this.debugTarget);
                             }
                         }
                     });

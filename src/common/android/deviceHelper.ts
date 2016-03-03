@@ -24,7 +24,7 @@ export class DeviceHelper {
      * Broadcasts an intent to reload the application in debug mode.
      */
     public reloadAppInDebugMode(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
-        let enableDebugCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am broadcast -a "${packageName.toLowerCase()}.RELOAD_APP_ACTION" --ez jsproxy true`;
+        let enableDebugCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy true`;
         return new CommandExecutor(projectRoot).execute(enableDebugCommand);
     }
 
@@ -32,7 +32,7 @@ export class DeviceHelper {
      * Sends an intent which launches the main activity of the application.
      */
     public launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
-        let launchAppCommand = `adb -s ${debugTarget} shell am start -n ${packageName.toLowerCase()}/.MainActivity`;
+        let launchAppCommand = `adb -s ${debugTarget} shell am start -n ${packageName}/.MainActivity`;
         return new CommandExecutor(projectRoot).execute(launchAppCommand);
     }
 
