@@ -4,5 +4,5 @@
 .vscode-test/**/*
 .gitignore
 src/**
-out/tests/**
+out/test/**
 **/*.js.map

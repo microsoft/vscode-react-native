@@ -5,13 +5,25 @@ import * as path from "path";
 import * as Q from "q";
 
 import {Node} from "../../common/node/node";
+import {ChildProcess} from "../../common/node/childProcess";
 import {Xcodeproj} from "./xcodeproj";
 
 export class PlistBuddy {
     private static plistBuddyExecutable = "/usr/libexec/PlistBuddy";
 
+    private nodeChildProcess: ChildProcess;
+    private xcodeproj: Xcodeproj;
+
+    constructor({
+        nodeChildProcess = new Node.ChildProcess(),
+        xcodeproj = new Xcodeproj()
+    } = {}) {
+        this.nodeChildProcess = nodeChildProcess;
+        this.xcodeproj = xcodeproj;
+    }
+
     public getBundleId(projectRoot: string, simulator: boolean = true): Q.Promise<string> {
-        return new Xcodeproj().findXcodeprojFile(projectRoot).then((projectFile: string) => {
+        return this.xcodeproj.findXcodeprojFile(projectRoot).then((projectFile: string) => {
             const appName = path.basename(projectFile, path.extname(projectFile));
             const infoPlistPath = path.join(projectRoot, "ios", "build", "Build", "Products",
                 simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
@@ -37,7 +49,7 @@ export class PlistBuddy {
     }
 
     private invokePlistBuddy(command: string, plistFile: string): Q.Promise<string> {
-        return new Node.ChildProcess().exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`).outcome.then((result: Buffer) => {
+        return this.nodeChildProcess.exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`).outcome.then((result: Buffer) => {
             return result.toString().trim();
         });
     }
