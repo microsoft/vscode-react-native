@@ -4,8 +4,11 @@
 import * as vscode from "vscode";
 import * as Q from "q";
 import {CommandExecutor} from "../common/commandExecutor";
+import {DeviceHelper, IDevice} from "../common/android/deviceHelper";
 import {Log} from "../common/log";
 import {Packager} from "../common/packager";
+import {Package} from "../common/node/package";
+import {PackageNameResolver} from "../common/android/packageNameResolver";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IOSDebugModeManager} from "../common/ios/iOSDebugModeManager";
@@ -37,7 +40,29 @@ export class CommandPaletteHandler {
      * Executes the 'react-native run-android' command
      */
     public runAndroid(): Q.Promise<void> {
-        return this.executeCommandInContext("runAndroid", () => this.executeReactNativeRunCommand("run-android"));
+        return this.executeCommandInContext("runAndroid", () => this.executeReactNativeRunCommand("run-android"))
+            .then(() => {
+                let deviceHelper = new DeviceHelper();
+                let pkg = new Package(this.workspaceRoot);
+
+                return Q.all<any>([
+                    pkg.name().then((appName) => new PackageNameResolver(appName).resolvePackageName(this.workspaceRoot)),
+                    deviceHelper.getConnectedDevices()
+                ]).spread<any>((packagName: string, devices: IDevice[]) => {
+                    if (devices.length > 1) {
+                        let result = Q<void>(void 0);
+                        /* if we have more than one device, launch the application on each */
+                        devices.forEach((device: IDevice) => {
+                            if (device.isOnline) {
+                                result = result.then(() => deviceHelper.launchApp(this.workspaceRoot, packagName, device.id));
+                            }
+                        });
+                        return result;
+                    } else {
+                        return Q.resolve(void 0);
+                    }
+                });
+            });
     }
 
     /**
