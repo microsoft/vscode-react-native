@@ -7,12 +7,25 @@ import * as os from "os";
 import * as path from "path";
 import * as Q from "q";
 import * as vscode from "vscode";
+import * as semver from "semver";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {TsConfigHelper} from "./tsconfigHelper";
 import {SettingsHelper} from "./settingsHelper";
+import {Log, LogLevel} from "../common/log";
+
+interface InstallProps {
+    installed: boolean;
+    version: string;
+}
 
 export class IntellisenseHelper {
+
+    private static s_typeScriptVersion = "1.8.2";           // preferred version of TypeScript for legacy VSCode installs
+    private static s_vsCodeVersion = "0.10.10-insider";     // preferred version of VSCode (current is 0.10.9, 0.10.10-insider+ will include native TypeScript support)
+                                                            // note: semver considers "x.x.x-<string>" to be < "x.x.x"" - so we include insider here as the
+                                                            //       insider build is less than the release build of 0.10.10 and we will support it.
+
     /**
      * Helper method that configures the workspace for Salsa intellisense.
      */
@@ -30,9 +43,12 @@ export class IntellisenseHelper {
         // The actions taken in the promise chain below may result in requring a restart.
         const configureTypescript = Q(false)
             .then((isRestartRequired: boolean) => IntellisenseHelper.enableSalsa(isRestartRequired))
-            .then((isRestartRequired: boolean) => IntellisenseHelper.installTypescriptNext(isRestartRequired))
+            .then((isRestartRequired: boolean) => IntellisenseHelper.verifyInstallTypeScript(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.configureWorkspaceSettings(isRestartRequired))
-            .then((isRestartRequired: boolean) => IntellisenseHelper.warnIfRestartIsRequired(isRestartRequired));
+            .then((isRestartRequired: boolean) => IntellisenseHelper.warnIfRestartIsRequired(isRestartRequired))
+            .catch( (err: any) => {
+                Log.logError("Error while seting up IntelliSense: " + err);
+            });
 
         /* TODO #83: Refactor this code to
             Q.all([enableSalsa(), installTypescript(), configureWorkspace()])
@@ -53,21 +69,53 @@ export class IntellisenseHelper {
     }
 
     /**
-     * Helper method that installs Typescript into a global location.
+     * Helper method that verifies the correct version of TypeScript is installed.
+     * If using a newer version of VSCode TypeScript is installed by default and no
+     * action is needed. If using an older version, verify that the correct TS version is
+     * installed, if not install it.
      */
-    public static installTypescriptNext(isRestartRequired: boolean): Q.Promise<boolean> {
-        let typeScriptNextDest: string = path.resolve(IntellisenseHelper.getUserHomePath(), ".vscode");
-        let typeScriptNextLibPath: string = path.join(typeScriptNextDest, "node_modules", "typescript", "lib");
-        let fileSystem: FileSystem = new FileSystem();
+    public static verifyInstallTypeScript(isRestartRequired: boolean): Q.Promise<boolean> {
 
-        return fileSystem.exists(typeScriptNextLibPath)
-            .then(function(exists: boolean) {
-                if (!exists) {
-                    return Q.nfcall(child_process.exec, `npm install --prefix ${typeScriptNextDest} typescript@next`)
-                        .then(() => { return true; });
+        if (IntellisenseHelper.isSalsaSupported()) {
+            // this is the correct version of vscode, which includes TypeScript (Salsa) support, nothing to do here
+            return Q.resolve<boolean>(isRestartRequired);
+        }
+
+        return IntellisenseHelper.getInstalledTypeScriptVersion()
+            .then(function(installProps: InstallProps) {
+
+                if (installProps.installed === false) {
+
+                    if(semver.neq(IntellisenseHelper.s_typeScriptVersion, installProps.version)) {
+                        Log.logInternalMessage(LogLevel.Debug, "TypeScript is installed with the wrong version: " + installProps.version);
+                    }
+                    else {
+                        Log.logInternalMessage(LogLevel.Debug, "TypeScript is not installed");
+                    }
+                    return Q.resolve<boolean>(true);
                 }
 
-                return isRestartRequired;
+                Log.logInternalMessage(LogLevel.Debug, "Installed TypeScript version is correct");
+                return Q.resolve<boolean>(false);
+            })
+            .then( (install: boolean) => {
+
+                if(install) {
+                    let installPath: string = path.resolve(IntellisenseHelper.getUserHomePath(), ".vscode");
+                    let installParam: string = "npm install --prefix " + installPath + " typescript@" + IntellisenseHelper.s_typeScriptVersion;
+                    Log.logInternalMessage(LogLevel.Debug, "Installing TypeScript: " + installParam);
+                    return Q.nfcall(child_process.exec, installParam)
+                        .then(() => {
+                            return Q.resolve<boolean>(true);
+                        })
+                        .catch( (err: any) => {
+                            Log.logError("Error attempting to install TypeScript: " + err);
+                            return Q.resolve<boolean>(isRestartRequired);
+                        });
+                }
+                else {
+                    return Q.resolve<boolean>(isRestartRequired);
+                }
             });
     }
 
@@ -84,14 +132,28 @@ export class IntellisenseHelper {
     }
 
     public static configureWorkspaceSettings(isRestartRequired: boolean): Q.Promise<boolean> {
-        let typeScriptNextDest: string = path.resolve(IntellisenseHelper.getUserHomePath(), ".vscode");
-        let typeScriptNextLibPath: string = path.join(typeScriptNextDest, "node_modules", "typescript", "lib");
+        let typeScriptLibPath: string = path.resolve(IntellisenseHelper.getTypeScriptInstallPath(), "lib");
 
-        return SettingsHelper.getTypescriptTsdk()
+        return SettingsHelper.getTypeScriptTsdk()
             .then((tsdkPath: string) => {
-                if (!tsdkPath) {
-                    return SettingsHelper.typescriptTsdk(typeScriptNextLibPath)
-                        .then(() => { return true; });
+
+                if (IntellisenseHelper.isSalsaSupported()) {
+                    if (tsdkPath !== null &&
+                        tsdkPath === typeScriptLibPath) {
+                        // Note: In previous releases of VSCode (< 0.10.10) the Salsa TypeScript
+                        // IntelliSense was not enabled by default, this extension would install
+                        // Salsa itself, and update the settings to point at that. Here we
+                        // attempt to reset that value to null if it still points to the previous
+                        // installed (and no longer valid) version of TypeScript.
+                        return SettingsHelper.removeTypeScriptTsdk()
+                            .then(() => { return true; });
+                    }
+                }
+                else {
+                    if (tsdkPath === null) {
+                        return SettingsHelper.setTypeScriptTsdk(typeScriptLibPath)
+                            .then(() => { return true; });
+                    }
                 }
 
                 return isRestartRequired;
@@ -125,5 +187,84 @@ export class IntellisenseHelper {
         }
 
         return Q(isRestartRequired);
+    }
+
+    /**
+     * Simple check to see if the TypeScript package is in the expected location (where we installed it)
+     */
+    private static isTypeScriptInstalled() : Q.Promise<boolean> {
+        let fileSystem: FileSystem = new FileSystem();
+        let installPath: string = path.join(IntellisenseHelper.getTypeScriptInstallPath(), "lib");
+        return Q.resolve(fileSystem.exists(installPath));
+    }
+
+    /**
+     * Checks for the existance of our installed TypeScript package, if it exists also determine its version
+     */
+    private static getInstalledTypeScriptVersion() : Q.Promise<InstallProps> {
+        return IntellisenseHelper.isTypeScriptInstalled()
+            .then((installed : boolean) => {
+                    let installProps: InstallProps = {
+                        installed: installed,
+                        version: ""
+                    };
+
+                if (installed === true) {
+                    Log.logInternalMessage(LogLevel.Debug, "TypeScript is installed - checking version");
+                    return IntellisenseHelper.readPackageJson()
+                    .then( (version: string) => {
+                        installProps.version = version;
+                        return Q.resolve(installProps);
+                    });
+                }
+                else
+                {
+                    return Q.resolve(installProps);
+                }
+            });
+    }
+
+    /**
+     * Read the package.json from the TypeScript install path and return the version if it's available
+     */
+    public static readPackageJson(): Q.Promise<string> {
+        let packageFilePath: string = path.join(IntellisenseHelper.getTypeScriptInstallPath(), "package.json");
+        let fileSystem = new FileSystem();
+
+        return fileSystem.exists(packageFilePath)
+            .then(function(exists: boolean): Q.Promise<string> {
+                if (!exists) {
+                    return Q.reject<string>("package.json not found at:" + packageFilePath);
+                }
+
+                return fileSystem.readFile(packageFilePath, "utf-8");
+            })
+            .then(function(jsonContents: string): Q.Promise<any> {
+                return JSON.parse(jsonContents);
+            })
+            .then( (data: any) => {
+                return data.version;
+            })
+            .catch( (err: any) => {
+                Log.logError("Error while procesing package.json: " + err);
+                return "0.0.0"
+            });
+    }
+
+    /**
+     * Simple helper to get the TypeScript install path
+     */
+    private static getTypeScriptInstallPath() : string {
+
+        let codePath: string = path.resolve(IntellisenseHelper.getUserHomePath(), ".vscode");
+        let typeScriptLibPath: string = path.join(codePath, "node_modules", "typescript");
+        return typeScriptLibPath;
+    }
+
+    /**
+     * Simple helper to determine if the current version of VSCode supports TypeScript (Salsa) or better
+     */
+    private static isSalsaSupported(): boolean {
+        return semver.gte(vscode.version, IntellisenseHelper.s_vsCodeVersion, true);
     }
 }

@@ -80,8 +80,8 @@ Once you have enabled IntelliSense by following the above steps, you can start t
 Here is what happens behind the scenes to enable JSX support
 
 1. The environment variable VSCODE_TSJS=1 is set to enable [Salsa](https://github.com/Microsoft/TypeScript/issues/4789)
-2. Salsa requires TypeScript 1.8 but the final 1.8 release isn't available yet. Extension installs `typescript@next` in `~/.vscode`
-3. A settings.json file is created in the .vscode directory with typescript.tsdk pointing to the typescript@next install location.
+2. Salsa requires TypeScript 1.8 the extenstion installs `typescript@1.8.2` in `~/.vscode`.
+3. A settings.json file is created in the .vscode directory with typescript.tsdk pointing to the typescript install location.
 4. A tsconfig.json file is created in the project root with `allowJs: true` to allow TypeScript to process JavaScript files.
 5. Typings for React Native are copied into the .vscode directory.
 
