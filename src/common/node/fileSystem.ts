@@ -66,6 +66,13 @@ export class FileSystem {
     }
 
     /**
+     *  Helper async function to read the contents of a directory
+     */
+    public readDir(directory: string): Q.Promise<string[]> {
+        return Q.nfcall<string[]>(fs.readdir, directory);
+    }
+
+    /**
      *  Helper (synchronous) function to create a directory recursively
      */
     public makeDirectoryRecursiveSync(dirPath: string): void {
