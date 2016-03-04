@@ -50,7 +50,7 @@ export class SettingsHelper {
     /**
      * Enable javascript intellisense via typescript.
      */
-    public static typescriptTsdk(path: string): Q.Promise<void> {
+    public static setTypeScriptTsdk(path: string): Q.Promise<void> {
         return SettingsHelper.readSettingsJson()
             .then(function(settingsJson: any): Q.Promise<void> {
                 if (settingsJson["typescript.tsdk"] !== path) {
@@ -61,10 +61,25 @@ export class SettingsHelper {
             });
     }
 
-    public static getTypescriptTsdk(): Q.Promise<string> {
+    /**
+     * Removes javascript intellisense via typescript.
+     */
+    public static removeTypeScriptTsdk(): Q.Promise<void> {
         return SettingsHelper.readSettingsJson()
-            .then(function(settingsJson: any): Q.Promise<string> {
-                return settingsJson["typescript.tsdk"] || "";
+            .then(function(settingsJson: any): Q.Promise<void> {
+                if (settingsJson["typescript.tsdk"] !== undefined) {
+                    delete settingsJson["typescript.tsdk"];
+                    return SettingsHelper.writeSettingsJson(settingsJson);
+                }
             });
     }
+
+    public static getTypeScriptTsdk(): Q.Promise<string> {
+        return SettingsHelper.readSettingsJson()
+            .then(function(settingsJson: any): Q.Promise<string> {
+                return settingsJson["typescript.tsdk"] || null;
+            });
+    }
+
+
 }
