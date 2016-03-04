@@ -182,7 +182,7 @@ export class IntellisenseHelper {
             let setEnvironmentVariableCommand: string = "";
             if (os.type() === "Darwin") {
                 setEnvironmentVariableCommand = "launchctl setenv VSCODE_TSJS 1";
-            } else if (os.type() === "Windows") {
+            } else if (os.type() === "Windows_NT") {
                 setEnvironmentVariableCommand = "setx VSCODE_TSJS 1";
             }
 
