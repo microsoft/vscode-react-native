@@ -5,33 +5,11 @@
  * Formatter for the Output channel.
  */
 import {LogHelper, LogLevel} from "./logHelper";
-import {OutputChannel} from "vscode";
 
 export interface ILogger {
     logMessage: (message: string, formatMessage?: boolean) => void;
     logError: (errorMessage: string, error?: any, logStack?: boolean) => void;
     logInternalMessage?: (logLevel: LogLevel, message: string) => void;
-}
-
-export class OutputChannelLogger implements ILogger {
-    private outputChannel: OutputChannel;
-    constructor(outputChannel: OutputChannel) {
-        this.outputChannel = outputChannel;
-    }
-    public logMessage(message: string, formatMessage: boolean = true ) {
-        this.outputChannel.appendLine(formatMessage ?
-            this.getFormattedMessage(message) :
-            message);
-        this.outputChannel.show();
-    }
-
-    public logError(errorMessage: string, error?: any, logStack: boolean = true) {
-        this.logMessage(errorMessage, /* formatMessage */ false);
-    }
-
-    private getFormattedMessage(message: string) {
-        return `######### ${message} ##########`;
-    }
 }
 
 export class ConsoleLogger implements ILogger {

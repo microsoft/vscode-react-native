@@ -24,7 +24,7 @@ export class Launcher {
 
     public launch(): void {
         // Enable telemetry
-        new EntryPointHandler().runApp("react-native-debug-process", () => this.getAppVersion(),
+        new EntryPointHandler(true).runApp("react-native-debug-process", () => this.getAppVersion(),
             ErrorHelper.getInternalError(InternalErrorCode.DebuggingFailed), () => {
             return TelemetryHelper.generate("launch", (generator) => {
                 const resolver = new PlatformResolver();

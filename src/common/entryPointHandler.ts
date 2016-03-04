@@ -8,18 +8,18 @@ import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {Telemetry} from "../common/telemetry";
 import {Log} from "../common/log/log";
-import {OutputChannelLogger} from "../common/log/loggers";
-import {OutputChannel} from "vscode";
+import {ILogger} from "../common/log/loggers";
 
 /* This class should we used for each entry point of the code, so we handle telemetry and error reporting properly */
 export class EntryPointHandler {
-    private outputChannel: OutputChannel;
+    private isDebugeeProcess: boolean;
 
-    constructor(outputChannel?: OutputChannel) {
-        if (outputChannel) {
-            this.outputChannel = outputChannel;
-            Log.SetGlobalLogger(new OutputChannelLogger(outputChannel));
+    constructor(isDebugeeProcess: boolean = false, logger?: ILogger) {
+        if (logger) {
+            Log.SetGlobalLogger(logger);
         }
+
+        this.isDebugeeProcess = isDebugeeProcess;
     }
 
 
@@ -43,15 +43,14 @@ export class EntryPointHandler {
     }
 
     private handleErrors(error: InternalError, resultOfCode: Q.Promise<void>, errorsAreFatal: boolean): void {
-        const isDebugeeProcess = !this.outputChannel;
         resultOfCode.done(() => { }, reason => {
-            const shouldLogStack = !errorsAreFatal || isDebugeeProcess;
+            const shouldLogStack = !errorsAreFatal || this.isDebugeeProcess;
             Log.logError(ErrorHelper.wrapError(error, reason), /*logStack*/ shouldLogStack);
             if (errorsAreFatal) {
                 /* The process is likely going to exit if errors are fatal, so we first
                 send the telemetry, and then we exit or rethrow the exception */
                 Telemetry.sendPendingData().finally(() => {
-                    if (isDebugeeProcess) {
+                    if (this.isDebugeeProcess) {
                         /* HACK: For the debugee process we don't want to throw an exception because the debugger
                                  will appear to the user if he turned on the VS Code uncaught exceptions feature. */
                         process.exit(1);
