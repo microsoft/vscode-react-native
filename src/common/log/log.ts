@@ -7,41 +7,51 @@
 
 import {CommandStatus} from "../commandExecutor";
 import {LogHelper, LogChannelType, LogLevel} from "./logHelper";
-import {OutputChannelLogFormatter} from "./outputChannelLogFormatter";
-import {StreamLogFormatter} from "./streamLogFormatter";
+import {ILogger, OutputChannelLogger, StreamLogger, ConsoleLogger} from "./loggers";
 import {OutputChannel} from "vscode";
 
-export class Log {
+export module Log {
+    let globalLogger: ILogger;
     /**
      * Logs a message.
      */
-    public static logMessage(message: string, targetLogChannel: any = null, formatMessage: boolean = true) {
-        Log.log(message, targetLogChannel || console, formatMessage);
+    export function CreateGlobalLogger(targetChannel?: any) {
+        switch (LogHelper.getLogChannelType(targetChannel)) {
+            case LogChannelType.OutputChannel:
+                globalLogger = new OutputChannelLogger(targetChannel);
+                break;
+
+            case LogChannelType.WritableStream:
+                globalLogger = new StreamLogger(targetChannel);
+                break;
+
+            case LogChannelType.Console:
+            default:
+                globalLogger = new ConsoleLogger();
+                break;
+        }
+    }
+
+    /**
+     * Logs a message.
+     */
+    export function logMessage(message: string, formatMessage: boolean = true) {
+        globalLogger ? globalLogger.logMessage(message, formatMessage) : new ConsoleLogger().logMessage(message, formatMessage);
     }
 
     /**
      * Logs an error message.
      */
-    public static logError(error?: any, outputChannel?: OutputChannel, logStack = true) {
-        let errorMessageToLog = LogHelper.getErrorString(error, outputChannel || console);
-
-        if (outputChannel) {
-            Log.logToOutputChannel(errorMessageToLog, outputChannel);
-        } else {
-            console.error(errorMessageToLog);
-        }
-
-        // We will not need the stack trace when logging to the OutputChannel in VS Code
-        if (!outputChannel && logStack && error && (<Error>error).stack) {
-            console.error(`Stack: ${(<Error>error).stack}`);
-        }
+    export function logError(error?: any, logStack = true) {
+        let errorMessageToLog = LogHelper.getErrorString(error);
+        globalLogger ? globalLogger.logError(errorMessageToLog, error, logStack) : new ConsoleLogger().logError(errorMessageToLog, error, logStack);
     }
 
     /**
      * Logs a warning message.
      */
-    public static logWarning(error?: any, outputChannel: OutputChannel = null, logStack = true) {
-        this.logError(error, outputChannel, logStack);
+    export function logWarning(error?: any, logStack = true) {
+        Log.logError(error, logStack);
     }
 
     /**
@@ -49,42 +59,51 @@ export class Log {
      * Customers aren't interested in these messages, so we normally shouldn't show
      * them to them.
      */
-    public static logInternalMessage(logLevel: LogLevel, message: string, targetChannel: any = null) {
+    export function logInternalMessage(logLevel: LogLevel, message: string) {
         if (LogHelper.logLevel >= logLevel) {
-            this.logMessage(`[Internal-${logLevel}] ${message}`, targetChannel);
+            globalLogger ? globalLogger.logInternalMessage(logLevel, message) : new ConsoleLogger().logInternalMessage(logLevel, message);
         }
     }
 
     /**
      * Logs the status (Start/End) of a command.
      */
-    public static logCommandStatus(command: string, status: CommandStatus, targetLogChannel: any = null) {
+    export function logCommandStatus(command: string, status: CommandStatus) {
         console.assert(status >= CommandStatus.Start && status <= CommandStatus.End, "Unsupported Command Status");
 
         let statusMessage = Log.getCommandStatusString(command, status);
-        Log.log(statusMessage, targetLogChannel || console);
+        globalLogger ? globalLogger.logMessage(statusMessage) : new ConsoleLogger().logMessage(statusMessage);
     }
 
     /**
      * Logs a message to the console.
      */
-    public static logToConsole(message: string, formatMessage: boolean = true) {
-        console.log(formatMessage ?
-            StreamLogFormatter.getFormattedMessage(message) :
-            message);
+    export function logToConsole(message: string, formatMessage: boolean = true) {
+        new ConsoleLogger().logMessage(message, formatMessage);
     }
 
     /**
      * Logs a message to VS Code's Output Channel.
      */
-    public static logToOutputChannel(message: string, outputChannel: OutputChannel, formatMessage: boolean = true) {
-        outputChannel.appendLine(formatMessage ?
-            OutputChannelLogFormatter.getFormattedMessage(message) :
-            message);
-        outputChannel.show();
+    export function logToOutputChannel(outputChannel: OutputChannel, message: string, formatMessage: boolean = true) {
+        new OutputChannelLogger(outputChannel).logMessage(message, formatMessage);
     }
 
-    private static getCommandStatusString(command: string, status: CommandStatus) {
+    /**
+     * Logs a message to the console.
+     */
+    export function logToStderr(message: string, formatMessage: boolean = true) {
+        new StreamLogger(process.stderr).logMessage(message, formatMessage);
+    }
+
+    /**
+     * Logs a message to the console.
+     */
+    export function logToStdout(message: string, formatMessage: boolean = true) {
+        new StreamLogger(process.stdout).logMessage(message, formatMessage);
+    }
+
+    export function getCommandStatusString(command: string, status: CommandStatus) {
         console.assert(status >= CommandStatus.Start && status <= CommandStatus.End, "Unsupported Command Status");
 
         switch (status) {
@@ -96,25 +115,6 @@ export class Log {
 
             default:
                 throw new Error("Unsupported command status");
-        }
-    }
-
-    private static log(message: string, targetLogChannel: any, formatMessage: boolean = true) {
-        switch (LogHelper.getLogChannelType(targetLogChannel)) {
-            case LogChannelType.OutputChannel:
-                Log.logToOutputChannel(message, targetLogChannel, formatMessage);
-                break;
-
-            case LogChannelType.WritableStream:
-                targetLogChannel.write(formatMessage ?
-                    StreamLogFormatter.getFormattedMessage(message) :
-                    message);
-                break;
-
-            case LogChannelType.Console:
-            default:
-                Log.logToConsole(message, formatMessage);
-                break;
         }
     }
 }

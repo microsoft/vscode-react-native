@@ -51,14 +51,12 @@ export class TsConfigHelper {
             .then(function(tsConfigJson: any): Q.Promise<void> {
                 tsConfigJson.compilerOptions = tsConfigJson.compilerOptions || {};
 
-                // Return if the setting is already correctly set.
-                if (tsConfigJson.compilerOptions.allowJs === enabled) {
-                    return Q.resolve<void>(void 0);
+                if (!tsConfigJson.compilerOptions.hasOwnProperty("allowJs")) {
+                    tsConfigJson.compilerOptions.allowJs = enabled;
+                    return TsConfigHelper.writeConfigJson(tsConfigJson);
                 }
 
-                tsConfigJson.compilerOptions.allowJs = enabled;
-
-                return TsConfigHelper.writeConfigJson(tsConfigJson);
+                return Q.resolve<void>(void 0);
             });
     }
 

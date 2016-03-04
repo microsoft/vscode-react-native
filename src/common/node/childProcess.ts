@@ -3,6 +3,8 @@
 
 import * as child_process from "child_process";
 import Q = require("q");
+import {ErrorHelper} from "../error/errorHelper";
+import {InternalErrorCode} from "../error/internalErrorCode";
 
 export interface IExecResult {
     process: child_process.ChildProcess;
@@ -34,19 +36,13 @@ interface ISpawnOptions {
     detached?: boolean;
 }
 
-export interface IExecRejection {
-    error: Error;
-    stderr: Buffer;
-}
-
 export class ChildProcess {
     public exec(command: string, options: IExecOptions = {}): IExecResult {
         let outcome = Q.defer<Buffer>();
 
         let execProcess = child_process.exec(command, options, (error: Error, stdout: Buffer, stderr: Buffer) => {
             if (error) {
-                const rejection: IExecRejection = { error: error, stderr: stderr};
-                outcome.reject(rejection);
+                outcome.reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
             } else {
                 outcome.resolve(stdout);
             }
@@ -56,7 +52,7 @@ export class ChildProcess {
     }
 
     public execToString(command: string, options: IExecOptions = {}): Q.Promise<string> {
-        return this.exec(command).outcome.then(stdout => stdout.toString());
+        return this.exec(command, options).outcome.then(stdout => stdout.toString());
     }
 
     public spawnWithExitHandler(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
@@ -70,7 +66,7 @@ export class ChildProcess {
             if (code === 0) {
                 outcome.resolve(void 0);
             } else {
-                outcome.reject(new Error(`Command ${command} failed with error code ${code}`));
+                outcome.reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed));
             }
         });
 
@@ -86,7 +82,7 @@ export class ChildProcess {
         let outcome = Q.defer<void>();
         let spawnedProcess = child_process.spawn(command, args, options);
         spawnedProcess.once("error", (error: any) => {
-            outcome.reject({ error: error });
+            outcome.reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
         });
 
         return {

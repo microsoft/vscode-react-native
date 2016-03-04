@@ -3,12 +3,13 @@
 
 export enum InternalErrorCode {
         // Command Executor errors
-        CommandExecutionFailed = 101,
-        PackagerStartFailed = 102,
-        FailedToRunOnAndroid = 103,
-        FailedToRunOnIos = 104,
-        FailedToStartPackager = 105,
-        FailedToStopPackager = 106,
+        CommandFailed = 101,
+        CommandFailedWithErrorCode = 102,
+        PackagerStartFailed = 103,
+        FailedToRunOnAndroid = 104,
+        FailedToRunOnIos = 105,
+        FailedToStartPackager = 106,
+        FailedToStopPackager = 107,
 
         // Device Deployer errors
         IDeviceInstallerNotFound = 201,

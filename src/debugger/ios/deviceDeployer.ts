@@ -23,7 +23,7 @@ export class DeviceDeployer {
                 "Build", "Products", "Debug-iphoneos", `${projectName}.app`);
             return new CommandExecutor(this.projectRoot)
                 .spawnAndWaitForCompletion("ideviceinstaller", ["-i", pathToCompiledApp]).catch((err) => {
-                    if (err.code === "ENOENT") {
+                    if ((<any>err).code === "ENOENT") {
                         throw ErrorHelper.getNestedError(err, InternalErrorCode.IDeviceInstallerNotFound);
                     }
                     throw err;

@@ -14,7 +14,7 @@ export class Request {
             });
             res.on("end", () => {
                 if (expectStatusOK && res.statusCode !== 200) {
-                    deferred.reject(responseString);
+                    deferred.reject(new Error(responseString));
                 } else {
                     deferred.resolve(responseString);
                 }

@@ -24,13 +24,19 @@ export class InternalError extends Error {
 
 export class NestedError extends InternalError {
     public innerError: Error | any; // Normally this should be an error, but we support any value
+    private _extras: any;
 
-    constructor(errorCode: number, message: string, innerError: any = null, errorLevel: InternalErrorLevel = InternalErrorLevel.Error) {
+    constructor(errorCode: number, message: string, innerError: any = null, extras?: any, errorLevel: InternalErrorLevel = InternalErrorLevel.Error) {
         super(errorCode, message, errorLevel);
         this.innerError = innerError;
         this.name = innerError ? innerError.name : null;
         const innerMessage = innerError ? innerError.message : null;
         this.message = innerMessage ? `${message}: ${innerMessage}` : message;
+        this._extras = extras;
+    }
+
+    public get extras(): any {
+        return this._extras;
     }
 
     public static getWrappedError(error: InternalError, innerError: any): NestedError {

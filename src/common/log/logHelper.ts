@@ -65,15 +65,12 @@ export class LogHelper {
     /**
      * Gets the message of a non null error, if any. Otherwise it returns the empty string.
      */
-     public static getErrorString(e: any, targetChannel: any): string {
-        let errorMessageTag = LogHelper.getLogChannelType(targetChannel) === LogChannelType.OutputChannel ?
-                                        "" :
-                                        `${LogHelper.MESSAGE_TAG}`;
+     public static getErrorString(e: any): string {
 
         if (e.isInternalError) {
             let errorMessage = e.message;
             let errorMessagePrefix = LogHelper.getErrorMessagePrefix(e);
-            return errorMessageTag + errorMessagePrefix + " " + errorMessage;
+            return errorMessagePrefix + " " + errorMessage;
        } else {
             try {
                 return JSON.stringify(e);

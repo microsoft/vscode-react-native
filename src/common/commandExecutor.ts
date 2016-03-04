@@ -5,7 +5,7 @@ import * as Q from "q";
 import {ChildProcess} from "child_process";
 import {Log} from "./log/log";
 import {Node} from "./node/node";
-import {ISpawnResult, IExecRejection} from "./node/childProcess";
+import {ISpawnResult} from "./node/childProcess";
 import {OutputChannel} from "vscode";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
@@ -37,8 +37,8 @@ export class CommandExecutor {
                 Log.logMessage(stdout);
                 Log.logCommandStatus(command, CommandStatus.End);
             },
-            (reason: IExecRejection) =>
-                this.generateRejectionForCommand(command, reason.error));
+            (reason: Error) =>
+                this.generateRejectionForCommand(command, reason));
     }
 
     /**
@@ -81,15 +81,15 @@ export class CommandExecutor {
 
         let result = new Node.ChildProcess().spawn(command, runArguments, spawnOptions);
         result.spawnedProcess.once("error", (error: any) => {
-            deferred.reject({ error: error });
+            deferred.reject(ErrorHelper.getNestedError(error, InternalErrorCode.PackagerStartFailed));
         });
 
         result.stderr.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), outputChannel || process.stderr, /*formatMessage*/false);
+            Log.logMessage(data.toString(), /*formatMessage*/false);
         });
 
         result.stdout.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), outputChannel || process.stdout, /*formatMessage*/false);
+            Log.logMessage(data.toString(), /*formatMessage*/false);
         });
 
         // TODO #83 - PROMISE: We need to consume result.outcome here
@@ -101,23 +101,21 @@ export class CommandExecutor {
      * Kills the React Native packager in a child process.
      */
     public killReactPackager(packagerProcess: ChildProcess, outputChannel?: OutputChannel): Q.Promise<void> {
-        let targetLogChannel = outputChannel || console;
-
-        Log.logMessage("Stopping Packager", targetLogChannel);
+        Log.logMessage("Stopping Packager");
         if (packagerProcess) {
             /* To reliably kill the child process on all versions of Windows,
              * please use taskkill to end the packager process */
             if (process.platform === "win32") {
                 return new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome.then(() => {
-                    Log.logMessage("Packager stopped", targetLogChannel);
+                    Log.logMessage("Packager stopped");
                 });
             } else {
                 packagerProcess.kill();
-                Log.logMessage("Packager stopped", targetLogChannel);
+                Log.logMessage("Packager stopped");
                 return Q.resolve<void>(void 0);
             }
         } else {
-            Log.logMessage("Packager not found", targetLogChannel);
+            Log.logMessage("Packager not found");
             return Q.resolve<void>(void 0);
         }
     }
@@ -157,20 +155,20 @@ export class CommandExecutor {
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
 
-        Log.logCommandStatus(commandWithArgs, CommandStatus.Start, outputChannel || console);
+        Log.logCommandStatus(commandWithArgs, CommandStatus.Start);
         let result = new Node.ChildProcess().spawnWithExitHandler(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), outputChannel || process.stderr, /*formatMessage*/ false);
+            Log.logMessage(data.toString(), /*formatMessage*/ false);
         });
 
         result.stdout.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), outputChannel || process.stdout, /*formatMessage*/ false);
+            Log.logMessage(data.toString(), /*formatMessage*/ false);
         });
 
         result.outcome = result.outcome.then(
             () =>
-                Log.logCommandStatus(commandWithArgs, CommandStatus.End, outputChannel || console),
+                Log.logCommandStatus(commandWithArgs, CommandStatus.End),
             reason =>
                 this.generateRejectionForCommand(command, reason));
 
@@ -178,6 +176,6 @@ export class CommandExecutor {
     }
 
     private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {
-        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.CommandExecutionFailed, command, reason));
+        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, command, reason));
     }
 }

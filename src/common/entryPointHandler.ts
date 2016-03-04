@@ -15,7 +15,10 @@ export class EntryPointHandler {
     private outputChannel: OutputChannel;
 
     constructor(outputChannel?: OutputChannel) {
-        this.outputChannel = outputChannel;
+        if (outputChannel) {
+            this.outputChannel = outputChannel;
+            Log.CreateGlobalLogger(outputChannel);
+        }
     }
 
 
@@ -33,7 +36,7 @@ export class EntryPointHandler {
                     // After telemetry is initialized, we run the code. Errors in this main path are fatal so we rethrow them
                     this.runFunction(appName, error, codeToRun, /*errorsAreFatal*/ true)), /*errorsAreFatal*/ true);
         } catch (error) {
-            Log.logError(ErrorHelper.wrapError(telemetryError, error), this.outputChannel, /*logStack*/ false);
+            Log.logError(ErrorHelper.wrapError(telemetryError, error), /*logStack*/ false);
             throw error;
         }
     }
@@ -42,7 +45,7 @@ export class EntryPointHandler {
         const isDebugeeProcess = !this.outputChannel;
         resultOfCode.done(() => { }, reason => {
             const shouldLogStack = !errorsAreFatal || isDebugeeProcess;
-            Log.logError(ErrorHelper.wrapError(error, reason), this.outputChannel, /*logStack*/ shouldLogStack);
+            Log.logError(ErrorHelper.wrapError(error, reason), /*logStack*/ shouldLogStack);
             if (errorsAreFatal) {
                 /* The process is likely going to exit if errors are fatal, so we first
                 send the telemetry, and then we exit or rethrow the exception */

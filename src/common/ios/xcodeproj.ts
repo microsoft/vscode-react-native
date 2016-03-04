@@ -6,13 +6,21 @@ import * as Q from "q";
 
 import {ErrorHelper} from "../../common/error/errorHelper";
 import {Log} from "../../common/log/log";
-import {Node} from "../../common/node/node";
+import {FileSystem} from "../../common/node/fileSystem";
 
 import {TelemetryHelper} from "../../common/telemetryHelper";
 
 export class Xcodeproj {
+    private nodeFileSystem: FileSystem;
+
+    constructor({
+        nodeFileSystem = new FileSystem()
+    } = {}) {
+        this.nodeFileSystem = nodeFileSystem;
+    }
+
     public findXcodeprojFile(projectRoot: string): Q.Promise<string> {
-        return new Node.FileSystem()
+        return this.nodeFileSystem
             .findFilesByExtension(path.join(projectRoot, "ios"), "xcodeproj")
             .then((projectFiles: string[]) => {
                 if (projectFiles.length > 1) {
