@@ -16,7 +16,7 @@ import {SettingsHelper} from "./settingsHelper";
 import {Log, LogLevel} from "../common/log";
 
 
-interface InstallProps {
+interface IInstallProps {
     installed: boolean;
     version: string;
 }
@@ -85,7 +85,7 @@ export class IntellisenseHelper {
         }
 
         return IntellisenseHelper.getInstalledTypeScriptVersion()
-            .then(function(installProps: InstallProps) {
+            .then(function(installProps: IInstallProps) {
 
                 if (installProps.installed === true) {
 
@@ -206,10 +206,10 @@ export class IntellisenseHelper {
     /**
      * Checks for the existance of our installed TypeScript package, if it exists also determine its version
      */
-    private static getInstalledTypeScriptVersion(): Q.Promise<InstallProps> {
+    private static getInstalledTypeScriptVersion(): Q.Promise<IInstallProps> {
         return IntellisenseHelper.isTypeScriptInstalled()
             .then((installed: boolean) => {
-                let installProps: InstallProps = {
+                let installProps: IInstallProps = {
                     installed: installed,
                     version: ""
                 };
