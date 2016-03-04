@@ -8,7 +8,7 @@ export type PatternToFailure = { [pattern: string]: string };
 
 /* This class transforms a spawn process to only succeed if all defined success patterns
    are found on stdout, and none of the failure patterns were found on stderr */
-export class MakeOutcomeFailDependingOnOutput {
+export class OutputVerifier {
     private generatePatternsForSuccess: () => Q.Promise<string[]>;
     private generatePatternToFailure: () => Q.Promise<PatternToFailure>;
 

@@ -7,7 +7,7 @@ import {IRunOptions} from "../../common/launchArgs";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {Package} from "../../common/node/package";
 import {PackageNameResolver} from "../../common/android/packageNameResolver";
-import {MakeOutcomeFailDependingOnOutput, PatternToFailure} from "../../common/makeOutcomeFailDependingOnOutput";
+import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 
 /**
  * Android specific platform implementation for debugging RN applications.
@@ -24,7 +24,7 @@ export class AndroidPlatform implements IAppPlatform {
 
     public runApp(runOptions: IRunOptions): Q.Promise<void> {
         const runAndroidSpawn = new CommandExecutor(runOptions.projectRoot).spawnChildReactCommandProcess("run-android");
-        return new MakeOutcomeFailDependingOnOutput(
+        return new OutputVerifier(
             () =>
                 Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
             () =>

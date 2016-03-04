@@ -13,7 +13,7 @@ import {DeviceRunner} from "./deviceRunner";
 import {IRunOptions} from "../../common/launchArgs";
 import {PlistBuddy} from "../../common/ios/plistBuddy";
 import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
-import {MakeOutcomeFailDependingOnOutput, PatternToFailure} from "../../common/makeOutcomeFailDependingOnOutput";
+import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 
 export class IOSPlatform implements IAppPlatform {
     private static deviceString = "device";
@@ -45,7 +45,7 @@ export class IOSPlatform implements IAppPlatform {
             }
 
             const runIosSpawn = new CommandExecutor(this.projectPath).spawnChildReactCommandProcess("run-ios", runArguments);
-            return new MakeOutcomeFailDependingOnOutput(
+            return new OutputVerifier(
                 () =>
                     this.generateSuccessPatterns(launchArgs),
                 () =>
