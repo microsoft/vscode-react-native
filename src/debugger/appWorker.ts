@@ -9,6 +9,7 @@ import {ScriptImporter}  from "./scriptImporter";
 import {Packager}  from "../common/packager";
 import {Log, LogLevel} from "../common/log";
 import {Node} from "../common/node/node";
+import {ExecutionsLimiter} from "../common/executionsLimiter";
 
 import Module = require("module");
 
@@ -154,6 +155,8 @@ export class MultipleLifetimesAppWorker {
     private socketToApp: WebSocket;
     private singleLifetimeWorker: SandboxedAppWorker;
 
+    private executionLimiter = new ExecutionsLimiter();
+
     constructor(sourcesStoragePath: string, debugAdapterPort: number) {
         this.sourcesStoragePath = sourcesStoragePath;
         this.debugAdapterPort = debugAdapterPort;
@@ -187,12 +190,13 @@ export class MultipleLifetimesAppWorker {
     }
 
     private onSocketOpened() {
-        Log.logMessage("Established a connection with the Proxy (Packager) to the React Native application");
+        this.executionLimiter.execute("onSocketOpened.msg", /*limitInSeconds*/ 10, () =>
+            Log.logMessage("Established a connection with the Proxy (Packager) to the React Native application"));
     }
 
     private onSocketClose() {
-        // TODO: Add some logic to not print this message that often, we'll spam the user
-        Log.logMessage("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon...");
+        this.executionLimiter.execute("onSocketClose.msg", /*limitInSeconds*/ 10, () =>
+            Log.logMessage("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon..."));
         setTimeout(() => this.start(), 100);
     }
 
