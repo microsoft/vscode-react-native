@@ -11,13 +11,11 @@ import * as vscode from "vscode";
 
 
 export class ExtensionServer implements vscode.Disposable {
-    private outputChannel: vscode.OutputChannel;
     private serverInstance: net.Server = null;
     private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
     private reactNativePackager: Packager;
 
     public constructor(reactNativePackager: Packager) {
-        this.outputChannel = vscode.window.createOutputChannel("React-Native");
         this.reactNativePackager = reactNativePackager;
 
         /* register handlers for all messages */
@@ -63,14 +61,14 @@ export class ExtensionServer implements vscode.Disposable {
      * Message handler for START_PACKAGER.
      */
     private startPackager(): Q.Promise<any> {
-        return this.reactNativePackager.start(this.outputChannel);
+        return this.reactNativePackager.start();
     }
 
     /**
      * Message handler for STOP_PACKAGER.
      */
     private stopPackager(): Q.Promise<any> {
-        return this.reactNativePackager.stop(this.outputChannel);
+        return this.reactNativePackager.stop();
     }
 
     /**

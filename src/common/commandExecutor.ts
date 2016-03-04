@@ -6,7 +6,6 @@ import {ChildProcess} from "child_process";
 import {Log} from "./log/log";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
-import {OutputChannel} from "vscode";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 
@@ -47,10 +46,9 @@ export class CommandExecutor {
      * {command} - The command to be invoked in the child process
      * {args} - Arguments to be passed to the command
      * {options} - additional options with which the child process needs to be spawned
-     * {outputChannel} - optional object of type vscode.OutputChannel where logs need to be printed
      */
-    public spawn(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): ChildProcess {
-        return this.spawnChildProcess(command, args, options, outputChannel).spawnedProcess;
+    public spawn(command: string, args: string[], options: Options = {}): ChildProcess {
+        return this.spawnChildProcess(command, args, options).spawnedProcess;
     }
 
     /**
@@ -59,16 +57,15 @@ export class CommandExecutor {
      * {command} - The command to be invoked in the child process
      * {args} - Arguments to be passed to the command
      * {options} - additional options with which the child process needs to be spawned
-     * {outputChannel} - optional object of type vscode.OutputChannel where logs need to be printed
      */
-    public spawnAndWaitForCompletion(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<void> {
-        return this.spawnChildProcess(command, args, options, outputChannel).outcome;
+    public spawnAndWaitForCompletion(command: string, args: string[], options: Options = {}): Q.Promise<void> {
+        return this.spawnChildProcess(command, args, options).outcome;
     }
 
     /**
      * Spawns the React Native packager in a child process.
      */
-    public spawnReactPackager(args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
+    public spawnReactPackager(args?: string[], options: Options = {}): Q.Promise<ChildProcess> {
         let deferred = Q.defer<ChildProcess>();
         let command = this.getReactCommandName();
         let runArguments = ["start"];
@@ -100,7 +97,7 @@ export class CommandExecutor {
     /**
      * Kills the React Native packager in a child process.
      */
-    public killReactPackager(packagerProcess: ChildProcess, outputChannel?: OutputChannel): Q.Promise<void> {
+    public killReactPackager(packagerProcess: ChildProcess): Q.Promise<void> {
         Log.logMessage("Stopping Packager");
         if (packagerProcess) {
             /* To reliably kill the child process on all versions of Windows,
@@ -125,16 +122,16 @@ export class CommandExecutor {
     /**
      * Executes a react native command and waits for its completion.
      */
-    public spawnAndWaitReactCommand(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<void> {
-        return this.spawnChildReactCommandProcess(command, args, options, outputChannel).outcome;
+    public spawnAndWaitReactCommand(command: string, args?: string[], options: Options = {}): Q.Promise<void> {
+        return this.spawnChildReactCommandProcess(command, args, options).outcome;
     }
 
-    public spawnChildReactCommandProcess(command: string, args?: string[], options: Options = {}, outputChannel?: OutputChannel): ISpawnResult {
+    public spawnChildReactCommandProcess(command: string, args?: string[], options: Options = {}): ISpawnResult {
         let runArguments = [command];
         if (args) {
             runArguments = runArguments.concat(args);
         }
-        return this.spawnChildProcess(this.getReactCommandName(), runArguments, options, outputChannel);
+        return this.spawnChildProcess(this.getReactCommandName(), runArguments, options);
     }
 
     /**
@@ -151,7 +148,7 @@ export class CommandExecutor {
         }
     }
 
-    private spawnChildProcess(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): ISpawnResult {
+    private spawnChildProcess(command: string, args: string[], options: Options = {}): ISpawnResult {
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
 

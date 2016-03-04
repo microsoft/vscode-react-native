@@ -189,12 +189,12 @@ export class MultipleLifetimesAppWorker {
     }
 
     private onSocketOpened() {
-        Log.logToConsole("Established a connection with the Proxy (Packager) to the React Native application");
+        Log.logMessage("Established a connection with the Proxy (Packager) to the React Native application");
     }
 
     private onSocketClose() {
         // TODO: Add some logic to not print this message that often, we'll spam the user
-        Log.logToConsole("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon...");
+        Log.logMessage("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon...");
         setTimeout(() => this.start(), 100);
     }
 

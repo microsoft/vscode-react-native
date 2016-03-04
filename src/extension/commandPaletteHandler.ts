@@ -87,12 +87,11 @@ export class CommandPaletteHandler {
      */
     private executeReactNativeRunCommand(command: string, args?: string[]): Q.Promise<void> {
         // Start the packager before executing the React-Native command
-        let outputChannel = vscode.window.createOutputChannel("React-Native");
         Log.logMessage("Attempting to start the React Native packager");
 
-        return this.reactNativePackager.start(outputChannel)
+        return this.reactNativePackager.start()
             .then(() => {
-                return new CommandExecutor(this.workspaceRoot).spawnAndWaitReactCommand(command, args, null, outputChannel);
+                return new CommandExecutor(this.workspaceRoot).spawnAndWaitReactCommand(command, args, null);
             }).then(() => {
                 return Q.resolve<void>(void 0);
             });

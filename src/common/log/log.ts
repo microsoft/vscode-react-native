@@ -7,8 +7,7 @@
 
 import {CommandStatus} from "../commandExecutor";
 import {LogHelper, LogLevel} from "./logHelper";
-import {ILogger, OutputChannelLogger, StreamLogger, ConsoleLogger} from "./loggers";
-import {OutputChannel} from "vscode";
+import {ILogger, StreamLogger, ConsoleLogger} from "./loggers";
 
 export module Log {
     /**
@@ -69,15 +68,8 @@ export module Log {
     /**
      * Logs a message to the console.
      */
-    export function logToConsole(message: string, formatMessage: boolean = true) {
-        new ConsoleLogger().logMessage(message, formatMessage);
-    }
-
-    /**
-     * Logs a message to VS Code's Output Channel.
-     */
-    export function logToOutputChannel(outputChannel: OutputChannel, message: string, formatMessage: boolean = true) {
-        new OutputChannelLogger(outputChannel).logMessage(message, formatMessage);
+    export function logWithLogger(logger: ILogger, message: string, formatMessage: boolean) {
+        logger.logMessage(message, formatMessage);
     }
 
     /**
