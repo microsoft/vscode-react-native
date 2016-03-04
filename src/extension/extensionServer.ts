@@ -5,6 +5,7 @@ import * as em from "../common/extensionMessaging";
 import {FileSystem} from "../common/node/fileSystem";
 import {Packager} from "../common/packager";
 import {Log} from "../common/log/log";
+import {LogLevel} from "../common/log/logHelper";
 import * as Q from "q";
 import * as net from "net";
 import * as vscode from "vscode";
@@ -32,7 +33,7 @@ export class ExtensionServer implements vscode.Disposable {
         let deferred = Q.defer<void>();
 
         let launchCallback = (error: any) => {
-            Log.logMessage("Extension messaging server started.");
+            Log.logInternalMessage(LogLevel.Info, "Extension messaging server started.");
             if (error) {
                 deferred.reject(error);
             } else {
@@ -84,7 +85,7 @@ export class ExtensionServer implements vscode.Disposable {
     private handleExtensionMessage(messageWithArgs: em.MessageWithArguments): Q.Promise<any> {
         let handler = this.messageHandlerDictionary[messageWithArgs.message];
         if (handler) {
-            Log.logMessage("Handling message: " + em.ExtensionMessage[messageWithArgs.message]);
+            Log.logInternalMessage(LogLevel.Info, "Handling message: " + em.ExtensionMessage[messageWithArgs.message]);
             return handler.apply(this, messageWithArgs.args);
         } else {
             return Q.reject("Invalid message: " + messageWithArgs.message);

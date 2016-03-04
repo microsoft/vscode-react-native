@@ -49,7 +49,8 @@ export module Log {
      * Customers aren't interested in these messages, so we normally shouldn't show
      * them to them.
      */
-    export function logInternalMessage(logLevel: LogLevel, message: string) {
+    export function logInternalMessage(logLevel: string, message: string) {
+        globalLogger.logInternalMessage(logLevel, message);
         if (LogHelper.logLevel >= logLevel) {
             globalLogger.logInternalMessage(logLevel, message);
         }

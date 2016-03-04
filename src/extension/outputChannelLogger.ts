@@ -6,6 +6,7 @@
  */
 
 import {ILogger} from "../common/log/loggers";
+import {LogHelper, LogLevel} from "../common/log/logHelper";
 import {OutputChannel} from "vscode";
 
 export class OutputChannelLogger implements ILogger {
@@ -13,6 +14,10 @@ export class OutputChannelLogger implements ILogger {
 
     constructor(outputChannel: OutputChannel) {
         this.outputChannel = outputChannel;
+    }
+
+    public logInternalMessage(logLevel: LogLevel, message: string) {
+        console.log(this.getFormattedInternalMessage(logLevel, message));
     }
 
     public logMessage(message: string, formatMessage: boolean = true ) {
@@ -28,5 +33,10 @@ export class OutputChannelLogger implements ILogger {
 
     private getFormattedMessage(message: string) {
         return `######### ${message} ##########`;
+    }
+
+    private getFormattedInternalMessage(logLevel: LogLevel, message: string) {
+        let logLevelStr = LogHelper.getLogLevelString(logLevel);
+        return (`${LogHelper.INTERNAL_TAG} [${logLevelStr}] ${message}\n`);
     }
 }
