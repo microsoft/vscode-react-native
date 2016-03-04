@@ -17,12 +17,6 @@ export enum LogLevel {
     Trace = 5
 }
 
-export enum LogChannelType {
-    Console = 0,
-    OutputChannel = 1,
-    WritableStream = 2
-}
-
 export class LogHelper {
     public static MESSAGE_TAG: string = "[vscode-react-native]";
     public static INTERNAL_TAG: string = "[Internal]";
@@ -44,23 +38,6 @@ export class LogHelper {
         // Set the process env value
         process.env[LogHelper.LOG_LEVEL_NAME] = LogLevel[level];
     }
-
-    /**
-     * Determines the type of the log channel (LogChannelType).
-     */
-    public static getLogChannelType(targetChannel: any): LogChannelType {
-        console.assert(!!targetChannel, "targetChannel is undefined");
-        if (typeof targetChannel.log === "function") {
-            return LogChannelType.Console;
-        } else if (typeof targetChannel.append === "function") {
-            return LogChannelType.OutputChannel;
-        } else if (typeof targetChannel.write === "function") {
-            return LogChannelType.WritableStream;
-        } else {
-            return LogChannelType.Console;
-        }
-    }
-
 
     /**
      * Gets the message of a non null error, if any. Otherwise it returns the empty string.

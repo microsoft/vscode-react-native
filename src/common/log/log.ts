@@ -6,37 +6,24 @@
  */
 
 import {CommandStatus} from "../commandExecutor";
-import {LogHelper, LogChannelType, LogLevel} from "./logHelper";
+import {LogHelper, LogLevel} from "./logHelper";
 import {ILogger, OutputChannelLogger, StreamLogger, ConsoleLogger} from "./loggers";
 import {OutputChannel} from "vscode";
 
 export module Log {
-    let globalLogger: ILogger;
+    let globalLogger: ILogger = new ConsoleLogger();
     /**
-     * Logs a message.
+     * Sets the global .
      */
-    export function CreateGlobalLogger(targetChannel?: any) {
-        switch (LogHelper.getLogChannelType(targetChannel)) {
-            case LogChannelType.OutputChannel:
-                globalLogger = new OutputChannelLogger(targetChannel);
-                break;
-
-            case LogChannelType.WritableStream:
-                globalLogger = new StreamLogger(targetChannel);
-                break;
-
-            case LogChannelType.Console:
-            default:
-                globalLogger = new ConsoleLogger();
-                break;
-        }
+    export function SetGlobalLogger(logger: ILogger) {
+        globalLogger = logger;
     }
 
     /**
      * Logs a message.
      */
     export function logMessage(message: string, formatMessage: boolean = true) {
-        globalLogger ? globalLogger.logMessage(message, formatMessage) : new ConsoleLogger().logMessage(message, formatMessage);
+        globalLogger.logMessage(message, formatMessage);
     }
 
     /**
@@ -44,7 +31,7 @@ export module Log {
      */
     export function logError(error?: any, logStack = true) {
         let errorMessageToLog = LogHelper.getErrorString(error);
-        globalLogger ? globalLogger.logError(errorMessageToLog, error, logStack) : new ConsoleLogger().logError(errorMessageToLog, error, logStack);
+        globalLogger.logError(errorMessageToLog, error, logStack);
     }
 
     /**
@@ -61,7 +48,7 @@ export module Log {
      */
     export function logInternalMessage(logLevel: LogLevel, message: string) {
         if (LogHelper.logLevel >= logLevel) {
-            globalLogger ? globalLogger.logInternalMessage(logLevel, message) : new ConsoleLogger().logInternalMessage(logLevel, message);
+            globalLogger.logInternalMessage(logLevel, message);
         }
     }
 
@@ -72,7 +59,7 @@ export module Log {
         console.assert(status >= CommandStatus.Start && status <= CommandStatus.End, "Unsupported Command Status");
 
         let statusMessage = Log.getCommandStatusString(command, status);
-        globalLogger ? globalLogger.logMessage(statusMessage) : new ConsoleLogger().logMessage(statusMessage);
+        globalLogger.logMessage(statusMessage);
     }
 
     /**

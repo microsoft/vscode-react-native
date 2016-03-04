@@ -8,6 +8,7 @@ import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {Telemetry} from "../common/telemetry";
 import {Log} from "../common/log/log";
+import {OutputChannelLogger} from "../common/log/loggers";
 import {OutputChannel} from "vscode";
 
 /* This class should we used for each entry point of the code, so we handle telemetry and error reporting properly */
@@ -17,7 +18,7 @@ export class EntryPointHandler {
     constructor(outputChannel?: OutputChannel) {
         if (outputChannel) {
             this.outputChannel = outputChannel;
-            Log.CreateGlobalLogger(outputChannel);
+            Log.SetGlobalLogger(new OutputChannelLogger(outputChannel));
         }
     }
 
