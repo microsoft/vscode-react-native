@@ -128,9 +128,9 @@ export class IntellisenseHelper {
     public static getUserHomePath(): string {
         let homeDirectory: string = "";
 
-        if (os.type() === "Darwin") {
+        if (os.platform() === "darwin") {
             homeDirectory = process.env.HOME;
-        } else if (os.type() === "Windows_NT") {
+        } else if (os.platform() === "win32") {
             homeDirectory = process.env.USERPROFILE;
         }
 
@@ -180,9 +180,9 @@ export class IntellisenseHelper {
     public static enableSalsa(isRestartRequired: boolean): Q.Promise<boolean> {
         if (!process.env.VSCODE_TSJS) {
             let setEnvironmentVariableCommand: string = "";
-            if (os.type() === "Darwin") {
+            if (os.platform() === "darwin") {
                 setEnvironmentVariableCommand = "launchctl setenv VSCODE_TSJS 1";
-            } else if (os.type() === "Windows_NT") {
+            } else if (os.platform() === "win32") {
                 setEnvironmentVariableCommand = "setx VSCODE_TSJS 1";
             }
 
