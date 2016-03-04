@@ -73,12 +73,21 @@ export class Packager {
     }
 
     public stop(): Q.Promise<void> {
-        if (!this.packagerProcess && this.isRunning()) {
-            Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
-        } else {
-            return new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess).then(() =>
-                this.packagerProcess = null);
-        }
+        return this.isRunning()
+            .then(running => {
+            if (running) {
+                if (!this.packagerProcess) {
+                    Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
+                    return Q.resolve(void 0);
+                }
+
+                return new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess).then(() =>
+                    this.packagerProcess = null);
+            } else {
+                Log.logWarning(ErrorHelper.getWarning("Packager is not running"));
+                return Q.resolve(void 0);
+            }
+        });
     }
 
     public prewarmBundleCache(platform: string) {

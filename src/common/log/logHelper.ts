@@ -54,12 +54,17 @@ export class LogHelper {
             let errorMessagePrefix = LogHelper.getErrorMessagePrefix(e);
             return errorMessagePrefix + " " + errorMessage;
        } else {
-            try {
-                return JSON.stringify(e);
-            } catch (exception) {
-                // This is a best-effort feature, so we ignore any exceptions. If possible we'll print the error stringified.
-                // If not, we'll just use one of the fallbacks
-                return e.error || e.toString() || "";
+            let message = e.message || e.error && e.error.message;
+            if (!message) {
+                try {
+                    return JSON.stringify(e);
+                } catch (exception) {
+                    // This is a best-effort feature, so we ignore any exceptions. If possible we'll print the error stringified.
+                    // If not, we'll just use one of the fallbacks
+                    return e.error || e.toString() || "";
+                }
+            } else {
+                return message;
             }
         }
     }
