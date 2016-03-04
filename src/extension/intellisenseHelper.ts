@@ -106,11 +106,12 @@ export class IntellisenseHelper {
                 if (install) {
                     let installPath: string = path.resolve(IntellisenseHelper.getUserHomePath(), ".vscode");
                     let runArguments: string[] = [];
+                    let npmCommand: string = (os.type() === "Darwin") ? "npm" : "npm.cmd";
                     runArguments.push("install");
                     runArguments.push("--prefix " + installPath);
                     runArguments.push("typescript@" + IntellisenseHelper.s_typeScriptVersion);
 
-                    return new CommandExecutor(installPath).spawnAndWaitForCompletion("npm", runArguments)
+                    return new CommandExecutor(installPath).spawnAndWaitForCompletion(npmCommand, runArguments)
                         .then(() => {
                             return true;
                         })
