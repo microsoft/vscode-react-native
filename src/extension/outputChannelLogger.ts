@@ -36,7 +36,6 @@ export class OutputChannelLogger implements ILogger {
     }
 
     private getFormattedInternalMessage(logLevel: LogLevel, message: string) {
-        let logLevelStr = LogHelper.getLogLevelString(logLevel);
-        return (`${LogHelper.INTERNAL_TAG} [${logLevelStr}] ${message}\n`);
+        return (`${LogHelper.INTERNAL_TAG} [${LogLevel[logLevel]}]${message}`);
     }
 }

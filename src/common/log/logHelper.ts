@@ -29,7 +29,7 @@ export class LogHelper {
         let valName: string = process.env[LogHelper.LOG_LEVEL_NAME];
 
         if (typeof(valName) === "undefined") {
-            valName = LogLevel.Info; // Set the default LogLevel to LogLevel.Info
+            valName = "Info"; // Set the default LogLevel to LogLevel.Info
         }
 
         return (<any> LogLevel)[valName];
@@ -61,26 +61,6 @@ export class LogHelper {
                 // If not, we'll just use one of the fallbacks
                 return e.error || e.toString() || "";
             }
-        }
-    }
-
-    /**
-     * Gets the string representation of the LogLevel.
-     */
-    public static getLogLevelString(level: LogLevel): string {
-        switch(level) {
-            case LogLevel.Error:
-                return "Error";
-            case LogLevel.Warning:
-                return "Warning";
-            case LogLevel.Info:
-                return "Info";
-            case LogLevel.Debug:
-                return "Debug";
-            case LogLevel.Trace:
-                return "Trace";
-            default:
-                return "";
         }
     }
 

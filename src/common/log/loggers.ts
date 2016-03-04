@@ -37,8 +37,7 @@ export class ConsoleLogger implements ILogger {
     }
 
     private getFormattedInternalMessage(logLevel: LogLevel, message: string) {
-        let logLevelStr = LogHelper.getLogLevelString(logLevelStr);
-        return (`${LogHelper.INTERNAL_TAG} [${logLevelStr}] ${message}\n`);
+        return (`${LogHelper.INTERNAL_TAG} [${LogLevel[logLevel]}] ${message}\n`);
     }
 }
 
