@@ -44,6 +44,7 @@ export class ConsoleLogger implements ILogger {
     public logError(errorMessage: string, error?: any, logStack: boolean = true) {
         console.error(this.getFormattedMessage(errorMessage));
 
+        // Print the error stack if necessary
         if (logStack && error && (<Error>error).stack) {
             console.error(`Stack: ${(<Error>error).stack}`);
         }

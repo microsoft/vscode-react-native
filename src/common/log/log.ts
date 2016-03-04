@@ -11,9 +11,13 @@ import {ILogger, OutputChannelLogger, StreamLogger, ConsoleLogger} from "./logge
 import {OutputChannel} from "vscode";
 
 export module Log {
-    let globalLogger: ILogger = new ConsoleLogger();
     /**
-     * Sets the global .
+     * The global logger defaults to the Console logger.
+     */
+    let globalLogger: ILogger = new ConsoleLogger();
+
+    /**
+     * Sets the global logger.
      */
     export function SetGlobalLogger(logger: ILogger) {
         globalLogger = logger;
