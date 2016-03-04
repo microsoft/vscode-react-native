@@ -9,6 +9,7 @@ var os = require('os');
 var path = require('path');
 var runSequence = require("run-sequence");
 var ts = require('gulp-typescript');
+var mocha = require('gulp-mocha');
 
 var srcPath = 'src';
 var outPath = 'out';
@@ -59,7 +60,13 @@ gulp.task('tslint', function () {
 });
 
 function test() {
-    throw new Error('To run tests, open the extension in VS Code and hit F5 with the "Launch Tests" configuration. Alternatively, on Mac OS, you can run "npm test" on the command line.');
+    return gulp.src(['out/test/**/*.test.js', '!out/test/extension/**'])
+        .pipe(mocha({
+            ui: 'tdd',
+            useColors: true,
+            invert: true,
+            grep: "extensionContext" // Do not run tests intended for the extensionContext
+        }));
 }
 
 gulp.task('build-test', ['build'], test);
