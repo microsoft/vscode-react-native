@@ -7,7 +7,9 @@ import * as path from "path";
 import * as WebSocket from "ws";
 import {ScriptImporter}  from "./scriptImporter";
 import {Packager}  from "../common/packager";
-import {Log, LogLevel} from "../common/log";
+import {ErrorHelper} from "../common/error/errorHelper";
+import {Log} from "../common/log/log";
+import {LogLevel} from "../common/log/logHelper";
 import {Node} from "../common/node/node";
 import {ExecutionsLimiter} from "../common/executionsLimiter";
 
@@ -32,7 +34,7 @@ interface RNAppMessage {
 }
 
 function printDebuggingError(message: string, reason: any) {
-    Log.logWarning(`${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`, reason);
+    Log.logWarning(ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`));
 }
 
 export class SandboxedAppWorker {

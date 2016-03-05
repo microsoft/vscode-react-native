@@ -5,8 +5,10 @@ import * as fs from "fs";
 import * as path from "path";
 import * as Q from "q";
 import {MultipleLifetimesAppWorker} from "./appWorker";
+import {Log} from "../common/log/log";
+import {ErrorHelper} from "../common/error/errorHelper";
+import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {ScriptImporter} from "./scriptImporter";
-import {Log} from "../common/log";
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IRunOptions} from "../common/launchArgs";
@@ -22,7 +24,8 @@ export class Launcher {
 
     public launch(): void {
         // Enable telemetry
-        new EntryPointHandler().runApp("react-native-debug-process", () => this.getAppVersion(), "Cannot debug application", () => {
+        new EntryPointHandler(true).runApp("react-native-debug-process", () => this.getAppVersion(),
+            ErrorHelper.getInternalError(InternalErrorCode.DebuggingFailed), () => {
             return TelemetryHelper.generate("launch", (generator) => {
                 const resolver = new PlatformResolver();
                 const runOptions = this.parseRunOptions();
