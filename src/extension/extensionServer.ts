@@ -3,6 +3,7 @@
 
 import * as em from "../common/extensionMessaging";
 import {FileSystem} from "../common/node/fileSystem";
+import {HostPlatformResolver} from "../common/hostPlatform";
 import {Packager} from "../common/packager";
 import {Log} from "../common/log";
 import * as Q from "q";
@@ -15,8 +16,10 @@ export class ExtensionServer implements vscode.Disposable {
     private serverInstance: net.Server = null;
     private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
     private reactNativePackager: Packager;
+    private pipePath: string;
 
     public constructor(reactNativePackager: Packager) {
+        this.pipePath = HostPlatformResolver.getHostPlatform().getExtensionPipePath();
         this.outputChannel = vscode.window.createOutputChannel("React-Native");
         this.reactNativePackager = reactNativePackager;
 
@@ -44,7 +47,7 @@ export class ExtensionServer implements vscode.Disposable {
 
         this.serverInstance = net.createServer(this.handleSocket.bind(this));
         this.serverInstance.on("error", this.recoverServer.bind(this));
-        this.serverInstance.listen(em.getPipePath(), launchCallback);
+        this.serverInstance.listen(this.pipePath, launchCallback);
 
         return deferred.promise;
     }
@@ -126,9 +129,9 @@ export class ExtensionServer implements vscode.Disposable {
         let errorHandler = (e: any) => {
             /* The named socket is not used. */
             if (e.code === "ECONNREFUSED") {
-                new FileSystem().removePathRecursivelyAsync(em.getPipePath())
+                new FileSystem().removePathRecursivelyAsync(this.pipePath)
                     .then(() => {
-                        this.serverInstance.listen(em.getPipePath());
+                        this.serverInstance.listen(this.pipePath);
                     })
                     .done();
             }
@@ -138,7 +141,7 @@ export class ExtensionServer implements vscode.Disposable {
         if (error.code === "EADDRINUSE") {
             let clientSocket = new net.Socket();
             clientSocket.on("error", errorHandler);
-            clientSocket.connect(em.getPipePath(), function() {
+            clientSocket.connect(this.pipePath, function() {
                 clientSocket.end();
             });
         }

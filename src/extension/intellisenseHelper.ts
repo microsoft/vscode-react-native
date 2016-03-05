@@ -3,7 +3,6 @@
 
 import {FileSystem} from "../common/node/fileSystem";
 import * as child_process from "child_process";
-import * as os from "os";
 import * as path from "path";
 import * as Q from "q";
 import * as vscode from "vscode";
@@ -14,6 +13,7 @@ import {CommandExecutor} from "../common/commandExecutor";
 import {TsConfigHelper} from "./tsconfigHelper";
 import {SettingsHelper} from "./settingsHelper";
 import {Log, LogLevel} from "../common/log";
+import {HostPlatformResolver, IHostPlatform} from "../common/hostPlatform";
 
 
 interface IInstallProps {
@@ -104,9 +104,10 @@ export class IntellisenseHelper {
             .then((install: boolean) => {
 
                 if (install) {
-                    let installPath: string = path.resolve(IntellisenseHelper.getUserHomePath(), ".vscode");
+                    let hostPlatform: IHostPlatform = HostPlatformResolver.getHostPlatform();
+                    let installPath: string = path.resolve(hostPlatform.getUserHomePath(), ".vscode");
                     let runArguments: string[] = [];
-                    let npmCommand: string = (os.type() === "Darwin") ? "npm" : "npm.cmd";
+                    let npmCommand: string = hostPlatform.getNpmCommand();
                     runArguments.push("install");
                     runArguments.push("--prefix " + installPath);
                     runArguments.push("typescript@" + IntellisenseHelper.s_typeScriptVersion);
@@ -126,17 +127,7 @@ export class IntellisenseHelper {
             });
     }
 
-    public static getUserHomePath(): string {
-        let homeDirectory: string = "";
 
-        if (os.type() === "Darwin") {
-            homeDirectory = process.env.HOME;
-        } else if (os.type() === "Windows_NT") {
-            homeDirectory = process.env.USERPROFILE;
-        }
-
-        return homeDirectory;
-    }
 
     public static configureWorkspaceSettings(isRestartRequired: boolean): Q.Promise<boolean> {
         let typeScriptLibPath: string = path.resolve(IntellisenseHelper.getTypeScriptInstallPath(), "lib");
@@ -180,15 +171,9 @@ export class IntellisenseHelper {
      */
     public static enableSalsa(isRestartRequired: boolean): Q.Promise<boolean> {
         if (!process.env.VSCODE_TSJS) {
-            let setEnvironmentVariableCommand: string = "";
-            if (os.type() === "Darwin") {
-                setEnvironmentVariableCommand = "launchctl setenv VSCODE_TSJS 1";
-            } else if (os.type() === "Windows") {
-                setEnvironmentVariableCommand = "setx VSCODE_TSJS 1";
-            }
 
             return Q({})
-                .then(() => Q.nfcall(child_process.exec, setEnvironmentVariableCommand))
+                .then(() => Q.nfcall(child_process.exec, HostPlatformResolver.getHostPlatform().getSetEnvCommand()))
                 .then(() => { return true; });
         }
 
@@ -258,7 +243,7 @@ export class IntellisenseHelper {
      */
     private static getTypeScriptInstallPath(): string {
 
-        let codePath: string = path.resolve(IntellisenseHelper.getUserHomePath(), ".vscode");
+        let codePath: string = path.resolve(HostPlatformResolver.getHostPlatform().getUserHomePath(), ".vscode");
         let typeScriptLibPath: string = path.join(codePath, "node_modules", "typescript");
         return typeScriptLibPath;
     }

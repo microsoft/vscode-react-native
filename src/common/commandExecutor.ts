@@ -8,6 +8,7 @@ import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
 import {OutputChannel} from "vscode";
 import {NestedError} from "./nestedError";
+import {HostPlatformResolver} from "../common/hostPlatform";
 
 interface EnvironmentOptions {
     REACT_DEBUGGER?: string;
@@ -64,7 +65,7 @@ export class CommandExecutor {
      */
     public spawnReactPackager(args?: string[], options: Options = {}, outputChannel?: OutputChannel): Q.Promise<ChildProcess> {
         let deferred = Q.defer<ChildProcess>();
-        let command = this.getReactCommandName();
+        let command = HostPlatformResolver.getHostPlatform().getReactNativeCommand();
         let runArguments = ["start"];
 
         if (args) {
@@ -137,21 +138,8 @@ export class CommandExecutor {
         if (args) {
             runArguments = runArguments.concat(args);
         }
-        return this.spawnChildProcess(this.getReactCommandName(), runArguments, options, outputChannel);
-    }
-
-    /**
-     * Resolves the dev machine, desktop platform.
-     */
-    private getReactCommandName() {
-        let platform = process.platform;
-        switch (platform) {
-            case "darwin":
-                return "react-native";
-            case "win32":
-            default:
-                return "react-native.cmd";
-        }
+        let reactCommand = HostPlatformResolver.getHostPlatform().getReactNativeCommand();
+        return this.spawnChildProcess(reactCommand, runArguments, options, outputChannel);
     }
 
     private spawnChildProcess(command: string, args: string[], options: Options = {}, outputChannel?: OutputChannel): ISpawnResult {
