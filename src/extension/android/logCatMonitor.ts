@@ -42,11 +42,14 @@ export class LogCatMonitor implements vscode.Disposable {
         /* LogCat has a buffer and prints old messages when first called. To ignore them,
             we won't print messages for the first 0.5 seconds */
         const filter = new ExecutionsFilterBeforeTimestamp(/*delayInSeconds*/ 0.5);
+        console.log("Start " + new Date().getTime());
         this._logCatSpawn.stderr.on("data", (data: Buffer) => {
+            console.log("Buffer Length " + new Date().getTime());
             filter.execute(() => this._logger.logMessage(data.toString(), /*formatMessage*/ false));
         });
 
         this._logCatSpawn.stdout.on("data", (data: Buffer) => {
+            console.log("Buffer Length " + new Date().getTime());
             filter.execute(() => this._logger.logMessage(data.toString(), /*formatMessage*/ false));
         });
 

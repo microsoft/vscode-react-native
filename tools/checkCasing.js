@@ -34,6 +34,7 @@ function checkImports(imports) {
             return entries.indexOf(path.basename(i.resolved)) === -1;
         } catch (exception) {
             console.log("Missing folder for import in " + i.path + ": " + dirpath);
+            process.exitCode = 1;
         }
     }).forEach(function (i) {
         console.log("Missing file for import in " + i.path + ": " + i.relative);
