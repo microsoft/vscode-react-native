@@ -59,6 +59,16 @@ function bailOut(reason: string): void {
     });
 }
 
+function parseLogCatArguments(userProvidedLogCatArguments: any) {
+    return Array.isArray(userProvidedLogCatArguments)
+        ? userProvidedLogCatArguments.join(" ") // If it's an array, we join the arguments
+        : userProvidedLogCatArguments; // If not, we leave it as-is
+}
+
+function isNullOrUndefined(value: any): boolean {
+    return typeof value === "undefined" || value === null;
+}
+
 // Enable telemetry
 Telemetry.init("react-native-debug-adapter", version, true).then(() => {
     let nodeDebugFolder: string;
@@ -166,13 +176,3 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
 
     vscodeDebugAdapterPackage.DebugSession.run(nodeDebug.NodeDebugSession);
 });
-
-function parseLogCatArguments(userProvidedLogCatArguments: any) {
-    return Array.isArray(userProvidedLogCatArguments)
-        ? userProvidedLogCatArguments.join(" ") // If it's an array, we join the arguments
-        : userProvidedLogCatArguments; // If not, we leave it as-is
-}
-
-function isNullOrUndefined(value: any): boolean {
-    return typeof value === "undefined" || value === null;
-}
