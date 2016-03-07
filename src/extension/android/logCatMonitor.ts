@@ -33,7 +33,7 @@ export class LogCatMonitor implements vscode.Disposable {
     }
 
     public start(): Q.Promise<void> {
-        const logCatArguments = this.logCatArguments();
+        const logCatArguments = this.getLogCatArguments();
         const adbParameters = ["-s", this._deviceId, "logcat"].concat(logCatArguments);
         this._logger.logMessage(`Monitoring LogCat for device ${this._deviceId} with arguments: ${logCatArguments}`);
 
@@ -71,7 +71,7 @@ export class LogCatMonitor implements vscode.Disposable {
         }
     }
 
-    private logCatArguments(): string[] {
+    private getLogCatArguments(): string[] {
         // We use the setting if it's defined, or the defaults if it's not
         return this.isNullOrUndefined(this._userProvidedLogCatArguments) // "" is a valid value, so we can't just if () this
             ? LogCatMonitor.DEFAULT_PARAMETERS
