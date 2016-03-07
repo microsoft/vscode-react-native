@@ -4,7 +4,8 @@
 import * as path from "path";
 import * as Q from "q";
 
-import {Log} from "../../common/log";
+import {ErrorHelper} from "../../common/error/errorHelper";
+import {Log} from "../../common/log/log";
 import {FileSystem} from "../../common/node/fileSystem";
 
 import {TelemetryHelper} from "../../common/telemetryHelper";
@@ -24,7 +25,7 @@ export class Xcodeproj {
             .then((projectFiles: string[]) => {
                 if (projectFiles.length > 1) {
                     TelemetryHelper.sendSimpleEvent("multipleXcodeprojFound");
-                    Log.logWarning(`More than one xcodeproj found. Using ${projectFiles[0]}`);
+                    Log.logWarning(ErrorHelper.getWarning(`More than one xcodeproj found. Using ${projectFiles[0]}`));
                 }
                 return projectFiles[0];
             });

@@ -3,9 +3,10 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
-import {Log, LogLevel} from "./log";
+import {ErrorHelper} from "./error/errorHelper";
+import {Log} from "./log/log";
+import {LogLevel} from "./log/logHelper";
 import {Node} from "./node/node";
-import {OutputChannel} from "vscode";
 import {Package} from "./node/package";
 import {PromiseUtil} from "./node/promise";
 import {Request} from "./node/request";
@@ -33,7 +34,7 @@ export class Packager {
     }
 
 
-    public start(outputChannel?: OutputChannel): Q.Promise<void> {
+    public start(): Q.Promise<void> {
         let executedStartPackagerCmd = false;
         return this.isRunning()
             .then(running => {
@@ -43,14 +44,14 @@ export class Packager {
                             let args = ["--port", Packager.PORT];
                             let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
-                            Log.logMessage("Starting Packager", outputChannel);
+                            Log.logMessage("Starting Packager");
                             // The packager will continue running while we debug the application, so we can"t
                             // wait for this command to finish
 
                             let spawnOptions = { env: childEnvForDebugging };
 
                             // TODO #83 - PROMISE: We need to consume the result of this spawn
-                            new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions, outputChannel).then((packagerProcess) => {
+                            new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions).then((packagerProcess) => {
                                 this.packagerProcess = packagerProcess;
                                 executedStartPackagerCmd = true;
                             });
@@ -61,20 +62,32 @@ export class Packager {
                 this.awaitStart())
             .then(() => {
                 if (executedStartPackagerCmd) {
-                    Log.logMessage("Packager started.", outputChannel);
+                    Log.logMessage("Packager started.");
                 } else {
-                    Log.logMessage("Packager is already running.", outputChannel);
+                    Log.logMessage("Packager is already running.");
                     if (!this.packagerProcess) {
-                        Log.logWarning("Debugging is not supported if the React Native Packager is not started within VS Code. "
-                            + "If debugging fails, please kill other active React Native packager processes and retry.", null, outputChannel);
+                        Log.logWarning(ErrorHelper.getWarning("Debugging is not supported if the React Native Packager is not started within VS Code. If debugging fails, please kill other active React Native packager processes and retry."));
                     }
                 }
             });
     }
 
-    public stop(outputChannel?: OutputChannel): Q.Promise<void> {
-        return new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess, outputChannel).then(() =>
-            this.packagerProcess = null);
+    public stop(): Q.Promise<void> {
+        return this.isRunning()
+            .then(running => {
+            if (running) {
+                if (!this.packagerProcess) {
+                    Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
+                    return Q.resolve(void 0);
+                }
+
+                return new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess).then(() =>
+                    this.packagerProcess = null);
+            } else {
+                Log.logWarning(ErrorHelper.getWarning("Packager is not running"));
+                return Q.resolve(void 0);
+            }
+        });
     }
 
     public prewarmBundleCache(platform: string) {

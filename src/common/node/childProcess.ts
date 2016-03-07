@@ -3,7 +3,8 @@
 
 import * as child_process from "child_process";
 import Q = require("q");
-import {NestedError} from "../nestedError";
+import {ErrorHelper} from "../error/errorHelper";
+import {InternalErrorCode} from "../error/internalErrorCode";
 
 export interface IExecResult {
     process: child_process.ChildProcess;
@@ -41,7 +42,7 @@ export class ChildProcess {
 
         let execProcess = child_process.exec(command, options, (error: Error, stdout: Buffer, stderr: Buffer) => {
             if (error) {
-                outcome.reject(new NestedError(`Error while executing command ${command}`, error, stderr));
+                outcome.reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
             } else {
                 outcome.resolve(stdout);
             }
@@ -65,7 +66,7 @@ export class ChildProcess {
             if (code === 0) {
                 outcome.resolve(void 0);
             } else {
-                outcome.reject(new Error(`Command ${command} failed with error code ${code}`));
+                outcome.reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed));
             }
         });
 
@@ -81,7 +82,7 @@ export class ChildProcess {
         let outcome = Q.defer<void>();
         let spawnedProcess = child_process.spawn(command, args, options);
         spawnedProcess.once("error", (error: any) => {
-            outcome.reject(new NestedError(`Error while executing command ${command}`, error));
+            outcome.reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
         });
 
         return {

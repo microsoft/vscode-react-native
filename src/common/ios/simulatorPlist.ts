@@ -4,10 +4,11 @@
 import * as path from "path";
 import * as Q from "q";
 
+import {ErrorHelper} from "../../common/error/errorHelper";
 import {PlistBuddy} from "./plistBuddy";
+import {Log} from "../../common/log/log";
 import {FileSystem} from "../../common/node/fileSystem";
 import {ChildProcess} from "../../common/node/childProcess";
-import {Log} from "../../common/log";
 
 import {TelemetryHelper} from "../../common/telemetryHelper";
 
@@ -46,7 +47,7 @@ export class SimulatorPlist {
                         throw new Error(`Unable to find plist file for ${bundleId}`);
                     } else if (plistCandidates.length > 1) {
                         TelemetryHelper.sendSimpleEvent("multipleDebugPlistFound");
-                        Log.logWarning("Multiple plist candidates found. Application may not be in debug mode");
+                        Log.logWarning(ErrorHelper.getWarning("Multiple plist candidates found. Application may not be in debug mode."));
                     }
 
                     return plistCandidates[0];

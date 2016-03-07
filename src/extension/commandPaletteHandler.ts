@@ -5,7 +5,7 @@ import * as vscode from "vscode";
 import * as Q from "q";
 import {CommandExecutor} from "../common/commandExecutor";
 import {DeviceHelper, IDevice} from "../common/android/deviceHelper";
-import {Log} from "../common/log";
+import {Log} from "../common/log/log";
 import {Packager} from "../common/packager";
 import {Package} from "../common/node/package";
 import {PackageNameResolver} from "../common/android/packageNameResolver";
@@ -26,14 +26,14 @@ export class CommandPaletteHandler {
      * Starts the React Native packager
      */
     public startPackager(): Q.Promise<void> {
-        return this.executeCommandInContext("startPackager", () => this.reactNativePackager.start(vscode.window.createOutputChannel("React-Native")));
+        return this.executeCommandInContext("startPackager", () => this.reactNativePackager.start());
     }
 
     /**
      * Kills the React Native packager invoked by the extension's packager
      */
     public stopPackager(): Q.Promise<void> {
-        return this.executeCommandInContext("stopPackager", () => this.reactNativePackager.stop(vscode.window.createOutputChannel("React-Native")));
+        return this.executeCommandInContext("stopPackager", () => this.reactNativePackager.stop());
     }
 
     /**
@@ -87,12 +87,11 @@ export class CommandPaletteHandler {
      */
     private executeReactNativeRunCommand(command: string, args?: string[]): Q.Promise<void> {
         // Start the packager before executing the React-Native command
-        let outputChannel = vscode.window.createOutputChannel("React-Native");
-        Log.appendStringToOutputChannel("Attempting to start the React Native packager", outputChannel);
+        Log.logMessage("Attempting to start the React Native packager");
 
-        return this.reactNativePackager.start(outputChannel)
+        return this.reactNativePackager.start()
             .then(() => {
-                return new CommandExecutor(this.workspaceRoot).spawnAndWaitReactCommand(command, args, null, outputChannel);
+                return new CommandExecutor(this.workspaceRoot).spawnAndWaitReactCommand(command, args, null);
             }).then(() => {
                 return Q.resolve<void>(void 0);
             });

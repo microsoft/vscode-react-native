@@ -5,22 +5,22 @@ import * as em from "../common/extensionMessaging";
 import {FileSystem} from "../common/node/fileSystem";
 import {HostPlatformResolver} from "../common/hostPlatform";
 import {Packager} from "../common/packager";
-import {Log} from "../common/log";
+import {Log} from "../common/log/log";
+import {LogLevel} from "../common/log/logHelper";
 import * as Q from "q";
 import * as net from "net";
 import * as vscode from "vscode";
 
 
 export class ExtensionServer implements vscode.Disposable {
-    private outputChannel: vscode.OutputChannel;
     private serverInstance: net.Server = null;
     private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
     private reactNativePackager: Packager;
     private pipePath: string;
 
     public constructor(reactNativePackager: Packager) {
+
         this.pipePath = HostPlatformResolver.getHostPlatform().getExtensionPipePath();
-        this.outputChannel = vscode.window.createOutputChannel("React-Native");
         this.reactNativePackager = reactNativePackager;
 
         /* register handlers for all messages */
@@ -37,7 +37,7 @@ export class ExtensionServer implements vscode.Disposable {
         let deferred = Q.defer<void>();
 
         let launchCallback = (error: any) => {
-            Log.logMessage("Extension messaging server started.");
+            Log.logInternalMessage(LogLevel.Info, "Extension messaging server started.");
             if (error) {
                 deferred.reject(error);
             } else {
@@ -66,14 +66,14 @@ export class ExtensionServer implements vscode.Disposable {
      * Message handler for START_PACKAGER.
      */
     private startPackager(): Q.Promise<any> {
-        return this.reactNativePackager.start(this.outputChannel);
+        return this.reactNativePackager.start();
     }
 
     /**
      * Message handler for STOP_PACKAGER.
      */
     private stopPackager(): Q.Promise<any> {
-        return this.reactNativePackager.stop(this.outputChannel);
+        return this.reactNativePackager.stop();
     }
 
     /**
@@ -89,7 +89,7 @@ export class ExtensionServer implements vscode.Disposable {
     private handleExtensionMessage(messageWithArgs: em.MessageWithArguments): Q.Promise<any> {
         let handler = this.messageHandlerDictionary[messageWithArgs.message];
         if (handler) {
-            Log.logMessage("Handling message: " + em.ExtensionMessage[messageWithArgs.message]);
+            Log.logInternalMessage(LogLevel.Info, "Handling message: " + em.ExtensionMessage[messageWithArgs.message]);
             return handler.apply(this, messageWithArgs.args);
         } else {
             return Q.reject("Invalid message: " + messageWithArgs.message);
