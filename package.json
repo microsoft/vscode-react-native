@@ -52,6 +52,14 @@
                 "label": "React Native",
                 "program": "./out/debugger/nodeDebugWrapper.js",
                 "runtime": "node",
+                "enableBrekapointsFor": {
+                    "languageIds": [
+                        "javascript",
+                        "typescript",
+                        "javascriptreact",
+                        "typescriptreact"
+                    ]
+                },
                 "initialConfigurations": [
                     {
                         "name": "Debug Android",
