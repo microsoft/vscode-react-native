@@ -67,7 +67,7 @@ export class AndroidPlatform implements IAppPlatform {
                         }
                     });
             }).then(() =>
-                this.startMonitoringLocat(runOptions.logCatArguments).catch(error => // The LogCatMonitor failing won't stop the debugging experience
+                this.startMonitoringLogCat(runOptions.logCatArguments).catch(error => // The LogCatMonitor failing won't stop the debugging experience
                     Log.logWarning("Couldn't start LogCat monitor", error)));
     }
 
@@ -101,7 +101,7 @@ export class AndroidPlatform implements IAppPlatform {
         return activeDevices && activeDevices[0] && activeDevices[0].id;
     }
 
-    private startMonitoringLocat(logCatArguments: string): Q.Promise<void> {
+    private startMonitoringLogCat(logCatArguments: string): Q.Promise<void> {
         return this.extensionMessageSender.sendMessage(ExtensionMessage.START_MONITORING_LOGCAT, [this.debugTarget, logCatArguments]);
     }
 }

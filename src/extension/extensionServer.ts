@@ -95,9 +95,6 @@ export class ExtensionServer implements vscode.Disposable {
         const logCatMonitor = this.logCatMonitor = new LogCatMonitor(deviceId, logCatArguments);
         logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
             .catch(error =>
-                // TODO #103: After the refactoring of the CommandExecutor is finished, we need to update this logic
-                // to not show an error when a command was killed on purpose by us
-                // TODO DIEGO
                 Log.logWarning("Error while monitoring LogCat", error))
             .done();
 
