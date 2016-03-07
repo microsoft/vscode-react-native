@@ -84,6 +84,7 @@ export class Launcher {
         result.platform = process.argv[2].toLowerCase();
         result.debugAdapterPort = parseInt(process.argv[3], 10) || 9090;
         result.target = process.argv[4];
+        result.logCatArguments = process.argv[5];
 
         return result;
     }

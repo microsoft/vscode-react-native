@@ -21,12 +21,15 @@ import {OutputChannelLogger} from "./outputChannelLogger";
 /* all components use the same packager instance */
 const globalPackager = new Packager(vscode.workspace.rootPath);
 const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath, globalPackager);
-const extensionServer = new ExtensionServer(globalPackager);
 
 const outputChannelLogger = new OutputChannelLogger(vscode.window.createOutputChannel("React-Native"));
 const entryPointHandler = new EntryPointHandler(false, outputChannelLogger);
 const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
 const fsUtil = new FileSystem();
+
+interface ISetupableDisposable extends vscode.Disposable {
+    setup(): Q.Promise<any>;
+}
 
 export function activate(context: vscode.ExtensionContext): void {
     entryPointHandler.runApp("react-native", () => <string>require("../../package.json").version,
@@ -38,8 +41,11 @@ export function activate(context: vscode.ExtensionContext): void {
                     entryPointHandler.runFunction("debugger.setupLauncherStub",
                         ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () =>
                         setupReactNativeDebugger()
-                            .then(() => setupReactDir(context))
-                            .then(() => setupExtensionServer(context)));
+                            .then(() =>
+                                setupAndDispose(new ReactDirManager(), context))
+                            .then(() =>
+                                setupAndDispose(new ExtensionServer(globalPackager), context))
+                            .then(() => {}));
                     entryPointHandler.runFunction("intelliSense.setup",
                         ErrorHelper.getInternalError(InternalErrorCode.IntellisenseSetupFailed), () =>
                         IntellisenseHelper.setupReactNativeIntellisense());
@@ -66,18 +72,11 @@ function configureNodeDebuggerLocation(): Q.Promise<void> {
     return fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath }));
 }
 
-function setupReactDir(context: vscode.ExtensionContext): Q.Promise<void> {
-    const reactDirManager = new ReactDirManager();
-    return reactDirManager.create()
+function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T, context: vscode.ExtensionContext): Q.Promise<T> {
+    return setuptableDisposable.setup()
         .then(() => {
-            context.subscriptions.push(reactDirManager);
-        });
-}
-
-function setupExtensionServer(context: vscode.ExtensionContext): Q.Promise<void> {
-    return extensionServer.setup()
-        .then(() => {
-            context.subscriptions.push(extensionServer);
+            context.subscriptions.push(setuptableDisposable);
+            return setuptableDisposable;
         });
 }
 

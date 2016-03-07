@@ -15,3 +15,23 @@ export class ExecutionsLimiter {
         }
     }
 }
+
+export class ExecutionsFilterBeforeTimestamp {
+    private static MILLISECONDS_IN_ONE_SECOND = 1000;
+
+    private sinceWhenToStopFiltering: number;
+
+    constructor(delayInSeconds: number) {
+        this.sinceWhenToStopFiltering = this.now() + delayInSeconds * ExecutionsFilterBeforeTimestamp.MILLISECONDS_IN_ONE_SECOND;
+    }
+
+    public execute(lambda: () => void) {
+        if (this.now() >= this.sinceWhenToStopFiltering) {
+            lambda();
+        }
+    }
+
+    private now(): number {
+        return new Date().getTime();
+    }
+}
