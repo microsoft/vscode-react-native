@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {FileSystem} from "../common/node/fileSystem";
-import * as child_process from "child_process";
 import * as path from "path";
 import * as Q from "q";
 import * as vscode from "vscode";
@@ -173,7 +172,7 @@ export class IntellisenseHelper {
         if (!process.env.VSCODE_TSJS) {
 
             return Q({})
-                .then(() => Q.nfcall(child_process.exec, HostPlatformResolver.getHostPlatform().getSetEnvCommand()))
+                .then(() => HostPlatformResolver.getHostPlatform().setEnvironmentVariable("VSCODE_TSJS", "1"))
                 .then(() => { return true; });
         }
 

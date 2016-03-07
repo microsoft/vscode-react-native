@@ -1,19 +1,23 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as child_process from "child_process";
+import {Node} from "./node/node";
 import * as path from "path";
+import * as Q from "q";
 
 /**
  * Interface defining the host (desktop) platform specific operations.
  */
 export interface IHostPlatform {
     getUserHomePath(): string;
-    getSetEnvCommand(): string;
     getSettingsHome(): string;
     getNpmCommand(): string;
     getReactNativeCommand(): string;
     getExtensionPipePath(): string;
     getPlatformId(): HostPlatformId;
+    killProcess(process: child_process.ChildProcess): Q.Promise<void>;
+    setEnvironmentVariable(name: string, value: string): Q.Promise<void>;
 }
 
 /**
@@ -21,8 +25,7 @@ export interface IHostPlatform {
  */
 export enum HostPlatformId {
     WINDOWS,
-    OSX,
-    LINUX
+    OSX
 }
 
 /**
@@ -33,8 +36,8 @@ class WindowsHostPlatform implements IHostPlatform {
         return process.env.USERPROFILE;
     }
 
-    public getSetEnvCommand(): string {
-        return "setx VSCODE_TSJS 1";
+    public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
+        return Q.nfcall(child_process.exec, `setx ${name} ${value}`);
     }
 
     public getReactNativeCommand() {
@@ -56,6 +59,12 @@ class WindowsHostPlatform implements IHostPlatform {
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.WINDOWS;
     }
+
+    public killProcess(process: child_process.ChildProcess): Q.Promise<void> {
+        return new Node.ChildProcess().exec("taskkill /pid " + process.pid + " /T /F").outcome.then(() => {
+            return Q.resolve<void>(void 0);
+        });
+    }
 }
 
 /**
@@ -66,8 +75,8 @@ class OSXHostPlatform implements IHostPlatform {
         return process.env.HOME;
     }
 
-    public getSetEnvCommand(): string {
-        return "launchctl setenv VSCODE_TSJS 1";
+    public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
+        return Q.nfcall(child_process.exec, `launchctl setenv ${name} ${value}`);
     }
 
     public getReactNativeCommand() {
@@ -88,6 +97,11 @@ class OSXHostPlatform implements IHostPlatform {
 
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.OSX;
+    }
+
+    public killProcess(process: child_process.ChildProcess): Q.Promise<void> {
+        process.kill();
+        return Q.resolve<void>(void 0);
     }
 }
 

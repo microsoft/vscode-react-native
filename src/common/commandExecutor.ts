@@ -107,17 +107,10 @@ export class CommandExecutor {
         Log.logMessage("Stopping Packager", outputChannel);
 
         if (packagerProcess) {
-            /* To reliably kill the child process on all versions of Windows,
-             * please use taskkill to end the packager process */
-            if (process.platform === "win32") {
-                return new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome.then(() => {
+            return HostPlatformResolver.getHostPlatform().killProcess(packagerProcess)
+                .then(() => {
                     Log.logMessage("Packager stopped", outputChannel);
                 });
-            } else {
-                packagerProcess.kill();
-                Log.logMessage("Packager stopped", outputChannel);
-                return Q.resolve<void>(void 0);
-            }
         } else {
             Log.logMessage("Packager not found", outputChannel);
             return Q.resolve<void>(void 0);
