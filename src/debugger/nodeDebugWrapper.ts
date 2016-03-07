@@ -7,6 +7,7 @@ import * as http from "http";
 
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
+import {ExtensionMessageSender, ExtensionMessage} from "../common/extensionMessaging";
 
 // These typings do not reflect the typings as intended to be used
 // but rather as they exist in truth, so we can reach into the internals
@@ -17,6 +18,7 @@ declare module VSCodeDebugAdapter {
         public sendEvent(event: VSCodeDebugAdapter.InitializedEvent): void;
         public start(input: any, output: any): void;
         public launchRequest(response: any, args: any): void;
+        public disconnectRequest(response: any, args: any): void;
     }
     class InitializedEvent {
         constructor();
@@ -142,6 +144,25 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
 
         originalNodeDebugSessionLaunchRequest.call(this, request, args);
     };
+
+    // Intecept the "launchRequest" instance method of NodeDebugSession to interpret arguments
+    const originalNodeDebugSessionDisconnectRequest = nodeDebug.NodeDebugSession.prototype.disconnectRequest;
+    function customDisconnectRequest(response: any, args: any): void {
+        try {
+            // First we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
+            const extensionMessageSender = new ExtensionMessageSender();
+            extensionMessageSender.sendMessage(ExtensionMessage.STOP_MONITORING_LOGCAT)
+                .finally(() => originalNodeDebugSessionDisconnectRequest.call(this, response, args))
+                .done(() => {}, reason => // We just print a warning if something fails
+                    process.stderr.write(`WARNING: Couldn't stop monitoring logcat: ${reason.message || reason}\n`));
+        } catch (exception) {
+            // This is a "nice to have" feature, so we just fire the message and forget. We don't event handle
+            // errors in the response promise
+            process.stderr.write(`WARNING: Couldn't stop monitoring logcat. Sync exception: ${exception.message || exception}\n`);
+            originalNodeDebugSessionDisconnectRequest.call(this, response, args);
+        }
+    }
+    nodeDebug.NodeDebugSession.prototype.disconnectRequest = customDisconnectRequest;
 
     vscodeDebugAdapterPackage.DebugSession.run(nodeDebug.NodeDebugSession);
 });

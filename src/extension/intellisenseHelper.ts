@@ -13,7 +13,8 @@ import {TelemetryHelper} from "../common/telemetryHelper";
 import {CommandExecutor} from "../common/commandExecutor";
 import {TsConfigHelper} from "./tsconfigHelper";
 import {SettingsHelper} from "./settingsHelper";
-import {Log, LogLevel} from "../common/log";
+import {Log} from "../common/log/log";
+import {LogLevel} from "../common/log/logHelper";
 
 
 interface IInstallProps {

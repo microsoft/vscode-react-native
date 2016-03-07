@@ -6,20 +6,19 @@ import * as Q from "q";
 import * as vscode from "vscode";
 
 import * as em from "../common/extensionMessaging";
-import {Log} from "../common/log";
+import {Log} from "../common/log/log";
+import {LogLevel} from "../common/log/logHelper";
 import {Packager} from "../common/packager";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 
 export class ExtensionServer implements vscode.Disposable {
-    private outputChannel: vscode.OutputChannel;
     private serverInstance: net.Server = null;
     private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
     private reactNativePackager: Packager;
     private logCatMonitor: LogCatMonitor = null;
 
     public constructor(reactNativePackager: Packager) {
-        this.outputChannel = vscode.window.createOutputChannel("React-Native");
         this.reactNativePackager = reactNativePackager;
 
         /* register handlers for all messages */
@@ -27,6 +26,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.STOP_PACKAGER] = this.stopPackager;
         this.messageHandlerDictionary[em.ExtensionMessage.PREWARM_BUNDLE_CACHE] = this.prewarmBundleCache;
         this.messageHandlerDictionary[em.ExtensionMessage.START_MONITORING_LOGCAT] = this.startMonitoringLogCat;
+        this.messageHandlerDictionary[em.ExtensionMessage.STOP_MONITORING_LOGCAT] = this.stopMonitoringLogCat;
     }
 
     /**
@@ -37,7 +37,7 @@ export class ExtensionServer implements vscode.Disposable {
         let deferred = Q.defer<void>();
 
         let launchCallback = (error: any) => {
-            Log.logMessage("Extension messaging server started.");
+            Log.logInternalMessage(LogLevel.Info, "Extension messaging server started.");
             if (error) {
                 deferred.reject(error);
             } else {
@@ -61,21 +61,21 @@ export class ExtensionServer implements vscode.Disposable {
             this.serverInstance = null;
         }
 
-        this.stopLogCatMonitor();
+        this.stopMonitoringLogCat();
     }
 
     /**
      * Message handler for START_PACKAGER.
      */
     private startPackager(): Q.Promise<any> {
-        return this.reactNativePackager.start(this.outputChannel);
+        return this.reactNativePackager.start();
     }
 
     /**
      * Message handler for STOP_PACKAGER.
      */
     private stopPackager(): Q.Promise<any> {
-        return this.reactNativePackager.stop(this.outputChannel);
+        return this.reactNativePackager.stop();
     }
 
     /**
@@ -88,25 +88,29 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Message handler for START_MONITORING_LOGCAT.
      */
-    private startMonitoringLogCat(logCatArguments: string): Q.Promise<any> {
-        this.stopLogCatMonitor(); // Stop previous logcat monitor if it's running
+    private startMonitoringLogCat(deviceId: string, logCatArguments: string): Q.Promise<any> {
+        this.stopMonitoringLogCat(); // Stop previous logcat monitor if it's running
 
-        this.logCatMonitor = new LogCatMonitor(logCatArguments);
-        this.logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
+        // this.logCatMonitor can be mutated, so we store it locally too
+        const logCatMonitor = this.logCatMonitor = new LogCatMonitor(deviceId, logCatArguments);
+        logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
             .catch(error =>
                 // TODO #103: After the refactoring of the CommandExecutor is finished, we need to update this logic
                 // to not show an error when a command was killed on purpose by us
-                Log.logWarning("Error while monitoring LogCat", error, this.logCatMonitor.outputChannel))
+                // TODO DIEGO
+                Log.logWarning("Error while monitoring LogCat", error))
             .done();
 
         return Q.resolve<void>(void 0);
     }
 
-    private stopLogCatMonitor(): void {
+    private stopMonitoringLogCat(): Q.Promise<void> {
         if (this.logCatMonitor) {
             this.logCatMonitor.dispose();
             this.logCatMonitor = null;
         }
+
+        return Q.resolve<void>(void 0);
     }
 
     /**
@@ -115,7 +119,7 @@ export class ExtensionServer implements vscode.Disposable {
     private handleExtensionMessage(messageWithArgs: em.MessageWithArguments): Q.Promise<any> {
         let handler = this.messageHandlerDictionary[messageWithArgs.message];
         if (handler) {
-            Log.logMessage("Handling message: " + em.ExtensionMessage[messageWithArgs.message]);
+            Log.logInternalMessage(LogLevel.Info, "Handling message: " + em.ExtensionMessage[messageWithArgs.message]);
             return handler.apply(this, messageWithArgs.args);
         } else {
             return Q.reject("Invalid message: " + messageWithArgs.message);

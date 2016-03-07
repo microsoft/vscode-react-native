@@ -7,18 +7,23 @@ import * as vscode from "vscode";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {Packager} from "../common/packager";
 import {EntryPointHandler} from "../common/entryPointHandler";
+import {ErrorHelper} from "../common/error/errorHelper";
+import {InternalError} from "../common/error/internalError";
+import {InternalErrorCode} from "../common/error/internalErrorCode";
+import {Log} from "../common/log/log";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./intellisenseHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
+import {OutputChannelLogger} from "./outputChannelLogger";
 
 /* all components use the same packager instance */
 const globalPackager = new Packager(vscode.workspace.rootPath);
 const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath, globalPackager);
 
-const outputChannel = vscode.window.createOutputChannel("React-Native");
-const entryPointHandler = new EntryPointHandler(outputChannel);
+const outputChannelLogger = new OutputChannelLogger(vscode.window.createOutputChannel("React-Native"));
+const entryPointHandler = new EntryPointHandler(false, outputChannelLogger);
 const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
 const fsUtil = new FileSystem();
 
@@ -27,22 +32,26 @@ interface ISetupableDisposable extends vscode.Disposable {
 }
 
 export function activate(context: vscode.ExtensionContext): void {
-    entryPointHandler.runApp("react-native", () => <string>require("../../package.json").version, "Failed to activate the React Native Tools extension", () => {
+    entryPointHandler.runApp("react-native", () => <string>require("../../package.json").version,
+        ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), () => {
         return reactNativeProjectHelper.isReactNativeProject()
             .then(isRNProject => {
                 if (isRNProject) {
                     warnWhenReactNativeVersionIsNotSupported();
-                    entryPointHandler.runFunction("debugger.setupLauncherStub", "Failed to setup the stub launcher for the debugger", () =>
+                    entryPointHandler.runFunction("debugger.setupLauncherStub",
+                        ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () =>
                         setupReactNativeDebugger()
                             .then(() =>
                                 setupAndDispose(new ReactDirManager(), context))
                             .then(() =>
                                 setupAndDispose(new ExtensionServer(globalPackager), context))
                             .then(() => {}));
-                    entryPointHandler.runFunction("intelliSense.setup", "Failed to setup IntelliSense", () =>
+                    entryPointHandler.runFunction("intelliSense.setup",
+                        ErrorHelper.getInternalError(InternalErrorCode.IntellisenseSetupFailed), () =>
                         IntellisenseHelper.setupReactNativeIntellisense());
                 }
-                entryPointHandler.runFunction("debugger.setupNodeDebuggerLocation", "Failed to configure the node debugger location for the debugger", () =>
+                entryPointHandler.runFunction("debugger.setupNodeDebuggerLocation",
+                    ErrorHelper.getInternalError(InternalErrorCode.NodeDebuggerConfigurationFailed), () =>
                     configureNodeDebuggerLocation());
                 registerReactNativeCommands(context);
             });
@@ -51,7 +60,8 @@ export function activate(context: vscode.ExtensionContext): void {
 
 export function deactivate(): void {
     // Kill any packager processes that we spawned
-    entryPointHandler.runFunction("extension.deactivate", "Failed to stop the packager while closing React Native Tools",
+    entryPointHandler.runFunction("extension.deactivate",
+        ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
         () => {
             commandPaletteHandler.stopPackager();
         }, /*errorsAreFatal*/ true);
@@ -76,27 +86,26 @@ function warnWhenReactNativeVersionIsNotSupported(): void {
         const shortMessage = `React Native Tools only supports React Native versions 0.19.0 and later`;
         const longMessage = `${shortMessage}: ${reason}`;
         vscode.window.showWarningMessage(shortMessage);
-        outputChannel.appendLine(longMessage);
-        outputChannel.show();
+        Log.logMessage(longMessage);
     });
 }
 
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     // Register React Native commands
-    registerVSCodeCommand(context, "runAndroid", "Failed to run the application in Android", () => commandPaletteHandler.runAndroid());
-    registerVSCodeCommand(context, "runIos", "Failed to run the application in iOS", () => commandPaletteHandler.runIos());
-    registerVSCodeCommand(context, "startPackager", "Failed to start the React Native packager", () => commandPaletteHandler.startPackager());
-    registerVSCodeCommand(context, "stopPackager", "Failed to stop the React Native packager", () => commandPaletteHandler.stopPackager());
+    registerVSCodeCommand(context, "runAndroid", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => commandPaletteHandler.runAndroid());
+    registerVSCodeCommand(context, "runIos", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => commandPaletteHandler.runIos());
+    registerVSCodeCommand(context, "startPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager), () => commandPaletteHandler.startPackager());
+    registerVSCodeCommand(context, "stopPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager), () => commandPaletteHandler.stopPackager());
 }
 
 function registerVSCodeCommand(
     context: vscode.ExtensionContext, commandName: string,
-    errorDescription: string, commandHandler: () => Q.Promise<void>): void {
+    error: InternalError, commandHandler: () => Q.Promise<void>): void {
     context.subscriptions.push(vscode.commands.registerCommand(
         `reactNative.${commandName}`,
         () =>
             entryPointHandler.runFunction(
-                `commandPalette.${commandName}`, errorDescription,
+                `commandPalette.${commandName}`, error,
                 commandHandler)));
 }
 

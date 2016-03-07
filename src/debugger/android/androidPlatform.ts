@@ -7,7 +7,7 @@ import {IAppPlatform} from "../platformResolver";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {ExtensionMessageSender, ExtensionMessage} from "../../common/extensionMessaging";
 import {IRunOptions} from "../../common/launchArgs";
-import {Log} from "../../common/log";
+import {Log} from "../../common/log/log";
 import {PackageNameResolver} from "../../common/android/packageNameResolver";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {DeviceHelper, IDevice} from "../../common/android/deviceHelper";
@@ -62,6 +62,8 @@ export class AndroidPlatform implements IAppPlatform {
                                 /* Launching is needed only if we have more than one device active */
                                 return this.deviceHelper.launchApp(runOptions.projectRoot, packageName, this.debugTarget);
                             }
+                        } else if (devices.length === 1) {
+                            this.debugTarget = devices[0].id;
                         }
                     });
             }).then(() =>
@@ -100,6 +102,6 @@ export class AndroidPlatform implements IAppPlatform {
     }
 
     private startMonitoringLocat(logCatArguments: string): Q.Promise<void> {
-        return this.extensionMessageSender.sendMessage(ExtensionMessage.START_MONITORING_LOGCAT, [logCatArguments]);
+        return this.extensionMessageSender.sendMessage(ExtensionMessage.START_MONITORING_LOGCAT, [this.debugTarget, logCatArguments]);
     }
 }

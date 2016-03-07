@@ -3,7 +3,7 @@
 
 import * as Q from "q";
 
-import {Log} from "../../common/log";
+import {Log} from "../../common/log/log";
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {IAppPlatform} from "../platformResolver";

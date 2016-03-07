@@ -24,7 +24,8 @@ export enum ExtensionMessage {
     START_PACKAGER,
     STOP_PACKAGER,
     PREWARM_BUNDLE_CACHE,
-    START_MONITORING_LOGCAT
+    START_MONITORING_LOGCAT,
+    STOP_MONITORING_LOGCAT
 }
 
 export interface MessageWithArguments {
@@ -49,6 +50,10 @@ export class ExtensionMessageSender {
 
         socket.on("data", function(data: any) {
             body += data;
+        });
+
+        socket.on("error", function(data: any) {
+            deferred.reject(new Error("An error ocurred while handling message: " + ExtensionMessage[message]));
         });
 
         socket.on("end", function() {
