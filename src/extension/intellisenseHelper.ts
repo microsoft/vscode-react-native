@@ -108,7 +108,7 @@ export class IntellisenseHelper {
                     let hostPlatform: IHostPlatform = HostPlatformResolver.getHostPlatform();
                     let installPath: string = path.resolve(hostPlatform.getUserHomePath(), ".vscode");
                     let runArguments: string[] = [];
-                    let npmCommand: string = hostPlatform.getNpmCommand();
+                    let npmCommand: string = hostPlatform.getCommand("npm");
                     runArguments.push("install");
                     runArguments.push("--prefix " + installPath);
                     runArguments.push("typescript@" + IntellisenseHelper.s_typeScriptVersion);

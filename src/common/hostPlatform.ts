@@ -12,8 +12,7 @@ import * as Q from "q";
 export interface IHostPlatform {
     getUserHomePath(): string;
     getSettingsHome(): string;
-    getNpmCommand(): string;
-    getReactNativeCommand(): string;
+    getCommand(packageName: string): string;
     getExtensionPipePath(): string;
     getPlatformId(): HostPlatformId;
     killProcess(process: child_process.ChildProcess): Q.Promise<void>;
@@ -25,7 +24,8 @@ export interface IHostPlatform {
  */
 export enum HostPlatformId {
     WINDOWS,
-    OSX
+    OSX,
+    LINUX
 }
 
 /**
@@ -40,16 +40,12 @@ class WindowsHostPlatform implements IHostPlatform {
         return Q.nfcall(child_process.exec, `setx ${name} ${value}`);
     }
 
-    public getReactNativeCommand() {
-        return "react-native.cmd";
-    }
-
     public getSettingsHome(): string {
         return path.join(process.env.APPDATA, "vscode-react-native");
     }
 
-    public getNpmCommand(): string {
-        return "npm.cmd";
+    public getCommand(packageName: string): string {
+        return `${packageName}.cmd`;
     }
 
     public getExtensionPipePath(): string {
@@ -67,41 +63,56 @@ class WindowsHostPlatform implements IHostPlatform {
     }
 }
 
-/**
- * IHostPlatform implemenation for the OSX platform.
- */
-class OSXHostPlatform implements IHostPlatform {
+abstract class UnixHostPlatform implements IHostPlatform {
     public getUserHomePath(): string {
         return process.env.HOME;
     }
 
-    public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
-        return Q.nfcall(child_process.exec, `launchctl setenv ${name} ${value}`);
-    }
-
-    public getReactNativeCommand() {
-        return "react-native";
-    }
+    public abstract setEnvironmentVariable(name: string, value: string): Q.Promise<any>;
 
     public getSettingsHome(): string {
         return path.join(process.env.HOME, ".vscode-react-native");
     }
 
-    public getNpmCommand(): string {
-        return "npm";
+    public getCommand(packageName: string): string {
+        return packageName;
     }
 
     public getExtensionPipePath(): string {
         return "/tmp/vscodereactnative.sock";
     }
 
-    public getPlatformId(): HostPlatformId {
-        return HostPlatformId.OSX;
-    }
+    public abstract getPlatformId(): HostPlatformId;
 
     public killProcess(process: child_process.ChildProcess): Q.Promise<void> {
         process.kill();
         return Q.resolve<void>(void 0);
+    }
+}
+
+/**
+ * IHostPlatform implemenation for the OSX platform.
+ */
+class OSXHostPlatform extends UnixHostPlatform {
+    public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
+        return Q.nfcall(child_process.exec, `launchctl setenv ${name} ${value}`);
+    }
+
+    public getPlatformId(): HostPlatformId {
+        return HostPlatformId.OSX;
+    }
+}
+
+/**
+ * IHostPlatform implemenation for the Linux platform.
+ */
+class LinuxHostPlatform extends UnixHostPlatform {
+    public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
+        return Q.nfcall(child_process.exec, `export ${name}=${value}`);
+    }
+
+    public getPlatformId(): HostPlatformId {
+        return HostPlatformId.LINUX;
     }
 }
 
@@ -112,6 +123,7 @@ export class HostPlatformResolver {
 
     private static WinPlatformInstance = new WindowsHostPlatform();
     private static OSXPlatformInstance = new OSXHostPlatform();
+    private static LinuxPlatformInstance = new LinuxHostPlatform();
 
     /**
      * Resolves the dev machine, desktop platform.
@@ -122,8 +134,10 @@ export class HostPlatformResolver {
             case "win32":
                 return HostPlatformResolver.WinPlatformInstance;
             case "darwin":
-            default:
                 return HostPlatformResolver.OSXPlatformInstance;
+            case "linux":
+            default:
+                return HostPlatformResolver.LinuxPlatformInstance;
         }
     }
 }

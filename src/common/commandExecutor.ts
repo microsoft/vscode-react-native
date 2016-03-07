@@ -24,6 +24,7 @@ export enum CommandStatus {
 }
 
 export class CommandExecutor {
+    private static ReactNativeCommand = "react-native";
     private currentWorkingDirectory: string;
 
     constructor(currentWorkingDirectory?: string) {
@@ -68,7 +69,7 @@ export class CommandExecutor {
      */
     public spawnReactPackager(args?: string[], options: Options = {}): Q.Promise<ChildProcess> {
         let deferred = Q.defer<ChildProcess>();
-        let command = HostPlatformResolver.getHostPlatform().getReactNativeCommand();
+        let command = HostPlatformResolver.getHostPlatform().getCommand(CommandExecutor.ReactNativeCommand);
         let runArguments = ["start"];
 
         if (args) {
@@ -126,7 +127,7 @@ export class CommandExecutor {
             runArguments = runArguments.concat(args);
         }
 
-        let reactCommand = HostPlatformResolver.getHostPlatform().getReactNativeCommand();
+        let reactCommand = HostPlatformResolver.getHostPlatform().getCommand(CommandExecutor.ReactNativeCommand);
         return this.spawnChildProcess(reactCommand, runArguments, options);
     }
 
