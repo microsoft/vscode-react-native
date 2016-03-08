@@ -11,7 +11,7 @@ import {TelemetryHelper} from "../common/telemetryHelper";
 import {CommandExecutor} from "../common/commandExecutor";
 import {TsConfigHelper} from "./tsconfigHelper";
 import {SettingsHelper} from "./settingsHelper";
-import {HostPlatformResolver, IHostPlatform} from "../common/hostPlatform";
+import {HostPlatform} from "../common/hostPlatform";
 import {Log} from "../common/log/log";
 import {LogLevel} from "../common/log/logHelper";
 
@@ -105,10 +105,9 @@ export class IntellisenseHelper {
             .then((install: boolean) => {
 
                 if (install) {
-                    let hostPlatform: IHostPlatform = HostPlatformResolver.getHostPlatform();
-                    let installPath: string = path.resolve(hostPlatform.getUserHomePath(), ".vscode");
+                    let installPath: string = path.resolve(HostPlatform.getUserHomePath(), ".vscode");
                     let runArguments: string[] = [];
-                    let npmCommand: string = hostPlatform.getCommand("npm");
+                    let npmCommand: string = HostPlatform.getNpmCliCommand("npm");
                     runArguments.push("install");
                     runArguments.push("--prefix " + installPath);
                     runArguments.push("typescript@" + IntellisenseHelper.s_typeScriptVersion);
@@ -174,7 +173,7 @@ export class IntellisenseHelper {
         if (!process.env.VSCODE_TSJS) {
 
             return Q({})
-                .then(() => HostPlatformResolver.getHostPlatform().setEnvironmentVariable("VSCODE_TSJS", "1"))
+                .then(() => HostPlatform.setEnvironmentVariable("VSCODE_TSJS", "1"))
                 .then(() => { return true; });
         }
 
@@ -244,7 +243,7 @@ export class IntellisenseHelper {
      */
     private static getTypeScriptInstallPath(): string {
 
-        let codePath: string = path.resolve(HostPlatformResolver.getHostPlatform().getUserHomePath(), ".vscode");
+        let codePath: string = path.resolve(HostPlatform.getUserHomePath(), ".vscode");
         let typeScriptLibPath: string = path.join(codePath, "node_modules", "typescript");
         return typeScriptLibPath;
     }

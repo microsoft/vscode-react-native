@@ -1,21 +1,19 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as child_process from "child_process";
-import {Node} from "./node/node";
+import {ChildProcess} from "./node/childProcess";
 import * as path from "path";
 import * as Q from "q";
 
 /**
  * Interface defining the host (desktop) platform specific operations.
  */
-export interface IHostPlatform {
+interface IHostPlatform {
     getUserHomePath(): string;
     getSettingsHome(): string;
     getCommand(packageName: string): string;
     getExtensionPipePath(): string;
     getPlatformId(): HostPlatformId;
-    killProcess(process: child_process.ChildProcess): Q.Promise<void>;
     setEnvironmentVariable(name: string, value: string): Q.Promise<void>;
 }
 
@@ -37,7 +35,7 @@ class WindowsHostPlatform implements IHostPlatform {
     }
 
     public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
-        return Q.nfcall(child_process.exec, `setx ${name} ${value}`);
+        return new ChildProcess().exec(`setx ${name} ${value}`).outcome;
     }
 
     public getSettingsHome(): string {
@@ -54,12 +52,6 @@ class WindowsHostPlatform implements IHostPlatform {
 
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.WINDOWS;
-    }
-
-    public killProcess(process: child_process.ChildProcess): Q.Promise<void> {
-        return new Node.ChildProcess().exec("taskkill /pid " + process.pid + " /T /F").outcome.then(() => {
-            return Q.resolve<void>(void 0);
-        });
     }
 }
 
@@ -83,11 +75,6 @@ abstract class UnixHostPlatform implements IHostPlatform {
     }
 
     public abstract getPlatformId(): HostPlatformId;
-
-    public killProcess(process: child_process.ChildProcess): Q.Promise<void> {
-        process.kill();
-        return Q.resolve<void>(void 0);
-    }
 }
 
 /**
@@ -95,7 +82,7 @@ abstract class UnixHostPlatform implements IHostPlatform {
  */
 class OSXHostPlatform extends UnixHostPlatform {
     public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
-        return Q.nfcall(child_process.exec, `launchctl setenv ${name} ${value}`);
+        return new ChildProcess().exec(`launchctl setenv ${name} ${value}`).outcome;
     }
 
     public getPlatformId(): HostPlatformId {
@@ -108,7 +95,7 @@ class OSXHostPlatform extends UnixHostPlatform {
  */
 class LinuxHostPlatform extends UnixHostPlatform {
     public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
-        return Q.nfcall(child_process.exec, `export ${name}=${value}`);
+        return new ChildProcess().exec(`export ${name}=${value}`).outcome;
     }
 
     public getPlatformId(): HostPlatformId {
@@ -117,27 +104,52 @@ class LinuxHostPlatform extends UnixHostPlatform {
 }
 
 /**
- * Resolves the host platform.
+ * Allows platform specific operations based on the user's OS.
  */
-export class HostPlatformResolver {
+export class HostPlatform {
 
-    private static WinPlatformInstance = new WindowsHostPlatform();
-    private static OSXPlatformInstance = new OSXHostPlatform();
-    private static LinuxPlatformInstance = new LinuxHostPlatform();
+    private static platformInstance: IHostPlatform;
 
     /**
      * Resolves the dev machine, desktop platform.
      */
-    public static getHostPlatform(): IHostPlatform {
-        let platform = process.platform;
-        switch (platform) {
-            case "win32":
-                return HostPlatformResolver.WinPlatformInstance;
-            case "darwin":
-                return HostPlatformResolver.OSXPlatformInstance;
-            case "linux":
-            default:
-                return HostPlatformResolver.LinuxPlatformInstance;
+    private static get platform(): IHostPlatform {
+        if (!HostPlatform.platformInstance) {
+            switch (process.platform) {
+                case "win32":
+                    HostPlatform.platformInstance = new WindowsHostPlatform();
+                case "darwin":
+                    HostPlatform.platformInstance = new OSXHostPlatform();
+                case "linux":
+                default:
+                    HostPlatform.platformInstance = new LinuxHostPlatform();
+            }
         }
+
+        return HostPlatform.platformInstance;
+    }
+
+    public static getUserHomePath(): string {
+        return HostPlatform.platform.getUserHomePath();
+    }
+
+    public static getSettingsHome(): string {
+        return HostPlatform.platform.getSettingsHome();
+    }
+
+    public static getNpmCliCommand(packageName: string): string {
+        return HostPlatform.platform.getCommand(packageName);
+    }
+
+    public static getExtensionPipePath(): string {
+        return HostPlatform.platform.getExtensionPipePath();
+    }
+
+    public static getPlatformId(): HostPlatformId {
+        return HostPlatform.platform.getPlatformId();
+    }
+
+    public static setEnvironmentVariable(name: string, value: string): Q.Promise<void> {
+        return HostPlatform.platform.setEnvironmentVariable(name, value);
     }
 }

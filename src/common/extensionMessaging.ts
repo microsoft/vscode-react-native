@@ -3,7 +3,7 @@
 
 import * as Q from "q";
 import * as net from "net";
-import {HostPlatformResolver} from "./hostPlatform";
+import {HostPlatform} from "./hostPlatform";
 
 export let ErrorMarker = "vscodereactnative-error-marker";
 
@@ -32,7 +32,7 @@ export class ExtensionMessageSender {
         let messageWithArguments: MessageWithArguments = { message: message, args: args };
         let body = "";
 
-        let pipePath = HostPlatformResolver.getHostPlatform().getExtensionPipePath();
+        let pipePath = HostPlatform.getExtensionPipePath();
         let socket = net.connect(pipePath, function() {
             let messageJson = JSON.stringify(messageWithArguments);
             socket.write(messageJson);

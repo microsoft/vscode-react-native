@@ -12,7 +12,7 @@ import * as os from "os";
 import * as path from "path";
 import * as Q from "q";
 import * as winreg from "winreg";
-import {HostPlatformResolver} from "../common/hostPlatform";
+import {HostPlatform} from "../common/hostPlatform";
 
 // for poking around at internal applicationinsights options
 /* tslint:disable:no-var-requires */
@@ -159,7 +159,7 @@ export module Telemetry {
             private static INTERNAL_USER_ENV_VAR: string = "TACOINTERNAL";
 
             private static get telemetrySettingsFile(): string {
-                let settingsHome = HostPlatformResolver.getHostPlatform().getSettingsHome();
+                let settingsHome = HostPlatform.getSettingsHome();
                 return path.join(settingsHome, TelemetryUtils.TELEMETRY_SETTINGS_FILENAME);
             }
 
@@ -307,7 +307,7 @@ export module Telemetry {
              * Save settings data in settingsHome/TelemetrySettings.json
              */
             private static saveSettings(): void {
-                let settingsHome = HostPlatformResolver.getHostPlatform().getSettingsHome();
+                let settingsHome = HostPlatform.getSettingsHome();
                 if (!fs.existsSync(settingsHome)) {
                     fs.mkdirSync(settingsHome);
                 }

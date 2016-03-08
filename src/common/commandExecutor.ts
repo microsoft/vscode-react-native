@@ -6,7 +6,7 @@ import {ChildProcess} from "child_process";
 import {Log} from "./log/log";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
-import {HostPlatformResolver} from "../common/hostPlatform";
+import {HostPlatform, HostPlatformId} from "../common/hostPlatform";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 
@@ -69,7 +69,7 @@ export class CommandExecutor {
      */
     public spawnReactPackager(args?: string[], options: Options = {}): Q.Promise<ChildProcess> {
         let deferred = Q.defer<ChildProcess>();
-        let command = HostPlatformResolver.getHostPlatform().getCommand(CommandExecutor.ReactNativeCommand);
+        let command = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
         let runArguments = ["start"];
 
         if (args) {
@@ -101,18 +101,23 @@ export class CommandExecutor {
      */
     public killReactPackager(packagerProcess: ChildProcess): Q.Promise<void> {
         Log.logMessage("Stopping Packager");
+
         if (packagerProcess) {
-            return HostPlatformResolver.getHostPlatform().killProcess(packagerProcess)
-                .then(() => {
-                    Log.logMessage("Packager stopped");
-                });
+            return Q({}).then(() => {
+                if (HostPlatform.getPlatformId() === HostPlatformId.WINDOWS) {
+                    return new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome;
+                } else {
+                    packagerProcess.kill();
+                }
+            }).then(() => {
+                Log.logMessage("Packager stopped");
+            });
+
         } else {
             Log.logMessage("Packager not found");
             return Q.resolve<void>(void 0);
         }
     }
-
-
 
     /**
      * Executes a react native command and waits for its completion.
@@ -127,7 +132,7 @@ export class CommandExecutor {
             runArguments = runArguments.concat(args);
         }
 
-        let reactCommand = HostPlatformResolver.getHostPlatform().getCommand(CommandExecutor.ReactNativeCommand);
+        let reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
         return this.spawnChildProcess(reactCommand, runArguments, options);
     }
 

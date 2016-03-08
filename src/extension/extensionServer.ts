@@ -3,7 +3,7 @@
 
 import * as em from "../common/extensionMessaging";
 import {FileSystem} from "../common/node/fileSystem";
-import {HostPlatformResolver} from "../common/hostPlatform";
+import {HostPlatform} from "../common/hostPlatform";
 import {Packager} from "../common/packager";
 import {Log} from "../common/log/log";
 import {LogLevel} from "../common/log/logHelper";
@@ -20,7 +20,7 @@ export class ExtensionServer implements vscode.Disposable {
 
     public constructor(reactNativePackager: Packager) {
 
-        this.pipePath = HostPlatformResolver.getHostPlatform().getExtensionPipePath();
+        this.pipePath = HostPlatform.getExtensionPipePath();
         this.reactNativePackager = reactNativePackager;
 
         /* register handlers for all messages */
