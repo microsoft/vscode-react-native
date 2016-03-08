@@ -110,7 +110,7 @@ export class CommandPaletteHandler {
                 generator.add("isRNProject", isRNProject, false);
                 if (isRNProject) {
                     // Bring the log channel to focus
-                    Log.setFocusOnLocalChannel();
+                    Log.setFocusOnLogChannel();
 
                     // Execute the operation
                     return operation();

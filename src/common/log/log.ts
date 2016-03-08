@@ -68,8 +68,8 @@ export module Log {
     /**
      * Brings the target output window to focus.
      */
-    export function setFocusOnLocalChannel() {
-        globalLogger.setFocusOnLocalChannel();
+    export function setFocusOnLogChannel() {
+        globalLogger.setFocusOnLogChannel();
     }
 
     /**

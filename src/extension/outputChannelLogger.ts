@@ -31,7 +31,7 @@ export class OutputChannelLogger implements ILogger {
         this.logMessage(errorMessage, /* formatMessage */ false);
     }
 
-    public setFocusOnLocalChannel() {
+    public setFocusOnLogChannel() {
         this.outputChannel.show();
     }
 
