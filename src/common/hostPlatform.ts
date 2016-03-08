@@ -11,7 +11,7 @@ import * as Q from "q";
 interface IHostPlatform {
     getUserHomePath(): string;
     getSettingsHome(): string;
-    getCommand(packageName: string): string;
+    getNpmCliCommand(packageName: string): string;
     getExtensionPipePath(): string;
     getPlatformId(): HostPlatformId;
     setEnvironmentVariable(name: string, value: string): Q.Promise<void>;
@@ -42,8 +42,8 @@ class WindowsHostPlatform implements IHostPlatform {
         return path.join(process.env.APPDATA, "vscode-react-native");
     }
 
-    public getCommand(packageName: string): string {
-        return `${packageName}.cmd`;
+    public getNpmCliCommand(cliName: string): string {
+        return `${cliName}.cmd`;
     }
 
     public getExtensionPipePath(): string {
@@ -66,7 +66,7 @@ abstract class UnixHostPlatform implements IHostPlatform {
         return path.join(process.env.HOME, ".vscode-react-native");
     }
 
-    public getCommand(packageName: string): string {
+    public getNpmCliCommand(packageName: string): string {
         return packageName;
     }
 
@@ -138,7 +138,7 @@ export class HostPlatform {
     }
 
     public static getNpmCliCommand(packageName: string): string {
-        return HostPlatform.platform.getCommand(packageName);
+        return HostPlatform.platform.getNpmCliCommand(packageName);
     }
 
     public static getExtensionPipePath(): string {
