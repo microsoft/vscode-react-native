@@ -3,18 +3,9 @@
 
 import * as Q from "q";
 import * as net from "net";
-
-/**
- * Pipe path used for communicating with the server.
- */
-let WIN_ServerPipePath = "\\\\?\\pipe\\vscodereactnative";
-let UNIX_ServerPipePath = "/tmp/vscodereactnative.sock";
+import {HostPlatform} from "./hostPlatform";
 
 export let ErrorMarker = "vscodereactnative-error-marker";
-
-export let getPipePath = (): string => {
-    return (process.platform === "win32" ? WIN_ServerPipePath : UNIX_ServerPipePath);
-};
 
 /**
  * Defines the messages sent to the extension.
@@ -43,7 +34,8 @@ export class ExtensionMessageSender {
         let messageWithArguments: MessageWithArguments = { message: message, args: args };
         let body = "";
 
-        let socket = net.connect(getPipePath(), function() {
+        let pipePath = HostPlatform.getExtensionPipePath();
+        let socket = net.connect(pipePath, function() {
             let messageJson = JSON.stringify(messageWithArguments);
             socket.write(messageJson);
         });

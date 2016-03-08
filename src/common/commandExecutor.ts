@@ -6,6 +6,7 @@ import {ChildProcess} from "child_process";
 import {Log} from "./log/log";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
+import {HostPlatform, HostPlatformId} from "../common/hostPlatform";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 
@@ -23,6 +24,7 @@ export enum CommandStatus {
 }
 
 export class CommandExecutor {
+    private static ReactNativeCommand = "react-native";
     private currentWorkingDirectory: string;
 
     constructor(currentWorkingDirectory?: string) {
@@ -67,7 +69,7 @@ export class CommandExecutor {
      */
     public spawnReactPackager(args?: string[], options: Options = {}): Q.Promise<ChildProcess> {
         let deferred = Q.defer<ChildProcess>();
-        let command = this.getReactCommandName();
+        let command = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
         let runArguments = ["start"];
 
         if (args) {
@@ -99,25 +101,23 @@ export class CommandExecutor {
      */
     public killReactPackager(packagerProcess: ChildProcess): Q.Promise<void> {
         Log.logMessage("Stopping Packager");
+
         if (packagerProcess) {
-            /* To reliably kill the child process on all versions of Windows,
-             * please use taskkill to end the packager process */
-            if (process.platform === "win32") {
-                return new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome.then(() => {
-                    Log.logMessage("Packager stopped");
-                });
-            } else {
-                packagerProcess.kill();
+            return Q({}).then(() => {
+                if (HostPlatform.getPlatformId() === HostPlatformId.WINDOWS) {
+                    return new Node.ChildProcess().exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome;
+                } else {
+                    packagerProcess.kill();
+                }
+            }).then(() => {
                 Log.logMessage("Packager stopped");
-                return Q.resolve<void>(void 0);
-            }
+            });
+
         } else {
             Log.logMessage("Packager not found");
             return Q.resolve<void>(void 0);
         }
     }
-
-
 
     /**
      * Executes a react native command and waits for its completion.
@@ -131,7 +131,9 @@ export class CommandExecutor {
         if (args) {
             runArguments = runArguments.concat(args);
         }
-        return this.spawnChildProcess(this.getReactCommandName(), runArguments, options);
+
+        let reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
+        return this.spawnChildProcess(reactCommand, runArguments, options);
     }
 
     private spawnChildProcess(command: string, args: string[], options: Options = {}): ISpawnResult {
@@ -156,20 +158,6 @@ export class CommandExecutor {
                 this.generateRejectionForCommand(command, reason));
 
         return result;
-    }
-
-    /**
-     * Resolves the dev machine, desktop platform.
-     */
-    private getReactCommandName() {
-        let platform = process.platform;
-        switch (platform) {
-            case "darwin":
-                return "react-native";
-            case "win32":
-            default:
-                return "react-native.cmd";
-        }
     }
 
     private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {

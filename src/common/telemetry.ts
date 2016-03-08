@@ -12,11 +12,12 @@ import * as os from "os";
 import * as path from "path";
 import * as Q from "q";
 import * as winreg from "winreg";
+import {HostPlatform} from "../common/hostPlatform";
 
 // for poking around at internal applicationinsights options
 /* tslint:disable:no-var-requires */
-let sender = require ("applicationinsights/Library/Sender");
-let telemetryLogger = require ("applicationinsights/Library/Logging");
+let sender = require("applicationinsights/Library/Sender");
+let telemetryLogger = require("applicationinsights/Library/Logging");
 /* tslint:enable:no-var-requires */
 
 /**
@@ -101,7 +102,7 @@ export module Telemetry {
 
                 try {
                     if (event instanceof TelemetryActivity) {
-                        (<TelemetryActivity> event).end();
+                        (<TelemetryActivity>event).end();
                     }
 
                     if (appInsights.client) { // no-op if telemetry is not initialized
@@ -157,20 +158,9 @@ export module Telemetry {
             private static INTERNAL_DOMAIN_SUFFIX: string = "microsoft.com";
             private static INTERNAL_USER_ENV_VAR: string = "TACOINTERNAL";
 
-            private static get settingsHome(): string {
-                switch (os.platform()) {
-                    case "win32":
-                        return path.join(process.env.APPDATA, "vscode-react-native");
-                    case "darwin":
-                    case "linux":
-                        return path.join(process.env.HOME, ".vscode-react-native");
-                    default:
-                        throw new Error("UnexpectedPlatform");
-                }
-            }
-
             private static get telemetrySettingsFile(): string {
-                return path.join(TelemetryUtils.settingsHome, TelemetryUtils.TELEMETRY_SETTINGS_FILENAME);
+                let settingsHome = HostPlatform.getSettingsHome();
+                return path.join(settingsHome, TelemetryUtils.TELEMETRY_SETTINGS_FILENAME);
             }
 
             public static init(appVersion: string, isOptedInValue: boolean): Q.Promise<any> {
@@ -202,7 +192,7 @@ export module Telemetry {
                 client.config.endpointUrl = "https://vortex.data.microsoft.com/collect/v1";
 
                 return Q.all([TelemetryUtils.getUserId(), TelemetryUtils.getMachineId()])
-                .spread<any>(function (userId: string, machineId: string): void {
+                .spread<any>(function(userId: string, machineId: string): void {
                     TelemetryUtils.userId = userId;
                     TelemetryUtils.machineId = machineId;
                     TelemetryUtils.sessionId = TelemetryUtils.generateGuid();
@@ -267,18 +257,16 @@ export module Telemetry {
                 let userType: string = TelemetryUtils.telemetrySettings.userType;
 
                 if (userType === undefined) {
-                    if (process.env[TelemetryUtils.INTERNAL_USER_ENV_VAR]) {
-                        userType = TelemetryUtils.USERTYPE_INTERNAL;
-                    } else if (os.platform() === "win32") {
-                        let domain: string = process.env.USERDNSDOMAIN;
-                        domain = domain ? domain.toLowerCase().substring(domain.length - TelemetryUtils.INTERNAL_DOMAIN_SUFFIX.length) : null;
-                        userType = domain === TelemetryUtils.INTERNAL_DOMAIN_SUFFIX ? TelemetryUtils.USERTYPE_INTERNAL : TelemetryUtils.USERTYPE_EXTERNAL;
-                    } else {
-                        userType = TelemetryUtils.USERTYPE_EXTERNAL;
-                    }
-
-                    TelemetryUtils.telemetrySettings.userType = userType;
+                if (process.env[TelemetryUtils.INTERNAL_USER_ENV_VAR]) {
+                    userType = TelemetryUtils.USERTYPE_INTERNAL;
+                } else {
+                    let domain: string = process.env.USERDNSDOMAIN;
+                    domain = domain ? domain.toLowerCase().substring(domain.length - TelemetryUtils.INTERNAL_DOMAIN_SUFFIX.length) : null;
+                    userType = domain === TelemetryUtils.INTERNAL_DOMAIN_SUFFIX ? TelemetryUtils.USERTYPE_INTERNAL : TelemetryUtils.USERTYPE_EXTERNAL;
                 }
+
+                TelemetryUtils.telemetrySettings.userType = userType;
+            }
 
                 return userType;
             }
@@ -287,9 +275,9 @@ export module Telemetry {
                 let deferred: Q.Deferred<string> = Q.defer<string>();
                 let regKey = new winreg({
                                         hive: hive,
-                                        key:  key
+                                        key: key
                                 });
-                regKey.get(value, function (err: any, itemValue: winreg.RegistryItem) {
+                regKey.get(value, function(err: any, itemValue: winreg.RegistryItem) {
                     if (err) {
                         // Fail gracefully by returning null if there was an error.
                         deferred.resolve(null);
@@ -319,8 +307,9 @@ export module Telemetry {
              * Save settings data in settingsHome/TelemetrySettings.json
              */
             private static saveSettings(): void {
-                if (!fs.existsSync(TelemetryUtils.settingsHome)) {
-                    fs.mkdirSync(TelemetryUtils.settingsHome);
+                let settingsHome = HostPlatform.getSettingsHome();
+                if (!fs.existsSync(settingsHome)) {
+                    fs.mkdirSync(settingsHome);
                 }
 
                 fs.writeFileSync(TelemetryUtils.telemetrySettingsFile, JSON.stringify(TelemetryUtils.telemetrySettings));
