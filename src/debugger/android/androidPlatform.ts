@@ -2,18 +2,23 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
+
 import {IAppPlatform} from "../platformResolver";
-import {IRunOptions} from "../../common/launchArgs";
 import {CommandExecutor} from "../../common/commandExecutor";
-import {Package} from "../../common/node/package";
+import {ExtensionMessageSender, ExtensionMessage} from "../../common/extensionMessaging";
+import {IRunOptions} from "../../common/launchArgs";
+import {Log} from "../../common/log/log";
 import {PackageNameResolver} from "../../common/android/packageNameResolver";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {DeviceHelper, IDevice} from "../../common/android/deviceHelper";
+import {Package} from "../../common/node/package";
 
 /**
  * Android specific platform implementation for debugging RN applications.
  */
 export class AndroidPlatform implements IAppPlatform {
+    private extensionMessageSender: ExtensionMessageSender;
+
     // We should add the common Android build/run erros we find to this list
     private static RUN_ANDROID_FAILURE_PATTERNS: PatternToFailure = {
         "Failed to install on any devices": "Could not install the app on any available device. Make sure you have a correctly"
@@ -27,7 +32,8 @@ export class AndroidPlatform implements IAppPlatform {
     private packageName: string;
     private deviceHelper: DeviceHelper;
 
-    constructor() {
+    constructor({ extensionMessageSender = new ExtensionMessageSender()} = {}) {
+        this.extensionMessageSender = extensionMessageSender;
         this.deviceHelper = new DeviceHelper();
     }
 
@@ -56,9 +62,13 @@ export class AndroidPlatform implements IAppPlatform {
                                 /* Launching is needed only if we have more than one device active */
                                 return this.deviceHelper.launchApp(runOptions.projectRoot, packageName, this.debugTarget);
                             }
+                        } else if (devices.length === 1) {
+                            this.debugTarget = devices[0].id;
                         }
                     });
-            });
+            }).then(() =>
+                this.startMonitoringLogCat(runOptions.logCatArguments).catch(error => // The LogCatMonitor failing won't stop the debugging experience
+                    Log.logWarning("Couldn't start LogCat monitor", error)));
     }
 
     public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {
@@ -89,5 +99,9 @@ export class AndroidPlatform implements IAppPlatform {
         /* return the first active device in the list */
         let activeDevices = devices && devices.filter(activeFilterFunction);
         return activeDevices && activeDevices[0] && activeDevices[0].id;
+    }
+
+    private startMonitoringLogCat(logCatArguments: string): Q.Promise<void> {
+        return this.extensionMessageSender.sendMessage(ExtensionMessage.START_MONITORING_LOGCAT, [this.debugTarget, logCatArguments]);
     }
 }

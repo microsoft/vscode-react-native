@@ -14,26 +14,16 @@
             "preLaunchTask": "build"
         },
         {
-            "name": "mock-debug server",
+            "name": "Debug Debugger",
             "type": "node",
             "request": "launch",
-            "runtimeArgs": [
-                "--harmony"
-            ],
-            "program": "${workspaceRoot}/src/mockDebug.ts",
+            "program": "./out/debugger/nodeDebugWrapper.js",
+            "runtimeArgs": ["--harmony"],
             "stopOnEntry": false,
-            "args": [
-                "--server=4711"
-            ],
+            "args": [ "--server=4712" ], // Use "debugServer": "4712" on launch.json of the instance to debug
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out"
-        },
-        {
-            "name": "mock test",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/README.md",
-            "stopOnEntry": true
+            "outDir": "out",
+            "preLaunchTask": "build"
         },
         {
             "name": "Sample - Android App",

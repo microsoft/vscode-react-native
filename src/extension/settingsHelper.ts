@@ -80,6 +80,4 @@ export class SettingsHelper {
                 return settingsJson["typescript.tsdk"] || null;
             });
     }
-
-
 }
