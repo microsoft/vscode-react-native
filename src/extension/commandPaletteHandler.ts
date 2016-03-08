@@ -109,6 +109,10 @@ export class CommandPaletteHandler {
             return reactNativeProjectHelper.isReactNativeProject().then(isRNProject => {
                 generator.add("isRNProject", isRNProject, false);
                 if (isRNProject) {
+                    // Bring the log channel to focus
+                    Log.setFocusOnLogChannel();
+
+                    // Execute the operation
                     return operation();
                 } else {
                     vscode.window.showErrorMessage("Current workspace is not a React Native project.");
