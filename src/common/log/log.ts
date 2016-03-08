@@ -66,6 +66,13 @@ export module Log {
     }
 
     /**
+     * Brings the target output window to focus.
+     */
+    export function setFocusOnLocalChannel() {
+        globalLogger.setFocusOnLocalChannel();
+    }
+
+    /**
      * Logs a message to the console.
      */
     export function logWithLogger(logger: ILogger, message: string, formatMessage: boolean) {

@@ -14,6 +14,7 @@ export class OutputChannelLogger implements ILogger {
 
     constructor(outputChannel: OutputChannel) {
         this.outputChannel = outputChannel;
+        this.outputChannel.show();
     }
 
     public logInternalMessage(logLevel: LogLevel, message: string) {
@@ -24,11 +25,14 @@ export class OutputChannelLogger implements ILogger {
         this.outputChannel.appendLine(formatMessage ?
             this.getFormattedMessage(message) :
             message);
-        this.outputChannel.show();
     }
 
     public logError(errorMessage: string, error?: any, logStack: boolean = true) {
         this.logMessage(errorMessage, /* formatMessage */ false);
+    }
+
+    public setFocusOnLocalChannel() {
+        this.outputChannel.show();
     }
 
     private getFormattedMessage(message: string) {
