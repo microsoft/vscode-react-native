@@ -155,12 +155,12 @@ export class CommandExecutor {
             () =>
                 Log.logCommandStatus(commandWithArgs, CommandStatus.End),
             reason =>
-                this.generateRejectionForCommand(command, reason));
+                this.generateRejectionForCommand(commandWithArgs, reason));
 
         return result;
     }
 
     private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {
-        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, command, reason));
+        return Q.reject<void>(ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed, command));
     }
 }
