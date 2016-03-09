@@ -28,10 +28,10 @@ export class PackagerStatusIndicator implements Disposable {
     public updatePackagerStatus(status: PackagerStatus): void {
         switch (status) {
             case PackagerStatus.PACKAGER_STARTED:
-                this.packagerStatusItem.text = `$(briefcase) ${PackagerStatusIndicator.PACKAGER_STARTED_STATUS_STR}`;
+                this.packagerStatusItem.text = `$(package) ${PackagerStatusIndicator.PACKAGER_STARTED_STATUS_STR}`;
                 break;
             case PackagerStatus.PACKAGER_STOPPED:
-                this.packagerStatusItem.text = `$(briefcase) ${PackagerStatusIndicator.PACKAGER_STOPPED_STATUS_STR}`;
+                this.packagerStatusItem.text = `$(package) ${PackagerStatusIndicator.PACKAGER_STOPPED_STATUS_STR}`;
                 break;
             default:
                 break;
