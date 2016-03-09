@@ -11,6 +11,12 @@ export interface IExecResult {
     outcome: Q.Promise<Buffer>;
 }
 
+export interface ISpawnInfo {
+    command: string;
+    args: string[];
+    waitForExit?: boolean;
+}
+
 export interface ISpawnResult {
     spawnedProcess: child_process.ChildProcess;
     stdin: NodeJS.WritableStream;
@@ -55,20 +61,23 @@ export class ChildProcess {
         return this.exec(command, options).outcome.then(stdout => stdout.toString());
     }
 
-    public spawnWithExitHandler(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
+    public spawn(info: ISpawnInfo, options: ISpawnOptions = {}): ISpawnResult {
         let outcome = Q.defer<void>();
 
-        let spawnedProcess = child_process.spawn(command, args, options);
+        let spawnedProcess = child_process.spawn(info.command, info.args, options);
         spawnedProcess.once("error", (error: any) => {
             outcome.reject(error);
         });
-        spawnedProcess.once("exit", (code: number) => {
-            if (code === 0) {
-                outcome.resolve(void 0);
-            } else {
-                outcome.reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed));
-            }
-        });
+
+        if (info.waitForExit) {
+            spawnedProcess.once("exit", (code: number) => {
+                if (code === 0) {
+                    outcome.resolve(void 0);
+                } else {
+                    outcome.reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed));
+                }
+            });
+        }
 
         return {
               spawnedProcess: spawnedProcess,
@@ -76,21 +85,5 @@ export class ChildProcess {
               stdout: spawnedProcess.stdout,
               stderr: spawnedProcess.stderr,
               outcome: outcome.promise };
-    }
-
-    public spawn(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
-        let outcome = Q.defer<void>();
-        let spawnedProcess = child_process.spawn(command, args, options);
-        spawnedProcess.once("error", (error: any) => {
-            outcome.reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
-        });
-
-        return {
-              spawnedProcess: spawnedProcess,
-              stdin: spawnedProcess.stdin,
-              stdout: spawnedProcess.stdout,
-              stderr: spawnedProcess.stderr,
-              outcome: outcome.promise
-        };
     }
 }

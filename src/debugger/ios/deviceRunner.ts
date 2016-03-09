@@ -41,7 +41,8 @@ export class DeviceRunner {
         this.cleanup();
 
         return this.mountDeveloperImage().then(function(): Q.Promise<void> {
-            const {spawnedProcess} = new Node.ChildProcess().spawnWithExitHandler("idevicedebugserverproxy", [proxyPort.toString()]);
+            const spawnInfo = { command: "idevicedebugserverproxy", args: [proxyPort.toString()], waitForExit: true};
+            const {spawnedProcess} = new Node.ChildProcess().spawn(spawnInfo);
             this.nativeDebuggerProxyInstance = spawnedProcess;
             const deferred = Q.defer<ChildProcess>();
 
@@ -56,7 +57,8 @@ export class DeviceRunner {
 
     private mountDeveloperImage(): Q.Promise<void> {
         return this.getDiskImage().then(function(path: string): Q.Promise<void> {
-            const imagemounter = new Node.ChildProcess().spawnWithExitHandler("ideviceimagemounter", [path]).spawnedProcess;
+            const spawnInfo = { command: "ideviceimagemounter", args: [path], waitForExit: true};
+            const imagemounter = new Node.ChildProcess().spawn(spawnInfo).spawnedProcess;
             const deferred = Q.defer<void>();
             let stdout: string = "";
             imagemounter.stdout.on("data", function(data: any): void {
@@ -99,7 +101,8 @@ export class DeviceRunner {
 
         // Attempt to find the developer disk image for the appropriate
         return Q.all([versionInfo, pathInfo]).spread<string>(function(version: string, sdkpath: string): Q.Promise<string> {
-            const find = nodeChildProcess.spawn("find", [sdkpath, "-path", "*" + version + "*", "-name", "DeveloperDiskImage.dmg"]).spawnedProcess;
+            const spawnInfo = { command: "find", args: [sdkpath, "-path", "*" + version + "*", "-name", "DeveloperDiskImage.dmg"], waitForExit: true};
+            const find = nodeChildProcess.spawn(spawnInfo).spawnedProcess;
             const deferred = Q.defer<string>();
 
             find.stdout.on("data", function(data: any): void {

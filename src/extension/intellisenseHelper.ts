@@ -112,7 +112,7 @@ export class IntellisenseHelper {
                     runArguments.push("--prefix " + installPath);
                     runArguments.push("typescript@" + IntellisenseHelper.s_typeScriptVersion);
 
-                    return new CommandExecutor(installPath).spawnAndWaitForCompletion(npmCommand, runArguments)
+                    return new CommandExecutor(installPath).spawn(npmCommand, runArguments)
                         .then(() => {
                             return true;
                         })
