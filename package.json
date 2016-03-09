@@ -117,7 +117,8 @@
         "start": "node node_modules/react-native/local-cli/cli.js start",
         "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
         "vscode:prepublish": "gulp",
-        "test": "node ./node_modules/vscode/bin/test"
+        "test": "node ./node_modules/vscode/bin/test",
+        "postinstall" : "node tools/compileTools.js"
     },
     "extensionDependencies": [
         "andreweinand.node-debug"

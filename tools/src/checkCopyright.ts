@@ -1,14 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+/// <reference path="../../node_modules/vscode/typings/node.d.ts" />
+/// <reference path="../../src/typings/q/q.d.ts" />
+
 var FindFiles = require("node-find-files");
 var fs = require("fs");
 import Q = require("q");
 import path_module = require("path");
 
 class CopyrightVerifier {
-    private foundMissing = false;
-    
     private static UTB_BYTE_ORDER_MARKER = "\ufeff";
     private static SOURCE_CODE_FILE_PATTERN = /.*\.(ts|js)$/;
     private static EXCLUDED_FILE_PATTERN = /.*\.d\.ts/;
@@ -35,21 +36,21 @@ class CopyrightVerifier {
                 foundFiles.push(filePath);
             }
         });
-        
+
         finder.on("complete", function() {
             return defer.resolve(foundFiles);
         });
-        
+
         finder.on("patherror", (err: any, strPath: string) => {
-            // defer.reject("Error for Path " + strPath + " " + err);
+            defer.reject("Error for Path " + strPath + " " + err);
         })
-        
+
         finder.on("error", (err: any) => {
             defer.reject("Global Error " + err);
-        })        
-        
+        })
+
         finder.startSearch();
-        
+
         return defer.promise;
     }
 
