@@ -10,6 +10,7 @@ import {HostPlatform} from "../common/hostPlatform";
 import {Log} from "../common/log/log";
 import {LogLevel} from "../common/log/logHelper";
 import {Packager} from "../common/packager";
+import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 
@@ -17,13 +18,15 @@ export class ExtensionServer implements vscode.Disposable {
     private serverInstance: net.Server = null;
     private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
     private reactNativePackager: Packager;
+    private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private pipePath: string;
     private logCatMonitor: LogCatMonitor = null;
 
-    public constructor(reactNativePackager: Packager) {
+    public constructor(reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
 
         this.pipePath = HostPlatform.getExtensionPipePath();
         this.reactNativePackager = reactNativePackager;
+        this.reactNativePackageStatusIndicator = packagerStatusIndicator;
 
         /* register handlers for all messages */
         this.messageHandlerDictionary[em.ExtensionMessage.START_PACKAGER] = this.startPackager;
@@ -72,14 +75,16 @@ export class ExtensionServer implements vscode.Disposable {
      * Message handler for START_PACKAGER.
      */
     private startPackager(): Q.Promise<any> {
-        return this.reactNativePackager.start();
+        return this.reactNativePackager.start()
+            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
     /**
      * Message handler for STOP_PACKAGER.
      */
     private stopPackager(): Q.Promise<any> {
-        return this.reactNativePackager.stop();
+        return this.reactNativePackager.stop()
+            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
     }
 
     /**

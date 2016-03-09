@@ -9,31 +9,36 @@ import {Log} from "../common/log/log";
 import {Packager} from "../common/packager";
 import {Package} from "../common/node/package";
 import {PackageNameResolver} from "../common/android/packageNameResolver";
+import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IOSDebugModeManager} from "../common/ios/iOSDebugModeManager";
 
 export class CommandPaletteHandler {
     private reactNativePackager: Packager;
+    private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private workspaceRoot: string;
 
-    constructor(workspaceRoot: string, reactNativePackager: Packager) {
+    constructor(workspaceRoot: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
         this.workspaceRoot = workspaceRoot;
         this.reactNativePackager = reactNativePackager;
+        this.reactNativePackageStatusIndicator = packagerStatusIndicator;
     }
 
     /**
      * Starts the React Native packager
      */
     public startPackager(): Q.Promise<void> {
-        return this.executeCommandInContext("startPackager", () => this.reactNativePackager.start());
+        return this.executeCommandInContext("startPackager", () => this.reactNativePackager.start())
+            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
     /**
      * Kills the React Native packager invoked by the extension's packager
      */
     public stopPackager(): Q.Promise<void> {
-        return this.executeCommandInContext("stopPackager", () => this.reactNativePackager.stop());
+        return this.executeCommandInContext("stopPackager", () => this.reactNativePackager.stop())
+            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
     }
 
     /**

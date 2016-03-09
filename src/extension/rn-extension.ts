@@ -11,6 +11,7 @@ import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalError} from "../common/error/internalError";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {Log} from "../common/log/log";
+import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./intellisenseHelper";
@@ -20,7 +21,8 @@ import {OutputChannelLogger} from "./outputChannelLogger";
 
 /* all components use the same packager instance */
 const globalPackager = new Packager(vscode.workspace.rootPath);
-const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath, globalPackager);
+const packagerStatusIndicator = new PackagerStatusIndicator();
+const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath, globalPackager, packagerStatusIndicator);
 
 const outputChannelLogger = new OutputChannelLogger(vscode.window.createOutputChannel("React-Native"));
 const entryPointHandler = new EntryPointHandler(false, outputChannelLogger);
@@ -44,7 +46,7 @@ export function activate(context: vscode.ExtensionContext): void {
                             .then(() =>
                                 setupAndDispose(new ReactDirManager(), context))
                             .then(() =>
-                                setupAndDispose(new ExtensionServer(globalPackager), context))
+                                setupAndDispose(new ExtensionServer(globalPackager, packagerStatusIndicator), context))
                             .then(() => {}));
                     entryPointHandler.runFunction("intelliSense.setup",
                         ErrorHelper.getInternalError(InternalErrorCode.IntellisenseSetupFailed), () =>
