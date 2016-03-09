@@ -14,7 +14,7 @@ export enum PackagerStatus {
 
 export class PackagerStatusIndicator implements Disposable {
     private packagerStatusItem: StatusBarItem;
-    private static PACKAGER_STARTED_STATUS_STR: string = "React Native Packager: Running";
+    private static PACKAGER_STARTED_STATUS_STR: string = "React Native Packager: Started";
     private static PACKAGER_STOPPED_STATUS_STR: string = "React Native Packager: Stopped";
 
     public constructor() {
