@@ -145,6 +145,7 @@
         "mocha-teamcity-reporter": "^1.0.0",
         "run-sequence": "^1.1.5",
         "sinon": "^1.17.3",
+        "should": "^8.2.2",
         "tslint": "^2.5.1",
         "typescript": "^1.7.5",
         "vsce": "1.0.0",
