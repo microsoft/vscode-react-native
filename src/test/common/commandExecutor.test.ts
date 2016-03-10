@@ -24,16 +24,16 @@ suite("commandExecutor", function() {
 
         test("should execute a command", function() {
             let ce = new CommandExecutor();
-            let messageBuffer: Buffer = new Buffer(0);
+            let loggedOutput: string = "";
 
             sinon.stub(Log, "logMessage", function(message: string, formatMessage: boolean = true) {
-                messageBuffer = new Buffer(messageBuffer.toString() + message);
+                loggedOutput += message;
                 console.log(message);
             });
 
             return ce.execute("node -v")
                 .then(() => {
-                    let nodeVersion = semver.clean(messageBuffer.toString());
+                    let nodeVersion = semver.clean(loggedOutput);
                     assert(nodeVersion);
                 });
         });
@@ -68,10 +68,10 @@ suite("commandExecutor", function() {
 
         test("should spawn a command", function(done: MochaDone) {
             let ce = new CommandExecutor();
-            let messageBuffer: Buffer = new Buffer(0);
+            let loggedOutput: string = "";
 
             sinon.stub(Log, "logMessage", function(message: string, formatMessage: boolean = true) {
-                messageBuffer = new Buffer(messageBuffer.toString() + message);
+                loggedOutput += message;
                 console.log(message);
             });
 
