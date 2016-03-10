@@ -9,7 +9,8 @@ import {LogHelper, LogLevel} from "./logHelper";
 export interface ILogger {
     logMessage: (message: string, formatMessage?: boolean) => void;
     logError: (errorMessage: string, error?: any, logStack?: boolean) => void;
-    logInternalMessage?: (logLevel: LogLevel, message: string) => void;
+    logInternalMessage: (logLevel: LogLevel, message: string) => void;
+    setFocusOnLogChannel: () => void;
 }
 
 export class ConsoleLogger implements ILogger {
@@ -30,6 +31,11 @@ export class ConsoleLogger implements ILogger {
 
     public logInternalMessage(logLevel: LogLevel, message: string) {
         this.logMessage(this.getFormattedInternalMessage(logLevel, message), /* formatMessage */ false);
+    }
+
+    public setFocusOnLogChannel() {
+        // Do nothing - console takes focus automatically upon logging
+        return;
     }
 
     private getFormattedMessage(message: string) {
@@ -70,5 +76,10 @@ export class StreamLogger implements ILogger {
 
     public getFormattedInternalMessage(logLevel: LogLevel, message: string) {
         return (`${LogHelper.INTERNAL_TAG} [${logLevel}] ${message}\n`);
+    }
+
+    public setFocusOnLogChannel() {
+         // Do nothing
+        return;
     }
 }

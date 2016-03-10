@@ -17,12 +17,12 @@
             "name": "Debug Debugger",
             "type": "node",
             "request": "launch",
-            "program": "./out/debugger/nodeDebugWrapper.js",
+            "program": "${workspaceRoot}/out/debugger/nodeDebugWrapper.js",
             "runtimeArgs": ["--harmony"],
             "stopOnEntry": false,
             "args": [ "--server=4712" ], // Use "debugServer": "4712" on launch.json of the instance to debug
             "sourceMaps": true,
-            "outDir": "out",
+            "outDir": "${workspaceRoot}/out",
             "preLaunchTask": "build"
         },
         {
