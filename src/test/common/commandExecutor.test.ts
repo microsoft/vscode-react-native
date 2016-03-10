@@ -3,10 +3,12 @@
 
 import {CommandExecutor} from "../../common/commandExecutor";
 import {Log} from "../../common/log/log";
+import {ChildProcess} from "child_process";
 
 import * as assert from "assert";
 import * as semver from "semver";
 import * as sinon from "sinon";
+import * as Q from "q";
 
 suite("commandExecutor", function() {
     suite("commonContext", function() {
@@ -62,6 +64,31 @@ suite("commandExecutor", function() {
                     assert.equal(reason.errorCode, 101);
                     assert.equal(reason.errorLevel, 0);
                 });
+        });
+
+        test("should spawn a command", function(done: MochaDone) {
+            let ce = new CommandExecutor();
+            let messageBuffer: Buffer = new Buffer(0);
+
+            sinon.stub(Log, "logMessage", function(message: string, formatMessage: boolean = true) {
+                messageBuffer = new Buffer(messageBuffer.toString() + message);
+                console.log(message);
+            });
+
+            Q({})
+                .then(function() {
+                    let process: ChildProcess = ce.spawn("node", ["-v"]);
+                    let deferred = Q.defer<string>();
+
+                    process.stdout.on("data", function(data: any) {
+                        deferred.resolve(data.toString());
+                    });
+
+                    return deferred.promise;
+                })
+                .then(function(output: string) {
+                    assert(semver.clean(output));
+                }).done(() => done(), done);
         });
     });
 });
