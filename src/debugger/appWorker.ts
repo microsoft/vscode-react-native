@@ -164,8 +164,8 @@ export class MultipleLifetimesAppWorker {
         console.assert(!!this.sourcesStoragePath, "The sourcesStoragePath argument was null or empty");
     }
 
-    public start(): Q.Promise<any> {
-        return this.createSocketToApp()
+    public start(retryAttempt: boolean = false): Q.Promise<any> {
+        return this.createSocketToApp(retryAttempt)
             .then((socket: WebSocket) => {
                 this.socketToApp = socket;
             });
@@ -179,7 +179,7 @@ export class MultipleLifetimesAppWorker {
         return this.singleLifetimeWorker.start();
     }
 
-    private createSocketToApp(): Q.Promise<WebSocket> {
+    private createSocketToApp(retryAttempt: boolean = false): Q.Promise<WebSocket> {
         let deferred = Q.defer<WebSocket>();
         let socketToApp = new WebSocket(this.debuggerProxyUrl());
         socketToApp.on("open", () =>
@@ -190,9 +190,15 @@ export class MultipleLifetimesAppWorker {
             (message: any) => this.onMessage(message));
         socketToApp.on("error",
             (error: Error) => {
+                if (retryAttempt) {
+                    Log.logWarning(ErrorHelper.getNestedWarning(error, "Reconnection to the proxy (Packager) failed. Please check the output window for Packager errors, if any. If failure persists, please restart the React Native debugger."));
+                }
+
                 deferred.reject(error);
             });
 
+        // In an attempt to catch failures in starting the packager on first attempt,
+        // wait for 300 ms before resolving the promise
         Q.delay(300).done(() => deferred.resolve(socketToApp));
         return deferred.promise;
     }
@@ -209,7 +215,7 @@ export class MultipleLifetimesAppWorker {
     private onSocketClose() {
         this.executionLimiter.execute("onSocketClose.msg", /*limitInSeconds*/ 10, () =>
             Log.logMessage("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon..."));
-        setTimeout(() => this.start(), 100);
+        setTimeout(() => this.start(true /* retryAttempt */), 100);
     }
 
     private onMessage(message: string) {
