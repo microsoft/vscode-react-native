@@ -8,11 +8,16 @@ You can debug your code, quickly run `react-native` commands from the command pa
 
 ## Getting started
 
-* [Install the extension](https://code.visualstudio.com/docs/editor/extension-gallery) in VS Code (0.10.8+)
-* Run `npm install -g react-native-cli` to install React Native CLI (0.1.10+)
-* Set up React Native (0.19+) using the steps detailed on the React Native [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
-* Open your React Native project root directory in VS Code.
-* (Optional) [Enable IntelliSense](#enabling-intellisense) support (experimental)
+* Ensure that you're using the most recent version of VS Code (0.10.10+)
+* [Install the extension](https://code.visualstudio.com/docs/editor/extension-gallery) in VS Code
+  1. `Cmd+Shift+P` (`Ctrl+Shift+P` on Windows)
+  2. Type `ext install` + `Enter`, wait a moment while the list of available extensions is populated
+  3. Type `react-native` and select **React Native Tools**
+  4. For more guidance view [VS Code Extension Gallery](https://code.visualstudio.com/docs/editor/extension-gallery)
+* If you haven't already install React Native
+  * Run `npm install -g react-native-cli` to install React Native CLI (0.1.10+)
+  * Set up React Native (0.19+) using the steps detailed on the React Native [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
+* Open your React Native project root folder in VS Code
 
 ## Debugging
 
@@ -64,6 +69,9 @@ IntelliSense helps you discover objects, functions, and parameters in React Nati
 ![IntelliSense](images/intellisense.png)
 
 ### Enabling IntelliSense
+* **Note:** This section relates to older versions of VS Code and React Native Tools. The latest version of VS Code (0.10.10+) natively supports IntelliSense for Salsa. These instructions apply to older versions of VS Code (<= 0.10.9).
+    * When using VS Code 0.10.10+ with a newer React Native Tools extension (> 0.1.0) the extension will update project settings to remove the workaround described below if it was applied while using an older version of this extension or VS Code.
+
 React Native IntelliSense depends on experimental features to support JSX in VS Code.
 To enable these experimental features, you will see the following prompt immediately after opening a React Native project.
 
@@ -77,7 +85,7 @@ You can verify that you have Salsa enabled and you have an installed TypeScript 
 
 Once you have enabled IntelliSense by following the above steps, you can start typing in the code editor to see the objects, functions, and parameters of your React Native libraries and your own code.
 
-Here is what happens behind the scenes to enable JSX support
+Here is what happens behind the scenes to enable JSX support:
 
 1. The environment variable VSCODE_TSJS=1 is set to enable [Salsa](https://github.com/Microsoft/TypeScript/issues/4789)
 2. Salsa requires TypeScript 1.8, the extension will install `typescript@1.8.2` in `~/.vscode`.
@@ -87,7 +95,7 @@ Here is what happens behind the scenes to enable JSX support
 
 ## Known Issues
 
-Here is the list of common known issues you may experience while using the extension
+Here is the list of common known issues you may experience while using the extension:
 
 Issue                                | Description
 ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------
@@ -95,7 +103,7 @@ Debugger doesn't stop at breakpoints | The debugger only works if the packager i
 'adb: command not found'             | If you receive an error `adb: command not found`, you need to update your path variable to include the location of your *ADB* executable.The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
 Targeting iPhone 6 doesn't work      | There is a known issue [#5850](https://github.com/facebook/react-native/issues/5850) while running an app targeting iPhone 6
 
-Click [here](https://github.com/Microsoft/vscode-react-native/issues?q=is%3Aopen+is%3Aissue+label%3Apreview-known-issues) for the complete list of known issues.
+[Known-Issues](https://github.com/Microsoft/vscode-react-native/issues?q=is%3Aissue+label%3Apreview-known-issues) provides a complete list of active and resolved issues.
 
 ## Disable telemetry reporting
 VS Code React Native extension collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://www.visualstudio.com/en-us/dn948229) to learn more.
