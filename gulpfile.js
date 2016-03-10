@@ -91,7 +91,7 @@ function defineCustomVerification(name, pathInTools, errorMessage) {
 }
 
 defineCustomVerification('checkImports', "checkCasing.js", "Mismatches found in import casing");
-defineCustomVerification('checkCopyright', "out/checkCopyright.js", "Some source code files don't have the expected copyright notice");
+defineCustomVerification('checkCopyright', "checkCopyright.js", "Some source code files don't have the expected copyright notice");
 
 gulp.task('watch-build-test', ['build', 'build-test'], function () {
     return gulp.watch(sources, ['build', 'build-test']);
