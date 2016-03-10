@@ -33,7 +33,7 @@ export class AndroidPlatform implements IAppPlatform {
 
     private debugTarget: string;
     private devices: IDevice[];
-    private packageName: Q.Promise<string>;
+    private packageName: string;
     private deviceHelper: DeviceHelper;
 
     constructor({ extensionMessageSender = new ExtensionMessageSender()} = {}) {
@@ -55,12 +55,13 @@ export class AndroidPlatform implements IAppPlatform {
             this.deviceHelper.getConnectedDevices().then(devices => {
                 this.devices = devices;
                 this.debugTarget = this.getTargetEmulator(runOptions, devices);
+                return this.getPackageName(runOptions.projectRoot).then(packageName =>
+                    this.packageName = packageName);
             }))
             .catch(reason => {
                 if (reason.message === AndroidPlatform.MULTIPLE_DEVICES_ERROR && this.devices.length > 1 && this.debugTarget) {
                     /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
-                    return this.getPackageName(runOptions.projectRoot).then(packageName =>
-                        this.deviceHelper.launchApp(runOptions.projectRoot, packageName, this.debugTarget));
+                    return this.deviceHelper.launchApp(runOptions.projectRoot, this.packageName, this.debugTarget);
                 } else {
                     return Q.reject<void>(reason);
                 }
@@ -70,18 +71,13 @@ export class AndroidPlatform implements IAppPlatform {
     }
 
     public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {
-        return this.getPackageName(runOptions.projectRoot).then(packageName =>
-            this.deviceHelper.reloadAppInDebugMode(runOptions.projectRoot, packageName, this.debugTarget));
+        return this.deviceHelper.reloadAppInDebugMode(runOptions.projectRoot, this.packageName, this.debugTarget);
     }
 
     // Package name is only used when we have multiple devices, or we go into debugging mode, so we initialize it lazily
     private getPackageName(projectRoot: string): Q.Promise<string> {
-        if (!this.packageName) {
-            this.packageName = new Package(projectRoot).name().then(appName =>
+        return new Package(projectRoot).name().then(appName =>
                 new PackageNameResolver(appName).resolvePackageName(projectRoot));
-        }
-
-        return this.packageName;
     }
 
     /**
