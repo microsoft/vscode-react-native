@@ -90,5 +90,40 @@ suite("commandExecutor", function() {
                     assert(semver.clean(output));
                 }).done(() => done(), done);
         });
+
+        test("should spawnAndWaitForCompletion a command", function(done: MochaDone) {
+            let ce = new CommandExecutor();
+            let loggedOutput: string = "";
+
+            sinon.stub(Log, "logMessage", function(message: string, formatMessage: boolean = true) {
+                loggedOutput += message;
+                console.log(message);
+            });
+
+            Q({})
+                .then(function () {
+                    return ce.spawnAndWaitForCompletion("node", ["-v"]);
+                }).done(() => done(), done);
+        });
+
+        test("spawnAndWaitForCompletion should reject a bad command", function(done: MochaDone) {
+            let ce = new CommandExecutor();
+            let loggedOutput: string = "";
+
+            sinon.stub(Log, "logMessage", function(message: string, formatMessage: boolean = true) {
+                loggedOutput += message;
+                console.log(message);
+            });
+
+            Q({})
+                .then(function() {
+                    return ce.spawnAndWaitForCompletion("bar", ["-v"]);
+                })
+                .catch((reason) => {
+                    console.log(reason.message);
+                    assert.equal(reason.errorCode, 101);
+                    assert.equal(reason.errorLevel, 0);
+                }).done(() => done(), done);
+        });
     });
 });
