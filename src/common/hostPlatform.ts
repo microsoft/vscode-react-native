@@ -123,6 +123,8 @@ export class HostPlatform {
                     HostPlatform.platformInstance = new OSXHostPlatform();
                     break;
                 case "linux":
+                    HostPlatform.platformInstance = new LinuxHostPlatform();
+                    break;
                 default:
                     HostPlatform.platformInstance = new LinuxHostPlatform();
             }
