@@ -22,17 +22,17 @@ suite("commandExecutor", function() {
 
         test("should execute a command", function() {
             let ce = new CommandExecutor();
-            let actualExecuteResult: string[] = [];
+            let messageBuffer: Buffer = new Buffer(0);
 
-            sinon.stub(Log, "logMessage", function(message: string) {
-                actualExecuteResult.push(message.replace("\n", ""));
+            sinon.stub(Log, "logMessage", function(message: string, formatMessage: boolean = true) {
+                messageBuffer = new Buffer(messageBuffer.toString() + message);
                 console.log(message);
             });
 
             return ce.execute("node -v")
                 .then(() => {
-                    let nodeVersion = actualExecuteResult[0];
-                    assert(semver.valid(nodeVersion));
+                    let nodeVersion = semver.clean(messageBuffer.toString());
+                    assert(nodeVersion);
                 });
         });
 
