@@ -8,16 +8,15 @@ You can debug your code, quickly run `react-native` commands from the command pa
 
 ## Getting started
 
-* Ensure that you're using the most recent version of VS Code (0.10.10+)
-* [Install the extension](https://code.visualstudio.com/docs/editor/extension-gallery) in VS Code
-  1. `Cmd+Shift+P` (`Ctrl+Shift+P` on Windows)
-  2. Type `ext install` + `Enter`, wait a moment while the list of available extensions is populated
-  3. Type `react-native` and select **React Native Tools**
-  4. For more guidance view [VS Code Extension Gallery](https://code.visualstudio.com/docs/editor/extension-gallery)
-* If you haven't already install React Native
-  * Run `npm install -g react-native-cli` to install React Native CLI (0.1.10+)
-  * Set up React Native (0.19+) using the steps detailed on the React Native [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
-* Open your React Native project root folder in VS Code
+* Ensure that you're using the most recent version of VS Code (0.10.10+).
+* [Install the extension](https://code.visualstudio.com/docs/editor/extension-gallery) in VS Code:
+  1. Type `F1`, then `ext install` + `Enter`, wait a moment while the list of available extensions is populated
+  2. Type `react-native` and select **React Native Tools**
+  3. For more guidance view [VS Code Extension Gallery](https://code.visualstudio.com/docs/editor/extension-gallery)
+* If you haven't already install React Native:
+  1. Run `npm install -g react-native-cli` to install React Native CLI (0.1.10+)
+  2. Set up React Native (0.19+) using the steps detailed on the React Native [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
+* Open your React Native project root folder in VS Code.
 
 ## Debugging
 
@@ -42,13 +41,13 @@ To start the debug session, select a configuration from the Configuration dropdo
 
 You can debug your app on an Android emulator, Android device or iOS simulator. This extension provides [experiemental support](#debugging-on-ios-device) for iOS devices.
 
-More information about debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging)
+More information about debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging).
 
 #### Debugging on iOS device
-Debugging on iOS device would require following manual steps
-* Change the `jsCodeLocation` IP in your app using the steps detailed [here](https://facebook.github.io/react-native/docs/running-on-device-ios.html#accessing-development-server-from-device)
+Debugging on iOS device would require following manual steps.
+* Change the `jsCodeLocation` IP in your app using the steps detailed [here](https://facebook.github.io/react-native/docs/running-on-device-ios.html#accessing-development-server-from-device).
 * Choose **Debug iOS** configuration from the Configuration dropdown and press F5.
-* Shake the device to open development menu and select "Debug in Chrome"
+* Shake the device to open development menu and select "Debug in Chrome".
 
 ## Using React Native commands in the Command Palette
 
@@ -86,7 +85,6 @@ You can verify that you have Salsa enabled and you have an installed TypeScript 
 Once you have enabled IntelliSense by following the above steps, you can start typing in the code editor to see the objects, functions, and parameters of your React Native libraries and your own code.
 
 Here is what happens behind the scenes to enable JSX support:
-
 1. The environment variable VSCODE_TSJS=1 is set to enable [Salsa](https://github.com/Microsoft/TypeScript/issues/4789)
 2. Salsa requires TypeScript 1.8, the extension will install `typescript@1.8.2` in `~/.vscode`.
 3. A settings.json file is created in the .vscode directory with typescript.tsdk pointing to the typescript install location.
