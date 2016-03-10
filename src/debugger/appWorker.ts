@@ -164,11 +164,8 @@ export class MultipleLifetimesAppWorker {
         console.assert(!!this.sourcesStoragePath, "The sourcesStoragePath argument was null or empty");
     }
 
-    public start(retryAttempt: boolean = false): Q.Promise<any> {
-        return this.createSocketToApp(retryAttempt)
-            .then((socket: WebSocket) => {
-                this.socketToApp = socket;
-            });
+    public start(warnOnFailure: boolean = false): Q.Promise<any> {
+        return this.createSocketToApp(warnOnFailure);
     }
 
     private startNewWorkerLifetime(): Q.Promise<void> {
@@ -179,19 +176,21 @@ export class MultipleLifetimesAppWorker {
         return this.singleLifetimeWorker.start();
     }
 
-    private createSocketToApp(retryAttempt: boolean = false): Q.Promise<WebSocket> {
-        let deferred = Q.defer<WebSocket>();
-        let socketToApp = new WebSocket(this.debuggerProxyUrl());
-        socketToApp.on("open", () =>
-            this.onSocketOpened());
-        socketToApp.on("close", () =>
+    private createSocketToApp(warnOnFailure: boolean = false): Q.Promise<void> {
+        let deferred = Q.defer<void>();
+        this.socketToApp = new WebSocket(this.debuggerProxyUrl());
+        this.socketToApp.on("open", () => {
+            this.onSocketOpened();
+        });
+        this.socketToApp.on("close", () =>
             this.onSocketClose());
-        socketToApp.on("message",
+        this.socketToApp.on("message",
             (message: any) => this.onMessage(message));
-        socketToApp.on("error",
+        this.socketToApp.on("error",
             (error: Error) => {
-                if (retryAttempt) {
-                    Log.logWarning(ErrorHelper.getNestedWarning(error, "Reconnection to the proxy (Packager) failed. Please check the output window for Packager errors, if any. If failure persists, please restart the React Native debugger."));
+                if (warnOnFailure) {
+                    Log.logWarning(ErrorHelper.getNestedWarning(error,
+                        "Reconnection to the proxy (Packager) failed. Please check the output window for Packager errors, if any. If failure persists, please restart the React Native debugger."));
                 }
 
                 deferred.reject(error);
@@ -199,7 +198,7 @@ export class MultipleLifetimesAppWorker {
 
         // In an attempt to catch failures in starting the packager on first attempt,
         // wait for 300 ms before resolving the promise
-        Q.delay(300).done(() => deferred.resolve(socketToApp));
+        Q.delay(300).done(() => deferred.resolve(void 0));
         return deferred.promise;
     }
 
