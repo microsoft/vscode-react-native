@@ -164,9 +164,11 @@ export class MultipleLifetimesAppWorker {
         console.assert(!!this.sourcesStoragePath, "The sourcesStoragePath argument was null or empty");
     }
 
-    public start(): Q.Promise<void> {
-        this.socketToApp = this.createSocketToApp();
-        return Q.resolve<void>(void 0); // Currently this method is sync
+    public start(): Q.Promise<any> {
+        return this.createSocketToApp()
+            .then((socket: WebSocket) => {
+                this.socketToApp = socket;
+            });
     }
 
     private startNewWorkerLifetime(): Q.Promise<void> {
@@ -177,7 +179,8 @@ export class MultipleLifetimesAppWorker {
         return this.singleLifetimeWorker.start();
     }
 
-    private createSocketToApp() {
+    private createSocketToApp(): Q.Promise<WebSocket> {
+        let deferred = Q.defer<WebSocket>();
         let socketToApp = new WebSocket(this.debuggerProxyUrl());
         socketToApp.on("open", () =>
             this.onSocketOpened());
@@ -186,8 +189,12 @@ export class MultipleLifetimesAppWorker {
         socketToApp.on("message",
             (message: any) => this.onMessage(message));
         socketToApp.on("error",
-            (error: Error) => printDebuggingError("An error ocurred while using the socket to communicate with the React Native app", error));
-        return socketToApp;
+            (error: Error) => {
+                deferred.reject(error);
+            });
+
+        Q.delay(300).done(() => deferred.resolve(socketToApp));
+        return deferred.promise;
     }
 
     private debuggerProxyUrl() {
