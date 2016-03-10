@@ -29,7 +29,7 @@ export class LogHelper {
         let valName: string = process.env[LogHelper.LOG_LEVEL_NAME];
 
         if (typeof(valName) === "undefined") {
-            valName = "Info"; // Set the default LogLevel to LogLevel.Info
+            valName = "None"; // Set the default LogLevel to LogLevel.None
         }
 
         return (<any> LogLevel)[valName];
