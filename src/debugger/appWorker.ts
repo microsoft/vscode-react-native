@@ -10,7 +10,7 @@ import {Packager}  from "../common/packager";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {Log} from "../common/log/log";
 import {LogLevel} from "../common/log/logHelper";
-import {Node} from "../common/node/node";
+import {FileSystem} from "../common/node/fileSystem";
 import {ExecutionsLimiter} from "../common/executionsLimiter";
 
 import Module = require("module");
@@ -55,13 +55,22 @@ export class SandboxedAppWorker {
 
     private pendingScriptImport = Q(void 0);
 
+    private nodeFileSystem: FileSystem;
+    private scriptImporter: ScriptImporter;
+
     private static PROCESS_MESSAGE_INSIDE_SANDBOX = "onmessage({ data: postMessageArgument });";
 
-    constructor(sourcesStoragePath: string, debugAdapterPort: number, postReplyToApp: (message: any) => void) {
+    constructor(sourcesStoragePath: string, debugAdapterPort: number, postReplyToApp: (message: any) => void, {
+        nodeFileSystem = new FileSystem(),
+        scriptImporter = new ScriptImporter(sourcesStoragePath)
+    } = {}) {
         this.sourcesStoragePath = sourcesStoragePath;
         this.debugAdapterPort = debugAdapterPort;
         this.postReplyToApp = postReplyToApp;
         this.scriptToReceiveMessageInSandbox = new vm.Script(SandboxedAppWorker.PROCESS_MESSAGE_INSIDE_SANDBOX);
+
+        this.nodeFileSystem = nodeFileSystem;
+        this.scriptImporter = scriptImporter;
     }
 
     public start(): Q.Promise<void> {
@@ -109,7 +118,7 @@ export class SandboxedAppWorker {
     }
 
     private readFileContents(filename: string) {
-        return new Node.FileSystem().readFile(filename).then(contents => contents.toString());
+        return this.nodeFileSystem.readFile(filename).then(contents => contents.toString());
     }
 
     private importScripts(url: string): void {
@@ -125,7 +134,7 @@ export class SandboxedAppWorker {
         this.pendingScriptImport = defer.promise;
 
         // The next line converts to any due to the incorrect typing on node.d.ts of vm.runInThisContext
-        new ScriptImporter(this.sourcesStoragePath).downloadAppScript(url, this.debugAdapterPort)
+        this.scriptImporter.downloadAppScript(url, this.debugAdapterPort)
             .then(downloadedScript =>
                 this.runInSandbox(downloadedScript.filepath, downloadedScript.contents))
             .done(() => {
@@ -156,12 +165,21 @@ export class MultipleLifetimesAppWorker {
     private socketToApp: WebSocket;
     private singleLifetimeWorker: SandboxedAppWorker;
 
+    private sandboxedAppConstructor: (storagePath: string, adapterPort: number, messageFunction: (message: any) => void) => SandboxedAppWorker;
+    private webSocketConstructor: (url: string) => WebSocket;
+
     private executionLimiter = new ExecutionsLimiter();
 
-    constructor(sourcesStoragePath: string, debugAdapterPort: number) {
+    constructor(sourcesStoragePath: string, debugAdapterPort: number, {
+        sandboxedAppConstructor = (path: string, port: number, messageFunc: (message: any) => void) => new SandboxedAppWorker(path, port, messageFunc),
+        webSocketConstructor = (url: string) => new WebSocket(url)
+    } = {}) {
         this.sourcesStoragePath = sourcesStoragePath;
         this.debugAdapterPort = debugAdapterPort;
         console.assert(!!this.sourcesStoragePath, "The sourcesStoragePath argument was null or empty");
+
+        this.sandboxedAppConstructor = sandboxedAppConstructor;
+        this.webSocketConstructor = webSocketConstructor;
     }
 
     public start(): Q.Promise<void> {
@@ -170,7 +188,7 @@ export class MultipleLifetimesAppWorker {
     }
 
     private startNewWorkerLifetime(): Q.Promise<void> {
-        this.singleLifetimeWorker = new SandboxedAppWorker(this.sourcesStoragePath, this.debugAdapterPort, (message) => {
+        this.singleLifetimeWorker = this.sandboxedAppConstructor(this.sourcesStoragePath, this.debugAdapterPort, (message) => {
             this.sendMessageToApp(message);
         });
         Log.logInternalMessage(LogLevel.Info, "A new app worker lifetime was created.");
@@ -178,7 +196,7 @@ export class MultipleLifetimesAppWorker {
     }
 
     private createSocketToApp() {
-        let socketToApp = new WebSocket(this.debuggerProxyUrl());
+        let socketToApp = this.webSocketConstructor(this.debuggerProxyUrl());
         socketToApp.on("open", () =>
             this.onSocketOpened());
         socketToApp.on("close", () =>
