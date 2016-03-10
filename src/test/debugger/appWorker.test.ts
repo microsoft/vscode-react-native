@@ -110,11 +110,16 @@ suite("appWorker", function() {
             let sandboxedAppConstructor: Sinon.SinonStub;
             let webSocketConstructor: Sinon.SinonStub;
 
+            let sendMessage: (message: string) => void;
+
             let clock: Sinon.SinonFakeTimers;
 
             setup(function() {
                 webSocket = sinon.createStubInstance(WebSocket);
                 sandboxedAppWorkerStub = sinon.createStubInstance(AppWorker.SandboxedAppWorker);
+
+                const messageInvocation: Sinon.SinonStub = (<any>webSocket).on.withArgs("message");
+                sendMessage = (message: string) => messageInvocation.callArgWith(1, message);
 
                 sandboxedAppConstructor = sinon.stub();
                 sandboxedAppConstructor.returns(sandboxedAppWorkerStub);
@@ -134,6 +139,7 @@ suite("appWorker", function() {
                 sandboxedAppWorkerStub = null;
                 sandboxedAppConstructor = null;
                 webSocketConstructor = null;
+                sendMessage = null;
 
                 if (clock) {
                     clock.restore();
@@ -174,9 +180,6 @@ suite("appWorker", function() {
             });
 
             test("should respond correctly to prepareJSRuntime messages", function() {
-                const messageInvocation: Sinon.SinonStub = (<any>webSocket).on.withArgs("message");
-                const sendMessage = (message: string) => messageInvocation.callArgWith(1, message);
-
                 return multipleLifetimesWorker.start().then(() => {
                     const messageId = 1;
                     const testMessage = JSON.stringify({ method: "prepareJSRuntime", id: messageId });
@@ -199,6 +202,29 @@ suite("appWorker", function() {
                     return Q.delay(1).then(() => {
                         assert(websocketSend.calledWith(expectedReply), "Did not receive the expected response to prepareJSRuntime");
                     });
+                });
+            });
+
+            test("should pass unknown messages to the sandboxedAppWorker", function() {
+                return multipleLifetimesWorker.start().then(() => {
+                    // Start up an app worker
+                    const prepareJSMessage = JSON.stringify({ method: "prepareJSRuntime", id: 1 });
+                    const appWorkerStart: Sinon.SinonStub = (<any>sandboxedAppWorkerStub).start;
+                    appWorkerStart.returns(Q.resolve(void 0));
+
+                    sendMessage(prepareJSMessage);
+
+                    // Then attempt to message it
+
+                    const testMessage = { method: "unknownMethod" };
+                    const testMessageString = JSON.stringify(testMessage);
+
+                    const postMessageStub: Sinon.SinonStub = (<any>sandboxedAppWorkerStub).postMessage;
+
+                    assert(postMessageStub.notCalled, "sandboxedAppWorker.postMessage called prior to any message");
+                    sendMessage(testMessageString);
+
+                    assert(postMessageStub.calledWith(testMessage), "message was not passed to sandboxedAppWorker");
                 });
             });
         });
