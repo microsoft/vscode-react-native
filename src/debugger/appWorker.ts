@@ -148,7 +148,7 @@ export class SandboxedAppWorker {
 export class MultipleLifetimesAppWorker {
     /** This class will create a SandboxedAppWorker that will run the RN App logic, and then create a socket
      * and send the RN App messages to the SandboxedAppWorker. The only RN App message that this class handles
-     * is the prepareJSRuntime, which we reply to the RN App that the sandbox was created succesfully.
+     * is the prepareJSRuntime, which we reply to the RN App that the sandbox was created successfully.
      * When the socket closes, we'll create a new SandboxedAppWorker and a new socket pair and discard the old ones.
      */
     private sourcesStoragePath: string;
