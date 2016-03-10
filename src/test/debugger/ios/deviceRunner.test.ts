@@ -83,6 +83,7 @@ suite("deviceRunner", function() {
                             // Respond with empty output
                             client.write("$O#4F");
                             client.end();
+                            break;
                         default:
                             break;
                     }
@@ -158,6 +159,7 @@ suite("deviceRunner", function() {
                             client.write("+");
                             client.write("$E23#AA"); // Report an error
                             client.end();
+                            break;
                         default:
                             break;
                     }
