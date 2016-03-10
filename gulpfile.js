@@ -72,26 +72,29 @@ function test() {
 gulp.task('build-test', ['build'], test);
 gulp.task('test', test);
 
-function defineCustomVerification(name, pathInTools, errorMessage) {
-    gulp.task(name, function (cb) {
-        var checkProcess = child_process.fork(path.join(__dirname, "tools", pathInTools),
-            {
-                cwd: path.resolve(__dirname, "src"),
-                stdio: "inherit"
-            });
-        checkProcess.on("error", cb);
-        checkProcess.on("exit", function (code, signal) {
-            if (code || signal) {
-                cb(new Error(errorMessage));
-            } else {
-                cb();
-            }
+function runCustomVerification(pathInTools, errorMessage, cb) {
+    var checkProcess = child_process.fork(path.join(__dirname, "tools", pathInTools),
+        {
+            cwd: path.resolve(__dirname, "src"),
+            stdio: "inherit"
         });
+    checkProcess.on("error", cb);
+    checkProcess.on("exit", function (code, signal) {
+        if (code || signal) {
+            cb(new Error(errorMessage));
+        } else {
+            cb();
+        }
     });
 }
 
-defineCustomVerification('checkImports', "checkCasing.js", "Mismatches found in import casing");
-defineCustomVerification('checkCopyright', "checkCopyright.js", "Some source code files don't have the expected copyright notice");
+gulp.task('checkImports', function (cb) {
+    runCustomVerification("checkCasing.js", "Mismatches found in import casing", cb);
+});
+
+gulp.task('checkCopyright', function (cb) {
+    runCustomVerification("checkCopyright.js", "Some source code files don't have the expected copyright notice", cb);
+});
 
 gulp.task('watch-build-test', ['build', 'build-test'], function () {
     return gulp.watch(sources, ['build', 'build-test']);
