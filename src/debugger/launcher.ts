@@ -64,7 +64,7 @@ export class Launcher {
                             generator.step("mobilePlatform.enableJSDebuggingMode");
                             return mobilePlatform.enableJSDebuggingMode(runOptions);
                         }).then(() =>
-                            Log.logMessage("Debugging session started succesfuly."));
+                            Log.logMessage("Debugging session started successfully."));
                 }
             });
         });

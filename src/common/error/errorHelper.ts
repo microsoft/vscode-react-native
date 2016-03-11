@@ -25,7 +25,7 @@ export class ErrorHelper {
     }
 
     public static getNestedWarning(innerError: Error, message: string, ...optionalArgs: any[]): NestedError {
-        return new NestedError(-1, message, innerError, InternalErrorLevel.Warning);
+        return new NestedError(-1, message, innerError, null /* extras */, InternalErrorLevel.Warning);
     }
 
     private static getErrorMessage(errorCode: InternalErrorCode, ...optionalArgs: any[]): string {

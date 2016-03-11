@@ -14,6 +14,7 @@
         "SampleApplication/",
         "SampleApplication/node_modules",
         "SampleApplication/.vscode",
-        "ReactTypings"
+        "ReactTypings",
+        "tools/"
     ]
 }

@@ -148,7 +148,7 @@ export class SandboxedAppWorker {
 export class MultipleLifetimesAppWorker {
     /** This class will create a SandboxedAppWorker that will run the RN App logic, and then create a socket
      * and send the RN App messages to the SandboxedAppWorker. The only RN App message that this class handles
-     * is the prepareJSRuntime, which we reply to the RN App that the sandbox was created succesfully.
+     * is the prepareJSRuntime, which we reply to the RN App that the sandbox was created successfully.
      * When the socket closes, we'll create a new SandboxedAppWorker and a new socket pair and discard the old ones.
      */
     private sourcesStoragePath: string;
@@ -164,9 +164,8 @@ export class MultipleLifetimesAppWorker {
         console.assert(!!this.sourcesStoragePath, "The sourcesStoragePath argument was null or empty");
     }
 
-    public start(): Q.Promise<void> {
-        this.socketToApp = this.createSocketToApp();
-        return Q.resolve<void>(void 0); // Currently this method is sync
+    public start(warnOnFailure: boolean = false): Q.Promise<any> {
+        return this.createSocketToApp(warnOnFailure);
     }
 
     private startNewWorkerLifetime(): Q.Promise<void> {
@@ -177,17 +176,30 @@ export class MultipleLifetimesAppWorker {
         return this.singleLifetimeWorker.start();
     }
 
-    private createSocketToApp() {
-        let socketToApp = new WebSocket(this.debuggerProxyUrl());
-        socketToApp.on("open", () =>
-            this.onSocketOpened());
-        socketToApp.on("close", () =>
+    private createSocketToApp(warnOnFailure: boolean = false): Q.Promise<void> {
+        let deferred = Q.defer<void>();
+        this.socketToApp = new WebSocket(this.debuggerProxyUrl());
+        this.socketToApp.on("open", () => {
+            this.onSocketOpened();
+        });
+        this.socketToApp.on("close", () =>
             this.onSocketClose());
-        socketToApp.on("message",
+        this.socketToApp.on("message",
             (message: any) => this.onMessage(message));
-        socketToApp.on("error",
-            (error: Error) => printDebuggingError("An error ocurred while using the socket to communicate with the React Native app", error));
-        return socketToApp;
+        this.socketToApp.on("error",
+            (error: Error) => {
+                if (warnOnFailure) {
+                    Log.logWarning(ErrorHelper.getNestedWarning(error,
+                        "Reconnection to the proxy (Packager) failed. Please check the output window for Packager errors, if any. If failure persists, please restart the React Native debugger."));
+                }
+
+                deferred.reject(error);
+            });
+
+        // In an attempt to catch failures in starting the packager on first attempt,
+        // wait for 300 ms before resolving the promise
+        Q.delay(300).done(() => deferred.resolve(void 0));
+        return deferred.promise;
     }
 
     private debuggerProxyUrl() {
@@ -202,7 +214,7 @@ export class MultipleLifetimesAppWorker {
     private onSocketClose() {
         this.executionLimiter.execute("onSocketClose.msg", /*limitInSeconds*/ 10, () =>
             Log.logMessage("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon..."));
-        setTimeout(() => this.start(), 100);
+        setTimeout(() => this.start(true /* retryAttempt */), 100);
     }
 
     private onMessage(message: string) {
