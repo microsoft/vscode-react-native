@@ -34,7 +34,7 @@ var CopyrightVerifier = (function () {
             return defer.resolve(foundFiles);
         });
         finder.on("patherror", function (err, strPath) {
-            defer.reject("Error for Path " + strPath + " " + err);
+            defer.reject("Error for Path " + strPath + " " + err + "\nStackTrace: " + err.stack);
         });
         finder.on("error", function (err) {
             defer.reject("Global Error " + err);
