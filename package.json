@@ -143,6 +143,7 @@
         "gulp-typescript": "^2.8.0",
         "gulp-util": "^3.0.5",
         "mocha-teamcity-reporter": "^1.0.0",
+        "node-find-files": "0.0.4",
         "run-sequence": "^1.1.5",
         "sinon": "^1.17.3",
         "should": "^8.2.2",
