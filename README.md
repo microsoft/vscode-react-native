@@ -8,12 +8,12 @@ You can debug your code, quickly run `react-native` commands from the command pa
 
 ## Getting started
 
-* Ensure that you're using the most recent version of VS Code (0.10.10+).
+* [Install VS Code](https://code.visualstudio.com) (0.10.10+ is preferred).
 * [Install the extension](https://code.visualstudio.com/docs/editor/extension-gallery) in VS Code:
   1. Type `F1`, then `ext install` + `Enter`, wait a moment while the list of available extensions is populated
   2. Type `react-native` and select **React Native Tools**
   3. For more guidance view [VS Code Extension Gallery](https://code.visualstudio.com/docs/editor/extension-gallery)
-* If you haven't already install React Native:
+* If you haven't already, install React Native:
   1. Run `npm install -g react-native-cli` to install React Native CLI (0.1.10+)
   2. Set up React Native (0.19+) using the steps detailed on the React Native [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
 * Open your React Native project root folder in VS Code.
