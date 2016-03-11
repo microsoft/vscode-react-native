@@ -50,9 +50,9 @@ export class IOSDebugModeManager {
 
         return pu.retryAsync(
             () =>
-                this.tryOneAttemptToFindPListFile(), // Operation to retry until succesful
+                this.tryOneAttemptToFindPListFile(), // Operation to retry until successful
             (file: string) =>
-                file !== null, // Condition to check if the operation was succesful, and this logic is done
+                file !== null, // Condition to check if the operation was successful, and this logic is done
             IOSDebugModeManager.MAX_RETRIES,
             IOSDebugModeManager.DELAY_UNTIL_RETRY,
             failureString); // Error to show in case all retries fail
