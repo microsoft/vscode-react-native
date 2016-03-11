@@ -51,14 +51,15 @@ export class AndroidPlatform implements IAppPlatform {
             () =>
                 Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS)).process(runAndroidSpawn);
 
-        return output.finally(() => {
-            return this.deviceHelper.getConnectedDevices().then(devices => {
-                this.devices = devices;
-                this.debugTarget = this.getTargetEmulator(runOptions, devices);
-                return this.getPackageName(runOptions.projectRoot).then(packageName =>
-                    this.packageName = packageName);
-            }}))
-            .catch(reason => {
+        return output
+            .finally(() => {
+                return this.deviceHelper.getConnectedDevices().then(devices => {
+                    this.devices = devices;
+                    this.debugTarget = this.getTargetEmulator(runOptions, devices);
+                    return this.getPackageName(runOptions.projectRoot).then(packageName =>
+                        this.packageName = packageName);
+                });
+            }).catch(reason => {
                 if (reason.message === AndroidPlatform.MULTIPLE_DEVICES_ERROR && this.devices.length > 1 && this.debugTarget) {
                     /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
                     return this.deviceHelper.launchApp(runOptions.projectRoot, this.packageName, this.debugTarget);
