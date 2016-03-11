@@ -23,10 +23,10 @@ var CopyrightVerifier = (function () {
         });
         finder.on("match", function (filePath, fileStats) {
             var contents = fs.readFileSync(filePath).toString().replace(/\r\n/g, "\n");
-            if (contents.startsWith(CopyrightVerifier.UTB_BYTE_ORDER_MARKER)) {
+            if (contents.indexOf(CopyrightVerifier.UTB_BYTE_ORDER_MARKER) === 0) {
                 contents = contents.substr(1);
             }
-            if (!contents.startsWith(CopyrightVerifier.COPYRIGHT_NOTICE)) {
+            if (!(contents.indexOf(CopyrightVerifier.COPYRIGHT_NOTICE) === 0)) {
                 foundFiles.push(filePath);
             }
         });
@@ -34,7 +34,7 @@ var CopyrightVerifier = (function () {
             return defer.resolve(foundFiles);
         });
         finder.on("patherror", function (err, strPath) {
-            defer.reject("Error for Path " + strPath + " " + err);
+            defer.reject("Error for Path " + strPath + " " + err + "\nStackTrace: " + err.stack);
         });
         finder.on("error", function (err) {
             defer.reject("Global Error " + err);
