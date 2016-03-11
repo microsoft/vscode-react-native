@@ -148,7 +148,6 @@ suite("appWorker", function() {
             });
 
             test("should construct a websocket connection to the correct endpoint and listen for events", function() {
-
                 return multipleLifetimesWorker.start().then(() => {
                     const websocketRegex = new RegExp("ws://[^:]*:[0-9]*/debugger-proxy\\?role=debugger");
                     assert(webSocketConstructor.calledWithMatch(websocketRegex), "The web socket was not constructed to the correct url: " + webSocketConstructor.args[0][0]);
@@ -161,11 +160,11 @@ suite("appWorker", function() {
             });
 
             test("should attempt to reconnect after disconnecting", function() {
-                clock = sinon.useFakeTimers();
-
                 return multipleLifetimesWorker.start().then(() => {
                     // Forget previous invocations
                     webSocketConstructor.reset();
+
+                    clock = sinon.useFakeTimers();
 
                     const closeInvocation: Sinon.SinonStub = (<any>webSocket).on.withArgs("close");
                     closeInvocation.callArg(1);

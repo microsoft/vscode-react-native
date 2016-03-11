@@ -118,9 +118,13 @@ export class HostPlatform {
             switch (process.platform) {
                 case "win32":
                     HostPlatform.platformInstance = new WindowsHostPlatform();
+                    break;
                 case "darwin":
                     HostPlatform.platformInstance = new OSXHostPlatform();
+                    break;
                 case "linux":
+                    HostPlatform.platformInstance = new LinuxHostPlatform();
+                    break;
                 default:
                     HostPlatform.platformInstance = new LinuxHostPlatform();
             }
