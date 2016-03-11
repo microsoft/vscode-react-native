@@ -51,13 +51,13 @@ export class AndroidPlatform implements IAppPlatform {
             () =>
                 Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS)).process(runAndroidSpawn);
 
-        return output.finally(() =>
-            this.deviceHelper.getConnectedDevices().then(devices => {
+        return output.finally(() => {
+            return this.deviceHelper.getConnectedDevices().then(devices => {
                 this.devices = devices;
                 this.debugTarget = this.getTargetEmulator(runOptions, devices);
                 return this.getPackageName(runOptions.projectRoot).then(packageName =>
                     this.packageName = packageName);
-            }))
+            }}))
             .catch(reason => {
                 if (reason.message === AndroidPlatform.MULTIPLE_DEVICES_ERROR && this.devices.length > 1 && this.debugTarget) {
                     /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
@@ -74,7 +74,6 @@ export class AndroidPlatform implements IAppPlatform {
         return this.deviceHelper.reloadAppInDebugMode(runOptions.projectRoot, this.packageName, this.debugTarget);
     }
 
-    // Package name is only used when we have multiple devices, or we go into debugging mode, so we initialize it lazily
     private getPackageName(projectRoot: string): Q.Promise<string> {
         return new Package(projectRoot).name().then(appName =>
                 new PackageNameResolver(appName).resolvePackageName(projectRoot));
