@@ -25,12 +25,10 @@ var sources = [
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task('build', function () {
+gulp.task('build', ["check-imports", "check-copyright"], function () {
     var tsProject = ts.createProject('tsconfig.json');
     return tsProject.src()
         .pipe(sourcemaps.init())
-        .pipe(copyright())
-        .pipe(imports())
         .pipe(ts(tsProject))
         .pipe(sourcemaps.write('.', {
             includeContent: false,
@@ -77,13 +75,13 @@ function test() {
 gulp.task('build-test', ['build'], test);
 gulp.task('test', test);
 
-gulp.task('checkImports', function (cb) {
+gulp.task('check-imports', function (cb) {
     var tsProject = ts.createProject('tsconfig.json');
     return tsProject.src()
         .pipe(imports());
 });
 
-gulp.task('checkCopyright', function (cb) {
+gulp.task('check-copyright', function (cb) {
     var tsProject = ts.createProject('tsconfig.json');
     return tsProject.src()
         .pipe(copyright());

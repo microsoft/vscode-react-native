@@ -81,7 +81,7 @@ var checkImports = function() {
 
             importStatements.forEach(function(importStatement) {
                 var modulePath = re.exec(importStatement);
-                if (modulePath && modulePath.length === 2) {
+                if (modulePath && modulePath[1]) {
                     var moduleFilePath = path.resolve(workingDirectory, modulePath[1] + ".ts");
 
                     if (!existsCaseSensitive(moduleFilePath)) {
