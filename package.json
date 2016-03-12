@@ -1,155 +1,155 @@
 {
-  "name": "vscode-react-native",
-  "displayName": "React Native Tools",
-  "version": "0.1.1",
-  "private": true,
-  "publisher": "vsmobile",
-  "icon": "images/icon.svg",
-  "galleryBanner": {
-    "color": "#3B3738",
-    "theme": "dark"
-  },
-  "description": "Code-hinting, debugging and integrated commands for React Native",
-  "bugs": "https://github.com/Microsoft/vscode-react-native/issues",
-  "license": "SEE LICENSE IN LICENSE.txt",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Microsoft/vscode-react-native"
-  },
-  "engines": {
-    "vscode": "^0.10.1"
-  },
-  "categories": [
-    "Debuggers",
-    "Other"
-  ],
-  "activationEvents": [
-    "workspaceContains:package.json"
-  ],
-  "main": "./out/extension/rn-extension",
-  "contributes": {
-    "commands": [
-      {
-        "command": "reactNative.runAndroid",
-        "title": "React Native: Run Android"
-      },
-      {
-        "command": "reactNative.runIos",
-        "title": "React Native: Run iOS"
-      },
-      {
-        "command": "reactNative.startPackager",
-        "title": "React Native: Start Packager"
-      },
-      {
-        "command": "reactNative.stopPackager",
-        "title": "React Native: Stop Packager"
-      }
+    "name": "vscode-react-native",
+    "displayName": "React Native Tools",
+    "version": "0.1.1",
+    "private": true,
+    "publisher": "vsmobile",
+    "icon": "images/icon.svg",
+    "galleryBanner": {
+        "color": "#3B3738",
+        "theme": "dark"
+    },
+    "description": "Code-hinting, debugging and integrated commands for React Native",
+    "bugs": "https://github.com/Microsoft/vscode-react-native/issues",
+    "license": "SEE LICENSE IN LICENSE.txt",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Microsoft/vscode-react-native"
+    },
+    "engines": {
+        "vscode": "^0.10.1"
+    },
+    "categories": [
+        "Debuggers",
+        "Other"
     ],
-    "debuggers": [
-      {
-        "type": "reactnative",
-        "label": "React Native",
-        "program": "./out/debugger/nodeDebugWrapper.js",
-        "runtime": "node",
-        "enableBrekapointsFor": {
-          "languageIds": [
-            "javascript",
-            "typescript",
-            "javascriptreact",
-            "typescriptreact"
-          ]
-        },
-        "initialConfigurations": [
-          {
-            "name": "Debug Android",
-            "program": "${workspaceRoot}/.vscode/launchReactNative.js",
-            "type": "reactnative",
-            "request": "launch",
-            "platform": "android",
-            "internalDebuggerPort": 9090,
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/.vscode/.react"
-          },
-          {
-            "name": "Debug iOS",
-            "program": "${workspaceRoot}/.vscode/launchReactNative.js",
-            "type": "reactnative",
-            "request": "launch",
-            "platform": "ios",
-            "target": "iPhone 5s",
-            "internalDebuggerPort": 9090,
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/.vscode/.react"
-          }
-        ],
-        "configurationAttributes": {
-          "launch": {
-            "required": [
-              "platform",
-              "program"
-            ],
-            "properties": {
-              "platform": {
-                "type": "string",
-                "description": "The platform ('ios' or 'android') to target"
-              },
-              "program": {
-                "type": "string",
-                "description": "The path to launchReactNative.js in the vscode folder"
-              },
-              "target": {
-                "type": "string",
-                "description": "'simulator', 'device', or the name of the emulator to run on"
-              },
-              "internalDebuggerPort": {
-                "type": "number",
-                "description": "A port to be used to enable automatic reloading of breakpoints when sourcemaps change.",
-                "default": 9090
-              }
+    "activationEvents": [
+        "workspaceContains:package.json"
+    ],
+    "main": "./out/extension/rn-extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "reactNative.runAndroid",
+                "title": "React Native: Run Android"
+            },
+            {
+                "command": "reactNative.runIos",
+                "title": "React Native: Run iOS"
+            },
+            {
+                "command": "reactNative.startPackager",
+                "title": "React Native: Start Packager"
+            },
+            {
+                "command": "reactNative.stopPackager",
+                "title": "React Native: Stop Packager"
             }
-          }
-        }
-      }
-    ]
-  },
-  "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start",
-    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
-    "vscode:prepublish": "gulp",
-    "test": "node ./node_modules/vscode/bin/test"
-  },
-  "extensionDependencies": [
-    "andreweinand.node-debug"
-  ],
-  "dependencies": {
-    "applicationinsights": "0.15.8",
-    "extract-opts": "2.2.0",
-    "getmac": "1.0.7",
-    "options": "0.0.6",
-    "q": "1.4.1",
-    "semver": "5.1.0",
-    "typechecker": "2.0.8",
-    "ultron": "1.0.2",
-    "winreg": "0.0.16",
-    "ws": "1.0.1"
-  },
-  "devDependencies": {
-    "del": "2.2.0",
-    "gulp": "^3.9.0",
-    "gulp-mocha": "^2.2.0",
-    "gulp-sourcemaps": "^1.5.2",
-    "gulp-tslint": "^3.3.1",
-    "gulp-typescript": "^2.8.0",
-    "gulp-util": "^3.0.5",
-    "mocha-teamcity-reporter": "^1.0.0",
-    "run-sequence": "^1.1.5",
-    "should": "^8.2.2",
-    "sinon": "^1.17.3",
-    "through2": "^2.0.1",
-    "tslint": "^2.5.1",
-    "typescript": "^1.7.5",
-    "vsce": "1.0.0",
-    "vscode": "^0.10.7"
-  }
+        ],
+        "debuggers": [
+            {
+                "type": "reactnative",
+                "label": "React Native",
+                "program": "./out/debugger/nodeDebugWrapper.js",
+                "runtime": "node",
+                "enableBrekapointsFor": {
+                    "languageIds": [
+                        "javascript",
+                        "typescript",
+                        "javascriptreact",
+                        "typescriptreact"
+                    ]
+                },
+                "initialConfigurations": [
+                    {
+                        "name": "Debug Android",
+                        "program": "${workspaceRoot}/.vscode/launchReactNative.js",
+                        "type": "reactnative",
+                        "request": "launch",
+                        "platform": "android",
+                        "internalDebuggerPort": 9090,
+                        "sourceMaps": true,
+                        "outDir": "${workspaceRoot}/.vscode/.react"
+                    },
+                    {
+                        "name": "Debug iOS",
+                        "program": "${workspaceRoot}/.vscode/launchReactNative.js",
+                        "type": "reactnative",
+                        "request": "launch",
+                        "platform": "ios",
+                        "target": "iPhone 5s",
+                        "internalDebuggerPort": 9090,
+                        "sourceMaps": true,
+                        "outDir": "${workspaceRoot}/.vscode/.react"
+                    }
+                ],
+                "configurationAttributes": {
+                    "launch": {
+                        "required": [
+                            "platform",
+                            "program"
+                        ],
+                        "properties": {
+                            "platform": {
+                                "type": "string",
+                                "description": "The platform ('ios' or 'android') to target"
+                            },
+                            "program": {
+                                "type": "string",
+                                "description": "The path to launchReactNative.js in the vscode folder"
+                            },
+                            "target": {
+                                "type": "string",
+                                "description": "'simulator', 'device', or the name of the emulator to run on"
+                            },
+                            "internalDebuggerPort": {
+                                "type": "number",
+                                "description": "A port to be used to enable automatic reloading of breakpoints when sourcemaps change.",
+                                "default": 9090
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "scripts": {
+        "start": "node node_modules/react-native/local-cli/cli.js start",
+        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+        "vscode:prepublish": "gulp",
+        "test": "node ./node_modules/vscode/bin/test"
+    },
+    "extensionDependencies": [
+        "andreweinand.node-debug"
+    ],
+    "dependencies": {
+        "applicationinsights": "0.15.8",
+        "extract-opts": "2.2.0",
+        "getmac": "1.0.7",
+        "options": "0.0.6",
+        "q": "1.4.1",
+        "semver": "5.1.0",
+        "typechecker": "2.0.8",
+        "ultron": "1.0.2",
+        "winreg": "0.0.16",
+        "ws": "1.0.1"
+    },
+    "devDependencies": {
+        "del": "2.2.0",
+        "gulp": "^3.9.0",
+        "gulp-mocha": "^2.2.0",
+        "gulp-sourcemaps": "^1.5.2",
+        "gulp-tslint": "^3.3.1",
+        "gulp-typescript": "^2.8.0",
+        "gulp-util": "^3.0.5",
+        "mocha-teamcity-reporter": "^1.0.0",
+        "run-sequence": "^1.1.5",
+        "sinon": "^1.17.3",
+        "should": "^8.2.2",
+        "through2": "^2.0.1",
+        "tslint": "^2.5.1",
+        "typescript": "^1.7.5",
+        "vsce": "1.0.0",
+        "vscode": "^0.10.7"
+    }
 }
