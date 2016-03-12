@@ -19,13 +19,17 @@ var logError = function(pluginName, file, message) {
 };
 
 /**
- * Helper function to return a list of matches for a given pattern
+ * Helper function to return a list of all matches for a given pattern
  * @param {string|RegExp} pattern The pattern to match against
  * @param {string} text The text to search
  * @returns {string[]} An array of matches
  */
 var find = function(pattern, text) {
     var results = [];
+    if (pattern.hasOwnProperty("source")) {
+        pattern = new RegExp(pattern.source, "g");
+    }
+
     text.toString().replace(pattern, function(match) {
         results.push(match);
     });
@@ -37,7 +41,7 @@ var find = function(pattern, text) {
  * Plugin to verify the Microsoft copyright notice is present
  */
 var checkCopyright = function() {
-    var re = /\/\/ Copyright \(c\) Microsoft Corporation. All rights reserved.\s+\/\/ Licensed under the MIT license. See LICENSE file in the project root for details.\s+/
+    var re = /\/\/ Copyright \(c\) Microsoft Corporation. All rights reserved.\s+\/\/ Licensed under the MIT license. See LICENSE file in the project root for details.\s+/;
 
     return through.obj(function(file, encoding, callback) {
         if (file.isBuffer() && !file.path.endsWith(".d.ts")) {
@@ -71,7 +75,7 @@ var existsCaseSensitive = function(filePath) {
  * Plugin to verify if import statements use correct casing
  */
 var checkImports = function() {
-    var re = /(?:\s|^)(?:[^\n:]*).*from ["'](\.[^"']*)["'];/g;
+    var re = /(?:\s|^)(?:[^\n:]*).*from ["'](\.[^"']*)["'];/;
 
     return through.obj(function(file, encoding, callback) {
         if (file.isBuffer() && !file.path.endsWith(".d.ts")) {
