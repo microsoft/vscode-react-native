@@ -31,6 +31,10 @@ export class OutputChannelLogger implements ILogger {
         this.logMessage(errorMessage, /* formatMessage */ false);
     }
 
+    public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
+        this.outputChannel.append(data.toString());
+    }
+
     public setFocusOnLogChannel() {
         this.outputChannel.show();
     }
