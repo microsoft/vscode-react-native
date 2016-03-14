@@ -19,25 +19,6 @@ var logError = function(pluginName, file, message) {
 };
 
 /**
- * Helper function to return a list of all matches for a given pattern
- * @param {string|RegExp} pattern The pattern to match against
- * @param {string} text The text to search
- * @returns {string[]} An array of matches
- */
-var find = function(pattern, text) {
-    var results = [];
-    if (pattern.hasOwnProperty("source")) {
-        pattern = new RegExp(pattern.source, "g");
-    }
-
-    text.toString().replace(pattern, function(match) {
-        results.push(match);
-    });
-
-    return results;
-};
-
-/**
  * Plugin to verify the Microsoft copyright notice is present
  */
 var checkCopyright = function() {
@@ -80,7 +61,7 @@ var checkImports = function() {
     return through.obj(function(file, encoding, callback) {
         if (file.isBuffer() && !file.path.endsWith(".d.ts")) {
             var fileContents = file.contents.toString(encoding);
-            var importStatements = find(re, fileContents);
+            var importStatements = fileContents.match(new RegExp(re.source, "g")) || [];
             var workingDirectory = path.dirname(file.path);
 
             importStatements.forEach(function(importStatement) {
