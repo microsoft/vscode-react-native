@@ -118,11 +118,11 @@ export class CommandExecutor {
         let result = new Node.ChildProcess().spawn(spawnInfo, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), /*formatMessage*/ false);
+            Log.logStreamData(data, process.stderr);
         });
 
         result.stdout.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), /*formatMessage*/ false);
+           Log.logStreamData(data, process.stdout);
         });
 
         result.outcome = result.outcome.then(
@@ -136,11 +136,11 @@ export class CommandExecutor {
                 }
             },
             reason =>
-                this.generateRejectionForCommand(command, reason));
+                this.generateRejectionForCommand(commandWithArgs, reason));
         return result;
     }
 
     private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {
-        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, command, reason));
+        return Q.reject<void>(ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed, command));
     }
 }

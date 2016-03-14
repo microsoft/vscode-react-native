@@ -30,6 +30,114 @@ export class DeviceRunner {
             .then(() => { });
     }
 
+    // Attempt to start the app on the device, using the debug server proxy on a given port.
+    // Returns a socket speaking remote gdb protocol with the debug server proxy.
+    public startAppViaDebugger(portNumber: number, packagePath: string, appLaunchStepTimeout: number): Q.Promise<string> {
+        const encodedPath: string = this.encodePath(packagePath);
+
+        // We need to send 3 messages to the proxy, waiting for responses between each message:
+        // A(length of encoded path),0,(encoded path)
+        // Hc0
+        // c
+        // We expect a '+' for each message sent, followed by a $OK#9a to indicate that everything has worked.
+        // For more info, see http://www.opensource.apple.com/source/lldb/lldb-167.2/docs/lldb-gdb-remote.txt
+        const socket: net.Socket = new net.Socket();
+        let initState: number = 0;
+        let endStatus: number = null;
+        let endSignal: number = null;
+
+        const deferred1: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
+        const deferred2: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
+        const deferred3: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
+
+        socket.on("data", function(data: any): void {
+            data = data.toString();
+            while (data[0] === "+") { data = data.substring(1); }
+            // Acknowledge any packets sent our way
+            if (data[0] === "$") {
+                socket.write("+");
+                if (data[1] === "W") {
+                    // The app process has exited, with hex status given by data[2-3]
+                    let status: number = parseInt(data.substring(2, 4), 16);
+                    endStatus = status;
+                    socket.end();
+                } else if (data[1] === "X") {
+                    // The app rocess exited because of signal given by data[2-3]
+                    let signal: number = parseInt(data.substring(2, 4), 16);
+                    endSignal = signal;
+                    socket.end();
+                } else if (data.substring(1, 3) === "OK") {
+                    // last command was received OK;
+                    if (initState === 1) {
+                        deferred1.resolve(socket);
+                    } else if (initState === 2) {
+                        deferred2.resolve(socket);
+                    }
+                } else if (data[1] === "O") {
+                    // STDOUT was written to, and the rest of the input until reaching a "#" is a hex-encoded string of that output
+                    if (initState === 3) {
+                        deferred3.resolve(socket);
+                        initState++;
+                    }
+                } else if (data[1] === "E") {
+                    // An error has occurred, with error code given by data[2-3]: parseInt(data.substring(2, 4), 16)
+                    const error = new Error("Unable to launch application.");
+                    deferred1.reject(error);
+                    deferred2.reject(error);
+                    deferred3.reject(error);
+                }
+            }
+        });
+
+        socket.on("end", function(): void {
+            const error = new Error("Unable to launch application.");
+            deferred1.reject(error);
+            deferred2.reject(error);
+            deferred3.reject(error);
+        });
+
+        socket.on("error", function(err: Error): void {
+            deferred1.reject(err);
+            deferred2.reject(err);
+            deferred3.reject(err);
+        });
+
+        socket.connect(portNumber, "localhost", () => {
+            // set argument 0 to the (encoded) path of the app
+            const cmd: string = this.makeGdbCommand("A" + encodedPath.length + ",0," + encodedPath);
+            initState++;
+            socket.write(cmd);
+            setTimeout(function(): void {
+                deferred1.reject(new Error("Timeout launching application. Is the device locked?"));
+            }, appLaunchStepTimeout);
+        });
+
+        return deferred1.promise.then((sock: net.Socket): Q.Promise<net.Socket> => {
+            // Set the step and continue thread to any thread
+            const cmd: string = this.makeGdbCommand("Hc0");
+            initState++;
+            sock.write(cmd);
+            setTimeout(function(): void {
+                deferred2.reject(new Error("Timeout launching application. Is the device locked?"));
+            }, appLaunchStepTimeout);
+            return deferred2.promise;
+        }).then((sock: net.Socket): Q.Promise<net.Socket> => {
+            // Continue execution; actually start the app running.
+            const cmd: string = this.makeGdbCommand("c");
+            initState++;
+            sock.write(cmd);
+            setTimeout(function(): void {
+                deferred3.reject(new Error("Timeout launching application. Is the device locked?"));
+            }, appLaunchStepTimeout);
+            return deferred3.promise;
+        }).then(() => packagePath);
+    }
+
+    public encodePath(packagePath: string): string {
+        // Encode the path by converting each character value to hex
+        return packagePath.split("").map((c: string) => c.charCodeAt(0).toString(16)).join("").toUpperCase();
+    }
+
     private cleanup(): void {
         if (this.nativeDebuggerProxyInstance) {
             this.nativeDebuggerProxyInstance.kill("SIGHUP");
@@ -157,114 +265,6 @@ export class DeviceRunner {
                         throw new Error("Application not installed on the device");
                     });
             });
-    }
-
-    // Attempt to start the app on the device, using the debug server proxy on a given port.
-    // Returns a socket speaking remote gdb protocol with the debug server proxy.
-    private startAppViaDebugger(portNumber: number, packagePath: string, appLaunchStepTimeout: number): Q.Promise<string> {
-        const encodedPath: string = this.encodePath(packagePath);
-
-        // We need to send 3 messages to the proxy, waiting for responses between each message:
-        // A(length of encoded path),0,(encoded path)
-        // Hc0
-        // c
-        // We expect a '+' for each message sent, followed by a $OK#9a to indicate that everything has worked.
-        // For more info, see http://www.opensource.apple.com/source/lldb/lldb-167.2/docs/lldb-gdb-remote.txt
-        const socket: net.Socket = new net.Socket();
-        let initState: number = 0;
-        let endStatus: number = null;
-        let endSignal: number = null;
-
-        const deferred1: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
-        const deferred2: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
-        const deferred3: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
-
-        socket.on("data", function(data: any): void {
-            data = data.toString();
-            while (data[0] === "+") { data = data.substring(1); }
-            // Acknowledge any packets sent our way
-            if (data[0] === "$") {
-                socket.write("+");
-                if (data[1] === "W") {
-                    // The app process has exited, with hex status given by data[2-3]
-                    let status: number = parseInt(data.substring(2, 4), 16);
-                    endStatus = status;
-                    socket.end();
-                } else if (data[1] === "X") {
-                    // The app rocess exited because of signal given by data[2-3]
-                    let signal: number = parseInt(data.substring(2, 4), 16);
-                    endSignal = signal;
-                    socket.end();
-                } else if (data.substring(1, 3) === "OK") {
-                    // last command was received OK;
-                    if (initState === 1) {
-                        deferred1.resolve(socket);
-                    } else if (initState === 2) {
-                        deferred2.resolve(socket);
-                    }
-                } else if (data[1] === "O") {
-                    // STDOUT was written to, and the rest of the input until reaching a "#" is a hex-encoded string of that output
-                    if (initState === 3) {
-                        deferred3.resolve(socket);
-                        initState++;
-                    }
-                } else if (data[1] === "E") {
-                    // An error has occurred, with error code given by data[2-3]: parseInt(data.substring(2, 4), 16)
-                    const error = new Error("Unable to launch application.");
-                    deferred1.reject(error);
-                    deferred2.reject(error);
-                    deferred3.reject(error);
-                }
-            }
-        });
-
-        socket.on("end", function(): void {
-            const error = new Error("Unable to launch application.");
-            deferred1.reject(error);
-            deferred2.reject(error);
-            deferred3.reject(error);
-        });
-
-        socket.on("error", function(err: Error): void {
-            deferred1.reject(err);
-            deferred2.reject(err);
-            deferred3.reject(err);
-        });
-
-        socket.connect(portNumber, "localhost", () => {
-            // set argument 0 to the (encoded) path of the app
-            const cmd: string = this.makeGdbCommand("A" + encodedPath.length + ",0," + encodedPath);
-            initState++;
-            socket.write(cmd);
-            setTimeout(function(): void {
-                deferred1.reject(new Error("Timeout launching application. Is the device locked?"));
-            }, appLaunchStepTimeout);
-        });
-
-        return deferred1.promise.then((sock: net.Socket): Q.Promise<net.Socket> => {
-            // Set the step and continue thread to any thread
-            const cmd: string = this.makeGdbCommand("Hc0");
-            initState++;
-            sock.write(cmd);
-            setTimeout(function(): void {
-                deferred2.reject(new Error("Timeout launching application. Is the device locked?"));
-            }, appLaunchStepTimeout);
-            return deferred2.promise;
-        }).then((sock: net.Socket): Q.Promise<net.Socket> => {
-            // Continue execution; actually start the app running.
-            const cmd: string = this.makeGdbCommand("c");
-            initState++;
-            sock.write(cmd);
-            setTimeout(function(): void {
-                deferred3.reject(new Error("Timeout launching application. Is the device locked?"));
-            }, appLaunchStepTimeout);
-            return deferred3.promise;
-        }).then(() => packagePath);
-    }
-
-    private encodePath(packagePath: string): string {
-        // Encode the path by converting each character value to hex
-        return packagePath.split("").map((c: string) => c.charCodeAt(0).toString(16)).join("").toUpperCase();
     }
 
     private makeGdbCommand(command: string): string {

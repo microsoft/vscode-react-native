@@ -19,16 +19,20 @@ import {Package} from "../../common/node/package";
 export class AndroidPlatform implements IAppPlatform {
     private extensionMessageSender: ExtensionMessageSender;
 
+    private static MULTIPLE_DEVICES_ERROR = "error: more than one device/emulator";
+
     // We should add the common Android build/run erros we find to this list
     private static RUN_ANDROID_FAILURE_PATTERNS: PatternToFailure = {
         "Failed to install on any devices": "Could not install the app on any available device. Make sure you have a correctly"
          + " configured device or emulator running. See https://facebook.github.io/react-native/docs/android-setup.html",
     "com.android.ddmlib.ShellCommandUnresponsiveException": "An Android shell command timed-out. Please retry the operation.",
-    "Android project not found": "Android project not found." };
+    "Android project not found": "Android project not found.",
+    "error: more than one device/emulator": AndroidPlatform.MULTIPLE_DEVICES_ERROR };
 
     private static RUN_ANDROID_SUCCESS_PATTERNS: string[] = ["BUILD SUCCESSFUL", "Starting the app", "Starting: Intent"];
 
     private debugTarget: string;
+    private devices: IDevice[];
     private packageName: string;
     private deviceHelper: DeviceHelper;
 
@@ -38,7 +42,6 @@ export class AndroidPlatform implements IAppPlatform {
     }
 
     public runApp(runOptions: IRunOptions): Q.Promise<void> {
-        let pkg = new Package(runOptions.projectRoot);
         let cexec = new CommandExecutor(runOptions.projectRoot);
 
         const runAndroidSpawn = cexec.spawnChildReactCommandProcess("run-android");
@@ -49,23 +52,20 @@ export class AndroidPlatform implements IAppPlatform {
                 Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS)).process(runAndroidSpawn);
 
         return output
-            .then(() => pkg.name())
-            .then(appName => new PackageNameResolver(appName).resolvePackageName(runOptions.projectRoot))
-            .then(packageName => {
-                this.packageName = packageName;
-                return this.deviceHelper.getConnectedDevices()
-                    .then((devices: IDevice[]) => {
-                        if (devices.length > 1) {
-                            /* more than one device or emulator */
-                            this.debugTarget = this.getTargetEmulator(runOptions, devices);
-                            if (this.debugTarget) {
-                                /* Launching is needed only if we have more than one device active */
-                                return this.deviceHelper.launchApp(runOptions.projectRoot, packageName, this.debugTarget);
-                            }
-                        } else if (devices.length === 1) {
-                            this.debugTarget = devices[0].id;
-                        }
-                    });
+            .finally(() => {
+                return this.deviceHelper.getConnectedDevices().then(devices => {
+                    this.devices = devices;
+                    this.debugTarget = this.getTargetEmulator(runOptions, devices);
+                    return this.getPackageName(runOptions.projectRoot).then(packageName =>
+                        this.packageName = packageName);
+                });
+            }).catch(reason => {
+                if (reason.message === AndroidPlatform.MULTIPLE_DEVICES_ERROR && this.devices.length > 1 && this.debugTarget) {
+                    /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
+                    return this.deviceHelper.launchApp(runOptions.projectRoot, this.packageName, this.debugTarget);
+                } else {
+                    return Q.reject<void>(reason);
+                }
             }).then(() =>
                 this.startMonitoringLogCat(runOptions.logCatArguments).catch(error => // The LogCatMonitor failing won't stop the debugging experience
                     Log.logWarning("Couldn't start LogCat monitor", error)));
@@ -73,6 +73,11 @@ export class AndroidPlatform implements IAppPlatform {
 
     public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {
         return this.deviceHelper.reloadAppInDebugMode(runOptions.projectRoot, this.packageName, this.debugTarget);
+    }
+
+    private getPackageName(projectRoot: string): Q.Promise<string> {
+        return new Package(projectRoot).name().then(appName =>
+                new PackageNameResolver(appName).resolvePackageName(projectRoot));
     }
 
     /**

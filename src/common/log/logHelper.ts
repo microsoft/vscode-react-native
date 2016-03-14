@@ -29,7 +29,7 @@ export class LogHelper {
         let valName: string = process.env[LogHelper.LOG_LEVEL_NAME];
 
         if (typeof(valName) === "undefined") {
-            valName = "Info"; // Set the default LogLevel to LogLevel.Info
+            valName = "None"; // Set the default LogLevel to LogLevel.None
         }
 
         return (<any> LogLevel)[valName];
@@ -75,15 +75,14 @@ export class LogHelper {
         }
 
         switch (error.errorLevel) {
-            case InternalErrorLevel.Error: {
+            case InternalErrorLevel.Error:
                 // Encode the error code to a four-char code - ex, 0198
                 let errorCodeString = (LogHelper.ERROR_CODE_WIDTH + error.errorCode).slice(-LogHelper.ERROR_CODE_WIDTH.length);
                 return util.format(LogHelper.ERROR_TAG_FORMATSTRING, errorCodeString);
-            }
-
             case InternalErrorLevel.Warning:
+                return `${LogHelper.WARN_TAG}`;
             default:
-                 return `${LogHelper.WARN_TAG}`;
+                return `${LogHelper.WARN_TAG}`;
         }
     }
 }

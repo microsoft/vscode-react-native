@@ -233,7 +233,7 @@ export class IntellisenseHelper {
                 return data.version;
             })
             .catch((err: any) => {
-                Log.logError("Error while procesing package.json: " + err);
+                Log.logError("Error while processing package.json: " + err);
                 return "0.0.0";
             });
     }

@@ -63,6 +63,7 @@ export class ChildProcess {
 
     public spawn(info: ISpawnInfo, options: ISpawnOptions = {}): ISpawnResult {
         let outcome = Q.defer<void>();
+        let commandWithArgs = info.command + " " + info.args.join(" ");
 
         let spawnedProcess = child_process.spawn(info.command, info.args, options);
         spawnedProcess.once("error", (error: any) => {
@@ -74,7 +75,7 @@ export class ChildProcess {
                 if (code === 0) {
                     outcome.resolve(void 0);
                 } else {
-                    outcome.reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed));
+                    outcome.reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, commandWithArgs, code));
                 }
             });
         }
