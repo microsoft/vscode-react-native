@@ -84,11 +84,11 @@ export class CommandExecutor {
         });
 
         result.stderr.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), /*formatMessage*/false);
+            Log.logStreamData(data, process.stderr);
         });
 
         result.stdout.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), /*formatMessage*/false);
+            Log.logStreamData(data, process.stdout);
         });
 
         // TODO #83 - PROMISE: We need to consume result.outcome here
@@ -144,11 +144,11 @@ export class CommandExecutor {
         let result = new Node.ChildProcess().spawnWithExitHandler(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), /*formatMessage*/ false);
+            Log.logStreamData(data, process.stderr);
         });
 
         result.stdout.on("data", (data: Buffer) => {
-            Log.logMessage(data.toString(), /*formatMessage*/ false);
+           Log.logStreamData(data, process.stdout);
         });
 
         result.outcome = result.outcome.then(
