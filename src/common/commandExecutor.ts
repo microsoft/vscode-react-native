@@ -50,14 +50,23 @@ export class CommandExecutor {
      * {options} - additional options with which the child process needs to be spawned
      */
     public spawn(command: string, args: string[], options: Options = {}): Q.Promise<any> {
-        return this.spawnChildProcess(command, args, true, options);
+        return this.spawnChildProcess(command, args, true, options).outcome;
     }
 
     /**
      * Spawns the React Native packager in a child process.
      */
     public spawnReactPackager(args?: string[], options: Options = {}): Q.Promise<ChildProcess> {
-        return this.spawnChildProcess(command, args, false, options);
+        let command = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
+        let runArguments = ["start"];
+
+        if (args) {
+            runArguments = runArguments.concat(args);
+        }
+
+        let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
+        let result = this.spawnChildProcess(command, runArguments, false, spawnOptions);
+        return Q.resolve(result.spawnedProcess);
     }
 
     /**
@@ -86,11 +95,11 @@ export class CommandExecutor {
     /**
      * Executes a react native command and waits for its completion.
      */
-    public spawnReactCommand(command: string, args?: string[], waitForExit: boolean = true, options: Options = {}): Q.Promise<ISpawnResult | ChildProcess> {
+    public spawnReactCommand(command: string, args?: string[], waitForExit: boolean = true, options: Options = {}): ISpawnResult {
         return this.spawnChildReactCommandProcess(command, args, waitForExit, options);
     }
 
-    public spawnChildReactCommandProcess(command: string, args?: string[], waitForExit: boolean = true, options: Options = {}): Q.Promise<ISpawnResult | ChildProcess> {
+    public spawnChildReactCommandProcess(command: string, args?: string[], waitForExit: boolean = true, options: Options = {}): ISpawnResult {
         let runArguments = [command];
         if (args) {
             runArguments = runArguments.concat(args);
@@ -100,7 +109,7 @@ export class CommandExecutor {
         return this.spawnChildProcess(reactCommand, runArguments, waitForExit, options);
     }
 
-    private spawnChildProcess(command: string, args: string[], waitForExit: boolean = true, options: Options = {}): Q.Promise<ISpawnResult | ChildProcess> {
+    private spawnChildProcess(command: string, args: string[], waitForExit: boolean = true, options: Options = {}): ISpawnResult {
         let spawnInfo = { command: command, args: args, waitForExit: waitForExit };
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
@@ -121,11 +130,14 @@ export class CommandExecutor {
                 if (waitForExit) {
                     Log.logCommandStatus(commandWithArgs, CommandStatus.End);
                 } else {
-                    return Q.delay(300).done(() => Q.resolve(result.spawnedProcess));
+                    Q.delay(300).done(() => {
+                        return result;
+                    });
                 }
             },
             reason =>
                 this.generateRejectionForCommand(command, reason));
+        return result;
     }
 
     private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {
