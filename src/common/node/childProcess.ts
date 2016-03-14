@@ -37,10 +37,16 @@ interface ISpawnOptions {
 }
 
 export class ChildProcess {
+    private childProcess: typeof child_process;
+
+    constructor({childProcess = child_process} = {}) {
+        this.childProcess = childProcess;
+    }
+
     public exec(command: string, options: IExecOptions = {}): IExecResult {
         let outcome = Q.defer<Buffer>();
 
-        let execProcess = child_process.exec(command, options, (error: Error, stdout: Buffer, stderr: Buffer) => {
+        let execProcess = this.childProcess.exec(command, options, (error: Error, stdout: Buffer, stderr: Buffer) => {
             if (error) {
                 outcome.reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
             } else {
@@ -59,7 +65,7 @@ export class ChildProcess {
         let outcome = Q.defer<void>();
         let commandWithArgs = command + " " + args.join(" ");
 
-        let spawnedProcess = child_process.spawn(command, args, options);
+        let spawnedProcess = this.childProcess.spawn(command, args, options);
         spawnedProcess.once("error", (error: any) => {
             outcome.reject(error);
         });
@@ -82,7 +88,7 @@ export class ChildProcess {
     public spawn(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
         let outcome = Q.defer<void>();
         let commandWithArgs = command + " " + args.join(" ");
-        let spawnedProcess = child_process.spawn(command, args, options);
+        let spawnedProcess = this.childProcess.spawn(command, args, options);
         spawnedProcess.once("error", (error: any) => {
             outcome.reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, commandWithArgs));
         });

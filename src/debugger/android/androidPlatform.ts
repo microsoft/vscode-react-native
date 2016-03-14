@@ -4,14 +4,15 @@
 import * as Q from "q";
 
 import {IAppPlatform} from "../platformResolver";
-import {CommandExecutor} from "../../common/commandExecutor";
 import {ExtensionMessageSender, ExtensionMessage} from "../../common/extensionMessaging";
 import {IRunOptions} from "../../common/launchArgs";
 import {Log} from "../../common/log/log";
 import {PackageNameResolver} from "../../common/android/packageNameResolver";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
-import {DeviceHelper, IDevice} from "../../common/android/deviceHelper";
+import {IDeviceHelper, DeviceHelper, IDevice} from "../../common/android/deviceHelper";
 import {Package} from "../../common/node/package";
+import {FileSystem} from "../../common/node/fileSystem";
+import {IReactNative, ReactNative} from "../../common/reactNative";
 
 /**
  * Android specific platform implementation for debugging RN applications.
@@ -34,17 +35,22 @@ export class AndroidPlatform implements IAppPlatform {
     private debugTarget: string;
     private devices: IDevice[];
     private packageName: string;
-    private deviceHelper: DeviceHelper;
+    private deviceHelper: IDeviceHelper;
+    private reactNative: IReactNative;
+    private fileSystem: FileSystem;
 
-    constructor({ extensionMessageSender = new ExtensionMessageSender()} = {}) {
+    constructor({ extensionMessageSender = new ExtensionMessageSender(),
+        deviceHelper = <IDeviceHelper>new DeviceHelper(),
+        reactNative = <IReactNative>new ReactNative(),
+        fileSystem = new FileSystem()} = {}) {
         this.extensionMessageSender = extensionMessageSender;
-        this.deviceHelper = new DeviceHelper();
+        this.deviceHelper = deviceHelper;
+        this.reactNative = reactNative;
+        this.fileSystem = fileSystem;
     }
 
     public runApp(runOptions: IRunOptions): Q.Promise<void> {
-        let cexec = new CommandExecutor(runOptions.projectRoot);
-
-        const runAndroidSpawn = cexec.spawnChildReactCommandProcess("run-android");
+        const runAndroidSpawn = this.reactNative.runAndroid(runOptions.projectRoot);
         const output = new OutputVerifier(
             () =>
                 Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
@@ -76,7 +82,7 @@ export class AndroidPlatform implements IAppPlatform {
     }
 
     private getPackageName(projectRoot: string): Q.Promise<string> {
-        return new Package(projectRoot).name().then(appName =>
+        return new Package(projectRoot, { fileSystem: this.fileSystem }).name().then(appName =>
                 new PackageNameResolver(appName).resolvePackageName(projectRoot));
     }
 

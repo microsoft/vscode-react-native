@@ -1,28 +1,33 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as fs from "fs";
+import * as nodeFs from "fs";
 import * as path from "path";
 import * as Q from "q";
 
 export class FileSystem {
+    private fs: typeof nodeFs;
+
+    constructor({ fs = nodeFs } = {}) {
+        this.fs = fs;
+    }
 
     public ensureDirectory(dir: string): Q.Promise<void> {
-        return Q.nfcall(fs.stat, dir).then((stat: fs.Stats): void => {
+        return Q.nfcall(this.fs.stat, dir).then((stat: nodeFs.Stats): void => {
             if (stat.isDirectory()) {
                 return;
             }
             throw new Error(`Expected ${dir} to be a directory`);
         }, (err: Error & { code?: string }): Q.Promise<any> => {
             if (err && err.code === "ENOENT") {
-                return Q.nfcall(fs.mkdir, dir);
+                return Q.nfcall(this.fs.mkdir, dir);
             }
             throw err;
         });
     }
 
     public ensureFileWithContents(file: string, contents: string): Q.Promise<void> {
-        return Q.nfcall(fs.stat, file).then((stat: fs.Stats) => {
+        return Q.nfcall(this.fs.stat, file).then((stat: nodeFs.Stats) => {
             if (!stat.isFile()) {
                 throw new Error(`Expected ${file} to be a file`);
             }
@@ -34,7 +39,7 @@ export class FileSystem {
             });
         }, (err: Error & { code?: string }): Q.Promise<any> => {
             if (err && err.code === "ENOENT") {
-                return Q.nfcall(fs.writeFile, file, contents);
+                return Q.nfcall(this.fs.writeFile, file, contents);
             }
             throw err;
         });
@@ -45,7 +50,7 @@ export class FileSystem {
      */
     public existsSync(filename: string) {
         try {
-            fs.statSync(filename);
+            this.fs.statSync(filename);
             return true;
         } catch (error) {
             return false;
@@ -56,7 +61,7 @@ export class FileSystem {
      *  Helper (asynchronous) function to check if a file or directory exists
      */
     public exists(filename: string): Q.Promise<boolean> {
-        return Q.nfcall(fs.stat, filename)
+        return Q.nfcall(this.fs.stat, filename)
             .then(function() {
                 return Q.resolve(true);
             })
@@ -69,7 +74,7 @@ export class FileSystem {
      *  Helper async function to read the contents of a directory
      */
     public readDir(directory: string): Q.Promise<string[]> {
-        return Q.nfcall<string[]>(fs.readdir, directory);
+        return Q.nfcall<string[]>(this.fs.readdir, directory);
     }
 
     /**
@@ -81,7 +86,7 @@ export class FileSystem {
             this.makeDirectoryRecursiveSync(parentPath);
         }
 
-        fs.mkdirSync(dirPath);
+        this.fs.mkdirSync(dirPath);
     }
 
     /**
@@ -89,8 +94,8 @@ export class FileSystem {
      */
     public copyFile(from: string, to: string, encoding?: string): Q.Promise<void> {
         let deferred: Q.Deferred<void> = Q.defer<void>();
-        let destFile: fs.WriteStream = fs.createWriteStream(to, { encoding: encoding });
-        let srcFile: fs.ReadStream = fs.createReadStream(from, { encoding: encoding });
+        let destFile: nodeFs.WriteStream = this.fs.createWriteStream(to, { encoding: encoding });
+        let srcFile: nodeFs.ReadStream = this.fs.createReadStream(from, { encoding: encoding });
         destFile.on("finish", function(): void {
             deferred.resolve(void 0);
         });
@@ -109,24 +114,24 @@ export class FileSystem {
 
     public deleteFileIfExistsSync(filename: string) {
         if (this.existsSync(filename)) {
-            fs.unlinkSync(filename);
+            this.fs.unlinkSync(filename);
         }
     }
 
     public readFile(filename: string, encoding: string = "utf8"): Q.Promise<string> {
-        return Q.nfcall<string>(fs.readFile, filename, encoding);
+        return Q.nfcall<string>(this.fs.readFile, filename, encoding);
     }
 
     public writeFile(filename: string, data: any): Q.Promise<void> {
-        return Q.nfcall<void>(fs.writeFile, filename, data);
+        return Q.nfcall<void>(this.fs.writeFile, filename, data);
     }
 
     public unlink(filename: string): Q.Promise<void> {
-        return Q.nfcall<void>(fs.unlink, filename);
+        return Q.nfcall<void>(this.fs.unlink, filename);
     }
 
     public findFilesByExtension(folder: string, extension: string): Q.Promise<string[]> {
-        return Q.nfcall(fs.readdir, folder).then((files: string[]) => {
+        return Q.nfcall(this.fs.readdir, folder).then((files: string[]) => {
             const extFiles = files.filter((file: string) => path.extname(file) === `.${extension}`);
             if (extFiles.length === 0) {
                 throw new Error(`Unable to find any ${extension} files.`);
@@ -136,7 +141,25 @@ export class FileSystem {
     }
 
     public mkDir(p: string): Q.Promise<void> {
-        return Q.nfcall<void>(fs.mkdir, p);
+        return Q.nfcall<void>(this.fs.mkdir, p);
+    }
+
+    public stat(path: string): Q.Promise<nodeFs.Stats> {
+        return Q.nfcall<nodeFs.Stats>(this.fs.stat, path);
+    }
+
+    public directoryExists(directoryPath: string): Q.Promise<boolean> {
+        return this.stat(directoryPath).then(stats => {
+            return stats.isDirectory();
+        }).catch(reason => {
+            return reason.code === "ENOENT"
+                ? false
+                : Q.reject<boolean>(reason);
+        });
+    }
+
+    public rmdir(dirPath: string): Q.Promise<void> {
+        return Q.nfcall<void>(this.fs.rmdir, dirPath);
     }
 
     /**
@@ -147,15 +170,15 @@ export class FileSystem {
      * @returns {Q.Promise} A promise which is fulfilled when the copy completes, and is rejected on error
      */
     public copyRecursive(source: string, target: string): Q.Promise<void> {
-        return Q.nfcall<fs.Stats>(fs.stat, source).then(stats => {
+        return Q.nfcall<nodeFs.Stats>(this.fs.stat, source).then(stats => {
             if (stats.isDirectory()) {
                 return this.exists(target).then(exists => {
                     if (!exists) {
-                        return Q.nfcall<void>(fs.mkdir, target);
+                        return Q.nfcall<void>(this.fs.mkdir, target);
                     }
                 })
                     .then(() => {
-                        return Q.nfcall<string[]>(fs.readdir, source);
+                        return Q.nfcall<string[]>(this.fs.readdir, source);
                     })
                     .then(contents => {
                         Q.all(contents.map((childPath: string): Q.Promise<void> => {
@@ -171,18 +194,18 @@ export class FileSystem {
     public removePathRecursivelyAsync(p: string): Q.Promise<void> {
         return this.exists(p).then(exists => {
             if (exists) {
-                return Q.nfcall<fs.Stats>(fs.stat, p).then((stats: fs.Stats) => {
+                return Q.nfcall<nodeFs.Stats>(this.fs.stat, p).then((stats: nodeFs.Stats) => {
                     if (stats.isDirectory()) {
-                        return Q.nfcall<string[]>(fs.readdir, p).then((childPaths: string[]) => {
+                        return Q.nfcall<string[]>(this.fs.readdir, p).then((childPaths: string[]) => {
                             let result = Q<void>(void 0);
                             childPaths.forEach(childPath =>
                                 result = result.then<void>(() => this.removePathRecursivelyAsync(path.join(p, childPath))));
                             return result;
                         }).then(() =>
-                            Q.nfcall<void>(fs.rmdir, p));
+                            Q.nfcall<void>(this.fs.rmdir, p));
                     } else {
                         /* file */
-                        return Q.nfcall<void>(fs.unlink, p);
+                        return Q.nfcall<void>(this.fs.unlink, p);
                     }
                 });
             }
@@ -190,16 +213,16 @@ export class FileSystem {
     }
 
     public removePathRecursivelySync(p: string): void {
-        if (fs.existsSync(p)) {
-            let stats = fs.statSync(p);
+        if (this.fs.existsSync(p)) {
+            let stats = this.fs.statSync(p);
             if (stats.isDirectory()) {
-                let contents = fs.readdirSync(p);
+                let contents = this.fs.readdirSync(p);
                 contents.forEach(childPath =>
                     this.removePathRecursivelySync(path.join(p, childPath)));
-                fs.rmdirSync(p);
+                this.fs.rmdirSync(p);
             } else {
                 /* file */
-                fs.unlinkSync(p);
+                this.fs.unlinkSync(p);
             }
         }
     }
