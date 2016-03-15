@@ -5,6 +5,7 @@ import {SourceMapUtil} from "../../debugger/sourceMap";
 
 import * as assert from "assert";
 import * as path from "path";
+import * as url from "url";
 
 suite("sourceMap", function() {
     suite("debuggerContext", function() {
@@ -13,9 +14,66 @@ suite("sourceMap", function() {
             const filePath = path.join("foo", "bar", "baz");
             const urlPath = "foo/bar/baz";
             const result = (<any>sourceMap).makeUnixStylePath(filePath);
-            assert(result === urlPath, `Expected "${urlPath}", found "${result}`);
+            assert(result === urlPath, `Expected "${urlPath}", found "${result}"`);
         });
 
-        // TODO: This class definitely needs more tests
+        test("should resolve a valid sourcemap url", function () {
+            const scriptUrl: url.Url = url.parse("http://localhost:8081/index.ios.bundle?platform=ios&dev=true");
+            const scriptBody = "//# sourceMappingURL=/index.ios.map?platform=ios&dev=true";
+            const expectedUrlHref = "http://localhost:8081/index.ios.map?platform=ios&dev=true";
+
+            const sourceMap = new SourceMapUtil();
+            const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
+            assert.equal(expectedUrlHref, result.href);
+        });
+
+        test("should return null for an invalid sourcemap url", function () {
+            const scriptUrl: url.Url = url.parse("http://localhost:8081/index.ios.bundle?platform=ios&dev=true");
+            const scriptBody = "";
+
+            const sourceMap = new SourceMapUtil();
+            const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
+            assert(result === null);
+        });
+
+        test("should update the contents of a source map file", function() {
+            const sourceMapBody: string = JSON.stringify({"version": 3, "sources": ["test/index.ts"], "names": [], "mappings": "", "file": "test/index.js", "sourceRoot": "../../src"});
+            const scriptPath: string = "test/newIndex.ts";
+            const sourcesRootPath: string = "new/src";
+            const expectedSourceMapBody: string = JSON.stringify({"version": 3, "sources": [path.relative(sourcesRootPath, "test/index.ts")], "names": [], "mappings": "", "file": scriptPath, "sourceRoot": ""});
+            const sourceMap = new SourceMapUtil();
+
+            const result: string = sourceMap.updateSourceMapFile(sourceMapBody, scriptPath, sourcesRootPath);
+            assert.equal(expectedSourceMapBody, result);
+        });
+
+        test("should update scripts with source mapping urls", function() {
+            const scriptBody: string = "//# sourceMappingURL=/index.ios.map?platform=ios&dev=true";
+            const sourceMappingUrl: url.Url = url.parse("/index.android.map");
+            const expectedScriptBody = "//# sourceMappingURL=index.android.map";
+            const sourceMap = new SourceMapUtil();
+
+            const result = sourceMap.updateScriptPaths(scriptBody, sourceMappingUrl);
+            assert.equal(expectedScriptBody, result);
+        });
+
+        test("should not update scripts without source mapping urls", function() {
+            const scriptBody: string = "var path = require('path');";
+            const sourceMappingUrl: url.Url = url.parse("/index.android.map");
+            const sourceMap = new SourceMapUtil();
+
+            const result = sourceMap.updateScriptPaths(scriptBody, sourceMappingUrl);
+            assert.equal(scriptBody, result);
+        });
+
+        test("should update absolute source path to relative unix style path", function() {
+            const sourcePath: string = "foo/bar";
+            const sourcesRootPath: string = "baz/fuzz";
+            const expectedPath: string = "../../foo/bar";
+            const sourceMap = new SourceMapUtil();
+
+            const result = (<any>sourceMap).updateSourceMapPath(sourcePath, sourcesRootPath);
+            assert.equal(expectedPath, result);
+        });
     });
 });
