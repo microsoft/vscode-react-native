@@ -78,6 +78,8 @@ export class ChildProcess {
                     outcome.reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, commandWithArgs, code));
                 }
             });
+        } else {
+            Q.delay(300).done(() => outcome.resolve(void 0));
         }
 
         return {

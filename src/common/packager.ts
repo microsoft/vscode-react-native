@@ -50,10 +50,13 @@ export class Packager {
 
                             let spawnOptions = { env: childEnvForDebugging };
 
-                            // TODO #83 - PROMISE: We need to consume the result of this spawn
-                            new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions).then((packagerProcess) => {
-                                this.packagerProcess = packagerProcess;
-                                executedStartPackagerCmd = true;
+                            return new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions).then((packagerSpawnResult) => {
+                                return packagerSpawnResult.outcome.then(() => {
+                                    this.packagerProcess = packagerSpawnResult.spawnedProcess;
+                                    executedStartPackagerCmd = true;
+                                }).done(() => { }, reason => {
+                                    return Q.reject(reason);
+                                });
                             });
                         });
                 }

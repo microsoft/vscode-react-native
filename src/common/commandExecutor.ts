@@ -56,7 +56,7 @@ export class CommandExecutor {
     /**
      * Spawns the React Native packager in a child process.
      */
-    public spawnReactPackager(args?: string[], options: Options = {}): Q.Promise<ChildProcess> {
+    public spawnReactPackager(args?: string[], options: Options = {}): Q.Promise<ISpawnResult> {
         let command = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
         let runArguments = ["start"];
 
@@ -66,7 +66,7 @@ export class CommandExecutor {
 
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let result = this.spawnChildProcess(command, runArguments, false, spawnOptions);
-        return Q.resolve(result.spawnedProcess);
+        return Q.resolve(result);
     }
 
     /**
