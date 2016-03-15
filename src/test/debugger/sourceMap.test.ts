@@ -36,17 +36,44 @@ suite("sourceMap", function() {
             assert(result === null);
         });
 
-        test("updateSourceMapFile", function() {
-            const sourceMapBody: string = "";
-            const scriptPath: string = "";
-            const sourcesRootPath: string = "";
+        test("should update the contents of a source map file", function() {
+            const sourceMapBody: string = JSON.stringify({"version": 3, "sources": ["test/index.ts"], "names": [], "mappings": "", "file": "test/index.js", "sourceRoot": "../../src"});
+            const scriptPath: string = "test/newIndex.ts";
+            const sourcesRootPath: string = "new/src";
+            const expectedSourceMapBody: string = JSON.stringify({"version": 3, "sources": [path.relative(sourcesRootPath, "test/index.ts")], "names": [], "mappings": "", "file": scriptPath, "sourceRoot": ""});
             const sourceMap = new SourceMapUtil();
 
             const result: string = sourceMap.updateSourceMapFile(sourceMapBody, scriptPath, sourcesRootPath);
+            assert.equal(expectedSourceMapBody, result);
         });
 
-        /*test("", function() {
+        test("should update scripts with source mapping urls", function() {
+            const scriptBody: string = "//# sourceMappingURL=/index.ios.map?platform=ios&dev=true";
+            const sourceMappingUrl: url.Url = url.parse("/index.android.map");
+            const expectedScriptBody = "//# sourceMappingURL=index.android.map";
+            const sourceMap = new SourceMapUtil();
 
-        });*/
+            const result = sourceMap.updateScriptPaths(scriptBody, sourceMappingUrl);
+            assert.equal(expectedScriptBody, result);
+        });
+
+        test("should not update scripts without source mapping urls", function() {
+            const scriptBody: string = "var path = require('path');";
+            const sourceMappingUrl: url.Url = url.parse("/index.android.map");
+            const sourceMap = new SourceMapUtil();
+
+            const result = sourceMap.updateScriptPaths(scriptBody, sourceMappingUrl);
+            assert.equal(scriptBody, result);
+        });
+
+        test("should update absolute source path to relative unix style path", function() {
+            const sourcePath: string = "foo/bar";
+            const sourcesRootPath: string = "baz/fuzz";
+            const expectedPath: string = "../../foo/bar";
+            const sourceMap = new SourceMapUtil();
+
+            const result = (<any>sourceMap).updateSourceMapPath(sourcePath, sourcesRootPath);
+            assert.equal(expectedPath, result);
+        });
     });
 });
