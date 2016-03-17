@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {HostPlatform} from "../../common/hostPlatform";
-import {Log} from "../../common/log/log";
 
 import {
     ExtensionMessage,
@@ -23,7 +22,7 @@ suite("extensionMessaging", function() {
         });
 
         test("should successfully send a message", function(done: MochaDone) {
-            let port: number = 8081;
+            let port: string = HostPlatform.getExtensionPipePath();
             let mockServer: net.Server = net.createServer(function(client: net.Socket): void {
                 mockServer.close();
                 client.on("data", function(data: Buffer) {
@@ -36,9 +35,7 @@ suite("extensionMessaging", function() {
 
             mockServer.on("error", done);
 
-            mockServer.listen(port, function(): void {
-                Log.logMessage("Mock server listening on port: " + port);
-            });
+            mockServer.listen(port);
 
             sinon.stub(HostPlatform, "getExtensionPipePath", function() {
                 return port;
@@ -53,7 +50,7 @@ suite("extensionMessaging", function() {
         });
 
         test("should successfully send a message with args", function(done: MochaDone) {
-            let port: number = 8081;
+            let port: string = HostPlatform.getExtensionPipePath();
             let args = ["android"];
             let mockServer: net.Server = net.createServer(function(client: net.Socket): void {
                 mockServer.close();
@@ -68,9 +65,7 @@ suite("extensionMessaging", function() {
 
             mockServer.on("error", done);
 
-            mockServer.listen(port, function(): void {
-                Log.logMessage("Mock server listening on port: " + port);
-            });
+            mockServer.listen(port);
 
             sinon.stub(HostPlatform, "getExtensionPipePath", function() {
                 return port;
@@ -85,26 +80,6 @@ suite("extensionMessaging", function() {
         });
 
         test("should reject on socket error", function(done: MochaDone) {
-            let port: number = 8081;
-            let mockServer: net.Server = net.createServer(function(client: net.Socket): void {
-                mockServer.close();
-                client.on("data", function(data: Buffer) {
-                    // client.emit("error");
-                    // client.end();
-                    throw "Blah";
-                });
-            });
-
-            mockServer.on("error", done);
-
-            mockServer.listen(port, function(): void {
-                Log.logMessage("Mock server listening on port: " + port);
-            });
-
-            sinon.stub(HostPlatform, "getExtensionPipePath", function() {
-                return port;
-            });
-
             const sender = new ExtensionMessageSender();
 
             Q({})
