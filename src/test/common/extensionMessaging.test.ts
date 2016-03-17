@@ -90,7 +90,7 @@ suite("extensionMessaging", function() {
                     return sender.sendMessage(ExtensionMessage.PREWARM_BUNDLE_CACHE);
                 })
                 .then(function() {
-                    assert.fail("sendMessage should reject on socket error");
+                    assert(false, "sendMessage should reject on socket error");
                 },
                 function(reason: any) {
                     let expectedErrorMessage = "An error ocurred while handling message: PREWARM_BUNDLE_CACHE";
