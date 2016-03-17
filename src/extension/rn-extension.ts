@@ -75,7 +75,7 @@ function configureNodeDebuggerLocation(): Q.Promise<void> {
     const nodeDebugExtension = vscode.extensions.getExtension("ms-vscode.node-debug") // We try to get the new version
         || vscode.extensions.getExtension("andreweinand.node-debug"); // If it's not available, we try to get the old version
     if (!nodeDebugExtension) {
-        return Q.reject<void>(new Error("Couldn't find the location of the node-debugger extension."));
+        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindLocationOfNodeDebugger));
     }
     const nodeDebugPath = nodeDebugExtension.extensionPath;
     return fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath }));
