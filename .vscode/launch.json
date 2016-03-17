@@ -18,9 +18,13 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/out/debugger/nodeDebugWrapper.js",
-            "runtimeArgs": ["--harmony"],
+            "runtimeArgs": [
+                "--harmony"
+            ],
             "stopOnEntry": false,
-            "args": [ "--server=4712" ], // Use "debugServer": "4712" on launch.json of the instance to debug
+            "args": [
+                "--server=4712"
+            ], // Use "debugServer": "4712" on launch.json of the instance to debug
             "sourceMaps": true,
             "outDir": "${workspaceRoot}/out",
             "preLaunchTask": "build"
@@ -94,6 +98,25 @@
             "sourceMaps": true,
             "outDir": "${workspaceRoot}/out",
             "preLaunchTask": "build"
-        }
+        },
+        {
+            "name": "Run mocha",
+            "type": "node",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "stopOnEntry": false,
+            // Command line arguments passed to the program.
+            "args": [
+                "--ui", "tdd",
+                // "--grep", "androidPlatform"
+                "out/test/debugger/**/*.test.js"
+            ],
+            "cwd": "${workspaceRoot}",
+            "runtimeExecutable": null,
+            "env": {
+                "NODE_ENV": "development"
+            },
+             "sourceMaps": true,
+            "outDir": "${workspaceRoot}/out"
+       }
     ]
 }

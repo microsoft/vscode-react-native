@@ -28,8 +28,12 @@ export class ErrorHelper {
         return new NestedError(-1, message, innerError, null /* extras */, InternalErrorLevel.Warning);
     }
 
+    public static loadErrorStrings(): any {
+        return require(ErrorHelper.errorStringsJsonLoc);
+    }
+
     private static getErrorMessage(errorCode: InternalErrorCode, ...optionalArgs: any[]): string {
-        let errorStrings = require (ErrorHelper.errorStringsJsonLoc);
+        let errorStrings = ErrorHelper.loadErrorStrings();
         return ErrorHelper.formatErrorMessage(errorStrings[InternalErrorCode[errorCode]], ...optionalArgs);
     }
 
