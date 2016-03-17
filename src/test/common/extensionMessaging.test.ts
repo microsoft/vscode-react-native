@@ -10,7 +10,6 @@ import {
 
 import * as assert from "assert";
 import * as net from "net";
-import * as sinon from "sinon";
 import * as Q from "q";
 
 suite("extensionMessaging", function() {
@@ -34,12 +33,7 @@ suite("extensionMessaging", function() {
             });
 
             mockServer.on("error", done);
-
             mockServer.listen(port);
-
-            sinon.stub(HostPlatform, "getExtensionPipePath", function() {
-                return port;
-            });
 
             const sender = new ExtensionMessageSender();
 
@@ -64,12 +58,7 @@ suite("extensionMessaging", function() {
             });
 
             mockServer.on("error", done);
-
             mockServer.listen(port);
-
-            sinon.stub(HostPlatform, "getExtensionPipePath", function() {
-                return port;
-            });
 
             const sender = new ExtensionMessageSender();
 
@@ -88,8 +77,8 @@ suite("extensionMessaging", function() {
                 })
                 .then(function() {
                     assert.fail("sendMessage should reject on socket error");
-                })
-                .catch(function(reason: any) {
+                },
+                function(reason: any) {
                     let expectedErrorMessage = "An error ocurred while handling message: PREWARM_BUNDLE_CACHE";
                     assert.equal(reason.message, expectedErrorMessage);
                 })
