@@ -82,8 +82,13 @@ gulp.task('check-imports', function (cb) {
 });
 
 gulp.task('check-copyright', function (cb) {
-    var tsProject = ts.createProject('tsconfig.json');
-    return tsProject.src()
+    return gulp.src([
+            "**/*.ts",
+            "**/*.js",
+            "!**/*.d.ts",
+            "!node_modules/**/*.*",
+            "!SampleApplication/**/*.js"
+        ])
         .pipe(copyright());
 });
 

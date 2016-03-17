@@ -28,7 +28,7 @@ var checkCopyright = function() {
     var re = /\/\/ Copyright \(c\) Microsoft Corporation. All rights reserved.\s+\/\/ Licensed under the MIT license. See LICENSE file in the project root for details.\s+/;
 
     return through.obj(function(file, encoding, callback) {
-        if (file.isBuffer() && !file.path.endsWith(".d.ts")) {
+        if (file.isBuffer()) {
             var fileContents = file.contents.toString(encoding);
             var matches = re.exec(fileContents);
 
@@ -71,7 +71,7 @@ var checkImports = function() {
     var re = /(?:\s|^)(?:[^\n:]*).*from ["'](\.[^"']*)["'];/;
 
     return through.obj(function(file, encoding, callback) {
-        if (file.isBuffer() && !file.path.endsWith(".d.ts")) {
+        if (file.isBuffer()) {
             var fileContents = file.contents.toString(encoding);
             var importStatements = fileContents.match(new RegExp(re.source, "g")) || [];
             var workingDirectory = path.dirname(file.path);
