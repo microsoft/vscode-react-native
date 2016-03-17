@@ -119,9 +119,6 @@
         "vscode:prepublish": "gulp",
         "test": "node ./node_modules/vscode/bin/test"
     },
-    "extensionDependencies": [
-        "andreweinand.node-debug"
-    ],
     "dependencies": {
         "applicationinsights": "0.15.8",
         "extract-opts": "2.2.0",
