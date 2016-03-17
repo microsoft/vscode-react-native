@@ -40,7 +40,7 @@ suite("sourceMap", function() {
             const sourceMapBody: string = JSON.stringify({"version": 3, "sources": ["test/index.ts"], "names": [], "mappings": "", "file": "test/index.js", "sourceRoot": "../../src"});
             const scriptPath: string = "test/newIndex.ts";
             const sourcesRootPath: string = "new/src";
-            const expectedSourceMapBody: string = JSON.stringify({"version": 3, "sources": [path.relative(sourcesRootPath, "test/index.ts")], "names": [], "mappings": "", "file": scriptPath, "sourceRoot": ""});
+            const expectedSourceMapBody: string = JSON.stringify({"version": 3, "sources": ["../../test/index.ts"], "names": [], "mappings": "", "file": scriptPath, "sourceRoot": ""});
             const sourceMap = new SourceMapUtil();
 
             const result: string = sourceMap.updateSourceMapFile(sourceMapBody, scriptPath, sourcesRootPath);
