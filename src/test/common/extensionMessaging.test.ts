@@ -24,13 +24,15 @@ suite("extensionMessaging", function() {
 
         test("should successfully send a message", function(done: MochaDone) {
             const port: string = HostPlatform.getExtensionPipePath();
+            let receivedMessage: ExtensionMessage;
+
             mockServer = net.createServer(function(client: net.Socket): void {
                 mockServer.close();
                 client.on("data", function(data: Buffer) {
                     const messageData: any = JSON.parse(data.toString("utf8"));
                     client.end();
 
-                    assert.equal(messageData.message, ExtensionMessage.START_PACKAGER);
+                    receivedMessage = messageData.message;
                 });
             });
 
@@ -42,20 +44,26 @@ suite("extensionMessaging", function() {
             Q({})
                 .then(function() {
                     return sender.sendMessage(ExtensionMessage.START_PACKAGER);
+                })
+                .then(function() {
+                    assert.equal(receivedMessage, ExtensionMessage.START_PACKAGER);
                 }).done(() => done(), done);
         });
 
         test("should successfully send a message with args", function(done: MochaDone) {
             const port: string = HostPlatform.getExtensionPipePath();
             const args = ["android"];
+            let receivedMessage: ExtensionMessage;
+            let receivedArgs: any;
+
             mockServer = net.createServer(function(client: net.Socket): void {
                 mockServer.close();
                 client.on("data", function(data: Buffer) {
                     const messageData: any = JSON.parse(data.toString("utf8"));
                     client.end();
 
-                    assert.equal(messageData.message, ExtensionMessage.PREWARM_BUNDLE_CACHE);
-                    assert.deepEqual(messageData.args, args);
+                    receivedMessage = messageData.message;
+                    receivedArgs = messageData.args;
                 });
             });
 
@@ -67,6 +75,10 @@ suite("extensionMessaging", function() {
             Q({})
                 .then(function() {
                     return sender.sendMessage(ExtensionMessage.PREWARM_BUNDLE_CACHE, args);
+                })
+                .then(function() {
+                    assert.equal(receivedMessage, ExtensionMessage.PREWARM_BUNDLE_CACHE);
+                    assert.deepEqual(receivedArgs, args);
                 }).done(() => done(), done);
         });
 
