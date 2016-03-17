@@ -12,20 +12,22 @@ import * as assert from "assert";
 import * as net from "net";
 import * as Q from "q";
 
+let mockServer: net.Server;
+
 suite("extensionMessaging", function() {
     suite("commonContext", function() {
         teardown(function() {
-            if (HostPlatform.getExtensionPipePath.hasOwnProperty("restore")) {
-                (<any>HostPlatform.getExtensionPipePath).restore();
+            if (mockServer) {
+                mockServer.close();
             }
         });
 
         test("should successfully send a message", function(done: MochaDone) {
-            let port: string = HostPlatform.getExtensionPipePath();
-            let mockServer: net.Server = net.createServer(function(client: net.Socket): void {
+            const port: string = HostPlatform.getExtensionPipePath();
+            mockServer = net.createServer(function(client: net.Socket): void {
                 mockServer.close();
                 client.on("data", function(data: Buffer) {
-                    let messageData: any = JSON.parse(data.toString("utf8"));
+                    const messageData: any = JSON.parse(data.toString("utf8"));
                     client.end();
 
                     assert.equal(messageData.message, ExtensionMessage.START_PACKAGER);
@@ -44,12 +46,12 @@ suite("extensionMessaging", function() {
         });
 
         test("should successfully send a message with args", function(done: MochaDone) {
-            let port: string = HostPlatform.getExtensionPipePath();
-            let args = ["android"];
-            let mockServer: net.Server = net.createServer(function(client: net.Socket): void {
+            const port: string = HostPlatform.getExtensionPipePath();
+            const args = ["android"];
+            mockServer = net.createServer(function(client: net.Socket): void {
                 mockServer.close();
                 client.on("data", function(data: Buffer) {
-                    let messageData: any = JSON.parse(data.toString("utf8"));
+                    const messageData: any = JSON.parse(data.toString("utf8"));
                     client.end();
 
                     assert.equal(messageData.message, ExtensionMessage.PREWARM_BUNDLE_CACHE);
