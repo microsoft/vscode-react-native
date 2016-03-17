@@ -5,6 +5,7 @@
 var fs = require("fs");
 var gutil = require("gulp-util");
 var path = require("path");
+var PluginError = gutil.PluginError;
 var through = require("through2");
 
 /**
@@ -22,6 +23,8 @@ var logError = function(pluginName, file, message) {
  * Plugin to verify the Microsoft copyright notice is present
  */
 var checkCopyright = function() {
+    var pluginName = "check-copyright";
+    var hadErrors = false;
     var re = /\/\/ Copyright \(c\) Microsoft Corporation. All rights reserved.\s+\/\/ Licensed under the MIT license. See LICENSE file in the project root for details.\s+/;
 
     return through.obj(function(file, encoding, callback) {
@@ -30,11 +33,18 @@ var checkCopyright = function() {
             var matches = re.exec(fileContents);
 
             if (!matches) {
-                logError("check-copyright", file, "missing copyright notice");
+                logError(pluginName, file, "missing copyright notice");
+                hadErrors = true;
             }
         }
 
         callback(null, file);
+    },
+    function(callback) {
+        if (hadErrors) {
+            return this.emit("error", new PluginError(pluginName, "Failed copyright check"));
+        }
+        callback();
     });
 };
 
@@ -56,6 +66,8 @@ var existsCaseSensitive = function(filePath) {
  * Plugin to verify if import statements use correct casing
  */
 var checkImports = function() {
+    var pluginName = "check-imports";
+    var hadErrors = false;
     var re = /(?:\s|^)(?:[^\n:]*).*from ["'](\.[^"']*)["'];/;
 
     return through.obj(function(file, encoding, callback) {
@@ -70,13 +82,20 @@ var checkImports = function() {
                     var moduleFilePath = path.resolve(workingDirectory, modulePath[1] + ".ts");
 
                     if (!existsCaseSensitive(moduleFilePath)) {
-                        logError("check-imports", file, `unresolved import: "${modulePath[1]}"`);
+                        logError(pluginName, file, `unresolved import: "${modulePath[1]}"`);
+                        hadErrors = true;
                     }
                 }
             });
         }
 
         callback(null, file);
+    },
+    function(callback) {
+        if (hadErrors) {
+            return this.emit("error", new PluginError(pluginName, "Failed import casing check"));
+        }
+        callback();
     });
 };
 
