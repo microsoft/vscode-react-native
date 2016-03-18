@@ -114,7 +114,7 @@ var executeCommand = function(command, args, callback) {
 
     process.on("error", function(error) {
         if (!errorSignaled) {
-            callback("An error ocurred.");
+            callback("An error ocurred. " + error);
             errorSignaled = true;
         }
     });

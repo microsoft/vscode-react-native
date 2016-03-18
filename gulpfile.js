@@ -4,7 +4,7 @@
 var gulp = require('gulp');
 var log = require('gulp-util').log;
 var sourcemaps = require('gulp-sourcemaps');
-var os = require('os');
+var process = require("process");
 var path = require('path');
 var runSequence = require("run-sequence");
 var ts = require('gulp-typescript');
@@ -108,7 +108,7 @@ gulp.task("clean", function () {
 });
 
 gulp.task("package", function (callback) {
-    var command = path.join(__dirname, "node_modules", ".bin", "vsce");
+    var command = path.join(__dirname, "node_modules", ".bin", "vsce" + (process.platform === "win32" ? ".cmd" : ""));
     var args = ["package"];
     executeCommand(command, args, callback);
 });
