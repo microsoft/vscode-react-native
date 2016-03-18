@@ -82,7 +82,7 @@ var checkImports = function() {
                     var moduleFilePath = path.resolve(workingDirectory, modulePath[1] + ".ts");
 
                     if (!existsCaseSensitive(moduleFilePath)) {
-                        logError(pluginName, file, `unresolved import: "${modulePath[1]}"`);
+                        logError(pluginName, file, "unresolved import: \"" + modulePath[1] + "\"");
                         hadErrors = true;
                     }
                 }
