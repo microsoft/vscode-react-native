@@ -40,6 +40,6 @@ export class NestedError extends InternalError {
     }
 
     public static getWrappedError(error: InternalError, innerError: any): NestedError {
-        return new NestedError(error.errorCode, error.message, innerError);
+        return new NestedError(innerError.errorCode || error.errorCode, error.message, innerError);
     }
 }

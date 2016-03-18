@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {FileSystem} from "../common/node/fileSystem";
+import * as Q from "q";
 import * as path from "path";
 import * as vscode from "vscode";
+
+import {FileSystem} from "../common/node/fileSystem";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {Packager} from "../common/packager";
 import {EntryPointHandler} from "../common/entryPointHandler";
@@ -70,7 +72,12 @@ export function deactivate(): void {
 }
 
 function configureNodeDebuggerLocation(): Q.Promise<void> {
-    const nodeDebugPath = vscode.extensions.getExtension("andreweinand.node-debug").extensionPath;
+    const nodeDebugExtension = vscode.extensions.getExtension("ms-vscode.node-debug") // We try to get the new version
+        || vscode.extensions.getExtension("andreweinand.node-debug"); // If it's not available, we try to get the old version
+    if (!nodeDebugExtension) {
+        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindLocationOfNodeDebugger));
+    }
+    const nodeDebugPath = nodeDebugExtension.extensionPath;
     return fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath }));
 }
 
