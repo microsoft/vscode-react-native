@@ -16,7 +16,7 @@ var through = require("through2");
  */
 var logError = function(pluginName, file, message) {
     var sourcePath = path.relative(__dirname, file.path).replace("../","");
-    gutil.log(`[${gutil.colors.cyan(pluginName)}] ${gutil.colors.red("error")} ${sourcePath}: ${message}`);
+    gutil.log("[" + gutil.colors.cyan(pluginName) + "] " + gutil.colors.red("error") + " " + sourcePath + ": " + message);
 };
 
 /**
@@ -82,7 +82,7 @@ var checkImports = function() {
                     var moduleFilePath = path.resolve(workingDirectory, modulePath[1] + ".ts");
 
                     if (!existsCaseSensitive(moduleFilePath)) {
-                        logError(pluginName, file, `unresolved import: "${modulePath[1]}"`);
+                        logError(pluginName, file, "unresolved import: \"" + modulePath[1] + "\"");
                         hadErrors = true;
                     }
                 }
