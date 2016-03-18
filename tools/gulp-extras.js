@@ -102,17 +102,30 @@ var checkImports = function() {
 
 var executeCommand = function(command, args, callback) {
     var process = child_process.spawn(command, args);
+    var errorSignaled = false;
 
-    process.stdout.on('data', function(data) {
+    process.stdout.on("data", function(data) {
         console.log("" + data);
     });
 
-    process.stderr.on('data', function(data) {
+    process.stderr.on("data", function(data) {
         console.error("" + data);
     });
 
-    process.on('exit', function(code) {
-        callback(code === 0 ? undefined : "Error code: " + code);
+    process.on("error", function(error) {
+        if (!errorSignaled) {
+            callback("An error ocurred.");
+            errorSignaled = true;
+        }
+    });
+
+    process.on("exit", function(code) {
+        if (code === 0) {
+            callback();
+        } else if (!errorSignaled) {
+            callback("Error code: " + code);
+            errorSignaled = true;
+        }
     });
 };
 
