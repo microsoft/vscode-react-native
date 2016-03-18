@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 "use strict";
 
+var child_process = require("child_process");
 var fs = require("fs");
 var gutil = require("gulp-util");
 var path = require("path");
@@ -99,7 +100,37 @@ var checkImports = function() {
     });
 };
 
+var executeCommand = function(command, args, callback) {
+    var process = child_process.spawn(command, args);
+    var errorSignaled = false;
+
+    process.stdout.on("data", function(data) {
+        console.log("" + data);
+    });
+
+    process.stderr.on("data", function(data) {
+        console.error("" + data);
+    });
+
+    process.on("error", function(error) {
+        if (!errorSignaled) {
+            callback("An error ocurred. " + error);
+            errorSignaled = true;
+        }
+    });
+
+    process.on("exit", function(code) {
+        if (code === 0) {
+            callback();
+        } else if (!errorSignaled) {
+            callback("Error code: " + code);
+            errorSignaled = true;
+        }
+    });
+};
+
 module.exports = {
     checkCopyright: checkCopyright,
-    checkImports: checkImports
+    checkImports: checkImports,
+    executeCommand: executeCommand
 }

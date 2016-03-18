@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-var child_process = require('child_process');
 var gulp = require('gulp');
 var log = require('gulp-util').log;
 var sourcemaps = require('gulp-sourcemaps');
-var os = require('os');
 var path = require('path');
 var runSequence = require("run-sequence");
 var ts = require('gulp-typescript');
@@ -13,6 +11,7 @@ var mocha = require('gulp-mocha');
 var GulpExtras = require("./tools/gulp-extras");
 var copyright = GulpExtras.checkCopyright;
 var imports = GulpExtras.checkImports;
+var executeCommand = GulpExtras.executeCommand;
 
 var srcPath = 'src';
 var outPath = 'out';
@@ -105,4 +104,10 @@ gulp.task("clean", function () {
         return folder + "/**";
     });
     return del(pathsToDelete, { force: true });
+});
+
+gulp.task("package", function (callback) {
+    var command = path.join(__dirname, "node_modules", ".bin", "vsce" + (process.platform === "win32" ? ".cmd" : ""));
+    var args = ["package"];
+    executeCommand(command, args, callback);
 });
