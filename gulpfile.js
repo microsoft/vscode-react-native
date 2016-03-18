@@ -10,6 +10,9 @@ var path = require('path');
 var runSequence = require("run-sequence");
 var ts = require('gulp-typescript');
 var mocha = require('gulp-mocha');
+var GulpExtras = require("./tools/gulp-extras");
+var copyright = GulpExtras.checkCopyright;
+var imports = GulpExtras.checkImports;
 
 var srcPath = 'src';
 var outPath = 'out';
@@ -22,7 +25,7 @@ var sources = [
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task('build', ['checkImports', 'checkCopyright'], function () {
+gulp.task('build', ["check-imports", "check-copyright"], function () {
     var tsProject = ts.createProject('tsconfig.json');
     return tsProject.src()
         .pipe(sourcemaps.init())
@@ -72,28 +75,21 @@ function test() {
 gulp.task('build-test', ['build'], test);
 gulp.task('test', test);
 
-function runCustomVerification(pathInTools, errorMessage, cb) {
-    var checkProcess = child_process.fork(path.join(__dirname, "tools", pathInTools),
-        {
-            cwd: path.resolve(__dirname, "src"),
-            stdio: "inherit"
-        });
-    checkProcess.on("error", cb);
-    checkProcess.on("exit", function (code, signal) {
-        if (code || signal) {
-            cb(new Error(errorMessage));
-        } else {
-            cb();
-        }
-    });
-}
-
-gulp.task('checkImports', function (cb) {
-    runCustomVerification("checkCasing.js", "Mismatches found in import casing", cb);
+gulp.task('check-imports', function (cb) {
+    var tsProject = ts.createProject('tsconfig.json');
+    return tsProject.src()
+        .pipe(imports());
 });
 
-gulp.task('checkCopyright', function (cb) {
-    runCustomVerification("checkCopyright.js", "Some source code files don't have the expected copyright notice", cb);
+gulp.task('check-copyright', function (cb) {
+    return gulp.src([
+            "**/*.ts",
+            "**/*.js",
+            "!**/*.d.ts",
+            "!node_modules/**/*.*",
+            "!SampleApplication/**/*.js"
+        ])
+        .pipe(copyright());
 });
 
 gulp.task('watch-build-test', ['build', 'build-test'], function () {
