@@ -25,14 +25,14 @@ var logError = function(pluginName, file, message) {
 var checkCopyright = function() {
     var pluginName = "check-copyright";
     var hadErrors = false;
-    var re = /\/\/ Copyright \(c\) Microsoft Corporation. All rights reserved.\s+\/\/ Licensed under the MIT license. See LICENSE file in the project root for details.\s+/;
+    var copyrightNotice = "// Copyright (c) Microsoft Corporation. All rights reserved.\n// Licensed under the MIT license. See LICENSE file in the project root for details.";
 
     return through.obj(function(file, encoding, callback) {
         if (file.isBuffer()) {
             var fileContents = file.contents.toString(encoding);
-            var matches = re.exec(fileContents);
+            fileContents = fileContents.replace("\r\n", "\n");
 
-            if (!matches) {
+            if (fileContents.indexOf(copyrightNotice) !== 0) {
                 logError(pluginName, file, "missing copyright notice");
                 hadErrors = true;
             }
