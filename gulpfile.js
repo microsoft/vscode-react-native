@@ -4,7 +4,6 @@
 var gulp = require('gulp');
 var log = require('gulp-util').log;
 var sourcemaps = require('gulp-sourcemaps');
-var process = require("process");
 var path = require('path');
 var runSequence = require("run-sequence");
 var ts = require('gulp-typescript');
