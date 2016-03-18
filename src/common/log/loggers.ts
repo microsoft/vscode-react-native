@@ -9,6 +9,7 @@ import {LogHelper, LogLevel} from "./logHelper";
 export interface ILogger {
     logMessage: (message: string, formatMessage?: boolean) => void;
     logError: (errorMessage: string, error?: any, logStack?: boolean) => void;
+    logStreamData: (data: Buffer, stream: NodeJS.WritableStream) => void;
     logInternalMessage: (logLevel: LogLevel, message: string) => void;
     setFocusOnLogChannel: () => void;
 }
@@ -27,6 +28,10 @@ export class ConsoleLogger implements ILogger {
         if (logStack && error && (<Error>error).stack) {
             console.error(`Stack: ${(<Error>error).stack}`);
         }
+    }
+
+    public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
+        stream.write(data.toString());
     }
 
     public logInternalMessage(logLevel: LogLevel, message: string) {
@@ -64,6 +69,10 @@ export class StreamLogger implements ILogger {
         if (logStack && error && (<Error>error).stack) {
             this.logMessage(`Stack: ${(<Error>error).stack}`, /* formatMessage */ false);
         }
+    }
+
+    public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
+        stream.write(data.toString());
     }
 
     public logInternalMessage(logLevel: LogLevel, message: string) {

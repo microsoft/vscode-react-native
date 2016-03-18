@@ -66,6 +66,13 @@ export module Log {
     }
 
     /**
+     * Logs a stream data buffer.
+     */
+    export function logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
+        globalLogger.logStreamData(data, stream);
+    }
+
+    /**
      * Brings the target output window to focus.
      */
     export function setFocusOnLogChannel() {
