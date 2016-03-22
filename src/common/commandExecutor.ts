@@ -110,12 +110,12 @@ export class CommandExecutor {
     }
 
     private spawnChildProcess(command: string, args: string[], waitForExit: boolean = true, options: Options = {}): ISpawnResult {
-        let spawnInfo = { command: command, args: args, waitForExit: waitForExit };
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
+        let childProcessHelper = new Node.ChildProcess();
 
         Log.logCommandStatus(commandWithArgs, CommandStatus.Start);
-        let result = new Node.ChildProcess().spawn(spawnInfo, spawnOptions);
+        let result = waitForExit ? childProcessHelper.spawnWaitUntilFinished(command, args, spawnOptions) : childProcessHelper.spawnWaitUntilStarted(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
             Log.logStreamData(data, process.stderr);
@@ -126,15 +126,8 @@ export class CommandExecutor {
         });
 
         result.outcome = result.outcome.then(
-            () => {
-                if (waitForExit) {
-                    Log.logCommandStatus(commandWithArgs, CommandStatus.End);
-                } else {
-                    Q.delay(300).done(() => {
-                        return result;
-                    });
-                }
-            },
+            () =>
+                Log.logCommandStatus(commandWithArgs, CommandStatus.End),
             reason =>
                 this.generateRejectionForCommand(commandWithArgs, reason));
         return result;

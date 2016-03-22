@@ -35,10 +35,9 @@ export class LogCatMonitor implements vscode.Disposable {
     public start(): Q.Promise<void> {
         const logCatArguments = this.getLogCatArguments();
         const adbParameters = ["-s", this._deviceId, "logcat"].concat(logCatArguments);
-        const spawnInfo = { command: "adb", args: adbParameters, waitForExit: true };
         this._logger.logMessage(`Monitoring LogCat for device ${this._deviceId} with arguments: ${logCatArguments}`);
 
-        this._logCatSpawn = new ChildProcess().spawn(spawnInfo);
+        this._logCatSpawn = new ChildProcess().spawnWaitUntilFinished("adb", adbParameters);
 
         /* LogCat has a buffer and prints old messages when first called. To ignore them,
             we won't print messages for the first 0.5 seconds */
