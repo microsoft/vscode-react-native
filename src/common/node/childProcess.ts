@@ -11,12 +11,6 @@ export interface IExecResult {
     outcome: Q.Promise<Buffer>;
 }
 
-export interface ISpawnInfo {
-    command: string;
-    args: string[];
-    waitForExit?: boolean;
-}
-
 export interface ISpawnResult {
     spawnedProcess: child_process.ChildProcess;
     stdin: NodeJS.WritableStream;
