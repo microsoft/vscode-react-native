@@ -148,23 +148,15 @@ export class DeviceRunner {
     private startNativeDebugProxy(proxyPort: number): Q.Promise<void> {
         this.cleanup();
 
-        return this.mountDeveloperImage().then(function(): Q.Promise<void> {
-            const {spawnedProcess} = new Node.ChildProcess().spawnWithExitHandler("idevicedebugserverproxy", [proxyPort.toString()]);
-            this.nativeDebuggerProxyInstance = spawnedProcess;
-            const deferred = Q.defer<ChildProcess>();
-
-            spawnedProcess.on("error", (err: Error) => {
-                deferred.reject(err);
-            });
-
-            // Allow 200ms for the spawn to error out
-            return Q.delay(200);
+        return this.mountDeveloperImage().then(function(): Q.Promise<any> {
+            let result = new Node.ChildProcess().spawnWaitUntilStarted("idevicedebugserverproxy",  [proxyPort.toString()]);
+            return result.outcome.then(() => this.nativeDebuggerProxyInstance = result.spawnedProcess);
         });
     }
 
     private mountDeveloperImage(): Q.Promise<void> {
         return this.getDiskImage().then(function(path: string): Q.Promise<void> {
-            const imagemounter = new Node.ChildProcess().spawnWithExitHandler("ideviceimagemounter", [path]).spawnedProcess;
+            const imagemounter = new Node.ChildProcess().spawnWaitUntilFinished("ideviceimagemounter", [path]).spawnedProcess;
             const deferred = Q.defer<void>();
             let stdout: string = "";
             imagemounter.stdout.on("data", function(data: any): void {
@@ -207,7 +199,7 @@ export class DeviceRunner {
 
         // Attempt to find the developer disk image for the appropriate
         return Q.all([versionInfo, pathInfo]).spread<string>(function(version: string, sdkpath: string): Q.Promise<string> {
-            const find = nodeChildProcess.spawn("find", [sdkpath, "-path", "*" + version + "*", "-name", "DeveloperDiskImage.dmg"]).spawnedProcess;
+            const find = nodeChildProcess.spawnWaitUntilFinished("find", [sdkpath, "-path", "*" + version + "*", "-name", "DeveloperDiskImage.dmg"]).spawnedProcess;
             const deferred = Q.defer<string>();
 
             find.stdout.on("data", function(data: any): void {

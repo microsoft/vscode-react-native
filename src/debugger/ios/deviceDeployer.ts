@@ -22,7 +22,7 @@ export class DeviceDeployer {
             const pathToCompiledApp = path.join(this.projectRoot, "ios", "build",
                 "Build", "Products", "Debug-iphoneos", `${projectName}.app`);
             return new CommandExecutor(this.projectRoot)
-                .spawnAndWaitForCompletion("ideviceinstaller", ["-i", pathToCompiledApp]).catch((err) => {
+                .spawn("ideviceinstaller", ["-i", pathToCompiledApp]).catch((err) => {
                     if ((<any>err).code === "ENOENT") {
                         throw ErrorHelper.getNestedError(err, InternalErrorCode.IDeviceInstallerNotFound);
                     }

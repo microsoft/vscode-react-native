@@ -37,6 +37,7 @@ interface ISpawnOptions {
 }
 
 export class ChildProcess {
+    public static ERROR_TIMEOUT_MILLISECONDS = 300;
     public exec(command: string, options: IExecOptions = {}): IExecResult {
         let outcome = Q.defer<Buffer>();
 
@@ -55,7 +56,25 @@ export class ChildProcess {
         return this.exec(command, options).outcome.then(stdout => stdout.toString());
     }
 
-    public spawnWithExitHandler(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
+    public spawnWaitUntilStarted(command: string, args: string[] = [], options: ISpawnOptions = {}): ISpawnResult {
+        let outcome = Q.defer<void>();
+        let spawnedProcess = child_process.spawn(command, args, options);
+        spawnedProcess.once("error", (error: any) => {
+            outcome.reject(error);
+        });
+
+        Q.delay(ChildProcess.ERROR_TIMEOUT_MILLISECONDS).done(() => outcome.resolve(void 0));
+
+        return {
+              spawnedProcess: spawnedProcess,
+              stdin: spawnedProcess.stdin,
+              stdout: spawnedProcess.stdout,
+              stderr: spawnedProcess.stderr,
+              outcome: outcome.promise
+       };
+    }
+
+    public spawnWaitUntilFinished(command: string, args: string[] = [], options: ISpawnOptions = {}): ISpawnResult {
         let outcome = Q.defer<void>();
         let commandWithArgs = command + " " + args.join(" ");
 
@@ -63,11 +82,12 @@ export class ChildProcess {
         spawnedProcess.once("error", (error: any) => {
             outcome.reject(error);
         });
+
         spawnedProcess.once("exit", (code: number) => {
             if (code === 0) {
                 outcome.resolve(void 0);
             } else {
-                outcome.reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailedWithErrorCode, commandWithArgs, code));
+                outcome.reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, commandWithArgs, code));
             }
         });
 
@@ -76,23 +96,7 @@ export class ChildProcess {
               stdin: spawnedProcess.stdin,
               stdout: spawnedProcess.stdout,
               stderr: spawnedProcess.stderr,
-              outcome: outcome.promise };
-    }
-
-    public spawn(command: string, args?: string[], options: ISpawnOptions = {}): ISpawnResult {
-        let outcome = Q.defer<void>();
-        let commandWithArgs = command + " " + args.join(" ");
-        let spawnedProcess = child_process.spawn(command, args, options);
-        spawnedProcess.once("error", (error: any) => {
-            outcome.reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, commandWithArgs));
-        });
-
-        return {
-              spawnedProcess: spawnedProcess,
-              stdin: spawnedProcess.stdin,
-              stdout: spawnedProcess.stdout,
-              stderr: spawnedProcess.stderr,
               outcome: outcome.promise
-        };
+       };
     }
 }

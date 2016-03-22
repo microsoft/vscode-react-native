@@ -3,7 +3,6 @@
 
 import {CommandExecutor} from "../../common/commandExecutor";
 import {Log} from "../../common/log/log";
-import {ChildProcess} from "child_process";
 
 import * as assert from "assert";
 import * as semver from "semver";
@@ -76,37 +75,12 @@ suite("commandExecutor", function() {
             });
 
             Q({})
-                .then(function() {
-                    let process: ChildProcess = ce.spawn("node", ["-v"]);
-                    let deferred = Q.defer<string>();
-
-                    process.stdout.on("data", function(data: any) {
-                        deferred.resolve(data.toString());
-                    });
-
-                    return deferred.promise;
-                })
-                .then(function(output: string) {
-                    assert(semver.clean(output));
-                }).done(() => done(), done);
-        });
-
-        test("should spawnAndWaitForCompletion a command", function(done: MochaDone) {
-            let ce = new CommandExecutor();
-            let loggedOutput: string = "";
-
-            sinon.stub(Log, "logMessage", function(message: string, formatMessage: boolean = true) {
-                loggedOutput += message;
-                console.log(message);
-            });
-
-            Q({})
                 .then(function () {
-                    return ce.spawnAndWaitForCompletion("node", ["-v"]);
+                    return ce.spawn("node", ["-v"]);
                 }).done(() => done(), done);
         });
 
-        test("spawnAndWaitForCompletion should reject a bad command", function(done: MochaDone) {
+        test("spawn should reject a bad command", function(done: MochaDone) {
             let ce = new CommandExecutor();
             let loggedOutput: string = "";
 
@@ -117,7 +91,7 @@ suite("commandExecutor", function() {
 
             Q({})
                 .then(function() {
-                    return ce.spawnAndWaitForCompletion("bar", ["-v"]);
+                    return ce.spawn("bar", ["-v"]);
                 })
                 .catch((reason) => {
                     console.log(reason.message);

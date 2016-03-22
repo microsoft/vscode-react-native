@@ -28,7 +28,7 @@ export class CommandExecutor {
     private currentWorkingDirectory: string;
 
     constructor(currentWorkingDirectory?: string) {
-        this.currentWorkingDirectory = currentWorkingDirectory;
+        this.currentWorkingDirectory = currentWorkingDirectory || process.cwd();
     }
 
     public execute(command: string, options: Options = {}): Q.Promise<void> {
@@ -43,32 +43,20 @@ export class CommandExecutor {
     }
 
     /**
-     * Spawns a child process with the params passed and returns promise of the spawned ChildProcess
-     * This method does not wait for the spawned process to finish execution
-     * {command} - The command to be invoked in the child process
-     * {args} - Arguments to be passed to the command
-     * {options} - additional options with which the child process needs to be spawned
-     */
-    public spawn(command: string, args: string[], options: Options = {}): ChildProcess {
-        return this.spawnChildProcess(command, args, options).spawnedProcess;
-    }
-
-    /**
      * Spawns a child process with the params passed
      * This method waits until the spawned process finishes execution
      * {command} - The command to be invoked in the child process
      * {args} - Arguments to be passed to the command
      * {options} - additional options with which the child process needs to be spawned
      */
-    public spawnAndWaitForCompletion(command: string, args: string[], options: Options = {}): Q.Promise<void> {
-        return this.spawnChildProcess(command, args, options).outcome;
+    public spawn(command: string, args: string[], options: Options = {}): Q.Promise<any> {
+        return this.spawnChildProcess(command, args, true, options).outcome;
     }
 
     /**
      * Spawns the React Native packager in a child process.
      */
-    public spawnReactPackager(args?: string[], options: Options = {}): Q.Promise<ChildProcess> {
-        let deferred = Q.defer<ChildProcess>();
+    public spawnReactPackager(args?: string[], options: Options = {}): Q.Promise<ISpawnResult> {
         let command = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
         let runArguments = ["start"];
 
@@ -77,23 +65,8 @@ export class CommandExecutor {
         }
 
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
-
-        let result = new Node.ChildProcess().spawn(command, runArguments, spawnOptions);
-        result.spawnedProcess.once("error", (error: any) => {
-            deferred.reject(ErrorHelper.getNestedError(error, InternalErrorCode.PackagerStartFailed));
-        });
-
-        result.stderr.on("data", (data: Buffer) => {
-            Log.logStreamData(data, process.stderr);
-        });
-
-        result.stdout.on("data", (data: Buffer) => {
-            Log.logStreamData(data, process.stdout);
-        });
-
-        // TODO #83 - PROMISE: We need to consume result.outcome here
-        Q.delay(300).done(() => deferred.resolve(result.spawnedProcess));
-        return deferred.promise;
+        let result = this.spawnChildProcess(command, runArguments, false, spawnOptions);
+        return Q.resolve(result);
     }
 
     /**
@@ -122,26 +95,27 @@ export class CommandExecutor {
     /**
      * Executes a react native command and waits for its completion.
      */
-    public spawnAndWaitReactCommand(command: string, args?: string[], options: Options = {}): Q.Promise<void> {
-        return this.spawnChildReactCommandProcess(command, args, options).outcome;
+    public spawnReactCommand(command: string, args?: string[], waitForExit: boolean = true, options: Options = {}): ISpawnResult {
+        return this.spawnChildReactCommandProcess(command, args, waitForExit, options);
     }
 
-    public spawnChildReactCommandProcess(command: string, args?: string[], options: Options = {}): ISpawnResult {
+    public spawnChildReactCommandProcess(command: string, args?: string[], waitForExit: boolean = true, options: Options = {}): ISpawnResult {
         let runArguments = [command];
         if (args) {
             runArguments = runArguments.concat(args);
         }
 
         let reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
-        return this.spawnChildProcess(reactCommand, runArguments, options);
+        return this.spawnChildProcess(reactCommand, runArguments, waitForExit, options);
     }
 
-    private spawnChildProcess(command: string, args: string[], options: Options = {}): ISpawnResult {
+    private spawnChildProcess(command: string, args: string[], waitForExit: boolean = true, options: Options = {}): ISpawnResult {
         let spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         let commandWithArgs = command + " " + args.join(" ");
+        let childProcessHelper = new Node.ChildProcess();
 
         Log.logCommandStatus(commandWithArgs, CommandStatus.Start);
-        let result = new Node.ChildProcess().spawnWithExitHandler(command, args, spawnOptions);
+        let result = waitForExit ? childProcessHelper.spawnWaitUntilFinished(command, args, spawnOptions) : childProcessHelper.spawnWaitUntilStarted(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
             Log.logStreamData(data, process.stderr);
@@ -156,7 +130,6 @@ export class CommandExecutor {
                 Log.logCommandStatus(commandWithArgs, CommandStatus.End),
             reason =>
                 this.generateRejectionForCommand(commandWithArgs, reason));
-
         return result;
     }
 
