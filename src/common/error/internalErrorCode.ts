@@ -40,5 +40,8 @@ export enum InternalErrorCode {
         IntellisenseSetupFailed = 704,
         NodeDebuggerConfigurationFailed = 705,
         DebuggingFailed = 706,
-        RNTempFolderDeletionFailed = 707
+        RNTempFolderDeletionFailed = 707,
+
+        // Activation errors
+        CouldNotFindLocationOfNodeDebugger = 801,
     }
