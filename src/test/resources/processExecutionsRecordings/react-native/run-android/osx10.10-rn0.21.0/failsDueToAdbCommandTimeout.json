@@ -1,0 +1,742 @@
+{
+    "title": "react-native run-android fails because adb command times out",
+    "arguments": {
+        "command": "react-native",
+        "args": [
+            "run-android"
+        ],
+        "options": {
+            "cwd": "/Users/workspaces/SampleApplication_21"
+        }
+    },
+    "date": "2016-03-23T18:12:17.341Z",
+    "configuration": {
+        "os": {
+            "platform": "OS X Yosemite",
+            "release": "10.10.5"
+        },
+        "android": {
+            "sdk": {
+                "tools": "24.4.1",
+                "platformTools": "23.1",
+                "buildTools": "23.0.1",
+                "repositoryForSupportLibraries": "25"
+            },
+            "intelHAXMEmulator": "6.0.1"
+        },
+        "reactNative": "0.21.0",
+        "node": "5.3.0",
+        "npm": "3.3.12"
+    },
+    "state": {
+        "reactNative": {
+            "packager": "Running"
+        },
+        "devices": {
+            "android": [
+                {
+                    "id": "emulator-5554",
+                    "type": "SDKEmulator",
+                    "hardware": "Nexus 5",
+                    "os": "M",
+                    "api": "23",
+                    "otherSpecs": "5\" M (6.0.0)",
+                    "appStatus": "NotInstalled"
+                }
+            ],
+            "ios": []
+        }
+    },
+    "events": [
+        {
+            "after": 23953,
+            "stdout": {
+                "data": "JS server already running.\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": "Building and installing the app on the device (cd android && ./gradlew installDebug)...\n"
+            }
+        },
+        {
+            "after": 11982,
+            "stdout": {
+                "data": ":app:preBuild"
+            }
+        },
+        {
+            "after": 23,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 23,
+            "stdout": {
+                "data": ":app:preDebugBuild"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:checkDebugManifest"
+            }
+        },
+        {
+            "after": 3,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:preReleaseBuild"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:prepareComAndroidSupportAppcompatV72301Library"
+            }
+        },
+        {
+            "after": 507,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComAndroidSupportRecyclerviewV72301Library"
+            }
+        },
+        {
+            "after": 3,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComAndroidSupportSupportV42301Library"
+            }
+        },
+        {
+            "after": 4,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoDrawee081Library"
+            }
+        },
+        {
+            "after": 3,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoFbcore081Library"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoFresco081Library"
+            }
+        },
+        {
+            "after": 3,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoImagepipeline081Library"
+            }
+        },
+        {
+            "after": 6,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoImagepipelineOkhttp081Library"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:prepareComFacebookReactReactNative0210Library"
+            }
+        },
+        {
+            "after": 36,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareOrgWebkitAndroidJscR174650Library"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:prepareDebugDependencies"
+            }
+        },
+        {
+            "after": 4,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:compileDebugAidl"
+            }
+        },
+        {
+            "after": 10,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:compileDebugRenderscript"
+            }
+        },
+        {
+            "after": 17,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:generateDebugBuildConfig"
+            }
+        },
+        {
+            "after": 114,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:generateDebugAssets"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:mergeDebugAssets"
+            }
+        },
+        {
+            "after": 7,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:generateDebugResValues"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": "\n:app:generateDebugResources UP-TO-DATE"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:mergeDebugResources"
+            }
+        },
+        {
+            "after": 97,
+            "stdout": {
+                "data": " UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:bundleDebugJsAndAssets"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": " SKIPPED"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:processDebugManifest"
+            }
+        },
+        {
+            "after": 26,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": "UP-TO-DATE\n:app:processDebugResources"
+            }
+        },
+        {
+            "after": 46,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": ":app:generateDebugSources"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": " UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:processDebugJavaRes"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:compileDebugJavaWithJavac"
+            }
+        },
+        {
+            "after": 23,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:compileDebugNdk"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:compileDebugSources"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:preDexDebug"
+            }
+        },
+        {
+            "after": 10,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:dexDebug"
+            }
+        },
+        {
+            "after": 16,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:validateDebugSigning"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:packageDebug"
+            }
+        },
+        {
+            "after": 14,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:zipalignDebug"
+            }
+        },
+        {
+            "after": 4,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:assembleDebug"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:installDebug"
+            }
+        },
+        {
+            "after": 8772,
+            "stdout": {
+                "data": " FAILED"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 8,
+            "stderr": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stderr": {
+                "data": "FAILURE: Build failed with an exception.\n\n* What went wrong:\nExecution failed for task ':app:installDebug'.\n> com.android.builder.testing.api.DeviceException: com.android.ddmlib.ShellCommandUnresponsiveException\n\n* Try:\nRun with --stacktrace option to get the stack trace. Run with --info"
+            }
+        },
+        {
+            "after": 0,
+            "stderr": {
+                "data": " or --debug option to get more log output.\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": "BUILD FAILED\n\nTotal time: 21.169 secs\n"
+            }
+        },
+        {
+            "after": 424,
+            "stdout": {
+                "data": "Could not install the app on the device, read the error above for details.\nMake sure you have an Android emulator running or a device connected and have\nset up your Android development environment:\nhttps://facebook.github.io/react-native/docs/android-setup.html\n"
+            }
+        },
+        {
+            "after": 962,
+            "exit": {
+                "code": 0
+            }
+        }
+    ]
+}
