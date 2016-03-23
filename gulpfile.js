@@ -51,7 +51,8 @@ var lintSources = [
     srcPath,
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; });
 lintSources = lintSources.concat([
-    '!src/typings/**'
+    '!src/typings/**',
+    '!src/test/resources/myReactNative022Project/**'
 ]);
 
 var tslint = require('gulp-tslint');
@@ -86,7 +87,8 @@ gulp.task('check-copyright', function (cb) {
             "**/*.js",
             "!**/*.d.ts",
             "!node_modules/**/*.*",
-            "!SampleApplication/**/*.js"
+            "!SampleApplication/**/*.js",
+            "!src/test/resources/myReactNative022Project/**/*.js",
         ])
         .pipe(copyright());
 });
