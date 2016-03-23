@@ -54,7 +54,7 @@
         "no-require-imports": false,
         "no-shadowed-variable": true,
         "no-string-literal": true,
-        "no-switch-case-fall-through": true,
+        "no-switch-case-fall-through": false,
         "no-trailing-whitespace": true,
         "no-unreachable": true,
         "no-unused-expression": true,

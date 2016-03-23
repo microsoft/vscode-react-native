@@ -6,6 +6,7 @@ import * as path from "path";
 import * as Q from "q";
 
 export class FileSystem {
+    private fs = fs; // TODO: Remove this after mering with the PR that expects this as a constructor parameter
 
     public ensureDirectory(dir: string): Q.Promise<void> {
         return Q.nfcall(fs.stat, dir).then((stat: fs.Stats): void => {
@@ -136,7 +137,25 @@ export class FileSystem {
     }
 
     public mkDir(p: string): Q.Promise<void> {
-        return Q.nfcall<void>(fs.mkdir, p);
+        return Q.nfcall<void>(this.fs.mkdir, p);
+    }
+
+    public stat(path: string): Q.Promise<fs.Stats> {
+        return Q.nfcall<fs.Stats>(this.fs.stat, path);
+    }
+
+    public directoryExists(directoryPath: string): Q.Promise<boolean> {
+        return this.stat(directoryPath).then(stats => {
+            return stats.isDirectory();
+        }).catch(reason => {
+            return reason.code === "ENOENT"
+                ? false
+                : Q.reject<boolean>(reason);
+        });
+    }
+
+    public rmdir(dirPath: string): Q.Promise<void> {
+        return Q.nfcall<void>(this.fs.rmdir, dirPath);
     }
 
     /**
