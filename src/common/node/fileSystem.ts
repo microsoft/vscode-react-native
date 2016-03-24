@@ -6,7 +6,7 @@ import * as path from "path";
 import * as Q from "q";
 
 export class FileSystem {
-    private fs = fs; // TODO: Remove this after mering with the PR that expects this as a constructor parameter
+    private fs = fs; // TODO: Remove this after merging with the PR that expects this as a constructor parameter
 
     public ensureDirectory(dir: string): Q.Promise<void> {
         return Q.nfcall(fs.stat, dir).then((stat: fs.Stats): void => {
