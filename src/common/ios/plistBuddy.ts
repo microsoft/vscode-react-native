@@ -16,7 +16,7 @@ export class PlistBuddy {
 
     constructor({
         nodeChildProcess = new Node.ChildProcess(),
-        xcodeproj = new Xcodeproj()
+        xcodeproj = new Xcodeproj(),
     } = {}) {
         this.nodeChildProcess = nodeChildProcess;
         this.xcodeproj = xcodeproj;

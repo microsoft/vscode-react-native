@@ -41,7 +41,7 @@ export class ErrorHelper {
          let result: string = <string> errorMessage;
          let args: string[] = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
          if (args) {
-            for (var i: number = 0; i < args.length; i++) {
+            for (let i: number = 0; i < args.length; i++) {
                 result = result.replace(new RegExp("\\{" + i + "\\}", "g"), args[i]);
             }
          }
