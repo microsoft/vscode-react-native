@@ -62,9 +62,10 @@ gulp.task('tslint', function () {
 });
 
 function readArgument(argumentName) {
-    var parameterIndex = process.argv.indexOf("--" + argumentName);
-    return parameterIndex > -1 && (parameterIndex + 1) < process.argv.length
-        ? process.argv[parameterIndex + 1]
+    var argumentNameIndex = process.argv.indexOf("--" + argumentName);
+    var argumentValueIndex = argumentNameIndex + 1;
+    return argumentNameIndex > -1 && argumentValueIndex < process.argv.length
+        ? process.argv[argumentValueIndex]
         : null;
 }
 
