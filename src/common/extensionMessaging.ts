@@ -24,10 +24,14 @@ export interface MessageWithArguments {
     args: any[];
 }
 
+export interface IExtensionMessageSender {
+    sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any>;
+}
+
 /**
  * Sends messages to the extension.
  */
-export class ExtensionMessageSender {
+export class ExtensionMessageSender implements IExtensionMessageSender {
 
     public sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any> {
         let deferred = Q.defer<any>();
