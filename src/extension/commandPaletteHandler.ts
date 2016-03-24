@@ -55,7 +55,7 @@ export class CommandPaletteHandler {
 
                 return Q.all<any>([
                     pkg.name().then((appName) => new PackageNameResolver(appName).resolvePackageName(this.workspaceRoot)),
-                    deviceHelper.getConnectedDevices()
+                    deviceHelper.getConnectedDevices(),
                 ]).spread<any>((packagName: string, devices: IDevice[]) => {
                     if (devices.length > 1) {
                         let result = Q<void>(void 0);

@@ -30,7 +30,7 @@ export class Compiler {
                 "-project", path.join(this.projectRoot, "ios", projectFile),
                 "-scheme", projectName,
                 "-destination", "generic/platform=iOS", // Build for a generic iOS device
-                "-derivedDataPath", path.join(this.projectRoot, "ios", "build")
+                "-derivedDataPath", path.join(this.projectRoot, "ios", "build"),
             ];
         });
     }
