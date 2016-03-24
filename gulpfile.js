@@ -61,15 +61,21 @@ gulp.task('tslint', function () {
         .pipe(tslint.report('verbose'));
 });
 
+function readArgument(argumentName) {
+    var parameterIndex = process.argv.indexOf("--" + argumentName);
+    return parameterIndex > -1 && (parameterIndex + 1) < process.argv.length
+        ? process.argv[parameterIndex + 1]
+        : null;
+}
+
 function test() {
     // Defaults
     var pattern = "extensionContext";
     var invert = true;
 
     // Check if arguments were passed
-    var patternIndex = process.argv.indexOf("--pattern");
-    if (patternIndex > -1 && (patternIndex + 1) < process.argv.length) {
-        pattern = process.argv[patternIndex + 1];
+    var pattern = readArgument("pattern");
+    if (pattern !== null) {
         invert = false;
         console.log("\nTesting cases that match pattern: " + pattern);
     }
