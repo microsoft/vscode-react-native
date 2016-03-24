@@ -57,7 +57,7 @@ export class PackageNameResolver {
      * Gets the default package name, based on the application name.
      */
     private getDefaultPackageName(applicationName: string): string {
-        return PackageNameResolver.DefaultPackagePrefix + applicationName.toLowerCase();
+        return (PackageNameResolver.DefaultPackagePrefix + applicationName).toLowerCase();
     }
 
     /**
