@@ -143,6 +143,7 @@
         "run-sequence": "^1.1.5",
         "sinon": "^1.17.3",
         "should": "^8.3.0",
+        "source-map-support": "^0.4.0",
         "through2": "^2.0.1",
         "tslint": "^3.6.0",
         "typescript": "^1.8.9",

@@ -1,6 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as fs from "fs";
+
+try {
+    fs.statSync(`${__filename}.map`); // We check if source maps are available
+    /* tslint:disable:no-var-requires */
+    require("source-map-support").install(); // If they are, we enable stack traces translation to typescript
+    /* tslint:enable:no-var-requires */
+} catch (exceptions) {
+    // If something goes wrong, we just ignore the errors
+}
+
 import * as Q from "q";
 import * as path from "path";
 import * as vscode from "vscode";
