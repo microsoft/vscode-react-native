@@ -1,7 +1,5 @@
 {
-    "title": "react-native run-android runs succesfully when ten VS Emulators are online",
-    "composedFrom": "succedsWithFiveVSEmulators",
-    "composedComments": "Added 5 extra emulators",
+    "title": "react-native run-android runs successfully when two VS Emulators are online",
     "arguments": {
         "command": "react-native.cmd",
         "args": [
@@ -11,7 +9,7 @@
             "cwd": "c:\\projects\\SampleApplication_21"
         }
     },
-    "date": "2016-03-21T20:31:59.392Z",
+    "date": "2016-03-21T20:10:31.459Z",
     "configuration": {
         "os": {
             "platform": "Windows 10 Entreprise",
@@ -38,93 +36,19 @@
         "devices": {
             "android": [
                 {
-                    "id": "169.254.95.108:5555",
-                    "type": "VS Emulator",
-                    "hardware": "TBD",
-                    "os": "TBD",
-                    "api": "TBD",
-                    "otherSpecs": "5.5\" Marshmallow (6.0.0)",
-                    "appStatus": "NotInstalled"
-                },
-                {
-                    "id": "169.254.247.95:5555",
-                    "type": "VS Emulator",
-                    "hardware": "TBD",
-                    "os": "TBD",
-                    "api": "TBD",
-                    "otherSpecs": "10.1\" Marshmallow (6.0.0)",
-                    "appStatus": "NotInstalled"
-                },
-                {
-                    "id": "169.254.4.177:5555",
-                    "type": "VS Emulator",
-                    "hardware": "TBD",
-                    "os": "TBD",
-                    "api": "TBD",
-                    "otherSpecs": "4\" JellyBean (4.2)",
-                    "appStatus": "NotInstalled"
-                },
-                {
                     "id": "169.254.56.136:5555",
-                    "type": "VS Emulator",
-                    "hardware": "TBD",
-                    "os": "TBD",
-                    "api": "TBD",
-                    "otherSpecs": "5\" Marshmallow (6.0.0)",
+                    "hardware": "Moto G, Sony, Xperia M4 Aqua",
+                    "os": "Marshmallow (6.0.0)",
+                    "api": "23",
+                    "otherSpecs": "5'' XHDPI Phone",
                     "appStatus": "NotInstalled"
                 },
                 {
-                    "id": "169.254.84.95:5555",
-                    "type": "VS Emulator",
+                    "id": "169.254.249.147:5555",
                     "hardware": "TBD",
                     "os": "TBD",
                     "api": "TBD",
-                    "otherSpecs": "5.5\" Marshmallow (6.0.0)",
-                    "appStatus": "NotInstalled"
-                },
-                {
-                    "id": "169.253.95.108:5555",
-                    "type": "VS Emulator",
-                    "hardware": "TBD",
-                    "os": "TBD",
-                    "api": "TBD",
-                    "otherSpecs": "5.5\" Marshmallow (6.0.0)",
-                    "appStatus": "NotInstalled"
-                },
-                {
-                    "id": "169.253.247.95:5555",
-                    "type": "VS Emulator",
-                    "hardware": "TBD",
-                    "os": "TBD",
-                    "api": "TBD",
-                    "otherSpecs": "10.1\" Marshmallow (6.0.0)",
-                    "appStatus": "NotInstalled"
-                },
-                {
-                    "id": "169.253.4.177:5555",
-                    "type": "VS Emulator",
-                    "hardware": "TBD",
-                    "os": "TBD",
-                    "api": "TBD",
-                    "otherSpecs": "4\" JellyBean (4.2)",
-                    "appStatus": "NotInstalled"
-                },
-                {
-                    "id": "169.253.56.136:5555",
-                    "type": "VS Emulator",
-                    "hardware": "TBD",
-                    "os": "TBD",
-                    "api": "TBD",
-                    "otherSpecs": "5\" Marshmallow (6.0.0)",
-                    "appStatus": "NotInstalled"
-                },
-                {
-                    "id": "169.253.84.95:5555",
-                    "type": "VS Emulator",
-                    "hardware": "TBD",
-                    "os": "TBD",
-                    "api": "TBD",
-                    "otherSpecs": "5.5\" Marshmallow (6.0.0)",
+                    "otherSpecs": "5.7'' XHDPI Phone",
                     "appStatus": "NotInstalled"
                 }
             ],
@@ -133,7 +57,7 @@
     },
     "events": [
         {
-            "after": 13934,
+            "after": 5499,
             "stdout": {
                 "data": "JS server already running.\n"
             }
@@ -145,13 +69,13 @@
             }
         },
         {
-            "after": 9054,
+            "after": 5536,
             "stdout": {
                 "data": ":app:preBuild"
             }
         },
         {
-            "after": 27,
+            "after": 26,
             "stdout": {
                 "data": " "
             }
@@ -163,13 +87,13 @@
             }
         },
         {
-            "after": 18,
+            "after": 30,
             "stdout": {
                 "data": ":app:preDebugBuild"
             }
         },
         {
-            "after": 1,
+            "after": 0,
             "stdout": {
                 "data": " "
             }
@@ -181,7 +105,7 @@
             }
         },
         {
-            "after": 0,
+            "after": 1,
             "stdout": {
                 "data": ":app:checkDebugManifest"
             }
@@ -193,13 +117,13 @@
             }
         },
         {
-            "after": 0,
+            "after": 1,
             "stdout": {
                 "data": ":app:preReleaseBuild"
             }
         },
         {
-            "after": 1,
+            "after": 0,
             "stdout": {
                 "data": " "
             }
@@ -211,13 +135,13 @@
             }
         },
         {
-            "after": 0,
+            "after": 1,
             "stdout": {
                 "data": ":app:prepareComAndroidSupportAppcompatV72301Library"
             }
         },
         {
-            "after": 384,
+            "after": 182,
             "stdout": {
                 "data": " UP-TO-DATE"
             }
@@ -235,60 +159,6 @@
             }
         },
         {
-            "after": 5,
-            "stdout": {
-                "data": " "
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": "UP-TO-DATE\r\n"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": ":app:prepareComAndroidSupportSupportV42301Library"
-            }
-        },
-        {
-            "after": 7,
-            "stdout": {
-                "data": " UP-TO-DATE"
-            }
-        },
-        {
-            "after": 1,
-            "stdout": {
-                "data": "\r\n"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": ":app:prepareComFacebookFrescoDrawee081Library"
-            }
-        },
-        {
-            "after": 4,
-            "stdout": {
-                "data": " UP-TO-DATE"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": "\r\n"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": ":app:prepareComFacebookFrescoFbcore081Library"
-            }
-        },
-        {
             "after": 3,
             "stdout": {
                 "data": " "
@@ -301,7 +171,61 @@
             }
         },
         {
+            "after": 1,
+            "stdout": {
+                "data": ":app:prepareComAndroidSupportSupportV42301Library"
+            }
+        },
+        {
+            "after": 4,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
             "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\r\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoDrawee081Library"
+            }
+        },
+        {
+            "after": 4,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\r\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoFbcore081Library"
+            }
+        },
+        {
+            "after": 4,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\r\n"
+            }
+        },
+        {
+            "after": 1,
             "stdout": {
                 "data": ":app:prepareComFacebookFrescoFresco081Library"
             }
@@ -309,23 +233,23 @@
         {
             "after": 4,
             "stdout": {
-                "data": " UP-TO-DATE"
+                "data": " "
             }
         },
         {
             "after": 0,
             "stdout": {
-                "data": "\r\n"
+                "data": "UP-TO-DATE\r\n"
             }
         },
         {
-            "after": 0,
+            "after": 1,
             "stdout": {
                 "data": ":app:prepareComFacebookFrescoImagepipeline081Library"
             }
         },
         {
-            "after": 12,
+            "after": 10,
             "stdout": {
                 "data": " UP-TO-DATE"
             }
@@ -361,27 +285,9 @@
             }
         },
         {
-            "after": 4,
+            "after": 14,
             "stdout": {
-                "data": " UP-TO-DATE\r\n"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": ":app:prepareOrgWebkitAndroidJscR174650Library"
-            }
-        },
-        {
-            "after": 15,
-            "stdout": {
-                "data": " UP-TO-DATE\r\n"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": ":app:prepareDebugDependencies"
+                "data": " UP-TO-DATE"
             }
         },
         {
@@ -391,15 +297,51 @@
             }
         },
         {
+            "after": 1,
+            "stdout": {
+                "data": ":app:prepareOrgWebkitAndroidJscR174650Library"
+            }
+        },
+        {
+            "after": 3,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
             "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\r\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:prepareDebugDependencies"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": "\r\n"
+            }
+        },
+        {
+            "after": 1,
             "stdout": {
                 "data": ":app:compileDebugAidl"
             }
         },
         {
-            "after": 16,
+            "after": 11,
             "stdout": {
-                "data": " UP-TO-DATE\r\n"
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": "\r\n"
             }
         },
         {
@@ -409,9 +351,15 @@
             }
         },
         {
-            "after": 22,
+            "after": 18,
             "stdout": {
-                "data": " UP-TO-DATE\r\n"
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\r\n"
             }
         },
         {
@@ -421,13 +369,13 @@
             }
         },
         {
-            "after": 45,
+            "after": 44,
             "stdout": {
                 "data": " UP-TO-DATE"
             }
         },
         {
-            "after": 0,
+            "after": 1,
             "stdout": {
                 "data": "\r\n"
             }
@@ -451,37 +399,7 @@
             }
         },
         {
-            "after": 16,
-            "stdout": {
-                "data": " UP-TO-DATE\r\n"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": ":app:generateDebugResValues"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": " "
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": "UP-TO-DATE\r\n"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": ":app:generateDebugResources"
-            }
-        },
-        {
-            "after": 0,
+            "after": 14,
             "stdout": {
                 "data": " UP-TO-DATE"
             }
@@ -493,33 +411,93 @@
             }
         },
         {
+            "after": 1,
+            "stdout": {
+                "data": ":app:generateDebugResValues"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\r\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:generateDebugResources"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\r\n"
+            }
+        },
+        {
             "after": 0,
             "stdout": {
                 "data": ":app:mergeDebugResources"
             }
         },
         {
-            "after": 260,
+            "after": 307,
             "stdout": {
-                "data": " UP-TO-DATE\r\n"
+                "data": " UP-TO-DATE"
             }
         },
         {
             "after": 0,
             "stdout": {
+                "data": "\r\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
                 "data": ":app:bundleDebugJsAndAssets"
             }
         },
         {
-            "after": 5,
+            "after": 0,
             "stdout": {
-                "data": " SKIPPED\r\n:app:processDebugManifest"
+                "data": " SKIPPED"
             }
         },
         {
-            "after": 19,
+            "after": 0,
             "stdout": {
-                "data": " UP-TO-DATE\r\n"
+                "data": "\r\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:processDebugManifest"
+            }
+        },
+        {
+            "after": 38,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": "UP-TO-DATE\r\n"
             }
         },
         {
@@ -529,7 +507,25 @@
             }
         },
         {
-            "after": 116,
+            "after": 118,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\r\n"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": ":app:generateDebugSources"
+            }
+        },
+        {
+            "after": 0,
             "stdout": {
                 "data": " "
             }
@@ -541,19 +537,13 @@
             }
         },
         {
-            "after": 0,
-            "stdout": {
-                "data": ":app:generateDebugSources UP-TO-DATE\r\n"
-            }
-        },
-        {
-            "after": 0,
+            "after": 1,
             "stdout": {
                 "data": ":app:processDebugJavaRes"
             }
         },
         {
-            "after": 0,
+            "after": 1,
             "stdout": {
                 "data": " "
             }
@@ -565,25 +555,25 @@
             }
         },
         {
-            "after": 16,
+            "after": 1,
             "stdout": {
                 "data": ":app:compileDebugJavaWithJavac"
             }
         },
         {
-            "after": 58,
+            "after": 57,
             "stdout": {
-                "data": " "
+                "data": " UP-TO-DATE"
             }
         },
         {
             "after": 0,
             "stdout": {
-                "data": "UP-TO-DATE\r\n"
+                "data": "\r\n"
             }
         },
         {
-            "after": 0,
+            "after": 1,
             "stdout": {
                 "data": ":app:compileDebugNdk"
             }
@@ -597,67 +587,7 @@
         {
             "after": 0,
             "stdout": {
-                "data": "UP-TO-DATE\r\n"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": ":app:compileDebugSources"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": " "
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": "UP-TO-DATE\r\n"
-            }
-        },
-        {
-            "after": 1,
-            "stdout": {
-                "data": ":app:preDexDebug"
-            }
-        },
-        {
-            "after": 13,
-            "stdout": {
-                "data": " "
-            }
-        },
-        {
-            "after": 1,
-            "stdout": {
-                "data": "UP-TO-DATE\r\n"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": ":app:dexDebug"
-            }
-        },
-        {
-            "after": 26,
-            "stdout": {
-                "data": " "
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": "UP-TO-DATE\r\n"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": ":app:validateDebugSigning"
+                "data": "UP-TO-DATE"
             }
         },
         {
@@ -667,13 +597,19 @@
             }
         },
         {
-            "after": 0,
+            "after": 1,
             "stdout": {
-                "data": ":app:packageDebug"
+                "data": ":app:compileDebugSources"
             }
         },
         {
-            "after": 15,
+            "after": 2,
+            "stdout": {
+                "data": " UP-TO-DATE\r\n:app:preDexDebug"
+            }
+        },
+        {
+            "after": 19,
             "stdout": {
                 "data": " UP-TO-DATE"
             }
@@ -685,13 +621,61 @@
             }
         },
         {
+            "after": 1,
+            "stdout": {
+                "data": ":app:dexDebug"
+            }
+        },
+        {
+            "after": 46,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\r\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:validateDebugSigning"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": "\r\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:packageDebug"
+            }
+        },
+        {
+            "after": 32,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\r\n"
+            }
+        },
+        {
             "after": 0,
             "stdout": {
                 "data": ":app:zipalignDebug"
             }
         },
         {
-            "after": 0,
+            "after": 4,
             "stdout": {
                 "data": " "
             }
@@ -721,13 +705,13 @@
             }
         },
         {
-            "after": 0,
+            "after": 1,
             "stdout": {
                 "data": ":app:installDebug"
             }
         },
         {
-            "after": 1400,
+            "after": 1518,
             "stdout": {
                 "data": "\r\n"
             }
@@ -735,67 +719,19 @@
         {
             "after": 0,
             "stdout": {
-                "data": "Installing APK 'app-debug.apk' on '4\" JellyBean (4.2) HDPI Phone - 4.2.2'\r\n"
+                "data": "Installing APK 'app-debug.apk' on '5.7\" Marshmallow (6.0.0) XHDPI Phone - 6.0'\r\n"
             }
         },
         {
-            "after": 1760,
+            "after": 2996,
             "stdout": {
                 "data": "Installing APK 'app-debug.apk' on '5\" Marshmallow (6.0.0) XHDPI Phone - 6.0'\r\n"
             }
         },
         {
-            "after": 3068,
+            "after": 3470,
             "stdout": {
-                "data": "Installing APK 'app-debug.apk' on '10.1\" Marshmallow (6.0.0) XHDPI Tablet - 6.0'\r\n"
-            }
-        },
-        {
-            "after": 3099,
-            "stdout": {
-                "data": "Installing APK 'app-debug.apk' on '5.5\" Marshmallow (6.0.0) XXHDPI Phone - 6.0'\r\n"
-            }
-        },
-        {
-            "after": 2943,
-            "stdout": {
-                "data": "Installing APK 'app-debug.apk' on '5.5\" Marshmallow (6.0.0) XXXHDPI Phone - 6.0'\r\n"
-            }
-        },
-        {
-            "after": 0,
-            "stdout": {
-                "data": "Installing APK 'app-debug.apk' on '4\" JellyBean (4.2) HDPI Phone - 4.2.2'\r\n"
-            }
-        },
-        {
-            "after": 1760,
-            "stdout": {
-                "data": "Installing APK 'app-debug.apk' on '5\" Marshmallow (6.0.0) XHDPI Phone - 6.0'\r\n"
-            }
-        },
-        {
-            "after": 3068,
-            "stdout": {
-                "data": "Installing APK 'app-debug.apk' on '10.1\" Marshmallow (6.0.0) XHDPI Tablet - 6.0'\r\n"
-            }
-        },
-        {
-            "after": 3099,
-            "stdout": {
-                "data": "Installing APK 'app-debug.apk' on '5.5\" Marshmallow (6.0.0) XXHDPI Phone - 6.0'\r\n"
-            }
-        },
-        {
-            "after": 2943,
-            "stdout": {
-                "data": "Installing APK 'app-debug.apk' on '5.5\" Marshmallow (6.0.0) XXXHDPI Phone - 6.0'\r\n"
-            }
-        },
-        {
-            "after": 2682,
-            "stdout": {
-                "data": "Installed on 10 devicess.\r\n"
+                "data": "Installed on 2 devicess."
             }
         },
         {
@@ -805,43 +741,55 @@
             }
         },
         {
-            "after": 0,
+            "after": 9,
             "stdout": {
-                "data": "BUILD SUCCESSFUL\r\n"
+                "data": "\r\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": "BUILD SUCCESSFUL"
             }
         },
         {
             "after": 0,
             "stdout": {
-                "data": "\r\nTotal time: 24.992 secs\r\n"
+                "data": "\r\n\r\n"
             }
         },
         {
-            "after": 538,
+            "after": 0,
+            "stdout": {
+                "data": "Total time: 14.496 secs\r\n"
+            }
+        },
+        {
+            "after": 388,
             "stderr": {
                 "data": "Picked up _JAVA_OPTIONS: -Xmx512M\n"
             }
         },
         {
-            "after": 35,
+            "after": 33,
             "stdout": {
                 "data": "Starting the app (C:\\Program Files (x86)\\Android\\android-sdk/platform-tools/adb shell am start -n com.sampleapplication/.MainActivity)...\n"
             }
         },
         {
-            "after": 18,
+            "after": 19,
             "stderr": {
-                "data": "error: "
+                "data": "error: mor"
             }
         },
         {
             "after": 1,
             "stderr": {
-                "data": "more than one device/emulator\r\n"
+                "data": "e than one device/emulator\r\n"
             }
         },
         {
-            "after": 914,
+            "after": 923,
             "exit": {
                 "code": 0
             }

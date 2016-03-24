@@ -1,5 +1,5 @@
 {
-    "title": "react-native run-android runs succesfully on a single Intel Emulator",
+    "title": "react-native run-android runs successfully on a single Intel Emulator",
     "arguments": {
         "command": "react-native",
         "args": [

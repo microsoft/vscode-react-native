@@ -1,5 +1,5 @@
 {
-    "title": "react-native run-android runs succesfully when three VS Emulators are online",
+    "title": "react-native run-android runs successfully when three VS Emulators are online",
     "arguments": {
         "command": "react-native.cmd",
         "args": [
