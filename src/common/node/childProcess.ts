@@ -40,7 +40,7 @@ export class ChildProcess {
     public static ERROR_TIMEOUT_MILLISECONDS = 300;
     private childProcess: typeof child_process;
 
-    constructor({childProcess = child_process} = {}) {
+    constructor({childProcess = child_process /* = require("child_process") */} = {}) {
         this.childProcess = childProcess;
     }
 
