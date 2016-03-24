@@ -5,6 +5,7 @@ var gulp = require('gulp');
 var log = require('gulp-util').log;
 var sourcemaps = require('gulp-sourcemaps');
 var path = require('path');
+var preprocess = require('gulp-preprocess');
 var runSequence = require("run-sequence");
 var ts = require('gulp-typescript');
 var mocha = require('gulp-mocha');
@@ -21,12 +22,31 @@ var sources = [
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; })
     .concat(['test/*.ts']);
 
+function getArgumentIndex(argumentName) {
+    return process.argv.indexOf("--" + argumentName);
+}
+
+function testArgument(argumentName) {
+    return getArgumentIndex(argumentName) > -1;
+}
+
+function readArgument(argumentName) {
+    var argumentNameIndex = getArgumentIndex(argumentName);
+    var argumentValueIndex = argumentNameIndex + 1;
+    return argumentNameIndex > -1 && argumentValueIndex < process.argv.length
+        ? process.argv[argumentValueIndex]
+        : null;
+}
+
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
 // be an issue on Windows platforms)
 gulp.task('build', ["check-imports", "check-copyright"], function () {
     var tsProject = ts.createProject('tsconfig.json');
+    var isProd = testArgument("prod");
+    var preprocessorContext = isProd ? { PROD: true } : { DEBUG: true };
     return tsProject.src()
+        .pipe(preprocess({context: preprocessorContext})) //To set environment variables in-line
         .pipe(sourcemaps.init())
         .pipe(ts(tsProject))
         .pipe(sourcemaps.write('.', {
@@ -60,14 +80,6 @@ gulp.task('tslint', function () {
         .pipe(tslint())
         .pipe(tslint.report('verbose'));
 });
-
-function readArgument(argumentName) {
-    var argumentNameIndex = process.argv.indexOf("--" + argumentName);
-    var argumentValueIndex = argumentNameIndex + 1;
-    return argumentNameIndex > -1 && argumentValueIndex < process.argv.length
-        ? process.argv[argumentValueIndex]
-        : null;
-}
 
 function test() {
     // Defaults

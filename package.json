@@ -116,7 +116,7 @@
     "scripts": {
         "start": "node node_modules/react-native/local-cli/cli.js start",
         "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
-        "vscode:prepublish": "gulp",
+        "vscode:prepublish": "gulp --prod",
         "test": "node ./node_modules/vscode/bin/test"
     },
     "dependencies": {
@@ -135,6 +135,7 @@
         "del": "^2.2.0",
         "gulp": "^3.9.1",
         "gulp-mocha": "^2.2.0",
+        "gulp-preprocess": "^2.0.0",
         "gulp-sourcemaps": "^1.6.0",
         "gulp-tslint": "^4.3.3",
         "gulp-typescript": "^2.12.1",
@@ -142,8 +143,8 @@
         "mocha": "^2.4.5",
         "mocha-teamcity-reporter": "^1.0.0",
         "run-sequence": "^1.1.5",
-        "sinon": "^1.17.3",
         "should": "^8.3.0",
+        "sinon": "^1.17.3",
         "source-map-support": "^0.4.0",
         "through2": "^2.0.1",
         "tslint": "^3.6.0",
