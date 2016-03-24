@@ -25,7 +25,8 @@ suite("plistBuddy", function() {
             // The emulator has 3 apps
             const appIds = ["17F3AED1-5B1D-4F97-B419-D1F079D9DE2D",
                 "957660FD-3417-474E-B2AC-8AA0A05AD9A0",
-                "18319C8B-0583-4967-8023-15859A0BF0F3"];
+                "18319C8B-0583-4967-8023-15859A0BF0F3",
+            ];
 
             // readdir finds appIds
             const mockReadDir = sinon.stub();
@@ -42,7 +43,7 @@ suite("plistBuddy", function() {
 
             const mockFS: any = {
                 existsSync: mockExistsSync,
-                readDir: mockReadDir
+                readDir: mockReadDir,
             };
 
             // getBundleId returns bundleId
@@ -51,7 +52,7 @@ suite("plistBuddy", function() {
             bundleIdStub.returns(Q.reject("Incorrect project root"));
 
             const mockPlistBuddy: any = {
-                getBundleId: bundleIdStub
+                getBundleId: bundleIdStub,
             };
 
             // exec-ing the correct command returns the simulator home
@@ -59,13 +60,13 @@ suite("plistBuddy", function() {
             execStub.withArgs(findSimulatorHomeCommand).returns({ outcome: Q.resolve(findSimulatorHomeResult) });
             execStub.throws();
             const mockChildProcess: any = {
-                exec: execStub
+                exec: execStub,
             };
 
             const simulatorPlist = new SimulatorPlist(projectRoot, {
                 nodeFileSystem: mockFS,
                 plistBuddy: mockPlistBuddy,
-                nodeChildProcess: mockChildProcess
+                nodeChildProcess: mockChildProcess,
             });
 
             return simulatorPlist.findPlistFile().then((plistFile) => {

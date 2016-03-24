@@ -28,7 +28,8 @@ export class IOSPlatform implements IAppPlatform {
     // We should add the common iOS build/run erros we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure = {
         "No devices are booted": "Unable to launch iOS simulator. Try specifying a different target.",
-        "FBSOpenApplicationErrorDomain": "Unable to launch iOS simulator. Try specifying a different target." };
+        "FBSOpenApplicationErrorDomain": "Unable to launch iOS simulator. Try specifying a different target.",
+    };
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
@@ -74,7 +75,7 @@ export class IOSPlatform implements IAppPlatform {
         // Wait until the configuration file exists, and check to see if debugging is enabled
         return Q.all([
             iosDebugModeManager.getSimulatorJSDebuggingModeSetting(),
-            this.plistBuddy.getBundleId(launchArgs.projectRoot)
+            this.plistBuddy.getBundleId(launchArgs.projectRoot),
         ]).spread((debugModeSetting: string, bundleId: string) => {
             if (debugModeSetting !== IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME) {
                 // Debugging must still be enabled

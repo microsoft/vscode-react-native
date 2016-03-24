@@ -1,0 +1,640 @@
+{
+    "title": "react-native run-android fails because the only online device was skipped due to unknown API level",
+    "arguments": {
+        "command": "react-native",
+        "args": [
+            "run-android"
+        ],
+        "options": {
+            "cwd": "/Users/workspaces/SampleApplication_21"
+        }
+    },
+    "date": "2016-03-23T18:12:17.341Z",
+    "configuration": {
+        "os": {
+            "platform": "OS X Yosemite",
+            "release": "10.10.5"
+        },
+        "android": {
+            "sdk": {
+                "tools": "24.4.1",
+                "platformTools": "23.1",
+                "buildTools": "23.0.1",
+                "repositoryForSupportLibraries": "25"
+            },
+            "intelHAXMEmulator": "6.0.1"
+        },
+        "reactNative": "0.21.0",
+        "node": "5.3.0",
+        "npm": "3.3.12"
+    },
+    "state": {
+        "reactNative": {
+            "packager": "Running"
+        },
+        "devices": {
+            "android": [
+                {
+                    "id": "emulator-5554",
+                    "type": "SDKEmulator",
+                    "hardware": "Nexus 5",
+                    "os": "M",
+                    "api": "23",
+                    "otherSpecs": "5\" M (6.0.0)",
+                    "appStatus": "NotInstalled"
+                }
+            ],
+            "ios": []
+        }
+    },
+    "events": [
+        {
+            "after": 26012,
+            "stdout": {
+                "data": "JS server already running.\n"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": "Building and installing the app on the device (cd android && ./gradlew installDebug)...\n"
+            }
+        },
+        {
+            "after": 75287,
+            "stdout": {
+                "data": ":app:preBuild"
+            }
+        },
+        {
+            "after": 345,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 179,
+            "stdout": {
+                "data": ":app:preDebugBuild"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": ":app:checkDebugManifest"
+            }
+        },
+        {
+            "after": 3,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:preReleaseBuild"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:prepareComAndroidSupportAppcompatV72301Library"
+            }
+        },
+        {
+            "after": 6516,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComAndroidSupportRecyclerviewV72301Library"
+            }
+        },
+        {
+            "after": 773,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:prepareComAndroidSupportSupportV42301Library"
+            }
+        },
+        {
+            "after": 604,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoDrawee081Library"
+            }
+        },
+        {
+            "after": 225,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoFbcore081Library"
+            }
+        },
+        {
+            "after": 132,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoFresco081Library"
+            }
+        },
+        {
+            "after": 73,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoImagepipeline081Library"
+            }
+        },
+        {
+            "after": 1202,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:prepareComFacebookFrescoImagepipelineOkhttp081Library"
+            }
+        },
+        {
+            "after": 166,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:prepareComFacebookReactReactNative0210Library"
+            }
+        },
+        {
+            "after": 1102,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareOrgWebkitAndroidJscR174650Library"
+            }
+        },
+        {
+            "after": 1966,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:prepareDebugDependencies"
+            }
+        },
+        {
+            "after": 4,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:compileDebugAidl"
+            }
+        },
+        {
+            "after": 718,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:compileDebugRenderscript"
+            }
+        },
+        {
+            "after": 161,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:generateDebugBuildConfig"
+            }
+        },
+        {
+            "after": 1841,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:generateDebugAssets"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:mergeDebugAssets"
+            }
+        },
+        {
+            "after": 230,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:generateDebugResValues"
+            }
+        },
+        {
+            "after": 4,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:generateDebugResources"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:mergeDebugResources"
+            }
+        },
+        {
+            "after": 5099,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 4,
+            "stdout": {
+                "data": ":app:bundleDebugJsAndAssets"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": " SKIPPED\n:app:processDebugManifest"
+            }
+        },
+        {
+            "after": 1283,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:processDebugResources"
+            }
+        },
+        {
+            "after": 1284,
+            "stderr": {
+                "data": "Unknown source file : warning: string 'catalyst_debugjs' has no default translation.\n"
+            }
+        },
+        {
+            "after": 0,
+            "stderr": {
+                "data": "Unknown source file : warning: string 'catalyst_element_inspector' has no default translation.\nUnknown source file : warning: string 'catalyst_jsload_error' has no default translation.\nUnknown source file : warning: string 'catalyst_jsload_message' has no default translation.\nUnknown source file : warning: string 'catalyst_jsload_title' has no default translation.\nUnknown source file : warning: string 'catalyst_reloadjs' has no default translation.\nUnknown source file : warning: string 'catalyst_settings' has no default translation.\nUnknown source file : warning: string 'catalyst_settings_title' has no default translation.\n\n"
+            }
+        },
+        {
+            "after": 537,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 2,
+            "stdout": {
+                "data": ":app:generateDebugSources"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:processDebugJavaRes"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": " UP-TO-DATE"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:compileDebugJavaWithJavac"
+            }
+        },
+        {
+            "after": 5937,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:compileDebugNdk"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": " "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "UP-TO-DATE\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:compileDebugSources"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:preDexDebug"
+            }
+        },
+        {
+            "after": 24334,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 4,
+            "stdout": {
+                "data": ":app:dexDebug"
+            }
+        },
+        {
+            "after": 3120,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:validateDebugSigning"
+            }
+        },
+        {
+            "after": 45,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:packageDebug"
+            }
+        },
+        {
+            "after": 9367,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": ":app:zipalignDebug"
+            }
+        },
+        {
+            "after": 616,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:assembleDebug"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 1,
+            "stdout": {
+                "data": ":app:installDebug"
+            }
+        },
+        {
+            "after": 4604,
+            "stdout": {
+                "data": "\nSkipping device 'emulator-5554' for 'app:debug': Unknown API Level"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 8,
+            "stdout": {
+                "data": ":app:installDebug "
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "FAILED\n"
+            }
+        },
+        {
+            "after": 26,
+            "stderr": {
+                "data": "\n"
+            }
+        },
+        {
+            "after": 0,
+            "stderr": {
+                "data": "FAILURE: Build failed with an exception.\n\n"
+            }
+        },
+        {
+            "after": 0,
+            "stderr": {
+                "data": "* What went wrong:\nExecution failed for task ':app:installDebug'.\n"
+            }
+        },
+        {
+            "after": 1,
+            "stderr": {
+                "data": "> Failed to install on any devices.\n"
+            }
+        },
+        {
+            "after": 0,
+            "stderr": {
+                "data": "\n* Try:\n"
+            }
+        },
+        {
+            "after": 1,
+            "stderr": {
+                "data": "Run with "
+            }
+        },
+        {
+            "after": 0,
+            "stderr": {
+                "data": "--stacktrace option to get the stack trace. Run with --info or --debug option to get more log output.\n"
+            }
+        },
+        {
+            "after": 0,
+            "stdout": {
+                "data": "\nBUILD FAILED\n\nTotal time: 2 mins 20.083 secs\n"
+            }
+        },
+        {
+            "after": 656,
+            "stdout": {
+                "data": "Could not install the app on the device, read the error above for details.\nMake sure you have an Android emulator running or a device connected and have\nset up your Android development environment:\nhttps://facebook.github.io/react-native/docs/android-setup.html\n"
+            }
+        },
+        {
+            "after": 1630,
+            "exit": {
+                "code": 0
+            }
+        }
+    ]
+}
