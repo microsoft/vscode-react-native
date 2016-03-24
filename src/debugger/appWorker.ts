@@ -62,7 +62,7 @@ export class SandboxedAppWorker {
 
     constructor(sourcesStoragePath: string, debugAdapterPort: number, postReplyToApp: (message: any) => void, {
         nodeFileSystem = new FileSystem(),
-        scriptImporter = new ScriptImporter(sourcesStoragePath)
+        scriptImporter = new ScriptImporter(sourcesStoragePath),
     } = {}) {
         this.sourcesStoragePath = sourcesStoragePath;
         this.debugAdapterPort = debugAdapterPort;
@@ -100,7 +100,7 @@ export class SandboxedAppWorker {
             importScripts: (url: string) => this.importScripts(url), // Import script like using <script/>
             postMessage: (object: any) => this.gotResponseFromDebuggerWorker(object), // Post message back to the UI thread
             onmessage: null,
-            postMessageArgument: null
+            postMessageArgument: null,
         };
         this.sandbox.self = this.sandbox;
 
@@ -172,7 +172,7 @@ export class MultipleLifetimesAppWorker {
 
     constructor(sourcesStoragePath: string, debugAdapterPort: number, {
         sandboxedAppConstructor = (path: string, port: number, messageFunc: (message: any) => void) => new SandboxedAppWorker(path, port, messageFunc),
-        webSocketConstructor = (url: string) => new WebSocket(url)
+        webSocketConstructor = (url: string) => new WebSocket(url),
     } = {}) {
         this.sourcesStoragePath = sourcesStoragePath;
         this.debugAdapterPort = debugAdapterPort;

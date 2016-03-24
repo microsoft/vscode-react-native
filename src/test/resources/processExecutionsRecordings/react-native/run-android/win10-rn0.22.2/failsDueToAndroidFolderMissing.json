@@ -1,0 +1,61 @@
+{
+    "title": "react-native run-android fails because the android project folder is missing",
+    "arguments": {
+        "command": "react-native.cmd",
+        "args": [
+            "run-android"
+        ],
+        "options": {
+            "cwd": "c:\\projects\\SampleApplication_22"
+        }
+    },
+    "date": "2016-03-23T19:07:17.224Z",
+    "configuration": {
+        "os": {
+            "platform": "Windows 10 Entreprise",
+            "release": "Version 1511 (OS Build 10586.164)"
+        },
+        "android": {
+            "sdk": {
+                "tools": "24.4.1",
+                "platformTools": "23.1",
+                "buildTools": "23.0.1",
+                "repositoryForSupportLibraries": "28"
+            },
+            "intelHAXMEmulator": "6.0.1",
+            "visualStudioEmulator": "1.0.60106.1"
+        },
+        "reactNative": "0.22.2",
+        "node": "5.9.1",
+        "npm": "3.7.3"
+    },
+    "state": {
+        "reactNative": {
+            "packager": "Running"
+        },
+        "devices": {
+            "android": [],
+            "ios": []
+        }
+    },
+    "events": [
+        {
+            "after": 1461,
+            "stderr": {
+                "data": "'which' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n"
+            }
+        },
+        {
+            "after": 119,
+            "stdout": {
+                "data": "Android project not found. Maybe run react-native android first?\n"
+            }
+        },
+        {
+            "after": 1326,
+            "exit": {
+                "code": 0
+            }
+        }
+    ]
+}
