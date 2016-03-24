@@ -22,8 +22,10 @@ export class OutputVerifier {
 
     public process(spawnResult: ISpawnResult): Q.Promise<void> {
         // Store all output
-        this.store(spawnResult.stdout, new_content => this.output += new_content);
-        this.store(spawnResult.stderr, new_content => this.errors += new_content);
+        this.store(spawnResult.stdout, new_content =>
+            this.output += new_content);
+        this.store(spawnResult.stderr, new_content =>
+            this.errors += new_content);
 
         return spawnResult.outcome // Wait for the process to finish
             .then(this.generatePatternToFailure) // Generate the failure patterns to check

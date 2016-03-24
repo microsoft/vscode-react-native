@@ -127,6 +127,7 @@ export class HostPlatform {
                     break;
                 default:
                     HostPlatform.platformInstance = new LinuxHostPlatform();
+                    break;
             }
         }
 

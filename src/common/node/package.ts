@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {Node} from "./node";
 import * as pathModule from "path";
 import * as Q from "q";
+
+import {FileSystem} from "./fileSystem";
 
 interface IPackageDependencyDict {
     [packageName: string]: string;
@@ -18,16 +19,20 @@ export interface IPackageInformation {
 }
 
 export class Package {
-    private _path: string;
     private INFORMATION_PACKAGE_FILENAME = "package.json";
     private DEPENDENCIES_SUBFOLDER = "node_modules";
 
-    constructor(path: string) {
+    private fileSystem: FileSystem;
+
+    private _path: string;
+
+    constructor(path: string, { fileSystem = new FileSystem() } = {}) {
         this._path = path;
+        this.fileSystem = fileSystem;
     }
 
     public parsePackageInformation(): Q.Promise<IPackageInformation> {
-        return new Node.FileSystem().readFile(this.informationJsonFilePath(), "utf8")
+        return this.fileSystem.readFile(this.informationJsonFilePath(), "utf8")
             .then(data =>
                 <IPackageInformation>JSON.parse(data));
     }
@@ -51,7 +56,7 @@ export class Package {
         return this.parsePackageInformation()
             .then(packageInformation => {
                 packageInformation.main = value;
-                return new Node.FileSystem().writeFile(this.informationJsonFilePath(), JSON.stringify(<Object>packageInformation));
+                return this.fileSystem.writeFile(this.informationJsonFilePath(), JSON.stringify(<Object>packageInformation));
             });
     }
 
@@ -60,15 +65,16 @@ export class Package {
     }
 
     public dependencyPackage(dependencyName: string): Package {
-        return new Package(this.dependencyPath(dependencyName));
+        return new Package(this.dependencyPath(dependencyName), { fileSystem: this.fileSystem});
     }
 
-    private informationJsonFilePath(): string {
+    public informationJsonFilePath(): string {
         return pathModule.resolve(this._path, this.INFORMATION_PACKAGE_FILENAME);
     }
 
     private parseProperty(name: string): Q.Promise<any> {
         return this.parsePackageInformation()
-            .then(packageInformation => packageInformation[name]);
+            .then(packageInformation =>
+                packageInformation[name]);
     }
 }
