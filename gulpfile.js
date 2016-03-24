@@ -80,6 +80,7 @@ function test() {
         console.log("\nTesting cases that match pattern: " + pattern);
     } else {
         pattern = "extensionContext";
+        console.log("\nTesting cases that don't match pattern: " + pattern);
     }
 
     return gulp.src(['out/test/**/*.test.js', '!out/test/extension/**'])
