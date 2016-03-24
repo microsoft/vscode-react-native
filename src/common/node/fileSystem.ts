@@ -154,6 +154,13 @@ export class FileSystem {
         });
     }
 
+
+    /**
+     * Delete 'dirPath' if it's an empty folder. If not fail.
+     *
+     * @param {dirPath} path to the folder
+     * @returns {void} Nothing
+     */
     public rmdir(dirPath: string): Q.Promise<void> {
         return Q.nfcall<void>(this.fs.rmdir, dirPath);
     }
