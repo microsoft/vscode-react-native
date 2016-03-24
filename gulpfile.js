@@ -71,7 +71,6 @@ function readArgument(argumentName) {
 
 function test() {
     // Defaults
-    var pattern = "extensionContext";
     var invert = true;
 
     // Check if arguments were passed
@@ -79,6 +78,8 @@ function test() {
     if (pattern !== null) {
         invert = false;
         console.log("\nTesting cases that match pattern: " + pattern);
+    } else {
+        pattern = "extensionContext";
     }
 
     return gulp.src(['out/test/**/*.test.js', '!out/test/extension/**'])
