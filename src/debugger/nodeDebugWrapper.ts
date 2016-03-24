@@ -145,7 +145,7 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
         args.args = [
             args.platform,
             debugServerListeningPort.toString(),
-            args.target || "simulator"
+            args.target || "simulator",
         ];
 
         if (!isNullOrUndefined(args.logCatArguments)) { // We add the parameter if it's defined (adapter crashes otherwise)

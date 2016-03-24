@@ -14,7 +14,7 @@ export class Xcodeproj {
     private nodeFileSystem: FileSystem;
 
     constructor({
-        nodeFileSystem = new FileSystem()
+        nodeFileSystem = new FileSystem(),
     } = {}) {
         this.nodeFileSystem = nodeFileSystem;
     }

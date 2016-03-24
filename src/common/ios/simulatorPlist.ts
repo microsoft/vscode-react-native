@@ -22,7 +22,7 @@ export class SimulatorPlist {
     constructor(projectRoot: string, {
         nodeFileSystem = new FileSystem(),
         plistBuddy = new PlistBuddy(),
-        nodeChildProcess = new ChildProcess()
+        nodeChildProcess = new ChildProcess(),
     } = {}) {
         this.projectRoot = projectRoot;
 
@@ -35,8 +35,8 @@ export class SimulatorPlist {
 
         return Q.all<any>([
             this.plistBuddy.getBundleId(this.projectRoot), // Find the name of the application
-            this.nodeChildProcess.exec("xcrun simctl getenv booted HOME").outcome]) // Find the path of the simulator we are running
-            .spread((bundleId: string, pathBuffer: Buffer) => {
+            this.nodeChildProcess.exec("xcrun simctl getenv booted HOME").outcome, // Find the path of the simulator we are running
+            ]).spread((bundleId: string, pathBuffer: Buffer) => {
                 const pathBefore = path.join(pathBuffer.toString().trim(), "Containers", "Data", "Application");
                 const pathAfter = path.join("Library", "Preferences", `${bundleId}.plist`);
 
