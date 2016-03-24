@@ -24,7 +24,7 @@ suite("plistBuddy", function() {
             mockedExecFunc.throws();
 
             const mockChildProcess: any = {
-                exec: mockedExecFunc
+                exec: mockedExecFunc,
             };
             const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess });
 
@@ -48,7 +48,7 @@ suite("plistBuddy", function() {
             mockedExecFunc.throws();
 
             const mockChildProcess: any = {
-                exec: mockedExecFunc
+                exec: mockedExecFunc,
             };
             const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess });
 
@@ -77,19 +77,19 @@ suite("plistBuddy", function() {
             mockedExecFunc.withArgs(printExecCall(true)).returns({outcome: Q.resolve(simulatorBundleId)});
             mockedExecFunc.withArgs(printExecCall(false)).returns({outcome: Q.resolve(deviceBundleId)});
             const mockChildProcess: any = {
-                exec: mockedExecFunc
+                exec: mockedExecFunc,
             };
 
             const mockedFindXcodeprojFile = sinon.stub();
             mockedFindXcodeprojFile.withArgs(projectRoot).returns(Q.resolve(appName + ".xcodeproj"));
             const mockXcodeproj: any = {
-                findXcodeprojFile: mockedFindXcodeprojFile
+                findXcodeprojFile: mockedFindXcodeprojFile,
             };
             const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess, xcodeproj: mockXcodeproj });
 
             return Q.all([
                 plistBuddy.getBundleId(projectRoot, true),
-                plistBuddy.getBundleId(projectRoot, false)
+                plistBuddy.getBundleId(projectRoot, false),
             ]).spread((simulatorId, deviceId) => {
                 assert.equal(simulatorBundleId, simulatorId);
                 assert.equal(deviceBundleId, deviceId);

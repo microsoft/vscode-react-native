@@ -197,7 +197,7 @@ export class IntellisenseHelper {
             .then((installed: boolean) => {
                 let installProps: IInstallProps = {
                     installed: installed,
-                    version: ""
+                    version: "",
                 };
 
                 if (installed === true) {

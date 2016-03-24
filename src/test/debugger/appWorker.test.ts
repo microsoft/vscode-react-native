@@ -25,16 +25,16 @@ suite("appWorker", function() {
 
             setup(function() {
                 const nodeFileSystemMock: any = {
-                    readFile: readFileStub
+                    readFile: readFileStub,
                 };
 
                 const scriptImporterMock: any = {
-                    downloadAppScript: downloadAppScriptStub
+                    downloadAppScript: downloadAppScriptStub,
                 };
 
                 sandboxedWorker = new AppWorker.SandboxedAppWorker(sourcesStoragePath, debugAdapterPort, postReplyFunction, {
                     nodeFileSystem: nodeFileSystemMock,
-                    scriptImporter: scriptImporterMock
+                    scriptImporter: scriptImporterMock,
                 });
             });
 
@@ -69,7 +69,7 @@ suite("appWorker", function() {
                 downloadAppScriptStub.withArgs(scriptImportPath, debugAdapterPort).returns(scriptImportDeferred.promise.then(() => {
                     return {
                         contents: testScriptContents,
-                        filepath: scriptImportPath
+                        filepath: scriptImportPath,
                     };
                 }));
 
@@ -128,7 +128,7 @@ suite("appWorker", function() {
 
                 multipleLifetimesWorker = new AppWorker.MultipleLifetimesAppWorker(sourcesStoragePath, debugAdapterPort, {
                     sandboxedAppConstructor: sandboxedAppConstructor,
-                    webSocketConstructor: webSocketConstructor
+                    webSocketConstructor: webSocketConstructor,
                 });
             });
 
