@@ -275,7 +275,7 @@ export module Telemetry {
                 let deferred: Q.Deferred<string> = Q.defer<string>();
                 let regKey = new winreg({
                                         hive: hive,
-                                        key: key
+                                        key: key,
                                 });
                 regKey.get(value, function(err: any, itemValue: winreg.RegistryItem) {
                     if (err) {

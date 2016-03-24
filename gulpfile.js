@@ -61,13 +61,34 @@ gulp.task('tslint', function () {
         .pipe(tslint.report('verbose'));
 });
 
+function readArgument(argumentName) {
+    var argumentNameIndex = process.argv.indexOf("--" + argumentName);
+    var argumentValueIndex = argumentNameIndex + 1;
+    return argumentNameIndex > -1 && argumentValueIndex < process.argv.length
+        ? process.argv[argumentValueIndex]
+        : null;
+}
+
 function test() {
+    // Defaults
+    var invert = true;
+
+    // Check if arguments were passed
+    var pattern = readArgument("pattern");
+    if (pattern !== null) {
+        invert = false;
+        console.log("\nTesting cases that match pattern: " + pattern);
+    } else {
+        pattern = "extensionContext";
+        console.log("\nTesting cases that don't match pattern: " + pattern);
+    }
+
     return gulp.src(['out/test/**/*.test.js', '!out/test/extension/**'])
         .pipe(mocha({
             ui: 'tdd',
             useColors: true,
-            invert: true,
-            grep: "extensionContext" // Do not run tests intended for the extensionContext
+            invert: invert,
+            grep: pattern
         }));
 }
 

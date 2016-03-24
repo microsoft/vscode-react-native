@@ -76,7 +76,7 @@ export class ChildProcess {
               stdin: spawnedProcess.stdin,
               stdout: spawnedProcess.stdout,
               stderr: spawnedProcess.stderr,
-              outcome: outcome.promise
+              outcome: outcome.promise,
        };
     }
 
@@ -102,7 +102,7 @@ export class ChildProcess {
               stdin: spawnedProcess.stdin,
               stdout: spawnedProcess.stdout,
               stderr: spawnedProcess.stderr,
-              outcome: outcome.promise
+              outcome: outcome.promise,
        };
     }
 }
