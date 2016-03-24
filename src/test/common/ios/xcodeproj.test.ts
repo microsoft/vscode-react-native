@@ -19,7 +19,7 @@ suite("xcodeproj", function() {
                         throw new Error(`Expected ${extension} got ${ext}`);
                     }
                     return Q(testFiles);
-                }
+                },
             };
 
             const xcodeproj = new Xcodeproj({ nodeFileSystem: mockFileSystem });
