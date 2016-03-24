@@ -139,6 +139,7 @@
         "gulp-tslint": "^4.3.3",
         "gulp-typescript": "^2.12.1",
         "gulp-util": "^3.0.7",
+        "mocha": "^2.4.5",
         "mocha-teamcity-reporter": "^1.0.0",
         "run-sequence": "^1.1.5",
         "sinon": "^1.17.3",
