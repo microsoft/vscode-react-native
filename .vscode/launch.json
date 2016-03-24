@@ -108,8 +108,9 @@
             "args": [
                 "--ui",
                 "tdd",
-                // "--grep", "androidPlatform",
-                "out/test/debugger/**/*.test.js"
+                // "--grep", "patternToFilterTestsBy",
+                "out/test/debugger/**/*.test.js",
+                "out/test/common/**/*.test.js"
             ],
             "cwd": "${workspaceRoot}",
             "runtimeExecutable": null,
