@@ -13,6 +13,7 @@ import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IRunOptions} from "../common/launchArgs";
 import * as em from "../common/extensionMessaging";
+import {ExtensionMessageSender} from "../common/extensionMessageSender";
 import {EntryPointHandler} from "../common/entryPointHandler";
 
 export class Launcher {
@@ -34,7 +35,7 @@ export class Launcher {
                     throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
                 } else {
                     const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-                    let extensionMessageSender = new em.ExtensionMessageSender();
+                    let extensionMessageSender = new ExtensionMessageSender();
                     return Q({})
                         .then(() => {
                             generator.step("startPackager");

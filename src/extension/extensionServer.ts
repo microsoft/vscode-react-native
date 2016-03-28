@@ -6,7 +6,6 @@ import * as Q from "q";
 import * as vscode from "vscode";
 
 import * as em from "../common/extensionMessaging";
-import {HostPlatform} from "../common/hostPlatform";
 import {Log} from "../common/log/log";
 import {LogLevel} from "../common/log/logHelper";
 import {Packager} from "../common/packager";
@@ -24,7 +23,7 @@ export class ExtensionServer implements vscode.Disposable {
 
     public constructor(reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
 
-        this.pipePath = HostPlatform.getExtensionPipePath();
+        this.pipePath = new em.MessagingChannel().getPath();
         this.reactNativePackager = reactNativePackager;
         this.reactNativePackageStatusIndicator = packagerStatusIndicator;
 

@@ -4,7 +4,8 @@
 import * as Q from "q";
 
 import {IAppPlatform} from "../platformResolver";
-import {ExtensionMessageSender, ExtensionMessage} from "../../common/extensionMessaging";
+import {ExtensionMessage} from "../../common/extensionMessaging";
+import {ExtensionMessageSender} from "../../common/extensionMessageSender";
 import {IRunOptions} from "../../common/launchArgs";
 import {Log} from "../../common/log/log";
 import {PackageNameResolver} from "../../common/android/packageNameResolver";

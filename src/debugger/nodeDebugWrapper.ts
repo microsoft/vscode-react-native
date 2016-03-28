@@ -7,7 +7,8 @@ import * as http from "http";
 
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
-import {ExtensionMessageSender, ExtensionMessage} from "../common/extensionMessaging";
+import {ExtensionMessage} from "../common/extensionMessaging";
+import {ExtensionMessageSender} from "../common/extensionMessageSender";
 
 // These typings do not reflect the typings as intended to be used
 // but rather as they exist in truth, so we can reach into the internals

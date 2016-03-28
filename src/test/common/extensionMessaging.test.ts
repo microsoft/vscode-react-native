@@ -5,8 +5,11 @@ import {HostPlatform} from "../../common/hostPlatform";
 
 import {
     ExtensionMessage,
-    ExtensionMessageSender,
 } from "../../common/extensionMessaging";
+
+import {
+    ExtensionMessageSender,
+} from "../../common/extensionMessageSender";
 
 import * as assert from "assert";
 import * as net from "net";
