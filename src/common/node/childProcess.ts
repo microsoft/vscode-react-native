@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as child_process from "child_process";
+import * as nodeChildProcess from "child_process";
 import Q = require("q");
 import {ErrorHelper} from "../error/errorHelper";
 import {InternalErrorCode} from "../error/internalErrorCode";
 
 export interface IExecResult {
-    process: child_process.ChildProcess;
+    process: nodeChildProcess.ChildProcess;
     outcome: Q.Promise<Buffer>;
 }
 
 export interface ISpawnResult {
-    spawnedProcess: child_process.ChildProcess;
+    spawnedProcess: nodeChildProcess.ChildProcess;
     stdin: NodeJS.WritableStream;
     stdout: NodeJS.ReadableStream;
     stderr: NodeJS.ReadableStream;
@@ -38,9 +38,9 @@ interface ISpawnOptions {
 
 export class ChildProcess {
     public static ERROR_TIMEOUT_MILLISECONDS = 300;
-    private childProcess: typeof child_process;
+    private childProcess: typeof nodeChildProcess;
 
-    constructor({childProcess = child_process /* = require("child_process") */} = {}) {
+    constructor({childProcess = nodeChildProcess} = {}) {
         this.childProcess = childProcess;
     }
 
