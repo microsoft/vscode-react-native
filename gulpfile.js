@@ -52,7 +52,7 @@ var lintSources = [
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; });
 lintSources = lintSources.concat([
     '!src/typings/**',
-    '!src/test/resources/sampleReactNative022Project/**'
+    '!src/test/resources/sampleReactNative022Project/**',
 ]);
 
 var tslint = require('gulp-tslint');
