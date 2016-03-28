@@ -103,7 +103,7 @@ function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T
 function warnWhenReactNativeVersionIsNotSupported(): void {
     return reactNativeProjectHelper.validateReactNativeVersion().done(() => { }, reason => {
         TelemetryHelper.sendSimpleEvent("unsupportedRNVersion", { rnVersion: reason });
-        const shortMessage = `React Native Tools extension only supports React Native versions 0.19.0 and later`;
+        const shortMessage = `React Native Tools need React Native version 0.19.0 or later to be installed in <PROJECT_ROOT>/node_modules/`;
         const longMessage = `${shortMessage}: ${reason}`;
         vscode.window.showWarningMessage(shortMessage);
         Log.logMessage(longMessage);
