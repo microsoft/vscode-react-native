@@ -52,7 +52,7 @@ var lintSources = [
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; });
 lintSources = lintSources.concat([
     '!src/typings/**',
-    '!src/test/resources/myReactNative022Project/**'
+    '!src/test/resources/sampleReactNative022Project/**'
 ]);
 
 var tslint = require('gulp-tslint');
@@ -109,7 +109,7 @@ gulp.task('check-copyright', function (cb) {
             "!**/*.d.ts",
             "!node_modules/**/*.*",
             "!SampleApplication/**/*.js",
-            "!src/test/resources/myReactNative022Project/**/*.js",
+            "!src/test/resources/sampleReactNative022Project/**/*.js",
         ])
         .pipe(copyright());
 });
