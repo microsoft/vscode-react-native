@@ -33,7 +33,7 @@ export class EntryPointHandler {
         let telemetryError = ErrorHelper.getInternalError(InternalErrorCode.TelemetryInitializationFailed, error.message);
         try { // try-catch for sync errors in init telemetry
             return this.handleErrors(telemetryError, // handleErrors for async errors in init telemetry
-                Telemetry.init("react-native", getAppVersion(), true).then(() =>
+                Telemetry.init(appName, getAppVersion(), {isExtensionProcess: !this.isDebugeeProcess}).then(() =>
                     // After telemetry is initialized, we run the code. Errors in this main path are fatal so we rethrow them
                     this.runFunction(appName, error, codeToRun, /*errorsAreFatal*/ true)), /*errorsAreFatal*/ true);
         } catch (error) {
@@ -49,15 +49,13 @@ export class EntryPointHandler {
             if (errorsAreFatal) {
                 /* The process is likely going to exit if errors are fatal, so we first
                 send the telemetry, and then we exit or rethrow the exception */
-                Telemetry.sendPendingData().finally(() => {
-                    if (this.isDebugeeProcess) {
-                        /* HACK: For the debugee process we don't want to throw an exception because the debugger
-                                 will appear to the user if he turned on the VS Code uncaught exceptions feature. */
-                        process.exit(1);
-                    } else {
-                        throw reason;
-                    }
-                }).done();
+                if (this.isDebugeeProcess) {
+                    /* HACK: For the debugee process we don't want to throw an exception because the debugger
+                                will appear to the user if he turned on the VS Code uncaught exceptions feature. */
+                    process.exit(1);
+                } else {
+                    throw reason;
+                }
             }
         });
     }

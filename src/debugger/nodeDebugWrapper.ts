@@ -54,9 +54,7 @@ let version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "packa
 function bailOut(reason: string): void {
     // Things have gone wrong in initialization: Report the error to telemetry and exit
     TelemetryHelper.sendSimpleEvent(reason);
-    Telemetry.sendPendingData().finally(() => {
-        process.exit(1);
-    });
+    process.exit(1);
 }
 
 function parseLogCatArguments(userProvidedLogCatArguments: any) {
@@ -70,7 +68,7 @@ function isNullOrUndefined(value: any): boolean {
 }
 
 // Enable telemetry
-Telemetry.init("react-native-debug-adapter", version, true).then(() => {
+Telemetry.init("react-native-debug-adapter", version, {isExtensionProcess: false}).then(() => {
     let nodeDebugFolder: string;
     let vscodeDebugAdapterPackage: typeof VSCodeDebugAdapter;
 
