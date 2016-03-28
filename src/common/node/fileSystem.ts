@@ -144,6 +144,31 @@ export class FileSystem {
         return Q.nfcall<void>(this.fs.mkdir, p);
     }
 
+    public stat(path: string): Q.Promise<nodeFs.Stats> {
+        return Q.nfcall<nodeFs.Stats>(this.fs.stat, path);
+    }
+
+    public directoryExists(directoryPath: string): Q.Promise<boolean> {
+        return this.stat(directoryPath).then(stats => {
+            return stats.isDirectory();
+        }).catch(reason => {
+            return reason.code === "ENOENT"
+                ? false
+                : Q.reject<boolean>(reason);
+        });
+    }
+
+
+    /**
+     * Delete 'dirPath' if it's an empty folder. If not fail.
+     *
+     * @param {dirPath} path to the folder
+     * @returns {void} Nothing
+     */
+    public rmdir(dirPath: string): Q.Promise<void> {
+        return Q.nfcall<void>(this.fs.rmdir, dirPath);
+    }
+
     /**
      * Recursively copy 'source' to 'target' asynchronously
      *
