@@ -22,6 +22,17 @@ export class PromiseUtil {
         return this.retryAsyncIteration(operation, condition, maxRetries, 0, delay, failure);
     }
 
+    public reduce<T>(sources: T[]|Q.Promise<T[]>, generateAsyncOperation: (value: T) => Q.Promise<void>): Q.Promise<void> {
+        const promisedSources = <Q.Promise<T[]>>Q(sources);
+        return promisedSources.then(resolvedSources => {
+            return resolvedSources.reduce((previousReduction: Q.Promise<void>, newSource: T) => {
+                return previousReduction.then(() => {
+                    return generateAsyncOperation(newSource);
+                });
+            }, Q<void>(void 0));
+        });
+    }
+
     private retryAsyncIteration<T>(operation: () => Q.Promise<T>, condition: (result: T) => boolean | Q.Promise<boolean>, maxRetries: number, iteration: number, delay: number, failure: string): Q.Promise<T> {
         return operation()
             .then(result => {
