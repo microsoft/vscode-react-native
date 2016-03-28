@@ -40,7 +40,7 @@ export class AndroidPlatform implements IAppPlatform {
     private reactNative: IReactNative;
     private fileSystem: FileSystem;
 
-    constructor({ extensionMessageSender = new ExtensionMessageSender(),
+    constructor(private runOptions: IRunOptions, { extensionMessageSender = new ExtensionMessageSender(),
         deviceHelper = <IDeviceHelper>new DeviceHelper(),
         reactNative = <IReactNative>new ReactNative(),
         fileSystem = new FileSystem(),
@@ -51,8 +51,8 @@ export class AndroidPlatform implements IAppPlatform {
         this.fileSystem = fileSystem;
     }
 
-    public runApp(runOptions: IRunOptions): Q.Promise<void> {
-        const runAndroidSpawn = this.reactNative.runAndroid(runOptions.projectRoot);
+    public runApp(): Q.Promise<void> {
+        const runAndroidSpawn = this.reactNative.runAndroid(this.runOptions.projectRoot);
         const output = new OutputVerifier(
             () =>
                 Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
@@ -63,24 +63,24 @@ export class AndroidPlatform implements IAppPlatform {
             .finally(() => {
                 return this.deviceHelper.getConnectedDevices().then(devices => {
                     this.devices = devices;
-                    this.debugTarget = this.getTargetEmulator(runOptions, devices);
-                    return this.getPackageName(runOptions.projectRoot).then(packageName =>
+                    this.debugTarget = this.getTargetEmulator(devices);
+                    return this.getPackageName(this.runOptions.projectRoot).then(packageName =>
                         this.packageName = packageName);
                 });
             }).catch(reason => {
                 if (reason.message === AndroidPlatform.MULTIPLE_DEVICES_ERROR && this.devices.length > 1 && this.debugTarget) {
                     /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
-                    return this.deviceHelper.launchApp(runOptions.projectRoot, this.packageName, this.debugTarget);
+                    return this.deviceHelper.launchApp(this.runOptions.projectRoot, this.packageName, this.debugTarget);
                 } else {
                     return Q.reject<void>(reason);
                 }
             }).then(() =>
-                this.startMonitoringLogCat(runOptions.logCatArguments).catch(error => // The LogCatMonitor failing won't stop the debugging experience
+                this.startMonitoringLogCat(this.runOptions.logCatArguments).catch(error => // The LogCatMonitor failing won't stop the debugging experience
                     Log.logWarning("Couldn't start LogCat monitor", error)));
     }
 
-    public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {
-        return this.deviceHelper.reloadAppInDebugMode(runOptions.projectRoot, this.packageName, this.debugTarget);
+    public enableJSDebuggingMode(): Q.Promise<void> {
+        return this.deviceHelper.reloadAppInDebugMode(this.runOptions.projectRoot, this.packageName, this.debugTarget);
     }
 
     private getPackageName(projectRoot: string): Q.Promise<string> {
@@ -93,19 +93,19 @@ export class AndroidPlatform implements IAppPlatform {
      * *  If an emulator is specified and it is connected, use that one.
      * *  Otherwise, use the first one in the list.
      */
-    private getTargetEmulator(runOptions: IRunOptions, devices: IDevice[]): string {
+    private getTargetEmulator(devices: IDevice[]): string {
         let activeFilterFunction = (device: IDevice) => {
             return device.isOnline;
         };
 
         let targetFilterFunction = (device: IDevice) => {
-            return device.id === runOptions.target && activeFilterFunction(device);
+            return device.id === this.runOptions.target && activeFilterFunction(device);
         };
 
-        if (runOptions && runOptions.target && devices) {
+        if (this.runOptions && this.runOptions.target && devices) {
             /* check if the specified target is active */
             if (devices.some(targetFilterFunction)) {
-                return runOptions.target;
+                return this.runOptions.target;
             }
         }
 

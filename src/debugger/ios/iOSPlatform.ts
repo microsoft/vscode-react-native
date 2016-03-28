@@ -33,10 +33,12 @@ export class IOSPlatform implements IAppPlatform {
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
-    public runApp(launchArgs: IRunOptions): Q.Promise<void> {
-        // Compile, deploy, and launch the app on either a simulator or a device
-        this.consumeArguments(launchArgs);
+    constructor(private runOptions: IRunOptions) {
+        this.consumeArguments();
+    }
 
+    public runApp(): Q.Promise<void> {
+        // Compile, deploy, and launch the app on either a simulator or a device
         if (this.isSimulator) {
             // React native supports running on the iOS simulator from the command line
             let runArguments: string[] = [];
@@ -48,7 +50,7 @@ export class IOSPlatform implements IAppPlatform {
             const runIosSpawn = new CommandExecutor(this.projectPath).spawnChildReactCommandProcess("run-ios", runArguments);
             return new OutputVerifier(
                 () =>
-                    this.generateSuccessPatterns(launchArgs),
+                    this.generateSuccessPatterns(),
                 () =>
                     Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS)).process(runIosSpawn);
         }
@@ -60,10 +62,8 @@ export class IOSPlatform implements IAppPlatform {
         });
     }
 
-    public enableJSDebuggingMode(launchArgs: IRunOptions): Q.Promise<void> {
+    public enableJSDebuggingMode(): Q.Promise<void> {
         // Configure the app for debugging
-        this.consumeArguments(launchArgs);
-
         if (this.simulatorTarget.toLowerCase() === IOSPlatform.deviceString) {
             // Note that currently we cannot automatically switch the device into debug mode.
             Log.logMessage("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
@@ -75,7 +75,7 @@ export class IOSPlatform implements IAppPlatform {
         // Wait until the configuration file exists, and check to see if debugging is enabled
         return Q.all([
             iosDebugModeManager.getSimulatorJSDebuggingModeSetting(),
-            this.plistBuddy.getBundleId(launchArgs.projectRoot),
+            this.getBundleId(),
         ]).spread((debugModeSetting: string, bundleId: string) => {
             if (debugModeSetting !== IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME) {
                 // Debugging must still be enabled
@@ -98,20 +98,24 @@ export class IOSPlatform implements IAppPlatform {
                     return iosDebugModeManager.setSimulatorJSDebuggingModeSetting(/*enable=*/ true);
                 }).then(() => {
                     // Relaunch the app
-                    return this.runApp(launchArgs);
+                    return this.runApp();
                 });
             }
         });
     }
 
-    private consumeArguments(launchArgs: IRunOptions): void {
-        this.projectPath = launchArgs.projectRoot;
-        this.simulatorTarget = launchArgs.target || IOSPlatform.simulatorString;
+    private consumeArguments(): void {
+        this.projectPath = this.runOptions.projectRoot;
+        this.simulatorTarget = this.runOptions.target || IOSPlatform.simulatorString;
         this.isSimulator = this.simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;
     }
 
-    private generateSuccessPatterns(launchArgs: IRunOptions): Q.Promise<string[]> {
-        return this.plistBuddy.getBundleId(launchArgs.projectRoot).then(bundleId =>
+    private generateSuccessPatterns(): Q.Promise<string[]> {
+        return this.getBundleId().then(bundleId =>
             IOSPlatform.RUN_IOS_SUCCESS_PATTERNS.concat([`Launching ${bundleId}\n${bundleId}: `]));
+    }
+
+    private getBundleId(): Q.Promise<string> {
+        return this.plistBuddy.getBundleId(this.projectPath);
     }
 }

@@ -29,7 +29,7 @@ export class Launcher {
             return TelemetryHelper.generate("launch", (generator) => {
                 const resolver = new PlatformResolver();
                 const runOptions = this.parseRunOptions();
-                const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
+                const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform, runOptions);
                 if (!mobilePlatform) {
                     throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
                 } else {
@@ -54,7 +54,7 @@ export class Launcher {
                         })
                         .then(() => {
                             generator.step("mobilePlatform.runApp");
-                            return mobilePlatform.runApp(runOptions);
+                            return mobilePlatform.runApp();
                         })
                         .then(() => {
                             generator.step("Starting App Worker");
@@ -62,7 +62,7 @@ export class Launcher {
                         }) // Start the app worker
                         .then(() => {
                             generator.step("mobilePlatform.enableJSDebuggingMode");
-                            return mobilePlatform.enableJSDebuggingMode(runOptions);
+                            return mobilePlatform.enableJSDebuggingMode();
                         }).then(() =>
                             Log.logMessage("Debugging session started successfully."));
                 }
