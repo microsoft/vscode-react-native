@@ -373,7 +373,7 @@ export module Telemetry {
         if (!extensionTelemetryReporter) {
             let TelemetryReporter = require("vscode-extension-telemetry").default;
             Telemetry.reporterDictionary[extensionId] = new TelemetryReporter(extensionId, extensionVersion, appInsightsKey);
-            reporter = Telemetry.reporterDictionary[extensionId];
+            extensionTelemetryReporter = Telemetry.reporterDictionary[extensionId];
         }
 
         extensionTelemetryReporter.sendTelemetryEvent(eventName, properties, measures);
