@@ -33,13 +33,14 @@ import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./outputChannelLogger";
 
 /* all components use the same packager instance */
-const globalPackager = new Packager(vscode.workspace.rootPath);
+const projectRootPath = vscode.workspace.rootPath;
+const globalPackager = new Packager(projectRootPath);
 const packagerStatusIndicator = new PackagerStatusIndicator();
-const commandPaletteHandler = new CommandPaletteHandler(vscode.workspace.rootPath, globalPackager, packagerStatusIndicator);
+const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator);
 
 const outputChannelLogger = new OutputChannelLogger(vscode.window.createOutputChannel("React-Native"));
 const entryPointHandler = new EntryPointHandler(false, outputChannelLogger);
-const reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
+const reactNativeProjectHelper = new ReactNativeProjectHelper(projectRootPath);
 const fsUtil = new FileSystem();
 
 interface ISetupableDisposable extends vscode.Disposable {
@@ -59,7 +60,7 @@ export function activate(context: vscode.ExtensionContext): void {
                             .then(() =>
                                 setupAndDispose(new ReactDirManager(), context))
                             .then(() =>
-                                setupAndDispose(new ExtensionServer(globalPackager, packagerStatusIndicator), context))
+                                setupAndDispose(new ExtensionServer(projectRootPath, globalPackager, packagerStatusIndicator), context))
                             .then(() => {}));
                     entryPointHandler.runFunction("intelliSense.setup",
                         ErrorHelper.getInternalError(InternalErrorCode.IntellisenseSetupFailed), () =>
@@ -150,7 +151,7 @@ try {
     throw new Error("Unable to launch application. Try deleting .vscode/launchReactNative.js and restarting vscode.");
 }`;
 
-    const vscodeFolder = path.join(vscode.workspace.rootPath, ".vscode");
+    const vscodeFolder = path.join(projectRootPath, ".vscode");
     const debugStub = path.join(vscodeFolder, "launchReactNative.js");
 
     return fsUtil.ensureDirectory(vscodeFolder)

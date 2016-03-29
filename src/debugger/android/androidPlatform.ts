@@ -41,7 +41,8 @@ export class AndroidPlatform implements IAppPlatform {
     private reactNative: IReactNative;
     private fileSystem: FileSystem;
 
-    constructor(private runOptions: IRunOptions, { extensionMessageSender = new ExtensionMessageSender(),
+    constructor(private runOptions: IRunOptions, {
+        extensionMessageSender = new ExtensionMessageSender(runOptions.projectRoot),
         deviceHelper = <IDeviceHelper>new DeviceHelper(),
         reactNative = <IReactNative>new ReactNative(),
         fileSystem = new FileSystem(),

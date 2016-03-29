@@ -35,7 +35,7 @@ export class Launcher {
                     throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
                 } else {
                     const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-                    let extensionMessageSender = new ExtensionMessageSender();
+                    let extensionMessageSender = new ExtensionMessageSender(this.projectRootPath);
                     return Q({})
                         .then(() => {
                             generator.step("startPackager");

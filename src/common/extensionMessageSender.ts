@@ -3,6 +3,8 @@
 
 import * as net from "net";
 import * as Q from "q";
+import {Log} from "./log/log";
+import {LogLevel} from "./log/logHelper";
 
 import {ExtensionMessage, MessageWithArguments, MessagingChannel, ErrorMarker} from "./extensionMessaging";
 
@@ -14,14 +16,17 @@ export interface IExtensionMessageSender {
  * Sends messages to the extension.
  */
 export class ExtensionMessageSender implements IExtensionMessageSender {
+    constructor(private projectRootPath: string) {
+    }
 
     public sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any> {
         let deferred = Q.defer<any>();
         let messageWithArguments: MessageWithArguments = { message: message, args: args };
         let body = "";
 
-        let pipePath = new MessagingChannel().getPath();
+        let pipePath = new MessagingChannel(this.projectRootPath).getPath();
         let socket = net.connect(pipePath, function() {
+            Log.logInternalMessage(LogLevel.Info, `Connected to socket at ${pipePath}`);
             let messageJson = JSON.stringify(messageWithArguments);
             socket.write(messageJson);
         });

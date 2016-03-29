@@ -48,6 +48,7 @@ interface ILaunchArgs {
     internalDebuggerPort?: any;
     args: string[];
     logCatArguments: any;
+    program: string;
 }
 
 let version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
@@ -69,6 +70,8 @@ function parseLogCatArguments(userProvidedLogCatArguments: any) {
 function isNullOrUndefined(value: any): boolean {
     return typeof value === "undefined" || value === null;
 }
+
+let projectRootPath: string = null;
 
 // Enable telemetry
 Telemetry.init("react-native-debug-adapter", version, true).then(() => {
@@ -114,6 +117,8 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
     // Intecept the "launchRequest" instance method of NodeDebugSession to interpret arguments
     const originalNodeDebugSessionLaunchRequest = nodeDebug.NodeDebugSession.prototype.launchRequest;
     nodeDebug.NodeDebugSession.prototype.launchRequest = function(request: any, args: ILaunchArgs) {
+        projectRootPath = path.resolve(args.program, "../..");
+
         // Create a server waiting for messages to re-initialize the debug session;
         const reinitializeServer = http.createServer((req, res) => {
             res.statusCode = 404;
@@ -161,7 +166,7 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
     function customDisconnectRequest(response: any, args: any): void {
         try {
             // First we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
-            const extensionMessageSender = new ExtensionMessageSender();
+            const extensionMessageSender = new ExtensionMessageSender(projectRootPath);
             extensionMessageSender.sendMessage(ExtensionMessage.STOP_MONITORING_LOGCAT)
                 .finally(() => originalNodeDebugSessionDisconnectRequest.call(this, response, args))
                 .done(() => {}, reason => // We just print a warning if something fails
