@@ -28,6 +28,17 @@ export interface IExtensionMessageSender {
     sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any>;
 }
 
+export function validateMessageWithArguments(message: MessageWithArguments): void {
+    const print = () => JSON.stringify(message);
+
+    if (!ExtensionMessage[message.message]) {
+        throw new Error(`The message type of ${print()} is invalid: ${message.message}`);
+    }
+    if (!Array.isArray(message.args)) {
+        throw new Error(`The arguments of the message ${print()} should be an array, but they are: ${message.args}`);
+    }
+}
+
 /**
  * Sends messages to the extension.
  */
@@ -35,7 +46,8 @@ export class ExtensionMessageSender implements IExtensionMessageSender {
 
     public sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any> {
         let deferred = Q.defer<any>();
-        let messageWithArguments: MessageWithArguments = { message: message, args: args };
+        let messageWithArguments: MessageWithArguments = { message: message, args: args || [] };
+        validateMessageWithArguments(messageWithArguments);
         let body = "";
 
         let pipePath = HostPlatform.getExtensionPipePath();
