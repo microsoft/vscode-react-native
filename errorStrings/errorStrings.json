@@ -25,5 +25,6 @@
     "FailedToStopPackager": "Failed to stop the React Native packager",
     "DebuggingFailed": "Cannot debug application",
     "RNTempFolderDeletionFailed": "Couldn't delete the temporary folder {0}",
-    "CouldNotFindLocationOfNodeDebugger": "Couldn't find the location of the node-debugger extension"
+    "CouldNotFindLocationOfNodeDebugger": "Couldn't find the location of the node-debugger extension",
+    "PackagerRunningInDifferentPort": "A packager cannot be started on port {0} because a packager process is already running on port {1}"
 }

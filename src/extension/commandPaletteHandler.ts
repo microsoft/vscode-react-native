@@ -4,6 +4,7 @@
 import * as vscode from "vscode";
 import * as Q from "q";
 import {CommandExecutor} from "../common/commandExecutor";
+import {WorkspaceConfiguration} from "./workspaceConfiguration";
 import {DeviceHelper, IDevice} from "../common/android/deviceHelper";
 import {Log} from "../common/log/log";
 import {Packager} from "../common/packager";
@@ -29,8 +30,8 @@ export class CommandPaletteHandler {
      * Starts the React Native packager
      */
     public startPackager(): Q.Promise<void> {
-        return this.executeCommandInContext("startPackager", () => this.reactNativePackager.start())
-            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+        return this.executeCommandInContext("startPackager", () =>
+            this.runStartPackagerCommandAndUpdateStatus());
     }
 
     /**
@@ -85,6 +86,11 @@ export class CommandPaletteHandler {
         });
     }
 
+    private runStartPackagerCommandAndUpdateStatus(): Q.Promise<void> {
+        return this.reactNativePackager.start(new WorkspaceConfiguration().getPackagerPort())
+            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+    }
+
     /**
      * Executes a react-native command passed after starting the packager
      * {command} The command to be executed
@@ -94,7 +100,7 @@ export class CommandPaletteHandler {
         // Start the packager before executing the React-Native command
         Log.logMessage("Attempting to start the React Native packager");
 
-        return this.reactNativePackager.start()
+        return this.runStartPackagerCommandAndUpdateStatus()
             .then(() => {
                 return new CommandExecutor(this.workspaceRoot).spawnReactCommand(command, args, null);
             }).then(() => {
@@ -107,7 +113,7 @@ export class CommandPaletteHandler {
      * Otherwise, displays an error message banner
      * {operation} - a function that performs the expected operation
      */
-    private executeCommandInContext(rnCommand: string, operation: () => void): Q.Promise<void> {
+    private executeCommandInContext(rnCommand: string, operation: () => Q.Promise<void> | void): Q.Promise<void> {
         let reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
         return TelemetryHelper.generate("RNCommand", (generator) => {
             generator.add("command", rnCommand, false);

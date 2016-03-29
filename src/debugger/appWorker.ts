@@ -60,9 +60,9 @@ export class SandboxedAppWorker {
 
     private static PROCESS_MESSAGE_INSIDE_SANDBOX = "onmessage({ data: postMessageArgument });";
 
-    constructor(sourcesStoragePath: string, debugAdapterPort: number, postReplyToApp: (message: any) => void, {
+    constructor(private packagerPort: number, sourcesStoragePath: string, debugAdapterPort: number, postReplyToApp: (message: any) => void, {
         nodeFileSystem = new FileSystem(),
-        scriptImporter = new ScriptImporter(sourcesStoragePath),
+        scriptImporter = new ScriptImporter(packagerPort, sourcesStoragePath),
     } = {}) {
         this.sourcesStoragePath = sourcesStoragePath;
         this.debugAdapterPort = debugAdapterPort;
@@ -170,8 +170,9 @@ export class MultipleLifetimesAppWorker {
 
     private executionLimiter = new ExecutionsLimiter();
 
-    constructor(sourcesStoragePath: string, debugAdapterPort: number, {
-        sandboxedAppConstructor = (path: string, port: number, messageFunc: (message: any) => void) => new SandboxedAppWorker(path, port, messageFunc),
+    constructor(private packagerPort: number, sourcesStoragePath: string, debugAdapterPort: number, {
+        sandboxedAppConstructor = (path: string, port: number, messageFunc: (message: any) => void) =>
+            new SandboxedAppWorker(packagerPort, path, port, messageFunc),
         webSocketConstructor = (url: string) => new WebSocket(url),
     } = {}) {
         this.sourcesStoragePath = sourcesStoragePath;
@@ -221,7 +222,7 @@ export class MultipleLifetimesAppWorker {
     }
 
     private debuggerProxyUrl() {
-        return `ws://${Packager.HOST}/debugger-proxy?role=debugger&name=vscode`;
+        return `ws://${Packager.getHostForPort(this.packagerPort)}/debugger-proxy?role=debugger&name=vscode`;
     }
 
     private onSocketOpened() {

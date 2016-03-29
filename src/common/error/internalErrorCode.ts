@@ -10,6 +10,7 @@ export enum InternalErrorCode {
         FailedToRunOnIos = 105,
         FailedToStartPackager = 106,
         FailedToStopPackager = 107,
+        PackagerRunningInDifferentPort = 108,
 
         // Device Deployer errors
         IDeviceInstallerNotFound = 201,

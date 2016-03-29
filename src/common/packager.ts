@@ -4,6 +4,7 @@
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
 import {ErrorHelper} from "./error/errorHelper";
+import {InternalErrorCode} from "./error/internalErrorCode";
 import {Log} from "./log/log";
 import {LogLevel} from "./log/logHelper";
 import {Node} from "./node/node";
@@ -15,11 +16,10 @@ import * as Q from "q";
 import * as path from "path";
 
 export class Packager {
-    // TODO: Make the port configurable via a launch argument
-    public static PORT = "8081";
-    public static HOST = `localhost:${Packager.PORT}`;
+    public static DEFAULT_PORT = 8081;
 
     private projectPath: string;
+    private port: number;
     private packagerProcess: ChildProcess;
 
     private static JS_INJECTOR_FILENAME = "opn-main.js";
@@ -33,15 +33,27 @@ export class Packager {
         this.projectPath = projectPath;
     }
 
+    public static getHostForPort(port: number): string {
+        return `localhost:${port}`;
+    }
 
-    public start(): Q.Promise<void> {
+    public getHost(): string {
+        return Packager.getHostForPort(this.port);
+    }
+
+    public start(port: number): Q.Promise<void> {
+        if (this.port && this.port !== port) {
+            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
+        }
+
+        this.port = port;
         let executedStartPackagerCmd = false;
         return this.isRunning()
             .then(running => {
                 if (!running) {
                     return this.monkeyPatchOpnForRNPackager()
                         .then(() => {
-                            let args = ["--port", Packager.PORT];
+                            let args = ["--port", port.toString()];
                             let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
 
                             Log.logMessage("Starting Packager");
@@ -81,20 +93,18 @@ export class Packager {
             if (running) {
                 if (!this.packagerProcess) {
                     Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
-                    return Q.resolve(void 0);
+                    return Q.resolve<void>(void 0);
                 }
-
-                return new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess).then(() =>
-                    this.packagerProcess = null);
+                return this.killPackagerProcess();
             } else {
                 Log.logWarning(ErrorHelper.getWarning("Packager is not running"));
-                return Q.resolve(void 0);
+                return Q.resolve<void>(void 0);
             }
         });
     }
 
     public prewarmBundleCache(platform: string) {
-        let bundleURL = `http://${Packager.HOST}/index.${platform}.bundle`;
+        let bundleURL = `http://${this.getHost()}/index.${platform}.bundle`;
         Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
         return new Request().request(bundleURL, true).then(() => {
             Log.logMessage("The Bundle Cache was prewarmed.");
@@ -105,7 +115,7 @@ export class Packager {
     }
 
     private isRunning(): Q.Promise<boolean> {
-        let statusURL = `http://${Packager.HOST}/status`;
+        let statusURL = `http://${this.getHost()}/status`;
 
         return new Request().request(statusURL)
             .then((body: string) => {
@@ -165,5 +175,13 @@ export class Packager {
                         });
                 }
             });
+    }
+
+    private killPackagerProcess(): Q.Promise<void> {
+        return new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess).then(() => {
+            this.packagerProcess = null;
+            this.port = null;
+            return Q.resolve<void>(void 0);
+        });
     }
 }
