@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {HostPlatform} from "./hostPlatform";
+import {Crypto} from "./node/crypto";
 
 /**
  * Defines the messages sent to the extension.
@@ -23,7 +24,16 @@ export interface MessageWithArguments {
 export let ErrorMarker = "vscodereactnative-error-marker";
 
 export class MessagingChannel {
+    constructor(private projectRootPath: string) {
+    }
+
     public getPath(): string {
-        return HostPlatform.getExtensionPipePath();
+        /* We need to use a different value for each VS Code window so the pipe names won't clash.
+           We create the pipe path hashing the user id + project root path so both client and server
+           will generate the same path, yet it's unique for each vs code instance */
+        const userID = HostPlatform.getUserID();
+        const uniqueSeed = `${userID}:${this.projectRootPath}`;
+        const hash = new Crypto().hash(uniqueSeed);
+        return HostPlatform.getPipePath(`vscode-reactnative-${hash}`);
     }
 }

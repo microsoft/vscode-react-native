@@ -12,9 +12,10 @@ interface IHostPlatform {
     getUserHomePath(): string;
     getSettingsHome(): string;
     getNpmCliCommand(packageName: string): string;
-    getExtensionPipePath(): string;
+    getPipePath(pipeName: string): string;
     getPlatformId(): HostPlatformId;
     setEnvironmentVariable(name: string, value: string): Q.Promise<void>;
+    getUserID(): string;
 }
 
 /**
@@ -46,12 +47,16 @@ class WindowsHostPlatform implements IHostPlatform {
         return `${cliName}.cmd`;
     }
 
-    public getExtensionPipePath(): string {
-        return "\\\\?\\pipe\\vscodereactnative";
+    public getPipePath(pipeName: string): string {
+        return `\\\\?\\pipe\\${pipeName}`;
     }
 
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.WINDOWS;
+    }
+
+    public getUserID(): string {
+        return process.env.USERNAME;
     }
 }
 
@@ -70,11 +75,13 @@ abstract class UnixHostPlatform implements IHostPlatform {
         return packageName;
     }
 
-    public getExtensionPipePath(): string {
-        return "/tmp/vscodereactnative.sock";
+    public getPipePath(pipeName: string): string {
+        return `/tmp/${pipeName}.sock`;
     }
 
     public abstract getPlatformId(): HostPlatformId;
+
+    public abstract getUserID(): string;
 }
 
 /**
@@ -88,6 +95,10 @@ class OSXHostPlatform extends UnixHostPlatform {
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.OSX;
     }
+
+    public getUserID(): string {
+        return process.env.LOGNAME;
+    }
 }
 
 /**
@@ -100,6 +111,10 @@ class LinuxHostPlatform extends UnixHostPlatform {
 
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.LINUX;
+    }
+
+    public getUserID(): string {
+        return process.env.USER;
     }
 }
 
@@ -146,8 +161,8 @@ export class HostPlatform {
         return HostPlatform.platform.getNpmCliCommand(packageName);
     }
 
-    public static getExtensionPipePath(): string {
-        return HostPlatform.platform.getExtensionPipePath();
+    public static getPipePath(pipeName: string): string {
+        return HostPlatform.platform.getPipePath(pipeName);
     }
 
     public static getPlatformId(): HostPlatformId {
@@ -156,5 +171,10 @@ export class HostPlatform {
 
     public static setEnvironmentVariable(name: string, value: string): Q.Promise<void> {
         return HostPlatform.platform.setEnvironmentVariable(name, value);
+    }
+
+    /* Returns a value that is unique for each user of this computer */
+    public static getUserID(): string {
+        return HostPlatform.platform.getUserID();
     }
 }
