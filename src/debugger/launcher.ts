@@ -12,8 +12,7 @@ import {ScriptImporter} from "./scriptImporter";
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IRunOptions} from "../common/launchArgs";
-import * as em from "../common/extensionMessaging";
-import {ExtensionMessageSender} from "../common/extensionMessageSender";
+import {RemoteExtension} from "../common/remoteExtension";
 import {EntryPointHandler} from "../common/entryPointHandler";
 
 export class Launcher {
@@ -35,11 +34,11 @@ export class Launcher {
                     throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
                 } else {
                     const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-                    let extensionMessageSender = new ExtensionMessageSender(this.projectRootPath);
+                    let remoteExtension = new RemoteExtension(this.projectRootPath);
                     return Q({})
                         .then(() => {
                             generator.step("startPackager");
-                            return extensionMessageSender.sendMessage(em.ExtensionMessage.START_PACKAGER);
+                            return remoteExtension.startPackager();
                         })
                         .then(() => {
                             let scriptImporter = new ScriptImporter(sourcesStoragePath);
@@ -51,7 +50,7 @@ export class Launcher {
                         // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                         .then(() => {
                             generator.step("prewarmBundleCache");
-                            return extensionMessageSender.sendMessage(em.ExtensionMessage.PREWARM_BUNDLE_CACHE, [runOptions.platform]);
+                            return remoteExtension.prewarmBundleCache(runOptions.platform);
                         })
                         .then(() => {
                             generator.step("mobilePlatform.runApp");

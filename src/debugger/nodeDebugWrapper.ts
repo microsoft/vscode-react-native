@@ -7,8 +7,7 @@ import * as http from "http";
 
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
-import {ExtensionMessage} from "../common/extensionMessaging";
-import {ExtensionMessageSender} from "../common/extensionMessageSender";
+import {RemoteExtension} from "../common/remoteExtension";
 
 // These typings do not reflect the typings as intended to be used
 // but rather as they exist in truth, so we can reach into the internals
@@ -166,8 +165,8 @@ Telemetry.init("react-native-debug-adapter", version, true).then(() => {
     function customDisconnectRequest(response: any, args: any): void {
         try {
             // First we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
-            const extensionMessageSender = new ExtensionMessageSender(projectRootPath);
-            extensionMessageSender.sendMessage(ExtensionMessage.STOP_MONITORING_LOGCAT)
+            const remoteExtension = new RemoteExtension(projectRootPath);
+            remoteExtension.stopMonitoringLocat()
                 .finally(() => originalNodeDebugSessionDisconnectRequest.call(this, response, args))
                 .done(() => {}, reason => // We just print a warning if something fails
                     process.stderr.write(`WARNING: Couldn't stop monitoring logcat: ${reason.message || reason}\n`));

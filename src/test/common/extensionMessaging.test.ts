@@ -7,8 +7,12 @@ import {
 } from "../../common/extensionMessaging";
 
 import {
-    ExtensionMessageSender,
-} from "../../common/extensionMessageSender";
+    RemoteExtension,
+} from "../../common/remoteExtension";
+
+import {
+    InterProcessMessageSender,
+} from "../../common/interProcessMessageSender";
 
 import * as assert from "assert";
 import * as net from "net";
@@ -43,11 +47,11 @@ suite("extensionMessaging", function() {
             mockServer.on("error", done);
             mockServer.listen(port);
 
-            const sender = new ExtensionMessageSender(projectRootPath);
+            const sender = new RemoteExtension(projectRootPath);
 
             Q({})
                 .then(function() {
-                    return sender.sendMessage(ExtensionMessage.START_PACKAGER);
+                    return sender.startPackager();
                 })
                 .then(function() {
                     assert.equal(receivedMessage, ExtensionMessage.START_PACKAGER);
@@ -73,11 +77,11 @@ suite("extensionMessaging", function() {
             mockServer.on("error", done);
             mockServer.listen(port);
 
-            const sender = new ExtensionMessageSender(projectRootPath);
+            const sender = new RemoteExtension(projectRootPath);
 
             Q({})
                 .then(function() {
-                    return sender.sendMessage(ExtensionMessage.PREWARM_BUNDLE_CACHE, args);
+                    return sender.prewarmBundleCache(args[0]);
                 })
                 .then(function() {
                     assert.equal(receivedMessage, ExtensionMessage.PREWARM_BUNDLE_CACHE);
@@ -86,7 +90,7 @@ suite("extensionMessaging", function() {
         });
 
         test("should reject on socket error", function(done: MochaDone) {
-            const sender = new ExtensionMessageSender(projectRootPath);
+            const sender = new InterProcessMessageSender(projectRootPath);
 
             Q({})
                 .then(function() {

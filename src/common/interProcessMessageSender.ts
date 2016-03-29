@@ -6,17 +6,19 @@ import * as Q from "q";
 import {Log} from "./log/log";
 import {LogLevel} from "./log/logHelper";
 
-import {ExtensionMessage, MessageWithArguments, MessagingChannel, ErrorMarker} from "./extensionMessaging";
+import {ExtensionMessage, MessageWithArguments, ErrorMarker} from "./extensionMessaging";
 
-export interface IExtensionMessageSender {
+export interface IInterProcessMessageSender {
     sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any>;
 }
+
+// TODO: Refactor this class to make ExtensionMessage a generic parameter instead
 
 /**
  * Sends messages to the extension.
  */
-export class ExtensionMessageSender implements IExtensionMessageSender {
-    constructor(private projectRootPath: string) {
+export class InterProcessMessageSender implements InterProcessMessageSender {
+    constructor(private serverPath: string) {
     }
 
     public sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any> {
@@ -24,9 +26,8 @@ export class ExtensionMessageSender implements IExtensionMessageSender {
         let messageWithArguments: MessageWithArguments = { message: message, args: args };
         let body = "";
 
-        let pipePath = new MessagingChannel(this.projectRootPath).getPath();
-        let socket = net.connect(pipePath, function() {
-            Log.logInternalMessage(LogLevel.Info, `Connected to socket at ${pipePath}`);
+        let socket = net.connect(this.serverPath, function() {
+            Log.logInternalMessage(LogLevel.Info, `Connected to socket at ${this.serverPath}`);
             let messageJson = JSON.stringify(messageWithArguments);
             socket.write(messageJson);
         });

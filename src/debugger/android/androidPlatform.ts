@@ -4,8 +4,7 @@
 import * as Q from "q";
 
 import {IAppPlatform} from "../platformResolver";
-import {ExtensionMessage} from "../../common/extensionMessaging";
-import {ExtensionMessageSender} from "../../common/extensionMessageSender";
+import {RemoteExtension} from "../../common/remoteExtension";
 import {IRunOptions} from "../../common/launchArgs";
 import {Log} from "../../common/log/log";
 import {PackageNameResolver} from "../../common/android/packageNameResolver";
@@ -19,7 +18,7 @@ import {IReactNative, ReactNative} from "../../common/reactNative";
  * Android specific platform implementation for debugging RN applications.
  */
 export class AndroidPlatform implements IAppPlatform {
-    private extensionMessageSender: ExtensionMessageSender;
+    private remoteExtension: RemoteExtension;
 
     private static MULTIPLE_DEVICES_ERROR = "error: more than one device/emulator";
 
@@ -42,12 +41,12 @@ export class AndroidPlatform implements IAppPlatform {
     private fileSystem: FileSystem;
 
     constructor(private runOptions: IRunOptions, {
-        extensionMessageSender = new ExtensionMessageSender(runOptions.projectRoot),
+        remoteExtension = new RemoteExtension(runOptions.projectRoot),
         deviceHelper = <IDeviceHelper>new DeviceHelper(),
         reactNative = <IReactNative>new ReactNative(),
         fileSystem = new FileSystem(),
     } = {}) {
-        this.extensionMessageSender = extensionMessageSender;
+        this.remoteExtension = remoteExtension;
         this.deviceHelper = deviceHelper;
         this.reactNative = reactNative;
         this.fileSystem = fileSystem;
@@ -117,6 +116,6 @@ export class AndroidPlatform implements IAppPlatform {
     }
 
     private startMonitoringLogCat(logCatArguments: string): Q.Promise<void> {
-        return this.extensionMessageSender.sendMessage(ExtensionMessage.START_MONITORING_LOGCAT, [this.debugTarget, logCatArguments]);
+        return this.remoteExtension.startMonitoringLogcat(this.debugTarget, logCatArguments);
     }
 }
