@@ -28,6 +28,7 @@ import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./intellisenseHelper";
+import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./outputChannelLogger";
@@ -52,6 +53,9 @@ export function activate(context: vscode.ExtensionContext): void {
         return reactNativeProjectHelper.isReactNativeProject()
             .then(isRNProject => {
                 if (isRNProject) {
+                    let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
+                    Telemetry.send(activateExtensionEvent);
+
                     warnWhenReactNativeVersionIsNotSupported();
                     entryPointHandler.runFunction("debugger.setupLauncherStub",
                         ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () =>
