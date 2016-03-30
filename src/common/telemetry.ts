@@ -5,10 +5,7 @@
 
 import * as crypto from "crypto";
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
-import * as Q from "q";
-import * as winreg from "winreg";
 import {HostPlatform} from "../common/hostPlatform";
 
 import {
@@ -89,10 +86,10 @@ export module Telemetry {
         isExtensionProcess: boolean;
     }
 
-    export function init(appNameValue: string, appVersion?: string, initOptions?: ITelemetryInitOptions): Q.Promise<any> {
+    export function init(appNameValue: string, appVersion?: string, initOptions?: ITelemetryInitOptions): void {
         try {
             Telemetry.appName = appNameValue;
-            return TelemetryUtils.init(appVersion, initOptions);
+            TelemetryUtils.init(appVersion, initOptions);
         } catch (err) {
             console.error(err);
         }
@@ -167,8 +164,6 @@ export module Telemetry {
         private static telemetrySettings: ITelemetrySettings = null;
         private static TELEMETRY_SETTINGS_FILENAME: string = "VSCodeTelemetrySettings.json";
         private static APPINSIGHTS_INSTRUMENTATIONKEY: string = "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217"; // Matches vscode telemetry key
-        private static REGISTRY_SQMCLIENT_NODE: string = "\\SOFTWARE\\Microsoft\\SQMClient";
-        private static REGISTRY_USERID_VALUE: string = "UserId";
         private static INTERNAL_DOMAIN_SUFFIX: string = "microsoft.com";
         private static INTERNAL_USER_ENV_VAR: string = "TACOINTERNAL";
 
@@ -177,7 +172,7 @@ export module Telemetry {
             return path.join(settingsHome, TelemetryUtils.TELEMETRY_SETTINGS_FILENAME);
         }
 
-        public static init(appVersion: string, initOptions: ITelemetryInitOptions): Q.Promise<any> {
+        public static init(appVersion: string, initOptions: ITelemetryInitOptions): void {
             TelemetryUtils.loadSettings();
 
             if (initOptions.isExtensionProcess) {
@@ -187,14 +182,9 @@ export module Telemetry {
                 Telemetry.reporter = new ExtensionTelemetryReporter(Telemetry.appName, appVersion, TelemetryUtils.APPINSIGHTS_INSTRUMENTATIONKEY);
             }
 
-            return Q.all([TelemetryUtils.getUserId()])
-            .spread<any>(function(userId: string): void {
-                TelemetryUtils.userId = userId;
-                TelemetryUtils.userType = TelemetryUtils.getUserType();
-
-                Telemetry.isOptedIn = TelemetryUtils.getTelemetryOptInSetting();
-                TelemetryUtils.saveSettings();
-            });
+            TelemetryUtils.userType = TelemetryUtils.getUserType();
+            Telemetry.isOptedIn = TelemetryUtils.getTelemetryOptInSetting();
+            TelemetryUtils.saveSettings();
         }
 
         public static addCommonProperties(event: any): void {
@@ -260,24 +250,6 @@ export module Telemetry {
             return userType;
         }
 
-        private static getRegistryValue(key: string, value: string, hive: string): Q.Promise<string> {
-            let deferred: Q.Deferred<string> = Q.defer<string>();
-            let regKey = new winreg({
-                                    hive: hive,
-                                    key: key,
-                            });
-            regKey.get(value, function(err: any, itemValue: winreg.RegistryItem) {
-                if (err) {
-                    // Fail gracefully by returning null if there was an error.
-                    deferred.resolve(null);
-                } else {
-                    deferred.resolve(itemValue.value);
-                }
-            });
-
-            return deferred.promise;
-        }
-
         /*
             * Load settings data from settingsHome/TelemetrySettings.json
             */
@@ -302,37 +274,6 @@ export module Telemetry {
             }
 
             fs.writeFileSync(TelemetryUtils.telemetrySettingsFile, JSON.stringify(TelemetryUtils.telemetrySettings));
-        }
-
-        private static getUniqueId(regValue: string, regHive: string, fallback: () => string): Q.Promise<any> {
-            let uniqueId: string;
-            if (os.platform() === "win32") {
-                return TelemetryUtils.getRegistryValue(TelemetryUtils.REGISTRY_SQMCLIENT_NODE, regValue, regHive)
-                .then(function(id: string): Q.Promise<string> {
-                    if (id) {
-                        uniqueId = id.replace(/[{}]/g, "");
-                        return Q.resolve(uniqueId);
-                    } else {
-                        return Q.resolve(fallback());
-                    }
-                });
-            } else {
-                return Q.resolve(fallback());
-            }
-        }
-
-        private static getUserId(): Q.Promise<string> {
-            let userId: string = TelemetryUtils.telemetrySettings.userId;
-            if (!userId) {
-                return TelemetryUtils.getUniqueId(TelemetryUtils.REGISTRY_USERID_VALUE, winreg.HKCU, TelemetryUtils.generateGuid)
-                .then(function(id: string): Q.Promise<string> {
-                    TelemetryUtils.telemetrySettings.userId = id;
-                    return Q.resolve(id);
-                });
-            } else {
-                TelemetryUtils.telemetrySettings.userId = userId;
-                return Q.resolve(userId);
-            }
         }
     };
 
