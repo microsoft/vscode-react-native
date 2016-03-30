@@ -5,6 +5,8 @@ import * as Q from "q";
 import * as vscode from "vscode";
 import fs = require("fs");
 import path = require("path");
+import {ConfigurationReader} from "../common/configurationReader";
+import {Packager} from "../common/packager";
 import {FileSystem} from "../common/node/fileSystem";
 
 export class SettingsHelper {
@@ -79,5 +81,10 @@ export class SettingsHelper {
             .then(function(settingsJson: any): Q.Promise<string> {
                 return settingsJson["typescript.tsdk"] || null;
             });
+    }
+
+    /* We get the packager port configured by the user */
+    public static getPackagerPort(): number {
+        return ConfigurationReader.readInt(vscode.workspace.getConfiguration("react-native.packager").get("port", Packager.DEFAULT_PORT));
     }
 }

@@ -4,7 +4,7 @@
 import * as vscode from "vscode";
 import * as Q from "q";
 import {CommandExecutor} from "../common/commandExecutor";
-import {WorkspaceConfiguration} from "./workspaceConfiguration";
+import {SettingsHelper} from "./settingsHelper";
 import {DeviceHelper, IDevice} from "../common/android/deviceHelper";
 import {Log} from "../common/log/log";
 import {Packager} from "../common/packager";
@@ -87,7 +87,7 @@ export class CommandPaletteHandler {
     }
 
     private runStartPackagerCommandAndUpdateStatus(): Q.Promise<void> {
-        return this.reactNativePackager.start(WorkspaceConfiguration.getPackagerPort())
+        return this.reactNativePackager.start(SettingsHelper.getPackagerPort())
             .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 

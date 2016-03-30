@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import {InternalErrorCode} from "./error/internalErrorCode";
+import {ErrorHelper} from "./error/errorHelper";
+
 export class ConfigurationReader {
     /* We try to read an integer. It can be either an integer, or a string that can be parsed as an integer */
     public static readInt(value: any): number {
@@ -9,7 +12,7 @@ export class ConfigurationReader {
         } else if (typeof value === "string") {
             return parseInt(value, 10);
         } else {
-            throw new Error(`Expected an integer. Couldn't read ${value}`);
+            throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedIntegerValue, value);
         }
     }
 

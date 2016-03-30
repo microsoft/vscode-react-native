@@ -45,4 +45,7 @@ export enum InternalErrorCode {
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,
+
+        // Validating user input errors
+        ExpectedIntegerValue = 1001,
     }

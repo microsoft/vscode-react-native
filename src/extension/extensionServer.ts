@@ -15,7 +15,7 @@ import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {ConfigurationReader} from "../common/configurationReader";
 
-import {WorkspaceConfiguration} from "./workspaceConfiguration";
+import {SettingsHelper} from "./settingsHelper";
 
 export class ExtensionServer implements vscode.Disposable {
     private serverInstance: net.Server = null;
@@ -79,14 +79,14 @@ export class ExtensionServer implements vscode.Disposable {
      * Message handler for GET_PACKAGER_PORT.
      */
     private getPackagerPort(): Q.Promise<number> {
-        return Q(WorkspaceConfiguration.getPackagerPort());
+        return Q(SettingsHelper.getPackagerPort());
     }
 
     /**
      * Message handler for START_PACKAGER.
      */
     private startPackager(port?: any): Q.Promise<any> {
-        const portToUse = ConfigurationReader.readIntWithDefaultSync(port, WorkspaceConfiguration.getPackagerPort());
+        const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
         return this.reactNativePackager.start(portToUse)
             .then(() =>
                 this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
