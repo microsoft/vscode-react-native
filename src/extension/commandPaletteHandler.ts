@@ -87,7 +87,7 @@ export class CommandPaletteHandler {
     }
 
     private runStartPackagerCommandAndUpdateStatus(): Q.Promise<void> {
-        return this.reactNativePackager.start(new WorkspaceConfiguration().getPackagerPort())
+        return this.reactNativePackager.start(WorkspaceConfiguration.getPackagerPort())
             .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 

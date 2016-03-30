@@ -79,14 +79,14 @@ export class ExtensionServer implements vscode.Disposable {
      * Message handler for GET_PACKAGER_PORT.
      */
     private getPackagerPort(): Q.Promise<number> {
-        return Q(new WorkspaceConfiguration().getPackagerPort());
+        return Q(WorkspaceConfiguration.getPackagerPort());
     }
 
     /**
      * Message handler for START_PACKAGER.
      */
     private startPackager(port?: any): Q.Promise<any> {
-        const portToUse = ConfigurationReader.readIntWithDefaultSync(port, new WorkspaceConfiguration().getPackagerPort());
+        const portToUse = ConfigurationReader.readIntWithDefaultSync(port, WorkspaceConfiguration.getPackagerPort());
         return this.reactNativePackager.start(portToUse)
             .then(() =>
                 this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
