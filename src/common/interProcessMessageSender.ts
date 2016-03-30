@@ -5,6 +5,8 @@ import * as net from "net";
 import * as Q from "q";
 import {Log} from "./log/log";
 import {LogLevel} from "./log/logHelper";
+import {ErrorHelper} from "./error/ErrorHelper";
+import {InternalErrorCode} from "./error/InternalErrorCode";
 
 import {ExtensionMessage, MessageWithArguments, ErrorMarker} from "./extensionMessaging";
 
@@ -36,14 +38,18 @@ export class InterProcessMessageSender implements InterProcessMessageSender {
             body += data;
         });
 
+        const failPromise = () =>
+            deferred.reject(ErrorHelper.getInternalError(InternalErrorCode.ErrorWhileProcessingMessageInIPMSServer,
+                ExtensionMessage[message]));
+
         socket.on("error", function(data: any) {
-            deferred.reject(new Error("An error ocurred while handling message: " + ExtensionMessage[message]));
+            failPromise();
         });
 
         socket.on("end", function() {
             try {
                 if (body === ErrorMarker) {
-                    deferred.reject(new Error("An error ocurred while handling message: " + ExtensionMessage[message]));
+                    failPromise();
                 } else {
                     let responseBody: any = body ? JSON.parse(body) : null;
                     deferred.resolve(responseBody);

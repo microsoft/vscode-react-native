@@ -34,7 +34,9 @@ export class IOSPlatform implements IAppPlatform {
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
     constructor(private runOptions: IRunOptions) {
-        this.consumeArguments();
+        this.projectPath = this.runOptions.projectRoot;
+        this.simulatorTarget = this.runOptions.target || IOSPlatform.simulatorString;
+        this.isSimulator = this.simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;
     }
 
     public runApp(): Q.Promise<void> {
@@ -102,12 +104,6 @@ export class IOSPlatform implements IAppPlatform {
                 });
             }
         });
-    }
-
-    private consumeArguments(): void {
-        this.projectPath = this.runOptions.projectRoot;
-        this.simulatorTarget = this.runOptions.target || IOSPlatform.simulatorString;
-        this.isSimulator = this.simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;
     }
 
     private generateSuccessPatterns(): Q.Promise<string[]> {

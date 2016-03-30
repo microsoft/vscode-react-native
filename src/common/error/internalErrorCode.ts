@@ -44,4 +44,7 @@ export enum InternalErrorCode {
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,
+
+        // Inter Process Communication errors
+        ErrorWhileProcessingMessageInIPMSServer = 901,
     }
