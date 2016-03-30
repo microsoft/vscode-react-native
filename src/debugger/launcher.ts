@@ -2,11 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import * as Q from "q";
 import {MultipleLifetimesAppWorker} from "./appWorker";
 import {Log} from "../common/log/log";
 import {ErrorHelper} from "../common/error/errorHelper";
+import {HostPlatform} from "../common/hostPlatform";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {ScriptImporter} from "./scriptImporter";
 import {PlatformResolver} from "./platformResolver";
@@ -29,6 +31,11 @@ export class Launcher {
             return TelemetryHelper.generate("launch", (generator) => {
                 const resolver = new PlatformResolver();
                 const runOptions = this.parseRunOptions();
+
+                if (!HostPlatform.getTargetPlatformCompatibility(runOptions.platform)) {
+                    return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, runOptions.platform, os.platform()));
+                }
+
                 const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
                 if (!mobilePlatform) {
                     throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");

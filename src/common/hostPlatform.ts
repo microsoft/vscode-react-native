@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {ChildProcess} from "./node/childProcess";
+import {TargetPlatformHelper, TargetPlatformId} from "./targetPlatformHelper";
 import * as path from "path";
 import * as Q from "q";
 
@@ -15,6 +16,7 @@ interface IHostPlatform {
     getExtensionPipePath(): string;
     getPlatformId(): HostPlatformId;
     setEnvironmentVariable(name: string, value: string): Q.Promise<void>;
+    getTargetPlatformCompatibility(targetPlatformName: string): boolean;
 }
 
 /**
@@ -53,6 +55,11 @@ class WindowsHostPlatform implements IHostPlatform {
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.WINDOWS;
     }
+
+    public getTargetPlatformCompatibility(targetPlatformName: string): boolean {
+        let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(targetPlatformName);
+        return targetPlatformId !== TargetPlatformId.INVALID && targetPlatformId !== TargetPlatformId.IOS;
+    }
 }
 
 abstract class UnixHostPlatform implements IHostPlatform {
@@ -75,6 +82,11 @@ abstract class UnixHostPlatform implements IHostPlatform {
     }
 
     public abstract getPlatformId(): HostPlatformId;
+
+    public getTargetPlatformCompatibility(targetPlatformName: string): boolean {
+        let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(targetPlatformName);
+        return targetPlatformId !== TargetPlatformId.INVALID;
+    }
 }
 
 /**
@@ -156,5 +168,9 @@ export class HostPlatform {
 
     public static setEnvironmentVariable(name: string, value: string): Q.Promise<void> {
         return HostPlatform.platform.setEnvironmentVariable(name, value);
+    }
+
+    public static getTargetPlatformCompatibility(targetPlatformName: string): boolean {
+        return HostPlatform.platform.getTargetPlatformCompatibility(targetPlatformName);
     }
 }
