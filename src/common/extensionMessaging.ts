@@ -25,6 +25,7 @@ export let ErrorMarker = "vscodereactnative-error-marker";
 
 export class MessagingChannel {
     constructor(private projectRootPath: string) {
+        // Nothing needed here
     }
 
     public getPath(): string {
