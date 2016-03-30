@@ -232,16 +232,16 @@ export module Telemetry {
             let userType: string = TelemetryUtils.telemetrySettings.userType;
 
             if (userType === undefined) {
-            if (process.env[TelemetryUtils.INTERNAL_USER_ENV_VAR]) {
-                userType = TelemetryUtils.USERTYPE_INTERNAL;
-            } else {
-                let domain: string = process.env.USERDNSDOMAIN;
-                domain = domain ? domain.toLowerCase().substring(domain.length - TelemetryUtils.INTERNAL_DOMAIN_SUFFIX.length) : null;
-                userType = domain === TelemetryUtils.INTERNAL_DOMAIN_SUFFIX ? TelemetryUtils.USERTYPE_INTERNAL : TelemetryUtils.USERTYPE_EXTERNAL;
-            }
+                if (process.env[TelemetryUtils.INTERNAL_USER_ENV_VAR]) {
+                    userType = TelemetryUtils.USERTYPE_INTERNAL;
+                } else {
+                    let domain: string = process.env.USERDNSDOMAIN;
+                    domain = domain ? domain.toLowerCase().substring(domain.length - TelemetryUtils.INTERNAL_DOMAIN_SUFFIX.length) : null;
+                    userType = domain === TelemetryUtils.INTERNAL_DOMAIN_SUFFIX ? TelemetryUtils.USERTYPE_INTERNAL : TelemetryUtils.USERTYPE_EXTERNAL;
+                }
 
-            TelemetryUtils.telemetrySettings.userType = userType;
-        }
+                TelemetryUtils.telemetrySettings.userType = userType;
+            }
 
             return userType;
         }
