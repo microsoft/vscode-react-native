@@ -6,12 +6,8 @@
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
+import {ExtensionMessage, ExtensionMessageSender} from "../common/extensionMessaging";
 import {HostPlatform} from "../common/hostPlatform";
-
-import {
-    ExtensionMessage,
-    ExtensionMessageSender,
-} from "../common/extensionMessaging";
 
 /**
  * Telemetry module specialized for vscode integration.
