@@ -46,12 +46,10 @@ export class EntryPointHandler {
         resultOfCode.done(() => { }, reason => {
             const shouldLogStack = !errorsAreFatal || this.isDebugeeProcess;
             Log.logError(ErrorHelper.wrapError(error, reason), /*logStack*/ shouldLogStack);
+            // For the debugee process we don't want to throw an exception because the debugger
+            // will appear to the user if he turned on the VS Code uncaught exceptions feature.
             if (errorsAreFatal) {
-                /* The process is likely going to exit if errors are fatal, so we first
-                send the telemetry, and then we exit or rethrow the exception */
                 if (this.isDebugeeProcess) {
-                    /* HACK: For the debugee process we don't want to throw an exception because the debugger
-                                will appear to the user if he turned on the VS Code uncaught exceptions feature. */
                     process.exit(1);
                 } else {
                     throw reason;
