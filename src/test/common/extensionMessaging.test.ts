@@ -1,18 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {
-    ExtensionMessage,
-    MessagingChannel,
-} from "../../common/extensionMessaging";
+import {ExtensionMessage, MessagingChannel} from "../../common/extensionMessaging";
 
-import {
-    RemoteExtension,
-} from "../../common/remoteExtension";
+import {RemoteExtension} from "../../common/remoteExtension";
 
-import {
-    InterProcessMessageSender,
-} from "../../common/interProcessMessageSender";
+import {InterProcessMessageSender} from "../../common/interProcessMessageSender";
 
 import * as assert from "assert";
 import * as net from "net";
