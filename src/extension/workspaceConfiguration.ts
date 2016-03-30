@@ -9,6 +9,6 @@ import {Packager} from "../common/packager";
 export class WorkspaceConfiguration {
     /* We get the packager port configured by the user */
     public getPackagerPort(): number {
-        return new ConfigurationReader().readInt(vscode.workspace.getConfiguration("react-native.packager").get("port", Packager.DEFAULT_PORT));
+        return ConfigurationReader.readInt(vscode.workspace.getConfiguration("react-native.packager").get("port", Packager.DEFAULT_PORT));
     }
 }
