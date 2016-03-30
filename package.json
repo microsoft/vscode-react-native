@@ -127,7 +127,6 @@
         "typechecker": "2.0.8",
         "ultron": "1.0.2",
         "vscode-extension-telemetry": "0.0.5",
-        "winreg": "0.0.16",
         "ws": "1.0.1"
     },
     "devDependencies": {

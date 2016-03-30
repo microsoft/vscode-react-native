@@ -39,8 +39,8 @@ export module Telemetry {
         }
 
         public setPiiProperty(name: string, value: string): void {
-            let hmac: any = crypto.createHmac("sha256", new Buffer(TelemetryEvent.PII_HASH_KEY, "utf8"));
-            let hashedValue: any = hmac.update(value).digest("hex");
+            let hmac: crypto.Hmac = crypto.createHmac("sha256", new Buffer(TelemetryEvent.PII_HASH_KEY, "utf8"));
+            let hashedValue: string = hmac.update(value).digest("hex");
 
             this.properties[name] = hashedValue;
 
