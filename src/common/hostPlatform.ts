@@ -83,10 +83,7 @@ abstract class UnixHostPlatform implements IHostPlatform {
 
     public abstract getPlatformId(): HostPlatformId;
 
-    public getTargetPlatformCompatibility(targetPlatformName: string): boolean {
-        let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(targetPlatformName);
-        return targetPlatformId !== TargetPlatformId.INVALID;
-    }
+    public abstract getTargetPlatformCompatibility(targetPlatformName: string): boolean;
 }
 
 /**
@@ -100,6 +97,11 @@ class OSXHostPlatform extends UnixHostPlatform {
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.OSX;
     }
+
+    public getTargetPlatformCompatibility(targetPlatformName: string): boolean {
+        let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(targetPlatformName);
+        return targetPlatformId !== TargetPlatformId.INVALID;
+    }
 }
 
 /**
@@ -112,6 +114,11 @@ class LinuxHostPlatform extends UnixHostPlatform {
 
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.LINUX;
+    }
+
+    public getTargetPlatformCompatibility(targetPlatformName: string): boolean {
+        let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(targetPlatformName);
+        return targetPlatformId !== TargetPlatformId.INVALID && targetPlatformId !== TargetPlatformId.IOS;
     }
 }
 
