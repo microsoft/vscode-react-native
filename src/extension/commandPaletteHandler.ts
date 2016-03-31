@@ -98,8 +98,6 @@ export class CommandPaletteHandler {
             .then(() => {
                 return new CommandExecutor(this.workspaceRoot).spawnReactCommand(command,
                     args, /*waitForExit*/true, /*options*/null).outcome;
-            }).then(() => {
-                return Q.resolve<void>(void 0);
             });
     }
 

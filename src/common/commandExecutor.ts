@@ -125,7 +125,7 @@ export class CommandExecutor {
            Log.logStreamData(data, process.stdout);
         });
 
-        // HACK: Remove this and make a better implementation
+        // TODO: Remove this and make a better implementation
         result.spawnedProcess.once("exit", (code: number) => {
             if (code === 0) {
                 Log.logCommandStatus(commandWithArgs, CommandStatus.End);
