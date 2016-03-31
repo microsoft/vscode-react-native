@@ -125,9 +125,15 @@ export class CommandExecutor {
            Log.logStreamData(data, process.stdout);
         });
 
+        // HACK: Remove this and make a better implementation
+        result.spawnedProcess.once("exit", (code: number) => {
+            if (code === 0) {
+                Log.logCommandStatus(commandWithArgs, CommandStatus.End);
+            }
+        });
+
         result.outcome = result.outcome.then(
-            () =>
-                Log.logCommandStatus(commandWithArgs, CommandStatus.End),
+            () => {},
             reason =>
                 this.generateRejectionForCommand(commandWithArgs, reason));
         return result;
