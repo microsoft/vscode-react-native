@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {ChildProcess} from "./node/childProcess";
-import {TargetPlatformHelper, TargetPlatformId} from "./targetPlatformHelper";
+import {TargetPlatformId} from "./targetPlatformHelper";
 import * as path from "path";
 import * as Q from "q";
 
@@ -16,7 +16,7 @@ interface IHostPlatform {
     getExtensionPipePath(): string;
     getPlatformId(): HostPlatformId;
     setEnvironmentVariable(name: string, value: string): Q.Promise<void>;
-    getTargetPlatformCompatibility(targetPlatformName: string): boolean;
+    getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean;
 }
 
 /**
@@ -56,8 +56,7 @@ class WindowsHostPlatform implements IHostPlatform {
         return HostPlatformId.WINDOWS;
     }
 
-    public getTargetPlatformCompatibility(targetPlatformName: string): boolean {
-        let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(targetPlatformName);
+    public getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean {
         return targetPlatformId !== TargetPlatformId.INVALID && targetPlatformId !== TargetPlatformId.IOS;
     }
 }
@@ -83,7 +82,7 @@ abstract class UnixHostPlatform implements IHostPlatform {
 
     public abstract getPlatformId(): HostPlatformId;
 
-    public abstract getTargetPlatformCompatibility(targetPlatformName: string): boolean;
+    public abstract getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean;
 }
 
 /**
@@ -98,8 +97,7 @@ class OSXHostPlatform extends UnixHostPlatform {
         return HostPlatformId.OSX;
     }
 
-    public getTargetPlatformCompatibility(targetPlatformName: string): boolean {
-        let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(targetPlatformName);
+    public getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean {
         return targetPlatformId !== TargetPlatformId.INVALID;
     }
 }
@@ -116,8 +114,7 @@ class LinuxHostPlatform extends UnixHostPlatform {
         return HostPlatformId.LINUX;
     }
 
-    public getTargetPlatformCompatibility(targetPlatformName: string): boolean {
-        let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(targetPlatformName);
+    public getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean {
         return targetPlatformId !== TargetPlatformId.INVALID && targetPlatformId !== TargetPlatformId.IOS;
     }
 }
@@ -177,7 +174,7 @@ export class HostPlatform {
         return HostPlatform.platform.setEnvironmentVariable(name, value);
     }
 
-    public static getTargetPlatformCompatibility(targetPlatformName: string): boolean {
-        return HostPlatform.platform.getTargetPlatformCompatibility(targetPlatformName);
+    public static getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean {
+        return HostPlatform.platform.getTargetPlatformCompatibility(targetPlatformId);
     }
 }

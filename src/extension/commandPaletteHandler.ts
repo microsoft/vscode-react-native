@@ -2,19 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import * as os from "os";
 import * as Q from "q";
 import {CommandExecutor} from "../common/commandExecutor";
 import {DeviceHelper, IDevice} from "../common/android/deviceHelper";
-import {ErrorHelper} from "../common/error/errorHelper";
-import {HostPlatform} from "../common/hostPlatform";
-import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {Log} from "../common/log/log";
 import {Packager} from "../common/packager";
 import {Package} from "../common/node/package";
 import {PackageNameResolver} from "../common/android/packageNameResolver";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IOSDebugModeManager} from "../common/ios/iOSDebugModeManager";
 
@@ -81,15 +78,14 @@ export class CommandPaletteHandler {
      * Executes the 'react-native run-ios' command
      */
     public runIos(): Q.Promise<void> {
-        if (!HostPlatform.getTargetPlatformCompatibility("ios")) {
-            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, "ios", os.platform()));
-        }
-
-        return this.executeCommandInContext("runIos", () => {
-            // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
-            return new IOSDebugModeManager(this.workspaceRoot).setSimulatorJSDebuggingModeSetting(/*enable=*/ false)
-                .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
-                .then(() => this.executeReactNativeRunCommand("run-ios"));
+        return TargetPlatformHelper.checkTargetPlatformSupport("ios")
+        .then(() => {
+            return this.executeCommandInContext("runIos", () => {
+                // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
+                return new IOSDebugModeManager(this.workspaceRoot).setSimulatorJSDebuggingModeSetting(/*enable=*/ false)
+                    .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+                    .then(() => this.executeReactNativeRunCommand("run-ios"));
+            });
         });
     }
 

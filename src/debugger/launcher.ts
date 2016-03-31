@@ -2,17 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
 import * as Q from "q";
 import {MultipleLifetimesAppWorker} from "./appWorker";
 import {Log} from "../common/log/log";
 import {ErrorHelper} from "../common/error/errorHelper";
-import {HostPlatform} from "../common/hostPlatform";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {ScriptImporter} from "./scriptImporter";
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
+import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {IRunOptions} from "../common/launchArgs";
 import * as em from "../common/extensionMessaging";
 import {EntryPointHandler} from "../common/entryPointHandler";
@@ -31,11 +30,6 @@ export class Launcher {
             return TelemetryHelper.generate("launch", (generator) => {
                 const resolver = new PlatformResolver();
                 const runOptions = this.parseRunOptions();
-
-                if (!HostPlatform.getTargetPlatformCompatibility(runOptions.platform)) {
-                    return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, runOptions.platform, os.platform()));
-                }
-
                 const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
                 if (!mobilePlatform) {
                     throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
@@ -43,6 +37,10 @@ export class Launcher {
                     const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
                     let extensionMessageSender = new em.ExtensionMessageSender();
                     return Q({})
+                        .then(() => {
+                            generator.step("checkPlatformCompatibility");
+                            return TargetPlatformHelper.checkTargetPlatformSupport(runOptions.platform);
+                        })
                         .then(() => {
                             generator.step("startPackager");
                             return extensionMessageSender.sendMessage(em.ExtensionMessage.START_PACKAGER);
