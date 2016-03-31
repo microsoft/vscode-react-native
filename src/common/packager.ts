@@ -39,6 +39,7 @@ export class Packager {
         return this.isRunning()
             .then(running => {
                 if (!running) {
+                    executedStartPackagerCmd = true;
                     return this.monkeyPatchOpnForRNPackager()
                         .then(() => {
                             let args = ["--port", Packager.PORT];
@@ -50,14 +51,9 @@ export class Packager {
 
                             let spawnOptions = { env: childEnvForDebugging };
 
-                            return new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions).then((packagerSpawnResult) => {
-                                return packagerSpawnResult.outcome.then(() => {
-                                    this.packagerProcess = packagerSpawnResult.spawnedProcess;
-                                    executedStartPackagerCmd = true;
-                                }).done(() => { }, reason => {
-                                    return Q.reject(reason);
-                                });
-                            });
+                            const packagerSpawnResult = new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions);
+                            this.packagerProcess = packagerSpawnResult.spawnedProcess;
+                            return packagerSpawnResult.startup;
                         });
                 }
             })
