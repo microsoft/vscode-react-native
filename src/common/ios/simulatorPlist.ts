@@ -7,6 +7,7 @@ import * as Q from "q";
 import {ErrorHelper} from "../../common/error/errorHelper";
 import {PlistBuddy} from "./plistBuddy";
 import {Log} from "../../common/log/log";
+import {LogLevel} from "../../common/log/logHelper";
 import {FileSystem} from "../../common/node/fileSystem";
 import {ChildProcess} from "../../common/node/childProcess";
 
@@ -42,7 +43,9 @@ export class SimulatorPlist {
 
                 // Look through $SIMULATOR_HOME/Containers/Data/Application/*/Library/Preferences to find $BUNDLEID.plist
                 return this.nodeFileSystem.readDir(pathBefore).then((apps: string[]) => {
-                    const plistCandidates = apps.map((app: string) => path.join(pathBefore, app, pathAfter)).filter(this.nodeFileSystem.existsSync);
+                    Log.logInternalMessage(LogLevel.Info, `About to search for plist in base folder: ${pathBefore} pathAfter: ${pathAfter} in each of the apps: ${apps}`);
+                    const plistCandidates = apps.map((app: string) => path.join(pathBefore, app, pathAfter)).filter(filePath =>
+                        this.nodeFileSystem.existsSync(filePath));
                     if (plistCandidates.length === 0) {
                         throw new Error(`Unable to find plist file for ${bundleId}`);
                     } else if (plistCandidates.length > 1) {
