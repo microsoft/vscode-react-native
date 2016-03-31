@@ -150,6 +150,7 @@ export class DeviceRunner {
 
         return this.mountDeveloperImage().then(function(): Q.Promise<any> {
             let result = new Node.ChildProcess().spawn("idevicedebugserverproxy",  [proxyPort.toString()]);
+            result.outcome.done(() => {}, () => {}); // Q prints a warning if we don't call .done(). We ignore all outcome errors
             return result.startup.then(() => this.nativeDebuggerProxyInstance = result.spawnedProcess);
         });
     }

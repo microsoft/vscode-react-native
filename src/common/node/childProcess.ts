@@ -77,6 +77,8 @@ export class ChildProcess {
         Q.delay(ChildProcess.ERROR_TIMEOUT_MILLISECONDS).done(() =>
             startup.resolve(void 0));
 
+        startup.promise.done(() => {}, () => {}); // Most callers don't use startup, and Q prints a warning if we don't attach any .done()
+
         spawnedProcess.once("exit", (code: number) => {
             if (code === 0) {
                 outcome.resolve(void 0);

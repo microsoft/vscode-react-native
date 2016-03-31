@@ -53,6 +53,8 @@ export class Packager {
 
                             const packagerSpawnResult = new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions);
                             this.packagerProcess = packagerSpawnResult.spawnedProcess;
+                            packagerSpawnResult.outcome.done(() => {}, () => {}); /* Q prints a warning if we don't call .done().
+                                                                                     We ignore all outcome errors */
                             return packagerSpawnResult.startup;
                         });
                 }
