@@ -147,7 +147,7 @@ export class ExtensionServer implements vscode.Disposable {
      */
     private handleSocket(socket: net.Socket): void {
         let handleError = (e: any) => {
-            Log.logError("An error ocurred. ", e);
+            Log.logError(e);
             socket.end(em.ErrorMarker);
         };
 
