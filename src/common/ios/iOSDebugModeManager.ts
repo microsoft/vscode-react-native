@@ -3,6 +3,8 @@
 
 import * as Q from "q";
 
+import {Log} from "../../common/log/log";
+import {LogLevel} from "../../common/log/logHelper";
 import {PromiseUtil} from "../../common/node/promise";
 import {PlistBuddy} from "./plistBuddy";
 import {SimulatorPlist} from "./simulatorPlist";
@@ -58,7 +60,10 @@ export class IOSDebugModeManager {
             failureString); // Error to show in case all retries fail
     }
 
-    private tryOneAttemptToFindPListFile() {
-        return this.simulatorPlist.findPlistFile().catch((): string => null);
+    private tryOneAttemptToFindPListFile(): Q.Promise<string> {
+        return this.simulatorPlist.findPlistFile().catch(reason => {
+            Log.logInternalMessage(LogLevel.Info, `Failed one attempt to find plist file: ${reason}`);
+            return null;
+        });
     }
 }
