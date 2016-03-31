@@ -11,6 +11,7 @@ import {PlistBuddy} from "../../common/ios/plistBuddy";
 export class DeviceRunner {
     private projectRoot: string;
     private nativeDebuggerProxyInstance: ChildProcess;
+    private childProcess = new Node.ChildProcess();
 
     constructor(projectRoot: string) {
         this.projectRoot = projectRoot;
@@ -149,7 +150,7 @@ export class DeviceRunner {
         this.cleanup();
 
         return this.mountDeveloperImage().then(function(): Q.Promise<any> {
-            let result = new Node.ChildProcess().spawn("idevicedebugserverproxy",  [proxyPort.toString()]);
+            let result = this.childProcess.spawn("idevicedebugserverproxy",  [proxyPort.toString()]);
             result.outcome.done(() => {}, () => {}); // Q prints a warning if we don't call .done(). We ignore all outcome errors
             return result.startup.then(() => this.nativeDebuggerProxyInstance = result.spawnedProcess);
         });
@@ -157,7 +158,7 @@ export class DeviceRunner {
 
     private mountDeveloperImage(): Q.Promise<void> {
         return this.getDiskImage().then(function(path: string): Q.Promise<void> {
-            const imagemounter = new Node.ChildProcess().spawn("ideviceimagemounter", [path]).spawnedProcess;
+            const imagemounter = this.childProcess.spawn("ideviceimagemounter", [path]).spawnedProcess;
             const deferred = Q.defer<void>();
             let stdout: string = "";
             imagemounter.stdout.on("data", function(data: any): void {
@@ -184,7 +185,7 @@ export class DeviceRunner {
     }
 
     private getDiskImage(): Q.Promise<string> {
-        const nodeChildProcess = new Node.ChildProcess();
+        const nodeChildProcess = this.childProcess;
         // Attempt to find the OS version of the iDevice, e.g. 7.1
         const versionInfo = nodeChildProcess.exec("ideviceinfo -s -k ProductVersion").outcome.then((stdout: Buffer) => {
             return stdout.toString().trim().substring(0, 3); // Versions for DeveloperDiskImage seem to be X.Y, while some device versions are X.Y.Z
@@ -221,7 +222,7 @@ export class DeviceRunner {
     }
 
     private getPathOnDevice(packageId: string): Q.Promise<string> {
-        const nodeChildProcess = new Node.ChildProcess();
+        const nodeChildProcess = this.childProcess;
         const nodeFileSystem = new Node.FileSystem();
         return nodeChildProcess.execToString("ideviceinstaller -l -o xml > /tmp/$$.ideviceinstaller && echo /tmp/$$.ideviceinstaller")
             .catch(function(err: any): any {
