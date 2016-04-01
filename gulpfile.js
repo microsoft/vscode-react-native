@@ -35,10 +35,6 @@ function getArgumentIndex(argumentName) {
     return process.argv.indexOf("--" + argumentName);
 }
 
-function testArgument(argumentName) {
-    return getArgumentIndex(argumentName) > -1;
-}
-
 function readArgument(argumentName) {
     var argumentNameIndex = getArgumentIndex(argumentName);
     var argumentValueIndex = argumentNameIndex + 1;
