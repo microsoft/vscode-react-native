@@ -16,7 +16,8 @@ export enum ExtensionMessage {
     STOP_PACKAGER,
     PREWARM_BUNDLE_CACHE,
     START_MONITORING_LOGCAT,
-    STOP_MONITORING_LOGCAT
+    STOP_MONITORING_LOGCAT,
+    SEND_TELEMETRY
 }
 
 export interface MessageWithArguments {
@@ -24,10 +25,14 @@ export interface MessageWithArguments {
     args: any[];
 }
 
+export interface IExtensionMessageSender {
+    sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any>;
+}
+
 /**
  * Sends messages to the extension.
  */
-export class ExtensionMessageSender {
+export class ExtensionMessageSender implements IExtensionMessageSender {
 
     public sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any> {
         let deferred = Q.defer<any>();

@@ -10,7 +10,13 @@ export interface IDevice {
     isOnline: boolean;
 }
 
-export class DeviceHelper {
+export interface IDeviceHelper {
+    getConnectedDevices(): Q.Promise<IDevice[]>;
+    reloadAppInDebugMode(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
+    launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
+}
+
+export class DeviceHelper implements IDeviceHelper {
 
     /**
      * Gets the list of Android connected devices and emulators.
