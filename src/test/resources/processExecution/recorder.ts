@@ -7,14 +7,13 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 
-import {ISpawnOptions} from "./recording";
-
 import {ITimedEvent,
     IEventArguments,
     Recording,
     IAndroidDevice,
     IIOSDevice,
     ISpawnArguments,
+    ISpawnOptions,
 } from "./recording";
 
 /* We use this class to capture the behavior of a ChildProces running inside of node, so we can store all the
