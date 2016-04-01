@@ -14,7 +14,7 @@ export interface IReactNative {
 export class ReactNative implements IReactNative {
     public runAndroid(projectRoot: string): ISpawnResult {
         let cexec = new CommandExecutor(projectRoot);
-        return cexec.spawnChildReactCommandProcess("run-android");
+        return cexec.spawnReactCommand("run-android");
     }
 
     public createProject(projectRoot: string, projectName: string): Q.Promise<void> {

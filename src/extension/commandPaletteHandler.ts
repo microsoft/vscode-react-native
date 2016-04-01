@@ -96,9 +96,7 @@ export class CommandPaletteHandler {
 
         return this.reactNativePackager.start()
             .then(() => {
-                return new CommandExecutor(this.workspaceRoot).spawnReactCommand(command, args, null);
-            }).then(() => {
-                return Q.resolve<void>(void 0);
+                return new CommandExecutor(this.workspaceRoot).spawnReactCommand(command, args).outcome;
             });
     }
 
