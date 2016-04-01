@@ -157,7 +157,6 @@ export class ExtensionServer implements vscode.Disposable {
         let dataCallback = (data: any) => {
             try {
                 let messageWithArgs: em.MessageWithArguments = JSON.parse(data);
-                em.validateMessageWithArguments(messageWithArgs);
                 this.handleExtensionMessage(messageWithArgs)
                     .then(result => {
                         socket.end(JSON.stringify(result));
