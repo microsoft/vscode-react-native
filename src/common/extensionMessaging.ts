@@ -16,7 +16,8 @@ export enum ExtensionMessage {
     STOP_PACKAGER,
     PREWARM_BUNDLE_CACHE,
     START_MONITORING_LOGCAT,
-    STOP_MONITORING_LOGCAT
+    STOP_MONITORING_LOGCAT,
+    SEND_TELEMETRY
 }
 
 export interface MessageWithArguments {
