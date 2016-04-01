@@ -22,7 +22,7 @@ export enum ExtensionMessage {
 
 export interface MessageWithArguments {
     message: ExtensionMessage;
-    args: any[];
+    args?: any[];
 }
 
 export interface IExtensionMessageSender {
@@ -36,7 +36,7 @@ export class ExtensionMessageSender implements IExtensionMessageSender {
 
     public sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any> {
         let deferred = Q.defer<any>();
-        let messageWithArguments: MessageWithArguments = { message: message, args: args || [] };
+        let messageWithArguments: MessageWithArguments = { message: message, args: args };
         let body = "";
 
         let pipePath = HostPlatform.getExtensionPipePath();
