@@ -24,7 +24,7 @@ export interface ISpawnArguments {
     options: ISpawnOptions;
 }
 
-interface ISpawnOptions {
+export interface ISpawnOptions {
     cwd?: string;
     stdio?: any;
     env?: any;

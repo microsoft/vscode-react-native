@@ -7,12 +7,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 
-interface ISpawnOptions {
-    cwd?: string;
-    stdio?: any;
-    env?: any;
-    detached?: boolean;
-}
+import {ISpawnOptions} from "./recording";
 
 import {ITimedEvent,
     IEventArguments,
