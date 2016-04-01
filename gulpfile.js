@@ -10,6 +10,8 @@ var runSequence = require("run-sequence");
 var ts = require('gulp-typescript');
 var mocha = require('gulp-mocha');
 var GulpExtras = require("./tools/gulp-extras");
+var minimist = require('minimist');
+
 var copyright = GulpExtras.checkCopyright;
 var imports = GulpExtras.checkImports;
 var executeCommand = GulpExtras.executeCommand;
@@ -21,6 +23,13 @@ var sources = [
     srcPath,
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; })
     .concat(['test/*.ts']);
+
+var knownOptions = {
+  string: 'env',
+  default: { env: 'production' }
+};
+
+var options = minimist(process.argv.slice(2), knownOptions);
 
 function getArgumentIndex(argumentName) {
     return process.argv.indexOf("--" + argumentName);
@@ -43,8 +52,9 @@ function readArgument(argumentName) {
 // be an issue on Windows platforms)
 gulp.task('build', ["check-imports", "check-copyright"], function () {
     var tsProject = ts.createProject('tsconfig.json');
-    var isProd = testArgument("prod");
+    var isProd = options.env === 'production';
     var preprocessorContext = isProd ? { PROD: true } : { DEBUG: true };
+    log(`Building with preprocessor context: ${JSON.stringify(preprocessorContext)}`);
     return tsProject.src()
         .pipe(preprocess({context: preprocessorContext})) //To set environment variables in-line
         .pipe(sourcemaps.init())
