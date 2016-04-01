@@ -107,7 +107,7 @@ export abstract class TelemetryGeneratorBase {
 
     private sendCurrentStep(): void {
         this.add("step", this.currentStep, /*isPii*/ false);
-        let telemetryEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(Telemetry.appName + "/" + this.componentName);
+        let telemetryEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(this.componentName);
         TelemetryHelper.addTelemetryEventProperties(telemetryEvent, this.telemetryProperties);
         this.sendTelemetryEvent(telemetryEvent);
     }
@@ -150,7 +150,7 @@ export class TelemetryHelper {
         Telemetry.send(event);
     }
     public static createTelemetryEvent(eventName: string, properties?: Telemetry.ITelemetryProperties): Telemetry.TelemetryEvent {
-        return new Telemetry.TelemetryEvent(Telemetry.appName + "/" + eventName, properties);
+        return new Telemetry.TelemetryEvent(eventName, properties);
     }
 
     public static telemetryProperty(propertyValue: any, pii?: boolean): ITelemetryPropertyInfo {
@@ -209,7 +209,7 @@ export class TelemetryHelper {
     }
 
     private static createBasicCommandTelemetry(commandName: string, args: string[] = null): Telemetry.TelemetryEvent {
-        let commandEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(Telemetry.appName + "/" + (commandName || "command"));
+        let commandEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(commandName || "command");
 
         if (!commandName && args && args.length > 0) {
             commandEvent.setPiiProperty("command", args[0]);
