@@ -13,6 +13,7 @@ import {Packager} from "../common/packager";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
+import {Telemetry} from "../common/telemetry";
 
 export class ExtensionServer implements vscode.Disposable {
     private serverInstance: net.Server = null;
@@ -34,6 +35,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.PREWARM_BUNDLE_CACHE] = this.prewarmBundleCache;
         this.messageHandlerDictionary[em.ExtensionMessage.START_MONITORING_LOGCAT] = this.startMonitoringLogCat;
         this.messageHandlerDictionary[em.ExtensionMessage.STOP_MONITORING_LOGCAT] = this.stopMonitoringLogCat;
+        this.messageHandlerDictionary[em.ExtensionMessage.SEND_TELEMETRY] = this.sendTelemetry;
     }
 
     /**
@@ -120,6 +122,14 @@ export class ExtensionServer implements vscode.Disposable {
     }
 
     /**
+     * Sends telemetry
+     */
+    private sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string, properties: {[key: string]: string}, measures: {[key: string]: number}): Q.Promise<any> {
+        Telemetry.sendExtensionTelemetry(extensionId, extensionVersion, appInsightsKey, eventName, properties, measures);
+        return Q.resolve({});
+    }
+
+    /**
      * Extension message handler.
      */
     private handleExtensionMessage(messageWithArgs: em.MessageWithArguments): Q.Promise<any> {
@@ -137,7 +147,7 @@ export class ExtensionServer implements vscode.Disposable {
      */
     private handleSocket(socket: net.Socket): void {
         let handleError = (e: any) => {
-            Log.logError("An error ocurred. ", e);
+            Log.logError(e);
             socket.end(em.ErrorMarker);
         };
 
