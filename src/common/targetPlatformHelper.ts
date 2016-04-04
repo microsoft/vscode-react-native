@@ -11,7 +11,6 @@ import {InternalErrorCode} from "../common/error/internalErrorCode";
  * Defines the identifiers of all the mobile target platforms React Native supports.
  */
 export enum TargetPlatformId {
-    INVALID,
     ANDROID,
     IOS
 }
@@ -21,20 +20,14 @@ export class TargetPlatformHelper {
      * Return the target platform identifier for a platform with name {platformName}.
      */
     public static getTargetPlatformId(platformName: string): TargetPlatformId {
-        let targetPlatformId: TargetPlatformId;
         switch (platformName) {
             case "android":
-                targetPlatformId = TargetPlatformId.ANDROID;
-                break;
+                return TargetPlatformId.ANDROID;
             case "ios":
-                targetPlatformId = TargetPlatformId.IOS;
-                break;
+                return TargetPlatformId.IOS;
             default:
-                targetPlatformId = TargetPlatformId.INVALID;
-                break;
-            }
-
-        return targetPlatformId;
+                throw new Error("The target platform is not supported.");
+        }
     }
 
     /**
@@ -42,10 +35,15 @@ export class TargetPlatformHelper {
      */
     public static checkTargetPlatformSupport(platformName: string): Q.Promise<void> {
         let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(platformName);
-        if (!HostPlatform.getTargetPlatformCompatibility(targetPlatformId)) {
+        try {
+            if (!HostPlatform.isCompatibleWithTarget(targetPlatformId)) {
+                return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform()));
+            } else {
+                return Q.resolve<void>(void 0);
+            }
+        } catch (e) {
+            /* we throw in the case of an invalid target platform */
             return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform()));
-        } else {
-            return Q.resolve<void>(void 0);
         }
     }
 }

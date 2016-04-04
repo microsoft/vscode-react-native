@@ -16,7 +16,7 @@ interface IHostPlatform {
     getExtensionPipePath(): string;
     getPlatformId(): HostPlatformId;
     setEnvironmentVariable(name: string, value: string): Q.Promise<void>;
-    getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean;
+    isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean;
 }
 
 /**
@@ -56,8 +56,8 @@ class WindowsHostPlatform implements IHostPlatform {
         return HostPlatformId.WINDOWS;
     }
 
-    public getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean {
-        return targetPlatformId !== TargetPlatformId.INVALID && targetPlatformId !== TargetPlatformId.IOS;
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID;
     }
 }
 
@@ -82,7 +82,7 @@ abstract class UnixHostPlatform implements IHostPlatform {
 
     public abstract getPlatformId(): HostPlatformId;
 
-    public abstract getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean;
+    public abstract isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean;
 }
 
 /**
@@ -97,8 +97,8 @@ class OSXHostPlatform extends UnixHostPlatform {
         return HostPlatformId.OSX;
     }
 
-    public getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean {
-        return targetPlatformId !== TargetPlatformId.INVALID;
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID || targetPlatformId === TargetPlatformId.IOS;
     }
 }
 
@@ -114,8 +114,8 @@ class LinuxHostPlatform extends UnixHostPlatform {
         return HostPlatformId.LINUX;
     }
 
-    public getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean {
-        return targetPlatformId !== TargetPlatformId.INVALID && targetPlatformId !== TargetPlatformId.IOS;
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID;
     }
 }
 
@@ -174,7 +174,7 @@ export class HostPlatform {
         return HostPlatform.platform.setEnvironmentVariable(name, value);
     }
 
-    public static getTargetPlatformCompatibility(targetPlatformId: TargetPlatformId): boolean {
-        return HostPlatform.platform.getTargetPlatformCompatibility(targetPlatformId);
+    public static isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return HostPlatform.platform.isCompatibleWithTarget(targetPlatformId);
     }
 }
