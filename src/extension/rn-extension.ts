@@ -3,6 +3,7 @@
 
 import * as fs from "fs";
 
+// @ifdef DEBUG
 try {
     fs.statSync(`${__filename}.map`); // We check if source maps are available
     /* tslint:disable:no-var-requires */
@@ -11,6 +12,7 @@ try {
 } catch (exceptions) {
     // If something goes wrong, we just ignore the errors
 }
+// @endif
 
 import * as Q from "q";
 import * as path from "path";
