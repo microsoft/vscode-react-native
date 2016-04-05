@@ -50,7 +50,7 @@ export class Launcher {
                         // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                         .then(() => {
                             generator.step("prewarmBundleCache");
-                            Log.logMessage("Prewarming bundle cache. This may take a while...");
+                            Log.logMessage("Prewarming bundle cache. This may take a while ...");
                             return extensionMessageSender.sendMessage(em.ExtensionMessage.PREWARM_BUNDLE_CACHE, [runOptions.platform]);
                         })
                         .then(() => {
