@@ -13,12 +13,8 @@ export interface IAVDManager {
     createAndLaunchAll(...avdIds: string[]): Q.Promise<string[]>;
 }
 
-interface IDeviceState {
-
-}
-
 interface IDeviceStateMapping {
-    [avdId: string]: IDeviceState;
+    [avdId: string]: any;
 }
 
 /* Simulation of AVD Manager. */
