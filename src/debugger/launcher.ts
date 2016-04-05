@@ -49,18 +49,18 @@ export class Launcher {
                         // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
                         // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                         .then(() => {
-                            Log.logMessage("Prewarming bundle cache. This may take a while...");
                             generator.step("prewarmBundleCache");
+                            Log.logMessage("Prewarming bundle cache. This may take a while...");
                             return extensionMessageSender.sendMessage(em.ExtensionMessage.PREWARM_BUNDLE_CACHE, [runOptions.platform]);
                         })
                         .then(() => {
-                            Log.logMessage("Building and running application.");
                             generator.step("mobilePlatform.runApp");
+                            Log.logMessage("Building and running application.");
                             return mobilePlatform.runApp(runOptions);
                         })
                         .then(() => {
-                            Log.logMessage("Starting debugging session.");
                             generator.step("Starting App Worker");
+                            Log.logMessage("Starting debugger app worker.");
                             return new MultipleLifetimesAppWorker(sourcesStoragePath, runOptions.debugAdapterPort).start();
                         }) // Start the app worker
                         .then(() => {
