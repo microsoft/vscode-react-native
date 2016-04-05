@@ -50,14 +50,17 @@ export class Launcher {
                         // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                         .then(() => {
                             generator.step("prewarmBundleCache");
+                            Log.logMessage("Prewarming bundle cache. This may take a while ...");
                             return remoteExtension.prewarmBundleCache(runOptions.platform);
                         })
                         .then(() => {
                             generator.step("mobilePlatform.runApp");
+                            Log.logMessage("Building and running application.");
                             return mobilePlatform.runApp();
                         })
                         .then(() => {
                             generator.step("Starting App Worker");
+                            Log.logMessage("Starting debugger app worker.");
                             return new MultipleLifetimesAppWorker(sourcesStoragePath, runOptions.debugAdapterPort).start();
                         }) // Start the app worker
                         .then(() => {
