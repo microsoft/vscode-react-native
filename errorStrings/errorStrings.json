@@ -24,6 +24,7 @@
     "FailedToStartPackager": "Failed to start the React Native packager",
     "FailedToStopPackager": "Failed to stop the React Native packager",
     "DebuggingFailed": "Cannot debug application",
+    "DebuggingFailedInNodeWrapper": "Cannot debug application due to an error in the internal Node Debugger",
     "RNTempFolderDeletionFailed": "Couldn't delete the temporary folder {0}",
     "CouldNotFindLocationOfNodeDebugger": "Couldn't find the location of the node-debugger extension",
     "ErrorWhileProcessingMessageInIPMSServer": "An error ocurred while handling message: {0}"

@@ -5,8 +5,8 @@ import * as net from "net";
 import * as Q from "q";
 import {Log} from "./log/log";
 import {LogLevel} from "./log/logHelper";
-import {ErrorHelper} from "./error/ErrorHelper";
-import {InternalErrorCode} from "./error/InternalErrorCode";
+import {ErrorHelper} from "./error/errorHelper";
+import {InternalErrorCode} from "./error/internalErrorCode";
 
 import {ExtensionMessage, MessageWithArguments, ErrorMarker} from "./extensionMessaging";
 

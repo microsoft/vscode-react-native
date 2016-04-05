@@ -27,4 +27,10 @@ export class RemoteExtension {
     public stopMonitoringLocat(): Q.Promise<void> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.STOP_MONITORING_LOGCAT);
     }
+
+    public sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string,
+                         properties: { [key: string]: string }, measures: { [key: string]: number }): Q.Promise<any> {
+        return this.interProcessMessageSender.sendMessage(ExtensionMessage.SEND_TELEMETRY,
+            [extensionId, extensionVersion, appInsightsKey, eventName, properties, measures]);
+    }
 }

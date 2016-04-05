@@ -13,7 +13,7 @@ import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IRunOptions} from "../common/launchArgs";
 import {RemoteExtension} from "../common/remoteExtension";
-import {EntryPointHandler} from "../common/entryPointHandler";
+import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 
 export class Launcher {
     private projectRootPath: string;
@@ -24,8 +24,8 @@ export class Launcher {
 
     public launch(): void {
         // Enable telemetry
-        new EntryPointHandler(true).runApp("react-native-debug-process", () => this.getAppVersion(),
-            ErrorHelper.getInternalError(InternalErrorCode.DebuggingFailed), () => {
+        new EntryPointHandler(ProcessType.Debugee).runApp("react-native-debug-process", () => this.getAppVersion(),
+            ErrorHelper.getInternalError(InternalErrorCode.DebuggingFailed), this.projectRootPath, () => {
             return TelemetryHelper.generate("launch", (generator) => {
                 const resolver = new PlatformResolver();
                 const runOptions = this.parseRunOptions();

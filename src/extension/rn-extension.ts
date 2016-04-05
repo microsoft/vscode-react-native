@@ -19,7 +19,7 @@ import * as vscode from "vscode";
 import {FileSystem} from "../common/node/fileSystem";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {Packager} from "../common/packager";
-import {EntryPointHandler} from "../common/entryPointHandler";
+import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalError} from "../common/error/internalError";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
@@ -28,6 +28,7 @@ import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {IntellisenseHelper} from "./intellisenseHelper";
+import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./outputChannelLogger";
@@ -39,7 +40,7 @@ const packagerStatusIndicator = new PackagerStatusIndicator();
 const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator);
 
 const outputChannelLogger = new OutputChannelLogger(vscode.window.createOutputChannel("React-Native"));
-const entryPointHandler = new EntryPointHandler(false, outputChannelLogger);
+const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
 const reactNativeProjectHelper = new ReactNativeProjectHelper(projectRootPath);
 const fsUtil = new FileSystem();
 
@@ -49,10 +50,13 @@ interface ISetupableDisposable extends vscode.Disposable {
 
 export function activate(context: vscode.ExtensionContext): void {
     entryPointHandler.runApp("react-native", () => <string>require("../../package.json").version,
-        ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), () => {
+        ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), projectRootPath, () => {
         return reactNativeProjectHelper.isReactNativeProject()
             .then(isRNProject => {
                 if (isRNProject) {
+                    let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
+                    Telemetry.send(activateExtensionEvent);
+
                     warnWhenReactNativeVersionIsNotSupported();
                     entryPointHandler.runFunction("debugger.setupLauncherStub",
                         ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () =>

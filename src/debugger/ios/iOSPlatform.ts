@@ -49,7 +49,7 @@ export class IOSPlatform implements IAppPlatform {
                 runArguments.push(this.simulatorTarget);
             }
 
-            const runIosSpawn = new CommandExecutor(this.projectPath).spawnChildReactCommandProcess("run-ios", runArguments);
+            const runIosSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-ios", runArguments);
             return new OutputVerifier(
                 () =>
                     this.generateSuccessPatterns(),
