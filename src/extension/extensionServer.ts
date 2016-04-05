@@ -14,8 +14,8 @@ import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {ConfigurationReader} from "../common/configurationReader";
-
 import {SettingsHelper} from "./settingsHelper";
+import {Telemetry} from "../common/telemetry";
 
 export class ExtensionServer implements vscode.Disposable {
     private serverInstance: net.Server = null;
@@ -38,6 +38,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.START_MONITORING_LOGCAT] = this.startMonitoringLogCat;
         this.messageHandlerDictionary[em.ExtensionMessage.STOP_MONITORING_LOGCAT] = this.stopMonitoringLogCat;
         this.messageHandlerDictionary[em.ExtensionMessage.GET_PACKAGER_PORT] = this.getPackagerPort;
+        this.messageHandlerDictionary[em.ExtensionMessage.SEND_TELEMETRY] = this.sendTelemetry;
     }
 
     /**
@@ -130,6 +131,14 @@ export class ExtensionServer implements vscode.Disposable {
         }
 
         return Q.resolve<void>(void 0);
+    }
+
+    /**
+     * Sends telemetry
+     */
+    private sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string, properties: {[key: string]: string}, measures: {[key: string]: number}): Q.Promise<any> {
+        Telemetry.sendExtensionTelemetry(extensionId, extensionVersion, appInsightsKey, eventName, properties, measures);
+        return Q.resolve({});
     }
 
     /**
