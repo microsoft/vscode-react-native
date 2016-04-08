@@ -33,9 +33,13 @@ export class RecordingsHelper {
 
     private initializeTest(): void {
         this.test = <TestUsingRecording>((testName: string, recordingNames: string[], code: () => Q.Promise<void>): void => {
+            if (code.length !== 0) { // Check how many arguments the function has
+                throw new RangeError("(done: mochaDone) parameter is not supported. Please return a promise instead.");
+            }
+            const recordingsHelper = this;
             recordingNames.forEach(recordingName => {
-                test(`${testName} using recording ${recordingName}`, () => {
-                    return this.getRecordingConsumer().loadRecordingFromName(recordingName).then(code);
+                test(`${testName} using recording ${recordingName}`, function () { // We use function () because we need the this pointer
+                    return recordingsHelper.getRecordingConsumer().loadRecordingFromName(recordingName).then(code.bind(this));
                 });
             });
         });
