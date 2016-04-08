@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as os from "os";
-import * as Q from "q";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {HostPlatform} from "../common/hostPlatform";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
@@ -20,7 +19,7 @@ export class TargetPlatformHelper {
      * Return the target platform identifier for a platform with name {platformName}.
      */
     public static getTargetPlatformId(platformName: string): TargetPlatformId {
-        switch (platformName) {
+        switch (platformName.toLowerCase()) {
             case "android":
                 return TargetPlatformId.ANDROID;
             case "ios":
@@ -33,17 +32,15 @@ export class TargetPlatformHelper {
     /**
      * Checks whether the current host platform supports the target mobile platform.
      */
-    public static checkTargetPlatformSupport(platformName: string): Q.Promise<void> {
+    public static checkTargetPlatformSupport(platformName: string): void {
         let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(platformName);
         try {
             if (!HostPlatform.isCompatibleWithTarget(targetPlatformId)) {
-                return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform()));
-            } else {
-                return Q.resolve<void>(void 0);
+                throw ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform());
             }
         } catch (e) {
             /* we throw in the case of an invalid target platform */
-            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform()));
+            throw ErrorHelper.getNestedError(e, InternalErrorCode.PlatformNotSupported, platformName, os.platform());
         }
     }
 }

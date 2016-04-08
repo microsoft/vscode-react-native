@@ -78,14 +78,12 @@ export class CommandPaletteHandler {
      * Executes the 'react-native run-ios' command
      */
     public runIos(): Q.Promise<void> {
-        return TargetPlatformHelper.checkTargetPlatformSupport("ios")
-        .then(() => {
-            return this.executeCommandInContext("runIos", () => {
-                // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
-                return new IOSDebugModeManager(this.workspaceRoot).setSimulatorJSDebuggingModeSetting(/*enable=*/ false)
-                    .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
-                    .then(() => this.executeReactNativeRunCommand("run-ios"));
-            });
+        TargetPlatformHelper.checkTargetPlatformSupport("ios");
+        return this.executeCommandInContext("runIos", () => {
+            // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
+            return new IOSDebugModeManager(this.workspaceRoot).setSimulatorJSDebuggingModeSetting(/*enable=*/ false)
+                .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+                .then(() => this.executeReactNativeRunCommand("run-ios"));
         });
     }
 
