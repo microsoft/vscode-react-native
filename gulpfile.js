@@ -5,10 +5,13 @@ var gulp = require('gulp');
 var log = require('gulp-util').log;
 var sourcemaps = require('gulp-sourcemaps');
 var path = require('path');
+var preprocess = require('gulp-preprocess');
 var runSequence = require("run-sequence");
 var ts = require('gulp-typescript');
 var mocha = require('gulp-mocha');
 var GulpExtras = require("./tools/gulp-extras");
+var minimist = require('minimist');
+
 var copyright = GulpExtras.checkCopyright;
 var imports = GulpExtras.checkImports;
 var executeCommand = GulpExtras.executeCommand;
@@ -21,12 +24,35 @@ var sources = [
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; })
     .concat(['test/*.ts']);
 
+var knownOptions = {
+  string: 'env',
+  default: { env: 'production' }
+};
+
+var options = minimist(process.argv.slice(2), knownOptions);
+
+function getArgumentIndex(argumentName) {
+    return process.argv.indexOf("--" + argumentName);
+}
+
+function readArgument(argumentName) {
+    var argumentNameIndex = getArgumentIndex(argumentName);
+    var argumentValueIndex = argumentNameIndex + 1;
+    return argumentNameIndex > -1 && argumentValueIndex < process.argv.length
+        ? process.argv[argumentValueIndex]
+        : null;
+}
+
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
 // be an issue on Windows platforms)
 gulp.task('build', ["check-imports", "check-copyright"], function () {
     var tsProject = ts.createProject('tsconfig.json');
+    var isProd = options.env === 'production';
+    var preprocessorContext = isProd ? { PROD: true } : { DEBUG: true };
+    log(`Building with preprocessor context: ${JSON.stringify(preprocessorContext)}`);
     return tsProject.src()
+        .pipe(preprocess({context: preprocessorContext})) //To set environment variables in-line
         .pipe(sourcemaps.init())
         .pipe(ts(tsProject))
         .pipe(sourcemaps.write('.', {
@@ -51,7 +77,8 @@ var lintSources = [
     srcPath,
 ].map(function (tsFolder) { return tsFolder + '/**/*.ts'; });
 lintSources = lintSources.concat([
-    '!src/typings/**'
+    '!src/typings/**',
+    '!src/test/resources/sampleReactNative022Project/**',
 ]);
 
 var tslint = require('gulp-tslint');
@@ -60,14 +87,6 @@ gulp.task('tslint', function () {
         .pipe(tslint())
         .pipe(tslint.report('verbose'));
 });
-
-function readArgument(argumentName) {
-    var argumentNameIndex = process.argv.indexOf("--" + argumentName);
-    var argumentValueIndex = argumentNameIndex + 1;
-    return argumentNameIndex > -1 && argumentValueIndex < process.argv.length
-        ? process.argv[argumentValueIndex]
-        : null;
-}
 
 function test() {
     // Defaults
@@ -107,7 +126,8 @@ gulp.task('check-copyright', function (cb) {
             "**/*.js",
             "!**/*.d.ts",
             "!node_modules/**/*.*",
-            "!SampleApplication/**/*.js"
+            "!SampleApplication/**/*.js",
+            "!src/test/resources/sampleReactNative022Project/**/*.js",
         ])
         .pipe(copyright());
 });
