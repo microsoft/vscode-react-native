@@ -20,7 +20,7 @@ export class DeviceRunner {
 
     public run(): Q.Promise<void> {
         const proxyPort = 9999;
-        const appLaunchStepTimeout = 5000;
+        const appLaunchStepTimeout = 10000;
         return new PlistBuddy().getBundleId(this.projectRoot, /*simulator=*/false)
             .then((bundleId: string) => this.getPathOnDevice(bundleId))
             .then((path: string) =>
@@ -49,9 +49,8 @@ export class DeviceRunner {
 
         const deferred1: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
         const deferred2: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
-        const deferred3: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
 
-        socket.on("data", function(data: any): void {
+        socket.on("data", (data: any): void => {
             data = data.toString();
             while (data[0] === "+") { data = data.substring(1); }
             // Acknowledge any packets sent our way
@@ -76,16 +75,11 @@ export class DeviceRunner {
                     }
                 } else if (data[1] === "O") {
                     // STDOUT was written to, and the rest of the input until reaching a "#" is a hex-encoded string of that output
-                    if (initState === 3) {
-                        deferred3.resolve(socket);
-                        initState++;
-                    }
                 } else if (data[1] === "E") {
                     // An error has occurred, with error code given by data[2-3]: parseInt(data.substring(2, 4), 16)
                     const error = new Error("Unable to launch application.");
                     deferred1.reject(error);
                     deferred2.reject(error);
-                    deferred3.reject(error);
                 }
             }
         });
@@ -94,13 +88,11 @@ export class DeviceRunner {
             const error = new Error("Unable to launch application.");
             deferred1.reject(error);
             deferred2.reject(error);
-            deferred3.reject(error);
         });
 
         socket.on("error", function(err: Error): void {
             deferred1.reject(err);
             deferred2.reject(err);
-            deferred3.reject(err);
         });
 
         socket.connect(portNumber, "localhost", () => {
@@ -122,15 +114,12 @@ export class DeviceRunner {
                 deferred2.reject(new Error("Timeout launching application. Is the device locked?"));
             }, appLaunchStepTimeout);
             return deferred2.promise;
-        }).then((sock: net.Socket): Q.Promise<net.Socket> => {
+        }).then((sock: net.Socket): void => {
             // Continue execution; actually start the app running.
             const cmd: string = this.makeGdbCommand("c");
             initState++;
             sock.write(cmd);
-            setTimeout(function(): void {
-                deferred3.reject(new Error("Timeout launching application. Is the device locked?"));
-            }, appLaunchStepTimeout);
-            return deferred3.promise;
+            return;
         }).then(() => packagePath);
     }
 
@@ -149,7 +138,7 @@ export class DeviceRunner {
     private startNativeDebugProxy(proxyPort: number): Q.Promise<void> {
         this.cleanup();
 
-        return this.mountDeveloperImage().then(function(): Q.Promise<any> {
+        return this.mountDeveloperImage().then((): Q.Promise<any> => {
             let result = this.childProcess.spawn("idevicedebugserverproxy",  [proxyPort.toString()]);
             result.outcome.done(() => {}, () => {}); // Q prints a warning if we don't call .done(). We ignore all outcome errors
             return result.startup.then(() => this.nativeDebuggerProxyInstance = result.spawnedProcess);
@@ -157,7 +146,7 @@ export class DeviceRunner {
     }
 
     private mountDeveloperImage(): Q.Promise<void> {
-        return this.getDiskImage().then(function(path: string): Q.Promise<void> {
+        return this.getDiskImage().then((path: string): Q.Promise<void> => {
             const imagemounter = this.childProcess.spawn("ideviceimagemounter", [path]).spawnedProcess;
             const deferred = Q.defer<void>();
             let stdout: string = "";
