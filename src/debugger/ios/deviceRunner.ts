@@ -51,7 +51,7 @@ export class DeviceRunner {
         const deferred2: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
         const deferred3: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
 
-        socket.on("data", function(data: any): void {
+        socket.on("data", (data: any): void => {
             data = data.toString();
             while (data[0] === "+") { data = data.substring(1); }
             // Acknowledge any packets sent our way
@@ -149,7 +149,7 @@ export class DeviceRunner {
     private startNativeDebugProxy(proxyPort: number): Q.Promise<void> {
         this.cleanup();
 
-        return this.mountDeveloperImage().then(function(): Q.Promise<any> {
+        return this.mountDeveloperImage().then((): Q.Promise<any> => {
             let result = this.childProcess.spawn("idevicedebugserverproxy",  [proxyPort.toString()]);
             result.outcome.done(() => {}, () => {}); // Q prints a warning if we don't call .done(). We ignore all outcome errors
             return result.startup.then(() => this.nativeDebuggerProxyInstance = result.spawnedProcess);
@@ -157,7 +157,7 @@ export class DeviceRunner {
     }
 
     private mountDeveloperImage(): Q.Promise<void> {
-        return this.getDiskImage().then(function(path: string): Q.Promise<void> {
+        return this.getDiskImage().then((path: string): Q.Promise<void> => {
             const imagemounter = this.childProcess.spawn("ideviceimagemounter", [path]).spawnedProcess;
             const deferred = Q.defer<void>();
             let stdout: string = "";
