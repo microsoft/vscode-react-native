@@ -76,7 +76,7 @@ export class Simulator {
 
         /* We call spawnWaitUntilFinished to fill the ISpawnResult object appropiatedly. The command
            and the arguments don't affect that object, so we just pass an empty command and parameters */
-        return new ChildProcess({ childProcess: fakeChildProcessModule }).spawnWaitUntilFinished("", []);
+        return new ChildProcess({ childProcess: fakeChildProcessModule }).spawn("", []);
     }
 
     public simulate(recording: Recording): Q.Promise<void> {
