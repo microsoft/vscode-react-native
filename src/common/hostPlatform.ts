@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {ChildProcess} from "./node/childProcess";
+import {TargetPlatformId} from "./targetPlatformHelper";
 import * as path from "path";
 import * as Q from "q";
 
@@ -15,6 +16,7 @@ interface IHostPlatform {
     getExtensionPipePath(): string;
     getPlatformId(): HostPlatformId;
     setEnvironmentVariable(name: string, value: string): Q.Promise<void>;
+    isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean;
 }
 
 /**
@@ -53,6 +55,10 @@ class WindowsHostPlatform implements IHostPlatform {
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.WINDOWS;
     }
+
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID;
+    }
 }
 
 abstract class UnixHostPlatform implements IHostPlatform {
@@ -75,6 +81,8 @@ abstract class UnixHostPlatform implements IHostPlatform {
     }
 
     public abstract getPlatformId(): HostPlatformId;
+
+    public abstract isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean;
 }
 
 /**
@@ -88,6 +96,10 @@ class OSXHostPlatform extends UnixHostPlatform {
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.OSX;
     }
+
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID || targetPlatformId === TargetPlatformId.IOS;
+    }
 }
 
 /**
@@ -100,6 +112,10 @@ class LinuxHostPlatform extends UnixHostPlatform {
 
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.LINUX;
+    }
+
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID;
     }
 }
 
@@ -156,5 +172,9 @@ export class HostPlatform {
 
     public static setEnvironmentVariable(name: string, value: string): Q.Promise<void> {
         return HostPlatform.platform.setEnvironmentVariable(name, value);
+    }
+
+    public static isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return HostPlatform.platform.isCompatibleWithTarget(targetPlatformId);
     }
 }

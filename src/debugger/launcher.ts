@@ -11,6 +11,7 @@ import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {ScriptImporter} from "./scriptImporter";
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
+import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {IRunOptions} from "../common/launchArgs";
 import * as em from "../common/extensionMessaging";
 import {EntryPointHandler} from "../common/entryPointHandler";
@@ -37,6 +38,8 @@ export class Launcher {
                     let extensionMessageSender = new em.ExtensionMessageSender();
                     return Q({})
                         .then(() => {
+                            generator.step("checkPlatformCompatibility");
+                            TargetPlatformHelper.checkTargetPlatformSupport(runOptions.platform);
                             generator.step("startPackager");
                             return extensionMessageSender.sendMessage(em.ExtensionMessage.START_PACKAGER);
                         })
