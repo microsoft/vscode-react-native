@@ -39,9 +39,7 @@ export class Launcher {
                     return Q({})
                         .then(() => {
                             generator.step("checkPlatformCompatibility");
-                            return TargetPlatformHelper.checkTargetPlatformSupport(runOptions.platform);
-                        })
-                        .then(() => {
+                            TargetPlatformHelper.checkTargetPlatformSupport(runOptions.platform);
                             generator.step("startPackager");
                             return extensionMessageSender.sendMessage(em.ExtensionMessage.START_PACKAGER);
                         })

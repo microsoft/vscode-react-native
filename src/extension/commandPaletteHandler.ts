@@ -49,6 +49,7 @@ export class CommandPaletteHandler {
         /* If there are multiple devices available, the run-android command will install the application on each and then print a warning.
            The command will succeed but the application will not be launched on any device.
            We fix this behavior by checking if there are more than one devices available and running the application on each.  */
+        TargetPlatformHelper.checkTargetPlatformSupport("android");
         return this.executeCommandInContext("runAndroid", () => this.executeReactNativeRunCommand("run-android"))
             .then(() => {
                 let deviceHelper = new DeviceHelper();

@@ -25,7 +25,7 @@ export class TargetPlatformHelper {
             case "ios":
                 return TargetPlatformId.IOS;
             default:
-                throw new Error("The target platform is not supported.");
+                throw new Error(`The target platform ${platformName} is not supported.`);
         }
     }
 
