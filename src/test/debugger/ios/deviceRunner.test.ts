@@ -150,14 +150,7 @@ suite("deviceRunner", function() {
                             dataString.should.equal(expectedResponse);
                             mockDebuggerProxy.protocolState++;
                             client.write("+");
-                            client.write("$OK#9A");
-                            break;
-                        case 4:
-                            expectedResponse = "$c#63";
-                            dataString.should.equal(expectedResponse);
-                            mockDebuggerProxy.protocolState++;
-                            client.write("+");
-                            client.write("$E23#AA"); // Report an error
+                            client.write("$E23#AA");
                             client.end();
                             break;
                         default:
