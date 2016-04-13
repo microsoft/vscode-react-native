@@ -19,10 +19,12 @@ interface DownloadedScript {
 export class ScriptImporter {
     public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
     public static DEBUGGER_WORKER_FILENAME = ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME + ".js";
+    private packagerPort: number;
     private sourcesStoragePath: string;
     private sourceMapUtil: SourceMapUtil;
 
-    constructor(private packagerPort: number, sourcesStoragePath: string) {
+    constructor(packagerPort: number, sourcesStoragePath: string) {
+        this.packagerPort = packagerPort;
         this.sourcesStoragePath = sourcesStoragePath;
         this.sourceMapUtil = new SourceMapUtil();
     }

@@ -45,6 +45,7 @@ export class SandboxedAppWorker {
      * so we define our custom function there, so we can handle the message. We also provide our own importScript function
      * to download any script used by debuggerWorker.js
      */
+    private packagerPort: number;
     private sourcesStoragePath: string;
     private debugAdapterPort: number;
     private postReplyToApp: (message: any) => void;
@@ -60,10 +61,11 @@ export class SandboxedAppWorker {
 
     private static PROCESS_MESSAGE_INSIDE_SANDBOX = "onmessage({ data: postMessageArgument });";
 
-    constructor(private packagerPort: number, sourcesStoragePath: string, debugAdapterPort: number, postReplyToApp: (message: any) => void, {
+    constructor(packagerPort: number, sourcesStoragePath: string, debugAdapterPort: number, postReplyToApp: (message: any) => void, {
         nodeFileSystem = new FileSystem(),
         scriptImporter = new ScriptImporter(packagerPort, sourcesStoragePath),
     } = {}) {
+        this.packagerPort = packagerPort;
         this.sourcesStoragePath = sourcesStoragePath;
         this.debugAdapterPort = debugAdapterPort;
         this.postReplyToApp = postReplyToApp;
@@ -160,6 +162,7 @@ export class MultipleLifetimesAppWorker {
      * is the prepareJSRuntime, which we reply to the RN App that the sandbox was created successfully.
      * When the socket closes, we'll create a new SandboxedAppWorker and a new socket pair and discard the old ones.
      */
+    private packagerPort: number;
     private sourcesStoragePath: string;
     private debugAdapterPort: number;
     private socketToApp: WebSocket;
@@ -170,11 +173,12 @@ export class MultipleLifetimesAppWorker {
 
     private executionLimiter = new ExecutionsLimiter();
 
-    constructor(private packagerPort: number, sourcesStoragePath: string, debugAdapterPort: number, {
+    constructor(packagerPort: number, sourcesStoragePath: string, debugAdapterPort: number, {
         sandboxedAppConstructor = (path: string, port: number, messageFunc: (message: any) => void) =>
             new SandboxedAppWorker(packagerPort, path, port, messageFunc),
         webSocketConstructor = (url: string) => new WebSocket(url),
     } = {}) {
+        this.packagerPort = packagerPort;
         this.sourcesStoragePath = sourcesStoragePath;
         this.debugAdapterPort = debugAdapterPort;
         console.assert(!!this.sourcesStoragePath, "The sourcesStoragePath argument was null or empty");
