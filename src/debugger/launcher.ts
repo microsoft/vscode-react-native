@@ -13,8 +13,8 @@ import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {IRunOptions} from "../common/launchArgs";
-import * as em from "../common/extensionMessaging";
-import {EntryPointHandler} from "../common/entryPointHandler";
+import {RemoteExtension} from "../common/remoteExtension";
+import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 
 export class Launcher {
     private projectRootPath: string;
@@ -25,23 +25,23 @@ export class Launcher {
 
     public launch(): void {
         // Enable telemetry
-        new EntryPointHandler(true).runApp("react-native-debug-process", () => this.getAppVersion(),
-            ErrorHelper.getInternalError(InternalErrorCode.DebuggingFailed), () => {
+        new EntryPointHandler(ProcessType.Debugee).runApp("react-native-debug-process", () => this.getAppVersion(),
+            ErrorHelper.getInternalError(InternalErrorCode.DebuggingFailed), this.projectRootPath, () => {
             return TelemetryHelper.generate("launch", (generator) => {
                 const resolver = new PlatformResolver();
                 const runOptions = this.parseRunOptions();
-                const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform);
+                const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform, runOptions);
                 if (!mobilePlatform) {
                     throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
                 } else {
                     const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-                    let extensionMessageSender = new em.ExtensionMessageSender();
+                    let remoteExtension = new RemoteExtension(this.projectRootPath);
                     return Q({})
                         .then(() => {
                             generator.step("checkPlatformCompatibility");
                             TargetPlatformHelper.checkTargetPlatformSupport(runOptions.platform);
                             generator.step("startPackager");
-                            return extensionMessageSender.sendMessage(em.ExtensionMessage.START_PACKAGER);
+                            return remoteExtension.startPackager();
                         })
                         .then(() => {
                             let scriptImporter = new ScriptImporter(sourcesStoragePath);
@@ -54,12 +54,12 @@ export class Launcher {
                         .then(() => {
                             generator.step("prewarmBundleCache");
                             Log.logMessage("Prewarming bundle cache. This may take a while ...");
-                            return extensionMessageSender.sendMessage(em.ExtensionMessage.PREWARM_BUNDLE_CACHE, [runOptions.platform]);
+                            return remoteExtension.prewarmBundleCache(runOptions.platform);
                         })
                         .then(() => {
                             generator.step("mobilePlatform.runApp");
                             Log.logMessage("Building and running application.");
-                            return mobilePlatform.runApp(runOptions);
+                            return mobilePlatform.runApp();
                         })
                         .then(() => {
                             generator.step("Starting App Worker");
@@ -68,7 +68,7 @@ export class Launcher {
                         }) // Start the app worker
                         .then(() => {
                             generator.step("mobilePlatform.enableJSDebuggingMode");
-                            return mobilePlatform.enableJSDebuggingMode(runOptions);
+                            return mobilePlatform.enableJSDebuggingMode();
                         }).then(() =>
                             Log.logMessage("Debugging session started successfully."));
                 }

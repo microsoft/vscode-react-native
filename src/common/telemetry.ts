@@ -6,7 +6,6 @@
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
-import {ExtensionMessage, ExtensionMessageSender} from "../common/extensionMessaging";
 import {HostPlatform} from "../common/hostPlatform";
 
 /**
@@ -78,14 +77,10 @@ export module Telemetry {
         }
     };
 
-    export interface ITelemetryInitOptions {
-        isExtensionProcess: boolean;
-    }
-
-    export function init(appNameValue: string, appVersion?: string, initOptions?: ITelemetryInitOptions): void {
+    export function init(appNameValue: string, appVersion: string, reporterToUse: ITelemetryReporter): void {
         try {
             Telemetry.appName = appNameValue;
-            TelemetryUtils.init(appVersion, initOptions);
+            TelemetryUtils.init(appVersion, reporterToUse);
         } catch (err) {
             console.error(err);
         }
@@ -149,6 +144,13 @@ export module Telemetry {
         userType?: string;
     }
 
+    export const APPINSIGHTS_INSTRUMENTATIONKEY: string = "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217"; // Matches vscode telemetry key
+
+    export function defaultTelemetryReporter(appVersion: string): ITelemetryReporter {
+        const TelemetryReporter = require("vscode-extension-telemetry").default;
+        return new TelemetryReporter(Telemetry.appName, appVersion, APPINSIGHTS_INSTRUMENTATIONKEY);
+    }
+
     class TelemetryUtils {
         public static USERTYPE_INTERNAL: string = "Internal";
         public static USERTYPE_EXTERNAL: string = "External";
@@ -159,7 +161,6 @@ export module Telemetry {
         private static userId: string;
         private static telemetrySettings: ITelemetrySettings = null;
         private static TELEMETRY_SETTINGS_FILENAME: string = "VSCodeTelemetrySettings.json";
-        private static APPINSIGHTS_INSTRUMENTATIONKEY: string = "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217"; // Matches vscode telemetry key
         private static INTERNAL_DOMAIN_SUFFIX: string = "microsoft.com";
         private static INTERNAL_USER_ENV_VAR: string = "TACOINTERNAL";
 
@@ -168,16 +169,9 @@ export module Telemetry {
             return path.join(settingsHome, TelemetryUtils.TELEMETRY_SETTINGS_FILENAME);
         }
 
-        public static init(appVersion: string, initOptions: ITelemetryInitOptions): void {
+        public static init(appVersion: string, reporterToUse: ITelemetryReporter): void {
             TelemetryUtils.loadSettings();
-
-            if (initOptions.isExtensionProcess) {
-                let TelemetryReporter = require("vscode-extension-telemetry").default;
-                Telemetry.reporter = new TelemetryReporter(Telemetry.appName, appVersion, TelemetryUtils.APPINSIGHTS_INSTRUMENTATIONKEY);
-            } else {
-                Telemetry.reporter = new ExtensionTelemetryReporter(Telemetry.appName, appVersion, TelemetryUtils.APPINSIGHTS_INSTRUMENTATIONKEY);
-            }
-
+            Telemetry.reporter = reporterToUse;
             TelemetryUtils.userType = TelemetryUtils.getUserType();
             Telemetry.isOptedIn = TelemetryUtils.getTelemetryOptInSetting();
             TelemetryUtils.saveSettings();
@@ -283,25 +277,6 @@ export module Telemetry {
 
     export interface ITelemetryReporter {
         sendTelemetryEvent(eventName: string, properties?: ITelemetryEventProperties, measures?: ITelemetryEventMeasures): void;
-    }
-
-    class ExtensionTelemetryReporter implements ITelemetryReporter {
-        private extensionMessageSender: ExtensionMessageSender;
-        private extensionId: string;
-        private extensionVersion: string;
-        private appInsightsKey: string;
-
-        constructor(extensionId: string, extensionVersion: string, key: string) {
-            this.extensionId = extensionId;
-            this.extensionVersion = extensionVersion;
-            this.appInsightsKey = key;
-            this.extensionMessageSender = new ExtensionMessageSender();
-        }
-
-        public sendTelemetryEvent(eventName: string, properties?: ITelemetryEventProperties, measures?: ITelemetryEventMeasures): void {
-            this.extensionMessageSender.sendMessage(ExtensionMessage.SEND_TELEMETRY, [this.extensionId, this.extensionVersion, this.appInsightsKey, eventName, properties, measures])
-            .catch(function(){});
-        }
     }
 
     export function sendExtensionTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string, properties: ITelemetryEventProperties, measures: ITelemetryEventMeasures): void {
