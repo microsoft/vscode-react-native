@@ -43,6 +43,8 @@ function readArgument(argumentName) {
         : null;
 }
 
+var hadTypescriptErrors = false;
+
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
 // be an issue on Windows platforms)
@@ -55,6 +57,9 @@ gulp.task('build', ["check-imports", "check-copyright"], function () {
         .pipe(preprocess({context: preprocessorContext})) //To set environment variables in-line
         .pipe(sourcemaps.init())
         .pipe(ts(tsProject))
+        .on('error', function (err) {
+            hadTypescriptErrors = true;
+        })
         .pipe(sourcemaps.write('.', {
             includeContent: false,
             sourceRoot: function (file) {
@@ -89,6 +94,12 @@ gulp.task('tslint', function () {
 });
 
 function test() {
+    // TODO: Find a better way to do this
+    // If typescript compilation had errors, exit with an error code
+    if (hadTypescriptErrors) {
+        process.exit(1);
+    }
+
     // Defaults
     var invert = true;
 
