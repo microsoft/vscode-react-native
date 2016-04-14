@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {ChildProcess} from "./node/childProcess";
+import {TargetPlatformId} from "./targetPlatformHelper";
 import * as path from "path";
 import * as Q from "q";
 
@@ -16,6 +17,7 @@ interface IHostPlatform {
     getPlatformId(): HostPlatformId;
     setEnvironmentVariable(name: string, value: string): Q.Promise<void>;
     getUserID(): string;
+    isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean;
 }
 
 /**
@@ -58,6 +60,10 @@ class WindowsHostPlatform implements IHostPlatform {
     public getUserID(): string {
         return process.env.USERNAME;
     }
+
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID;
+    }
 }
 
 abstract class UnixHostPlatform implements IHostPlatform {
@@ -82,6 +88,8 @@ abstract class UnixHostPlatform implements IHostPlatform {
     public abstract getPlatformId(): HostPlatformId;
 
     public abstract getUserID(): string;
+
+    public abstract isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean;
 }
 
 /**
@@ -99,6 +107,10 @@ class OSXHostPlatform extends UnixHostPlatform {
     public getUserID(): string {
         return process.env.LOGNAME;
     }
+
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID || targetPlatformId === TargetPlatformId.IOS;
+    }
 }
 
 /**
@@ -115,6 +127,10 @@ class LinuxHostPlatform extends UnixHostPlatform {
 
     public getUserID(): string {
         return process.env.USER;
+    }
+
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID;
     }
 }
 
@@ -176,5 +192,9 @@ export class HostPlatform {
     /* Returns a value that is unique for each user of this computer */
     public static getUserID(): string {
         return HostPlatform.platform.getUserID();
+    }
+
+    public static isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return HostPlatform.platform.isCompatibleWithTarget(targetPlatformId);
     }
 }
