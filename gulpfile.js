@@ -46,7 +46,7 @@ function readArgument(argumentName) {
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task('build', ["check-imports", "check-copyright"], function () {
+gulp.task('build', ["check-imports", "check-copyright"], function (callback) {
     var tsProject = ts.createProject('tsconfig.json');
     var isProd = options.env === 'production';
     var preprocessorContext = isProd ? { PROD: true } : { DEBUG: true };
@@ -55,6 +55,9 @@ gulp.task('build', ["check-imports", "check-copyright"], function () {
         .pipe(preprocess({ context: preprocessorContext })) //To set environment variables in-line
         .pipe(sourcemaps.init())
         .pipe(ts(tsProject))
+        .on('error', function (e) {
+            callback(e);
+        })
         .pipe(sourcemaps.write('.', {
             includeContent: false,
             sourceRoot: function (file) {
