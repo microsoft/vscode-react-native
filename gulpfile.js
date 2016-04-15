@@ -111,8 +111,8 @@ function test() {
         }));
 }
 
-gulp.task('build-test', ['build'], test);
-gulp.task('test', test);
+gulp.task('test', ['build'], test);
+gulp.task('test-no-build', test);
 
 gulp.task('check-imports', function (cb) {
     var tsProject = ts.createProject('tsconfig.json');

@@ -42,10 +42,15 @@ export enum InternalErrorCode {
         NodeDebuggerConfigurationFailed = 705,
         DebuggingFailed = 706,
         RNTempFolderDeletionFailed = 707,
+        DebuggingFailedInNodeWrapper = 708,
+        PlatformNotSupported = 708,
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,
 
         // Validating user input errors
         ExpectedIntegerValue = 1001,
+
+        // Inter Process Communication errors
+        ErrorWhileProcessingMessageInIPMSServer = 901,
     }

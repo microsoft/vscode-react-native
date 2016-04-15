@@ -6,7 +6,6 @@ import * as Q from "q";
 import * as vscode from "vscode";
 
 import * as em from "../common/extensionMessaging";
-import {HostPlatform} from "../common/hostPlatform";
 import {Log} from "../common/log/log";
 import {LogLevel} from "../common/log/logHelper";
 import {Packager} from "../common/packager";
@@ -25,9 +24,9 @@ export class ExtensionServer implements vscode.Disposable {
     private pipePath: string;
     private logCatMonitor: LogCatMonitor = null;
 
-    public constructor(reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
+    public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
 
-        this.pipePath = HostPlatform.getExtensionPipePath();
+        this.pipePath = new em.MessagingChannel(projectRootPath).getPath();
         this.reactNativePackager = reactNativePackager;
         this.reactNativePackageStatusIndicator = packagerStatusIndicator;
 
@@ -49,7 +48,7 @@ export class ExtensionServer implements vscode.Disposable {
         let deferred = Q.defer<void>();
 
         let launchCallback = (error: any) => {
-            Log.logInternalMessage(LogLevel.Info, "Extension messaging server started.");
+            Log.logInternalMessage(LogLevel.Info, `Extension messaging server started at ${this.pipePath}.`);
             if (error) {
                 deferred.reject(error);
             } else {

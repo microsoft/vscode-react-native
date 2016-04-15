@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {ChildProcess} from "./node/childProcess";
+import {TargetPlatformId} from "./targetPlatformHelper";
 import * as path from "path";
 import * as Q from "q";
 
@@ -12,9 +13,11 @@ interface IHostPlatform {
     getUserHomePath(): string;
     getSettingsHome(): string;
     getNpmCliCommand(packageName: string): string;
-    getExtensionPipePath(): string;
+    getPipePath(pipeName: string): string;
     getPlatformId(): HostPlatformId;
     setEnvironmentVariable(name: string, value: string): Q.Promise<void>;
+    getUserID(): string;
+    isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean;
 }
 
 /**
@@ -46,12 +49,20 @@ class WindowsHostPlatform implements IHostPlatform {
         return `${cliName}.cmd`;
     }
 
-    public getExtensionPipePath(): string {
-        return "\\\\?\\pipe\\vscodereactnative";
+    public getPipePath(pipeName: string): string {
+        return `\\\\?\\pipe\\${pipeName}`;
     }
 
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.WINDOWS;
+    }
+
+    public getUserID(): string {
+        return process.env.USERNAME;
+    }
+
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID;
     }
 }
 
@@ -70,11 +81,15 @@ abstract class UnixHostPlatform implements IHostPlatform {
         return packageName;
     }
 
-    public getExtensionPipePath(): string {
-        return "/tmp/vscodereactnative.sock";
+    public getPipePath(pipeName: string): string {
+        return `/tmp/${pipeName}.sock`;
     }
 
     public abstract getPlatformId(): HostPlatformId;
+
+    public abstract getUserID(): string;
+
+    public abstract isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean;
 }
 
 /**
@@ -88,6 +103,14 @@ class OSXHostPlatform extends UnixHostPlatform {
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.OSX;
     }
+
+    public getUserID(): string {
+        return process.env.LOGNAME;
+    }
+
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID || targetPlatformId === TargetPlatformId.IOS;
+    }
 }
 
 /**
@@ -100,6 +123,14 @@ class LinuxHostPlatform extends UnixHostPlatform {
 
     public getPlatformId(): HostPlatformId {
         return HostPlatformId.LINUX;
+    }
+
+    public getUserID(): string {
+        return process.env.USER;
+    }
+
+    public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return targetPlatformId === TargetPlatformId.ANDROID;
     }
 }
 
@@ -146,8 +177,8 @@ export class HostPlatform {
         return HostPlatform.platform.getNpmCliCommand(packageName);
     }
 
-    public static getExtensionPipePath(): string {
-        return HostPlatform.platform.getExtensionPipePath();
+    public static getPipePath(pipeName: string): string {
+        return HostPlatform.platform.getPipePath(pipeName);
     }
 
     public static getPlatformId(): HostPlatformId {
@@ -156,5 +187,14 @@ export class HostPlatform {
 
     public static setEnvironmentVariable(name: string, value: string): Q.Promise<void> {
         return HostPlatform.platform.setEnvironmentVariable(name, value);
+    }
+
+    /* Returns a value that is unique for each user of this computer */
+    public static getUserID(): string {
+        return HostPlatform.platform.getUserID();
+    }
+
+    public static isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
+        return HostPlatform.platform.isCompatibleWithTarget(targetPlatformId);
     }
 }

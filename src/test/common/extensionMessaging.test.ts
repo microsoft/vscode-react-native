@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {HostPlatform} from "../../common/hostPlatform";
+import {ExtensionMessage, MessagingChannel} from "../../common/extensionMessaging";
 
-import {
-    ExtensionMessage,
-    ExtensionMessageSender,
-} from "../../common/extensionMessaging";
+import {RemoteExtension} from "../../common/remoteExtension";
+
+import {InterProcessMessageSender} from "../../common/interProcessMessageSender";
 
 import * as assert from "assert";
 import * as net from "net";
@@ -16,6 +15,9 @@ let mockServer: net.Server;
 
 suite("extensionMessaging", function() {
     suite("commonContext", function() {
+        const projectRootPath = "/myPath";
+        const port: string = new MessagingChannel(projectRootPath).getPath();
+
         teardown(function() {
             if (mockServer) {
                 mockServer.close();
@@ -23,7 +25,6 @@ suite("extensionMessaging", function() {
         });
 
         test("should successfully send a message", function(done: MochaDone) {
-            const port: string = HostPlatform.getExtensionPipePath();
             let receivedMessage: ExtensionMessage;
 
             mockServer = net.createServer(function(client: net.Socket): void {
@@ -39,11 +40,11 @@ suite("extensionMessaging", function() {
             mockServer.on("error", done);
             mockServer.listen(port);
 
-            const sender = new ExtensionMessageSender();
+            const sender = new RemoteExtension(projectRootPath);
 
             Q({})
                 .then(function() {
-                    return sender.sendMessage(ExtensionMessage.START_PACKAGER);
+                    return sender.startPackager();
                 })
                 .then(function() {
                     assert.equal(receivedMessage, ExtensionMessage.START_PACKAGER);
@@ -51,7 +52,6 @@ suite("extensionMessaging", function() {
         });
 
         test("should successfully send a message with args", function(done: MochaDone) {
-            const port: string = HostPlatform.getExtensionPipePath();
             const args = ["android"];
             let receivedMessage: ExtensionMessage;
             let receivedArgs: any;
@@ -70,11 +70,11 @@ suite("extensionMessaging", function() {
             mockServer.on("error", done);
             mockServer.listen(port);
 
-            const sender = new ExtensionMessageSender();
+            const sender = new RemoteExtension(projectRootPath);
 
             Q({})
                 .then(function() {
-                    return sender.sendMessage(ExtensionMessage.PREWARM_BUNDLE_CACHE, args);
+                    return sender.prewarmBundleCache(args[0]);
                 })
                 .then(function() {
                     assert.equal(receivedMessage, ExtensionMessage.PREWARM_BUNDLE_CACHE);
@@ -83,7 +83,7 @@ suite("extensionMessaging", function() {
         });
 
         test("should reject on socket error", function(done: MochaDone) {
-            const sender = new ExtensionMessageSender();
+            const sender = new InterProcessMessageSender(projectRootPath);
 
             Q({})
                 .then(function() {

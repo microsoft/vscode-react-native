@@ -11,6 +11,7 @@
     "IOSSimulatorNotLaunchable": "Unable to launch iOS simulator. Try specifying a different target.",
     "OpnPackagerLocationNotFound": "opn package location not found",
     "PackageNotFound": "Attempting to find package {0} failed with error: {1}",
+    "PlatformNotSupported": "Platform '{0}' is not supported on host platform: {1}",
     "ProjectVersionNotParsable": "Couldn't parse the version component of the package at {0}: version = {1}",
     "ProjectVersionUnsupported": "Project version = {0}",
     "ProjectVersionNotReadable":"Unable to read version = {0}",
@@ -25,7 +26,9 @@
     "FailedToStartPackager": "Failed to start the React Native packager",
     "FailedToStopPackager": "Failed to stop the React Native packager",
     "DebuggingFailed": "Cannot debug application",
+    "DebuggingFailedInNodeWrapper": "Cannot debug application due to an error in the internal Node Debugger",
     "RNTempFolderDeletionFailed": "Couldn't delete the temporary folder {0}",
     "CouldNotFindLocationOfNodeDebugger": "Couldn't find the location of the node-debugger extension",
-    "PackagerRunningInDifferentPort": "A packager cannot be started on port {0} because a packager process is already running on port {1}"
+    "PackagerRunningInDifferentPort": "A packager cannot be started on port {0} because a packager process is already running on port {1}",
+    "ErrorWhileProcessingMessageInIPMSServer": "An error ocurred while handling message: {0}"
 }

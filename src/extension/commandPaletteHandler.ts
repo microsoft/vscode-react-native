@@ -12,6 +12,7 @@ import {Package} from "../common/node/package";
 import {PackageNameResolver} from "../common/android/packageNameResolver";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IOSDebugModeManager} from "../common/ios/iOSDebugModeManager";
 
@@ -49,6 +50,7 @@ export class CommandPaletteHandler {
         /* If there are multiple devices available, the run-android command will install the application on each and then print a warning.
            The command will succeed but the application will not be launched on any device.
            We fix this behavior by checking if there are more than one devices available and running the application on each.  */
+        TargetPlatformHelper.checkTargetPlatformSupport("android");
         return this.executeCommandInContext("runAndroid", () => this.executeReactNativeRunCommand("run-android"))
             .then(() => {
                 let deviceHelper = new DeviceHelper();
@@ -78,6 +80,7 @@ export class CommandPaletteHandler {
      * Executes the 'react-native run-ios' command
      */
     public runIos(): Q.Promise<void> {
+        TargetPlatformHelper.checkTargetPlatformSupport("ios");
         return this.executeCommandInContext("runIos", () => {
             // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
             return new IOSDebugModeManager(this.workspaceRoot).setSimulatorJSDebuggingModeSetting(/*enable=*/ false)

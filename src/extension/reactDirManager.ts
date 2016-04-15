@@ -8,7 +8,7 @@ import {OutputChannelLogger} from "./outputChannelLogger";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {FileSystem} from "../common/node/fileSystem";
-import {EntryPointHandler} from "../common/entryPointHandler";
+import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 
 /**
  * Manages the lifecycle of the .vscode/.react folder, which hosts the temporary source/map files we need for debugging.
@@ -26,7 +26,7 @@ export class ReactDirManager implements vscode.Disposable {
     }
 
     public dispose(): void {
-        new EntryPointHandler(false, new OutputChannelLogger(vscode.window.createOutputChannel("React-Native"))).runFunction("extension.deleteTemporaryFolder",
+        new EntryPointHandler(ProcessType.Extension, new OutputChannelLogger(vscode.window.createOutputChannel("React-Native"))).runFunction("extension.deleteTemporaryFolder",
             ErrorHelper.getInternalError(InternalErrorCode.RNTempFolderDeletionFailed, ReactDirManager.ReactDirPath),
             () =>
                 new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath));
