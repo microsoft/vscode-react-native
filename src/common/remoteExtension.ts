@@ -33,4 +33,8 @@ export class RemoteExtension {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.SEND_TELEMETRY,
             [extensionId, extensionVersion, appInsightsKey, eventName, properties, measures]);
     }
+
+    public getPackagerPort(): Q.Promise<number> {
+        return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_PACKAGER_PORT);
+    }
 }

@@ -25,8 +25,8 @@ var sources = [
     .concat(['test/*.ts']);
 
 var knownOptions = {
-  string: 'env',
-  default: { env: 'production' }
+    string: 'env',
+    default: { env: 'production' }
 };
 
 var options = minimist(process.argv.slice(2), knownOptions);
@@ -125,13 +125,13 @@ gulp.task('check-imports', function (cb) {
 
 gulp.task('check-copyright', function (cb) {
     return gulp.src([
-            "**/*.ts",
-            "**/*.js",
-            "!**/*.d.ts",
-            "!node_modules/**/*.*",
-            "!SampleApplication/**/*.js",
-            "!src/test/resources/sampleReactNative022Project/**/*.js",
-        ])
+        "**/*.ts",
+        "**/*.js",
+        "!**/*.d.ts",
+        "!node_modules/**/*.*",
+        "!SampleApplication/**/*.js",
+        "!src/test/resources/sampleReactNative022Project/**/*.js",
+    ])
         .pipe(copyright());
 });
 

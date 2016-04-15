@@ -19,20 +19,23 @@ interface DownloadedScript {
 export class ScriptImporter {
     public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
     public static DEBUGGER_WORKER_FILENAME = ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME + ".js";
+    private packagerPort: number;
     private sourcesStoragePath: string;
     private sourceMapUtil: SourceMapUtil;
 
-    constructor(sourcesStoragePath: string) {
+    constructor(packagerPort: number, sourcesStoragePath: string) {
+        this.packagerPort = packagerPort;
         this.sourcesStoragePath = sourcesStoragePath;
         this.sourceMapUtil = new SourceMapUtil();
     }
 
     public downloadAppScript(scriptUrlString: string, debugAdapterPort: number): Q.Promise<DownloadedScript> {
-
+        const overridenScriptUrlString = this.overridePackagerPort(scriptUrlString);
+        console.log("overriden " + overridenScriptUrlString);
         // We'll get the source code, and store it locally to have a better debugging experience
-        return new Request().request(scriptUrlString, true).then(scriptBody => {
+        return new Request().request(overridenScriptUrlString, true).then(scriptBody => {
             // Extract sourceMappingURL from body
-            let scriptUrl = url.parse(scriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
+            let scriptUrl = url.parse(overridenScriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
             let sourceMappingUrl = this.sourceMapUtil.getSourceMapURL(scriptUrl, scriptBody); // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
 
             let waitForSourceMapping = Q<void>(null);
@@ -47,7 +50,7 @@ export class ScriptImporter {
             return waitForSourceMapping
                 .then(() => this.writeAppScript(scriptBody, scriptUrl))
                 .then((scriptFilePath: string) => {
-                    Log.logInternalMessage(LogLevel.Info, `Script ${scriptUrlString} downloaded to ${scriptFilePath}`);
+                    Log.logInternalMessage(LogLevel.Info, `Script ${overridenScriptUrlString} downloaded to ${scriptFilePath}`);
                     return { contents: scriptBody, filepath: scriptFilePath };
                 }).finally(() => {
                     // Request that the debug adapter update breakpoints and sourcemaps now that we have written them
@@ -57,7 +60,7 @@ export class ScriptImporter {
     }
 
     public downloadDebuggerWorker(sourcesStoragePath: string): Q.Promise<void> {
-        let debuggerWorkerURL = `http://${Packager.HOST}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
+        let debuggerWorkerURL = `http://${Packager.getHostForPort(this.packagerPort)}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
         let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
         Log.logInternalMessage(LogLevel.Info, "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
         return new Request().request(debuggerWorkerURL, true).then((body: string) => {
@@ -85,5 +88,15 @@ export class ScriptImporter {
                 let updatedContent = this.sourceMapUtil.updateSourceMapFile(sourceMapBody, scriptFileRelativePath, this.sourcesStoragePath);
                 return new FileSystem().writeFile(sourceMappingLocalPath, updatedContent);
             });
+    }
+
+    /**
+     * Changes the port of the url to be the one configured as this.packagerPort
+     */
+    private overridePackagerPort(urlToOverride: string): string {
+        let components = url.parse(urlToOverride);
+        components.port = this.packagerPort.toString();
+        delete components.host; // We delete the host, if not the port change will be ignored
+        return url.format(components);
     }
 }

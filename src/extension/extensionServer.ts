@@ -12,6 +12,8 @@ import {Packager} from "../common/packager";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
+import {ConfigurationReader} from "../common/configurationReader";
+import {SettingsHelper} from "./settingsHelper";
 import {Telemetry} from "../common/telemetry";
 
 export class ExtensionServer implements vscode.Disposable {
@@ -34,6 +36,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.PREWARM_BUNDLE_CACHE] = this.prewarmBundleCache;
         this.messageHandlerDictionary[em.ExtensionMessage.START_MONITORING_LOGCAT] = this.startMonitoringLogCat;
         this.messageHandlerDictionary[em.ExtensionMessage.STOP_MONITORING_LOGCAT] = this.stopMonitoringLogCat;
+        this.messageHandlerDictionary[em.ExtensionMessage.GET_PACKAGER_PORT] = this.getPackagerPort;
         this.messageHandlerDictionary[em.ExtensionMessage.SEND_TELEMETRY] = this.sendTelemetry;
     }
 
@@ -73,11 +76,20 @@ export class ExtensionServer implements vscode.Disposable {
     }
 
     /**
+     * Message handler for GET_PACKAGER_PORT.
+     */
+    private getPackagerPort(): Q.Promise<number> {
+        return Q(SettingsHelper.getPackagerPort());
+    }
+
+    /**
      * Message handler for START_PACKAGER.
      */
-    private startPackager(): Q.Promise<any> {
-        return this.reactNativePackager.start()
-            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+    private startPackager(port?: any): Q.Promise<any> {
+        const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
+        return this.reactNativePackager.start(portToUse)
+            .then(() =>
+                this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
     /**

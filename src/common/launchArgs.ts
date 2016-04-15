@@ -17,4 +17,5 @@ export interface ILaunchArgs {
     target?: string;
     debugAdapterPort?: number;
     logCatArguments?: any;
+    packagerPort?: any;
 }

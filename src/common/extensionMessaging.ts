@@ -14,12 +14,13 @@ export enum ExtensionMessage {
     PREWARM_BUNDLE_CACHE,
     START_MONITORING_LOGCAT,
     STOP_MONITORING_LOGCAT,
-    SEND_TELEMETRY
+    GET_PACKAGER_PORT,
+    SEND_TELEMETRY,
 }
 
 export interface MessageWithArguments {
     message: ExtensionMessage;
-    args: any[];
+    args?: any[];
 }
 
 export let ErrorMarker = "vscodereactnative-error-marker";

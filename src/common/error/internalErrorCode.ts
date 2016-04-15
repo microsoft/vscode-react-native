@@ -10,6 +10,7 @@ export enum InternalErrorCode {
         FailedToRunOnIos = 105,
         FailedToStartPackager = 106,
         FailedToStopPackager = 107,
+        PackagerRunningInDifferentPort = 108,
 
         // Device Deployer errors
         IDeviceInstallerNotFound = 201,
@@ -46,6 +47,9 @@ export enum InternalErrorCode {
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,
+
+        // Validating user input errors
+        ExpectedIntegerValue = 1001,
 
         // Inter Process Communication errors
         ErrorWhileProcessingMessageInIPMSServer = 901,

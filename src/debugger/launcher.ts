@@ -18,62 +18,64 @@ import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 
 export class Launcher {
     private projectRootPath: string;
+    private remoteExtension: RemoteExtension;
 
     constructor(projectRootPath: string) {
         this.projectRootPath = projectRootPath;
+        this.remoteExtension = new RemoteExtension(this.projectRootPath);
     }
 
     public launch(): void {
         // Enable telemetry
         new EntryPointHandler(ProcessType.Debugee).runApp("react-native-debug-process", () => this.getAppVersion(),
             ErrorHelper.getInternalError(InternalErrorCode.DebuggingFailed), this.projectRootPath, () => {
-            return TelemetryHelper.generate("launch", (generator) => {
-                const resolver = new PlatformResolver();
-                const runOptions = this.parseRunOptions();
-                const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform, runOptions);
-                if (!mobilePlatform) {
-                    throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
-                } else {
-                    const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-                    let remoteExtension = new RemoteExtension(this.projectRootPath);
-                    return Q({})
-                        .then(() => {
-                            generator.step("checkPlatformCompatibility");
-                            TargetPlatformHelper.checkTargetPlatformSupport(runOptions.platform);
-                            generator.step("startPackager");
-                            return remoteExtension.startPackager();
-                        })
-                        .then(() => {
-                            let scriptImporter = new ScriptImporter(sourcesStoragePath);
-                            return scriptImporter.downloadDebuggerWorker(sourcesStoragePath).then(() => {
-                                Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
-                            });
-                        })
-                        // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
-                        // and the user needs to Reload JS manually. We prewarm it to prevent that issue
-                        .then(() => {
-                            generator.step("prewarmBundleCache");
-                            Log.logMessage("Prewarming bundle cache. This may take a while ...");
-                            return remoteExtension.prewarmBundleCache(runOptions.platform);
-                        })
-                        .then(() => {
-                            generator.step("mobilePlatform.runApp");
-                            Log.logMessage("Building and running application.");
-                            return mobilePlatform.runApp();
-                        })
-                        .then(() => {
-                            generator.step("Starting App Worker");
-                            Log.logMessage("Starting debugger app worker.");
-                            return new MultipleLifetimesAppWorker(sourcesStoragePath, runOptions.debugAdapterPort).start();
-                        }) // Start the app worker
-                        .then(() => {
-                            generator.step("mobilePlatform.enableJSDebuggingMode");
-                            return mobilePlatform.enableJSDebuggingMode();
-                        }).then(() =>
-                            Log.logMessage("Debugging session started successfully."));
-                }
+                return TelemetryHelper.generate("launch", (generator) => {
+                    const resolver = new PlatformResolver();
+                    return this.parseRunOptions().then(runOptions => {
+                        const mobilePlatform = resolver.resolveMobilePlatform(runOptions.platform, runOptions);
+                        if (!mobilePlatform) {
+                            throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
+                        } else {
+                            const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
+                            return Q({})
+                                .then(() => {
+                                    generator.step("checkPlatformCompatibility");
+                                    TargetPlatformHelper.checkTargetPlatformSupport(runOptions.platform);
+                                    generator.step("startPackager");
+                                    return this.remoteExtension.startPackager();
+                                })
+                                .then(() => {
+                                    let scriptImporter = new ScriptImporter(runOptions.packagerPort, sourcesStoragePath);
+                                    return scriptImporter.downloadDebuggerWorker(sourcesStoragePath).then(() => {
+                                        Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
+                                    });
+                                })
+                                // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                                // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                                .then(() => {
+                                    generator.step("prewarmBundleCache");
+                                    Log.logMessage("Prewarming bundle cache. This may take a while ...");
+                                    return this.remoteExtension.prewarmBundleCache(runOptions.platform);
+                                })
+                                .then(() => {
+                                    generator.step("mobilePlatform.runApp");
+                                    Log.logMessage("Building and running application.");
+                                    return mobilePlatform.runApp();
+                                })
+                                .then(() => {
+                                    generator.step("Starting App Worker");
+                                    Log.logMessage("Starting debugger app worker.");
+                                    return new MultipleLifetimesAppWorker(runOptions.packagerPort, sourcesStoragePath, runOptions.debugAdapterPort).start();
+                                }) // Start the app worker
+                                .then(() => {
+                                    generator.step("mobilePlatform.enableJSDebuggingMode");
+                                    return mobilePlatform.enableJSDebuggingMode();
+                                }).then(() =>
+                                    Log.logMessage("Debugging session started successfully."));
+                        }
+                    });
+                });
             });
-        });
     }
 
     private getAppVersion() {
@@ -83,15 +85,17 @@ export class Launcher {
     /**
      * Parses the launch arguments set in the launch configuration.
      */
-    private parseRunOptions(): IRunOptions {
-        const result: IRunOptions = { projectRoot: this.projectRootPath };
-        // We expect our debugAdapter to pass in arguments as [platform, debugAdapterPort, target?];
-
-        result.platform = process.argv[2].toLowerCase();
-        result.debugAdapterPort = parseInt(process.argv[3], 10) || 9090;
-        result.target = process.argv[4];
-        result.logCatArguments = process.argv[5];
-
-        return result;
+    private parseRunOptions(): Q.Promise<IRunOptions> {
+        // We expect our debugAdapter to pass in arguments as [platform, debugAdapterPort, target?, logCatArguments?];
+        return this.remoteExtension.getPackagerPort().then(packagerPort => {
+            return {
+                projectRoot: this.projectRootPath,
+                platform: process.argv[2].toLowerCase(),
+                debugAdapterPort: parseInt(process.argv[3], 10) || 9090,
+                target: process.argv[4],
+                packagerPort: packagerPort,
+                logCatArguments: process.argv[5],
+            };
+        });
     }
 }

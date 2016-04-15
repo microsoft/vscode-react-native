@@ -12,8 +12,9 @@ import {ScriptImporter} from "../../debugger/scriptImporter";
 
 suite("appWorker", function() {
     suite("debuggerContext", function() {
-        suite("SandboxedAppWorker", function() {
+        const packagerPort = 8081;
 
+        suite("SandboxedAppWorker", function() {
             const sourcesStoragePath = path.resolve(__dirname, "assets");
             const startScriptFileName = require.resolve(path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME));
             const debugAdapterPort = 9090;
@@ -32,7 +33,7 @@ suite("appWorker", function() {
                     downloadAppScript: downloadAppScriptStub,
                 };
 
-                sandboxedWorker = new AppWorker.SandboxedAppWorker(sourcesStoragePath, debugAdapterPort, postReplyFunction, {
+                sandboxedWorker = new AppWorker.SandboxedAppWorker(packagerPort, sourcesStoragePath, debugAdapterPort, postReplyFunction, {
                     nodeFileSystem: nodeFileSystemMock,
                     scriptImporter: scriptImporterMock,
                 });
@@ -126,7 +127,7 @@ suite("appWorker", function() {
                 webSocketConstructor = sinon.stub();
                 webSocketConstructor.returns(webSocket);
 
-                multipleLifetimesWorker = new AppWorker.MultipleLifetimesAppWorker(sourcesStoragePath, debugAdapterPort, {
+                multipleLifetimesWorker = new AppWorker.MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, debugAdapterPort, {
                     sandboxedAppConstructor: sandboxedAppConstructor,
                     webSocketConstructor: webSocketConstructor,
                 });
