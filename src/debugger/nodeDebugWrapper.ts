@@ -173,7 +173,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(appName, () => version,
         function customDisconnectRequest(response: any, args: any): void {
             try {
                 // First we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
-                const remoteExtension = new RemoteExtension(projectRootPath);
+                const remoteExtension = RemoteExtension.atProjectRootPath(projectRootPath);
                 remoteExtension.stopMonitoringLocat()
                     .finally(() => originalNodeDebugSessionDisconnectRequest.call(this, response, args))
                     .done(() => { }, reason => // We just print a warning if something fails
