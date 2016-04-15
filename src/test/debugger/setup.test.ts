@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+/* This setup is just to install the source-map-support, so we'll get TypeScript stack traces
+   for the tests */
 import * as fs from "fs";
 import * as path from "path";
 

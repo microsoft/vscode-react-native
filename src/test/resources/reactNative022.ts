@@ -22,8 +22,7 @@ const processExecutionsRecordingsPath = path.join(resourcesPath, "processExecuti
 export type IReactNative = reactNative.IReactNative;
 
 /* This class simulates calling the React-Native CLI v0.22. It currently supports react-native init
-    and react-native run-android. The events used in react-native run-android were all generated from
-    real executions of the process, so the simulation will be as close as possible to the real cli. */
+    and react-native run-android. */
 export class ReactNative022 implements IReactNative {
     private static ANDROID_APK_RELATIVE_PATH = "android/app/build/outputs/apk/app-debug.apk";
 
@@ -132,7 +131,7 @@ export class ReactNative022 implements IReactNative {
             if (isOnline) {
                 return this.deviceHelper.installApp(this.androidAPKPath, deviceId);
             } else {
-                // TODO: Figure out what's the right thing to do here
+                // TODO: Figure out what's the right thing to do here, if we ever need this for the tests
             }
         });
     }

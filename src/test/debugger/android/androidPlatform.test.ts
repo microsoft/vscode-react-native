@@ -18,10 +18,9 @@ import {RemoteExtension} from "../../../common/remoteExtension";
 
 import "should";
 
-// TODO: Launch the extension server and test the logcat functionality
+// TODO: Launch the extension server
 
 suite("androidPlatform", function () {
-    this.timeout(5000); // Currently some tests are taking about 2 seconds to finish
     suite("debuggerContext", function () {
         const projectRoot = "C:/projects/SampleApplication_21/";
         const androidProjectPath = path.join(projectRoot, "android");
