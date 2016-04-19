@@ -10,7 +10,7 @@ export interface IAVDManager {
     // Intends to simulate: emulator -avd WVGA800 -scale 96dpi -dpi-device 160
     launch(avdId: string): Q.Promise<string>;
     createAndLaunch(avdId: string): Q.Promise<string>;
-    createAndLaunchAll(...avdIds: string[]): Q.Promise<string[]>;
+    createAndLaunchAll(avdIds: string[]): Q.Promise<string[]>;
 }
 
 interface IDeviceStateMapping {
@@ -51,7 +51,7 @@ export class AVDManager implements IAVDManager {
         }
    }
 
-   public createAndLaunchAll(...avdIds: string[]): Q.Promise<string[]> {
+   public createAndLaunchAll(avdIds: string[]): Q.Promise<string[]> {
         return Q.all(avdIds.map(avdId => this.createAndLaunch(avdId)));
    }
 }

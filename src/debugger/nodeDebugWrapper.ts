@@ -174,7 +174,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(appName, () => version,
             try {
                 // First we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
                 const remoteExtension = RemoteExtension.atProjectRootPath(projectRootPath);
-                remoteExtension.stopMonitoringLocat()
+                remoteExtension.stopMonitoringLogcat()
                     .finally(() => originalNodeDebugSessionDisconnectRequest.call(this, response, args))
                     .done(() => { }, reason => // We just print a warning if something fails
                         process.stderr.write(`WARNING: Couldn't stop monitoring logcat: ${reason.message || reason}\n`));

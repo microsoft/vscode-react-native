@@ -35,24 +35,6 @@ suite("androidPlatform", function () {
         let fakeExtensionMessageSender: FakeExtensionMessageSender;
         let androidPlatform: AndroidPlatform;
 
-        setup(() => {
-            // Configure all the dependencies we'll use in our tests
-            fileSystem = new FileSystem({ fs: mockFs.fs({}) });
-            deviceHelper = new DeviceHelper(fileSystem);
-            simulatedAVDManager = new AVDManager(deviceHelper);
-            reactNative = new ReactNative022(deviceHelper, fileSystem);
-            fakeExtensionMessageSender = new FakeExtensionMessageSender();
-            androidPlatform = new AndroidPlatform(genericRunOptions, {
-                deviceHelper: deviceHelper,
-                reactNative: reactNative,
-                fileSystem: fileSystem,
-                remoteExtension: new RemoteExtension(fakeExtensionMessageSender),
-            });
-
-            // Create a React-Native project we'll use in our tests
-            return reactNative.createProject(projectRoot, applicationName);
-        });
-
         function createAndroidPlatform(runOptions: IRunOptions): AndroidPlatform {
             return new AndroidPlatform(runOptions, {
                 deviceHelper: deviceHelper,
@@ -79,6 +61,19 @@ suite("androidPlatform", function () {
             fakeExtensionMessageSender.getAllMessagesSent().should.eql([]);
         }
 
+        setup(() => {
+            // Configure all the dependencies we'll use in our tests
+            fileSystem = new FileSystem({ fs: mockFs.fs({}) });
+            deviceHelper = new DeviceHelper(fileSystem);
+            simulatedAVDManager = new AVDManager(deviceHelper);
+            reactNative = new ReactNative022(deviceHelper, fileSystem);
+            fakeExtensionMessageSender = new FakeExtensionMessageSender();
+            androidPlatform = createAndroidPlatform(genericRunOptions);
+
+            // Create a React-Native project we'll use in our tests
+            return reactNative.createProject(projectRoot, applicationName);
+        });
+
         const testWithRecordings = new RecordingsHelper(() => reactNative).test;
 
         testWithRecordings("runApp launches the app when a single emulator is connected",
@@ -104,7 +99,7 @@ suite("androidPlatform", function () {
             ["react-native/run-android/win10-rn0.21.0/succeedsWithTwoVSEmulators"], () => {
                 return Q({})
                     .then(() => {
-                        return simulatedAVDManager.createAndLaunchAll("Nexus_5", "Nexus_6");
+                        return simulatedAVDManager.createAndLaunchAll(["Nexus_5", "Nexus_6"]);
                     }).then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
@@ -122,9 +117,10 @@ suite("androidPlatform", function () {
 
         testWithRecordings("runApp launches the app when three emulators are connected",
             ["react-native/run-android/win10-rn0.21.0/succeedsWithThreeVSEmulators"], () => {
+                const devicesIds = ["Nexus_5", "Nexus_6", "Other_Nexus_6"];
                 return Q({})
                     .then(() => {
-                        return simulatedAVDManager.createAndLaunchAll("Nexus_5", "Nexus_6", "Other_Nexus_6");
+                        return simulatedAVDManager.createAndLaunchAll(devicesIds);
                     }).then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
@@ -134,12 +130,12 @@ suite("androidPlatform", function () {
                             deviceHelper.isAppRunning(androidPackageName, "Other_Nexus_6"),
                         ]);
                     }).then(isRunningList => {
-                        // It should be running in exactly one of these two devices
+                        // It should be running in exactly one of these three devices
                         isRunningList.filter(v => v).should.eql([true]);
 
                         // Get index of running emulator
                         const index = isRunningList.indexOf(true);
-                        const emulatorWithAppRunningId = ["Nexus_5", "Nexus_6", "Other_Nexus_6"][index];
+                        const emulatorWithAppRunningId = devicesIds[index];
                         shouldHaveReceivedSingleLogCatMessage(emulatorWithAppRunningId);
                     });
             });
@@ -159,11 +155,13 @@ suite("androidPlatform", function () {
 
         testWithRecordings("runApp launches the app in an online emulator only",
             ["react-native/run-android/win10-rn0.21.0/succeedsWithFiveVSEmulators"], () => {
+                const onlineDevicesIds = ["Nexus_11"];
+                const offineDevicesIds = ["Nexus_5", "Nexus_6", "Nexus_10", "Nexus_12"];
                 return Q({})
                     .then(() => {
-                        return simulatedAVDManager.createAndLaunchAll("Nexus_5", "Nexus_6", "Nexus_10", "Nexus_11", "Nexus_12");
+                        return simulatedAVDManager.createAndLaunchAll(onlineDevicesIds.concat(offineDevicesIds));
                     }).then(() => {
-                        return deviceHelper.notifyDevicesAreOffline("Nexus_5", "Nexus_6", "Nexus_10", "Nexus_12");
+                        return deviceHelper.notifyDevicesAreOffline(offineDevicesIds);
                     }).then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
@@ -178,7 +176,7 @@ suite("androidPlatform", function () {
             ["react-native/run-android/win10-rn0.21.0/succeedsWithFiveVSEmulators"], () => {
                 return Q({})
                     .then(() => {
-                        return simulatedAVDManager.createAndLaunchAll("Nexus_5", "Nexus_6", "Nexus_10", "Nexus_11", "Nexus_12");
+                        return simulatedAVDManager.createAndLaunchAll(["Nexus_5", "Nexus_6", "Nexus_10", "Nexus_11", "Nexus_12"]);
                     }).then(() => {
                         const runOptions: IRunOptions = { projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
@@ -192,12 +190,13 @@ suite("androidPlatform", function () {
 
         testWithRecordings("runApp launches the app in a random online device if the target is offline",
             ["react-native/run-android/win10-rn0.21.0/succeedsWithTenVSEmulators"], () => {
+                const onlineDevicesIds = ["Nexus_11", "Nexus_13", "Nexus_14", "Nexus_15", "Nexus_16", "Nexus_17"];
+                const offineDevicesIds = ["Nexus_5", "Nexus_6", "Nexus_10", "Nexus_12"];
                 return Q({})
                     .then(() => {
-                        return simulatedAVDManager.createAndLaunchAll("Nexus_5", "Nexus_6", "Nexus_10", "Nexus_11", "Nexus_12",
-                            "Nexus_13", "Nexus_14", "Nexus_15", "Nexus_16", "Nexus_17");
+                        return simulatedAVDManager.createAndLaunchAll(onlineDevicesIds.concat(offineDevicesIds));
                     }).then(() => {
-                        return deviceHelper.notifyDevicesAreOffline("Nexus_5", "Nexus_6", "Nexus_10", "Nexus_12");
+                        return deviceHelper.notifyDevicesAreOffline(offineDevicesIds);
                     }).then(() => {
                         const runOptions: IRunOptions = { projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();

@@ -25,7 +25,7 @@ export class RemoteExtension {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.START_MONITORING_LOGCAT, [debugTarget, logCatArguments]);
     }
 
-    public stopMonitoringLocat(): Q.Promise<void> {
+    public stopMonitoringLogcat(): Q.Promise<void> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.STOP_MONITORING_LOGCAT);
     }
 
