@@ -203,10 +203,8 @@ suite("androidPlatform", function () {
                     }).then(() => {
                         return deviceHelper.findDevicesRunningApp(androidPackageName);
                     }).then((devicesRunningAppId) => {
-                        const onlineDevices = ["Nexus_11", "Nexus_13", "Nexus_14", "Nexus_15", "Nexus_16", "Nexus_17"];
-
                         devicesRunningAppId.length.should.eql(1);
-                        onlineDevices.should.containEql(devicesRunningAppId[0]);
+                        onlineDevicesIds.should.containEql(devicesRunningAppId[0]);
                         shouldHaveReceivedSingleLogCatMessage(devicesRunningAppId[0]);
                     });
             });
