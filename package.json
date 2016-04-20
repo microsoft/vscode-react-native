@@ -106,6 +106,17 @@
                                 "type": "number",
                                 "description": "A port to be used to enable automatic reloading of breakpoints when sourcemaps change.",
                                 "default": 9090
+                            },
+                            "sourceMaps": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "logCatArguments": {
+                                "type": "array",
+                                "default": []
+                            },
+                            "outDir": {
+                                "type": "string"
                             }
                         }
                     }
