@@ -30,12 +30,11 @@ export class ScriptImporter {
     }
 
     public downloadAppScript(scriptUrlString: string, debugAdapterPort: number): Q.Promise<DownloadedScript> {
-        const overridenScriptUrlString = this.overridePackagerPort(scriptUrlString);
-        console.log("overriden " + overridenScriptUrlString);
+        const overriddenScriptUrlString = this.overridePackagerPort(scriptUrlString);
         // We'll get the source code, and store it locally to have a better debugging experience
-        return new Request().request(overridenScriptUrlString, true).then(scriptBody => {
+        return new Request().request(overriddenScriptUrlString, true).then(scriptBody => {
             // Extract sourceMappingURL from body
-            let scriptUrl = url.parse(overridenScriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
+            let scriptUrl = url.parse(overriddenScriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
             let sourceMappingUrl = this.sourceMapUtil.getSourceMapURL(scriptUrl, scriptBody); // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
 
             let waitForSourceMapping = Q<void>(null);
@@ -50,7 +49,7 @@ export class ScriptImporter {
             return waitForSourceMapping
                 .then(() => this.writeAppScript(scriptBody, scriptUrl))
                 .then((scriptFilePath: string) => {
-                    Log.logInternalMessage(LogLevel.Info, `Script ${overridenScriptUrlString} downloaded to ${scriptFilePath}`);
+                    Log.logInternalMessage(LogLevel.Info, `Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
                     return { contents: scriptBody, filepath: scriptFilePath };
                 }).finally(() => {
                     // Request that the debug adapter update breakpoints and sourcemaps now that we have written them
