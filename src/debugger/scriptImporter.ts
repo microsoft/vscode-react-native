@@ -31,7 +31,6 @@ export class ScriptImporter {
 
     public downloadAppScript(scriptUrlString: string, debugAdapterPort: number): Q.Promise<DownloadedScript> {
         const overridenScriptUrlString = this.overridePackagerPort(scriptUrlString);
-        console.log("overriden " + overridenScriptUrlString);
         // We'll get the source code, and store it locally to have a better debugging experience
         return new Request().request(overridenScriptUrlString, true).then(scriptBody => {
             // Extract sourceMappingURL from body
