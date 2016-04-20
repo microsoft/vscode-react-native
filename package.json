@@ -110,7 +110,7 @@
                             "sourceMaps": {
                                 "type": "boolean",
                                 "description": "Whether to use JavaScript source maps to map the generated bundled code back to it's original sources",
-                                "default": true
+                                "default": false
                             },
                             "logCatArguments": {
                                 "type": "array",
