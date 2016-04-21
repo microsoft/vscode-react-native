@@ -161,13 +161,13 @@ new EntryPointHandler(ProcessType.Debugger).runApp(appName, () => version,
                 debugServerListeningPort.toString(),
                 args.target || "simulator",
             ];
-            
-            if (args.iosProjectPath) {
-                args.args.push(args.iosProjectPath);
-            }
-            
+
             if (!isNullOrUndefined(args.logCatArguments)) { // We add the parameter if it's defined (adapter crashes otherwise)
                 args.args = args.args.concat([parseLogCatArguments(args.logCatArguments)]);
+            }
+
+            if (!isNullOrUndefined(args.iosProjectPath)) {
+                args.args.push(args.iosProjectPath);
             }
 
             originalNodeDebugSessionLaunchRequest.call(this, request, args);

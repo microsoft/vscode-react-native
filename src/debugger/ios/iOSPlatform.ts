@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
+import * as path from "path";
 
 import {Log} from "../../common/log/log";
 import {ChildProcess} from "../../common/node/childProcess";
@@ -14,6 +15,10 @@ import {IRunOptions} from "../../common/launchArgs";
 import {PlistBuddy} from "../../common/ios/plistBuddy";
 import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
+
+function isNullOrUndefined(value: any): boolean {
+    return typeof value === "undefined" || value === null;
+}
 
 export class IOSPlatform implements IAppPlatform {
     private static deviceString = "device";
@@ -33,12 +38,17 @@ export class IOSPlatform implements IAppPlatform {
     };
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
+    private static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
+
 
     constructor(private runOptions: IRunOptions) {
         this.projectPath = this.runOptions.projectRoot;
         this.simulatorTarget = this.runOptions.target || IOSPlatform.simulatorString;
         this.isSimulator = this.simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;
-        this.iosProjectPath = this.runOptions.iosProjectPath || null;
+        this.iosProjectPath = path.join(this.projectPath, !isNullOrUndefined(this.runOptions.iosProjectPath)
+            ? this.runOptions.iosProjectPath
+            : IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH
+        );
     }
 
     public runApp(): Q.Promise<void> {

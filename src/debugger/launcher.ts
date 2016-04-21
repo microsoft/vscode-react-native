@@ -86,7 +86,7 @@ export class Launcher {
      * Parses the launch arguments set in the launch configuration.
      */
     private parseRunOptions(): Q.Promise<IRunOptions> {
-        // We expect our debugAdapter to pass in arguments as [platform, debugAdapterPort, target?, iosProjectPath?, logCatArguments?];
+        // We expect our debugAdapter to pass in arguments as [platform, debugAdapterPort, target?, logCatArguments?, iosProjectPath?];
         return this.remoteExtension.getPackagerPort().then(packagerPort => {
             return {
                 projectRoot: this.projectRootPath,
@@ -94,8 +94,8 @@ export class Launcher {
                 debugAdapterPort: parseInt(process.argv[3], 10) || 9090,
                 target: process.argv[4],
                 packagerPort: packagerPort,
-                iosProjectPath: process.argv[5] || null,
-                logCatArguments: process.argv[6],
+                logCatArguments: process.argv[5],
+                iosProjectPath: process.argv[6] || null,
             };
         });
     }
