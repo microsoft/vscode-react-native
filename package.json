@@ -120,7 +120,7 @@
                             "outDir": {
                                 "type": "string",
                                 "description": "The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
-                                "default": "${workspaceRoot}/.vscode/.react"
+                                "default": null
                             }
                         }
                     }
