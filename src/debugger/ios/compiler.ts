@@ -11,7 +11,7 @@ export class Compiler {
     private projectRoot: string;
 
     constructor(projectRoot: string) {
-        this.projectRoot = projectRoot.match(/(.*)ios\/?$/) ? projectRoot.match(/(.*)ios\/?$/)[1] : projectRoot;
+        this.projectRoot = projectRoot;
     }
 
     public compile(): Q.Promise<void> {

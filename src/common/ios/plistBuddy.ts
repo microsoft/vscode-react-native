@@ -23,7 +23,6 @@ export class PlistBuddy {
     }
 
     public getBundleId(projectRoot: string, simulator: boolean = true): Q.Promise<string> {
-        projectRoot = projectRoot.match(/(.*)ios\/?$/) ? projectRoot.match(/(.*)ios\/?$/)[1] : projectRoot;
         return this.xcodeproj.findXcodeprojFile(projectRoot).then((projectFile: string) => {
             const appName = path.basename(projectFile, path.extname(projectFile));
             const infoPlistPath = path.join(projectRoot, "ios", "build", "Build", "Products",
