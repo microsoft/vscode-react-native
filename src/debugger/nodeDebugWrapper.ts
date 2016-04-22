@@ -11,6 +11,7 @@ import {RemoteExtension} from "../common/remoteExtension";
 import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
+import {IOSPlatform} from "./ios/iOSPlatform";
 import {ExtensionTelemetryReporter, NullTelemetryReporter, ReassignableTelemetryReporter} from "../common/telemetryReporters";
 
 // These typings do not reflect the typings as intended to be used
@@ -49,7 +50,7 @@ interface ILaunchArgs {
     platform: string;
     target?: string;
     internalDebuggerPort?: any;
-    iosProjectPath?: string;
+    iosRelativeProjectPath?: string;
     args: string[];
     logCatArguments: any;
     program: string;
@@ -159,15 +160,12 @@ new EntryPointHandler(ProcessType.Debugger).runApp(appName, () => version,
             args.args = [
                 args.platform,
                 debugServerListeningPort.toString(),
+                args.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH,
                 args.target || "simulator",
             ];
 
             if (!isNullOrUndefined(args.logCatArguments)) { // We add the parameter if it's defined (adapter crashes otherwise)
                 args.args = args.args.concat([parseLogCatArguments(args.logCatArguments)]);
-            }
-
-            if (!isNullOrUndefined(args.iosProjectPath)) {
-                args.args.push(args.iosProjectPath);
             }
 
             originalNodeDebugSessionLaunchRequest.call(this, request, args);

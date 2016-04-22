@@ -6,7 +6,7 @@
  */
 export interface IRunOptions extends ILaunchArgs {
     projectRoot: string;
-    iosProjectPath?: string;
+    iosRelativeProjectPath: string;
 }
 
 /**

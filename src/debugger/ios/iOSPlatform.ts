@@ -16,11 +16,9 @@ import {PlistBuddy} from "../../common/ios/plistBuddy";
 import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 
-function isNullOrUndefined(value: any): boolean {
-    return typeof value === "undefined" || value === null;
-}
-
 export class IOSPlatform implements IAppPlatform {
+    public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
+
     private static deviceString = "device";
     private static simulatorString = "simulator";
 
@@ -38,17 +36,12 @@ export class IOSPlatform implements IAppPlatform {
     };
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
-    private static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
-
 
     constructor(private runOptions: IRunOptions) {
         this.projectPath = this.runOptions.projectRoot;
         this.simulatorTarget = this.runOptions.target || IOSPlatform.simulatorString;
         this.isSimulator = this.simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;
-        this.iosProjectPath = path.join(this.projectPath, !isNullOrUndefined(this.runOptions.iosProjectPath)
-            ? this.runOptions.iosProjectPath
-            : IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH
-        );
+        this.iosProjectPath = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath);
     }
 
     public runApp(): Q.Promise<void> {
@@ -60,7 +53,7 @@ export class IOSPlatform implements IAppPlatform {
                 runArguments.push("--simulator", this.simulatorTarget);
             }
 
-            if (this.iosProjectPath) {
+            if (path.join(this.projectPath, IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH) !== this.iosProjectPath) {
                 runArguments.push("--project-path", this.iosProjectPath);
             }
 
@@ -72,10 +65,10 @@ export class IOSPlatform implements IAppPlatform {
                     Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS)).process(runIosSpawn);
         }
 
-        return new Compiler(this.iosProjectPath || this.projectPath).compile().then(() => {
-            return new DeviceDeployer(this.iosProjectPath || this.projectPath).deploy();
+        return new Compiler(this.iosProjectPath).compile().then(() => {
+            return new DeviceDeployer(this.iosProjectPath).deploy();
         }).then(() => {
-            return new DeviceRunner(this.iosProjectPath || this.projectPath).run();
+            return new DeviceRunner(this.iosProjectPath).run();
         });
     }
 
@@ -87,12 +80,12 @@ export class IOSPlatform implements IAppPlatform {
             return Q.resolve<void>(void 0);
         }
 
-        const iosDebugModeManager = new IOSDebugModeManager(this.iosProjectPath || this.projectPath);
+        const iosDebugModeManager = new IOSDebugModeManager(this.iosProjectPath);
 
         // Wait until the configuration file exists, and check to see if debugging is enabled
         return Q.all([
             iosDebugModeManager.getSimulatorJSDebuggingModeSetting(),
-            this.plistBuddy.getBundleId(this.iosProjectPath || this.projectPath),
+            this.plistBuddy.getBundleId(this.iosProjectPath),
         ]).spread((debugModeSetting: string, bundleId: string) => {
             if (debugModeSetting !== IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME) {
                 // Debugging must still be enabled
