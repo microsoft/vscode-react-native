@@ -160,7 +160,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(appName, () => version,
             args.args = [
                 args.platform,
                 debugServerListeningPort.toString(),
-                args.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH,
+                !isNullOrUndefined(args.iosRelativeProjectPath) ? args.iosRelativeProjectPath : IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH,
                 args.target || "simulator",
             ];
 

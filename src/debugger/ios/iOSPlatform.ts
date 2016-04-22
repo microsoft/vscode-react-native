@@ -53,9 +53,7 @@ export class IOSPlatform implements IAppPlatform {
                 runArguments.push("--simulator", this.simulatorTarget);
             }
 
-            if (path.join(this.projectPath, IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH) !== this.iosProjectPath) {
-                runArguments.push("--project-path", this.iosProjectPath);
-            }
+            runArguments.push("--project-path", this.iosProjectPath);
 
             const runIosSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-ios", runArguments);
             return new OutputVerifier(
