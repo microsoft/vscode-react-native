@@ -120,6 +120,6 @@ export class IOSPlatform implements IAppPlatform {
     }
 
     private getBundleId(): Q.Promise<string> {
-        return this.plistBuddy.getBundleId(this.iosProjectPath || this.projectPath);
+        return this.plistBuddy.getBundleId(this.iosProjectPath);
     }
 }
