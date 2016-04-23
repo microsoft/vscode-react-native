@@ -106,6 +106,21 @@
                                 "type": "number",
                                 "description": "A port to be used to enable automatic reloading of breakpoints when sourcemaps change.",
                                 "default": 9090
+                            },
+                            "sourceMaps": {
+                                "type": "boolean",
+                                "description": "Whether to use JavaScript source maps to map the generated bundled code back to its original sources",
+                                "default": false
+                            },
+                            "logCatArguments": {
+                                "type": "array",
+                                "description": "Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can either be an array such as: [\":S\", \"ReactNative:V\", \"ReactNativeJS:V\"] or a string such as \":S ReactNative:V ReactNativeJS:V\"",
+                                "default": ["*:S", "ReactNative:V", "ReactNativeJS:V"]
+                            },
+                            "outDir": {
+                                "type": "string",
+                                "description": "The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
+                                "default": null
                             }
                         }
                     }
