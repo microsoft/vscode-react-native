@@ -13,7 +13,7 @@ interface IPackageDependencyDict {
 export interface IPackageInformation {
     name: string;
     version: string;
-    dependencies?: IPackageDependencyDict;
+    peerDependencies?: IPackageDependencyDict;
     main?: string;
     [key: string]: any;
 }
@@ -41,8 +41,8 @@ export class Package {
         return this.parseProperty("name");
     }
 
-    public dependencies(): Q.Promise<IPackageDependencyDict> {
-        return this.parseProperty("dependencies");
+    public peerDependencies(): Q.Promise<IPackageDependencyDict> {
+        return this.parseProperty("peerDependencies");
     }
 
     public version(): Q.Promise<string> {
