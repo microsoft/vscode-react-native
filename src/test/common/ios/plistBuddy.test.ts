@@ -64,7 +64,7 @@ suite("plistBuddy", function() {
             const appName = "myApp";
 
             const infoPlistPath = (simulator: boolean) =>
-                path.join(projectRoot, "ios", "build", "Build", "Products",
+                path.join(projectRoot, "build", "Build", "Products",
                     simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
                     `${appName}.app`, "Info.plist");
 

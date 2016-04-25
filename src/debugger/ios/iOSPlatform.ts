@@ -53,7 +53,7 @@ export class IOSPlatform implements IAppPlatform {
                 runArguments.push("--simulator", this.simulatorTarget);
             }
 
-            runArguments.push("--project-path", this.iosProjectPath);
+            runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath);
 
             const runIosSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-ios", runArguments);
             return new OutputVerifier(
@@ -83,7 +83,7 @@ export class IOSPlatform implements IAppPlatform {
         // Wait until the configuration file exists, and check to see if debugging is enabled
         return Q.all([
             iosDebugModeManager.getSimulatorJSDebuggingModeSetting(),
-            this.plistBuddy.getBundleId(this.iosProjectPath),
+            this.getBundleId(),
         ]).spread((debugModeSetting: string, bundleId: string) => {
             if (debugModeSetting !== IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME) {
                 // Debugging must still be enabled

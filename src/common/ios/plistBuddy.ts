@@ -25,7 +25,7 @@ export class PlistBuddy {
     public getBundleId(projectRoot: string, simulator: boolean = true): Q.Promise<string> {
         return this.xcodeproj.findXcodeprojFile(projectRoot).then((projectFile: string) => {
             const appName = path.basename(projectFile, path.extname(projectFile));
-            const infoPlistPath = path.join(projectRoot, "ios", "build", "Build", "Products",
+            const infoPlistPath = path.join(projectRoot, "build", "Build", "Products",
                 simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
                 `${appName}.app`, "Info.plist");
 

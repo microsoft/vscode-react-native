@@ -27,10 +27,10 @@ export class Compiler {
         return new Xcodeproj().findXcodeprojFile(this.projectRoot).then((projectFile: string) => {
             const projectName = path.basename(projectFile, path.extname(projectFile));
             return [
-                "-project", path.join(this.projectRoot, "ios", projectFile),
+                "-project", path.join(this.projectRoot, projectFile),
                 "-scheme", projectName,
                 "-destination", "generic/platform=iOS", // Build for a generic iOS device
-                "-derivedDataPath", path.join(this.projectRoot, "ios", "build"),
+                "-derivedDataPath", path.join(this.projectRoot, "build"),
             ];
         });
     }

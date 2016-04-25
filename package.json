@@ -125,7 +125,7 @@
                             "iosRelativeProjectPath": {
                                 "type": "string",
                                 "description": "Relative path to the ios/ folder, if it is not located on the project root.",
-                                "default": null
+                                "default": "ios"
                             }
                         }
                     }
