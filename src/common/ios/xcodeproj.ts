@@ -21,7 +21,7 @@ export class Xcodeproj {
 
     public findXcodeprojFile(projectRoot: string): Q.Promise<string> {
         return this.nodeFileSystem
-            .findFilesByExtension(path.join(projectRoot, "ios"), "xcodeproj")
+            .findFilesByExtension(path.join(projectRoot), "xcodeproj")
             .then((projectFiles: string[]) => {
                 if (projectFiles.length > 1) {
                     TelemetryHelper.sendSimpleEvent("multipleXcodeprojFound");
