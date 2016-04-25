@@ -109,7 +109,7 @@ export class DeviceHelper implements deviceHelper.IDeviceHelper {
     }
 
     // We get notified that a device went offline. TODO: Find out how can this happen for real
-    public notifyDevicesAreOffline(...deviceIds: string[]): void {
+    public notifyDevicesAreOffline(deviceIds: string[]): void {
         deviceIds.forEach(deviceId => {
             return this.notifyDeviceIsOffline(deviceId);
         });

@@ -41,7 +41,7 @@ export class AndroidPlatform implements IAppPlatform {
     private fileSystem: FileSystem;
 
     constructor(private runOptions: IRunOptions, {
-        remoteExtension = new RemoteExtension(runOptions.projectRoot),
+        remoteExtension = RemoteExtension.atProjectRootPath(runOptions.projectRoot),
         deviceHelper = <IDeviceHelper>new DeviceHelper(),
         reactNative = <IReactNative>new ReactNative(),
         fileSystem = new FileSystem(),

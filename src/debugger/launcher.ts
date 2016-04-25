@@ -22,7 +22,7 @@ export class Launcher {
 
     constructor(projectRootPath: string) {
         this.projectRootPath = projectRootPath;
-        this.remoteExtension = new RemoteExtension(this.projectRootPath);
+        this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
     }
 
     public launch(): void {

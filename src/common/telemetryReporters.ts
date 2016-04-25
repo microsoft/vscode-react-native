@@ -14,7 +14,7 @@ export class ExtensionTelemetryReporter implements Telemetry.ITelemetryReporter 
         this.extensionId = extensionId;
         this.extensionVersion = extensionVersion;
         this.appInsightsKey = key;
-        this.remoteExtension = new RemoteExtension(projectRootPath);
+        this.remoteExtension = RemoteExtension.atProjectRootPath(projectRootPath);
     }
 
     public sendTelemetryEvent(eventName: string, properties?: Telemetry.ITelemetryEventProperties, measures?: Telemetry.ITelemetryEventMeasures): void {
