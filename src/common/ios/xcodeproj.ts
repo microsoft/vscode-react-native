@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as path from "path";
 import * as Q from "q";
 
 import {ErrorHelper} from "../../common/error/errorHelper";
@@ -21,7 +20,7 @@ export class Xcodeproj {
 
     public findXcodeprojFile(projectRoot: string): Q.Promise<string> {
         return this.nodeFileSystem
-            .findFilesByExtension(path.join(projectRoot), "xcodeproj")
+            .findFilesByExtension(projectRoot, "xcodeproj")
             .then((projectFiles: string[]) => {
                 if (projectFiles.length > 1) {
                     TelemetryHelper.sendSimpleEvent("multipleXcodeprojFound");
