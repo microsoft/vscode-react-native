@@ -2413,7 +2413,7 @@ declare namespace  __React {
 
         /**
          * Items comes with a few predefined system icons.
-         * Note that if you are using them, the title and selectedIcon will be overriden with the system ones.
+         * Note that if you are using them, the title and selectedIcon will be overridden with the system ones.
          *
          *  enum('bookmarks', 'contacts', 'downloads', 'favorites', 'featured', 'history', 'more', 'most-recent', 'most-viewed', 'recents', 'search', 'top-rated')
          */
