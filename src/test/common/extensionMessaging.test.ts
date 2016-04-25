@@ -40,7 +40,7 @@ suite("extensionMessaging", function() {
             mockServer.on("error", done);
             mockServer.listen(port);
 
-            const sender = new RemoteExtension(projectRootPath);
+            const sender = RemoteExtension.atProjectRootPath(projectRootPath);
 
             Q({})
                 .then(function() {
@@ -70,7 +70,7 @@ suite("extensionMessaging", function() {
             mockServer.on("error", done);
             mockServer.listen(port);
 
-            const sender = new RemoteExtension(projectRootPath);
+            const sender = RemoteExtension.atProjectRootPath(projectRootPath);
 
             Q({})
                 .then(function() {

@@ -2,15 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {ExtensionMessage, MessagingChannel} from "./extensionMessaging";
-import {InterProcessMessageSender} from "./interProcessMessageSender";
+import {IInterProcessMessageSender, InterProcessMessageSender} from "./interProcessMessageSender";
 
 export class RemoteExtension {
-    private interProcessMessageSender: InterProcessMessageSender;
-
-    constructor(private projectRootPath: string) {
+    public static atProjectRootPath(projectRootPath: string) {
         const remoteExtensionServerPath = new MessagingChannel(projectRootPath).getPath();
-        this.interProcessMessageSender = new InterProcessMessageSender(remoteExtensionServerPath);
+        const interProcessMessageSender = new InterProcessMessageSender(remoteExtensionServerPath);
+        return new RemoteExtension(interProcessMessageSender);
     }
+
+    constructor(private interProcessMessageSender: IInterProcessMessageSender) {}
 
     public startPackager(): Q.Promise<void> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.START_PACKAGER);
@@ -24,7 +25,7 @@ export class RemoteExtension {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.START_MONITORING_LOGCAT, [debugTarget, logCatArguments]);
     }
 
-    public stopMonitoringLocat(): Q.Promise<void> {
+    public stopMonitoringLogcat(): Q.Promise<void> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.STOP_MONITORING_LOGCAT);
     }
 
