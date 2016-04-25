@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
-import * as net from "net";
 import {HostPlatform} from "./hostPlatform";
-
-export let ErrorMarker = "vscodereactnative-error-marker";
+import {Crypto} from "./node/crypto";
 
 /**
  * Defines the messages sent to the extension.
@@ -17,55 +14,29 @@ export enum ExtensionMessage {
     PREWARM_BUNDLE_CACHE,
     START_MONITORING_LOGCAT,
     STOP_MONITORING_LOGCAT,
-    SEND_TELEMETRY
+    GET_PACKAGER_PORT,
+    SEND_TELEMETRY,
 }
 
 export interface MessageWithArguments {
     message: ExtensionMessage;
-    args: any[];
+    args?: any[];
 }
 
-export interface IExtensionMessageSender {
-    sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any>;
-}
+export let ErrorMarker = "vscodereactnative-error-marker";
 
-/**
- * Sends messages to the extension.
- */
-export class ExtensionMessageSender implements IExtensionMessageSender {
+export class MessagingChannel {
+    constructor(private projectRootPath: string) {
+        // Nothing needed here
+    }
 
-    public sendMessage(message: ExtensionMessage, args?: any[]): Q.Promise<any> {
-        let deferred = Q.defer<any>();
-        let messageWithArguments: MessageWithArguments = { message: message, args: args };
-        let body = "";
-
-        let pipePath = HostPlatform.getExtensionPipePath();
-        let socket = net.connect(pipePath, function() {
-            let messageJson = JSON.stringify(messageWithArguments);
-            socket.write(messageJson);
-        });
-
-        socket.on("data", function(data: any) {
-            body += data;
-        });
-
-        socket.on("error", function(data: any) {
-            deferred.reject(new Error("An error ocurred while handling message: " + ExtensionMessage[message]));
-        });
-
-        socket.on("end", function() {
-            try {
-                if (body === ErrorMarker) {
-                    deferred.reject(new Error("An error ocurred while handling message: " + ExtensionMessage[message]));
-                } else {
-                    let responseBody: any = body ? JSON.parse(body) : null;
-                    deferred.resolve(responseBody);
-                }
-            } catch (e) {
-                deferred.reject(e);
-            }
-        });
-
-        return deferred.promise;
+    public getPath(): string {
+        /* We need to use a different value for each VS Code window so the pipe names won't clash.
+           We create the pipe path hashing the user id + project root path so both client and server
+           will generate the same path, yet it's unique for each vs code instance */
+        const userID = HostPlatform.getUserID();
+        const uniqueSeed = `${userID}:${this.projectRootPath}`;
+        const hash = new Crypto().hash(uniqueSeed);
+        return HostPlatform.getPipePath(`vscode-reactnative-${hash}`);
     }
 }

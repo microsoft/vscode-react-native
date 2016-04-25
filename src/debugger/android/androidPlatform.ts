@@ -4,7 +4,7 @@
 import * as Q from "q";
 
 import {IAppPlatform} from "../platformResolver";
-import {ExtensionMessageSender, ExtensionMessage} from "../../common/extensionMessaging";
+import {RemoteExtension} from "../../common/remoteExtension";
 import {IRunOptions} from "../../common/launchArgs";
 import {Log} from "../../common/log/log";
 import {PackageNameResolver} from "../../common/android/packageNameResolver";
@@ -18,7 +18,7 @@ import {IReactNative, ReactNative} from "../../common/reactNative";
  * Android specific platform implementation for debugging RN applications.
  */
 export class AndroidPlatform implements IAppPlatform {
-    private extensionMessageSender: ExtensionMessageSender;
+    private remoteExtension: RemoteExtension;
 
     private static MULTIPLE_DEVICES_ERROR = "error: more than one device/emulator";
 
@@ -40,19 +40,20 @@ export class AndroidPlatform implements IAppPlatform {
     private reactNative: IReactNative;
     private fileSystem: FileSystem;
 
-    constructor({ extensionMessageSender = new ExtensionMessageSender(),
+    constructor(private runOptions: IRunOptions, {
+        remoteExtension = RemoteExtension.atProjectRootPath(runOptions.projectRoot),
         deviceHelper = <IDeviceHelper>new DeviceHelper(),
         reactNative = <IReactNative>new ReactNative(),
         fileSystem = new FileSystem(),
     } = {}) {
-        this.extensionMessageSender = extensionMessageSender;
+        this.remoteExtension = remoteExtension;
         this.deviceHelper = deviceHelper;
         this.reactNative = reactNative;
         this.fileSystem = fileSystem;
     }
 
-    public runApp(runOptions: IRunOptions): Q.Promise<void> {
-        const runAndroidSpawn = this.reactNative.runAndroid(runOptions.projectRoot);
+    public runApp(): Q.Promise<void> {
+        const runAndroidSpawn = this.reactNative.runAndroid(this.runOptions.projectRoot);
         const output = new OutputVerifier(
             () =>
                 Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
@@ -63,24 +64,24 @@ export class AndroidPlatform implements IAppPlatform {
             .finally(() => {
                 return this.deviceHelper.getConnectedDevices().then(devices => {
                     this.devices = devices;
-                    this.debugTarget = this.getTargetEmulator(runOptions, devices);
-                    return this.getPackageName(runOptions.projectRoot).then(packageName =>
+                    this.debugTarget = this.getTargetEmulator(devices);
+                    return this.getPackageName(this.runOptions.projectRoot).then(packageName =>
                         this.packageName = packageName);
                 });
             }).catch(reason => {
                 if (reason.message === AndroidPlatform.MULTIPLE_DEVICES_ERROR && this.devices.length > 1 && this.debugTarget) {
                     /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
-                    return this.deviceHelper.launchApp(runOptions.projectRoot, this.packageName, this.debugTarget);
+                    return this.deviceHelper.launchApp(this.runOptions.projectRoot, this.packageName, this.debugTarget);
                 } else {
                     return Q.reject<void>(reason);
                 }
             }).then(() =>
-                this.startMonitoringLogCat(runOptions.logCatArguments).catch(error => // The LogCatMonitor failing won't stop the debugging experience
+                this.startMonitoringLogCat(this.runOptions.logCatArguments).catch(error => // The LogCatMonitor failing won't stop the debugging experience
                     Log.logWarning("Couldn't start LogCat monitor", error)));
     }
 
-    public enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void> {
-        return this.deviceHelper.reloadAppInDebugMode(runOptions.projectRoot, this.packageName, this.debugTarget);
+    public enableJSDebuggingMode(): Q.Promise<void> {
+        return this.deviceHelper.reloadAppInDebugMode(this.runOptions.projectRoot, this.packageName, this.debugTarget);
     }
 
     private getPackageName(projectRoot: string): Q.Promise<string> {
@@ -93,19 +94,19 @@ export class AndroidPlatform implements IAppPlatform {
      * *  If an emulator is specified and it is connected, use that one.
      * *  Otherwise, use the first one in the list.
      */
-    private getTargetEmulator(runOptions: IRunOptions, devices: IDevice[]): string {
+    private getTargetEmulator(devices: IDevice[]): string {
         let activeFilterFunction = (device: IDevice) => {
             return device.isOnline;
         };
 
         let targetFilterFunction = (device: IDevice) => {
-            return device.id === runOptions.target && activeFilterFunction(device);
+            return device.id === this.runOptions.target && activeFilterFunction(device);
         };
 
-        if (runOptions && runOptions.target && devices) {
+        if (this.runOptions && this.runOptions.target && devices) {
             /* check if the specified target is active */
             if (devices.some(targetFilterFunction)) {
-                return runOptions.target;
+                return this.runOptions.target;
             }
         }
 
@@ -115,6 +116,6 @@ export class AndroidPlatform implements IAppPlatform {
     }
 
     private startMonitoringLogCat(logCatArguments: string): Q.Promise<void> {
-        return this.extensionMessageSender.sendMessage(ExtensionMessage.START_MONITORING_LOGCAT, [this.debugTarget, logCatArguments]);
+        return this.remoteExtension.startMonitoringLogcat(this.debugTarget, logCatArguments);
     }
 }

@@ -1,6 +1,7 @@
 ﻿{
     "CommandFailed": "Error while executing command '{0}'",
     "CommandFailedWithErrorCode": "Command '{0}' failed with error code {1}",
+    "ExpectedIntegerValue": "Expected an integer. Couldn't read {0}",
     "PackagerStartFailed": "Error while executing React Native Packager.",
     "IDeviceInstallerNotFound": "Unable to find ideviceinstaller. Please make sure to install Homebrew (http://brew.sh) and then 'brew install ideviceinstaller",
     "DeviceNotPluggedIn": "Unable to mount developer disk image.",
@@ -25,6 +26,9 @@
     "FailedToStartPackager": "Failed to start the React Native packager",
     "FailedToStopPackager": "Failed to stop the React Native packager",
     "DebuggingFailed": "Cannot debug application",
+    "DebuggingFailedInNodeWrapper": "Cannot debug application due to an error in the internal Node Debugger",
     "RNTempFolderDeletionFailed": "Couldn't delete the temporary folder {0}",
-    "CouldNotFindLocationOfNodeDebugger": "Couldn't find the location of the node-debugger extension"
+    "CouldNotFindLocationOfNodeDebugger": "Couldn't find the location of the node-debugger extension",
+    "PackagerRunningInDifferentPort": "A packager cannot be started on port {0} because a packager process is already running on port {1}",
+    "ErrorWhileProcessingMessageInIPMSServer": "An error ocurred while handling message: {0}"
 }

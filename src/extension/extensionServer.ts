@@ -6,13 +6,14 @@ import * as Q from "q";
 import * as vscode from "vscode";
 
 import * as em from "../common/extensionMessaging";
-import {HostPlatform} from "../common/hostPlatform";
 import {Log} from "../common/log/log";
 import {LogLevel} from "../common/log/logHelper";
 import {Packager} from "../common/packager";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
+import {ConfigurationReader} from "../common/configurationReader";
+import {SettingsHelper} from "./settingsHelper";
 import {Telemetry} from "../common/telemetry";
 
 export class ExtensionServer implements vscode.Disposable {
@@ -23,9 +24,9 @@ export class ExtensionServer implements vscode.Disposable {
     private pipePath: string;
     private logCatMonitor: LogCatMonitor = null;
 
-    public constructor(reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
+    public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
 
-        this.pipePath = HostPlatform.getExtensionPipePath();
+        this.pipePath = new em.MessagingChannel(projectRootPath).getPath();
         this.reactNativePackager = reactNativePackager;
         this.reactNativePackageStatusIndicator = packagerStatusIndicator;
 
@@ -35,6 +36,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.PREWARM_BUNDLE_CACHE] = this.prewarmBundleCache;
         this.messageHandlerDictionary[em.ExtensionMessage.START_MONITORING_LOGCAT] = this.startMonitoringLogCat;
         this.messageHandlerDictionary[em.ExtensionMessage.STOP_MONITORING_LOGCAT] = this.stopMonitoringLogCat;
+        this.messageHandlerDictionary[em.ExtensionMessage.GET_PACKAGER_PORT] = this.getPackagerPort;
         this.messageHandlerDictionary[em.ExtensionMessage.SEND_TELEMETRY] = this.sendTelemetry;
     }
 
@@ -46,7 +48,7 @@ export class ExtensionServer implements vscode.Disposable {
         let deferred = Q.defer<void>();
 
         let launchCallback = (error: any) => {
-            Log.logInternalMessage(LogLevel.Info, "Extension messaging server started.");
+            Log.logInternalMessage(LogLevel.Info, `Extension messaging server started at ${this.pipePath}.`);
             if (error) {
                 deferred.reject(error);
             } else {
@@ -74,11 +76,20 @@ export class ExtensionServer implements vscode.Disposable {
     }
 
     /**
+     * Message handler for GET_PACKAGER_PORT.
+     */
+    private getPackagerPort(): Q.Promise<number> {
+        return Q(SettingsHelper.getPackagerPort());
+    }
+
+    /**
      * Message handler for START_PACKAGER.
      */
-    private startPackager(): Q.Promise<any> {
-        return this.reactNativePackager.start()
-            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+    private startPackager(port?: any): Q.Promise<any> {
+        const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
+        return this.reactNativePackager.start(portToUse)
+            .then(() =>
+                this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
     /**

@@ -9,8 +9,8 @@ import * as AndroidPlatform from "./android/androidPlatform";
  * Contains all the mobile platform specific debugging operations.
  */
 export interface IAppPlatform {
-    runApp(runOptions: IRunOptions): Q.Promise<void>;
-    enableJSDebuggingMode(runOptions: IRunOptions): Q.Promise<void>;
+    runApp(): Q.Promise<void>;
+    enableJSDebuggingMode(): Q.Promise<void>;
 }
 
 export class PlatformResolver {
@@ -18,16 +18,16 @@ export class PlatformResolver {
     /**
      * Resolves the mobile application target platform.
      */
-    public resolveMobilePlatform(mobilePlatformString: string): IAppPlatform {
+    public resolveMobilePlatform(mobilePlatformString: string, runOptions: IRunOptions): IAppPlatform {
         switch (mobilePlatformString) {
             // We lazyly load the strategies, because some components might be
             // missing on some platforms (like XCode in Windows)
             case "ios":
                 let ios: typeof IOSPlatform = require("./ios/iOSPlatform");
-                return new ios.IOSPlatform();
+                return new ios.IOSPlatform(runOptions);
             case "android":
                 let android: typeof AndroidPlatform = require("./android/androidPlatform");
-                return new android.AndroidPlatform();
+                return new android.AndroidPlatform(runOptions);
             default:
                 return null;
         }

@@ -4,16 +4,16 @@
 import * as Q from "q";
 
 import * as extensionMessaging from "../../common/extensionMessaging";
+import {IInterProcessMessageSender} from "../../common/interProcessMessageSender";
 
 type ExtensionMessage = extensionMessaging.ExtensionMessage;
-export type IExtensionMessageSender = extensionMessaging.IExtensionMessageSender;
 
 export interface IMessageSent {
     message: ExtensionMessage;
     args?: any[];
 }
 
-export class FakeExtensionMessageSender implements IExtensionMessageSender {
+export class FakeExtensionMessageSender implements IInterProcessMessageSender {
     private messagesSent: IMessageSent[] = [];
 
     private messageResponse: Q.Promise<any> = Q.resolve<void>(void 0);
