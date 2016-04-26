@@ -19,7 +19,7 @@ export class DeviceDeployer {
     public deploy(): Q.Promise<void> {
         return new Xcodeproj().findXcodeprojFile(this.projectRoot).then((projectFile: string) => {
             const projectName = path.basename(projectFile, path.extname(projectFile));
-            const pathToCompiledApp = path.join(this.projectRoot, "ios", "build",
+            const pathToCompiledApp = path.join(this.projectRoot, "build",
                 "Build", "Products", "Debug-iphoneos", `${projectName}.app`);
             return new CommandExecutor(this.projectRoot)
                 .spawn("ideviceinstaller", ["-i", pathToCompiledApp]).catch((err) => {
