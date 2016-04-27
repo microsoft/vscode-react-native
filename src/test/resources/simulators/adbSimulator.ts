@@ -37,7 +37,7 @@ interface IRunningApplicationState {
 }
 
 /* Simulation of adb/ADB */
-export class Adb extends adb.AdbEnhancements {
+export class AdbSimulator extends adb.AdbEnhancements {
     private connectedDevices: IDeviceStateMapping = {};
     private fileSystem: FileSystem;
 

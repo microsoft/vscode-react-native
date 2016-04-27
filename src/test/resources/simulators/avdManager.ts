@@ -3,7 +3,7 @@
 
 import * as Q from "q";
 import {DeviceType} from "../../../common/android/adb";
-import {Adb} from "./adb";
+import {AdbSimulator} from "./adbSimulator";
 
 export interface IAVDManager {
     // Intends to simulate: android create avd -n <name> -t <targetID> [-<option> <value>] ...
@@ -24,7 +24,7 @@ export class AVDManager implements IAVDManager {
 
     private devices: IDeviceStateMapping = {};
 
-    constructor(private adb: Adb) {}
+    constructor(private adb: AdbSimulator) {}
 
     public createAndLaunch(avdId: string): Q.Promise<string> {
         return this.create(avdId).then(() =>

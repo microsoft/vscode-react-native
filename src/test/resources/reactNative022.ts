@@ -12,7 +12,7 @@ import {ISpawnResult} from "../../common/node/childProcess";
 import {FileSystem} from "../../common/node/fileSystem";
 import {Package} from "../../common/node/package";
 import {Recording, Simulator} from "./processExecution/simulator";
-import {Adb} from "./simulators/adb";
+import {AdbSimulator} from "./simulators/adbSimulator";
 import {APKSerializer} from "./simulators/apkSerializer";
 
 const resourcesPath = path.join(__dirname, "../../../src/test/resources/");
@@ -48,7 +48,7 @@ export class ReactNative022 implements IReactNative {
     private projectRoot: string;
     private androidAPKPath: string;
 
-    constructor(private adb: Adb, private fileSystem: FileSystem) {
+    constructor(private adb: AdbSimulator, private fileSystem: FileSystem) {
         assert(this.adb, "adb shouldn't be null");
         assert(this.fileSystem, "fileSystem shouldn't be null");
     }

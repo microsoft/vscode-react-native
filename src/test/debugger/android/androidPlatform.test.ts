@@ -9,7 +9,7 @@ import {AndroidPlatform} from "../../../common/android/androidPlatform";
 import {IRunOptions} from "../../../common/launchArgs";
 import {FileSystem} from "../../../common/node/fileSystem";
 import {ReactNative022} from "../../../test/resources/reactNative022";
-import {Adb} from "../../../test/resources/simulators/adb";
+import {AdbSimulator} from "../../../test/resources/simulators/adbSimulator";
 import {AVDManager} from "../../../test/resources/simulators/avdManager";
 import {FakeExtensionMessageSender} from "../../../test/resources/fakeExtensionMessageSender";
 import {ExtensionMessage} from "../../../common/extensionMessaging";
@@ -29,7 +29,7 @@ suite("androidPlatform", function () {
         const genericRunOptions: IRunOptions = { projectRoot: projectRoot };
 
         let fileSystem: FileSystem;
-        let adb: Adb;
+        let adb: AdbSimulator;
         let simulatedAVDManager: AVDManager;
         let reactNative: ReactNative022;
         let fakeExtensionMessageSender: FakeExtensionMessageSender;
@@ -64,7 +64,7 @@ suite("androidPlatform", function () {
         setup(() => {
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem({ fs: mockFs.fs({}) });
-            adb = new Adb(fileSystem);
+            adb = new AdbSimulator(fileSystem);
             simulatedAVDManager = new AVDManager(adb);
             reactNative = new ReactNative022(adb, fileSystem);
             fakeExtensionMessageSender = new FakeExtensionMessageSender();
