@@ -5,11 +5,11 @@ import * as Q from "q";
 import * as path from "path";
 import * as mockFs from "mock-fs";
 
-import {AndroidPlatform} from "../../../debugger/android/androidPlatform";
+import {AndroidPlatform} from "../../../common/android/androidPlatform";
 import {IRunOptions} from "../../../common/launchArgs";
 import {FileSystem} from "../../../common/node/fileSystem";
 import {ReactNative022} from "../../../test/resources/reactNative022";
-import {DeviceHelper} from "../../../test/resources/simulators/deviceHelper";
+import {Adb} from "../../../test/resources/simulators/adb";
 import {AVDManager} from "../../../test/resources/simulators/avdManager";
 import {FakeExtensionMessageSender} from "../../../test/resources/fakeExtensionMessageSender";
 import {ExtensionMessage} from "../../../common/extensionMessaging";
@@ -29,7 +29,7 @@ suite("androidPlatform", function () {
         const genericRunOptions: IRunOptions = { projectRoot: projectRoot };
 
         let fileSystem: FileSystem;
-        let deviceHelper: DeviceHelper;
+        let adb: Adb;
         let simulatedAVDManager: AVDManager;
         let reactNative: ReactNative022;
         let fakeExtensionMessageSender: FakeExtensionMessageSender;
@@ -37,7 +37,7 @@ suite("androidPlatform", function () {
 
         function createAndroidPlatform(runOptions: IRunOptions): AndroidPlatform {
             return new AndroidPlatform(runOptions, {
-                deviceHelper: deviceHelper,
+                adb: adb,
                 reactNative: reactNative,
                 fileSystem: fileSystem,
                 remoteExtension: new RemoteExtension(fakeExtensionMessageSender),
@@ -64,9 +64,9 @@ suite("androidPlatform", function () {
         setup(() => {
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem({ fs: mockFs.fs({}) });
-            deviceHelper = new DeviceHelper(fileSystem);
-            simulatedAVDManager = new AVDManager(deviceHelper);
-            reactNative = new ReactNative022(deviceHelper, fileSystem);
+            adb = new Adb(fileSystem);
+            simulatedAVDManager = new AVDManager(adb);
+            reactNative = new ReactNative022(adb, fileSystem);
             fakeExtensionMessageSender = new FakeExtensionMessageSender();
             androidPlatform = createAndroidPlatform(genericRunOptions);
 
@@ -88,7 +88,7 @@ suite("androidPlatform", function () {
                     }).then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
-                        return deviceHelper.isAppRunning(androidPackageName);
+                        return adb.isAppRunning(androidPackageName);
                     }).then(isRunning => {
                         isRunning.should.be.true();
                         shouldHaveReceivedSingleLogCatMessage("Nexus_5");
@@ -104,8 +104,8 @@ suite("androidPlatform", function () {
                         return androidPlatform.runApp();
                     }).then(() => {
                         return Q.all([
-                            deviceHelper.isAppRunning(androidPackageName, "Nexus_5"),
-                            deviceHelper.isAppRunning(androidPackageName, "Nexus_6"),
+                            adb.isAppRunning(androidPackageName, "Nexus_5"),
+                            adb.isAppRunning(androidPackageName, "Nexus_6"),
                         ]);
                     }).spread((isRunningOnNexus5, isRunningOnNexus6) => {
                         // It should be running in exactly one of these two devices
@@ -125,9 +125,9 @@ suite("androidPlatform", function () {
                         return androidPlatform.runApp();
                     }).then(() => {
                         return Q.all([
-                            deviceHelper.isAppRunning(androidPackageName, "Nexus_5"),
-                            deviceHelper.isAppRunning(androidPackageName, "Nexus_6"),
-                            deviceHelper.isAppRunning(androidPackageName, "Other_Nexus_6"),
+                            adb.isAppRunning(androidPackageName, "Nexus_5"),
+                            adb.isAppRunning(androidPackageName, "Nexus_6"),
+                            adb.isAppRunning(androidPackageName, "Other_Nexus_6"),
                         ]);
                     }).then(isRunningList => {
                         // It should be running in exactly one of these three devices
@@ -161,11 +161,11 @@ suite("androidPlatform", function () {
                     .then(() => {
                         return simulatedAVDManager.createAndLaunchAll(onlineDevicesIds.concat(offineDevicesIds));
                     }).then(() => {
-                        return deviceHelper.notifyDevicesAreOffline(offineDevicesIds);
+                        return adb.notifyDevicesAreOffline(offineDevicesIds);
                     }).then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
-                        return deviceHelper.isAppRunning(androidPackageName, "Nexus_11");
+                        return adb.isAppRunning(androidPackageName, "Nexus_11");
                     }).then((isRunningOnNexus11) => {
                         isRunningOnNexus11.should.be.true();
                         shouldHaveReceivedSingleLogCatMessage("Nexus_11");
@@ -181,7 +181,7 @@ suite("androidPlatform", function () {
                         const runOptions: IRunOptions = { projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
-                        return deviceHelper.isAppRunning(androidPackageName, "Nexus_12");
+                        return adb.isAppRunning(androidPackageName, "Nexus_12");
                     }).then((isRunningOnNexus12) => {
                         isRunningOnNexus12.should.be.true();
                         shouldHaveReceivedSingleLogCatMessage("Nexus_12");
@@ -196,12 +196,12 @@ suite("androidPlatform", function () {
                     .then(() => {
                         return simulatedAVDManager.createAndLaunchAll(onlineDevicesIds.concat(offineDevicesIds));
                     }).then(() => {
-                        return deviceHelper.notifyDevicesAreOffline(offineDevicesIds);
+                        return adb.notifyDevicesAreOffline(offineDevicesIds);
                     }).then(() => {
                         const runOptions: IRunOptions = { projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
-                        return deviceHelper.findDevicesRunningApp(androidPackageName);
+                        return adb.findDevicesRunningApp(androidPackageName);
                     }).then((devicesRunningAppId) => {
                         devicesRunningAppId.length.should.eql(1);
                         onlineDevicesIds.should.containEql(devicesRunningAppId[0]);
@@ -223,7 +223,7 @@ suite("androidPlatform", function () {
                     }).then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
-                        return deviceHelper.isAppRunning(androidPackageName);
+                        return adb.isAppRunning(androidPackageName);
                     }).then(isRunning => {
                         isRunning.should.be.true();
                         shouldHaveReceivedSingleLogCatMessage("Nexus_5");
@@ -247,7 +247,7 @@ suite("androidPlatform", function () {
                         return false;
                     }, reason => {
                         reason.message.should.eql("Android project not found.");
-                        return deviceHelper.isAppRunning(androidPackageName);
+                        return adb.isAppRunning(androidPackageName);
                     }).then(isRunning => {
                         isRunning.should.be.false();
                         shouldHaveReceivedNoLogCatMessages();
@@ -266,7 +266,7 @@ suite("androidPlatform", function () {
                         return false;
                     }, reason => {
                         "An Android shell command timed-out. Please retry the operation.".should.eql(reason.message);
-                        return deviceHelper.isAppRunning(androidPackageName);
+                        return adb.isAppRunning(androidPackageName);
                     }).then(isRunning => {
                         isRunning.should.be.false();
                         shouldHaveReceivedNoLogCatMessages();

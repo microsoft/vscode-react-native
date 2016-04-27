@@ -7,6 +7,15 @@ import * as Q from "q";
  * Utilities for working with promises.
  */
 export class PromiseUtil {
+    public forEach<T>(sourcesMaybePromise: Q.Promise<T[]> | T[], promiseGenerator: (source: T) => Q.Promise<void>): Q.Promise<void> {
+        const sourcesPromise = <Q.Promise<T[]>>Q(sourcesMaybePromise);
+        return Q(sourcesPromise).then(sources => {
+            return Q.all(sources.map(source => {
+                return promiseGenerator(source);
+            })).then(() => { });
+        });
+    }
+
     /**
      * Retries an operation a given number of times. For each retry, a condition is checked.
      * If the condition is not satisfied after the maximum number of retries, and error is thrown.

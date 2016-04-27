@@ -3,12 +3,12 @@
 
 import * as Q from "q";
 
-import * as deviceHelper from "../../../common/android/deviceHelper";
+import * as adb from "../../../common/android/adb";
 
 import {FileSystem} from "../../../common/node/fileSystem";
 import {APKSerializer} from "./apkSerializer";
 
-export type IDevice = deviceHelper.IDevice;
+export type IDevice = adb.IDevice;
 
 interface IDeviceStateMapping {
     [deviceId: string]: IDeviceState;
@@ -16,6 +16,7 @@ interface IDeviceStateMapping {
 
 interface IDeviceState {
     isOnline: boolean;
+    type: adb.DeviceType;
     installedApplications: IInstalledApplicationStateMapping;
     runningApplications: IRunningApplicationStateMapping;
 }
@@ -35,19 +36,21 @@ interface IRunningApplicationState {
     isInDebugMode: boolean;
 }
 
-/* Simulation of DeviceHelper/ADB */
-export class DeviceHelper implements deviceHelper.IDeviceHelper {
+/* Simulation of adb/ADB */
+export class Adb extends adb.AdbEnhancements {
     private connectedDevices: IDeviceStateMapping = {};
     private fileSystem: FileSystem;
 
     constructor(fileSystem: FileSystem) {
+        super();
         this.fileSystem = fileSystem;
     }
 
     // Intends to simulate: adb devices
     public getConnectedDevices(): Q.Promise<IDevice[]> {
         return Q.resolve(this.getDevicesIds().map(deviceId => {
-            return { id: deviceId, isOnline: this.connectedDevices[deviceId].isOnline };
+            const device = this.connectedDevices[deviceId];
+            return { id: deviceId, isOnline: device.isOnline, type: device.type };
         }));
     }
 
@@ -100,11 +103,11 @@ export class DeviceHelper implements deviceHelper.IDeviceHelper {
     }
 
     // We get notified that a device was connected. Intends to simulate connecting a device to the Computer
-    public notifyDeviceWasConnected(deviceId: string): void {
+    public notifyDeviceWasConnected(deviceId: string, deviceType: adb.DeviceType): void {
         if (this.connectedDevices[deviceId]) {
             throw new Error(`Device ${deviceId} was already connected to simulated ADB`);
         } else {
-            this.connectedDevices[deviceId] = { isOnline: true, installedApplications: {}, runningApplications: {} };
+            this.connectedDevices[deviceId] = { isOnline: true, installedApplications: {}, runningApplications: {}, type: deviceType };
         }
     }
 
@@ -113,6 +116,14 @@ export class DeviceHelper implements deviceHelper.IDeviceHelper {
         deviceIds.forEach(deviceId => {
             return this.notifyDeviceIsOffline(deviceId);
         });
+    }
+
+    public apiVersion(deviceId: string): Q.Promise<adb.AndroidAPILevel> {
+        throw new Error("Not yet implemented: Implement if we need to use these methods in a test");
+    }
+
+    public reverseAdd(deviceId: string, devicePort: string, computerPort: string): Q.Promise<void> {
+        throw new Error("Not yet implemented: Implement if we need to use these methods in a test");
     }
 
     private isAppRunningSync(packageName: string, debugTarget?: string): boolean {

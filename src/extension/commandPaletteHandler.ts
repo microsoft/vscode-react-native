@@ -5,11 +5,9 @@ import * as vscode from "vscode";
 import * as Q from "q";
 import {CommandExecutor} from "../common/commandExecutor";
 import {SettingsHelper} from "./settingsHelper";
-import {DeviceHelper, IDevice} from "../common/android/deviceHelper";
 import {Log} from "../common/log/log";
 import {Packager} from "../common/packager";
-import {Package} from "../common/node/package";
-import {PackageNameResolver} from "../common/android/packageNameResolver";
+import {AndroidPlatform} from "../common/android/androidPlatform";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
@@ -47,34 +45,13 @@ export class CommandPaletteHandler {
      * Executes the 'react-native run-android' command
      */
     public runAndroid(): Q.Promise<void> {
-        /* If there are multiple devices available, the run-android command will install the application on each and then print a warning.
-           The command will succeed but the application will not be launched on any device.
-           We fix this behavior by checking if there are more than one devices available and running the application on each.  */
         TargetPlatformHelper.checkTargetPlatformSupport("android");
-        return this.executeCommandInContext("runAndroid", () => this.executeReactNativeRunCommand("run-android"))
-            .then(() => {
-                let deviceHelper = new DeviceHelper();
-                let pkg = new Package(this.workspaceRoot);
-
-                return Q.all<any>([
-                    pkg.name().then((appName) => new PackageNameResolver(appName).resolvePackageName(this.workspaceRoot)),
-                    deviceHelper.getConnectedDevices(),
-                ]).spread<any>((packagName: string, devices: IDevice[]) => {
-                    if (devices.length > 1) {
-                        let result = Q<void>(void 0);
-                        /* if we have more than one device, launch the application on each */
-                        devices.forEach((device: IDevice) => {
-                            if (device.isOnline) {
-                                result = result.then(() => deviceHelper.launchApp(this.workspaceRoot, packagName, device.id));
-                            }
-                        });
-                        return result;
-                    } else {
-                        return Q.resolve(void 0);
-                    }
-                });
-            });
+        return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
+            const packagerPort = SettingsHelper.getPackagerPort();
+            return new AndroidPlatform({ projectRoot: this.workspaceRoot, packagerPort: packagerPort }).runApp(/*shouldLaunchInAllDevices*/true);
+        }));
     }
+
 
     /**
      * Executes the 'react-native run-ios' command
@@ -100,13 +77,19 @@ export class CommandPaletteHandler {
      * {args} The arguments to be passed to the command
      */
     private executeReactNativeRunCommand(command: string, args?: string[]): Q.Promise<void> {
+        return this.executeWithPackagerRunning(() => {
+            return new CommandExecutor(this.workspaceRoot).spawnReactCommand(command, args).outcome;
+        });
+    }
+
+    /**
+     * Executes a lambda function after starting the packager
+     * {lambda} The lambda function to be executed
+     */
+    private executeWithPackagerRunning(lambda: () => Q.Promise<void>): Q.Promise<void> {
         // Start the packager before executing the React-Native command
         Log.logMessage("Attempting to start the React Native packager");
-
-        return this.runStartPackagerCommandAndUpdateStatus()
-            .then(() => {
-                return new CommandExecutor(this.workspaceRoot).spawnReactCommand(command, args).outcome;
-            });
+        return this.runStartPackagerCommandAndUpdateStatus().then(lambda);
     }
 
     /**

@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {IRunOptions} from "../common/launchArgs";
-import * as IOSPlatform from "./ios/iOSPlatform";
-import * as AndroidPlatform from "./android/androidPlatform";
+import {IOSPlatform} from "./ios/iOSPlatform";
+import {AndroidPlatform} from "../common/android/androidPlatform";
 
 /**
  * Contains all the mobile platform specific debugging operations.
@@ -23,11 +23,9 @@ export class PlatformResolver {
             // We lazyly load the strategies, because some components might be
             // missing on some platforms (like XCode in Windows)
             case "ios":
-                let ios: typeof IOSPlatform = require("./ios/iOSPlatform");
-                return new ios.IOSPlatform(runOptions);
+                return new IOSPlatform(runOptions);
             case "android":
-                let android: typeof AndroidPlatform = require("./android/androidPlatform");
-                return new android.AndroidPlatform(runOptions);
+                return new AndroidPlatform(runOptions);
             default:
                 return null;
         }

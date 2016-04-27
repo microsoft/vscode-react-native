@@ -2,7 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
-import {DeviceHelper} from "./deviceHelper";
+import {DeviceType} from "../../../common/android/adb";
+import {Adb} from "./adb";
 
 export interface IAVDManager {
     // Intends to simulate: android create avd -n <name> -t <targetID> [-<option> <value>] ...
@@ -23,8 +24,7 @@ export class AVDManager implements IAVDManager {
 
     private devices: IDeviceStateMapping = {};
 
-    constructor(private deviceHelper: DeviceHelper) {
-    }
+    constructor(private adb: Adb) {}
 
     public createAndLaunch(avdId: string): Q.Promise<string> {
         return this.create(avdId).then(() =>
@@ -44,7 +44,7 @@ export class AVDManager implements IAVDManager {
     // Intends to simulate: emulator -avd WVGA800 -scale 96dpi -dpi-device 160
     public launch(avdId: string): Q.Promise<string> {
         if (this.devices[avdId]) {
-            this.deviceHelper.notifyDeviceWasConnected(avdId);
+            this.adb.notifyDeviceWasConnected(avdId, DeviceType.AndroidSdkEmulator);
             return Q(`emulator-${this.nextAvailablePort++}`);
         } else {
             throw new Error("Implement to match AVD: Device doesn't exists");
