@@ -31,18 +31,6 @@ var knownOptions = {
 
 var options = minimist(process.argv.slice(2), knownOptions);
 
-function getArgumentIndex(argumentName) {
-    return process.argv.indexOf("--" + argumentName);
-}
-
-function readArgument(argumentName) {
-    var argumentNameIndex = getArgumentIndex(argumentName);
-    var argumentValueIndex = argumentNameIndex + 1;
-    return argumentNameIndex > -1 && argumentValueIndex < process.argv.length
-        ? process.argv[argumentValueIndex]
-        : null;
-}
-
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
 // be an issue on Windows platforms)
@@ -92,25 +80,19 @@ gulp.task('tslint', function () {
 });
 
 function test() {
-    // Defaults
-    var invert = true;
-
     // Check if arguments were passed
-    var pattern = readArgument("pattern");
-    if (pattern !== null) {
-        invert = false;
-        console.log("\nTesting cases that match pattern: " + pattern);
+    if (options.pattern) {
+        console.log("\nTesting cases that match pattern: " + options.pattern);
     } else {
-        pattern = "extensionContext";
-        console.log("\nTesting cases that don't match pattern: " + pattern);
+        console.log("\nTesting cases that don't match pattern: extensionContext");
     }
 
     return gulp.src(['out/test/**/*.test.js', '!out/test/extension/**'])
         .pipe(mocha({
             ui: 'tdd',
             useColors: true,
-            invert: invert,
-            grep: pattern
+            invert: !options.pattern,
+            grep: options.pattern || "extensionContext"
         }));
 }
 
