@@ -19,7 +19,7 @@ export class LogCatMonitor implements vscode.Disposable {
     private static DEFAULT_PARAMETERS = ["*:S", "ReactNative:V", "ReactNativeJS:V"];
 
     private _childProcess: ChildProcess;
-    private _logger = new OutputChannelLogger(vscode.window.createOutputChannel("LogCat"));
+    private _logger: OutputChannelLogger;
 
     private _deviceId: string;
     private _userProvidedLogCatArguments: any; // This is user input, we don't know what's here
@@ -30,6 +30,7 @@ export class LogCatMonitor implements vscode.Disposable {
         this._deviceId = deviceId;
         this._userProvidedLogCatArguments = userProvidedLogCatArguments;
         this._childProcess = childProcess;
+        this._logger = new OutputChannelLogger(vscode.window.createOutputChannel(`LogCat - ${deviceId}`));
     }
 
     public start(): Q.Promise<void> {
