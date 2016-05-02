@@ -6,30 +6,17 @@ import * as Q from "q";
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
 
+// See android versions usage at: http://developer.android.com/about/dashboards/index.html
 export enum AndroidAPILevel {
-    M = 23,
+    Marshmallow = 23,
     LOLLIPOP_MR1 = 22,
     LOLLIPOP = 21, /* Supports adb reverse */
-    KITKAT_WATCH = 20,
     KITKAT = 19,
     JELLY_BEAN_MR2 = 18,
     JELLY_BEAN_MR1 = 17,
     JELLY_BEAN = 16,
     ICE_CREAM_SANDWICH_MR1 = 15,
-    ICE_CREAM_SANDWICH = 14,
-    HONEYCOMB_MR2 = 13,
-    HONEYCOMB_MR1 = 12,
-    HONEYCOMB = 11,
     GINGERBREAD_MR1 = 10,
-    GINGERBREAD = 9,
-    FROYO = 8,
-    ECLAIR_MR1 = 7,
-    ECLAIR_0_1 = 6,
-    ECLAIR = 5,
-    DONUT = 4,
-    CUPCAKE = 3,
-    BASE_1_1 = 2,
-    BASE = 1
 }
 
 export enum DeviceType {
