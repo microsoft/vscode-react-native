@@ -99,6 +99,19 @@ suite("appWorker", function() {
                     assert(postReplyFunction.calledWith({ data: testMessage }), "No echo back from app");
                 });
             });
+
+            test("should be able to require an installed node module via __debug__.resolve", function () {
+                const expectedMessageResult = { success: true };
+                const startScriptContents = `__debug__.require('q');
+                    var testResponse = ${JSON.stringify(expectedMessageResult)};
+                    postMessage(testResponse);`;
+
+                readFileStub.withArgs(startScriptFileName).returns(Q.resolve(startScriptContents));
+
+                return sandboxedWorker.start().then(() => {
+                    assert(postReplyFunction.calledWithExactly(expectedMessageResult));
+                });
+            });
         });
 
         suite("MultipleLifetimesAppWorker", function() {
