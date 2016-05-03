@@ -12,7 +12,7 @@ import {ISpawnResult} from "../../common/node/childProcess";
 import {FileSystem} from "../../common/node/fileSystem";
 import {Package} from "../../common/node/package";
 import {Recording, Simulator} from "./processExecution/simulator";
-import {DeviceHelper} from "./simulators/deviceHelper";
+import {AdbSimulator} from "./simulators/adbSimulator";
 import {APKSerializer} from "./simulators/apkSerializer";
 
 const resourcesPath = path.join(__dirname, "../../../src/test/resources/");
@@ -48,8 +48,8 @@ export class ReactNative022 implements IReactNative {
     private projectRoot: string;
     private androidAPKPath: string;
 
-    constructor(private deviceHelper: DeviceHelper, private fileSystem: FileSystem) {
-        assert(this.deviceHelper, "deviceHelper shouldn't be null");
+    constructor(private adb: AdbSimulator, private fileSystem: FileSystem) {
+        assert(this.adb, "adb shouldn't be null");
         assert(this.fileSystem, "fileSystem shouldn't be null");
     }
 
@@ -123,13 +123,13 @@ export class ReactNative022 implements IReactNative {
     }
 
     private installAppInAllDevices(): Q.Promise<void> {
-        return new PromiseUtil().reduce(this.deviceHelper.getConnectedDevices(), device => this.installAppInDevice(device.id));
+        return new PromiseUtil().reduce(this.adb.getConnectedDevices(), device => this.installAppInDevice(device.id));
     }
 
     private installAppInDevice(deviceId: string): Q.Promise<void> {
-        return this.deviceHelper.isDeviceOnline(deviceId).then(isOnline => {
+        return this.adb.isDeviceOnline(deviceId).then(isOnline => {
             if (isOnline) {
-                return this.deviceHelper.installApp(this.androidAPKPath, deviceId);
+                return this.adb.installApp(this.androidAPKPath, deviceId);
             } else {
                 // TODO: Figure out what's the right thing to do here, if we ever need this for the tests
             }
@@ -159,7 +159,7 @@ export class ReactNative022 implements IReactNative {
         const matches = stdout.match(new RegExp(succesfulOutputEnd));
         if (matches) {
             if (matches.length === 3 && matches[1] === this.androidPackageName && matches[2] === this.androidPackageName) {
-                return this.deviceHelper.launchApp(this.projectRoot, this.androidPackageName);
+                return this.adb.launchApp(this.projectRoot, this.androidPackageName);
             } else {
                 return Q.reject<void>(new Error("There was an error while trying to match the Starting the app messages."
                     + "Expected to match the pattern and recognize the expected android package name, but it failed."
