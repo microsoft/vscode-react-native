@@ -100,10 +100,10 @@ suite("appWorker", function() {
                 });
             });
 
-            test("should be able to require an installed node module via __debug__.resolve", function () {
-                const expectedMessageResult = { success: true };
-                const startScriptContents = `__debug__.require('q');
-                    var testResponse = ${JSON.stringify(expectedMessageResult)};
+            test("should be able to require an installed node module via __debug__.require", function () {
+                const expectedMessageResult = { qString: Q.toString() };
+                const startScriptContents = `var Q = __debug__.require('q');
+                    var testResponse = { qString: Q.toString() };
                     postMessage(testResponse);`;
 
                 readFileStub.withArgs(startScriptFileName).returns(Q.resolve(startScriptContents));
