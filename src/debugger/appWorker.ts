@@ -17,6 +17,11 @@ import Module = require("module");
 
 // This file is a replacement of: https://github.com/facebook/react-native/blob/8d397b4cbc05ad801cfafb421cee39bcfe89711d/local-cli/server/util/debugger.html for Node.JS
 interface DebuggerWorkerSandbox {
+    __debug__: {
+        // To support simulating native functionality when debugging,
+        // we expose a node require function to the app
+        require: (id: string) => any;
+    };
     __filename: string;
     __dirname: string;
     self: DebuggerWorkerSandbox;
@@ -92,8 +97,15 @@ export class SandboxedAppWorker {
 
     private initializeSandboxAndContext(scriptToRunPath: string): void {
         let scriptToRunModule = new Module(scriptToRunPath);
+        scriptToRunModule.paths = Module._nodeModulePaths(path.dirname(scriptToRunPath));
+        // In order for __debug_.require("aNonInternalPackage") to work, we need to initialize where
+        // node searches for packages. We invoke the same method that node does:
+        // https://github.com/nodejs/node/blob/de1dc0ae2eb52842b5c5c974090123a64c3a594c/lib/module.js#L452
 
         this.sandbox = {
+            __debug__: {
+                require: (filePath: string) => scriptToRunModule.require(filePath),
+            },
             __filename: scriptToRunPath,
             __dirname: path.dirname(scriptToRunPath),
             self: null,
