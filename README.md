@@ -45,6 +45,7 @@ More information about debugging using VS Code can be found in this [guide](http
 
 #### Debugging on iOS device
 Debugging on iOS device would require following manual steps.
+* You need to install [ideviceinstaller](https://github.com/libimobiledevice/ideviceinstaller) `brew install ideviceinstaller`
 * In your launch.json file, set target to "device"
 * Change the `jsCodeLocation` IP in your app using the steps detailed [here](https://facebook.github.io/react-native/docs/running-on-device-ios.html#accessing-development-server-from-device).
 * Choose **Debug iOS** configuration from the Configuration dropdown and press F5.
