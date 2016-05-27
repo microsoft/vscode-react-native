@@ -170,8 +170,7 @@ export class IntellisenseHelper {
      * in order to enable the Salsa intellisense.
      */
     public static enableSalsa(isRestartRequired: boolean): Q.Promise<boolean> {
-        if (!process.env.VSCODE_TSJS) {
-
+        if (!IntellisenseHelper.isSalsaSupported() && !process.env.VSCODE_TSJS) {
             return Q({})
                 .then(() => HostPlatform.setEnvironmentVariable("VSCODE_TSJS", "1"))
                 .then(() => { return true; });
