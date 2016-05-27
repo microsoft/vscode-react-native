@@ -35,6 +35,10 @@ export class RemoteExtension {
             [extensionId, extensionVersion, appInsightsKey, eventName, properties, measures]);
     }
 
+    public openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void> {
+        return this.interProcessMessageSender.sendMessage(ExtensionMessage.OPEN_FILE_AT_LOCATION, [filename, lineNumber]);
+    }
+
     public getPackagerPort(): Q.Promise<number> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_PACKAGER_PORT);
     }

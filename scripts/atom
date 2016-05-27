@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# This script is called 'atom' to surpass the react-native
+# editor selection. It has nothing to do with the atom editor.
+# It can be safetly removed when the PR to support vscode in
+# react native gets accepted:
+# https://github.com/facebook/react-native/pull/7757
+#
+# Usage:
+# ../path/atom filename:filenumber
+
+# Unix
+if [[ -z "$1" ]] ; then
+    echo "Missing filename."
+    exit 1
+fi
+
+parent_path=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
+node "$parent_path/../out/extension/openFileAtLocation.js" "$1"

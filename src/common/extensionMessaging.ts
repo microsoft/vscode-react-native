@@ -16,6 +16,7 @@ export enum ExtensionMessage {
     STOP_MONITORING_LOGCAT,
     GET_PACKAGER_PORT,
     SEND_TELEMETRY,
+    OPEN_FILE_AT_LOCATION,
 }
 
 export interface MessageWithArguments {
