@@ -55,13 +55,16 @@ export class Packager {
                     return this.monkeyPatchOpnForRNPackager()
                         .then(() => {
                             let args = ["--port", port.toString()];
-                            let childEnvForDebugging = Object.assign({}, process.env, { REACT_DEBUGGER: "echo A debugger is not needed: " });
+                            let reactEnv = Object.assign({}, process.env, {
+                                REACT_DEBUGGER: "echo A debugger is not needed: ",
+                                REACT_EDITOR: this.openFileAtLocationCommand(),
+                            });
 
                             Log.logMessage("Starting Packager");
                             // The packager will continue running while we debug the application, so we can"t
                             // wait for this command to finish
 
-                            let spawnOptions = { env: childEnvForDebugging };
+                            let spawnOptions = { env: reactEnv };
 
                             const packagerSpawnResult = new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions);
                             this.packagerProcess = packagerSpawnResult.spawnedProcess;
@@ -181,5 +184,9 @@ export class Packager {
             this.port = null;
             return Q.resolve<void>(void 0);
         });
+    }
+
+    private openFileAtLocationCommand(): string {
+        return path.join(__dirname, "..", "..", "scripts", "atom");
     }
 }

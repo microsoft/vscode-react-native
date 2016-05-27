@@ -38,6 +38,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.STOP_MONITORING_LOGCAT] = this.stopMonitoringLogCat;
         this.messageHandlerDictionary[em.ExtensionMessage.GET_PACKAGER_PORT] = this.getPackagerPort;
         this.messageHandlerDictionary[em.ExtensionMessage.SEND_TELEMETRY] = this.sendTelemetry;
+        this.messageHandlerDictionary[em.ExtensionMessage.OPEN_FILE_AT_LOCATION] = this.openFileAtLocation;
     }
 
     /**
@@ -121,6 +122,19 @@ export class ExtensionServer implements vscode.Disposable {
             .done();
 
         return Q.resolve<void>(void 0);
+    }
+
+    /**
+     * Message handler for OPEN_FILE_AT_LOCATION
+     */
+    private openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void> {
+        return Q(vscode.workspace.openTextDocument(vscode.Uri.file(filename)).then(document => {
+            return vscode.window.showTextDocument(document).then(editor => {
+                let range = editor.document.lineAt(lineNumber - 1).range;
+                editor.selection = new vscode.Selection(range.start, range.end);
+                editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+            });
+        }));
     }
 
     private stopMonitoringLogCat(): Q.Promise<void> {

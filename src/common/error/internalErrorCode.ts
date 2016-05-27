@@ -43,7 +43,8 @@ export enum InternalErrorCode {
         DebuggingFailed = 706,
         RNTempFolderDeletionFailed = 707,
         DebuggingFailedInNodeWrapper = 708,
-        PlatformNotSupported = 708,
+        PlatformNotSupported = 709,
+        WorkspaceNotFound = 710,
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,
