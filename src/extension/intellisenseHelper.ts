@@ -129,32 +129,29 @@ export class IntellisenseHelper {
 
 
 
-    public static configureWorkspaceSettings(isRestartRequired: boolean): Q.Promise<boolean> {
+    public static configureWorkspaceSettings(isRestartRequired: boolean): boolean {
         let typeScriptLibPath: string = path.resolve(IntellisenseHelper.getTypeScriptInstallPath(), "lib");
+        const tsdkPath = SettingsHelper.getTypeScriptTsdk();
 
-        return SettingsHelper.getTypeScriptTsdk()
-            .then((tsdkPath: string) => {
-
-                if (IntellisenseHelper.isSalsaSupported()) {
-                    if (tsdkPath !== null &&
-                        tsdkPath === typeScriptLibPath) {
-                        // Note: In previous releases of VSCode (< 0.10.10) the Salsa TypeScript
-                        // IntelliSense was not enabled by default, this extension would install
-                        // Salsa itself, and update the settings to point at that. Here we
-                        // attempt to reset that value to null if it still points to the previous
-                        // installed (and no longer valid) version of TypeScript.
-                        return SettingsHelper.removeTypeScriptTsdk()
-                            .then(() => { return true; });
-                    }
-                } else {
-                    if (tsdkPath === null) {
-                        return SettingsHelper.setTypeScriptTsdk(typeScriptLibPath)
-                            .then(() => { return true; });
-                    }
-                }
-
-                return isRestartRequired;
-            });
+        if (IntellisenseHelper.isSalsaSupported()) {
+            if (tsdkPath === typeScriptLibPath) {
+                // Note: In previous releases of VSCode (< 0.10.10) the Salsa TypeScript
+                // IntelliSense was not enabled by default, this extension would install
+                // Salsa itself, and update the settings to point at that. Here we
+                // attempt to reset that value to null if it still points to the previous
+                // installed (and no longer valid) version of TypeScript.
+                SettingsHelper.notifyUserToRemoveTSDKFromSettingsJson(tsdkPath);
+                // We are already telling the user to restart. No need to show another message.
+                return false;
+            }
+        } else {
+            if (tsdkPath === null) {
+                SettingsHelper.notifyUserToAddTSDKInSettingsJson(typeScriptLibPath);
+                // We are already telling the user to restart. No need to show another message.
+                return false;
+            }
+        }
+        return isRestartRequired;
     }
 
     public static warnIfRestartIsRequired(isRestartRequired: boolean): Q.Promise<void> {

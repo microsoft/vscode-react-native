@@ -51,6 +51,10 @@ export enum InternalErrorCode {
 
         // Validating user input errors
         ExpectedIntegerValue = 1001,
+        ExpectedStringValue = 1002,
+        ExpectedBooleanValue = 1003,
+        ExpectedArrayValue = 1004,
+        ExpectedObjectValue = 1005,
 
         // Inter Process Communication errors
         ErrorWhileProcessingMessageInIPMSServer = 901,
