@@ -1,90 +1,53 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as vscode from "vscode";
-import fs = require("fs");
 import path = require("path");
 import {ConfigurationReader} from "../common/configurationReader";
 import {Packager} from "../common/packager";
-import {FileSystem} from "../common/node/fileSystem";
 
 export class SettingsHelper {
 
+    /**
+     * Path to the workspace settings file
+     */
     public static get settingsJsonPath(): string {
         return path.join(vscode.workspace.rootPath, ".vscode", "settings.json");
-    }
-
-    public static get launchJsonPath(): string {
-        return path.join(vscode.workspace.rootPath, ".vscode", "launch.json");
-    }
-
-    /**
-     * Constructs a JSON object from tsconfig.json. Will create the file if needed.
-     */
-    public static readSettingsJson(): Q.Promise<any> {
-        let settingsJsonPath: string = SettingsHelper.settingsJsonPath;
-        let fileSystem = new FileSystem();
-
-        return fileSystem.exists(settingsJsonPath)
-            .then(function(exists: boolean): Q.Promise<string> {
-                if (!exists) {
-                    return fileSystem.writeFile(settingsJsonPath, "{}")
-                        .then(() => { return "{}"; });
-                }
-
-                return fileSystem.readFile(settingsJsonPath, "utf-8");
-            })
-            .then(function(jsonContents: string): Q.Promise<any> {
-                return JSON.parse(jsonContents);
-            });
-    }
-
-    /**
-     * Writes out a JSON configuration object to the tsconfig.json file.
-     */
-    public static writeSettingsJson(settingsJson: any): Q.Promise<void> {
-        let settingsJsonPath: string = SettingsHelper.settingsJsonPath;
-
-        return Q.nfcall<void>(fs.writeFile, settingsJsonPath, JSON.stringify(settingsJson, null, 4));
     }
 
     /**
      * Enable javascript intellisense via typescript.
      */
-    public static setTypeScriptTsdk(path: string): Q.Promise<void> {
-        return SettingsHelper.readSettingsJson()
-            .then(function(settingsJson: any): Q.Promise<void> {
-                if (settingsJson["typescript.tsdk"] !== path) {
-                    settingsJson["typescript.tsdk"] = path;
-
-                    return SettingsHelper.writeSettingsJson(settingsJson);
-                }
-            });
+    public static notifyUserToAddTSDKInSettingsJson(path: string): void {
+        vscode.window.showInformationMessage(`Please make sure you have \"typescript.tsdk\": \"${path}\" in .vscode/settings.json and restart VSCode afterwards.`);
     }
 
     /**
      * Removes javascript intellisense via typescript.
      */
-    public static removeTypeScriptTsdk(): Q.Promise<void> {
-        return SettingsHelper.readSettingsJson()
-            .then(function(settingsJson: any): Q.Promise<void> {
-                if (settingsJson["typescript.tsdk"] !== undefined) {
-                    delete settingsJson["typescript.tsdk"];
-                    return SettingsHelper.writeSettingsJson(settingsJson);
-                }
-            });
+    public static notifyUserToRemoveTSDKFromSettingsJson(path: string): void {
+        vscode.window.showInformationMessage(`Please remove \"typescript.tsdk\": \"${path}\" from .vscode/settings.json and restart VSCode afterwards.`);
     }
 
-    public static getTypeScriptTsdk(): Q.Promise<string> {
-        return SettingsHelper.readSettingsJson()
-            .then(function(settingsJson: any): Q.Promise<string> {
-                return settingsJson["typescript.tsdk"] || null;
-            });
+    /**
+     * Get the path of the Typescript TSDK as it is in the workspace configuration
+     */
+    public static getTypeScriptTsdk(): string {
+        const workspaceConfiguration = vscode.workspace.getConfiguration();
+        if (workspaceConfiguration.has("typescript.tsdk")) {
+            return ConfigurationReader.readString(workspaceConfiguration.get("typescript.tsdk"));
+        }
+        return null;
     }
 
-    /* We get the packager port configured by the user */
+    /**
+     * We get the packager port configured by the user
+     */
     public static getPackagerPort(): number {
-        return ConfigurationReader.readInt(vscode.workspace.getConfiguration("react-native.packager").get("port", Packager.DEFAULT_PORT));
+        const workspaceConfiguration = vscode.workspace.getConfiguration();
+        if (workspaceConfiguration.has("react-native.packager.port")) {
+            return ConfigurationReader.readInt(workspaceConfiguration.get("react-native.packager.port"));
+        }
+        return Packager.DEFAULT_PORT;
     }
 }
