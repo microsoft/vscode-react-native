@@ -39,9 +39,12 @@ export class TsConfigHelper {
      * Writes out a JSON configuration object to the tsconfig.json file.
      */
     public static writeConfigJson(configJson: any): Q.Promise<void> {
+        return;
+        /*
         let tsConfigPath: string = TsConfigHelper.tsConfigPath;
 
         return Q.nfcall<void>(fs.writeFile, tsConfigPath, JSON.stringify(configJson, null, 4));
+        */
     }
 
     /**
