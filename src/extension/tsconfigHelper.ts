@@ -6,6 +6,7 @@ import * as vscode from "vscode";
 import fs = require("fs");
 import path = require("path");
 import {FileSystem} from "../common/node/fileSystem";
+import * as stripJsonComments from "strip-json-comments";
 
 export class TsConfigHelper {
 
@@ -30,7 +31,7 @@ export class TsConfigHelper {
                 return fileSystem.readFile(tsConfigPath, "utf-8");
             })
             .then(function(jsonContents: string): Q.Promise<any> {
-                return JSON.parse(jsonContents);
+                return JSON.parse(stripJsonComments(jsonContents));
             });
     }
 
