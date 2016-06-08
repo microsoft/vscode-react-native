@@ -22,7 +22,7 @@ You can debug your code, quickly run `react-native` commands from the command pa
 ### Create a `.babelrc` file for ReactNative Packger transformer
   Create a `.babelrc` file in your React Native project root, the content of `.babelrc` at least with `sourceMaps = true`.
   for example:
-  ```json
+  ```
   {
     "sourceMaps": true // must be true react-native/packager/transformer using with node-module-debug
     // because of some bugs from vscode-node-debug & vscode-react-native, "sourceMaps" cannot be "inline" or "both"
