@@ -145,6 +145,7 @@
   },
   "dependencies": {
     "extract-opts": "2.2.0",
+    "flatten-source-map": "0.0.2",
     "options": "0.0.6",
     "q": "1.4.1",
     "semver": "5.1.0",

@@ -17,8 +17,18 @@ You can debug your code, quickly run `react-native` commands from the command pa
   1. Run `npm install -g react-native-cli` to install React Native CLI (0.1.10+)
   2. Set up React Native (0.19+) using the steps detailed on the React Native [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
 * Open your React Native project root folder in VS Code.
+  * Hint: you should create a `.babelrc` with `sourceMaps = true` for a better source mapping. (**required if want TypeScript supports**)
 
-## Debugging
+### Create a `.babelrc` file for ReactNative Packger transformer
+  Create a `.babelrc` file in your React Native project root, the content of `.babelrc` at least with `sourceMaps = true`.
+  for example:
+  ```json
+  {
+    "sourceMaps": true // must be true react-native/packager/transformer using with node-module-debug
+    // because of some bugs from vscode-node-debug & vscode-react-native, "sourceMaps" cannot be "inline" or "both"
+  }
+  ```
+  ** This is a requirement step if you want to debug with TypeScript. **
 
 ### Setup debug environment
 
@@ -99,7 +109,7 @@ Here is the list of common known issues you may experience while using the exten
 
 Issue                                | Description
 ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------
-Debugger doesn't stop at breakpoints | The debugger only works if the packager is started by VS Code. Stop the packager if it is already running outside VSCode.
+Debugger doesn't stop at breakpoints | The debugger only works if the packager is started by VS Code. Stop the packager if it is already running outside VSCode. Or you can use **command + R** reload JS bundle.
 'adb: command not found'             | If you receive an error `adb: command not found`, you need to update your path variable to include the location of your *ADB* executable.The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
 Targeting iPhone 6 doesn't work      | There is a known issue [#5850](https://github.com/facebook/react-native/issues/5850) while running an app targeting iPhone 6
 
