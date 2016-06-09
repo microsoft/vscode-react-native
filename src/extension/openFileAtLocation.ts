@@ -22,7 +22,7 @@ const dirname = path.normalize(path.dirname(fullpath));
 
 // In Windows this should make sure c:\ is always lowercase and in
 // Unix '/'.toLowerCase() = '/'
-const normalizedDirname = dirname.charAt(0).toLowerCase() + dirname.slice(1);
+const normalizedDirname = dirname.toLowerCase();
 const filenameAndNumber = path.basename(fullpath);
 const fileInfo = filenameAndNumber.split(":");
 const filename = path.join(normalizedDirname, fileInfo[0]);
