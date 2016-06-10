@@ -36,7 +36,8 @@ export class MessagingChannel {
            We create the pipe path hashing the user id + project root path so both client and server
            will generate the same path, yet it's unique for each vs code instance */
         const userID = HostPlatform.getUserID();
-        const uniqueSeed = `${userID}:${this.projectRootPath}`;
+        const normalizedRootPath = this.projectRootPath.toLowerCase();
+        const uniqueSeed = `${userID}:${normalizedRootPath}`;
         const hash = new Crypto().hash(uniqueSeed);
         return HostPlatform.getPipePath(`vscode-reactnative-${hash}`);
     }
