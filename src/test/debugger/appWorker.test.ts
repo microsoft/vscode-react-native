@@ -9,6 +9,7 @@ import * as sinon from "sinon";
 
 import * as AppWorker from "../../debugger/appWorker";
 import {ScriptImporter} from "../../debugger/scriptImporter";
+import {Packager} from "../../common/packager";
 
 suite("appWorker", function() {
     suite("debuggerContext", function() {
@@ -123,6 +124,7 @@ suite("appWorker", function() {
             let webSocket: Sinon.SinonStub;
             let sandboxedAppConstructor: Sinon.SinonStub;
             let webSocketConstructor: Sinon.SinonStub;
+            let packagerIsRunning: Sinon.SinonStub;
 
             let sendMessage: (message: string) => void;
 
@@ -139,6 +141,8 @@ suite("appWorker", function() {
                 sandboxedAppConstructor.returns(sandboxedAppWorkerStub);
                 webSocketConstructor = sinon.stub();
                 webSocketConstructor.returns(webSocket);
+                packagerIsRunning = sinon.stub(Packager, "isPackagerRunning");
+                packagerIsRunning.returns(Q.resolve(true));
 
                 multipleLifetimesWorker = new AppWorker.MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, debugAdapterPort, {
                     sandboxedAppConstructor: sandboxedAppConstructor,
@@ -154,6 +158,8 @@ suite("appWorker", function() {
                 sandboxedAppConstructor = null;
                 webSocketConstructor = null;
                 sendMessage = null;
+                packagerIsRunning.restore();
+                packagerIsRunning = null;
 
                 if (clock) {
                     clock.restore();
@@ -161,7 +167,7 @@ suite("appWorker", function() {
                 }
             });
 
-            test("should construct a websocket connection to the correct endpoint and listen for events", function() {
+            test("with packager running should construct a websocket connection to the correct endpoint and listen for events", function() {
                 return multipleLifetimesWorker.start().then(() => {
                     const websocketRegex = new RegExp("ws://[^:]*:[0-9]*/debugger-proxy\\?role=debugger");
                     assert(webSocketConstructor.calledWithMatch(websocketRegex), "The web socket was not constructed to the correct url: " + webSocketConstructor.args[0][0]);
@@ -173,10 +179,11 @@ suite("appWorker", function() {
                 });
             });
 
-            test("should attempt to reconnect after disconnecting", function() {
+            test("with packager running should attempt to reconnect after disconnecting", function() {
                 return multipleLifetimesWorker.start().then(() => {
                     // Forget previous invocations
                     webSocketConstructor.reset();
+                    packagerIsRunning.returns(Q.resolve(true));
 
                     clock = sinon.useFakeTimers();
 
@@ -188,11 +195,12 @@ suite("appWorker", function() {
                     assert(webSocketConstructor.notCalled, "Attempted to reconnect too quickly");
 
                     clock.tick(1);
+                }).then(() => {
                     assert(webSocketConstructor.called);
                 });
             });
 
-            test("should respond correctly to prepareJSRuntime messages", function() {
+            test("with packager running should respond correctly to prepareJSRuntime messages", function() {
                 return multipleLifetimesWorker.start().then(() => {
                     const messageId = 1;
                     const testMessage = JSON.stringify({ method: "prepareJSRuntime", id: messageId });
@@ -218,7 +226,7 @@ suite("appWorker", function() {
                 });
             });
 
-            test("should pass unknown messages to the sandboxedAppWorker", function() {
+            test("with packager running should pass unknown messages to the sandboxedAppWorker", function() {
                 return multipleLifetimesWorker.start().then(() => {
                     // Start up an app worker
                     const prepareJSMessage = JSON.stringify({ method: "prepareJSRuntime", id: 1 });
@@ -240,6 +248,34 @@ suite("appWorker", function() {
                     assert(postMessageStub.calledWith(testMessage), "message was not passed to sandboxedAppWorker");
                 });
             });
+
+            test("with packager running should close connection if there is another debugger connected to packager", () => {
+                return multipleLifetimesWorker.start().then(() => {
+                    // Forget previous invocations
+                    webSocketConstructor.reset();
+                    clock = sinon.useFakeTimers(new Date().getTime());
+
+                    const closeInvocation: Sinon.SinonStub = (<any>webSocket).on.withArgs("close");
+                    (<any>webSocket)._closeMessage = "Another debugger is already connected";
+                    closeInvocation.callArg(1);
+
+                    // Ensure it doesn't try to reconnect
+                    clock.tick(100);
+                    assert(webSocketConstructor.notCalled, "socket attempted to reconnect");
+                });
+            });
+
+            test("without packager running should not start if there is no packager running", () => {
+                packagerIsRunning.returns(Q.resolve(false));
+
+                return multipleLifetimesWorker.start()
+                    .done(() => {
+                        assert(webSocketConstructor.notCalled, "socket should not be created");
+                    }, reason => {
+                        assert(reason.message === `Cannot attach to packager. Are you sure there is a packager and it is running in the port ${packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
+                    });
+            });
         });
+
     });
 });

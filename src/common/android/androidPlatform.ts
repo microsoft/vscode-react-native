@@ -3,8 +3,7 @@
 
 import * as Q from "q";
 
-import {IAppPlatform} from "../../debugger/platformResolver";
-import {RemoteExtension} from "../../common/remoteExtension";
+import {GeneralMobilePlatform} from "../../debugger/generalMobilePlatform";
 import {Packager} from "../../common/packager";
 import {IRunOptions} from "../../common/launchArgs";
 import {Log} from "../../common/log/log";
@@ -21,7 +20,7 @@ import {TelemetryHelper} from "../../common/telemetryHelper";
 /**
  * Android specific platform implementation for debugging RN applications.
  */
-export class AndroidPlatform implements IAppPlatform {
+export class AndroidPlatform extends GeneralMobilePlatform {
     private static MULTIPLE_DEVICES_ERROR = "error: more than one device/emulator";
 
     // We should add the common Android build/run erros we find to this list
@@ -35,10 +34,6 @@ export class AndroidPlatform implements IAppPlatform {
 
     private static RUN_ANDROID_SUCCESS_PATTERNS: string[] = ["BUILD SUCCESSFUL", "Starting the app", "Starting: Intent"];
 
-    private remoteExtension: RemoteExtension;
-
-    private runOptions: IRunOptions;
-
     private debugTarget: IDevice;
     private devices: IDevice[];
     private packageName: string;
@@ -48,13 +43,13 @@ export class AndroidPlatform implements IAppPlatform {
 
     private needsToLaunchApps: boolean = false;
 
-    constructor(runOptions: IRunOptions, { remoteExtension = RemoteExtension.atProjectRootPath(runOptions.projectRoot),
+    // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
+    constructor(runOptions: IRunOptions, { remoteExtension = null,
         adb = <IAdb>new Adb(),
         reactNative = <IReactNative>new ReactNative(),
         fileSystem = new FileSystem(),
     } = {}) {
-        this.runOptions = runOptions;
-        this.remoteExtension = remoteExtension;
+        super(runOptions, { remoteExtension: remoteExtension });
         this.adb = adb;
         this.reactNative = reactNative;
         this.fileSystem = fileSystem;
@@ -92,6 +87,10 @@ export class AndroidPlatform implements IAppPlatform {
 
     public enableJSDebuggingMode(): Q.Promise<void> {
         return this.adb.reloadAppInDebugMode(this.runOptions.projectRoot, this.packageName, this.debugTarget.id);
+    }
+
+    public prewarmBundleCache(): Q.Promise<void> {
+        return this.remoteExtension.prewarmBundleCache(this.platformName);
     }
 
     private initializeTargetDevicesAndPackageName(): Q.Promise<void> {

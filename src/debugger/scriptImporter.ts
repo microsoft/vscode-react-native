@@ -59,12 +59,18 @@ export class ScriptImporter {
     }
 
     public downloadDebuggerWorker(sourcesStoragePath: string): Q.Promise<void> {
-        let debuggerWorkerURL = `http://${Packager.getHostForPort(this.packagerPort)}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
-        let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
-        Log.logInternalMessage(LogLevel.Info, "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
-        return new Request().request(debuggerWorkerURL, true).then((body: string) => {
-            return new FileSystem().writeFile(debuggerWorkerLocalPath, body);
-        });
+        return Packager.isPackagerRunning(Packager.getHostForPort(this.packagerPort))
+            .then(running => {
+                if (running) {
+                    let debuggerWorkerURL = `http://${Packager.getHostForPort(this.packagerPort)}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
+                    let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
+                    Log.logInternalMessage(LogLevel.Info, "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
+                    return new Request().request(debuggerWorkerURL, true).then((body: string) => {
+                        return new FileSystem().writeFile(debuggerWorkerLocalPath, body);
+                    });
+                }
+                throw new RangeError(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
+            });
     }
 
     /**

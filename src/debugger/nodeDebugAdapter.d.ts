@@ -45,5 +45,8 @@ interface ILaunchRequestArgs {
 }
 
 interface IAttachRequestArgs {
+    internalDebuggerPort?: any;
     args: string[];
+    program: string;
+    platform: string;
 }

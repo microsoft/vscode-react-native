@@ -4,21 +4,14 @@
 import {IRunOptions} from "../common/launchArgs";
 import {IOSPlatform} from "./ios/iOSPlatform";
 import {AndroidPlatform} from "../common/android/androidPlatform";
-
-/**
- * Contains all the mobile platform specific debugging operations.
- */
-export interface IAppPlatform {
-    runApp(): Q.Promise<void>;
-    enableJSDebuggingMode(): Q.Promise<void>;
-}
+import {GeneralMobilePlatform} from "./generalMobilePlatform";
 
 export class PlatformResolver {
 
     /**
      * Resolves the mobile application target platform.
      */
-    public resolveMobilePlatform(mobilePlatformString: string, runOptions: IRunOptions): IAppPlatform {
+    public resolveMobilePlatform(mobilePlatformString: string, runOptions: IRunOptions): GeneralMobilePlatform {
         switch (mobilePlatformString) {
             // We lazyly load the strategies, because some components might be
             // missing on some platforms (like XCode in Windows)
@@ -27,7 +20,7 @@ export class PlatformResolver {
             case "android":
                 return new AndroidPlatform(runOptions);
             default:
-                return null;
+                return new GeneralMobilePlatform(runOptions);
         }
     }
 }
