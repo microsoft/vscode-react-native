@@ -112,3 +112,6 @@ VS Code React Native extension collects usage data and sends it to Microsoft to 
 If you don’t wish to send usage data to Microsoft, please follow the instructions below to disable its collection.
 
 * Edit VSCodeTelemetrySettings.json file at ~/.vscode-react-native and add `optIn:false`.
+
+## Code of conduct
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
