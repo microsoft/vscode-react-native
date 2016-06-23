@@ -50,7 +50,7 @@
             {
                 "type": "reactnative",
                 "label": "React Native",
-                "program": "./out/debugger/nodeDebugWrapper.js",
+                "program": "./out/debugger/reactNativeDebugEntryPoint.js",
                 "runtime": "node",
                 "enableBrekapointsFor": {
                     "languageIds": [
