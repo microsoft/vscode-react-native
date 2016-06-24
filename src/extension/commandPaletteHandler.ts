@@ -110,7 +110,7 @@ export class CommandPaletteHandler {
                     // Execute the operation
                     return operation();
                 } else {
-                    vscode.window.showErrorMessage("Current workspace is not a React Native project.");
+                    // vscode.window.showErrorMessage("Current workspace is not a React Native project.");
                 }
             });
         });
