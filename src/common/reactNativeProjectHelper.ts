@@ -12,26 +12,8 @@ export class ReactNativeProjectHelper {
         this.workspaceRoot = workspaceRoot;
     }
 
-    public getReactNativeVersion(): Q.Promise<string> {
-        let deferred = Q.defer<any>();
-
-        let outputStream = new CommandExecutor(this.workspaceRoot).spawnReactCommand("-v").stdout;
-        let output = "";
-
-        outputStream.on("data", (chunk: Buffer) => {
-          output += chunk.toString();
-        });
-
-        outputStream.on("end", () => {
-            const match = output.match(/react-native: ([\d\.]+)/);
-            deferred.resolve(match && match[1]);
-        });
-
-        outputStream.on("error", (err: Error) => {
-            deferred.reject(err);
-        });
-
-        return deferred.promise;
+    public getReactNativeVersion() {
+        return new CommandExecutor(this.workspaceRoot).getReactNativeVersion();
     }
 
     /**
@@ -40,7 +22,10 @@ export class ReactNativeProjectHelper {
      * {operation} - a function that performs the expected operation
      */
     public isReactNativeProject(): Q.Promise<boolean> {
-        return this.getReactNativeVersion().then(version => !!(version));
+        return this.getReactNativeVersion().
+        then(version => {
+            return !!(version);
+        });
     }
 
     public validateReactNativeVersion(): Q.Promise<void> {
