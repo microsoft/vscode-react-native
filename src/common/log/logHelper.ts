@@ -21,6 +21,7 @@ export class LogHelper {
     public static MESSAGE_TAG: string = "[vscode-react-native]";
     public static INTERNAL_TAG: string = "[Internal]";
     public static ERROR_TAG_FORMATSTRING: string = "[Error : %s] ";
+    public static ERROR_TAG: string = "[Error]";
     public static WARN_TAG: string = "[Warning]";
     private static ERROR_CODE_WIDTH: string = "0000";
     private static LOG_LEVEL_NAME: string = "RN_LOG_LEVEL";
