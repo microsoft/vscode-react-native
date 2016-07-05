@@ -15,6 +15,7 @@ import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {ExtensionTelemetryReporter, ReassignableTelemetryReporter} from "../common/telemetryReporters";
 import {NodeDebugAdapterLogger} from "../common/log/loggers";
 import {Log} from "../common/log/log";
+import {GeneralMobilePlatform} from "./generalMobilePlatform";
 
 export class NodeDebugWrapper {
     private projectRootPath: string;
@@ -73,32 +74,28 @@ export class NodeDebugWrapper {
                     .then(packagerPort => {
                         nodeDebugWrapper.mobilePlatformOptions.packagerPort = packagerPort;
                         const mobilePlatform = resolver.resolveMobilePlatform(args.platform, nodeDebugWrapper.mobilePlatformOptions);
-                        if (!mobilePlatform) {
-                            throw new RangeError("The target platform could not be read. Did you forget to add it to the launch.json configuration arguments?");
-                        } else {
-                            return Q({})
-                                .then(() => {
-                                    generator.step("checkPlatformCompatibility");
-                                    TargetPlatformHelper.checkTargetPlatformSupport(nodeDebugWrapper.mobilePlatformOptions.platform);
-                                    generator.step("startPackager");
-                                    Log.logMessage("Starting React Native Packager.");
-                                    return nodeDebugWrapper.remoteExtension.startPackager();
-                                })
-                                .then(() => {
-                                    // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
-                                    // and the user needs to Reload JS manually. We prewarm it to prevent that issue
-                                    generator.step("prewarmBundleCache");
-                                    Log.logMessage("Prewarming bundle cache. This may take a while ...");
-                                    return nodeDebugWrapper.remoteExtension.prewarmBundleCache(nodeDebugWrapper.mobilePlatformOptions.platform);
-                                })
-                                .then(() => {
-                                    generator.step("mobilePlatform.runApp");
-                                    Log.logMessage("Building and running application.");
-                                    return mobilePlatform.runApp();
-                                })
-                                .then(() =>
-                                    nodeDebugWrapper.attachRequest(this, request, args, mobilePlatform));
-                        }
+                        return Q({})
+                            .then(() => {
+                                generator.step("checkPlatformCompatibility");
+                                TargetPlatformHelper.checkTargetPlatformSupport(nodeDebugWrapper.mobilePlatformOptions.platform);
+                                generator.step("startPackager");
+                                Log.logMessage("Starting React Native Packager.");
+                                return mobilePlatform.startPackager();
+                            })
+                            .then(() => {
+                                // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                                // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                                generator.step("prewarmBundleCache");
+                                Log.logMessage("Prewarming bundle cache. This may take a while ...");
+                                return mobilePlatform.prewarmBundleCache();
+                            })
+                            .then(() => {
+                                generator.step("mobilePlatform.runApp");
+                                Log.logMessage("Building and running application.");
+                                return mobilePlatform.runApp();
+                            })
+                            .then(() =>
+                                nodeDebugWrapper.attachRequest(this, request, args, mobilePlatform));
                     }).catch(error =>
                         nodeDebugWrapper.bailOut(this, error.message));
             });
@@ -112,7 +109,7 @@ export class NodeDebugWrapper {
         const nodeDebugWrapper = this;
         this.nodeDebugSession.prototype.attachRequest = function (request: any, args: IAttachRequestArgs) {
             nodeDebugWrapper.requestSetup(this, args);
-            nodeDebugWrapper.attachRequest(this, request, args, null);
+            nodeDebugWrapper.attachRequest(this, request, args, new GeneralMobilePlatform(nodeDebugWrapper.mobilePlatformOptions));
         };
     }
 

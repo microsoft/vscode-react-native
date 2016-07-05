@@ -82,7 +82,7 @@ export class Packager {
                 } else {
                     Log.logMessage("Packager is already running.");
                     if (!this.packagerProcess) {
-                        Log.logWarning(ErrorHelper.getWarning("Debugging is not supported if the React Native Packager is not started within VS Code. If debugging fails, please kill other active React Native packager processes and retry."));
+                        Log.logWarning(ErrorHelper.getWarning("React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option"));
                     }
                 }
             });
@@ -105,18 +105,23 @@ export class Packager {
     }
 
     public prewarmBundleCache(platform: string) {
-        let bundleURL = `http://${this.getHost()}/index.${platform}.bundle`;
-        Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
-        return new Request().request(bundleURL, true).then(() => {
-            Log.logMessage("The Bundle Cache was prewarmed.");
-        }).catch(() => {
-            // The attempt to prefetch the bundle failed.
-            // This may be because the bundle is not index.* so we shouldn't treat this as fatal.
-        });
+        return this.isRunning()
+            .then(running => {
+                if (running) {
+                    let bundleURL = `http://${this.getHost()}/index.${platform}.bundle`;
+                    Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
+                    return new Request().request(bundleURL, true).then(() => {
+                        Log.logMessage("The Bundle Cache was prewarmed.");
+                    }).catch(() => {
+                        // The attempt to prefetch the bundle failed.
+                        // This may be because the bundle is not index.* so we shouldn't treat this as fatal.
+                    });
+                }
+            });
     }
 
-    private isRunning(): Q.Promise<boolean> {
-        let statusURL = `http://${this.getHost()}/status`;
+    public static isPackagerRunning(packagerURL: string): Q.Promise<boolean> {
+        let statusURL = `http://${packagerURL}/status`;
 
         return new Request().request(statusURL)
             .then((body: string) => {
@@ -125,6 +130,10 @@ export class Packager {
             (error: any) => {
                 return false;
             });
+    }
+
+    private isRunning(): Q.Promise<boolean> {
+        return Packager.isPackagerRunning(this.getHost());
     }
 
     private awaitStart(retryCount = 30, delay = 2000): Q.Promise<boolean> {
