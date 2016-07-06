@@ -113,9 +113,9 @@ Here is the list of common known issues you may experience while using the exten
 
 Issue                                | Description
 ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------
-Debugger doesn't stop at breakpoints | The debugger only works if the packager is started by VS Code. Stop the packager if it is already running outside VSCode. Or you can use **command + R** reload JS bundle.
 'adb: command not found'             | If you receive an error `adb: command not found`, you need to update your path variable to include the location of your *ADB* executable.The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
 Targeting iPhone 6 doesn't work      | There is a known issue [#5850](https://github.com/facebook/react-native/issues/5850) while running an app targeting iPhone 6
+Can't comunicate with socket pipe    | If you have two workspaces open that only differ in casing, the extension will fail to comunicate effectively. (Linux only)
 
 [Known-Issues](https://github.com/Microsoft/vscode-react-native/issues?q=is%3Aissue+label%3Aknown-issues) provides a complete list of active and resolved issues.
 
@@ -125,3 +125,6 @@ VS Code React Native extension collects usage data and sends it to Microsoft to 
 If you don’t wish to send usage data to Microsoft, please follow the instructions below to disable its collection.
 
 * Edit VSCodeTelemetrySettings.json file at ~/.vscode-react-native and add `optIn:false`.
+
+## Code of conduct
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.

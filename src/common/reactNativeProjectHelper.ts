@@ -3,14 +3,17 @@
 
 import * as Q from "q";
 import * as semver from "semver";
-import {Package} from "./node/package";
+import {CommandExecutor} from "./commandExecutor";
 
 export class ReactNativeProjectHelper {
     private workspaceRoot: string;
-    private static REACT_NATIVE_NPM_LIB_NAME = "react-native";
 
     constructor(workspaceRoot: string) {
         this.workspaceRoot = workspaceRoot;
+    }
+
+    public getReactNativeVersion() {
+        return new CommandExecutor(this.workspaceRoot).getReactNativeVersion();
     }
 
     /**
@@ -19,22 +22,19 @@ export class ReactNativeProjectHelper {
      * {operation} - a function that performs the expected operation
      */
     public isReactNativeProject(): Q.Promise<boolean> {
-        let currentPackage = new Package(this.workspaceRoot);
-        return currentPackage.dependencies().then(dependencies => {
-            return !!(dependencies && dependencies["react-native"]);
-        }).catch((err: Error) => {
-            return Q.resolve(false);
+        return this.getReactNativeVersion().
+        then(version => {
+            return !!(version);
         });
     }
 
     public validateReactNativeVersion(): Q.Promise<void> {
-        return new Package(this.workspaceRoot).dependencyPackage(ReactNativeProjectHelper.REACT_NATIVE_NPM_LIB_NAME).version()
-            .then(version => {
-                if (semver.gte(version, "0.19.0")) {
-                    return Q.resolve<void>(void 0);
-                } else {
-                    return Q.reject<void>(new RangeError(`Project version = ${version}`));
-                }
-            });
+        return this.getReactNativeVersion().then(version => {
+            if (semver.gte(version, "0.19.0")) {
+                return Q.resolve<void>(void 0);
+            } else {
+                return Q.reject<void>(new RangeError(`Project version = ${version}`));
+            }
+        });
     }
 }

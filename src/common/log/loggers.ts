@@ -15,7 +15,7 @@ export interface ILogger {
 }
 
 export class ConsoleLogger implements ILogger {
-    public logMessage(message: string, formatMessage: boolean = true ) {
+    public logMessage(message: string, formatMessage: boolean = true) {
         console.log(formatMessage ?
             this.getFormattedMessage(message) :
             message);
@@ -57,7 +57,7 @@ export class StreamLogger implements ILogger {
     constructor(stream: NodeJS.WritableStream) {
         this.stream = stream;
     }
-    public logMessage(message: string, formatMessage: boolean = true ) {
+    public logMessage(message: string, formatMessage: boolean = true) {
         this.stream.write(formatMessage ?
             this.getFormattedMessage(message) :
             message);
@@ -88,7 +88,51 @@ export class StreamLogger implements ILogger {
     }
 
     public setFocusOnLogChannel() {
-         // Do nothing
+        // Do nothing
+        return;
+    }
+}
+
+export class NodeDebugAdapterLogger implements ILogger {
+    private debugSession: NodeDebugSession;
+    private debugAdapterPackage: typeof VSCodeDebugAdapter;
+
+    public constructor(adapterPackage: typeof VSCodeDebugAdapter, debugSession: NodeDebugSession) {
+        this.debugAdapterPackage = adapterPackage;
+        this.debugSession = debugSession;
+    }
+
+    public logMessage(message: string, formatMessage: boolean = true, destination: string = "stdout") {
+        const outputEventMessage = formatMessage ? this.getFormattedMessage(message) : message;
+        this.debugSession.sendEvent(new this.debugAdapterPackage.OutputEvent(outputEventMessage, destination));
+    }
+
+    public logError(errorMessage: string, error?: any, logStack: boolean = true) {
+        this.logMessage(`${LogHelper.ERROR_TAG} ${errorMessage}\n`, false, "stderr");
+
+        if (logStack && error && (<Error>error).stack) {
+            this.logMessage(`Stack: ${(<Error>error).stack}`, false);
+        }
+    }
+
+    public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
+        this.logMessage(data.toString(), false);
+    }
+
+    public logInternalMessage(logLevel: LogLevel, message: string) {
+        this.logMessage(this.getFormattedInternalMessage(logLevel, message), false);
+    }
+
+    public getFormattedMessage(message: string) {
+        return `${LogHelper.MESSAGE_TAG} ${message}\n`;
+    }
+
+    public getFormattedInternalMessage(logLevel: LogLevel, message: string) {
+        return (`${LogHelper.INTERNAL_TAG} [${logLevel}] ${message}\n`);
+    }
+
+    public setFocusOnLogChannel() {
+        // Do nothing
         return;
     }
 }

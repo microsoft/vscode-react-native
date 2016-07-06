@@ -22,6 +22,7 @@ declare module "ws" {
         url: string;
         supports: any;
         upgradeReq: http.ServerRequest;
+        _closeMessage: string;
 
         CONNECTING: number;
         OPEN: number;

@@ -200,7 +200,13 @@ export class MultipleLifetimesAppWorker {
     }
 
     public start(warnOnFailure: boolean = false): Q.Promise<any> {
-        return this.createSocketToApp(warnOnFailure);
+        return Packager.isPackagerRunning(Packager.getHostForPort(this.packagerPort))
+            .then(running => {
+                if (running) {
+                    return this.createSocketToApp(warnOnFailure);
+                }
+                throw new Error(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
+            });
     }
 
     private startNewWorkerLifetime(): Q.Promise<void> {
@@ -217,8 +223,23 @@ export class MultipleLifetimesAppWorker {
         this.socketToApp.on("open", () => {
             this.onSocketOpened();
         });
-        this.socketToApp.on("close", () =>
-            this.onSocketClose());
+        this.socketToApp.on("close",
+            () => {
+                this.executionLimiter.execute("onSocketClose.msg", /*limitInSeconds*/ 10, () => {
+                    /*
+                     * It is not the best idea to compare with the message, but this is the only thing React Native gives that is unique when
+                     * it closes the socket because it already has a connection to a debugger.
+                     * https://github.com/facebook/react-native/blob/588f01e9982775f0699c7bfd56623d4ed3949810/local-cli/server/util/webSocketProxy.js#L38
+                     */
+                    if (this.socketToApp._closeMessage === "Another debugger is already connected") {
+                        deferred.reject(new RangeError("Another debugger is already connected to packager. Please close it before trying to debug with VSCode."));
+                    }
+                    Log.logMessage("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon...");
+                });
+                setTimeout(() => {
+                  this.start(true /* retryAttempt */);
+                }, 100);
+            });
         this.socketToApp.on("message",
             (message: any) => this.onMessage(message));
         this.socketToApp.on("error",
@@ -244,12 +265,6 @@ export class MultipleLifetimesAppWorker {
     private onSocketOpened() {
         this.executionLimiter.execute("onSocketOpened.msg", /*limitInSeconds*/ 10, () =>
             Log.logMessage("Established a connection with the Proxy (Packager) to the React Native application"));
-    }
-
-    private onSocketClose() {
-        this.executionLimiter.execute("onSocketClose.msg", /*limitInSeconds*/ 10, () =>
-            Log.logMessage("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon..."));
-        setTimeout(() => this.start(true /* retryAttempt */), 100);
     }
 
     private onMessage(message: string) {

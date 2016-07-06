@@ -50,7 +50,7 @@
             {
                 "type": "reactnative",
                 "label": "React Native",
-                "program": "./out/debugger/nodeDebugWrapper.js",
+                "program": "./out/debugger/reactNativeDebugEntryPoint.js",
                 "runtime": "node",
                 "enableBrekapointsFor": {
                     "languageIds": [
@@ -81,13 +81,48 @@
                         "internalDebuggerPort": 9090,
                         "sourceMaps": true,
                         "outDir": "${workspaceRoot}/.vscode/.react"
+                    },
+                    {
+                        "name": "Attach to packager",
+                        "program": "${workspaceRoot}/.vscode/launchReactNative.js",
+                        "type": "reactnative",
+                        "request": "attach",
+                        "internalDebuggerPort": 9090,
+                        "sourceMaps": true,
+                        "outDir": "${workspaceRoot}/.vscode/.react"
                     }
                 ],
                 "configurationAttributes": {
+                    "attach": {
+                        "required": [
+                            "program"
+                        ],
+                        "properties": {
+                            "program": {
+                                "type": "string",
+                                "description": "The path to launchReactNative.js in the vscode folder"
+                            },
+                            "internalDebuggerPort": {
+                                "type": "number",
+                                "description": "A port to be used to enable automatic reloading of breakpoints when sourcemaps change.",
+                                "default": 9090
+                            },
+                            "sourceMaps": {
+                                "type": "boolean",
+                                "description": "Whether to use JavaScript source maps to map the generated bundled code back to its original sources",
+                                "default": false
+                            },
+                            "outDir": {
+                                "type": "string",
+                                "description": "The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
+                                "default": null
+                            }
+                        }
+                    },
                     "launch": {
                         "required": [
-                            "platform",
-                            "program"
+                            "program",
+                            "platform"
                         ],
                         "properties": {
                             "platform": {

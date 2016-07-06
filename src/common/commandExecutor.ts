@@ -25,6 +25,7 @@ export enum CommandStatus {
 
 export class CommandExecutor {
     private static ReactNativeCommand = "react-native";
+    private static ReactNativeVersionCommand = "-v";
     private currentWorkingDirectory: string;
     private childProcess = new Node.ChildProcess();
 
@@ -59,6 +60,31 @@ export class CommandExecutor {
      */
     public spawnReactPackager(args: string[], options: Options = {}): ISpawnResult {
         return this.spawnReactCommand("start", args, options);
+    }
+
+    /**
+     * Uses the `react-native -v` command to get the version used on the project.
+     * Returns null if the workspace is not a react native project
+     */
+    public getReactNativeVersion(): Q.Promise<string> {
+        let deferred = Q.defer<string>();
+        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
+        let output = "";
+
+        const result = this.childProcess.spawn(reactCommand,
+            [CommandExecutor.ReactNativeVersionCommand],
+            { cwd: this.currentWorkingDirectory });
+
+        result.stdout.on("data", (data: Buffer) => {
+            output += data.toString();
+        });
+
+        result.stdout.on("end", () => {
+            const match = output.match(/react-native: ([\d\.]+)/);
+            deferred.resolve(match && match[1]);
+        });
+
+        return deferred.promise;
     }
 
     /**
