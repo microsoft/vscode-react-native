@@ -24,7 +24,7 @@ export class TsConfigHelper {
         return fileSystem.exists(tsConfigPath)
             .then(function(exists: boolean): Q.Promise<void> {
                 if (!exists) {
-                    return fileSystem.writeFile(tsConfigPath, "{}");
+                    return fileSystem.writeFile(tsConfigPath, "{ compilerOptions: { allowJs: true } }");
                 }
             })
             .then(function(): Q.Promise<string> {
