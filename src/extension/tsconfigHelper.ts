@@ -28,7 +28,6 @@ export class TsConfigHelper {
                             allowJs: true,
                         },
                         exclude: ["node_modules"],
-
                     };
                     return fileSystem.writeFile(tsConfigPath, JSON.stringify(defaultTsConfig));
                 }
