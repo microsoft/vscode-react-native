@@ -6,12 +6,17 @@ import path = require("path");
 
 interface ISourceMap {
     file: string;
-    sources: string[];
+    sources?: string[];
     version: number;
-    names: string[];
-    mappings: string;
+    names?: string[];
+    mappings?: string;
     sourceRoot?: string;
     sourcesContent?: string[];
+    sections?: ISourceMapSection[];
+}
+interface ISourceMapSection {
+    map: ISourceMap;
+    offset: { column: number, line: number };
 }
 
 export class SourceMapUtil {
@@ -51,9 +56,22 @@ export class SourceMapUtil {
     public updateSourceMapFile(sourceMapBody: string, scriptPath: string, sourcesRootPath: string): string {
         try {
             let sourceMap = <ISourceMap>JSON.parse(sourceMapBody);
-            sourceMap.sources = sourceMap.sources.map(sourcePath => {
-                return this.updateSourceMapPath(sourcePath, sourcesRootPath);
-            });
+
+            if (sourceMap.sections) {
+
+                // TODO: there is a need to handle value.map == null, make a fake map
+                sourceMap.sections = sourceMap.sections.filter((value, index, array) => {
+                    return value.map != null;
+                });
+
+                sourceMap = require("flatten-source-map")(sourceMap);
+            }
+
+            if (sourceMap.sources) {
+                sourceMap.sources = sourceMap.sources.map(sourcePath => {
+                    return this.updateSourceMapPath(sourcePath, sourcesRootPath);
+                });
+            }
 
             delete sourceMap.sourcesContent;
             sourceMap.sourceRoot = "";
