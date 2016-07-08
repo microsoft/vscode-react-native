@@ -150,7 +150,11 @@
                             "logCatArguments": {
                                 "type": "array",
                                 "description": "Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can either be an array such as: [\":S\", \"ReactNative:V\", \"ReactNativeJS:V\"] or a string such as \":S ReactNative:V ReactNativeJS:V\"",
-                                "default": ["*:S", "ReactNative:V", "ReactNativeJS:V"]
+                                "default": [
+                                    "*:S",
+                                    "ReactNative:V",
+                                    "ReactNativeJS:V"
+                                ]
                             },
                             "outDir": {
                                 "type": "string",
@@ -176,6 +180,7 @@
     },
     "dependencies": {
         "extract-opts": "2.2.0",
+        "flatten-source-map": "0.0.2",
         "options": "0.0.6",
         "q": "1.4.1",
         "semver": "5.1.0",
