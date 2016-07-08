@@ -39,8 +39,7 @@ export class IntellisenseHelper {
         Telemetry.send(tsSalsaEnvSetup);
 
         const configureWorkspace = Q({})
-            .then(() => TsConfigHelper.allowJs(true))
-            .then(() => TsConfigHelper.addExcludePaths(["node_modules"]))
+            .then(() => TsConfigHelper.createTsConfigIfNotPresent())
             .then(() => IntellisenseHelper.installReactNativeTypings());
 
         // The actions taken in the promise chain below may result in requring a restart.
