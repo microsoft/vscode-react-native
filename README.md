@@ -101,11 +101,34 @@ You can verify that you have Salsa enabled and you have an installed TypeScript 
 Once you have enabled IntelliSense by following the above steps, you can start typing in the code editor to see the objects, functions, and parameters of your React Native libraries and your own code.
 
 Here is what happens behind the scenes to enable JSX support:
-1. The environment variable VSCODE_TSJS=1 is set to enable [Salsa](https://github.com/Microsoft/TypeScript/issues/4789)
-2. Salsa requires TypeScript 1.8, the extension will install `typescript@1.8.2` in `~/.vscode`.
-3. A settings.json file is created in the .vscode directory with typescript.tsdk pointing to the typescript install location.
-4. A tsconfig.json file is created in the project root with `allowJs: true` to allow TypeScript to process JavaScript files.
-5. Typings for React Native are copied into the .vscode directory.
+1. If there is no tsconfig.json file in the project root, one is created with `allowJs: true` to allow TypeScript to process JavaScript files.
+2. Typings for React Native are copied into the .vscode directory.
+
+## Customization
+
+There are a few customizations that are supported by this extension. They can be added to your `.vscode/settings.json` if you need them.
+
+For using a custom port for the `react-native` packager:
+
+```
+{
+  "react-native": {
+    "packager" : {
+      "port": portNumber
+    }
+  }
+}
+```
+
+To use a different `Typescript TSDK` version than the one that comes with vscode:
+
+```
+{
+  "typescript": {
+    "tsdk": "path/to/tsdk"
+  }
+}
+```
 
 ## Known Issues
 
@@ -113,7 +136,7 @@ Here is the list of common known issues you may experience while using the exten
 
 Issue                                | Description
 ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------
-Debugger doesn't stop at breakpoints | The debugger only works if the packager is started by VS Code. Stop the packager if it is already running outside VSCode. Or you can use **command + R** reload JS bundle.
+Debugger doesn't stop at breakpoints | Breakpoints require sourcemaps to be correctly configured. If you are using typescript, then make sure to follow the `Getting started` section for how to ensure sourcemaps are correctly set up.
 'adb: command not found'             | If you receive an error `adb: command not found`, you need to update your path variable to include the location of your *ADB* executable.The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
 Targeting iPhone 6 doesn't work      | There is a known issue [#5850](https://github.com/facebook/react-native/issues/5850) while running an app targeting iPhone 6
 Can't comunicate with socket pipe    | If you have two workspaces open that only differ in casing, the extension will fail to comunicate effectively. (Linux only)
