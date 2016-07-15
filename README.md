@@ -102,7 +102,7 @@ Once you have enabled IntelliSense by following the above steps, you can start t
 
 Here is what happens behind the scenes to enable JSX support:
 1. If there is no tsconfig.json file in the project root, one is created with `allowJs: true` to allow TypeScript to process JavaScript files.
-2. Typings for React Native are copied into the .vscode directory.
+2. Typings for React and React Native are copied into the .vscode directory (only if they don't already exist, we check for a `react` or `react-native` directory under `.vscode/typings`)
 
 ## Customization
 

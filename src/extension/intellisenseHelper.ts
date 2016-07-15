@@ -64,11 +64,29 @@ export class IntellisenseHelper {
      * Helper method that install typings for React Native.
      */
     public static installReactNativeTypings(): Q.Promise<void> {
-        let reactTypingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
-        let reactTypingsDest = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
+        const typingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
+        const reactTypings = path.resolve(typingsSource, "react");
+        const reactNativeTypings = path.resolve(typingsSource, "react-native");
+
+        const typingsDestination = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
+        const reactTypingsDestination = path.resolve(typingsDestination, "react");
+        const reactNativeTypingsDestination = path.resolve(typingsDestination, "react-native");
+
         let fileSystem = new FileSystem();
 
-        return fileSystem.copyRecursive(reactTypingsSource, reactTypingsDest);
+        const copyReactTypingsIfNeeded = fileSystem.directoryExists(reactTypingsDestination)
+            .then((exists) => {
+                if (!exists) {
+                    return fileSystem.copyRecursive(reactTypings, reactTypingsDestination);
+                }
+            });
+        const copyReactNativeTypingsIfNeeded = fileSystem.directoryExists(reactNativeTypingsDestination)
+            .then((exists) => {
+                if (!exists) {
+                    return fileSystem.copyRecursive(reactNativeTypings, reactNativeTypingsDestination);
+                }
+            });
+        return Q.all([copyReactTypingsIfNeeded, copyReactNativeTypingsIfNeeded]).then(() => { });
     }
 
     /**
