@@ -3,7 +3,7 @@
 
 import * as Q from "q";
 
-import {GeneralMobilePlatform} from "../../debugger/generalMobilePlatform";
+import {GeneralMobilePlatform} from "../generalMobilePlatform";
 import {Packager} from "../../common/packager";
 import {IRunOptions} from "../../common/launchArgs";
 import {Log} from "../../common/log/log";
