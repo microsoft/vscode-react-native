@@ -32,13 +32,14 @@ export class GeneralMobilePlatform {
     public startPackager(): Q.Promise<void> {
         return this.remoteExtension.getPackagerPort().then(port => {
             return Packager.isPackagerRunning(Packager.getHostForPort(port))
-            .then(isRunning => {
-                if (isRunning) {
-                    Log.logMessage("Attaching to running packager at port: " + port);
-                    return Q.resolve<void>(void 0);
-                }
-                return this.remoteExtension.startPackager();
-            });
+                .then(isRunning => {
+                    if (isRunning) {
+                        Log.logMessage("Attaching to running packager at port: " + port);
+                        return Q.resolve<void>(void 0);
+                    }
+                    Log.logMessage("Starting React Native Packager.");
+                    return this.remoteExtension.startPackager();
+                });
         });
     }
 
