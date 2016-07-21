@@ -17,3 +17,13 @@ SampleApplication/.vscode/launchReactNative.js
 SampleApplication/.vscode/settings.json
 SampleApplication/tsconfig.json
 SampleApplication/.vscode/typings/
+SampleExponentApplication/.vscode/.react/
+SampleExponentApplication/android/
+SampleExponentApplication/ios/
+SampleExponentApplication/.flowconfig
+SampleExponentApplication/.gitignore
+SampleExponentApplication/.watchmanconfig
+SampleExponentApplication/.vscode/launchReactNative.js
+SampleExponentApplication/.vscode/settings.json
+SampleExponentApplication/tsconfig.json
+SampleExponentApplication/.vscode/typings/
