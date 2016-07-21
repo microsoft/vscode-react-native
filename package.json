@@ -42,6 +42,10 @@
                 "title": "React Native: Start Packager"
             },
             {
+                "command": "reactNative.startExponentPackager",
+                "title": "React Native: Start Exponent Packager"
+            },
+            {
                 "command": "reactNative.stopPackager",
                 "title": "React Native: Stop Packager"
             }
@@ -87,6 +91,16 @@
                         "program": "${workspaceRoot}/.vscode/launchReactNative.js",
                         "type": "reactnative",
                         "request": "attach",
+                        "internalDebuggerPort": 9090,
+                        "sourceMaps": true,
+                        "outDir": "${workspaceRoot}/.vscode/.react"
+                    },
+                    {
+                        "name": "Debug in Exponent",
+                        "program": "${workspaceRoot}/.vscode/launchReactNative.js",
+                        "type": "reactnative",
+                        "request": "launch",
+                        "platform": "exponent",
                         "internalDebuggerPort": 9090,
                         "sourceMaps": true,
                         "outDir": "${workspaceRoot}/.vscode/.react"
@@ -187,7 +201,8 @@
         "typechecker": "2.0.8",
         "ultron": "1.0.2",
         "vscode-extension-telemetry": "0.0.5",
-        "ws": "1.0.1"
+        "ws": "1.0.1",
+        "xdl": "0.9.0"
     },
     "devDependencies": {
         "del": "^2.2.0",

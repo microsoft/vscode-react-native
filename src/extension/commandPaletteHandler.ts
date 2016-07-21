@@ -6,31 +6,46 @@ import * as Q from "q";
 import {CommandExecutor} from "../common/commandExecutor";
 import {SettingsHelper} from "./settingsHelper";
 import {Log} from "../common/log/log";
-import {Packager} from "../common/packager";
+import {Packager, PackagerRunAs} from "../common/packager";
 import {AndroidPlatform} from "../common/android/androidPlatform";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {IOSDebugModeManager} from "../common/ios/iOSDebugModeManager";
+import {ExponentHelper} from "../common/exponent/exponentHelper";
 
 export class CommandPaletteHandler {
     private reactNativePackager: Packager;
     private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private workspaceRoot: string;
+    private exponentHelper: ExponentHelper;
 
-    constructor(workspaceRoot: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
+    constructor(workspaceRoot: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator, exponentHelper: ExponentHelper) {
         this.workspaceRoot = workspaceRoot;
         this.reactNativePackager = reactNativePackager;
         this.reactNativePackageStatusIndicator = packagerStatusIndicator;
+        this.exponentHelper = exponentHelper;
     }
 
     /**
      * Starts the React Native packager
      */
     public startPackager(): Q.Promise<void> {
-        return this.executeCommandInContext("startPackager", () =>
-            this.runStartPackagerCommandAndUpdateStatus());
+        return this.exponentHelper.configureReactNativeEnvironment()
+            .then(() =>
+                this.executeCommandInContext("startPackager", () =>
+                    this.runStartPackagerCommandAndUpdateStatus()));
+    }
+
+    /**
+     * Starts the Exponent packager
+     */
+    public startExponentPackager(): Q.Promise<void> {
+        return this.exponentHelper.configureExponentEnvironment()
+            .then(() =>
+                this.executeCommandInContext("startExponentPackager", () =>
+                    this.runStartPackagerCommandAndUpdateStatus(PackagerRunAs.EXPONENT)));
     }
 
     /**
@@ -66,8 +81,19 @@ export class CommandPaletteHandler {
         });
     }
 
-    private runStartPackagerCommandAndUpdateStatus(): Q.Promise<void> {
-        return this.reactNativePackager.start(SettingsHelper.getPackagerPort())
+    /**
+     * Helper method to run packager and update appropriate configurations
+     */
+    private runStartPackagerCommandAndUpdateStatus(startAs: PackagerRunAs = PackagerRunAs.REACT_NATIVE): Q.Promise<any> {
+        if (startAs === PackagerRunAs.EXPONENT) {
+            return this.reactNativePackager.startAsExponent(SettingsHelper.getPackagerPort())
+                .then(exponentUrl => {
+                    this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
+                    Log.logMessage("Application is running on Exponent.");
+                    Log.logMessage(`Open your exponent app at ${exponentUrl}`);
+                });
+        }
+        return this.reactNativePackager.startAsReactNative(SettingsHelper.getPackagerPort())
             .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 

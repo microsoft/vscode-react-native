@@ -17,6 +17,7 @@ export enum ExtensionMessage {
     GET_PACKAGER_PORT,
     SEND_TELEMETRY,
     OPEN_FILE_AT_LOCATION,
+    START_EXPONENT_PACKAGER,
 }
 
 export interface MessageWithArguments {
