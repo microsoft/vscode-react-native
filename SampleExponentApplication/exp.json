@@ -1,0 +1,43 @@
+{
+  // This is the name of your app in all senses of the word: it appears below
+  // the icon on the home screen, in push notifications, etc.
+  name: "My New Project",
+
+  // The description is currently not used but may at some point be made
+  // visible inside of the Exponent client to help users discover your app.
+  description: "A starter template",
+
+  // The url-name of the app: https://exp.host/@your-username/slug
+  slug: "my-new-project",
+
+  // The target Exponent SDK version. This must line up with the react-native
+  // version in package.json
+  sdkVersion: "6.0.0",
+
+  // Your app version -- for your own use. This is available to your app at
+  // runtime, so you can use it for reporting and such.
+  version: "1.0.0",
+
+  // Allowed orientations: default is locked to portrait
+  orientation: "portrait",
+
+  // Android only: the color of the title bar in the Android multitasking view
+  primaryColor: "#cccccc",
+
+  // The icon image to use on your home screen
+  iconUrl: "https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png",
+
+  // Push notification configuration: currently Android only
+  notification: {
+    // The image to use for the notification icon
+    iconUrl: "https://s3.amazonaws.com/exp-us-standard/placeholder-push-icon.png",
+
+    // The background color for the notification icon
+    color: "#000000"
+  },
+
+  loading: {
+    // The image to display in the center of the splash screen while loading the app
+    iconUrl: "https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png",
+  }
+}
