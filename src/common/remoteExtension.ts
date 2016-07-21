@@ -17,6 +17,10 @@ export class RemoteExtension {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.START_PACKAGER);
     }
 
+    public startExponentPackager(): Q.Promise<string> {
+        return this.interProcessMessageSender.sendMessage(ExtensionMessage.START_EXPONENT_PACKAGER);
+    }
+
     public prewarmBundleCache(platform: string): Q.Promise<void> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.PREWARM_BUNDLE_CACHE, [platform]);
     }

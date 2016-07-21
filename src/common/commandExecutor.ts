@@ -96,8 +96,6 @@ export class CommandExecutor {
      * Kills the React Native packager in a child process.
      */
     public killReactPackager(packagerProcess: ChildProcess): Q.Promise<void> {
-        Log.logMessage("Stopping Packager");
-
         if (packagerProcess) {
             return Q({}).then(() => {
                 if (HostPlatform.getPlatformId() === HostPlatformId.WINDOWS) {

@@ -14,6 +14,14 @@ import {Request} from "./node/request";
 
 import * as Q from "q";
 import * as path from "path";
+import * as XDL from "xdl";
+import * as url from "url";
+
+export enum PackagerRunAs {
+    REACT_NATIVE,
+    EXPONENT,
+    NOT_RUNNING
+}
 
 export class Packager {
     public static DEFAULT_PORT = 8081;
@@ -21,6 +29,7 @@ export class Packager {
     private projectPath: string;
     private port: number;
     private packagerProcess: ChildProcess;
+    private packagerRunningAs: PackagerRunAs;
 
     private static JS_INJECTOR_FILENAME = "opn-main.js";
     private static JS_INJECTOR_FILEPATH = path.resolve(path.dirname(path.dirname(__dirname)), "js-patched", Packager.JS_INJECTOR_FILENAME);
@@ -31,6 +40,7 @@ export class Packager {
 
     constructor(projectPath: string) {
         this.projectPath = projectPath;
+        this.packagerRunningAs = PackagerRunAs.NOT_RUNNING;
     }
 
     public static getHostForPort(port: number): string {
@@ -41,7 +51,110 @@ export class Packager {
         return Packager.getHostForPort(this.port);
     }
 
-    public start(port: number, resetCache: boolean): Q.Promise<void> {
+    public startAsReactNative(port: number): Q.Promise<void> {
+        return this.start(port, PackagerRunAs.REACT_NATIVE);
+    }
+
+    public startAsExponent(port: number): Q.Promise<string> {
+        return this.start(port, PackagerRunAs.EXPONENT)
+            .then(() =>
+                XDL.Project.setOptionsAsync(this.projectPath, { packagerPort: port })
+            ).then(() =>
+                XDL.Project.startExponentServerAsync(this.projectPath)
+            ).then(() =>
+                XDL.Project.startTunnelsAsync(this.projectPath)
+            ).then(() =>
+                XDL.Project.getUrlAsync(this.projectPath, { dev: true, minify: false })
+            ).then(exponentUrl => {
+                return "exp://" + url.parse(exponentUrl).host;
+            }).catch(reason => {
+                return Q.reject<string>(reason);
+            });
+    }
+
+    public stop(): Q.Promise<void> {
+        return this.isRunning()
+            .then(running => {
+                if (running) {
+                    if (!this.packagerProcess) {
+                        Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
+                        return Q.resolve<void>(void 0);
+                    }
+                    return this.killPackagerProcess();
+                } else {
+                    Log.logWarning(ErrorHelper.getWarning("Packager is not running"));
+                    return Q.resolve<void>(void 0);
+                }
+            }).then(() => {
+                this.packagerRunningAs = PackagerRunAs.NOT_RUNNING;
+            });
+    }
+
+    public restart(port: number): Q.Promise<void> {
+        if (this.port && this.port !== port) {
+            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
+        }
+
+        const currentRunningState = this.packagerRunningAs;
+
+        return this.isRunning()
+            .then(running => {
+                if (running) {
+                    if (!this.packagerProcess) {
+                        Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager. Then try the restart packager again."));
+                        return Q.resolve<boolean>(false);
+                    }
+
+                    return this.killPackagerProcess().then(() => Q.resolve<boolean>(true));
+                } else {
+                    Log.logWarning(ErrorHelper.getWarning("Packager is not running"));
+                    return Q.resolve<boolean>(true);
+                }
+            })
+            .then(stoppedOK => {
+                if (stoppedOK) {
+                    return this.start(port, currentRunningState,  true);
+                } else {
+                    return Q.resolve<void>(void 0);
+                }
+            });
+    }
+
+    public prewarmBundleCache(platform: string) {
+        if (platform === "exponent") {
+            return Q.resolve<void>(void 0);
+        }
+        return this.isRunning()
+            .then(running => {
+                if (running) {
+                    return this.prewarmBundleCacheWithBundleFilename(`index.${platform}`, platform);
+                }
+            });
+    }
+
+    public static isPackagerRunning(packagerURL: string): Q.Promise<boolean> {
+        let statusURL = `http://${packagerURL}/status`;
+        return new Request().request(statusURL)
+            .then((body: string) => {
+                return body === "packager-status:running";
+            },
+            (error: any) => {
+                return false;
+            });
+    }
+
+    private prewarmBundleCacheWithBundleFilename(bundleFilename: string, platform: string) {
+        const bundleURL = `http://${this.getHost()}/${bundleFilename}.bundle?platform=${platform}`;
+        Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
+        return new Request().request(bundleURL, true).then(() => {
+            Log.logMessage("The Bundle Cache was prewarmed.");
+        }).catch(() => {
+            // The attempt to prefetch the bundle failed.
+            // This may be because the bundle has a different name that the one we guessed so we shouldn't treat this as fatal.
+        });
+    }
+
+    private start(port: number, runAs: PackagerRunAs, resetCache: boolean = false): Q.Promise<void> {
         if (this.port && this.port !== port) {
             return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
         }
@@ -57,6 +170,9 @@ export class Packager {
                             let args = ["--port", port.toString()];
                             if (resetCache) {
                                 args = args.concat("--resetCache");
+                            }
+                            if (runAs === PackagerRunAs.EXPONENT) {
+                                args = args.concat(["--root", ".vscode"]);
                             }
                             let reactEnv = Object.assign({}, process.env, {
                                 REACT_DEBUGGER: "echo A debugger is not needed: ",
@@ -82,84 +198,13 @@ export class Packager {
             .then(() => {
                 if (executedStartPackagerCmd) {
                     Log.logMessage("Packager started.");
+                    this.packagerRunningAs = runAs;
                 } else {
                     Log.logMessage("Packager is already running.");
                     if (!this.packagerProcess) {
                         Log.logWarning(ErrorHelper.getWarning("React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option"));
                     }
                 }
-            });
-    }
-
-    public stop(): Q.Promise<void> {
-        return this.isRunning()
-            .then(running => {
-            if (running) {
-                if (!this.packagerProcess) {
-                    Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
-                    return Q.resolve<void>(void 0);
-                }
-                return this.killPackagerProcess();
-            } else {
-                Log.logWarning(ErrorHelper.getWarning("Packager is not running"));
-                return Q.resolve<void>(void 0);
-            }
-        });
-    }
-
-    public restart(port: number): Q.Promise<void> {
-        if (this.port && this.port !== port) {
-            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
-        }
-
-        return this.isRunning()
-            .then(running => {
-                if (running) {
-                    if (!this.packagerProcess) {
-                        Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager. Then try the restart packager again."));
-                        return Q.resolve<boolean>(false);
-                    }
-
-                    return this.killPackagerProcess().then(() => Q.resolve<boolean>(true));
-                } else {
-                    Log.logWarning(ErrorHelper.getWarning("Packager is not running"));
-                    return Q.resolve<boolean>(true);
-                }
-            })
-            .then(stoppedOK => {
-                if (stoppedOK) {
-                    return this.start(port, true);
-                } else {
-                    return Q.resolve<void>(void 0);
-                }
-            });
-    }
-
-    public prewarmBundleCache(platform: string) {
-        return this.isRunning()
-            .then(running => {
-                if (running) {
-                    let bundleURL = `http://${this.getHost()}/index.${platform}.bundle`;
-                    Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
-                    return new Request().request(bundleURL, true).then(() => {
-                        Log.logMessage("The Bundle Cache was prewarmed.");
-                    }).catch(() => {
-                        // The attempt to prefetch the bundle failed.
-                        // This may be because the bundle is not index.* so we shouldn't treat this as fatal.
-                    });
-                }
-            });
-    }
-
-    public static isPackagerRunning(packagerURL: string): Q.Promise<boolean> {
-        let statusURL = `http://${packagerURL}/status`;
-
-        return new Request().request(statusURL)
-            .then((body: string) => {
-                return body === "packager-status:running";
-            },
-            (error: any) => {
-                return false;
             });
     }
 
@@ -219,9 +264,17 @@ export class Packager {
     }
 
     private killPackagerProcess(): Q.Promise<void> {
+        Log.logMessage("Stopping Packager");
         return new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess).then(() => {
             this.packagerProcess = null;
             this.port = null;
+            if (this.packagerRunningAs === PackagerRunAs.EXPONENT) {
+                Log.logMessage("Stopping Exponent");
+                return XDL.Project.stopAsync(this.projectPath)
+                    .then(() =>
+                        Log.logMessage("Exponent Stopped")
+                    );
+            }
             return Q.resolve<void>(void 0);
         });
     }
