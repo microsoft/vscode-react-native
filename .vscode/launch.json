@@ -58,6 +58,20 @@
             "outDir": "${workspaceRoot}/SampleApplication/.vscode/.react/"
         },
         {
+            "name": "Sample - Exponent App",
+            "program": "${workspaceRoot}/SampleExponentApplication/.vscode/launchReactNative.js",
+            "type": "node",
+            "request": "launch",
+            "args": [
+                "exponent"
+            ],
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/SampleExponentApplication/.vscode/.react/"
+        },
+        {
             "name": "Sample - Android Extension",
             "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
             "type": "node",
@@ -78,6 +92,20 @@
             "request": "launch",
             "args": [
                 "ios"
+            ],
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/out/"
+        },
+        {
+            "name": "Sample - Exponent Extension",
+            "program": "${workspaceRoot}/SampleExponentApplication/.vscode/launchReactNative.js",
+            "type": "node",
+            "request": "launch",
+            "args": [
+                "exponent"
             ],
             "runtimeArgs": [
                 "--nolazy"

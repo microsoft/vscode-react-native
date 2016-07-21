@@ -7,6 +7,7 @@ src/**
 out/test/**
 **/*.js.map
 SampleApplication/**
+SampleExponentApplication/**
 tools/**
 .vscodeignore
 .travis.yml
@@ -18,4 +19,3 @@ release/**
 .github/**
 .npmignore
 npm-shrinkwrap.json
-prepareBuild.bat

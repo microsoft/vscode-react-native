@@ -130,6 +130,28 @@ To use a different `Typescript TSDK` version than the one that comes with vscode
 }
 ```
 
+## Using Exponentjs
+
+We support using exponentjs to run, debug and publish your applications.
+
+When you use exponent for the first time in vscode (either to run, debug or publish) you will notice that we created a couple of files for you.
+
+Under your `.vscode/` directory there will be a `vscodeExponent.json` file. This file has the settings used for us to setup exponent correctly.
+
+```
+{
+    "entryPointFilename": ""          // File under the project root that is used as an entrypoint. We look for index.ios.js or index.android.js
+    "entryPointComponent": ""         // Name of the main component used in your entrypoint. By default it's the same name of your app
+    "createOrOverwriteExpJson": true  // If true we will create and overwrite exp.json everytime. If you need a custom exp.json set this to false.
+}
+```
+
+Don't worry, we will be prepopulating this file with some defaults, but in case you need to customize it you are free to do it!
+
+ **Q: I was working with a React Native version and after debugging in exponent I decided to update it, why is exponent not updating automatically?**
+
+ We have a cache that keeps the version of the exponent SDK used by your project. This is helpfull since we don't want to install the SDK each time you run exponent. If you want us to update the SDK version based on your React Native version just restart VSCode and we should be able to do it if it's supported.
+
 ## Known Issues
 
 Here is the list of common known issues you may experience while using the extension:
