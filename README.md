@@ -53,7 +53,7 @@ To start the debug session, select a configuration from the Configuration dropdo
 
 ![React Native launch targets](images/debug-targets.png)
 
-You can debug your app on an Android emulator, Android device or iOS simulator. This extension provides [experiemental support](#debugging-on-ios-device) for iOS devices.
+You can debug your app on an Android emulator, Android device or iOS simulator. This extension provides [experimental support](#debugging-on-ios-device) for iOS devices.
 
 More information about debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging).
 
