@@ -12,6 +12,7 @@ export enum InternalErrorCode {
         FailedToStopPackager = 107,
         PackagerRunningInDifferentPort = 108,
         FailedToStartExponentPackager = 109,
+        FailedToPublishToExpHost = 110,
 
         // Device Deployer errors
         IDeviceInstallerNotFound = 201,

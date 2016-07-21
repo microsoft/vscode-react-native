@@ -126,6 +126,7 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     registerVSCodeCommand(context, "startPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager), () => commandPaletteHandler.startPackager());
     registerVSCodeCommand(context, "startExponentPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStartExponentPackager), () => commandPaletteHandler.startExponentPackager());
     registerVSCodeCommand(context, "stopPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager), () => commandPaletteHandler.stopPackager());
+    registerVSCodeCommand(context, "publishToExpHost", ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost), () => commandPaletteHandler.publishToExpHost());
 }
 
 function registerVSCodeCommand(

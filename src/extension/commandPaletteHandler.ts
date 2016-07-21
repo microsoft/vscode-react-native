@@ -3,6 +3,7 @@
 
 import * as vscode from "vscode";
 import * as Q from "q";
+import * as XDL from "xdl";
 import {CommandExecutor} from "../common/commandExecutor";
 import {SettingsHelper} from "./settingsHelper";
 import {Log} from "../common/log/log";
@@ -54,6 +55,19 @@ export class CommandPaletteHandler {
     public stopPackager(): Q.Promise<void> {
         return this.executeCommandInContext("stopPackager", () => this.reactNativePackager.stop())
             .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
+    }
+
+    /**
+     * Execute command to publish to exponent host.
+     */
+    public publishToExpHost(): Q.Promise<void> {
+        return this.executeCommandInContext("publishToExpHost", () => {
+            this.executePublishToExpHost().then((didPublish) => {
+                if (!didPublish) {
+                    Log.logMessage("Publishing was unsuccessful. Please make sure you are logged in Exponent and your project is a valid Exponentjs project");
+                }
+            });
+        });
     }
 
     /**
@@ -139,6 +153,33 @@ export class CommandPaletteHandler {
                     vscode.window.showErrorMessage("Current workspace is not a React Native project.");
                 }
             });
+        });
+    }
+
+    /**
+     * Publish project to exponent server. In order to do this we need to make sure the user is logged in exponent and the packager is running.
+     */
+    private executePublishToExpHost(): Q.Promise<boolean> {
+        Log.logMessage("Publishing app to Exponent server. This might take a moment.");
+        return Q(XDL.User.getCurrentUserAsync()).then(user => {
+            if (!user) {
+                Log.logWarning("You're not logged in to exponent. Please login before trying to publish.");
+                return false;
+            }
+            Log.logMessage(`Publishing as ${user.username}...`);
+            return this.startExponentPackager()
+                .then(() =>
+                    XDL.Project.publishAsync(this.workspaceRoot))
+                .then(response => {
+                    if (response.err || !response.url) {
+                        return false;
+                    }
+                    Log.logMessage(`App successfully published to ${response.url}`);
+                    return true;
+                });
+        }).catch(() => {
+            Log.logWarning("An error has occured. Please make sure you are logged in to exponent, your project is setup correctly for publishing and your packager is running as exponent.");
+            return false;
         });
     }
 }

@@ -48,6 +48,10 @@
             {
                 "command": "reactNative.stopPackager",
                 "title": "React Native: Stop Packager"
+            },
+            {
+                "command": "reactNative.publishToExpHost",
+                "title": "React Native: Publish to Exponent"
             }
         ],
         "debuggers": [
