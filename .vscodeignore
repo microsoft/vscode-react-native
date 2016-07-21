@@ -6,3 +6,11 @@
 src/**
 out/test/**
 **/*.js.map
+SampleApplication/
+tools/
+.vscodeignore
+.travis.yml
+gulpfile.js
+preparebuild.bat
+tsconfig.json
+tslint.json
