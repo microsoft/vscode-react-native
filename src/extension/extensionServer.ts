@@ -43,6 +43,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.SEND_TELEMETRY] = this.sendTelemetry;
         this.messageHandlerDictionary[em.ExtensionMessage.OPEN_FILE_AT_LOCATION] = this.openFileAtLocation;
         this.messageHandlerDictionary[em.ExtensionMessage.START_EXPONENT_PACKAGER] = this.startExponentPackager;
+        this.messageHandlerDictionary[em.ExtensionMessage.SHOW_INFORMATION_MESSAGE] = this.showInformationMessage;
     }
 
     /**
@@ -238,5 +239,12 @@ export class ExtensionServer implements vscode.Disposable {
                 clientSocket.end();
             });
         }
+    }
+
+    /**
+     * Message handler for SHOW_INFORMATION_MESSAGE
+     */
+    private showInformationMessage(message: string): Q.Promise<void> {
+        return Q(vscode.window.showInformationMessage(message)).then(() => {});
     }
 }

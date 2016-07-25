@@ -104,7 +104,9 @@ export class CommandPaletteHandler {
                 .then(exponentUrl => {
                     this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
                     Log.logMessage("Application is running on Exponent.");
-                    Log.logMessage(`Open your exponent app at ${exponentUrl}`);
+                    const exponentOutput = `Open your exponent app at ${exponentUrl}`;
+                    Log.logMessage(exponentOutput);
+                    vscode.window.showInformationMessage(exponentOutput);
                 });
         }
         return this.reactNativePackager.startAsReactNative(SettingsHelper.getPackagerPort())
@@ -174,7 +176,9 @@ export class CommandPaletteHandler {
                     if (response.err || !response.url) {
                         return false;
                     }
-                    Log.logMessage(`App successfully published to ${response.url}`);
+                    const publishedOutput = `App successfully published to ${response.url}`;
+                    Log.logMessage(publishedOutput);
+                    vscode.window.showInformationMessage(publishedOutput);
                     return true;
                 });
         }).catch(() => {

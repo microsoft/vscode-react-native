@@ -18,6 +18,7 @@ export enum ExtensionMessage {
     SEND_TELEMETRY,
     OPEN_FILE_AT_LOCATION,
     START_EXPONENT_PACKAGER,
+    SHOW_INFORMATION_MESSAGE
 }
 
 export interface MessageWithArguments {

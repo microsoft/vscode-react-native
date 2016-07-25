@@ -18,7 +18,9 @@ export class ExponentPlatform extends GeneralMobilePlatform {
     }
 
     public runApp(): Q.Promise<void> {
-        Log.logMessage(`Application is running on Exponent. Open your exponent app at ${this.exponentTunnelPath} to see it.`);
+        const outputMessage = `Application is running on Exponent. Open your exponent app at ${this.exponentTunnelPath} to see it.`;
+        Log.logMessage(outputMessage);
+        this.remoteExtension.showInformationMessage(outputMessage);
         return Q.resolve<void>(void 0);
     }
 
