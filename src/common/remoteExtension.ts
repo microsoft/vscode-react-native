@@ -46,4 +46,8 @@ export class RemoteExtension {
     public getPackagerPort(): Q.Promise<number> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_PACKAGER_PORT);
     }
+
+    public showInformationMessage(infoMessage: string): Q.Promise<void> {
+        return this.interProcessMessageSender.sendMessage(ExtensionMessage.SHOW_INFORMATION_MESSAGE, [infoMessage]);
+    }
 }
