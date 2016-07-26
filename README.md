@@ -141,7 +141,7 @@ Under your `.vscode/` directory there will be a `vscodeExponent.json` file. This
 ```
 {
     "entryPointFilename": ""          // File under the project root that is used as an entrypoint. We look for index.ios.js or index.android.js
-    "entryPointComponent": ""         // Name of the main component used in your entrypoint. By default it's the same name of your app
+    "entryPointComponent": ""         // Name of the main component used in your entrypoint. By default it's the same name as your app
     "createOrOverwriteExpJson": true  // If true we will create and overwrite exp.json everytime. If you need a custom exp.json set this to false.
 }
 ```

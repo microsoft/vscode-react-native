@@ -17,6 +17,7 @@ const EXPONENT_INDEX = "exponentIndex.js";
 const DEFAULT_IOS_INDEX = "index.ios.js";
 const DEFAULT_ANDROID_INDEX = "index.android.js";
 const EXP_JSON = "exp.json";
+const SECONDS_IN_DAY = 86400;
 
 enum ReactNativePackageStatus {
     FACEBOOK_PACKAGE,
@@ -218,7 +219,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
                 }
                 return this.commandExecutor.execute("npm uninstall react-native", { silent: true })
                     .then(() =>
-                        this.commandExecutor.execute("npm install react-native", { silent: true }));
+                        this.commandExecutor.execute(`npm install react-native --cache-min ${SECONDS_IN_DAY}`, { silent: true }));
             })
             .then(() => {
                 this.dependencyPackage = ReactNativePackageStatus.FACEBOOK_PACKAGE;
