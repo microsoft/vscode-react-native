@@ -180,7 +180,8 @@
         "start": "node node_modules/react-native/local-cli/cli.js start",
         "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
         "vscode:prepublish": "gulp",
-        "test": "node ./node_modules/vscode/bin/test"
+        "test": "node ./node_modules/vscode/bin/test",
+        "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "dependencies": {
         "extract-opts": "2.2.0",
@@ -214,6 +215,6 @@
         "tslint": "^3.6.0",
         "typescript": "^1.8.9",
         "vsce": "^1.3.0",
-        "vscode": "^0.10.7"
+        "vscode": "^0.11.14"
     }
 }
