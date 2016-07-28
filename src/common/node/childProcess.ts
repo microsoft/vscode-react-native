@@ -12,7 +12,7 @@ import {InternalErrorCode} from "../error/internalErrorCode";
 
 export interface IExecResult {
     process: nodeChildProcess.ChildProcess;
-    outcome: Q.Promise<Buffer>;
+    outcome: Q.Promise<string>;
 }
 
 export interface ISpawnResult {
@@ -50,9 +50,9 @@ export class ChildProcess {
     }
 
     public exec(command: string, options: IExecOptions = {}): IExecResult {
-        let outcome = Q.defer<Buffer>();
+        let outcome = Q.defer<string>();
 
-        let execProcess = this.childProcess.exec(command, options, (error: Error, stdout: Buffer, stderr: Buffer) => {
+        let execProcess = this.childProcess.exec(command, options, (error: Error, stdout: string, stderr: string) => {
             if (error) {
                 outcome.reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
             } else {
