@@ -82,6 +82,34 @@ suite("extensionMessaging", function() {
                 }).done(() => done(), done);
         });
 
+        test("should reject on failed communication", function(done: MochaDone) {
+
+            mockServer = net.createServer(function(client: net.Socket): void {
+                mockServer.close();
+                client.on("data", function(data: Buffer) {
+                    client.end("vscodereactnative-error-marker");
+                });
+            });
+
+            mockServer.on("error", done);
+            mockServer.listen(port);
+
+            const sender = RemoteExtension.atProjectRootPath(projectRootPath);
+
+            Q({})
+                .then(function() {
+                    return sender.prewarmBundleCache("android");
+                })
+                .then(function() {
+                    assert(false, "sendMessage should reject on failed communication");
+                },
+                function(reason: any) {
+                    let expectedErrorMessage = "An error ocurred while handling message: PREWARM_BUNDLE_CACHE";
+                    assert.equal(reason.message, expectedErrorMessage);
+                })
+                .done(() => done(), done);
+        });
+
         test("should reject on socket error", function(done: MochaDone) {
             const sender = new InterProcessMessageSender(projectRootPath);
 
@@ -93,7 +121,7 @@ suite("extensionMessaging", function() {
                     assert(false, "sendMessage should reject on socket error");
                 },
                 function(reason: any) {
-                    let expectedErrorMessage = "An error ocurred while handling message: PREWARM_BUNDLE_CACHE";
+                    let expectedErrorMessage = "Unable to set up communication with VSCode react-native extension. Is this a react-native project, and have you made sure that the react-native npm package is installed at the root?";
                     assert.equal(reason.message, expectedErrorMessage);
                 })
                 .done(() => done(), done);

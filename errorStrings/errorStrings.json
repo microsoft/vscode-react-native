@@ -30,5 +30,6 @@
     "RNTempFolderDeletionFailed": "Couldn't delete the temporary folder {0}",
     "CouldNotFindLocationOfNodeDebugger": "Couldn't find the location of the node-debugger extension",
     "PackagerRunningInDifferentPort": "A packager cannot be started on port {0} because a packager process is already running on port {1}",
-    "ErrorWhileProcessingMessageInIPMSServer": "An error ocurred while handling message: {0}"
+    "ErrorWhileProcessingMessageInIPMSServer": "An error ocurred while handling message: {0}",
+    "ErrorNoPipeFound": "Unable to set up communication with VSCode react-native extension. Is this a react-native project, and have you made sure that the react-native npm package is installed at the root?"
 }

@@ -41,12 +41,20 @@ export class InterProcessMessageSender implements InterProcessMessageSender {
             body += data;
         });
 
-        const failPromise = () =>
-            deferred.reject(ErrorHelper.getInternalError(InternalErrorCode.ErrorWhileProcessingMessageInIPMSServer,
-                ExtensionMessage[message]));
+        const failPromise = (reason?: Error & {code?: string}) => {
+            if (reason) {
+                if (reason.code === "ENOENT") {
+                    deferred.reject(ErrorHelper.getInternalError(InternalErrorCode.ErrorNoPipeFound));
+                } else {
+                    deferred.reject(ErrorHelper.getNestedError(reason, InternalErrorCode.ErrorWhileProcessingMessageInIPMSServer, ExtensionMessage[message]));
+                }
+            } else {
+                deferred.reject(ErrorHelper.getInternalError(InternalErrorCode.ErrorWhileProcessingMessageInIPMSServer, ExtensionMessage[message]));
+            }
+        };
 
-        socket.on("error", function(data: any) {
-            failPromise();
+        socket.on("error", function(reason: Error) {
+            failPromise(reason);
         });
 
         socket.on("end", function() {
