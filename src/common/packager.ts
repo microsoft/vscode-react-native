@@ -14,7 +14,7 @@ import {Request} from "./node/request";
 
 import * as Q from "q";
 import * as path from "path";
-import * as XDL from "xdl";
+import * as XDL from "../common/exponent/xdlInterface";
 import * as url from "url";
 
 export enum PackagerRunAs {
@@ -56,15 +56,27 @@ export class Packager {
     }
 
     public startAsExponent(port: number): Q.Promise<string> {
-        return this.start(port, PackagerRunAs.EXPONENT)
+        return this.isRunning()
+            .then(running => {
+                if (running && this.packagerRunningAs === PackagerRunAs.REACT_NATIVE) {
+                    return this.killPackagerProcess()
+                        .then(() =>
+                            this.start(port, PackagerRunAs.EXPONENT));
+                } else if (running && this.packagerRunningAs === PackagerRunAs.NOT_RUNNING) {
+                    Log.logWarning(ErrorHelper.getWarning("Packager running outside of VS Code. To avoid issues with exponent make sure it is running with .vscode/ as a root."));
+                    return Q.resolve<void>(void 0);
+                } else if (this.packagerRunningAs !== PackagerRunAs.EXPONENT) {
+                    return this.start(port, PackagerRunAs.EXPONENT);
+                }
+            })
             .then(() =>
-                XDL.Project.setOptionsAsync(this.projectPath, { packagerPort: port })
+                XDL.setOptions(this.projectPath, { packagerPort: port })
             ).then(() =>
-                XDL.Project.startExponentServerAsync(this.projectPath)
+                XDL.startExponentServer(this.projectPath)
             ).then(() =>
-                XDL.Project.startTunnelsAsync(this.projectPath)
+                XDL.startTunnels(this.projectPath)
             ).then(() =>
-                XDL.Project.getUrlAsync(this.projectPath, { dev: true, minify: false })
+                XDL.getUrl(this.projectPath, { dev: true, minify: false })
             ).then(exponentUrl => {
                 return "exp://" + url.parse(exponentUrl).host;
             }).catch(reason => {
@@ -154,7 +166,7 @@ export class Packager {
 
                             const packagerSpawnResult = new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions);
                             this.packagerProcess = packagerSpawnResult.spawnedProcess;
-                            packagerSpawnResult.outcome.done(() => {}, () => {}); /* Q prints a warning if we don't call .done().
+                            packagerSpawnResult.outcome.done(() => { }, () => { }); /* Q prints a warning if we don't call .done().
                                                                                      We ignore all outcome errors */
                             return packagerSpawnResult.startup;
                         });
@@ -237,7 +249,7 @@ export class Packager {
             this.port = null;
             if (this.packagerRunningAs === PackagerRunAs.EXPONENT) {
                 Log.logMessage("Stopping Exponent");
-                return XDL.Project.stopAsync(this.projectPath)
+                return XDL.stopAll(this.projectPath)
                     .then(() =>
                         Log.logMessage("Exponent Stopped")
                     );

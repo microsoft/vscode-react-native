@@ -3,7 +3,7 @@
 
 import * as path from "path";
 import * as Q from "q";
-import * as XDL from "xdl";
+import * as XDL from "./xdlInterface";
 
 import {FileSystem} from "../node/fileSystem";
 import {Package} from "../node/package";
@@ -52,18 +52,23 @@ export class ExponentHelper {
             "sdkVersion": "",
             "entryPoint": EXPONENT_INDEX,
             "slug": "",
+            "name": "",
         };
         return this.readVscodeExponentSettingFile()
             .then(exponentJson => {
                 if (exponentJson.createOrOverwriteExpJson) {
                     return this.getPackageName()
                         .then(name => {
-                            defaultSettings.slug = name;
+                            // Name and slug are supposed to be the same,
+                            // but slug only supports alpha numeric and -,
+                            // while name should be human readable
+                            defaultSettings.slug = name.replace(" ", "-");
+                            defaultSettings.name = name;
                             return this.exponentSdk();
                         })
                         .then(exponentVersion => {
                             if (!exponentVersion) {
-                                return XDL.Versions.facebookReactNativeVersionsAsync()
+                                return XDL.supportedVersions()
                                     .then((versions) => {
                                         return Q.reject<void>(new Error(`React Native version not supported by exponent. Major versions supported: ${versions.join(", ")}`));
                                     });
@@ -181,6 +186,32 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
     }
 
     /**
+     * Returns the current user. If there is none, asks user for username and password and logins to exponent servers.
+     */
+    public loginToExponent(promptForInformation: (message: string, password: boolean) => Q.Promise<string>, showMessage: (message: string) => Q.Promise<string>): Q.Promise<XDL.IUser> {
+        this.lazylyInitialize();
+        return XDL.currentUser()
+            .then((user) => {
+                if (!user) {
+                    let username = "";
+                    return showMessage("You need to login to exponent. Please provide username and password to login. If you don't have an account we will create one for you.")
+                        .then(() =>
+                            promptForInformation("Exponent username", false)
+                        ).then((name) => {
+                            username = name;
+                            return promptForInformation("Exponent password", true);
+                        })
+                        .then((password) =>
+                            XDL.login(username, password));
+                }
+                return user;
+            })
+            .catch(error => {
+                return Q.reject<XDL.IUser>(error);
+            });
+    }
+
+    /**
      * Changes npm dependency from react native to exponent's fork
      */
     private changeReactNativeToExponent(): Q.Promise<void> {
@@ -192,7 +223,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
                 return this.exponentSdk()
                     .then(sdkVersion => {
                         if (!sdkVersion) {
-                            return XDL.Versions.facebookReactNativeVersionsAsync()
+                            return XDL.supportedVersions()
                                 .then((versions) => {
                                     return Q.reject<void>(new Error(`React Native version not supported by exponent. Major versions supported: ${versions.join(", ")}`));
                                 });
@@ -282,7 +313,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
                 let reactNativeProjectHelper = new ReactNativeProjectHelper(this.rootPath);
                 return reactNativeProjectHelper.getReactNativeVersion()
                     .then(version => {
-                        return XDL.Versions.facebookReactNativeVersionToExponentVersionAsync(version)
+                        return XDL.mapVersion(version)
                             .then(exponentVersion => {
                                 this.expSdkVersion = exponentVersion;
                                 return this.expSdkVersion;

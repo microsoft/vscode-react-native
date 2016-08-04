@@ -3,7 +3,7 @@
 
 import * as vscode from "vscode";
 import * as Q from "q";
-import * as XDL from "xdl";
+import * as XDL from "../common/exponent/xdlInterface";
 import {CommandExecutor} from "../common/commandExecutor";
 import {SettingsHelper} from "./settingsHelper";
 import {Log} from "../common/log/log";
@@ -100,8 +100,10 @@ export class CommandPaletteHandler {
      */
     private runStartPackagerCommandAndUpdateStatus(startAs: PackagerRunAs = PackagerRunAs.REACT_NATIVE): Q.Promise<any> {
         if (startAs === PackagerRunAs.EXPONENT) {
-            return this.reactNativePackager.startAsExponent(SettingsHelper.getPackagerPort())
-                .then(exponentUrl => {
+            return this.loginToExponent()
+                .then(() =>
+                    this.reactNativePackager.startAsExponent(SettingsHelper.getPackagerPort())
+                ).then(exponentUrl => {
                     this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
                     Log.logMessage("Application is running on Exponent.");
                     const exponentOutput = `Open your exponent app at ${exponentUrl}`;
@@ -163,27 +165,31 @@ export class CommandPaletteHandler {
      */
     private executePublishToExpHost(): Q.Promise<boolean> {
         Log.logMessage("Publishing app to Exponent server. This might take a moment.");
-        return Q(XDL.User.getCurrentUserAsync()).then(user => {
-            if (!user) {
-                Log.logWarning("You're not logged in to exponent. Please login before trying to publish.");
+        return this.loginToExponent()
+            .then(user => {
+                Log.logMessage(`Publishing as ${user.username}...`);
+                return this.startExponentPackager()
+                    .then(() =>
+                        XDL.publish(this.workspaceRoot))
+                    .then(response => {
+                        if (response.err || !response.url) {
+                            return false;
+                        }
+                        const publishedOutput = `App successfully published to ${response.url}`;
+                        Log.logMessage(publishedOutput);
+                        vscode.window.showInformationMessage(publishedOutput);
+                        return true;
+                    });
+            }).catch(() => {
+                Log.logWarning("An error has occured. Please make sure you are logged in to exponent, your project is setup correctly for publishing and your packager is running as exponent.");
                 return false;
-            }
-            Log.logMessage(`Publishing as ${user.username}...`);
-            return this.startExponentPackager()
-                .then(() =>
-                    XDL.Project.publishAsync(this.workspaceRoot))
-                .then(response => {
-                    if (response.err || !response.url) {
-                        return false;
-                    }
-                    const publishedOutput = `App successfully published to ${response.url}`;
-                    Log.logMessage(publishedOutput);
-                    vscode.window.showInformationMessage(publishedOutput);
-                    return true;
-                });
-        }).catch(() => {
-            Log.logWarning("An error has occured. Please make sure you are logged in to exponent, your project is setup correctly for publishing and your packager is running as exponent.");
-            return false;
-        });
+            });
+    }
+
+    private loginToExponent(): Q.Promise<XDL.IUser> {
+        return this.exponentHelper.loginToExponent(
+            (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
+            (message) => { return Q(vscode.window.showInformationMessage(message)); }
+        );
     }
 }

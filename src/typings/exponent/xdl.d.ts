@@ -14,9 +14,9 @@ declare module xdl {
     }
 
     var User: {
-        loginAsync(options: ILoginOptions): Q.Promise<IUser>;
-        logoutAsync(): Q.Promise<void>;
-        getCurrentUserAsync(): Q.Promise<IUser>;
+        loginAsync(options: ILoginOptions): Promise<IUser>;
+        logoutAsync(): Promise<void>;
+        getCurrentUserAsync(): Promise<IUser>;
     }
 
     interface IStartOptions {
@@ -48,17 +48,17 @@ declare module xdl {
     }
 
     var Project: {
-        startAsync(projectRoot: string, options?: IStartOptions): Q.Promise<void>;
-        stopAsync(projectRoot: string): Q.Promise<void>;
-        getUrlAsync(projectRoot: string, options?: IUrlOptions): Q.Promise<string>;
-        publishAsync(projectRoot: string, options?: IPublishOptions): Q.Promise<IPublishResponse>;
-        startExponentServerAsync(projectRoot: string): Q.Promise<void>;
-        stopExponentServerAsync(projectRoot: string): Q.Promise<void>;
-        startReactNativeServerAsync(projectRoot: string, options?: IReactNativeServerOptions): Q.Promise<void>;
-        stopReactNativeServerAsync(projectRoot: string): Q.Promise<void>;
-        startTunnelsAsync(projectRoot: string): Q.Promise<void>;
-        stopTunnelsAsync(projectRoot: string): Q.Promise<void>;
-        setOptionsAsync(projectRoot: string, options?: IOptions): Q.Promise<void>;
+        startAsync(projectRoot: string, options?: IStartOptions): Promise<void>;
+        stopAsync(projectRoot: string): Promise<void>;
+        getUrlAsync(projectRoot: string, options?: IUrlOptions): Promise<string>;
+        publishAsync(projectRoot: string, options?: IPublishOptions): Promise<IPublishResponse>;
+        startExponentServerAsync(projectRoot: string): Promise<void>;
+        stopExponentServerAsync(projectRoot: string): Promise<void>;
+        startReactNativeServerAsync(projectRoot: string, options?: IReactNativeServerOptions): Promise<void>;
+        stopReactNativeServerAsync(projectRoot: string): Promise<void>;
+        startTunnelsAsync(projectRoot: string): Promise<void>;
+        stopTunnelsAsync(projectRoot: string): Promise<void>;
+        setOptionsAsync(projectRoot: string, options?: IOptions): Promise<void>;
     }
 
     var Versions: {
@@ -90,6 +90,20 @@ declare module xdl {
     }
 
     var Config: IConfig;
+
+    interface IBunyanStream {
+        type?: string;
+        level?: number | string;
+        path?: string;
+        stream?: NodeJS.WritableStream | IBunyanStream;
+        closeOnExit?: boolean;
+        period?: string;
+        count?: number;
+    }
+
+    var ProjectUtils: {
+        attachLoggerStream(rootPath: string, options?: IBunyanStream): void;
+    }
 }
 
 declare module "xdl" {

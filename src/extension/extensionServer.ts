@@ -106,6 +106,11 @@ export class ExtensionServer implements vscode.Disposable {
      */
     private startExponentPackager(port?: any): Q.Promise<any> {
         return this.exponentHelper.configureExponentEnvironment()
+            .then(() =>
+                this.exponentHelper.loginToExponent(
+                    (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
+                    (message) => { return Q(vscode.window.showInformationMessage(message)); }
+                ))
             .then(() => {
                 const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
                 return this.reactNativePackager.startAsExponent(portToUse);
@@ -113,6 +118,9 @@ export class ExtensionServer implements vscode.Disposable {
             .then(exponentUrl => {
                 this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
                 return exponentUrl;
+            })
+            .catch(error => {
+                return Q.reject(error);
             });
     }
 

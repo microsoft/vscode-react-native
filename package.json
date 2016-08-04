@@ -206,8 +206,7 @@
         "typechecker": "2.0.8",
         "ultron": "1.0.2",
         "vscode-extension-telemetry": "0.0.5",
-        "ws": "1.0.1",
-        "xdl": "0.12.0"
+        "ws": "1.0.1"
     },
     "devDependencies": {
         "del": "^2.2.0",
