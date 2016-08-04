@@ -35,6 +35,10 @@ export class OutputChannelLogger implements ILogger {
         this.outputChannel.append(data.toString());
     }
 
+    public logString(data: string) {
+        this.outputChannel.append(data);
+    }
+
     public setFocusOnLogChannel() {
         this.outputChannel.show();
     }

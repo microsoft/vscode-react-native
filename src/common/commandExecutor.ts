@@ -10,13 +10,19 @@ import {HostPlatform, HostPlatformId} from "../common/hostPlatform";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 
+export enum CommandVerbosity {
+    OUTPUT,
+    SILENT,
+    PROGRESS,
+}
+
 interface EnvironmentOptions {
     REACT_DEBUGGER?: string;
 }
 
 interface Options {
     env?: EnvironmentOptions;
-    silent?: boolean;
+    verbosity?: CommandVerbosity;
 }
 
 export enum CommandStatus {
@@ -35,15 +41,11 @@ export class CommandExecutor {
     }
 
     public execute(command: string, options: Options = {}): Q.Promise<void> {
-        if (!options.silent) {
-            Log.logCommandStatus(command, CommandStatus.Start);
-        }
+        Log.logCommandStatus(command, CommandStatus.Start);
         return this.childProcess.execToString(command, { cwd: this.currentWorkingDirectory, env: options.env })
             .then(stdout => {
-                if (!options.silent) {
-                    Log.logMessage(stdout);
-                    Log.logCommandStatus(command, CommandStatus.End);
-                }
+                Log.logMessage(stdout);
+                Log.logCommandStatus(command, CommandStatus.End);
             },
             (reason: Error) =>
                 this.generateRejectionForCommand(command, reason));
@@ -121,6 +123,71 @@ export class CommandExecutor {
         return this.spawnChildProcess(reactCommand, this.combineArguments(command, args), options);
     }
 
+    /**
+     * Spawns a child process with the params passed
+     * This method has logic to do while the command is executing
+     * {command} - The command to be invoked in the child process
+     * {args} - Arguments to be passed to the command
+     * {options} - additional options with which the child process needs to be spawned
+     */
+    public spawnWithProgress(command: string, args: string[], options: Options = { verbosity: CommandVerbosity.OUTPUT }): Q.Promise<void> {
+        let deferred = Q.defer<void>();
+        const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
+        const commandWithArgs = command + " " + args.join(" ");
+        const timeBetweenDots = 1500;
+
+        let dotPrinted = false;
+        let printingProgressTimer: NodeJS.Timer;
+
+        const printDot = () => {
+            Log.logString(".");
+            dotPrinted = true;
+            clearInterval(printingProgressTimer);
+            printingProgressTimer = setInterval(() => {
+                dotPrinted = false;
+            }, timeBetweenDots);
+        };
+
+        if (options.verbosity === CommandVerbosity.OUTPUT) {
+            Log.logCommandStatus(commandWithArgs, CommandStatus.Start);
+        }
+
+        const result = this.childProcess.spawn(command, args, spawnOptions);
+        printDot();
+
+        result.stdout.on("data", (data: Buffer) => {
+            if (options.verbosity === CommandVerbosity.OUTPUT) {
+                Log.logStreamData(data, process.stdout);
+            } else if (options.verbosity === CommandVerbosity.PROGRESS && !dotPrinted) {
+                printDot();
+            }
+        });
+
+        result.stderr.on("data", (data: Buffer) => {
+            if (options.verbosity === CommandVerbosity.OUTPUT) {
+                Log.logStreamData(data, process.stderr);
+            } else if (options.verbosity === CommandVerbosity.PROGRESS && !dotPrinted) {
+                printDot();
+            }
+        });
+
+        result.outcome = result.outcome.then(
+            () => {
+                if (options.verbosity === CommandVerbosity.OUTPUT) {
+                    Log.logCommandStatus(commandWithArgs, CommandStatus.End);
+                } else if (options.verbosity === CommandVerbosity.PROGRESS) {
+                    clearInterval(printingProgressTimer);
+                }
+                Log.logString("\n");
+                deferred.resolve(void 0);
+            },
+            reason => {
+                deferred.reject(void 0);
+                return this.generateRejectionForCommand(commandWithArgs, reason);
+            });
+        return deferred.promise;
+    }
+
     private spawnChildProcess(command: string, args: string[], options: Options = {}): ISpawnResult {
         const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         const commandWithArgs = command + " " + args.join(" ");
@@ -133,7 +200,7 @@ export class CommandExecutor {
         });
 
         result.stdout.on("data", (data: Buffer) => {
-           Log.logStreamData(data, process.stdout);
+            Log.logStreamData(data, process.stdout);
         });
 
         result.outcome = result.outcome.then(
