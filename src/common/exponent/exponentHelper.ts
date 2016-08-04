@@ -35,19 +35,22 @@ export class ExponentHelper {
     private entrypointComponentName: string;
 
     private dependencyPackage: ReactNativePackageStatus;
+    private hasInitialized: boolean;
 
     public constructor(projectRootPath: string) {
         this.rootPath = projectRootPath;
-        this.fileSystem = new FileSystem();
-        this.commandExecutor = new CommandExecutor(this.rootPath);
-        this.dependencyPackage = ReactNativePackageStatus.UNKNOWN;
-        XDL.Config.validation.reactNativeVersionWarnings = false;
+        this.hasInitialized = false;
+        // Constructor is slim by design. This is to add as less computation as possible
+        // to the initialization of the extension. If a public method is added, make sure
+        // to call this.lazylyInitialize() at the begining of the code to be sure all variables
+        // are correctly initialized.
     }
 
     /**
      * Create exp.json file in the workspace root
      */
     public createExpJson(): Q.Promise<void> {
+        this.lazylyInitialize();
         let defaultSettings = {
             "sdkVersion": "",
             "entryPoint": EXPONENT_INDEX,
@@ -85,6 +88,7 @@ export class ExponentHelper {
      * in the AppRegistry and should only render a entrypoint component.
      */
     public createIndex(): Q.Promise<void> {
+        this.lazylyInitialize();
         const pkg = require("../../../package.json");
         const extensionVersionNumber = pkg.version;
         const extensionName = pkg.name;
@@ -121,6 +125,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * More specifically it will export the class and update all the relative references.
      */
     public createExponentEntrypoint(): Q.Promise<void> {
+        this.lazylyInitialize();
         const pkg = require("../../../package.json");
         const extensionVersionNumber = pkg.version;
         const extensionName = pkg.name;
@@ -164,6 +169,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * 3. Create index and entrypoint for exponent
      */
     public configureExponentEnvironment(): Q.Promise<void> {
+        this.lazylyInitialize();
         Log.logMessage("Making sure your project uses the correct dependencies for exponent. This may take a while...");
         return this.changeReactNativeToExponent()
             .then(() => {
@@ -181,6 +187,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * Change dependencies to point to original react-native repo
      */
     public configureReactNativeEnvironment(): Q.Promise<void> {
+        this.lazylyInitialize();
         Log.logMessage("Checking react native is correctly setup. This may take a while...");
         return this.changeExponentToReactNative();
     }
@@ -274,11 +281,6 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * guessing which entrypoint and filename to use.
      */
     private readVscodeExponentSettingFile(): Q.Promise<any> {
-        let defaultSettings = {
-            "entryPointFilename": "",
-            "entryPointComponent": "",
-            "createOrOverwriteExpJson": true,
-        };
         // Only create a new one if there is not one already
         return this.fileSystem.exists(this.dotvscodePath(VSCODE_EXPONENT_JSON))
             .then((vscodeExponentExists: boolean) => {
@@ -288,6 +290,11 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
                             return JSON.parse(jsonContents);
                         });
                 } else {
+                    let defaultSettings = {
+                        "entryPointFilename": "",
+                        "entryPointComponent": "",
+                        "createOrOverwriteExpJson": true,
+                    };
                     return this.getPackageName()
                         .then(packageName => {
                             // By default react-native uses the package name for the entry component. This is our safest guess.
@@ -430,5 +437,33 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      */
     private getPackageName(): Q.Promise<string> {
         return new Package(this.rootPath, { fileSystem: this.fileSystem }).name();
+    }
+
+    /**
+     * Works as a constructor but only initiliazes when it's actually needed.
+     */
+    private lazylyInitialize(): void {
+        if (!this.hasInitialized) {
+            this.hasInitialized = true;
+            this.fileSystem = new FileSystem();
+            this.commandExecutor = new CommandExecutor(this.rootPath);
+            this.dependencyPackage = ReactNativePackageStatus.UNKNOWN;
+
+            XDL.configReactNativeVersionWargnings();
+            XDL.attachLoggerStream(this.rootPath, {
+                stream: {
+                    write: (chunk: any) => {
+                        if (chunk.level <= 30) {
+                            Log.logString(chunk.msg);
+                        } else if (chunk.level === 40) {
+                            Log.logWarning(chunk.msg);
+                        } else {
+                            Log.logError(chunk.msg);
+                        }
+                    },
+                },
+                type: "raw",
+            });
+        }
     }
 }
