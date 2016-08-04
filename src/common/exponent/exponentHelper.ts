@@ -8,7 +8,7 @@ import * as XDL from "./xdlInterface";
 import {FileSystem} from "../node/fileSystem";
 import {Package} from "../node/package";
 import {ReactNativeProjectHelper} from "../reactNativeProjectHelper";
-import {CommandExecutor} from "../commandExecutor";
+import {CommandVerbosity, CommandExecutor} from "../commandExecutor";
 import {Log} from "../log/log";
 
 const VSCODE_EXPONENT_JSON = "vscodeExponent.json";
@@ -215,13 +215,17 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * Changes npm dependency from react native to exponent's fork
      */
     private changeReactNativeToExponent(): Q.Promise<void> {
-        return this.usingReactNativeExponent()
+        Log.logString("Checking if react native is from exponent.");
+        return this.usingReactNativeExponent(true)
             .then(usingExponent => {
+                Log.logString(".\n");
                 if (usingExponent) {
                     return Q.resolve<void>(void 0);
                 }
-                return this.exponentSdk()
+                Log.logString("Getting appropriate Exponent SDK Version to install.");
+                return this.exponentSdk(true)
                     .then(sdkVersion => {
+                        Log.logString(".\n");
                         if (!sdkVersion) {
                             return XDL.supportedVersions()
                                 .then((versions) => {
@@ -229,9 +233,12 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
                                 });
                         }
                         const exponentFork = `github:exponentjs/react-native#sdk-${sdkVersion}`;
-                        return this.commandExecutor.execute("npm uninstall react-native", { silent: true })
-                            .then(() =>
-                                this.commandExecutor.execute(`npm install ${exponentFork}`, { silent: true }));
+                        Log.logString("Uninstalling current react native package.");
+                        return Q(this.commandExecutor.spawnWithProgress("npm", ["uninstall", "react-native", "--verbose"], { verbosity: CommandVerbosity.PROGRESS }))
+                            .then(() => {
+                                Log.logString("Installing exponent react native package.");
+                                return this.commandExecutor.spawnWithProgress("npm", ["install", exponentFork, "--cache-min", SECONDS_IN_DAY.toString(10), "--verbose"], { verbosity: CommandVerbosity.PROGRESS });
+                            });
                     });
             })
             .then(() => {
@@ -243,14 +250,19 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * Changes npm dependency from exponent's fork to react native
      */
     private changeExponentToReactNative(): Q.Promise<void> {
+        Log.logString("Checking if the correct react native is installed.");
         return this.usingReactNativeExponent()
             .then(usingExponent => {
+                Log.logString(".\n");
                 if (!usingExponent) {
                     return Q.resolve<void>(void 0);
                 }
-                return this.commandExecutor.execute("npm uninstall react-native", { silent: true })
-                    .then(() =>
-                        this.commandExecutor.execute(`npm install react-native --cache-min ${SECONDS_IN_DAY}`, { silent: true }));
+                Log.logString("Uninstalling current react native package.");
+                return Q(this.commandExecutor.spawnWithProgress("npm", ["uninstall", "react-native", "--verbose"], { verbosity: CommandVerbosity.PROGRESS }))
+                    .then(() => {
+                        Log.logString("Installing correct react native package.");
+                        return this.commandExecutor.spawnWithProgress("npm", ["install", "react-native", "--cache-min", SECONDS_IN_DAY.toString(10), "--verbose"], { verbosity: CommandVerbosity.PROGRESS });
+                    });
             })
             .then(() => {
                 this.dependencyPackage = ReactNativePackageStatus.FACEBOOK_PACKAGE;
@@ -300,12 +312,14 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * Exponent sdk version that maps to the current react-native version
      * If react native version is not supported it returns null.
      */
-    private exponentSdk(): Q.Promise<string> {
+    private exponentSdk(showProgress: boolean = false): Q.Promise<string> {
+        if (showProgress) Log.logString("...");
         if (this.expSdkVersion) {
             return Q(this.expSdkVersion);
         }
         return this.readFromExpJson("sdkVersion")
             .then((sdkVersion) => {
+                if (showProgress) Log.logString(".");
                 if (sdkVersion) {
                     this.expSdkVersion = sdkVersion;
                     return this.expSdkVersion;
@@ -313,6 +327,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
                 let reactNativeProjectHelper = new ReactNativeProjectHelper(this.rootPath);
                 return reactNativeProjectHelper.getReactNativeVersion()
                     .then(version => {
+                        if (showProgress) Log.logString(".");
                         return XDL.mapVersion(version)
                             .then(exponentVersion => {
                                 this.expSdkVersion = exponentVersion;
@@ -342,7 +357,8 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * Looks at the _from attribute in the package json of the react-native dependency
      * to figure out if it's using exponent.
      */
-    private usingReactNativeExponent(): Q.Promise<boolean> {
+    private usingReactNativeExponent(showProgress: boolean = false): Q.Promise<boolean> {
+        if (showProgress) Log.logString("...");
         if (this.dependencyPackage !== ReactNativePackageStatus.UNKNOWN) {
             return Q(this.dependencyPackage === ReactNativePackageStatus.EXPONENT_PACKAGE);
         }
@@ -353,8 +369,10 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
                 const packageJson = JSON.parse(jsonContents);
                 const isExp = /\bexponentjs\/react-native\b/.test(packageJson._from);
                 this.dependencyPackage = isExp ? ReactNativePackageStatus.EXPONENT_PACKAGE : ReactNativePackageStatus.FACEBOOK_PACKAGE;
+                if (showProgress) Log.logString(".");
                 return isExp;
             }).catch(() => {
+                if (showProgress) Log.logString(".");
                 // Not in a react-native project
                 return false;
             });
