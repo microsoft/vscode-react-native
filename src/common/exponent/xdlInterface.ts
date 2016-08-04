@@ -19,7 +19,7 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
         Log.logMessage("Getting exponent dependecy.", false);
         xdlPackage = require("xdl");
         return Q(xdlPackage);
-    } catch(e) {
+    } catch (e) {
         // Ignore if not found
     }
     let commandExecutor = new CommandExecutor();
