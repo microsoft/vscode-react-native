@@ -136,6 +136,10 @@ We support using exponentjs to run, debug and publish your applications.
 
 When you use exponent for the first time in vscode (either to run, debug or publish) you will notice that we created a couple of files for you.
 
+This files are: `.vscode/exponentEntrypoint.js`, `.vscode/exponentIndex.js`, `.vscode/vscodeExponent.json` and `exp.json`.
+
+### How does it work
+
 Under your `.vscode/` directory there will be a `vscodeExponent.json` file. This file has the settings used for us to setup exponent correctly.
 
 ```
@@ -147,6 +151,22 @@ Under your `.vscode/` directory there will be a `vscodeExponent.json` file. This
 ```
 
 Don't worry, we will be prepopulating this file with some defaults, but in case you need to customize it you are free to do it!
+
+We will be copying your desired entrypoint to `.vscode/exponentEntrypoint.js` with some minimal changes required to run in exponent. After that is set, `.vscode/exponentIndex.js` will call the entrypoint component as the starting point of the application.
+
+If we guessed the filename or component wrong, or you want to try out different entrypoints feel free to modify `.vscode/vscodeExponent.json` to try out whatever suits your needs.
+
+If you are an experienced exponent user, or you want to customize your `exp.json` set `createOrOverwriteExpJson` to false in `.vscode/vscodeExponent.json`. This will let you have your own version of `exp.json` without overwritting it wach time we run something.
+
+### Running in exponent
+
+To run, debug or publish in exponent is necesary to be logged in. If you don't have an exponent account don't worry, just give username and password as a normal login and we will create an account for you.
+
+After you are logged in, VS Code will make sure you are using the correct react native package (exponent requires a specific fork, more info [here](https://docs.getexponent.com/)) and create all the necesary files to convert your react native project to an exponent project.
+
+You don't have to worry for changing back the version of react native, if you want to run a normal packager again we will make sure to change that dependency for you.
+
+### FAQ
 
  **Q: I was working with a React Native version and after debugging in exponent I decided to update it, why is exponent not updating automatically?**
 
