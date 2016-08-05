@@ -33,7 +33,7 @@ import {IntellisenseHelper} from "./intellisenseHelper";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
-import {OutputChannelLogger} from "./outputChannelLogger";
+import {DelayedOutputChannelLogger} from "./outputChannelLogger";
 
 /* all components use the same packager instance */
 const projectRootPath = vscode.workspace.rootPath;
@@ -41,7 +41,7 @@ const globalPackager = new Packager(projectRootPath);
 const packagerStatusIndicator = new PackagerStatusIndicator();
 const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator);
 
-const outputChannelLogger = new OutputChannelLogger(vscode.window.createOutputChannel("React-Native"));
+const outputChannelLogger = new DelayedOutputChannelLogger("React-Native");
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
 const reactNativeProjectHelper = new ReactNativeProjectHelper(projectRootPath);
 const fsUtil = new FileSystem();
@@ -51,6 +51,7 @@ interface ISetupableDisposable extends vscode.Disposable {
 }
 
 export function activate(context: vscode.ExtensionContext): void {
+
     entryPointHandler.runApp("react-native", () => <string>require("../../package.json").version,
         ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), projectRootPath, () => {
         return reactNativeProjectHelper.isReactNativeProject()
