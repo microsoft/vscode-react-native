@@ -136,17 +136,14 @@ export class CommandExecutor {
         const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         const commandWithArgs = command + " " + args.join(" ");
         const timeBetweenDots = 1500;
-
-        let dotPrinted = false;
-        let printingProgressTimer: NodeJS.Timer;
+        let lastDotTime = 0;
 
         const printDot = () => {
-            Log.logString(".");
-            dotPrinted = true;
-            clearInterval(printingProgressTimer);
-            printingProgressTimer = setInterval(() => {
-                dotPrinted = false;
-            }, timeBetweenDots);
+            const now = Date.now();
+            if (now - lastDotTime > timeBetweenDots) {
+                lastDotTime = now;
+                Log.logString(".");
+            }
         };
 
         if (options.verbosity === CommandVerbosity.OUTPUT) {
@@ -154,12 +151,11 @@ export class CommandExecutor {
         }
 
         const result = this.childProcess.spawn(command, args, spawnOptions);
-        printDot();
 
         result.stdout.on("data", (data: Buffer) => {
             if (options.verbosity === CommandVerbosity.OUTPUT) {
                 Log.logStreamData(data, process.stdout);
-            } else if (options.verbosity === CommandVerbosity.PROGRESS && !dotPrinted) {
+            } else if (options.verbosity === CommandVerbosity.PROGRESS) {
                 printDot();
             }
         });
@@ -167,7 +163,7 @@ export class CommandExecutor {
         result.stderr.on("data", (data: Buffer) => {
             if (options.verbosity === CommandVerbosity.OUTPUT) {
                 Log.logStreamData(data, process.stderr);
-            } else if (options.verbosity === CommandVerbosity.PROGRESS && !dotPrinted) {
+            } else if (options.verbosity === CommandVerbosity.PROGRESS) {
                 printDot();
             }
         });
@@ -176,8 +172,6 @@ export class CommandExecutor {
             () => {
                 if (options.verbosity === CommandVerbosity.OUTPUT) {
                     Log.logCommandStatus(commandWithArgs, CommandStatus.End);
-                } else if (options.verbosity === CommandVerbosity.PROGRESS) {
-                    clearInterval(printingProgressTimer);
                 }
                 Log.logString("\n");
                 deferred.resolve(void 0);

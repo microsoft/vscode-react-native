@@ -23,7 +23,11 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
         xdlPackage = Q(xdl);
         return xdlPackage;
     } catch (e) {
-        Log.logMessage("Dependency not present. Installing it...", false);
+        if (e.code === "MODULE_NOT_FOUND") {
+            Log.logMessage("Dependency not present. Installing it...", false);
+        } else {
+            throw e;
+        }
     }
     let commandExecutor = new CommandExecutor();
     xdlPackage = commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"),
