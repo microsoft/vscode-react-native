@@ -125,6 +125,10 @@ export class Packager {
             });
     }
 
+    public isRunning(): Q.Promise<boolean> {
+        return Packager.isPackagerRunning(this.getHost());
+    }
+
     private prewarmBundleCacheWithBundleFilename(bundleFilename: string, platform: string) {
         const bundleURL = `http://${this.getHost()}/${bundleFilename}.bundle?platform=${platform}`;
         Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
@@ -185,10 +189,6 @@ export class Packager {
                     }
                 }
             });
-    }
-
-    private isRunning(): Q.Promise<boolean> {
-        return Packager.isPackagerRunning(this.getHost());
     }
 
     private awaitStart(retryCount = 30, delay = 2000): Q.Promise<boolean> {

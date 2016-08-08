@@ -33,20 +33,32 @@ export class CommandPaletteHandler {
      * Starts the React Native packager
      */
     public startPackager(): Q.Promise<void> {
-        return this.exponentHelper.configureReactNativeEnvironment()
-            .then(() =>
-                this.executeCommandInContext("startPackager", () =>
-                    this.runStartPackagerCommandAndUpdateStatus()));
+        return this.executeCommandInContext("startPackager", () =>
+            this.reactNativePackager.isRunning()
+            .then((running) => {
+                if (running) {
+                    return this.reactNativePackager.stop();
+                }
+            })
+        ).then(() =>
+            this.exponentHelper.configureReactNativeEnvironment()
+        ).then(() => this.runStartPackagerCommandAndUpdateStatus());
     }
 
     /**
      * Starts the Exponent packager
      */
     public startExponentPackager(): Q.Promise<void> {
-        return this.exponentHelper.configureExponentEnvironment()
-            .then(() =>
-                this.executeCommandInContext("startExponentPackager", () =>
-                    this.runStartPackagerCommandAndUpdateStatus(PackagerRunAs.EXPONENT)));
+        return this.executeCommandInContext("startExponentPackager", () =>
+            this.reactNativePackager.isRunning()
+            .then((running) => {
+                if (running) {
+                    return this.reactNativePackager.stop();
+                }
+            })
+        ).then(() =>
+            this.exponentHelper.configureExponentEnvironment()
+        ).then(() => this.runStartPackagerCommandAndUpdateStatus(PackagerRunAs.EXPONENT));
     }
 
     /**

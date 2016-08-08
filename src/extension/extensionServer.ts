@@ -92,12 +92,17 @@ export class ExtensionServer implements vscode.Disposable {
      * Message handler for START_PACKAGER.
      */
     private startPackager(port?: any): Q.Promise<any> {
-        return this.exponentHelper.configureReactNativeEnvironment()
-            .then(() => {
-                const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
-                return this.reactNativePackager.startAsReactNative(portToUse);
-            })
-            .then(() =>
+        return this.reactNativePackager.isRunning().then((running) => {
+            if (running) {
+                return this.reactNativePackager.stop();
+            }
+        }).then(() =>
+            this.exponentHelper.configureReactNativeEnvironment()
+        ).then(() => {
+            const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
+            return this.reactNativePackager.startAsReactNative(portToUse);
+        })
+        .then(() =>
                 this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
@@ -105,20 +110,25 @@ export class ExtensionServer implements vscode.Disposable {
      * Message handler for START_EXPONENT_PACKAGER.
      */
     private startExponentPackager(port?: any): Q.Promise<any> {
-        return this.exponentHelper.configureExponentEnvironment()
-            .then(() =>
-                this.exponentHelper.loginToExponent(
-                    (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
-                    (message) => { return Q(vscode.window.showInformationMessage(message)); }
-                ))
-            .then(() => {
-                const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
-                return this.reactNativePackager.startAsExponent(portToUse);
-            })
-            .then(exponentUrl => {
-                this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
-                return exponentUrl;
-            });
+        return this.reactNativePackager.isRunning().then((running) => {
+            if (running) {
+                return this.reactNativePackager.stop();
+            }
+        }).then(() =>
+            this.exponentHelper.configureExponentEnvironment()
+        ).then(() =>
+            this.exponentHelper.loginToExponent(
+                (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
+                (message) => { return Q(vscode.window.showInformationMessage(message)); }
+            ))
+        .then(() => {
+            const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
+            return this.reactNativePackager.startAsExponent(portToUse);
+        })
+        .then(exponentUrl => {
+            this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
+            return exponentUrl;
+        });
     }
 
     /**

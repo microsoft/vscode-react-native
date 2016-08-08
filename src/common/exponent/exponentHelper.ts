@@ -4,6 +4,7 @@
 import * as path from "path";
 import * as Q from "q";
 import * as XDL from "./xdlInterface";
+import stripJsonComments = require("strip-json-comments");
 
 import {FileSystem} from "../node/fileSystem";
 import {Package} from "../node/package";
@@ -43,45 +44,8 @@ export class ExponentHelper {
         this.hasInitialized = false;
         // Constructor is slim by design. This is to add as less computation as possible
         // to the initialization of the extension. If a public method is added, make sure
-        // to call this.lazylyInitialize() at the begining of the code to be sure all variables
+        // to call this.lazilyInitialize() at the begining of the code to be sure all variables
         // are correctly initialized.
-    }
-
-    /**
-     * Create exp.json file in the workspace root
-     */
-    public createExpJson(): Q.Promise<void> {
-        this.lazylyInitialize();
-        let defaultSettings = {
-            "sdkVersion": "",
-            "entryPoint": EXPONENT_INDEX,
-            "slug": "",
-            "name": "",
-        };
-        return this.readVscodeExponentSettingFile()
-            .then(exponentJson => {
-                if (exponentJson.createOrOverwriteExpJson) {
-                    return this.getPackageName()
-                        .then(name => {
-                            // Name and slug are supposed to be the same,
-                            // but slug only supports alpha numeric and -,
-                            // while name should be human readable
-                            defaultSettings.slug = name.replace(" ", "-");
-                            defaultSettings.name = name;
-                            return this.exponentSdk();
-                        })
-                        .then(exponentVersion => {
-                            if (!exponentVersion) {
-                                return XDL.supportedVersions()
-                                    .then((versions) => {
-                                        return Q.reject<void>(new Error(`React Native version not supported by exponent. Major versions supported: ${versions.join(", ")}`));
-                                    });
-                            }
-                            defaultSettings.sdkVersion = exponentVersion;
-                            return this.fileSystem.writeFile(this.pathToFileInWorkspace(EXP_JSON), JSON.stringify(defaultSettings, null, 4));
-                        });
-                }
-            });
     }
 
     /**
@@ -89,7 +53,7 @@ export class ExponentHelper {
      * in the AppRegistry and should only render a entrypoint component.
      */
     public createIndex(): Q.Promise<void> {
-        this.lazylyInitialize();
+        this.lazilyInitialize();
         const pkg = require("../../../package.json");
         const extensionVersionNumber = pkg.version;
         const extensionName = pkg.name;
@@ -126,7 +90,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * More specifically it will export the class and update all the relative references.
      */
     public createExponentEntrypoint(): Q.Promise<void> {
-        this.lazylyInitialize();
+        this.lazilyInitialize();
         const pkg = require("../../../package.json");
         const extensionVersionNumber = pkg.version;
         const extensionName = pkg.name;
@@ -170,12 +134,12 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * 3. Create index and entrypoint for exponent
      */
     public configureExponentEnvironment(): Q.Promise<void> {
-        this.lazylyInitialize();
+        this.lazilyInitialize();
         Log.logMessage("Making sure your project uses the correct dependencies for exponent. This may take a while...");
         return this.changeReactNativeToExponent()
             .then(() => {
-                Log.logMessage("Dependencies are correct. Making sure you have any necesary configuration file.");
-                return this.createExpJson();
+                Log.logMessage("Dependencies are correct. Making sure you have any necessary configuration file.");
+                return this.ensureExpJson();
             }).then(() => {
                 Log.logMessage("Project setup is correct. Generating entrypoint code.");
                 return this.createExponentEntrypoint()
@@ -188,7 +152,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * Change dependencies to point to original react-native repo
      */
     public configureReactNativeEnvironment(): Q.Promise<void> {
-        this.lazylyInitialize();
+        this.lazilyInitialize();
         Log.logMessage("Checking react native is correctly setup. This may take a while...");
         return this.changeExponentToReactNative();
     }
@@ -197,7 +161,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
      * Returns the current user. If there is none, asks user for username and password and logins to exponent servers.
      */
     public loginToExponent(promptForInformation: (message: string, password: boolean) => Q.Promise<string>, showMessage: (message: string) => Q.Promise<string>): Q.Promise<XDL.IUser> {
-        this.lazylyInitialize();
+        this.lazilyInitialize();
         return XDL.currentUser()
             .then((user) => {
                 if (!user) {
@@ -216,6 +180,44 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
             })
             .catch(error => {
                 return Q.reject<XDL.IUser>(error);
+            });
+    }
+
+    /**
+     * Create exp.json file in the workspace root if not present
+     */
+    private ensureExpJson(): Q.Promise<void> {
+        this.lazilyInitialize();
+        let defaultSettings = {
+            "sdkVersion": "",
+            "entryPoint": EXPONENT_INDEX,
+            "slug": "",
+            "name": "",
+        };
+        return this.readVscodeExponentSettingFile()
+            .then(exponentJson => {
+                const expJsonPath = this.pathToFileInWorkspace(EXP_JSON);
+                if (!this.fileSystem.existsSync(expJsonPath) || exponentJson.overwriteExpJson) {
+                    return this.getPackageName()
+                        .then(name => {
+                            // Name and slug are supposed to be the same,
+                            // but slug only supports alpha numeric and -,
+                            // while name should be human readable
+                            defaultSettings.slug = name.replace(" ", "-");
+                            defaultSettings.name = name;
+                            return this.exponentSdk();
+                        })
+                        .then(exponentVersion => {
+                            if (!exponentVersion) {
+                                return XDL.supportedVersions()
+                                    .then((versions) => {
+                                        return Q.reject<void>(new Error(`React Native version not supported by exponent. Major versions supported: ${versions.join(", ")}`));
+                                    });
+                            }
+                            defaultSettings.sdkVersion = exponentVersion;
+                            return this.fileSystem.writeFile(expJsonPath, JSON.stringify(defaultSettings, null, 4));
+                        });
+                }
             });
     }
 
@@ -288,13 +290,13 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
                 if (vscodeExponentExists) {
                     return this.fileSystem.readFile(this.dotvscodePath(VSCODE_EXPONENT_JSON), "utf-8")
                         .then(function (jsonContents: string): Q.Promise<any> {
-                            return JSON.parse(jsonContents);
+                            return JSON.parse(stripJsonComments(jsonContents));
                         });
                 } else {
                     let defaultSettings = {
                         "entryPointFilename": "",
                         "entryPointComponent": "",
-                        "createOrOverwriteExpJson": true,
+                        "overwriteExpJson": false,
                     };
                     return this.getPackageName()
                         .then(packageName => {
@@ -325,7 +327,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
         if (this.expSdkVersion) {
             return Q(this.expSdkVersion);
         }
-        return this.readFromExpJson("sdkVersion")
+        return this.readFromExpJson<string>("sdkVersion")
             .then((sdkVersion) => {
                 if (showProgress) Log.logString(".");
                 if (sdkVersion) {
@@ -348,15 +350,16 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
     /**
      * Returns the specified setting from exp.json if it exists
      */
-    private readFromExpJson(setting: string): Q.Promise<string> {
-        return this.fileSystem.exists(this.pathToFileInWorkspace(EXP_JSON))
+    private readFromExpJson<T>(setting: string): Q.Promise<T> {
+        const expJsonPath = this.pathToFileInWorkspace(EXP_JSON);
+        return this.fileSystem.exists(expJsonPath)
             .then((exists: boolean) => {
                 if (!exists) {
                     return null;
                 }
-                return this.fileSystem.readFile(this.pathToFileInWorkspace(EXP_JSON), "utf-8")
-                    .then(function (jsonContents: string): Q.Promise<any> {
-                        return JSON.parse(jsonContents)[setting];
+                return this.fileSystem.readFile(expJsonPath, "utf-8")
+                    .then(function (jsonContents: string): Q.Promise<T> {
+                        return JSON.parse(stripJsonComments(jsonContents))[setting];
                     });
             });
     }
@@ -443,7 +446,7 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
     /**
      * Works as a constructor but only initiliazes when it's actually needed.
      */
-    private lazylyInitialize(): void {
+    private lazilyInitialize(): void {
         if (!this.hasInitialized) {
             this.hasInitialized = true;
             this.fileSystem = new FileSystem();

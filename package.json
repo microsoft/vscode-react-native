@@ -1,7 +1,7 @@
 {
     "name": "vscode-react-native",
     "displayName": "React Native Tools",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "private": true,
     "publisher": "vsmobile",
     "icon": "images/icon.svg",
@@ -203,6 +203,7 @@
         "options": "0.0.6",
         "q": "1.4.1",
         "semver": "5.1.0",
+        "strip-json-comments": "2.0.1",
         "typechecker": "2.0.8",
         "ultron": "1.0.2",
         "vscode-extension-telemetry": "0.0.5",
