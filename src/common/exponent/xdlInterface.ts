@@ -25,8 +25,7 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
     } catch (e) {
         if (e.code === "MODULE_NOT_FOUND") {
             Log.logMessage("Dependency not present. Installing it...", false);
-        }
-        else {
+        } else {
             throw e;
         }
     }

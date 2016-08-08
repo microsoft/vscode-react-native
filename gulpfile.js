@@ -11,6 +11,9 @@ var ts = require('gulp-typescript');
 var mocha = require('gulp-mocha');
 var GulpExtras = require("./tools/gulp-extras");
 var minimist = require('minimist');
+var os = require("os");
+var fs = require("fs");
+var Q = require("Q");
 
 var copyright = GulpExtras.checkCopyright;
 var imports = GulpExtras.checkImports;
@@ -134,7 +137,45 @@ gulp.task("clean", function () {
 });
 
 gulp.task("package", function (callback) {
-    var command = path.join(__dirname, "node_modules", ".bin", "vsce" + (process.platform === "win32" ? ".cmd" : ""));
+    var command = path.join(__dirname, "node_modules", ".bin", "vsce");
     var args = ["package"];
     executeCommand(command, args, callback);
 });
+
+gulp.task("release", ["build"], function () {
+    var licenseFiles = ["LICENSE.txt"];
+    var backupFolder = path.resolve(path.join(os.tmpdir(), 'vscode-react-native'));
+    if (!fs.existsSync(backupFolder)) {
+        fs.mkdirSync(backupFolder);
+    }
+
+    return Q({})
+        .then(function () {
+            /* back up LICENSE.txt, ThirdPartyNotices.txt, README.md */
+            console.log("Backing up license files to " + backupFolder + "...");
+            licenseFiles.forEach(function (fileName) {
+                fs.writeFileSync(path.join(backupFolder, fileName), fs.readFileSync(fileName));
+            });
+
+            /* copy over the release package license files */
+            console.log("Preparing license files for release...");
+            fs.writeFileSync('LICENSE.txt', fs.readFileSync('release/LICENSE.txt'));
+            //fs.writeFileSync('ThirdPartyNotices.txt', fs.readFileSync('release/release3party.txt'));
+        })/*.then(()=>{
+            console.log("Removing dev dependencies...");
+            var deferred = Q.defer();
+            executeCommand('npm', ['prune', '--production'], function (arg) { if (arg) { deferred.reject(arg);} deferred.resolve()} , {cwd: path.resolve(__dirname)});
+            return deferred.promise;
+        })*/.then(()=>{
+            console.log("Creating release package...");
+            var deferred = Q.defer();
+            executeCommand('vsce', ['package'], function (arg) { if (arg) { deferred.reject(arg);} deferred.resolve()} , {cwd: path.resolve(__dirname)});
+            return deferred.promise;
+        }).finally(function () {
+            /* restore backed up files */
+            console.log("Restoring modified files...");
+            licenseFiles.forEach(function (fileName) {
+                fs.writeFileSync(path.join(__dirname, fileName), fs.readFileSync(path.join(backupFolder, fileName)));
+            });
+        });
+})
