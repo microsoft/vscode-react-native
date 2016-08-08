@@ -9,6 +9,7 @@ import {FileSystem} from "../node/fileSystem";
 import {Package} from "../node/package";
 import {ReactNativeProjectHelper} from "../reactNativeProjectHelper";
 import {CommandVerbosity, CommandExecutor} from "../commandExecutor";
+import {HostPlatform} from "../hostPlatform";
 import {Log} from "../log/log";
 
 const VSCODE_EXPONENT_JSON = "vscodeExponent.json";
@@ -241,10 +242,10 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
                         }
                         const exponentFork = `github:exponentjs/react-native#sdk-${sdkVersion}`;
                         Log.logString("Uninstalling current react native package.");
-                        return Q(this.commandExecutor.spawnWithProgress("npm", ["uninstall", "react-native", "--verbose"], { verbosity: CommandVerbosity.PROGRESS }))
+                        return Q(this.commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"), ["uninstall", "react-native", "--verbose"], { verbosity: CommandVerbosity.PROGRESS }))
                             .then(() => {
                                 Log.logString("Installing exponent react native package.");
-                                return this.commandExecutor.spawnWithProgress("npm", ["install", exponentFork, "--cache-min", SECONDS_IN_DAY.toString(10), "--verbose"], { verbosity: CommandVerbosity.PROGRESS });
+                                return this.commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"), ["install", exponentFork, "--cache-min", SECONDS_IN_DAY.toString(10), "--verbose"], { verbosity: CommandVerbosity.PROGRESS });
                             });
                     });
             })
@@ -265,10 +266,10 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
                     return Q.resolve<void>(void 0);
                 }
                 Log.logString("Uninstalling current react native package.");
-                return Q(this.commandExecutor.spawnWithProgress("npm", ["uninstall", "react-native", "--verbose"], { verbosity: CommandVerbosity.PROGRESS }))
+                return Q(this.commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"), ["uninstall", "react-native", "--verbose"], { verbosity: CommandVerbosity.PROGRESS }))
                     .then(() => {
                         Log.logString("Installing correct react native package.");
-                        return this.commandExecutor.spawnWithProgress("npm", ["install", "react-native", "--cache-min", SECONDS_IN_DAY.toString(10), "--verbose"], { verbosity: CommandVerbosity.PROGRESS });
+                        return this.commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"), ["install", "react-native", "--cache-min", SECONDS_IN_DAY.toString(10), "--verbose"], { verbosity: CommandVerbosity.PROGRESS });
                     });
             })
             .then(() => {
