@@ -23,6 +23,7 @@ interface EnvironmentOptions {
 interface Options {
     env?: EnvironmentOptions;
     verbosity?: CommandVerbosity;
+    cwd?: string;
 }
 
 export enum CommandStatus {
@@ -182,7 +183,7 @@ export class CommandExecutor {
                 deferred.resolve(void 0);
             },
             reason => {
-                deferred.reject(void 0);
+                deferred.reject(reason);
                 return this.generateRejectionForCommand(commandWithArgs, reason);
             });
         return deferred.promise;

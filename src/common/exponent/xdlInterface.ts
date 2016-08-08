@@ -2,33 +2,38 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {CommandExecutor, CommandVerbosity} from "../commandExecutor";
+import {HostPlatform} from "../hostPlatform";
 import {Log} from "../log/log";
 
 import * as XDLPackage from "xdl";
+import * as path from "path";
 import * as Q from "q";
 
 const XDL_VERSION = "0.12.0";
-let xdlPackage: typeof XDLPackage;
+let xdlPackage: Q.Promise<typeof XDLPackage>;
 
 function getPackage(): Q.Promise<typeof XDLPackage> {
     if (xdlPackage) {
-        return Q(xdlPackage);
+        return xdlPackage;
     }
     // Don't do the require if we don't actually need it
     try {
         Log.logMessage("Getting exponent dependecy.", false);
-        xdlPackage = require("xdl");
-        return Q(xdlPackage);
+        const xdl = require("xdl");
+        xdlPackage = Q(xdl);
+        return xdlPackage;
     } catch (e) {
-        // Ignore if not found
+        Log.logMessage("Dependency not present. Installing it...", false);
     }
     let commandExecutor = new CommandExecutor();
-    Log.logMessage("Depencendy not present. Installing it...", false);
-    return commandExecutor.spawnWithProgress("npm", ["install", `xdl@${XDL_VERSION}`, "--verbose"], { verbosity: CommandVerbosity.PROGRESS })
-        .then(() => {
-            xdlPackage = require("xdl");
-            return xdlPackage;
+    xdlPackage = commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"),
+        ["install", `xdl@${XDL_VERSION}`, "--verbose"],
+        { verbosity: CommandVerbosity.PROGRESS,
+          cwd: path.dirname(require.resolve("../../../"))})
+        .then((): typeof XDLPackage => {
+            return require("xdl");
         });
+    return xdlPackage;
 }
 
 export type IUser = XDLPackage.IUser;

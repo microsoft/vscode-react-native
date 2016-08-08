@@ -119,9 +119,6 @@ export class ExtensionServer implements vscode.Disposable {
             .then(exponentUrl => {
                 this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
                 return exponentUrl;
-            })
-            .catch(error => {
-                return Q.reject(error);
             });
     }
 
