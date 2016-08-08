@@ -1,0 +1,76 @@
+{
+  "name": "vscode-react-native",
+  "version": "0.1.6",
+  "dependencies": {
+    "amdefine": {
+      "version": "1.0.0",
+      "from": "amdefine@>=0.0.4",
+      "resolved": "https://registry.npmjs.org/amdefine/-/amdefine-1.0.0.tgz"
+    },
+    "applicationinsights": {
+      "version": "0.15.6",
+      "from": "applicationinsights@0.15.6",
+      "resolved": "https://registry.npmjs.org/applicationinsights/-/applicationinsights-0.15.6.tgz"
+    },
+    "extract-opts": {
+      "version": "2.2.0",
+      "from": "extract-opts@2.2.0",
+      "resolved": "https://registry.npmjs.org/extract-opts/-/extract-opts-2.2.0.tgz"
+    },
+    "flatten-source-map": {
+      "version": "0.0.2",
+      "from": "flatten-source-map@0.0.2",
+      "resolved": "https://registry.npmjs.org/flatten-source-map/-/flatten-source-map-0.0.2.tgz"
+    },
+    "options": {
+      "version": "0.0.6",
+      "from": "options@0.0.6",
+      "resolved": "https://registry.npmjs.org/options/-/options-0.0.6.tgz"
+    },
+    "q": {
+      "version": "1.4.1",
+      "from": "q@1.4.1",
+      "resolved": "https://registry.npmjs.org/q/-/q-1.4.1.tgz"
+    },
+    "semver": {
+      "version": "5.1.0",
+      "from": "semver@5.1.0",
+      "resolved": "https://registry.npmjs.org/semver/-/semver-5.1.0.tgz"
+    },
+    "source-map": {
+      "version": "0.1.43",
+      "from": "source-map@>=0.1.43 <0.2.0",
+      "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.1.43.tgz"
+    },
+    "strip-json-comments": {
+      "version": "2.0.1",
+      "from": "strip-json-comments@2.0.1",
+      "resolved": "https://registry.npmjs.org/strip-json-comments/-/strip-json-comments-2.0.1.tgz"
+    },
+    "typechecker": {
+      "version": "2.0.8",
+      "from": "typechecker@2.0.8",
+      "resolved": "https://registry.npmjs.org/typechecker/-/typechecker-2.0.8.tgz"
+    },
+    "ultron": {
+      "version": "1.0.2",
+      "from": "ultron@1.0.2",
+      "resolved": "https://registry.npmjs.org/ultron/-/ultron-1.0.2.tgz"
+    },
+    "vscode-extension-telemetry": {
+      "version": "0.0.5",
+      "from": "vscode-extension-telemetry@0.0.5",
+      "resolved": "https://registry.npmjs.org/vscode-extension-telemetry/-/vscode-extension-telemetry-0.0.5.tgz"
+    },
+    "winreg": {
+      "version": "0.0.13",
+      "from": "winreg@0.0.13",
+      "resolved": "https://registry.npmjs.org/winreg/-/winreg-0.0.13.tgz"
+    },
+    "ws": {
+      "version": "1.0.1",
+      "from": "ws@1.0.1",
+      "resolved": "https://registry.npmjs.org/ws/-/ws-1.0.1.tgz"
+    }
+  }
+}
