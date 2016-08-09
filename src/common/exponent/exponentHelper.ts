@@ -16,6 +16,7 @@ import {Log} from "../log/log";
 const VSCODE_EXPONENT_JSON = "vscodeExponent.json";
 const EXPONENT_ENTRYPOINT = "exponentEntrypoint.js";
 const EXPONENT_INDEX = "exponentIndex.js";
+const DEFAULT_EXPONENT_INDEX = "main.js";
 const DEFAULT_IOS_INDEX = "index.ios.js";
 const DEFAULT_ANDROID_INDEX = "index.android.js";
 const EXP_JSON = "exp.json";
@@ -303,11 +304,17 @@ AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
                             // By default react-native uses the package name for the entry component. This is our safest guess.
                             defaultSettings.entryPointComponent = packageName;
                             this.entrypointComponentName = defaultSettings.entryPointComponent;
-                            return this.fileSystem.exists(this.pathToFileInWorkspace(DEFAULT_IOS_INDEX));
+                            return Q.all([
+                                this.fileSystem.exists(this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)),
+                                this.fileSystem.exists(this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)),
+                            ]);
                         })
-                        .then((indexIosExists: boolean) => {
+                        .spread((indexIosExists: boolean, mainExists: boolean) => {
                             // If there is an ios entrypoint we want to use that, if not let's go with android
-                            defaultSettings.entryPointFilename = indexIosExists ? DEFAULT_IOS_INDEX : DEFAULT_ANDROID_INDEX;
+                            defaultSettings.entryPointFilename =
+                                  mainExists ? DEFAULT_EXPONENT_INDEX
+                                : indexIosExists ? DEFAULT_IOS_INDEX
+                                : DEFAULT_ANDROID_INDEX;
                             this.entrypointFilename = defaultSettings.entryPointFilename;
                             return this.fileSystem.writeFile(this.dotvscodePath(VSCODE_EXPONENT_JSON), JSON.stringify(defaultSettings, null, 4));
                         })
