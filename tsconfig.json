@@ -15,6 +15,9 @@
         "SampleApplication/",
         "SampleApplication/node_modules",
         "SampleApplication/.vscode",
+        "SampleExponentApplication/",
+        "SampleExponentApplication/node_modules",
+        "SampleExponentApplication/.vscode",
         "ReactTypings",
         "tools/",
         "src/test/resources/sampleReactNative022Project/"

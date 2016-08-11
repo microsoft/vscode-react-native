@@ -100,26 +100,26 @@ var checkImports = function() {
     });
 };
 
-var executeCommand = function(command, args, callback) {
-    var process = child_process.spawn(command, args);
+var executeCommand = function(command, args, callback, opts) {
+    var proc = child_process.spawn(command + (process.platform === "win32" ? ".cmd" : ""), args, opts);
     var errorSignaled = false;
 
-    process.stdout.on("data", function(data) {
+    proc.stdout.on("data", function(data) {
         console.log("" + data);
     });
 
-    process.stderr.on("data", function(data) {
+    proc.stderr.on("data", function(data) {
         console.error("" + data);
     });
 
-    process.on("error", function(error) {
+    proc.on("error", function(error) {
         if (!errorSignaled) {
             callback("An error occurred. " + error);
             errorSignaled = true;
         }
     });
 
-    process.on("exit", function(code) {
+    proc.on("exit", function(code) {
         if (code === 0) {
             callback();
         } else if (!errorSignaled) {

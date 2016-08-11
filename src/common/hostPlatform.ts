@@ -62,7 +62,7 @@ class WindowsHostPlatform implements IHostPlatform {
     }
 
     public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
-        return targetPlatformId === TargetPlatformId.ANDROID;
+        return targetPlatformId === TargetPlatformId.ANDROID || targetPlatformId === TargetPlatformId.EXPONENT;
     }
 }
 
@@ -109,7 +109,7 @@ class OSXHostPlatform extends UnixHostPlatform {
     }
 
     public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
-        return targetPlatformId === TargetPlatformId.ANDROID || targetPlatformId === TargetPlatformId.IOS;
+        return targetPlatformId === TargetPlatformId.ANDROID || targetPlatformId === TargetPlatformId.IOS || targetPlatformId === TargetPlatformId.EXPONENT;
     }
 }
 
@@ -130,7 +130,7 @@ class LinuxHostPlatform extends UnixHostPlatform {
     }
 
     public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
-        return targetPlatformId === TargetPlatformId.ANDROID;
+        return targetPlatformId === TargetPlatformId.ANDROID || targetPlatformId === TargetPlatformId.EXPONENT;
     }
 }
 

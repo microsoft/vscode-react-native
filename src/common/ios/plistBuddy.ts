@@ -49,7 +49,7 @@ export class PlistBuddy {
     }
 
     private invokePlistBuddy(command: string, plistFile: string): Q.Promise<string> {
-        return this.nodeChildProcess.exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`).outcome.then((result: Buffer) => {
+        return this.nodeChildProcess.exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`).outcome.then((result: string) => {
             return result.toString().trim();
         });
     }

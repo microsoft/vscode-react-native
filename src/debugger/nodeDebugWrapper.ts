@@ -15,7 +15,7 @@ import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {ExtensionTelemetryReporter, ReassignableTelemetryReporter} from "../common/telemetryReporters";
 import {NodeDebugAdapterLogger} from "../common/log/loggers";
 import {Log} from "../common/log/log";
-import {GeneralMobilePlatform} from "./generalMobilePlatform";
+import {GeneralMobilePlatform} from "../common/generalMobilePlatform";
 
 export class NodeDebugWrapper {
     private projectRootPath: string;
@@ -79,7 +79,6 @@ export class NodeDebugWrapper {
                                 generator.step("checkPlatformCompatibility");
                                 TargetPlatformHelper.checkTargetPlatformSupport(nodeDebugWrapper.mobilePlatformOptions.platform);
                                 generator.step("startPackager");
-                                Log.logMessage("Starting React Native Packager.");
                                 return mobilePlatform.startPackager();
                             })
                             .then(() => {

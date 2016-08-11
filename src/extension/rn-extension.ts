@@ -34,12 +34,14 @@ import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./outputChannelLogger";
+import {ExponentHelper} from "../common/exponent/exponentHelper";
 
 /* all components use the same packager instance */
 const projectRootPath = vscode.workspace.rootPath;
 const globalPackager = new Packager(projectRootPath);
 const packagerStatusIndicator = new PackagerStatusIndicator();
-const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator);
+const globalExponentHelper = new ExponentHelper(projectRootPath);
+const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper);
 
 const outputChannelLogger = new OutputChannelLogger(vscode.window.createOutputChannel("React-Native"));
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
@@ -66,7 +68,7 @@ export function activate(context: vscode.ExtensionContext): void {
                             .then(() =>
                                 setupAndDispose(new ReactDirManager(), context))
                             .then(() =>
-                                setupAndDispose(new ExtensionServer(projectRootPath, globalPackager, packagerStatusIndicator), context))
+                                setupAndDispose(new ExtensionServer(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper), context))
                             .then(() => {}));
                     entryPointHandler.runFunction("intelliSense.setup",
                         ErrorHelper.getInternalError(InternalErrorCode.IntellisenseSetupFailed), () =>
@@ -122,7 +124,9 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     registerVSCodeCommand(context, "runAndroid", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => commandPaletteHandler.runAndroid());
     registerVSCodeCommand(context, "runIos", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => commandPaletteHandler.runIos());
     registerVSCodeCommand(context, "startPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager), () => commandPaletteHandler.startPackager());
+    registerVSCodeCommand(context, "startExponentPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStartExponentPackager), () => commandPaletteHandler.startExponentPackager());
     registerVSCodeCommand(context, "stopPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager), () => commandPaletteHandler.stopPackager());
+    registerVSCodeCommand(context, "publishToExpHost", ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost), () => commandPaletteHandler.publishToExpHost());
 }
 
 function registerVSCodeCommand(

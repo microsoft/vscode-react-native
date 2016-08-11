@@ -7,7 +7,7 @@ import * as path from "path";
 import {Log} from "../../common/log/log";
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
-import {GeneralMobilePlatform} from "../generalMobilePlatform";
+import {GeneralMobilePlatform} from "../../common/generalMobilePlatform";
 import {Compiler} from "./compiler";
 import {DeviceDeployer} from "./deviceDeployer";
 import {DeviceRunner} from "./deviceRunner";

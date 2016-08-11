@@ -11,6 +11,8 @@ export enum InternalErrorCode {
         FailedToStartPackager = 106,
         FailedToStopPackager = 107,
         PackagerRunningInDifferentPort = 108,
+        FailedToStartExponentPackager = 109,
+        FailedToPublishToExpHost = 110,
 
         // Device Deployer errors
         IDeviceInstallerNotFound = 201,
@@ -45,6 +47,7 @@ export enum InternalErrorCode {
         DebuggingFailedInNodeWrapper = 708,
         PlatformNotSupported = 709,
         WorkspaceNotFound = 710,
+        ExpectedExponentTunnelPath = 711,
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,

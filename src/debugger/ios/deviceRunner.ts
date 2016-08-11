@@ -176,7 +176,7 @@ export class DeviceRunner {
     private getDiskImage(): Q.Promise<string> {
         const nodeChildProcess = this.childProcess;
         // Attempt to find the OS version of the iDevice, e.g. 7.1
-        const versionInfo = nodeChildProcess.exec("ideviceinfo -s -k ProductVersion").outcome.then((stdout: Buffer) => {
+        const versionInfo = nodeChildProcess.exec("ideviceinfo -s -k ProductVersion").outcome.then((stdout: string) => {
             return stdout.toString().trim().substring(0, 3); // Versions for DeveloperDiskImage seem to be X.Y, while some device versions are X.Y.Z
             // NOTE: This will almost certainly be wrong in the next few years, once we hit version 10.0
         }, function(): string {
@@ -184,7 +184,7 @@ export class DeviceRunner {
         });
 
         // Attempt to find the path where developer resources exist.
-        const pathInfo = nodeChildProcess.exec("xcrun -sdk iphoneos --show-sdk-platform-path").outcome.then((stdout: Buffer) => {
+        const pathInfo = nodeChildProcess.exec("xcrun -sdk iphoneos --show-sdk-platform-path").outcome.then((stdout: string) => {
             return stdout.toString().trim();
         });
 
