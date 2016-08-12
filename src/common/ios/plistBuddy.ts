@@ -6,7 +6,7 @@ import * as Q from "q";
 
 import {Node} from "../../common/node/node";
 import {ChildProcess} from "../../common/node/childProcess";
-import {Xcodeproj} from "./xcodeproj";
+import {Xcodeproj, IXcodeProjFile} from "./xcodeproj";
 
 export class PlistBuddy {
     private static plistBuddyExecutable = "/usr/libexec/PlistBuddy";
@@ -23,11 +23,10 @@ export class PlistBuddy {
     }
 
     public getBundleId(projectRoot: string, simulator: boolean = true): Q.Promise<string> {
-        return this.xcodeproj.findXcodeprojFile(projectRoot).then((projectFile: string) => {
-            const appName = path.basename(projectFile, path.extname(projectFile));
+        return this.xcodeproj.findXcodeprojFile(projectRoot).then((projectFile: IXcodeProjFile) => {
             const infoPlistPath = path.join(projectRoot, "build", "Build", "Products",
                 simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
-                `${appName}.app`, "Info.plist");
+                `${projectFile.projectName}.app`, "Info.plist");
 
             return this.invokePlistBuddy("Print:CFBundleIdentifier", infoPlistPath);
         });

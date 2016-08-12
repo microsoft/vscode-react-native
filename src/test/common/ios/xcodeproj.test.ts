@@ -11,22 +11,22 @@ suite("xcodeproj", function() {
     suite("commonContext", function() {
         test("should look in the correct location for xcodeproj files and return one", function() {
             const projectRoot = path.join("/", "tmp", "myProject");
-            const extension = "xcodeproj";
             const testFiles = ["foo.xcodeproj"];
             const mockFileSystem: any = {
-                findFilesByExtension: (path: string, ext: string) => {
-                    if (extension !== ext) {
-                        throw new Error(`Expected ${extension} got ${ext}`);
-                    }
+                readDir: (path: string) => {
                     return Q(testFiles);
-                },
+                }
             };
 
             const xcodeproj = new Xcodeproj({ nodeFileSystem: mockFileSystem });
 
             return xcodeproj.findXcodeprojFile(projectRoot)
-                .then((file) => {
-                    assert.equal(file, testFiles[0]);
+                .then((proj) => {
+                    assert.deepEqual(proj, {
+                        filename: path.join(projectRoot, testFiles[0]),
+                        filetype: ".xcodeproj",
+                        projectName: "foo"
+                    });
                 });
         });
     });
