@@ -15,7 +15,7 @@ suite("xcodeproj", function() {
             const mockFileSystem: any = {
                 readDir: (path: string) => {
                     return Q(testFiles);
-                }
+                },
             };
 
             const xcodeproj = new Xcodeproj({ nodeFileSystem: mockFileSystem });
@@ -25,7 +25,7 @@ suite("xcodeproj", function() {
                     assert.deepEqual(proj, {
                         filename: path.join(projectRoot, testFiles[0]),
                         filetype: ".xcodeproj",
-                        projectName: "foo"
+                        projectName: "foo",
                     });
                 });
         });

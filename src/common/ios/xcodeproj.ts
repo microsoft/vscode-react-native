@@ -4,16 +4,12 @@
 import * as path from "path";
 import * as Q from "q";
 
-import {ErrorHelper} from "../../common/error/errorHelper";
-import {Log} from "../../common/log/log";
 import {FileSystem} from "../../common/node/fileSystem";
 
-import {TelemetryHelper} from "../../common/telemetryHelper";
-
 export interface IXcodeProjFile {
-    filename: string,
-    filetype: string,
-    projectName: string
+    filename: string;
+    filetype: string;
+    projectName: string;
 }
 
 export class Xcodeproj {
@@ -37,14 +33,14 @@ export class Xcodeproj {
                     throw new Error("Unable to find any xcodeproj or xcworkspace files.");
                 }
 
-                const filename = path.join(projectRoot, candidate)
+                const filename = path.join(projectRoot, candidate);
                 const filetype = path.extname(candidate);
-                const projectName = path.basename(candidate, filetype)
+                const projectName = path.basename(candidate, filetype);
                 return {
                     filename,
                     filetype,
-                    projectName
-                }
+                    projectName,
+                };
             });
     }
 }

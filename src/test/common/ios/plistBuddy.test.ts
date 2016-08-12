@@ -84,7 +84,7 @@ suite("plistBuddy", function() {
             mockedFindXcodeprojFile.withArgs(projectRoot).returns(Q.resolve({
                     filename: appName + ".xcodeproj",
                     filetype: ".xcodeproj",
-                    projectName: appName
+                    projectName: appName,
                 }));
             const mockXcodeproj: any = {
                 findXcodeprojFile: mockedFindXcodeprojFile,
