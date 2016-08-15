@@ -96,7 +96,7 @@ function test() {
         }));
 }
 
-gulp.task('test', ['build'], test);
+gulp.task('test', ['build', 'tslint'], test);
 gulp.task('test-no-build', test);
 
 gulp.task('check-imports', function (cb) {

@@ -5,7 +5,7 @@ import * as path from "path";
 import * as Q from "q";
 
 import {CommandExecutor} from "../../common/commandExecutor";
-import {Xcodeproj} from "../../common/ios/xcodeproj";
+import {Xcodeproj, IXcodeProjFile} from "../../common/ios/xcodeproj";
 
 export class Compiler {
     private projectRoot: string;
@@ -24,11 +24,10 @@ export class Compiler {
         Return the appropriate arguments for compiling a react native project
     */
     private xcodeBuildArguments(): Q.Promise<string[]> {
-        return new Xcodeproj().findXcodeprojFile(this.projectRoot).then((projectFile: string) => {
-            const projectName = path.basename(projectFile, path.extname(projectFile));
+        return new Xcodeproj().findXcodeprojFile(this.projectRoot).then((projectFile: IXcodeProjFile) => {
             return [
-                "-project", path.join(this.projectRoot, projectFile),
-                "-scheme", projectName,
+                projectFile.fileType === ".xcworkspace" ? "-workspace" : "-project", projectFile.fileName,
+                "-scheme", projectFile.projectName,
                 "-destination", "generic/platform=iOS", // Build for a generic iOS device
                 "-derivedDataPath", path.join(this.projectRoot, "build"),
             ];
