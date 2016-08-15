@@ -26,7 +26,7 @@ export class Compiler {
     private xcodeBuildArguments(): Q.Promise<string[]> {
         return new Xcodeproj().findXcodeprojFile(this.projectRoot).then((projectFile: IXcodeProjFile) => {
             return [
-                projectFile.filetype === ".xcworkspace" ? "-workspace" : "-project", path.join(this.projectRoot, projectFile),
+                projectFile.fileType === ".xcworkspace" ? "-workspace" : "-project", projectFile.fileName,
                 "-scheme", projectFile.projectName,
                 "-destination", "generic/platform=iOS", // Build for a generic iOS device
                 "-derivedDataPath", path.join(this.projectRoot, "build"),

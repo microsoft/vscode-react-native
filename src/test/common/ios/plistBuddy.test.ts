@@ -3,6 +3,8 @@
 
 import {PlistBuddy} from "../../../common/ios/plistBuddy";
 
+import {IXcodeProjFile} from "../../../common/ios/xcodeproj";
+
 import * as assert from "assert";
 import * as path from "path";
 import * as Q from "q";
@@ -81,11 +83,12 @@ suite("plistBuddy", function() {
             };
 
             const mockedFindXcodeprojFile = sinon.stub();
-            mockedFindXcodeprojFile.withArgs(projectRoot).returns(Q.resolve({
-                    filename: appName + ".xcodeproj",
-                    filetype: ".xcodeproj",
+            const mockedProjResult: IXcodeProjFile = {
+                    fileName: appName + ".xcodeproj",
+                    fileType: ".xcodeproj",
                     projectName: appName,
-                }));
+                };
+            mockedFindXcodeprojFile.withArgs(projectRoot).returns(Q.resolve(mockedProjResult));
             const mockXcodeproj: any = {
                 findXcodeprojFile: mockedFindXcodeprojFile,
             };

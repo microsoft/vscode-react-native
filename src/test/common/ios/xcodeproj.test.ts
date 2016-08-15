@@ -11,7 +11,9 @@ suite("xcodeproj", function() {
     suite("commonContext", function() {
         test("should look in the correct location for xcodeproj files and return one", function() {
             const projectRoot = path.join("/", "tmp", "myProject");
-            const testFiles = ["foo.xcodeproj"];
+            const projectName = "foo";
+            const fileType = ".xcodeproj";
+            const testFiles = [projectName + fileType];
             const mockFileSystem: any = {
                 readDir: (path: string) => {
                     return Q(testFiles);
@@ -23,9 +25,9 @@ suite("xcodeproj", function() {
             return xcodeproj.findXcodeprojFile(projectRoot)
                 .then((proj) => {
                     assert.deepEqual(proj, {
-                        filename: path.join(projectRoot, testFiles[0]),
-                        filetype: ".xcodeproj",
-                        projectName: "foo",
+                        fileName: path.join(projectRoot, testFiles[0]),
+                        fileType,
+                        projectName,
                     });
                 });
         });

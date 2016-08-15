@@ -7,8 +7,8 @@ import * as Q from "q";
 import {FileSystem} from "../../common/node/fileSystem";
 
 export interface IXcodeProjFile {
-    filename: string;
-    filetype: string;
+    fileName: string;
+    fileType: string;
     projectName: string;
 }
 
@@ -33,12 +33,12 @@ export class Xcodeproj {
                     throw new Error("Unable to find any xcodeproj or xcworkspace files.");
                 }
 
-                const filename = path.join(projectRoot, candidate);
-                const filetype = path.extname(candidate);
-                const projectName = path.basename(candidate, filetype);
+                const fileName = path.join(projectRoot, candidate);
+                const fileType = path.extname(candidate);
+                const projectName = path.basename(candidate, fileType);
                 return {
-                    filename,
-                    filetype,
+                    fileName,
+                    fileType,
                     projectName,
                 };
             });
