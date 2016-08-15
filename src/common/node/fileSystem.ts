@@ -130,16 +130,6 @@ export class FileSystem {
         return Q.nfcall<void>(this.fs.unlink, filename);
     }
 
-    public findFilesByExtension(folder: string, extension: string): Q.Promise<string[]> {
-        return Q.nfcall(this.fs.readdir, folder).then((files: string[]) => {
-            const extFiles = files.filter((file: string) => path.extname(file) === `.${extension}`);
-            if (extFiles.length === 0) {
-                throw new Error(`Unable to find any ${extension} files.`);
-            }
-            return extFiles;
-        });
-    }
-
     public mkDir(p: string): Q.Promise<void> {
         return Q.nfcall<void>(this.fs.mkdir, p);
     }
