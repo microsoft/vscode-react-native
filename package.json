@@ -52,7 +52,7 @@
                 "label": "React Native",
                 "program": "./out/debugger/reactNativeDebugEntryPoint.js",
                 "runtime": "node",
-                "enableBrekapointsFor": {
+                "enableBreakpointsFor": {
                     "languageIds": [
                         "javascript",
                         "typescript",
