@@ -16,6 +16,7 @@ interface EnvironmentOptions {
 
 interface Options {
     env?: EnvironmentOptions;
+    silent?: boolean;
 }
 
 export enum CommandStatus {
@@ -34,11 +35,15 @@ export class CommandExecutor {
     }
 
     public execute(command: string, options: Options = {}): Q.Promise<void> {
-        Log.logCommandStatus(command, CommandStatus.Start);
+        if (!options.silent) {
+            Log.logCommandStatus(command, CommandStatus.Start);
+        }
         return this.childProcess.execToString(command, { cwd: this.currentWorkingDirectory, env: options.env })
             .then(stdout => {
-                Log.logMessage(stdout);
-                Log.logCommandStatus(command, CommandStatus.End);
+                if (!options.silent) {
+                    Log.logMessage(stdout);
+                    Log.logCommandStatus(command, CommandStatus.End);
+                }
             },
             (reason: Error) =>
                 this.generateRejectionForCommand(command, reason));

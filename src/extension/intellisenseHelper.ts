@@ -74,6 +74,12 @@ export class IntellisenseHelper {
 
         let fileSystem = new FileSystem();
 
+        const createTypingsDirectoryIfNeeded = fileSystem.directoryExists(typingsDestination).
+            then((exists) => {
+                if (!exists) {
+                    return fileSystem.makeDirectoryRecursiveSync(typingsDestination);
+                }
+            });
         const copyReactTypingsIfNeeded = fileSystem.directoryExists(reactTypingsDestination)
             .then((exists) => {
                 if (!exists) {
@@ -86,7 +92,7 @@ export class IntellisenseHelper {
                     return fileSystem.copyRecursive(reactNativeTypings, reactNativeTypingsDestination);
                 }
             });
-        return Q.all([copyReactTypingsIfNeeded, copyReactNativeTypingsIfNeeded]).then(() => { });
+        return Q.all([createTypingsDirectoryIfNeeded, copyReactTypingsIfNeeded, copyReactNativeTypingsIfNeeded]).then(() => { });
     }
 
     /**

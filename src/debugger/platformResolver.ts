@@ -4,7 +4,7 @@
 import {IRunOptions} from "../common/launchArgs";
 import {IOSPlatform} from "./ios/iOSPlatform";
 import {AndroidPlatform} from "../common/android/androidPlatform";
-import {GeneralMobilePlatform} from "./generalMobilePlatform";
+import {GeneralMobilePlatform} from "../common/generalMobilePlatform";
 
 export class PlatformResolver {
 
