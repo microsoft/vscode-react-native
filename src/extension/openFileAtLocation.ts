@@ -11,13 +11,25 @@ import * as Q from "q";
 /* Usage:
 ...path\openFileAtLocation.js filename:lineNumber
 ...path\openFileAtLocation.js filename
+...path\openFileAtLocation.js workspace filename:lineNumber
+...path\openFileAtLocation.js workspace filename
 */
 
 if (process.argv.length < 3) {
     throw "Wrong number of parameters provided. Please refer to the usage of this script for proper use.";
 }
 
-const fullpath = process.argv[2];
+let fullpath: string;
+let workspace: string;
+
+if (process.argv.length === 3) {
+    fullpath = process.argv[2];
+    workspace = null;
+} else {
+    fullpath = process.argv[3];
+    workspace = process.argv[2];
+}
+
 const dirname = path.normalize(path.dirname(fullpath));
 
 // In Windows this should make sure c:\ is always lowercase and in
@@ -41,6 +53,9 @@ getReactNativeWorkspaceForFile(filename).then(projectRootPath => {
 });
 
 function getReactNativeWorkspaceForFile(file: string): Q.Promise<string> {
+    if (workspace) {
+        return Q(workspace);
+    }
     return getPathForRNParentWorkspace(path.dirname(file))
         .catch((reason) => {
             return Q.reject<string>(ErrorHelper.getNestedError(reason, InternalErrorCode.WorkspaceNotFound, `Error while looking at workspace for file: ${file}.`));
