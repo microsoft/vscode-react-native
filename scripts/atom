@@ -1,19 +1,22 @@
-#!/bin/sh
+#!/bin/node
 
-# This script is called 'atom' to surpass the react-native
-# editor selection. It has nothing to do with the atom editor.
-# It can be safetly removed when the PR to support vscode in
-# react native gets accepted:
-# https://github.com/facebook/react-native/pull/7757
-#
-# Usage:
-# ../path/atom filename:filenumber
+/*
+ This script is called 'atom' to surpass the react-native
+ editor selection. It has nothing to do with the atom editor.
+ It can be safetly removed when the PR to support vscode in
+ react native gets accepted:
+ https://github.com/facebook/react-native/pull/7757
 
-# Unix
-if [[ -z "$1" ]] ; then
-    echo "Missing filename."
-    exit 1
-fi
+ Usage:
+ atom filename:linenumber
+ or
+ atom path/to/workspace/root filename:linenumber
 
-parent_path=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
-node "$parent_path/../out/extension/openFileAtLocation.js" "$1"
+*/
+
+if (process.argv.length < 3) {
+    console.error("Missing filename");
+    process.exit(1);
+}
+
+require("../out/extension/openFileAtLocation");

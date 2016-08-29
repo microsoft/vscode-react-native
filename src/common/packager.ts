@@ -196,6 +196,6 @@ export class Packager {
     }
 
     private openFileAtLocationCommand(): string {
-        return path.join(__dirname, "..", "..", "scripts", "atom");
+        return "node " + path.join(__dirname, "..", "..", "scripts", "atom");
     }
 }
