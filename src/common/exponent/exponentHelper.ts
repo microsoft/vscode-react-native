@@ -130,14 +130,7 @@ var {AppRegistry} = ReactNative;
 var EntryPoint = require('./exponentEntrypoint.js');
 var {${componentName}} = EntryPoint;
 
-class ExponentVSCodeEntryPoint extends Component {
-  render() {
-    return (
-      <${componentName} />
-    );
-  }
-}
-AppRegistry.registerComponent('main', () => ExponentVSCodeEntryPoint);`;
+AppRegistry.registerComponent('main', () => ${componentName});`;
                 return this.fileSystem.writeFile(this.dotvscodePath(EXPONENT_INDEX), fileContents);
             });
     }
