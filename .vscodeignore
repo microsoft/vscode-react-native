@@ -7,7 +7,6 @@ src/**
 out/test/**
 **/*.js.map
 SampleApplication/**
-SampleExponentApplication/**
 tools/**
 .vscodeignore
 .travis.yml
