@@ -25,6 +25,7 @@
     "FailedToRunOnIos": "Failed to run the application in iOS",
     "FailedToStartPackager": "Failed to start the React Native packager",
     "FailedToStopPackager": "Failed to stop the React Native packager",
+    "FailedToRestartPackager": "Failed to restart the React Native packager",
     "DebuggingFailed": "Cannot debug application",
     "DebuggingFailedInNodeWrapper": "Cannot debug application due to an error in the internal Node Debugger",
     "RNTempFolderDeletionFailed": "Couldn't delete the temporary folder {0}",
