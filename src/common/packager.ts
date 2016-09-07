@@ -97,7 +97,7 @@ export class Packager {
             if (running) {
                 if (!this.packagerProcess) {
                     Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
-                    return Q.resolve<void>(void 1);
+                    return Q.resolve<void>(void 0);
                 }
                 return this.killPackagerProcess();
             } else {
