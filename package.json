@@ -52,6 +52,10 @@
             {
                 "command": "reactNative.restartPackager",
                 "title": "React Native: Restart Packager"
+            },
+            {
+                "command": "reactNative.publishToExpHost",
+                "title": "React Native: Publish to Exponent"
             }
         ],
         "debuggers": [
