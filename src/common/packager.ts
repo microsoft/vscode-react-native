@@ -129,8 +129,7 @@ export class Packager {
             .then(stoppedOK => {
                 if (stoppedOK) {
                     return this.start(port, true);
-                }
-                else {
+                } else {
                     return Q.resolve<void>(void 0);
                 }
             });
