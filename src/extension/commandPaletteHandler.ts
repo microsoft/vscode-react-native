@@ -42,6 +42,14 @@ export class CommandPaletteHandler {
     }
 
     /**
+     * Restarts the React Native packager
+     */
+    public restartPackager(): Q.Promise<void> {
+        return this.executeCommandInContext("restartPackager", () =>
+            this.runRestartPackagerCommandAndUpdateStatus());
+    }
+
+    /**
      * Executes the 'react-native run-android' command
      */
     public runAndroid(): Q.Promise<void> {
@@ -67,7 +75,12 @@ export class CommandPaletteHandler {
     }
 
     private runStartPackagerCommandAndUpdateStatus(): Q.Promise<void> {
-        return this.reactNativePackager.start(SettingsHelper.getPackagerPort())
+        return this.reactNativePackager.start(SettingsHelper.getPackagerPort(), false)
+            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+    }
+
+    private runRestartPackagerCommandAndUpdateStatus(): Q.Promise<void> {
+        return this.reactNativePackager.restart(SettingsHelper.getPackagerPort())
             .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 

@@ -41,7 +41,7 @@ export class Packager {
         return Packager.getHostForPort(this.port);
     }
 
-    public start(port: number): Q.Promise<void> {
+    public start(port: number, clearCache: boolean): Q.Promise<void> {
         if (this.port && this.port !== port) {
             return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
         }
@@ -55,6 +55,9 @@ export class Packager {
                     return this.monkeyPatchOpnForRNPackager()
                         .then(() => {
                             let args = ["--port", port.toString()];
+                            if (clearCache) {
+                                args = args.concat("--resetCache");
+                            }
                             let reactEnv = Object.assign({}, process.env, {
                                 REACT_DEBUGGER: "echo A debugger is not needed: ",
                                 REACT_EDITOR: this.openFileAtLocationCommand(),
@@ -94,7 +97,7 @@ export class Packager {
             if (running) {
                 if (!this.packagerProcess) {
                     Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
-                    return Q.resolve<void>(void 0);
+                    return Q.resolve<void>(void 1);
                 }
                 return this.killPackagerProcess();
             } else {
@@ -102,6 +105,35 @@ export class Packager {
                 return Q.resolve<void>(void 0);
             }
         });
+    }
+
+    public restart(port: number): Q.Promise<void> {
+        if (this.port && this.port !== port) {
+            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
+        }
+
+        return this.isRunning()
+            .then(running => {
+                if (running) {
+                    if (!this.packagerProcess) {
+                        Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager. Then try the restart packager again."));
+                        return Q.resolve<boolean>(false);
+                    }
+
+                    return this.killPackagerProcess().then(() => Q.resolve<boolean>(true))
+                } else {
+                    Log.logWarning(ErrorHelper.getWarning("Packager is not running"));
+                    return Q.resolve<boolean>(true);
+                }
+            })
+            .then(stoppedOK => {
+                if (stoppedOK) {
+                    return this.start(port, true);
+                }
+                else {
+                    return Q.resolve<void>(void 0);
+                }
+            });
     }
 
     public prewarmBundleCache(platform: string) {

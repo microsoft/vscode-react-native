@@ -44,6 +44,10 @@
             {
                 "command": "reactNative.stopPackager",
                 "title": "React Native: Stop Packager"
+            },
+            {
+                "command": "reactNative.restartPackager",
+                "title": "React Native: Restart Packager"
             }
         ],
         "debuggers": [
