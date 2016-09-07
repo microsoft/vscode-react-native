@@ -11,6 +11,7 @@ import {Crypto} from "./node/crypto";
 export enum ExtensionMessage {
     START_PACKAGER,
     STOP_PACKAGER,
+    RESTART_PACKAGER,
     PREWARM_BUNDLE_CACHE,
     START_MONITORING_LOGCAT,
     STOP_MONITORING_LOGCAT,

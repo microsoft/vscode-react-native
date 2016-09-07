@@ -33,6 +33,7 @@ export class ExtensionServer implements vscode.Disposable {
         /* register handlers for all messages */
         this.messageHandlerDictionary[em.ExtensionMessage.START_PACKAGER] = this.startPackager;
         this.messageHandlerDictionary[em.ExtensionMessage.STOP_PACKAGER] = this.stopPackager;
+        this.messageHandlerDictionary[em.ExtensionMessage.RESTART_PACKAGER] = this.restartPackager;
         this.messageHandlerDictionary[em.ExtensionMessage.PREWARM_BUNDLE_CACHE] = this.prewarmBundleCache;
         this.messageHandlerDictionary[em.ExtensionMessage.START_MONITORING_LOGCAT] = this.startMonitoringLogCat;
         this.messageHandlerDictionary[em.ExtensionMessage.STOP_MONITORING_LOGCAT] = this.stopMonitoringLogCat;
@@ -88,7 +89,7 @@ export class ExtensionServer implements vscode.Disposable {
      */
     private startPackager(port?: any): Q.Promise<any> {
         const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
-        return this.reactNativePackager.start(portToUse)
+        return this.reactNativePackager.start(portToUse, false)
             .then(() =>
                 this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
@@ -99,6 +100,16 @@ export class ExtensionServer implements vscode.Disposable {
     private stopPackager(): Q.Promise<any> {
         return this.reactNativePackager.stop()
             .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
+    }
+
+    /**
+     * Message handler for RESTART_PACKAGER.
+     */
+    private restartPackager(port?: any): Q.Promise<any> {
+        const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
+        return this.reactNativePackager.restart(portToUse)
+            .then(() =>
+                this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
     /**
