@@ -41,7 +41,7 @@ export class Packager {
         return Packager.getHostForPort(this.port);
     }
 
-    public start(port: number, clearCache: boolean): Q.Promise<void> {
+    public start(port: number, resetCache: boolean): Q.Promise<void> {
         if (this.port && this.port !== port) {
             return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
         }
@@ -55,7 +55,7 @@ export class Packager {
                     return this.monkeyPatchOpnForRNPackager()
                         .then(() => {
                             let args = ["--port", port.toString()];
-                            if (clearCache) {
+                            if (resetCache) {
                                 args = args.concat("--resetCache");
                             }
                             let reactEnv = Object.assign({}, process.env, {
@@ -120,7 +120,7 @@ export class Packager {
                         return Q.resolve<boolean>(false);
                     }
 
-                    return this.killPackagerProcess().then(() => Q.resolve<boolean>(true))
+                    return this.killPackagerProcess().then(() => Q.resolve<boolean>(true));
                 } else {
                     Log.logWarning(ErrorHelper.getWarning("Packager is not running"));
                     return Q.resolve<boolean>(true);
