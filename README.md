@@ -136,7 +136,7 @@ We support using exponentjs to run, debug and publish your applications.
 
 When you use exponent for the first time in vscode (either to run, debug or publish) you will notice that we created a couple of files for you.
 
-This files are: `.vscode/exponentEntrypoint.js`, `.vscode/exponentIndex.js`, `.vscode/vscodeExponent.json` and `exp.json`.
+This files are: `.vscode/exponentIndex.js`, `.vscode/vscodeExponent.json` and `exp.json`.
 
 ### How does it work
 
@@ -146,23 +146,30 @@ Under your `.vscode/` directory there will be a `vscodeExponent.json` file. This
 {
     "entryPointFilename": ""          // File under the project root that is used as an entrypoint. We look for index.ios.js or index.android.js
     "entryPointComponent": ""         // Name of the main component used in your entrypoint. By default it's the same name as your app
-    "createOrOverwriteExpJson": true  // If true we will create and overwrite exp.json everytime. If you need a custom exp.json set this to false.
+    "createOrOverwriteExpJson": false  // If true we will create and overwrite exp.json everytime. If you need a custom exp.json ensure this is false.
 }
 ```
 
 Don't worry, we will be prepopulating this file with some defaults, but in case you need to customize it you are free to do it!
 
-We will be copying your desired entrypoint to `.vscode/exponentEntrypoint.js` with some minimal changes required to run in exponent. After that is set, `.vscode/exponentIndex.js` will call the entrypoint component as the starting point of the application.
+When running under exponent, your application will start via `.vscode/exponentIndex.js` will reference the `entryPointFilename` from `vscodeExponent.json`.
+If you change your application's entry point (e.g. changing from `index.ios.js` to `index.android.js`), delete or update `.vscode/exponentIndex.js`
+for it to take effect.
 
-If we guessed the filename or component wrong, or you want to try out different entrypoints feel free to modify `.vscode/vscodeExponent.json` to try out whatever suits your needs.
+If we guessed the filename or component wrong, or you want to try out different entrypoints feel free to modify `.vscode/vscodeExponent.json` to try
+out whatever suits your needs.
 
-If you are an experienced exponent user, or you want to customize your `exp.json` set `createOrOverwriteExpJson` to false in `.vscode/vscodeExponent.json`. This will let you have your own version of `exp.json` without overwritting it wach time we run something.
+If you are an experienced exponent user, or you want to customize your `exp.json` set `createOrOverwriteExpJson` to false in `.vscode/vscodeExponent.json`.
+This will let you have your own version of `exp.json` without overwritting it wach time we run something.
 
 ### Running in exponent
 
-To run, debug or publish in exponent is necesary to be logged in. If you don't have an exponent account don't worry, just give username and password as a normal login and we will create an account for you.
+To run, debug or publish in exponent is necesary to be logged in. If you don't have an exponent account don't worry, just give username and password
+as a normal login and we will attempt to create an account for you.
 
-After you are logged in, VS Code will make sure you are using the correct react native package (exponent requires a specific fork, more info [here](https://docs.getexponent.com/)) and create all the necesary files to convert your react native project to an exponent project.
+After you are logged in, VS Code will make sure you are using the correct react native package (exponent requires a specific fork, more info
+[here](https://docs.getexponent.com/)) and create all the necesary files to convert your react native project to an exponent project. Only certain versions
+of react-native are supported by exponent, if running in exponent fails then check the packager output for more details.
 
 You don't have to worry for changing back the version of react native, if you want to run a normal packager again we will make sure to change that dependency for you.
 
@@ -170,7 +177,8 @@ You don't have to worry for changing back the version of react native, if you wa
 
  **Q: I was working with a React Native version and after debugging in exponent I decided to update it, why is exponent not updating automatically?**
 
- We have a cache that keeps the version of the exponent SDK used by your project. This is helpfull since we don't want to install the SDK each time you run exponent. If you want us to update the SDK version based on your React Native version just restart VSCode and we should be able to do it if it's supported.
+ We have a cache that keeps the version of the exponent SDK used by your project. This is helpfull since we don't want to install the SDK each time you run
+ exponent. If you want us to update the SDK version based on your React Native version just restart VSCode and we should be able to do it if it's supported.
 
 ## Known Issues
 
