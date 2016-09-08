@@ -120,6 +120,10 @@ For using a custom port for the `react-native` packager:
 }
 ```
 
+If you change this port, then for iOS device and simulator scenarios you will have to modify the native code entry point in `AppDelegate.m` to reflect the new port.
+For Android, we will use `adb reverse` to tunnel the default port `8081` on the device to the specified port on the local machine, so no further configuration should
+be necessary. Note that some aspects of React-Native hard-code the port to the default as specified in [this issue](https://github.com/facebook/react-native/issues/9145).
+
 To use a different `Typescript TSDK` version than the one that comes with vscode:
 
 ```
