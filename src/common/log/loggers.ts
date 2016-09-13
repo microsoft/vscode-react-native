@@ -10,6 +10,7 @@ export interface ILogger {
     logMessage: (message: string, formatMessage?: boolean) => void;
     logError: (errorMessage: string, error?: any, logStack?: boolean) => void;
     logStreamData: (data: Buffer, stream: NodeJS.WritableStream) => void;
+    logString: (data: string) => void;
     logInternalMessage: (logLevel: LogLevel, message: string) => void;
     setFocusOnLogChannel: () => void;
 }
@@ -32,6 +33,10 @@ export class ConsoleLogger implements ILogger {
 
     public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
         stream.write(data.toString());
+    }
+
+    public logString(data: string) {
+        this.logMessage(data, false);
     }
 
     public logInternalMessage(logLevel: LogLevel, message: string) {
@@ -73,6 +78,10 @@ export class StreamLogger implements ILogger {
 
     public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
         stream.write(data.toString());
+    }
+
+    public logString(data: string) {
+        this.logMessage(data, false);
     }
 
     public logInternalMessage(logLevel: LogLevel, message: string) {
@@ -117,6 +126,10 @@ export class NodeDebugAdapterLogger implements ILogger {
 
     public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
         this.logMessage(data.toString(), false);
+    }
+
+    public logString(data: string) {
+        this.logMessage(data, false);
     }
 
     public logInternalMessage(logLevel: LogLevel, message: string) {

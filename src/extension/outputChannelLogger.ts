@@ -31,6 +31,10 @@ export class DelayedOutputChannelLogger implements ILogger {
         this.logger.logStreamData(data, stream);
     }
 
+    public logString(data: string) {
+        this.logger.logString(data);
+    }
+
     public setFocusOnLogChannel() {
         this.logger.setFocusOnLogChannel();
     }
@@ -67,6 +71,10 @@ export class OutputChannelLogger implements ILogger {
 
     public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
         this.outputChannel.append(data.toString());
+    }
+
+    public logString(data: string) {
+        this.outputChannel.append(data);
     }
 
     public setFocusOnLogChannel() {

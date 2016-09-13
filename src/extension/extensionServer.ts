@@ -15,6 +15,7 @@ import {FileSystem} from "../common/node/fileSystem";
 import {ConfigurationReader} from "../common/configurationReader";
 import {SettingsHelper} from "./settingsHelper";
 import {Telemetry} from "../common/telemetry";
+import {ExponentHelper} from "../common/exponent/exponentHelper";
 
 export class ExtensionServer implements vscode.Disposable {
     private serverInstance: net.Server = null;
@@ -23,12 +24,14 @@ export class ExtensionServer implements vscode.Disposable {
     private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private pipePath: string;
     private logCatMonitor: LogCatMonitor = null;
+    private exponentHelper: ExponentHelper;
 
-    public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
+    public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator, exponentHelper: ExponentHelper) {
 
         this.pipePath = new em.MessagingChannel(projectRootPath).getPath();
         this.reactNativePackager = reactNativePackager;
         this.reactNativePackageStatusIndicator = packagerStatusIndicator;
+        this.exponentHelper = exponentHelper;
 
         /* register handlers for all messages */
         this.messageHandlerDictionary[em.ExtensionMessage.START_PACKAGER] = this.startPackager;
@@ -40,6 +43,8 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.GET_PACKAGER_PORT] = this.getPackagerPort;
         this.messageHandlerDictionary[em.ExtensionMessage.SEND_TELEMETRY] = this.sendTelemetry;
         this.messageHandlerDictionary[em.ExtensionMessage.OPEN_FILE_AT_LOCATION] = this.openFileAtLocation;
+        this.messageHandlerDictionary[em.ExtensionMessage.START_EXPONENT_PACKAGER] = this.startExponentPackager;
+        this.messageHandlerDictionary[em.ExtensionMessage.SHOW_INFORMATION_MESSAGE] = this.showInformationMessage;
     }
 
     /**
@@ -88,10 +93,43 @@ export class ExtensionServer implements vscode.Disposable {
      * Message handler for START_PACKAGER.
      */
     private startPackager(port?: any): Q.Promise<any> {
-        const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
-        return this.reactNativePackager.start(portToUse, false)
-            .then(() =>
+        return this.reactNativePackager.isRunning().then((running) => {
+            if (running) {
+                return this.reactNativePackager.stop();
+            }
+        }).then(() =>
+            this.exponentHelper.configureReactNativeEnvironment()
+        ).then(() => {
+            const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
+            return this.reactNativePackager.startAsReactNative(portToUse);
+        })
+        .then(() =>
                 this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+    }
+
+    /**
+     * Message handler for START_EXPONENT_PACKAGER.
+     */
+    private startExponentPackager(port?: any): Q.Promise<any> {
+        return this.reactNativePackager.isRunning().then((running) => {
+            if (running) {
+                return this.reactNativePackager.stop();
+            }
+        }).then(() =>
+            this.exponentHelper.configureExponentEnvironment()
+        ).then(() =>
+            this.exponentHelper.loginToExponent(
+                (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
+                (message) => { return Q(vscode.window.showInformationMessage(message)); }
+            ))
+        .then(() => {
+            const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
+            return this.reactNativePackager.startAsExponent(portToUse);
+        })
+        .then(exponentUrl => {
+            this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
+            return exponentUrl;
+        });
     }
 
     /**
@@ -227,5 +265,12 @@ export class ExtensionServer implements vscode.Disposable {
                 clientSocket.end();
             });
         }
+    }
+
+    /**
+     * Message handler for SHOW_INFORMATION_MESSAGE
+     */
+    private showInformationMessage(message: string): Q.Promise<void> {
+        return Q(vscode.window.showInformationMessage(message)).then(() => {});
     }
 }

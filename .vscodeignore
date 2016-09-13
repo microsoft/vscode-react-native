@@ -18,4 +18,3 @@ release/**
 .github/**
 .npmignore
 npm-shrinkwrap.json
-prepareBuild.bat

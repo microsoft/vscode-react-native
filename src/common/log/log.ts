@@ -73,6 +73,13 @@ export module Log {
     }
 
     /**
+     * Logs string
+     */
+    export function logString(data: string) {
+        globalLogger.logString(data);
+    }
+
+    /**
      * Brings the target output window to focus.
      */
     export function setFocusOnLogChannel() {
