@@ -811,7 +811,7 @@ declare namespace __React {
         testID?: string
     }
 
-    export interface TextPropertiesIOS extends React.Props<TextPropertiesIOS> {
+    export interface TextPropertiesIOS {
         /**
          * Specifies whether fonts should scale to respect Text Size accessibility setting on iOS. The
          * default is `true`.
@@ -835,7 +835,7 @@ declare namespace __React {
         suppressHighlighting?: boolean
     }
 
-    export interface TextPropertiesAndroid extends React.Props<TextPropertiesAndroid> {
+    export interface TextPropertiesAndroid {
         /**
          * Lets the user select text, to use the native copy and paste functionality.
          */
@@ -843,7 +843,7 @@ declare namespace __React {
     }
 
     // https://facebook.github.io/react-native/docs/text.html#props
-    export interface TextProperties extends TextPropertiesIOS, TextPropertiesAndroid, React.Props<TextProperties> {
+    export interface TextProperties extends TextPropertiesIOS, TextPropertiesAndroid, React.Props<TextStatic> {
 
         /**
          * When set to `true`, indicates that the view is an accessibility element. The default value
@@ -917,8 +917,6 @@ declare namespace __React {
          * Used to locate this view in end-to-end tests.
          */
         testID?: string
-
-        ref?: Ref<TextPropertiesIOS & TextPropertiesAndroid & TextProperties>
     }
 
     /**
