@@ -649,7 +649,7 @@ declare namespace __React {
         flexGrow?: number
         flexShrink?: number
         flexBasis?: number
-        flexDirection?: "row" | "column" | "row-reverse" | "column-reverse"
+        flexDirection?: FlexDirection
         flexWrap?: "wrap" | "nowrap"
         height?: number
         justifyContent?: FlexJustifyType
@@ -6527,8 +6527,6 @@ declare namespace __React {
         /**
          * Saves the image to the camera roll / gallery.
          *
-         * The CameraRoll API is not yet implemented for Android.
-         *
          * @tag On Android, this is a local URI, such as "file:///sdcard/img.png".
          * On iOS, the tag can be one of the following:
          *      local URI
@@ -6536,7 +6534,6 @@ declare namespace __React {
          *      a tag not maching any of the above, which means the image data will be stored in memory (and consume memory as long as the process is alive)
          *
          * @deprecated use saveToCameraRoll instead
-         *
          */
         saveImageWithTag( tag: string ): Promise<string>
 
@@ -7199,20 +7196,10 @@ declare namespace __React {
     }
 
     /**
-     * StatusBarIOS is being deprecated.
-     * @see https://github.com/facebook/react-native/commit/4de616b4c1a9d3556632a93504828f0539fa4fa5
-     *
-     * //FIXME: No documentation is available (although this is self explanatory)
-     *
-     * @see https://facebook.github.io/react-native/docs/statusbarios.html#content
+     * StatusBarIOS is deprecated.
+     * Use `StatusBar` for mutating the status bar.
      */
-    export interface StatusBarIOSStatic {
-
-        setStyle(style: StatusBarStyle, animated?: boolean): void
-
-        setHidden(hidden: boolean, animation?: StatusBarAnimation): void
-
-        setNetworkActivityIndicatorVisible(visible: boolean): void
+    export class StatusBarIOSStatic extends NativeEventEmitter {
     }
 
     type TimePickerAndroidOpenOptions = {
