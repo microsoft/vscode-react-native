@@ -203,7 +203,7 @@ declare namespace __React {
          * @param {string} eventType
          * @returns {?array}
          */
-        getSubscriptionsForType(eventType: string): EventSubscription[] | null
+        getSubscriptionsForType(eventType: string): EventSubscription[]
     }
 
     /**
@@ -961,10 +961,10 @@ declare namespace __React {
         isCollapsed(): boolean
         isBackward(): boolean
 
-        getAnchorOffset(): number | null
-        getFocusOffset(): number | null
-        getStartOffset(): number | null
-        getEndOffset(): number | null
+        getAnchorOffset(): number
+        getFocusOffset(): number
+        getStartOffset(): number
+        getEndOffset(): number
         overlaps(start: number, end: number): boolean
     }
 
@@ -1247,21 +1247,21 @@ declare namespace __React {
          * Returns the ID of the currently focused text field, if one exists
          * If no text field is focused it returns null
          */
-        currentlyFocusedField(): number | null
+        currentlyFocusedField(): number
 
         /**
          * @param {number} TextInputID id of the text field to focus
          * Focuses the specified text field
          * noop if the text field was already focused
          */
-        focusTextInput(textFieldID: number | null): void
+        focusTextInput(textFieldID?: number): void
 
         /**
          * @param {number} textFieldID id of the text field to focus
          * Unfocuses the specified text field
          * noop if it wasn't focused
          */
-        blurTextInput(textFieldID: number | null) : void
+        blurTextInput(textFieldID?: number) : void
     }
 
     /**
@@ -1290,7 +1290,7 @@ declare namespace __React {
         /**
          * icon: the icon for this action, e.g. require('./some_icon.png')
          */
-        icon?: ImageURISource | null
+        icon?: ImageURISource
 
         /**
          * show: when to show this action as an icon or hide it in the overflow menu: always, ifRoom or never
@@ -1341,12 +1341,12 @@ declare namespace __React {
         /**
          * Sets the toolbar logo.
          */
-        logo?: ImageURISource | null
+        logo?: ImageURISource
 
         /**
          * Sets the navigation icon.
          */
-        navIcon?: ImageURISource | null
+        navIcon?: ImageURISource
 
         /**
          * Callback that is called when an action is selected. The only
@@ -1363,7 +1363,7 @@ declare namespace __React {
         /**
          * Sets the overflow icon.
          */
-        overflowIcon?: ImageURISource | null
+        overflowIcon?: ImageURISource
 
         /**
          * Used to set the toolbar direction to RTL.
@@ -2477,7 +2477,7 @@ declare namespace __React {
          *  enum(1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30)
          *  The interval at which minutes can be selected.
          */
-        minuteInterval?: 1 | 2 | 3 | 4 | 5 | 6 | 10 | 12 | 15 | 20 | 30
+        minuteInterval?: number
 
         /**
          *  enum('date', 'time', 'datetime')
@@ -3873,7 +3873,7 @@ declare namespace __React {
         // These methods are undocumented but still being used by TouchableMixin internals
         touchableGetLongPressDelayMS(): number
         touchableGetPressOutDelayMS(): number
-        touchableGetHitSlop(): Insets | null
+        touchableGetHitSlop(): Insets
     }
 
     export interface TouchableWithoutFeedbackAndroidProperties {
@@ -4577,7 +4577,7 @@ declare namespace __React {
          * their respective objects, merged as one and then returned. This also explains
          * the alternative use.
          */
-        export function flatten(style?: Style | Style[]): Style | undefined
+        export function flatten(style?: Style | Style[]): Style
 
         /**
          * This is defined as the width of a thin line on the platform. It can be
@@ -4804,13 +4804,13 @@ declare namespace __React {
          * Gets the rowID at index provided if the dataSource arrays were flattened,
          * or null of out of range indexes.
          */
-        getRowIDForFlatIndex( index: number ): string | null
+        getRowIDForFlatIndex( index: number ): string
 
         /**
          * Gets the sectionID at index provided if the dataSource arrays were flattened,
          * or null for out of range indexes.
          */
-        getSectionIDForFlatIndex( index: number ): string | null
+        getSectionIDForFlatIndex( index: number ): string
 
         /**
          * Returns an array containing the number of rows in each section
@@ -5074,192 +5074,6 @@ declare namespace __React {
     }
 
     export type Handle = number
-
-    /**
-     * EventSubscription represents a subscription to a particular event. It can
-     * remove its own subscription.
-     */
-    export class EventSubscription {
-        eventType: string;
-        key: number;
-        subscriber: EventSubscriptionVendor;
-
-        /**
-         * @param {EventSubscriptionVendor} subscriber the subscriber that controls
-         *   this subscription.
-         */
-        constructor(subscriber: EventSubscriptionVendor)
-        /**
-         * Removes this subscription from the subscriber that controls it.
-         */
-        remove(): void
-    }
-
-    /**
-     * EventSubscriptionVendor stores a set of EventSubscriptions that are
-     * subscribed to a particular event type.
-     */
-    export class EventSubscriptionVendor {
-        constructor()
-        /**
-         * Adds a subscription keyed by an event type.
-         *
-         * @param {string} eventType
-         * @param {EventSubscription} subscription
-         */
-        addSubscription(
-            eventType: string, subscription: EventSubscription): EventSubscription
-        /**
-         * Removes a bulk set of the subscriptions.
-         *
-         * @param {?string} eventType - Optional name of the event type whose
-         *   registered supscriptions to remove, if null remove all subscriptions.
-         */
-        removeAllSubscriptions(eventType?: string): void
-        /**
-         * Removes a specific subscription. Instead of calling this function, call
-         * `subscription.remove()` directly.
-         *
-         * @param {object} subscription
-         */
-        removeSubscription(subscription: Object): void
-        /**
-         * Returns the array of subscriptions that are currently registered for the
-         * given event type.
-         *
-         * Note: This array can be potentially sparse as subscriptions are deleted
-         * from it when they are removed.
-         *
-         * TODO: This returns a nullable array. wat?
-         *
-         * @param {string} eventType
-         * @returns {?array}
-         */
-        getSubscriptionsForType(eventType: string): EventSubscription[]
-    }
-
-    /**
-     * @class EventEmitter
-     * @description
-     * An EventEmitter is responsible for managing a set of listeners and publishing
-     * events to them when it is told that such events happened. In addition to the
-     * data for the given event it also sends a event control object which allows
-     * the listeners/handlers to prevent the default behavior of the given event.
-     *
-     * The emitter is designed to be generic enough to support all the different
-     * contexts in which one might want to emit events. It is a simple multicast
-     * mechanism on top of which extra functionality can be composed. For example, a
-     * more advanced emitter may use an EventHolder and EventFactory.
-     */
-    export class EventEmitterStatic {
-        /**
-         * @constructor
-         *
-         * @param {EventSubscriptionVendor} subscriber - Optional subscriber instance
-         *   to use. If omitted, a new subscriber will be created for the emitter.
-         */
-        constructor(subscriber?: EventSubscriptionVendor)
-        /**
-         * Adds a listener to be invoked when events of the specified type are
-         * emitted. An optional calling context may be provided. The data arguments
-         * emitted will be passed to the listener function.
-         *
-         * TODO: Annotate the listener arg's type. This is tricky because listeners
-         *       can be invoked with varargs.
-         *
-         * @param {string} eventType - Name of the event to listen to
-         * @param {function} listener - Function to invoke when the specified event is
-         *   emitted
-         * @param {*} context - Optional context object to use when invoking the
-         *   listener
-         */
-        addListener(
-            eventType: string, listener: Function, context?: Object): EmitterSubscription
-        /**
-         * Similar to addListener, except that the listener is removed after it is
-         * invoked once.
-         *
-         * @param {string} eventType - Name of the event to listen to
-         * @param {function} listener - Function to invoke only once when the
-         *   specified event is emitted
-         * @param {*} context - Optional context object to use when invoking the
-         *   listener
-         */
-        once(
-            eventType: string, listener: Function, context?: Object): EmitterSubscription
-        /**
-         * Removes all of the registered listeners, including those registered as
-         * listener maps.
-         *
-         * @param {?string} eventType - Optional name of the event whose registered
-         *   listeners to remove
-         */
-        removeAllListeners(eventType?: string): void
-        /**
-         * Provides an API that can be called during an eventing cycle to remove the
-         * last listener that was invoked. This allows a developer to provide an event
-         * object that can remove the listener (or listener map) during the
-         * invocation.
-         *
-         * If it is called when not inside of an emitting cycle it will throw.
-         *
-         * @throws {Error} When called not during an eventing cycle
-         *
-         * @example
-         *   var subscription = emitter.addListenerMap({
-         *     someEvent: function(data, event) {
-         *       console.log(data);
-         *       emitter.removeCurrentListener();
-         *     }
-         *   });
-         *
-         *   emitter.emit('someEvent', 'abc'); // logs 'abc'
-         *   emitter.emit('someEvent', 'def'); // does not log anything
-         */
-        removeCurrentListener(): void
-        /**
-         * Removes a specific subscription. Called by the `remove()` method of the
-         * subscription itself to ensure any necessary cleanup is performed.
-         */
-        removeSubscription(subscription: EmitterSubscription): void
-         /**
-         * Returns an array of listeners that are currently registered for the given
-         * event.
-         *
-         * @param {string} eventType - Name of the event to query
-         * @returns {array}
-         */
-        listeners(eventType: string): EmitterSubscription[]
-         /**
-         * Emits an event of the given type with the given data. All handlers of that
-         * particular type will be notified.
-         *
-         * @param {string} eventType - Name of the event to emit
-         * @param {...*} Arbitrary arguments to be passed to each registered listener
-         *
-         * @example
-         *   emitter.addListener('someEvent', function(message) {
-         *     console.log(message);
-         *   });
-         *
-         *   emitter.emit('someEvent', 'abc'); // logs 'abc'
-         */
-        emit(eventType: string): void
-        /**
-         * Removes the given listener for event of specific type.
-         *
-         * @param {string} eventType - Name of the event to emit
-         * @param {function} listener - Function to invoke when the specified event is
-         *   emitted
-         *
-         * @example
-         *   emitter.removeListener('someEvent', function(message) {
-         *     console.log(message);
-         *   }); // removes the listener if already registered
-         *
-         */
-        removeListener(eventType: String, listener: Function): void
-    }
 
     /**
      * EmitterSubscription represents a subscription with listener and context data.
@@ -5947,11 +5761,11 @@ declare namespace __React {
      */
     export interface SwipeableListViewDataSource {
         cloneWithRowsAndSections(dataBlob: any,
-                                 sectionIdentities: Array<string> | null,
-                                 rowIdentities: Array<Array<string>> | null): SwipeableListViewDataSource
+                                 sectionIdentities?: Array<string>,
+                                 rowIdentities?: Array<Array<string>>): SwipeableListViewDataSource
         getDataSource(): ListViewDataSource
-        getOpenRowID(): string | null
-        getFirstRowID(): string | null
+        getOpenRowID(): string
+        getFirstRowID(): string
         setOpenRowID(rowID: string): SwipeableListViewDataSource
     }
 
@@ -8230,16 +8044,13 @@ declare namespace __React {
         /**
          * (Optional) size to scale the cropped image to.
          */
-        displaySize?: null | {
-            width: number,
-            height: number,
-        }
+        displaySize?: { width: number, height: number }
 
         /**
          * (Optional) the resizing mode to use when scaling the image. If the
          * `displaySize` param is not specified, this has no effect.
          */
-        resizeMode?: null | 'contain' | 'cover' | 'stretch'
+        resizeMode?: 'contain' | 'cover' | 'stretch'
     }
 
     interface ImageEditorStatic {
@@ -8548,11 +8359,11 @@ declare namespace __React {
      */
     export function requireNativeComponent<P>(
         viewName: string,
-        componentInterface?: ComponentInterface<P> | null,
-        extraConfig?: {nativeOnly?: any} | null
+        componentInterface?: ComponentInterface<P>,
+        extraConfig?: {nativeOnly?: any}
     ): React.ComponentClass<P>;
 
-    export function processColor(color: any): number | undefined;
+    export function processColor(color: any): number;
 
     //////////////////////////////////////////////////////////////////////////
     //
