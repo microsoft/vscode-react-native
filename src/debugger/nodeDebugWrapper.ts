@@ -27,14 +27,18 @@ export class NodeDebugWrapper {
 
     private vscodeDebugAdapterPackage: typeof VSCodeDebugAdapter;
     private nodeDebugSession: typeof NodeDebugSession;
+    private sourceMapsConstructor: typeof SourceMaps;
     private originalLaunchRequest: (response: any, args: any) => void;
 
-    public constructor(appName: string, version: string, telemetryReporter: ReassignableTelemetryReporter, debugAdapter: typeof VSCodeDebugAdapter, debugSession: typeof NodeDebugSession) {
+    public constructor(appName: string, version: string, telemetryReporter: ReassignableTelemetryReporter,
+                       debugAdapter: typeof VSCodeDebugAdapter, debugSession: typeof NodeDebugSession, sourceMaps: typeof SourceMaps) {
+
         this.appName = appName;
         this.version = version;
         this.telemetryReporter = telemetryReporter;
         this.vscodeDebugAdapterPackage = debugAdapter;
         this.nodeDebugSession = debugSession;
+        this.sourceMapsConstructor = sourceMaps;
         this.originalLaunchRequest = this.nodeDebugSession.prototype.launchRequest;
     }
 
@@ -154,7 +158,7 @@ export class NodeDebugWrapper {
             this.appName, this.version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
 
         // Create a server waiting for messages to re-initialize the debug session;
-        const debugServerListeningPort = this.createReinitializeServer(debugSession, args.internalDebuggerPort);
+        const debugServerListeningPort = this.createReinitializeServer(debugSession, args.internalDebuggerPort, args.outDir);
         args.args = [debugServerListeningPort.toString()];
 
         Log.SetGlobalLogger(new NodeDebugAdapterLogger(this.vscodeDebugAdapterPackage, debugSession));
@@ -185,7 +189,7 @@ export class NodeDebugWrapper {
     /**
      * Creates internal debug server and returns the port that the server is hook up into.
      */
-    private createReinitializeServer(debugSession: NodeDebugSession, internalDebuggerPort: string): number {
+    private createReinitializeServer(debugSession: NodeDebugSession, internalDebuggerPort: string, sourcesDir: string): number {
         // Create the server
         const server = http.createServer((req, res) => {
             res.statusCode = 404;
@@ -195,9 +199,11 @@ export class NodeDebugWrapper {
                     const sourceMaps = debugSession._sourceMaps;
                     if (sourceMaps) {
                         // Flush any cached source maps
-                        sourceMaps._allSourceMaps = {};
-                        sourceMaps._generatedToSourceMaps = {};
-                        sourceMaps._sourceToGeneratedMaps = {};
+                        // Rather than cleaning internal caches we recreate
+                        // SourceMaps to add downloaded bundle map to cache
+                        const bundlePattern = path.join(sourcesDir, "index.*.bundle");
+                        const sourceMaps = new this.sourceMapsConstructor(debugSession, sourcesDir, [bundlePattern]);
+                        debugSession._sourceMaps = sourceMaps;
                     }
                     // Send an "initialized" event to trigger breakpoints to be re-sent
                     debugSession.sendEvent(new this.vscodeDebugAdapterPackage.InitializedEvent());
