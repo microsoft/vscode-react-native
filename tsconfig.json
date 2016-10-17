@@ -17,6 +17,7 @@
         "SampleApplication/.vscode",
         "ReactTypings",
         "tools/",
-        "src/test/resources/sampleReactNative022Project/"
+        "src/test/resources/sampleReactNative022Project/",
+        ".vscode-test"
     ]
 }
