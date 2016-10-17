@@ -83,13 +83,18 @@ export function activate(context: vscode.ExtensionContext): void {
     });
 }
 
-export function deactivate(): void {
-    // Kill any packager processes that we spawned
-    entryPointHandler.runFunction("extension.deactivate",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
-        () => {
-            commandPaletteHandler.stopPackager();
-        }, /*errorsAreFatal*/ true);
+export function deactivate(): Q.Promise<void> {
+    return Q.Promise<void>(function (resolve) {
+        // Kill any packager processes that we spawned
+        entryPointHandler.runFunction("extension.deactivate",
+            ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
+            () => {
+                commandPaletteHandler.stopPackager().done(() => {
+                    // Tell vscode that we are done with deactivation
+                    resolve(void 0);
+                });
+            }, /*errorsAreFatal*/ true);
+    });
 }
 
 function configureNodeDebuggerLocation(): Q.Promise<void> {
