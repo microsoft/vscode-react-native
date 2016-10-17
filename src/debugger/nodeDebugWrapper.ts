@@ -201,7 +201,7 @@ export class NodeDebugWrapper {
                         // Flush any cached source maps
                         // Rather than cleaning internal caches we recreate
                         // SourceMaps to add downloaded bundle map to cache
-                        const bundlePattern = path.join(sourcesDir, "index.*.bundle");
+                        const bundlePattern = path.join(sourcesDir, "*.bundle");
                         const sourceMaps = new this.sourceMapsConstructor(debugSession, sourcesDir, [bundlePattern]);
                         debugSession._sourceMaps = sourceMaps;
                     }
