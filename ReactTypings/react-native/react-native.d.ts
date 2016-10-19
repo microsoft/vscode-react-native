@@ -4533,10 +4533,20 @@ declare namespace __React {
 
         type Style = ViewStyle | TextStyle | ImageStyle
 
+        interface Styles {
+            [style: string]: Style
+        }
+
         /**
          * Creates a StyleSheet style reference from the given object.
          */
+        // Non-generic override is required to provide intellisense
+        // for JavaScript and non-generic method invocations
+        export function create( styles: Styles ): any;
+        // This is for backward compatibility with previous
+        // implementation where T could be an arbitrary type
         export function create<T>( styles: T ): T;
+        export function create<T extends Styles>( styles: T ): T;
 
         /**
          * Flattens an array of style objects, into one aggregated style object.
