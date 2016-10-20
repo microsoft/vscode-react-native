@@ -17,7 +17,7 @@
             "name": "Debug Debugger",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/out/debugger/nodeDebugWrapper.js",
+            "program": "${workspaceRoot}/src/debugger/reactNativeDebugEntryPoint.ts",
             "runtimeArgs": [
                 "--harmony"
             ],

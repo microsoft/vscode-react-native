@@ -11,6 +11,7 @@
         "noFallthroughCasesInSwitch": true
     },
     "exclude": [
+        ".vscode-test",
         "node_modules",
         "SampleApplication/",
         "SampleApplication/node_modules",
