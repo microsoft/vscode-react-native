@@ -25,9 +25,7 @@ declare module VSCodeDebugAdapter {
 }
 
 declare class SourceMaps {
-    public _sourceToGeneratedMaps: {};
-    public _generatedToSourceMaps: {};
-    public _allSourceMaps: {};
+    constructor(session: NodeDebugSession, generatedCodeDirectory: string, generatedCodeGlobs: string[]);
 }
 
 declare class NodeDebugSession extends VSCodeDebugAdapter.DebugSession {

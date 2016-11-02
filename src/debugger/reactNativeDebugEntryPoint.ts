@@ -55,10 +55,12 @@ new EntryPointHandler(ProcessType.Debugger).runApp(appName, () => version,
         vscodeDebugAdapterPackage.DebugSession.run = () => { };
 
         let nodeDebug: { NodeDebugSession: typeof NodeDebugSession };
+        let sourceMaps: { SourceMaps: typeof SourceMaps };
 
         try {
             /* tslint:disable:no-var-requires */
             nodeDebug = require(path.join(nodeDebugFolder, "out", "node", "nodeDebug"));
+            sourceMaps = require(path.join(nodeDebugFolder, "out", "node", "sourceMaps"));
             /* tslint:enable:no-var-requires */
         } catch (e) {
             // Unable to find nodeDebug, but we can make our own communication channel now
@@ -76,7 +78,8 @@ new EntryPointHandler(ProcessType.Debugger).runApp(appName, () => version,
 
         // Customize node adapter requests
         try {
-            let nodeDebugWrapper = new NodeDebugWrapper(appName, version, telemetryReporter, vscodeDebugAdapterPackage, nodeDebug.NodeDebugSession);
+            let nodeDebugWrapper = new NodeDebugWrapper(appName, version, telemetryReporter,
+                                                        vscodeDebugAdapterPackage, nodeDebug.NodeDebugSession, sourceMaps.SourceMaps);
             nodeDebugWrapper.customizeNodeAdapterRequests();
         } catch (e) {
             const debugSession = new vscodeDebugAdapterPackage.DebugSession();
