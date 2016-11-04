@@ -67,10 +67,13 @@ export class IntellisenseHelper {
         const typingsSource = path.resolve(__dirname, "..", "..", "ReactTypings");
         const reactTypings = path.resolve(typingsSource, "react");
         const reactNativeTypings = path.resolve(typingsSource, "react-native");
+        const typingsIndex = path.resolve(typingsSource, "react-native.d.ts.index");
 
         const typingsDestination = path.resolve(vscode.workspace.rootPath, ".vscode", "typings");
         const reactTypingsDestination = path.resolve(typingsDestination, "react");
         const reactNativeTypingsDestination = path.resolve(typingsDestination, "react-native");
+        const typingsIndexDestination = path.resolve(vscode.workspace.rootPath, "typings");
+        const typingIndexFinalPath = path.resolve(typingsIndexDestination, "react-native.d.ts");
 
         let fileSystem = new FileSystem();
 
@@ -92,7 +95,26 @@ export class IntellisenseHelper {
                     return fileSystem.copyRecursive(reactNativeTypings, reactNativeTypingsDestination);
                 }
             });
-        return Q.all([createTypingsDirectoryIfNeeded, copyReactTypingsIfNeeded, copyReactNativeTypingsIfNeeded]).then(() => { });
+
+        const copyTypingsIndexIfNeeded = fileSystem.directoryExists(typingsIndexDestination)
+            .then((exists) => {
+                if (!exists) {
+                    return fileSystem.makeDirectoryRecursiveSync(typingsIndexDestination);
+                }
+            })
+            .then(() => fileSystem.exists(typingIndexFinalPath))
+            .then((exists) => {
+                if (!exists) {
+                    return fileSystem.copyFile(typingsIndex, typingIndexFinalPath);
+                }
+            });
+
+        return Q.all([
+            createTypingsDirectoryIfNeeded,
+            copyReactTypingsIfNeeded,
+            copyReactNativeTypingsIfNeeded,
+            copyTypingsIndexIfNeeded,
+        ]).then(() => { });
     }
 
     /**
