@@ -3,6 +3,7 @@
 
 import {ExtensionMessage, MessagingChannel} from "./extensionMessaging";
 import {IInterProcessMessageSender, InterProcessMessageSender} from "./interProcessMessageSender";
+import {PackagerRunAs} from "./packager";
 
 export class RemoteExtension {
     public static atProjectRootPath(projectRootPath: string) {
@@ -45,6 +46,14 @@ export class RemoteExtension {
 
     public getPackagerPort(): Q.Promise<number> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_PACKAGER_PORT);
+    }
+
+    public getPackagerRunAs(): Q.Promise<PackagerRunAs> {
+        return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_PACKAGER_RUN_AS);
+    }
+
+    public stopPackager(): Q.Promise<void> {
+        return this.interProcessMessageSender.sendMessage(ExtensionMessage.STOP_PACKAGER);
     }
 
     public showInformationMessage(infoMessage: string): Q.Promise<void> {
