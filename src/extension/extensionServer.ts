@@ -8,7 +8,7 @@ import * as vscode from "vscode";
 import * as em from "../common/extensionMessaging";
 import {Log} from "../common/log/log";
 import {LogLevel} from "../common/log/logHelper";
-import {Packager} from "../common/packager";
+import {Packager, PackagerRunAs} from "../common/packager";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
@@ -41,6 +41,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.START_MONITORING_LOGCAT] = this.startMonitoringLogCat;
         this.messageHandlerDictionary[em.ExtensionMessage.STOP_MONITORING_LOGCAT] = this.stopMonitoringLogCat;
         this.messageHandlerDictionary[em.ExtensionMessage.GET_PACKAGER_PORT] = this.getPackagerPort;
+        this.messageHandlerDictionary[em.ExtensionMessage.GET_PACKAGER_RUN_AS] = this.getPackagerRunAs;
         this.messageHandlerDictionary[em.ExtensionMessage.SEND_TELEMETRY] = this.sendTelemetry;
         this.messageHandlerDictionary[em.ExtensionMessage.OPEN_FILE_AT_LOCATION] = this.openFileAtLocation;
         this.messageHandlerDictionary[em.ExtensionMessage.START_EXPONENT_PACKAGER] = this.startExponentPackager;
@@ -105,6 +106,15 @@ export class ExtensionServer implements vscode.Disposable {
         })
         .then(() =>
                 this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+    }
+
+    /**
+     * Message handler for GET_PACKAGER_RUN_AS.
+     */
+    private getPackagerRunAs(): Q.Promise<PackagerRunAs> {
+        return Q.Promise<PackagerRunAs>(resolve => {
+            resolve(this.reactNativePackager.getRunningAs());
+        });
     }
 
     /**
