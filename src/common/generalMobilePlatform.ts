@@ -6,7 +6,6 @@ import * as Q from "q";
 import {Log} from "../common/log/log";
 import {IRunOptions} from "../common/launchArgs";
 import {RemoteExtension} from "../common/remoteExtension";
-import {Packager} from "../common/packager";
 
 export class GeneralMobilePlatform {
     protected projectPath: string;
@@ -30,17 +29,8 @@ export class GeneralMobilePlatform {
     }
 
     public startPackager(): Q.Promise<void> {
-        return this.remoteExtension.getPackagerPort().then(port => {
-            return Packager.isPackagerRunning(Packager.getHostForPort(port))
-                .then(isRunning => {
-                    if (isRunning) {
-                        Log.logMessage("Attaching to running packager at port: " + port);
-                        return Q.resolve<void>(void 0);
-                    }
-                    Log.logMessage("Starting React Native Packager.");
-                    return this.remoteExtension.startPackager();
-                });
-        });
+        Log.logMessage("Starting React Native Packager.");
+        return this.remoteExtension.startPackager();
     }
 
     public prewarmBundleCache(): Q.Promise<void> {

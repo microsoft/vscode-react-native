@@ -8,7 +8,7 @@ import * as vscode from "vscode";
 import * as em from "../common/extensionMessaging";
 import {Log} from "../common/log/log";
 import {LogLevel} from "../common/log/logHelper";
-import {Packager} from "../common/packager";
+import {Packager, PackagerRunAs} from "../common/packager";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
@@ -95,7 +95,13 @@ export class ExtensionServer implements vscode.Disposable {
     private startPackager(port?: any): Q.Promise<any> {
         return this.reactNativePackager.isRunning().then((running) => {
             if (running) {
-                return this.reactNativePackager.stop();
+                if (this.reactNativePackager.getRunningAs() !== PackagerRunAs.REACT_NATIVE) {
+                    return this.reactNativePackager.stop().then(() =>
+                        this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED)
+                    );
+                }
+
+                Log.logMessage("Attaching to running React Native packager");
             }
         }).then(() =>
             this.exponentHelper.configureReactNativeEnvironment()
@@ -113,7 +119,12 @@ export class ExtensionServer implements vscode.Disposable {
     private startExponentPackager(port?: any): Q.Promise<any> {
         return this.reactNativePackager.isRunning().then((running) => {
             if (running) {
-                return this.reactNativePackager.stop();
+                if (this.reactNativePackager.getRunningAs() !== PackagerRunAs.EXPONENT) {
+                    return this.reactNativePackager.stop().then(() =>
+                        this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
+                }
+
+                Log.logMessage("Attaching to running Exponent packager");
             }
         }).then(() =>
             this.exponentHelper.configureExponentEnvironment()
