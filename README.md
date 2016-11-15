@@ -134,6 +134,19 @@ To use a different `Typescript TSDK` version than the one that comes with vscode
 }
 ```
 
+To expose internal logs to the output, set the following properties:
+
+```
+{
+  "react-native-tools": {
+    "showInternalLogs": true,
+    "logLevel": "Trace"
+  }
+}
+```
+
+`logLevel` can be `None` (no logs), `Error`, `Warning`, `Info`, `Debug`, `Trace` (all logs). Default is `None`.
+
 ## Using Exponentjs
 
 We support using exponentjs to run, debug and publish your applications. For more information on exponent, see [here](https://docs.getexponent.com/).

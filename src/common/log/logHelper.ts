@@ -5,6 +5,7 @@
  * Helper for the log utility.
  */
 
+import {workspace} from "vscode";
 import * as util from "util";
 import {InternalError, InternalErrorLevel} from "../error/internalError";
 
@@ -25,6 +26,15 @@ export class LogHelper {
     public static WARN_TAG: string = "[Warning]";
     private static ERROR_CODE_WIDTH: string = "0000";
     private static LOG_LEVEL_NAME: string = "RN_LOG_LEVEL";
+
+    public static get showInternal(): boolean {
+        let rntConf = workspace.getConfiguration("react-native-tools");
+
+        if (rntConf) {
+            return rntConf.get<boolean>("showInternalLogs");
+        }
+        return false;
+    }
 
     public static get logLevel(): LogLevel {
         let valName: string = process.env[LogHelper.LOG_LEVEL_NAME];
