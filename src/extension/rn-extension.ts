@@ -26,6 +26,8 @@ import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalError} from "../common/error/internalError";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {Log} from "../common/log/log";
+import {LogHelper} from "../common/log/logHelper";
+import {SettingsHelper} from "./settingsHelper";
 import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
@@ -53,7 +55,7 @@ interface ISetupableDisposable extends vscode.Disposable {
 }
 
 export function activate(context: vscode.ExtensionContext): void {
-
+    configureLogLevel();
     entryPointHandler.runApp("react-native", () => <string>require("../../package.json").version,
         ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), projectRootPath, () => {
         return reactNativeProjectHelper.isReactNativeProject()
@@ -95,6 +97,10 @@ export function deactivate(): Q.Promise<void> {
                 });
             }, /*errorsAreFatal*/ true);
     });
+}
+
+function configureLogLevel(): void {
+    LogHelper.logLevel = SettingsHelper.getLogLevel();
 }
 
 function configureNodeDebuggerLocation(): Q.Promise<void> {

@@ -5,6 +5,7 @@ import * as vscode from "vscode";
 import path = require("path");
 import {ConfigurationReader} from "../common/configurationReader";
 import {Packager} from "../common/packager";
+import {LogLevel} from "../common/log/logHelper";
 
 export class SettingsHelper {
 
@@ -52,5 +53,28 @@ export class SettingsHelper {
             return ConfigurationReader.readInt(workspaceConfiguration.get("react-native.packager.port"));
         }
         return Packager.DEFAULT_PORT;
+    }
+
+    /**
+     * Get showInternalLogs setting
+     */
+    public static getShowInternalLogs(): boolean {
+        const workspaceConfiguration = vscode.workspace.getConfiguration();
+        if (workspaceConfiguration.has("react-native-tools.showInternalLogs")) {
+            return ConfigurationReader.readBoolean(workspaceConfiguration.get("react-native-tools.showInternalLogs"));
+        }
+        return false;
+    }
+
+    /**
+     * Get logLevel setting
+     */
+    public static getLogLevel(): LogLevel {
+        const workspaceConfiguration = vscode.workspace.getConfiguration();
+        if (workspaceConfiguration.has("react-native-tools.logLevel")) {
+            let logLevelString: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.logLevel"));
+            return <LogLevel>parseInt(LogLevel[<any>logLevelString], 10);
+        }
+        return LogLevel.None;
     }
 }
