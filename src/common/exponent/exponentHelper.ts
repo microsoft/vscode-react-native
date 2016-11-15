@@ -64,7 +64,7 @@ export class ExponentHelper {
                 return this.ensureExpJson();
             }).then(() => {
                 Log.logMessage("Project setup is correct. Generating entrypoint code.");
-                this.createIndex();
+                return this.createIndex();
             });
     }
 
