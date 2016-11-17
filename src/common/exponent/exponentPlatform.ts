@@ -30,7 +30,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
     }
 
     public startPackager(): Q.Promise<void> {
-        Log.logMessage("Starting React Native Packager.");
+        Log.logMessage("Starting Exponent Packager.");
         return this.remoteExtension.startExponentPackager()
             .then(exponentUrl => {
                 if (!exponentUrl) {

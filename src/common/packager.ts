@@ -51,6 +51,10 @@ export class Packager {
         return Packager.getHostForPort(this.port);
     }
 
+    public getRunningAs(): PackagerRunAs {
+        return this.packagerRunningAs;
+    }
+
     public startAsReactNative(port: number): Q.Promise<void> {
         return this.start(port, PackagerRunAs.REACT_NATIVE);
     }
