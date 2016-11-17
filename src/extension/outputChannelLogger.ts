@@ -56,6 +56,10 @@ export class OutputChannelLogger implements ILogger {
     }
 
     public logInternalMessage(logLevel: LogLevel, message: string) {
+        if (LogHelper.showInternal) {
+            this.logMessage(this.getFormattedInternalMessage(logLevel, message));
+            return;
+        }
         console.log(this.getFormattedInternalMessage(logLevel, message));
     }
 
