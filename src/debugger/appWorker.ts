@@ -81,9 +81,34 @@ export class SandboxedAppWorker {
     }
 
     public start(): Q.Promise<void> {
+
+        // This is a temporary fix for https://github.com/Microsoft/vscode-react-native/issues/340
+        // We need to disable lazy loading for regeneratorRuntime module to avoid infinite recursion
+        let definePropertyInterceptor = "(" + function () {
+            let definePropOriginal = Object.defineProperty;
+            Object.defineProperty = function (object: any, name: string, desc: any) {
+                if (name !== "regeneratorRuntime") {
+                    // Behave as usual - as of now we only interested in workaround for regeneratorRuntime
+                    return definePropOriginal(object, name, desc);
+                }
+
+                // Patch property descriptor - use static property rather than dynamic
+                // getter to disable react's lazy-loading for regenerator
+                return definePropOriginal(object, name, {
+                    enumerable: desc.enumerable,
+                    writable: desc.writable,
+                    value: desc.get ? desc.get() : desc.value,
+                });
+            };
+        }.toString() + ")()";
+
         let scriptToRunPath = require.resolve(path.join(this.sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME));
         this.initializeSandboxAndContext(scriptToRunPath);
-        return this.readFileContents(scriptToRunPath).then(fileContents =>
+
+        return Q.when()
+        .then(() => this.runInSandbox("definePropertyInterceptor.js", definePropertyInterceptor))
+        .then(() => this.readFileContents(scriptToRunPath))
+        .then((fileContents: string) =>
             // On a debugger worker the onmessage variable already exist. We need to declare it before the
             // javascript file can assign it. We do it in the first line without a new line to not break
             // the debugging experience of debugging debuggerWorker.js itself (as part of the extension)

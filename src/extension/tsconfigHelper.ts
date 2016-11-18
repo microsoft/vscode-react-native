@@ -25,10 +25,11 @@ export class TsConfigHelper {
                     const defaultTsConfig = {
                         compilerOptions: {
                             allowJs: true,
+                            allowSyntheticDefaultImports: true,
                         },
                         exclude: ["node_modules"],
                     };
-                    return fileSystem.writeFile(tsConfigPath, JSON.stringify(defaultTsConfig));
+                    return fileSystem.writeFile(tsConfigPath, JSON.stringify(defaultTsConfig, null, 4));
                 }
             });
     }
