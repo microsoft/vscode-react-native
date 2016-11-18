@@ -7,6 +7,7 @@
 
 import {ILogger} from "../common/log/loggers";
 import {LogHelper, LogLevel} from "../common/log/logHelper";
+import {SettingsHelper} from "./settingsHelper";
 import {OutputChannel} from "vscode";
 import * as vscode from "vscode";
 
@@ -56,6 +57,10 @@ export class OutputChannelLogger implements ILogger {
     }
 
     public logInternalMessage(logLevel: LogLevel, message: string) {
+        if (SettingsHelper.getShowInternalLogs()) {
+            this.logMessage(this.getFormattedInternalMessage(logLevel, message));
+            return;
+        }
         console.log(this.getFormattedInternalMessage(logLevel, message));
     }
 
