@@ -9,7 +9,7 @@ import * as semver from "semver";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {CommandExecutor} from "../common/commandExecutor";
-import {TsConfigHelper} from "./tsconfigHelper";
+import {JsConfigHelper} from "./tsconfigHelper";
 import {SettingsHelper} from "./settingsHelper";
 import {HostPlatform} from "../common/hostPlatform";
 import {Log} from "../common/log/log";
@@ -28,6 +28,7 @@ export class IntellisenseHelper {
     private static s_vsCodeVersion = "0.10.10-insider";     // preferred version of VSCode (current is 0.10.9, 0.10.10-insider+ will include native TypeScript support)
     // note: semver considers "x.x.x-<string>" to be < "x.x.x"" - so we include insider here as the
     //       insider build is less than the release build of 0.10.10 and we will support it.
+    private static VSCODE_SUPPORTS_ATA_SINCE = "1.7.2-insider";
 
     /**
      * Helper method that configures the workspace for Salsa intellisense.
@@ -38,9 +39,14 @@ export class IntellisenseHelper {
         TelemetryHelper.addTelemetryEventProperty(tsSalsaEnvSetup, "TsSalsaEnvSetup", !!process.env.VSCODE_TSJS, false);
         Telemetry.send(tsSalsaEnvSetup);
 
-        const configureWorkspace = Q({})
-            .then(() => TsConfigHelper.createTsConfigIfNotPresent())
-            .then(() => IntellisenseHelper.installReactNativeTypings());
+        const configureWorkspace = JsConfigHelper.createJsConfigIfNotPresent()
+        .then(() => {
+            // VSCode versions >= 1.7.2-insider support ATA and will not require copying
+            // typings into workspace for intellisense
+            if (semver.lt(vscode.version, IntellisenseHelper.VSCODE_SUPPORTS_ATA_SINCE)) {
+                return IntellisenseHelper.installReactNativeTypings();
+            }
+        });
 
         // The actions taken in the promise chain below may result in requring a restart.
         const configureTypescript = Q(false)
