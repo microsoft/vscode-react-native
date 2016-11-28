@@ -79,8 +79,9 @@ export function activate(context: vscode.ExtensionContext): void {
                         IntellisenseHelper.setupReactNativeIntellisense());
                 }
                 entryPointHandler.runFunction("debugger.setupNodeDebuggerLocation",
-                    ErrorHelper.getInternalError(InternalErrorCode.NodeDebuggerConfigurationFailed), () =>
-                    configureNodeDebuggerLocation());
+                    ErrorHelper.getInternalError(InternalErrorCode.NodeDebuggerConfigurationFailed), () => {
+                        configureNodeDebuggerLocation();
+                    });
                 registerReactNativeCommands(context);
             });
     });
