@@ -167,7 +167,7 @@ export class CommandPaletteHandler {
      * {operation} - a function that performs the expected operation
      */
     private executeCommandInContext(rnCommand: string, operation: () => Q.Promise<void> | void): Q.Promise<void> {
-        let reactNativeProjectHelper = new ReactNativeProjectHelper(vscode.workspace.rootPath);
+        let reactNativeProjectHelper = new ReactNativeProjectHelper(this.workspaceRoot);
         return TelemetryHelper.generate("RNCommand", (generator) => {
             generator.add("command", rnCommand, false);
             return reactNativeProjectHelper.isReactNativeProject().then(isRNProject => {

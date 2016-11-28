@@ -145,6 +145,16 @@ To expose internal logs to the output, set the following properties:
 }
 ```
 
+To specify a subfolder in which the react-native project is located, set `react-native-tools.projectRoot`. You can use either absolute or relative path here:
+
+```
+{
+  "react-native-tools": {
+    "projectRoot": "./your/react-native/project"
+  }
+}
+```
+
 `logLevel` can be `None` (no logs), `Error`, `Warning`, `Info`, `Debug`, `Trace` (all logs). Default is `None`.
 
 ## Using Exponentjs

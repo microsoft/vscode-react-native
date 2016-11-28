@@ -39,10 +39,11 @@ import {DelayedOutputChannelLogger} from "./outputChannelLogger";
 import {ExponentHelper} from "../common/exponent/exponentHelper";
 
 /* all components use the same packager instance */
-const projectRootPath = vscode.workspace.rootPath;
-const globalPackager = new Packager(projectRootPath);
+const projectRootPath = SettingsHelper.getReactNativeProjectRoot();
+const workspaceRootPath = vscode.workspace.rootPath;
+const globalPackager = new Packager(workspaceRootPath, projectRootPath);
 const packagerStatusIndicator = new PackagerStatusIndicator();
-const globalExponentHelper = new ExponentHelper(projectRootPath);
+const globalExponentHelper = new ExponentHelper(workspaceRootPath, projectRootPath);
 const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper);
 
 const outputChannelLogger = new DelayedOutputChannelLogger("React-Native");
@@ -169,15 +170,14 @@ function setupReactNativeDebugger(): Q.Promise<void> {
 try {
     var path = require("path");
     var Launcher = require(${JSON.stringify(launcherPath)}).Launcher;
-    new Launcher(path.resolve(__dirname, "..")).launch();
+    new Launcher("${workspaceRootPath.replace(/\\/g, "\\\\")}", "${projectRootPath.replace(/\\/g, "\\\\")}").launch();
 } catch (e) {
     throw new Error("Unable to launch application. Try deleting .vscode/launchReactNative.js and restarting vscode.");
 }`;
+    const vsCodeFolder = path.join(workspaceRootPath, ".vscode");
+    const debugStub = path.join(vsCodeFolder, "launchReactNative.js");
 
-    const vscodeFolder = path.join(projectRootPath, ".vscode");
-    const debugStub = path.join(vscodeFolder, "launchReactNative.js");
-
-    return fsUtil.ensureDirectory(vscodeFolder)
+    return fsUtil.ensureDirectory(vsCodeFolder)
         .then(() => fsUtil.ensureFileWithContents(debugStub, debuggerEntryCode))
         .catch((err: Error) => {
             vscode.window.showErrorMessage(err.message);

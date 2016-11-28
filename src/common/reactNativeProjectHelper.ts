@@ -3,25 +3,29 @@
 
 import * as Q from "q";
 import * as semver from "semver";
+import * as fs from "fs";
+import * as path from "path";
 import {CommandExecutor} from "./commandExecutor";
 
 export class ReactNativeProjectHelper {
-    private workspaceRoot: string;
+    private projectRoot: string;
 
-    constructor(workspaceRoot: string) {
-        this.workspaceRoot = workspaceRoot;
+    constructor(projectRoot: string) {
+        this.projectRoot = projectRoot;
     }
 
     public getReactNativeVersion() {
-        return new CommandExecutor(this.workspaceRoot).getReactNativeVersion();
+        return new CommandExecutor(this.projectRoot).getReactNativeVersion();
     }
 
     /**
-     * Ensures that we are in a React Native project and then executes the operation
+     * Ensures that we are in a React Native project
      * Otherwise, displays an error message banner
-     * {operation} - a function that performs the expected operation
      */
     public isReactNativeProject(): Q.Promise<boolean> {
+        if (!fs.existsSync(path.join(this.projectRoot, "package.json"))) {
+            return Q<boolean>(false);
+        }
         return this.getReactNativeVersion().
         then(version => {
             return !!(version);

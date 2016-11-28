@@ -77,4 +77,20 @@ export class SettingsHelper {
         }
         return LogLevel.None;
     }
+
+    /**
+     * Get the React Native project root path
+     */
+    public static getReactNativeProjectRoot(): string {
+        const workspaceConfiguration = vscode.workspace.getConfiguration();
+        if (workspaceConfiguration.has("react-native-tools.projectRoot")) {
+            let projectRoot: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.projectRoot"));
+            if (path.isAbsolute(projectRoot)) {
+                return projectRoot;
+            } else {
+                return path.resolve(vscode.workspace.rootPath, projectRoot);
+            }
+        }
+        return vscode.workspace.rootPath;
+    }
 }
