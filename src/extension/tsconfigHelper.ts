@@ -6,31 +6,40 @@ import * as vscode from "vscode";
 import path = require("path");
 import {FileSystem} from "../common/node/fileSystem";
 
-export class TsConfigHelper {
+export class JsConfigHelper {
 
+    // We're not going to create tsconfig.json - we just need this property to
+    // check for existense of tsconfig.json and cancel setup if it's present
     private static get tsConfigPath(): string {
         return path.join(vscode.workspace.rootPath, "tsconfig.json");
     }
 
+    private static get jsConfigPath(): string {
+        return path.join(vscode.workspace.rootPath, "jsconfig.json");
+    }
+
+    private static defaultJsConfig = {
+        compilerOptions: {
+            allowJs: true,
+            allowSyntheticDefaultImports: true,
+        },
+        exclude: ["node_modules"],
+    };
+
     /**
-     * Constructs a JSON object from tsconfig.json. Will create the file if needed.
+     * Constructs a JSON object from jsconfig.json. Will create the file if needed.
      */
-    public static createTsConfigIfNotPresent(): Q.Promise<any> {
-        let tsConfigPath: string = TsConfigHelper.tsConfigPath;
+    public static createJsConfigIfNotPresent(): Q.Promise<any> {
         let fileSystem = new FileSystem();
 
-        return fileSystem.exists(tsConfigPath)
-            .then(function (exists: boolean): Q.Promise<void> {
-                if (!exists) {
-                    const defaultTsConfig = {
-                        compilerOptions: {
-                            allowJs: true,
-                            allowSyntheticDefaultImports: true,
-                        },
-                        exclude: ["node_modules"],
-                    };
-                    return fileSystem.writeFile(tsConfigPath, JSON.stringify(defaultTsConfig, null, 4));
-                }
-            });
+        return Q.all([fileSystem.exists(JsConfigHelper.jsConfigPath), fileSystem.exists(JsConfigHelper.tsConfigPath)])
+        .spread((hasJsConfig, hasTsConfig) => {
+            if (hasJsConfig || hasTsConfig) {
+                return;
+            }
+
+            return fileSystem.writeFile(JsConfigHelper.jsConfigPath,
+                JSON.stringify(JsConfigHelper.defaultJsConfig, null, 4));
+        });
     }
 }
