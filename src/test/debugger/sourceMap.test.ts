@@ -27,9 +27,30 @@ suite("sourceMap", function() {
             assert.equal(expectedUrlHref, result.href);
         });
 
+        test("should ignore inline sourcemap urls", function () {
+            const scriptUrl: url.Url = url.parse("http://localhost:8081/index.ios.bundle?platform=ios&dev=true");
+            const scriptBody = "//# sourceMappingURL=data:application/json;base64,eyJmb28iOiJiYXIifQ==\n" +
+                               "//# sourceMappingURL=/index.ios.map?platform=ios&dev=true";
+            const expectedUrlHref = "http://localhost:8081/index.ios.map?platform=ios&dev=true";
+
+            const sourceMap = new SourceMapUtil();
+            const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
+            assert.equal(expectedUrlHref, result.href);
+        });
+
         test("should return null for an invalid sourcemap url", function () {
             const scriptUrl: url.Url = url.parse("http://localhost:8081/index.ios.bundle?platform=ios&dev=true");
             const scriptBody = "";
+
+            const sourceMap = new SourceMapUtil();
+            const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
+            assert(result === null);
+        });
+
+        test("should return null if there are only inline sourcemap urls", function () {
+            const scriptUrl: url.Url = url.parse("http://localhost:8081/index.ios.bundle?platform=ios&dev=true");
+            const scriptBody = "//# sourceMappingURL=data:application/json;base64,eyJmb28iOiJiYXIifQ==\n" +
+                               "//# sourceMappingURL=data:application/json;base64,eyJiYXoiOiJxdXV4In0=";
 
             const sourceMap = new SourceMapUtil();
             const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
