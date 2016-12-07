@@ -4,6 +4,8 @@
 import * as Q from "q";
 import * as path from "path";
 import * as http from "http";
+import * as fs from "fs";
+import stripJsonComments = require("strip-json-comments");
 
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
@@ -146,7 +148,7 @@ export class NodeDebugWrapper {
      * - Create global logger
      */
     private requestSetup(debugSession: NodeDebugSession, args: any) {
-        this.projectRootPath = path.resolve(args.program, "../..");
+        this.projectRootPath = this.getProjectRoot(args);
         this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
         this.mobilePlatformOptions = {
             projectRoot: this.projectRootPath,
@@ -249,5 +251,22 @@ export class NodeDebugWrapper {
      */
     private isNullOrUndefined(value: any): boolean {
         return typeof value === "undefined" || value === null;
+    }
+
+    /**
+     * Parses settings.json file for workspace root property
+     */
+    private getProjectRoot(args: any): string {
+        try {
+            let vsCodeRoot = path.resolve(args.program, "../..");
+            let settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
+            let settingsContent = fs.readFileSync(settingsPath, "utf8");
+            settingsContent = stripJsonComments(settingsContent);
+            let parsedSettings = JSON.parse(settingsContent);
+            let projectRootPath = parsedSettings["react-native-tools"].projectRoot;
+            return path.resolve(vsCodeRoot, projectRootPath);
+        } catch (e) {
+            return path.resolve(args.program, "../..");
+        }
     }
 }

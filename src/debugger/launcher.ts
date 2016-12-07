@@ -14,10 +14,12 @@ import {RemoteExtension} from "../common/remoteExtension";
 import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 
 export class Launcher {
+    private workspaceRootPath: string;
     private projectRootPath: string;
     private remoteExtension: RemoteExtension;
 
-    constructor(projectRootPath: string) {
+    constructor(workspaceRootPath: string, projectRootPath: string) {
+        this.workspaceRootPath = workspaceRootPath;
         this.projectRootPath = projectRootPath;
         this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
     }
@@ -28,7 +30,7 @@ export class Launcher {
         new EntryPointHandler(ProcessType.Debugee).runApp("react-native-debug-process", () => this.getAppVersion(),
             ErrorHelper.getInternalError(InternalErrorCode.DebuggingFailed), this.projectRootPath, () => {
                 return TelemetryHelper.generate("launch", (generator) => {
-                    const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
+                    const sourcesStoragePath = path.join(this.workspaceRootPath, ".vscode", ".react");
                     return this.remoteExtension.getPackagerPort().then(packagerPort => {
                         let scriptImporter = new ScriptImporter(packagerPort, sourcesStoragePath);
                         return scriptImporter.downloadDebuggerWorker(sourcesStoragePath).then(() => {

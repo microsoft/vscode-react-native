@@ -26,6 +26,7 @@ export enum PackagerRunAs {
 export class Packager {
     public static DEFAULT_PORT = 8081;
 
+    private workspacePath: string;
     private projectPath: string;
     private port: number;
     private packagerProcess: ChildProcess;
@@ -38,7 +39,8 @@ export class Packager {
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
 
-    constructor(projectPath: string) {
+    constructor(workspacePath: string, projectPath: string) {
+        this.workspacePath = workspacePath;
         this.projectPath = projectPath;
         this.packagerRunningAs = PackagerRunAs.NOT_RUNNING;
     }
@@ -192,7 +194,7 @@ export class Packager {
                                 args = args.concat("--resetCache");
                             }
                             if (runAs === PackagerRunAs.EXPONENT) {
-                                args = args.concat(["--root", ".vscode"]);
+                                args = args.concat(["--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode"))]);
                             }
                             let reactEnv = Object.assign({}, process.env, {
                                 REACT_DEBUGGER: "echo A debugger is not needed: ",
