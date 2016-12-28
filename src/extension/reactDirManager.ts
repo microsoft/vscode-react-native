@@ -15,7 +15,7 @@ import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
  * We use synchronous operations here because we want to return after the init/cleanup has been done.
  */
 export class ReactDirManager implements vscode.Disposable {
-    public static ReactDirPath = path.join(vscode.workspace.rootPath, ".vscode", ".react");
+    public static ReactDirPath = path.join(vscode.workspace.rootPath || "", ".vscode", ".react");
 
     public setup(): Q.Promise<void> {
         let fs = new FileSystem();
