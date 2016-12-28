@@ -26,7 +26,6 @@ interface DebuggerWorkerSandbox {
     __dirname: string;
     self: DebuggerWorkerSandbox;
     console: typeof console;
-    require: (id: string) => any;
     importScripts: (url: string) => void;
     postMessage: (object: any) => void;
     onmessage: (object: RNAppMessage) => void;
@@ -135,7 +134,6 @@ export class SandboxedAppWorker {
             __dirname: path.dirname(scriptToRunPath),
             self: null,
             console: console,
-            require: (filePath: string) => scriptToRunModule.require(filePath), // Give the sandbox access to require("<filePath>");
             importScripts: (url: string) => this.importScripts(url), // Import script like using <script/>
             postMessage: (object: any) => this.gotResponseFromDebuggerWorker(object), // Post message back to the UI thread
             onmessage: null,
