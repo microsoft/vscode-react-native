@@ -23,7 +23,7 @@ export class ReactNativeProjectHelper {
      * Otherwise, displays an error message banner
      */
     public isReactNativeProject(): Q.Promise<boolean> {
-        if (!fs.existsSync(path.join(this.projectRoot, "package.json"))) {
+        if (!this.projectRoot || !fs.existsSync(path.join(this.projectRoot, "package.json"))) {
             return Q<boolean>(false);
         }
         return this.getReactNativeVersion().
