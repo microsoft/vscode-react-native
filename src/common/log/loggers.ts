@@ -106,7 +106,7 @@ import { OutputEvent } from "vscode-debugadapter";
 
 export class NodeDebugAdapterLogger implements ILogger {
 
-    public constructor(private debugSession: ChromeDebugSession) {}
+    public constructor(private debugSession: VSCodeDebugAdapterPackage.DebugSession) {}
 
     public logMessage(message: string, formatMessage: boolean = true, destination: string = "stdout") {
         const outputEventMessage = formatMessage ? this.getFormattedMessage(message) : message;

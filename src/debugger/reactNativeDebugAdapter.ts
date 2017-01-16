@@ -16,13 +16,7 @@ import {NodeDebugAdapterLogger} from "../common/log/loggers";
 import {Log} from "../common/log/log";
 import {GeneralMobilePlatform} from "../common/generalMobilePlatform";
 
-import { TerminatedEvent } from "vscode-debugadapter";
-
-export interface ReactNativeDebugSessionOpts extends IChromeDebugSessionOpts {
-    version: string;
-}
-
-export interface ReactNativeLaunchRequestArguments extends ILaunchRequestArgs {
+interface ReactNativeLaunchRequestArguments extends ILaunchRequestArgs {
     args: string[];
     platform: string;
     program: string;
@@ -32,14 +26,14 @@ export interface ReactNativeLaunchRequestArguments extends ILaunchRequestArgs {
     logCatArguments: any;
 }
 
-export interface ReactNativeAttachRequestArguments extends IAttachRequestArgs {
+interface ReactNativeAttachRequestArguments extends IAttachRequestArgs {
     args: string[];
     platform: string;
     program: string;
     internalDebuggerPort?: any;
 }
 
-export function createClass(c: typeof Node2DebugAdapter) {
+export function createAdapter(c: typeof Node2DebugAdapterPackage.Node2DebugAdapter) {
     return class ReactNativeDebugAdapter extends c {
         private projectRootPath: string;
         private remoteExtension: RemoteExtension;
@@ -150,13 +144,13 @@ export function createClass(c: typeof Node2DebugAdapter) {
          */
         private bailOut(message: string): void {
             Log.logError(`Could not debug. ${message}`);
-            this._session.sendEvent(new TerminatedEvent());
+            // use public terminateSession from Node2DebugAdapter
+            this.terminateSession(message);
+            // this._session.sendEvent(new TerminatedEvent());
             process.exit(1);
         };
     };
 }
-
-
 
 /**
  * Parses settings.json file for workspace root property
