@@ -26,7 +26,6 @@
                 "--server=4712"
             ], // Use "debugServer": "4712", on launch.json of the instance to debug
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out",
             "preLaunchTask": "build"
         },
         {

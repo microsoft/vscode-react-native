@@ -175,9 +175,9 @@ export class TelemetryHelper {
         Telemetry.send(successEvent);
     }
 
-    public static addTelemetryEventProperty(event: Telemetry.TelemetryEvent, propertyName: string, propertyValue: any, isPii: boolean): void {
+    public static addTelemetryEventProperty(event: Telemetry.TelemetryEvent, propertyName: string, propertyValue: any , isPii: boolean): void {
         if (Array.isArray(propertyValue)) {
-            TelemetryHelper.addMultiValuedTelemetryEventProperty(event, propertyName, propertyValue, isPii);
+            TelemetryHelper.addMultiValuedTelemetryEventProperty(event, propertyName, <any[]>propertyValue, isPii);
         } else {
             TelemetryHelper.setTelemetryEventProperty(event, propertyName, propertyValue, isPii);
         }
@@ -230,7 +230,7 @@ export class TelemetryHelper {
         }
     }
 
-    private static addMultiValuedTelemetryEventProperty(event: Telemetry.TelemetryEvent, propertyName: string, propertyValue: string, isPii: boolean): void {
+    private static addMultiValuedTelemetryEventProperty(event: Telemetry.TelemetryEvent, propertyName: string, propertyValue: string[], isPii: boolean): void {
         for (let i: number = 0; i < propertyValue.length; i++) {
             TelemetryHelper.setTelemetryEventProperty(event, propertyName + i, propertyValue[i], isPii);
         }

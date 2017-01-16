@@ -102,18 +102,15 @@ export class StreamLogger implements ILogger {
     }
 }
 
-export class NodeDebugAdapterLogger implements ILogger {
-    private debugSession: NodeDebugSession;
-    private debugAdapterPackage: typeof VSCodeDebugAdapter;
+import { OutputEvent } from "vscode-debugadapter";
 
-    public constructor(adapterPackage: typeof VSCodeDebugAdapter, debugSession: NodeDebugSession) {
-        this.debugAdapterPackage = adapterPackage;
-        this.debugSession = debugSession;
-    }
+export class NodeDebugAdapterLogger implements ILogger {
+
+    public constructor(private debugSession: ChromeDebugSession) {}
 
     public logMessage(message: string, formatMessage: boolean = true, destination: string = "stdout") {
         const outputEventMessage = formatMessage ? this.getFormattedMessage(message) : message;
-        this.debugSession.sendEvent(new this.debugAdapterPackage.OutputEvent(outputEventMessage, destination));
+        this.debugSession.sendEvent(new OutputEvent(outputEventMessage, destination));
     }
 
     public logError(errorMessage: string, error?: any, logStack: boolean = true) {

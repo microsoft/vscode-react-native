@@ -48,3 +48,36 @@ interface IAttachRequestArgs {
     program: string;
     platform: string;
 }
+
+
+declare abstract class ChromeDebugAdapter {
+    protected _session: ChromeDebugSession;
+    // constructor({chromeConnection, lineColTransformer, sourceMapTransformer, pathTransformer}: IChromeDebugAdapterOpts, session: ChromeDebugSession);
+    public launch(args: ILaunchRequestArgs): Promise<void>;
+    public attach(args: IAttachRequestArgs): Promise<void>;
+    public shutdown(): void;
+    public disconnect(): void;
+    protected sendInitializedEvent(): void;
+}
+
+interface IChromeDebugSessionOpts {
+    /** The class of the adapter, which is instantiated for each session */
+    adapter: typeof ChromeDebugAdapter;
+    extensionName: string;
+}
+
+declare class ChromeDebugSession extends VSCodeDebugAdapter.DebugSession {
+    private _debugAdapter;
+    constructor(debuggerLinesAndColumnsStartAt1?: boolean, isServer?: boolean, opts?: IChromeDebugSessionOpts);
+    public sendEvent(event: VSCodeDebugAdapter.InitializedEvent): void;
+}
+
+
+declare class Node2DebugAdapter extends ChromeDebugAdapter {
+    protected _session: ChromeDebugSession;
+    public launch(args: ILaunchRequestArgs): Promise<void>
+    public attach(args: IAttachRequestArgs): Promise<void>
+    public shutdown(): void;
+    public disconnect(): void;
+    protected sendInitializedEvent(): void
+}
