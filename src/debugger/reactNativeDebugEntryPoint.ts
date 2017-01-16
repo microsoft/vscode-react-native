@@ -31,7 +31,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
          * There is no need to create a new adapter for node because ther already exists one.
          * We look for node debug adapter on client's computer so we can jump of on top of that.
          */
-        let node2DebugFolder: string;
+        let nodeDebugFolder: string;
         let VSCodeDebugAdapter: typeof VSCodeDebugAdapterPackage;
         let Node2DebugAdapter: typeof Node2DebugAdapterPackage.Node2DebugAdapter;
         let ChromeDebugSession: typeof ChromeDebuggerCorePackage.ChromeDebugSession;
@@ -40,10 +40,10 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
         // If it fails, we must not have been in a react native project
         try {
             /* tslint:disable:no-var-requires */
-            node2DebugFolder = require("./nodeDebugLocation.json").nodeDebugPath;
-            VSCodeDebugAdapter = require(path.join(node2DebugFolder, "node_modules/vscode-debugadapter")).VSCodeDebugAdapter;
-            ChromeDebugSession = require(path.join(node2DebugFolder, "node_modules/vscode-chrome-debug-core")).ChromeDebugSession;
-            Node2DebugAdapter = require(path.join(node2DebugFolder, "out/src/nodeDebugAdapter")).NodeDebugAdapter;
+            nodeDebugFolder = require("./nodeDebugLocation.json").nodeDebugPath;
+            VSCodeDebugAdapter = require(path.join(nodeDebugFolder, "node_modules/vscode-debugadapter")).VSCodeDebugAdapter;
+            ChromeDebugSession = require(path.join(nodeDebugFolder, "node_modules/vscode-chrome-debug-core")).ChromeDebugSession;
+            Node2DebugAdapter = require(path.join(nodeDebugFolder, "out/src/nodeDebugAdapter")).NodeDebugAdapter;
             /* tslint:enable:no-var-requires */
         } catch (e) {
             // Nothing we can do here: can't even communicate back because we don't know how to speak debug adapter
