@@ -10,7 +10,7 @@ import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {NullTelemetryReporter, ReassignableTelemetryReporter} from "../common/telemetryReporters";
 
-import { createAdapter } from "./reactNativeDebugAdapter";
+import { createAdapter } from "./nodeDebugWrapper";
 
 const version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
 const telemetryReporter = new ReassignableTelemetryReporter(new NullTelemetryReporter());
