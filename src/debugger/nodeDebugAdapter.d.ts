@@ -58,6 +58,7 @@ declare module ChromeDebuggerCorePackage {
         public shutdown(): void;
         public disconnect(): void;
         protected sendInitializedEvent(): void;
+        protected terminateSession(reason: string, restart?: boolean): void;
     }
 
     interface IChromeDebugSessionOpts {

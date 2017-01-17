@@ -59,7 +59,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
         // Customize node adapter requests
         try {
             // Create customised react-native debug adapter based on Node-debug2 adapter
-            adapter = createAdapter(Node2DebugAdapter);
+            adapter = createAdapter(Node2DebugAdapter, VSCodeDebugAdapter);
         } catch (e) {
             const debugSession = new ChromeDebugSession();
             debugSession.sendEvent(new VSCodeDebugAdapter.OutputEvent("Unable to start debug adapter: " + e.toString(), "stderr"));

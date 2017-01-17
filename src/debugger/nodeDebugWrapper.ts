@@ -33,8 +33,11 @@ interface ReactNativeAttachRequestArguments extends IAttachRequestArgs {
     internalDebuggerPort?: any;
 }
 
-export function createAdapter(c: typeof Node2DebugAdapterPackage.Node2DebugAdapter) {
-    return class ReactNativeDebugAdapter extends c {
+export function createAdapter (
+        baseDebugAdapterClass: typeof ChromeDebuggerCorePackage.ChromeDebugAdapter,
+        vscodeDebugPackage: typeof VSCodeDebugAdapterPackage) {
+
+    return class ReactNativeDebugAdapter extends baseDebugAdapterClass {
         private projectRootPath: string;
         private remoteExtension: RemoteExtension;
         private mobilePlatformOptions: IRunOptions;
@@ -136,7 +139,7 @@ export function createAdapter(c: typeof Node2DebugAdapterPackage.Node2DebugAdapt
             // TODO: send only when really initialized
             // this._session.sendEvent(new InitializedEvent());
 
-            Log.SetGlobalLogger(new NodeDebugAdapterLogger(this._session));
+            Log.SetGlobalLogger(new NodeDebugAdapterLogger(vscodeDebugPackage, this._session));
         }
 
         /**
