@@ -38,6 +38,8 @@ export function createAdapter (
         vscodeDebugPackage: typeof VSCodeDebugAdapterPackage) {
 
     return class ReactNativeDebugAdapter extends baseDebugAdapterClass {
+        private reinitServer: net.Server;
+
         private projectRootPath: string;
         private remoteExtension: RemoteExtension;
         private mobilePlatformOptions: IRunOptions;
@@ -110,6 +112,8 @@ export function createAdapter (
 
         // TODO: maybe better listen to terminateSession
         public disconnect(): void {
+            this.reinitServer.close();
+
             if (this.mobilePlatformOptions.platform !== "android") {
                 return super.disconnect();
             }
@@ -135,6 +139,25 @@ export function createAdapter (
                 platform: args.platform,
             };
 
+            // create reinit server and get its' port
+            this.reinitServer = createReinitializeServer(args.internalDebuggerPort, args.outDir)
+            .on("reinitialize", (bundleUrl: string, mapUrl: string) => {
+                // call internal `processNewSourceMap` method to add source map to the
+                // set of known maps so the breakpoints, set in this source, would pass
+                // validation even before the bundle is actually loaded at runtime
+                this._sourceMapTransformer.sourceMaps.processNewSourceMap(bundleUrl, mapUrl);
+                // call super method to really initialize
+                // super.sendInitializedEvent();
+            })
+            .on("error", (err: Error) => {
+                TelemetryHelper.sendSimpleEvent("reinitializeServerError");
+                Log.logError("Error in debug adapter server: " + err.toString());
+                Log.logMessage("Breakpoints may not update. Consider restarting and specifying a different 'internalDebuggerPort' in launch.json");
+            });
+
+            // Override args.args to pass reinitialize server port to debuggee worker
+            args.args = [ this.reinitServer.localPort.toString() ];
+
             // Send an "initialized" event to trigger breakpoints to be re-sent
             // TODO: send only when really initialized
             // this._session.sendEvent(new InitializedEvent());
@@ -153,6 +176,27 @@ export function createAdapter (
             process.exit(1);
         };
     };
+}
+
+/**
+ * Creates internal debug server and returns the port that the server is hook up into.
+ */
+function createReinitializeServer(internalDebuggerPort: string, sourcesDir: string) {
+    // Create the server
+    const server = http.createServer((req, res) => {
+        res.statusCode = 404;
+        if (req.url === "/refreshBreakpoints") {
+            res.statusCode = 200;
+
+            let { scriptpath, sourcemapurl } = <IReinitializeHeaders>req.headers;
+            server.emit("reinitialize", scriptpath, sourcemapurl);
+        }
+        res.end();
+    });
+
+    // Setup listen port and on error response
+    server.localPort = parseInt(internalDebuggerPort, 10) || 9090;
+    return server.listen(server.localPort);
 }
 
 /**

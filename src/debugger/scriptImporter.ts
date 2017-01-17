@@ -52,9 +52,14 @@ export class ScriptImporter {
                 .then((scriptFilePath: string) => {
                     Log.logInternalMessage(LogLevel.Info, `Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
                     return { contents: scriptBody, filepath: scriptFilePath };
-                }).finally(() => {
-                    // Request that the debug adapter update breakpoints and sourcemaps now that we have written them
-                    return new Request().request(`http://localhost:${debugAdapterPort}/refreshBreakpoints`);
+                })
+                .then(({ contents, filepath }) => {
+                    // Request that the debug adapter update sourcemaps now that we have written them
+                    return new Request().request(`http://localhost:${debugAdapterPort}/refreshBreakpoints`, false, {
+                        scriptpath: filepath,
+                        sourcemapurl: path.basename(sourceMappingUrl.pathname),
+                    } as IReinitializeHeaders)
+                    .thenResolve({ contents, filepath });
                 });
         });
     }

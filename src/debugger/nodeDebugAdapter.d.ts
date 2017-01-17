@@ -24,8 +24,18 @@ declare module VSCodeDebugAdapterPackage {
     }
 }
 
+interface IReinitializeHeaders {
+    // Note: using lowercase as headers seems to be lowercased by server
+    scriptpath: string;
+    sourcemapurl: string;
+}
+
 declare class SourceMaps {
     constructor(session: NodeDebugSession, generatedCodeDirectory: string, generatedCodeGlobs: string[]);
+    /**
+     * Given a new path to a new script file, finds and loads the sourcemap for that file
+     */
+    public processNewSourceMap(pathToGenerated: string, sourceMapURL: string): Promise<void>;
 }
 
 declare class NodeDebugSession extends VSCodeDebugAdapterPackage.DebugSession {
@@ -50,8 +60,15 @@ interface IAttachRequestArgs {
 }
 
 declare module ChromeDebuggerCorePackage {
+
+    class BaseSourceMapTransformer {
+        public sourceMaps: SourceMaps;
+    }
+
     abstract class ChromeDebugAdapter {
         protected _session: ChromeDebugSession;
+        protected _sourceMapTransformer: BaseSourceMapTransformer;
+
         // constructor({chromeConnection, lineColTransformer, sourceMapTransformer, pathTransformer}: IChromeDebugAdapterOpts, session: ChromeDebugSession);
         public launch(args: ILaunchRequestArgs): Promise<void>;
         public attach(args: IAttachRequestArgs): Promise<void>;
