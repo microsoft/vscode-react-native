@@ -41,7 +41,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
         try {
             /* tslint:disable:no-var-requires */
             nodeDebugFolder = require("./nodeDebugLocation.json").nodeDebugPath;
-            VSCodeDebugAdapter = require(path.join(nodeDebugFolder, "node_modules/vscode-debugadapter")).VSCodeDebugAdapter;
+            VSCodeDebugAdapter = require(path.join(nodeDebugFolder, "node_modules/vscode-debugadapter"));
             ChromeDebugSession = require(path.join(nodeDebugFolder, "node_modules/vscode-chrome-debug-core")).ChromeDebugSession;
             Node2DebugAdapter = require(path.join(nodeDebugFolder, "out/src/nodeDebugAdapter")).NodeDebugAdapter;
             /* tslint:enable:no-var-requires */
