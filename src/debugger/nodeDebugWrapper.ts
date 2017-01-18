@@ -6,6 +6,9 @@ import * as path from "path";
 import * as fs from "fs";
 import stripJsonComments = require("strip-json-comments");
 
+import { createServer } from "http";
+import { Server } from "net";
+
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {RemoteExtension} from "../common/remoteExtension";
 import {IOSPlatform} from "./ios/iOSPlatform";
@@ -38,7 +41,7 @@ export function createAdapter (
         vscodeDebugPackage: typeof VSCodeDebugAdapterPackage) {
 
     return class ReactNativeDebugAdapter extends baseDebugAdapterClass {
-        private reinitServer: net.Server;
+        private reinitServer: Server;
 
         private projectRootPath: string;
         private remoteExtension: RemoteExtension;
@@ -183,7 +186,7 @@ export function createAdapter (
  */
 function createReinitializeServer(internalDebuggerPort: string, sourcesDir: string) {
     // Create the server
-    const server = http.createServer((req, res) => {
+    const server = createServer((req, res) => {
         res.statusCode = 404;
         if (req.url === "/refreshBreakpoints") {
             res.statusCode = 200;
