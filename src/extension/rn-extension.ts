@@ -106,8 +106,7 @@ function configureLogLevel(): void {
 }
 
 function configureNodeDebuggerLocation(): Q.Promise<void> {
-    const nodeDebugExtension = vscode.extensions.getExtension("ms-vscode.node-debug") // We try to get the new version
-        || vscode.extensions.getExtension("andreweinand.node-debug"); // If it's not available, we try to get the old version
+    const nodeDebugExtension = vscode.extensions.getExtension("ms-vscode.node-debug2");
     if (!nodeDebugExtension) {
         return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindLocationOfNodeDebugger));
     }

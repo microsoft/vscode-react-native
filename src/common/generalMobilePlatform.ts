@@ -12,7 +12,7 @@ export class GeneralMobilePlatform {
     protected remoteExtension: RemoteExtension;
     protected platformName: string;
 
-    constructor(protected runOptions: IRunOptions, { remoteExtension = null } = {}) {
+    constructor(protected runOptions: IRunOptions, { remoteExtension = <RemoteExtension>null } = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
         this.remoteExtension = (remoteExtension) ? remoteExtension : RemoteExtension.atProjectRootPath(runOptions.projectRoot);

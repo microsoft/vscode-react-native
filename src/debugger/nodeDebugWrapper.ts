@@ -3,87 +3,74 @@
 
 import * as Q from "q";
 import * as path from "path";
-import * as http from "http";
 import * as fs from "fs";
 import stripJsonComments = require("strip-json-comments");
 
-import {Telemetry} from "../common/telemetry";
+import { createServer } from "http";
+import { Server } from "net";
+
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {RemoteExtension} from "../common/remoteExtension";
 import {IOSPlatform} from "./ios/iOSPlatform";
 import {PlatformResolver} from "./platformResolver";
 import {IRunOptions} from "../common/launchArgs";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
-import {ExtensionTelemetryReporter, ReassignableTelemetryReporter} from "../common/telemetryReporters";
 import {NodeDebugAdapterLogger} from "../common/log/loggers";
 import {Log} from "../common/log/log";
 import {GeneralMobilePlatform} from "../common/generalMobilePlatform";
 
-export class NodeDebugWrapper {
-    private projectRootPath: string;
-    private remoteExtension: RemoteExtension;
-    private telemetryReporter: ReassignableTelemetryReporter;
-    private appName: string;
-    private version: string;
-    private mobilePlatformOptions: IRunOptions;
+interface ReactNativeLaunchRequestArguments extends ILaunchRequestArgs {
+    args: string[];
+    platform: string;
+    program: string;
+    internalDebuggerPort?: any;
+    target?: string;
+    iosRelativeProjectPath?: string;
+    logCatArguments: any;
+}
 
-    private vscodeDebugAdapterPackage: typeof VSCodeDebugAdapter;
-    private nodeDebugSession: typeof NodeDebugSession;
-    private sourceMapsConstructor: typeof SourceMaps;
-    private originalLaunchRequest: (response: any, args: any) => void;
+interface ReactNativeAttachRequestArguments extends IAttachRequestArgs {
+    args: string[];
+    platform: string;
+    program: string;
+    internalDebuggerPort?: any;
+}
 
-    public constructor(appName: string, version: string, telemetryReporter: ReassignableTelemetryReporter,
-                       debugAdapter: typeof VSCodeDebugAdapter, debugSession: typeof NodeDebugSession, sourceMaps: typeof SourceMaps) {
+export function createAdapter (
+        baseDebugAdapterClass: typeof ChromeDebuggerCorePackage.ChromeDebugAdapter,
+        vscodeDebugPackage: typeof VSCodeDebugAdapterPackage) {
 
-        this.appName = appName;
-        this.version = version;
-        this.telemetryReporter = telemetryReporter;
-        this.vscodeDebugAdapterPackage = debugAdapter;
-        this.nodeDebugSession = debugSession;
-        this.sourceMapsConstructor = sourceMaps;
-        this.originalLaunchRequest = this.nodeDebugSession.prototype.launchRequest;
-    }
+    return class ReactNativeDebugAdapter extends baseDebugAdapterClass {
+        private reinitServer: Server;
 
-    /**
-     * Calls customize methods for all requests needed
-     */
-    public customizeNodeAdapterRequests(): void {
-        this.customizeLaunchRequest();
-        this.customizeAttachRequest();
-        this.customizeDisconnectRequest();
-    }
+        private projectRootPath: string;
+        private remoteExtension: RemoteExtension;
+        private mobilePlatformOptions: IRunOptions;
 
-    /**
-     * Intecept the "launchRequest" instance method of NodeDebugSession to interpret arguments.
-     * Launch should:
-     * - Run the packager if needed
-     * - Compile and run application
-     * - Prewarm bundle
-     */
-    private customizeLaunchRequest(): void {
-        const nodeDebugWrapper = this;
-        this.nodeDebugSession.prototype.launchRequest = function (request: any, args: ILaunchRequestArgs) {
-            nodeDebugWrapper.requestSetup(this, args);
-            nodeDebugWrapper.mobilePlatformOptions.target = args.target || "simulator";
-            nodeDebugWrapper.mobilePlatformOptions.iosRelativeProjectPath = !nodeDebugWrapper.isNullOrUndefined(args.iosRelativeProjectPath) ?
+        public launch(args: ReactNativeLaunchRequestArguments): Promise<void> {
+            this.requestSetup(args);
+
+            this.mobilePlatformOptions.target = args.target || "simulator";
+            this.mobilePlatformOptions.iosRelativeProjectPath = !isNullOrUndefined(args.iosRelativeProjectPath) ?
                 args.iosRelativeProjectPath :
                 IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH;
 
             // We add the parameter if it's defined (adapter crashes otherwise)
-            if (!nodeDebugWrapper.isNullOrUndefined(args.logCatArguments)) {
-                nodeDebugWrapper.mobilePlatformOptions.logCatArguments = [nodeDebugWrapper.parseLogCatArguments(args.logCatArguments)];
+            if (!isNullOrUndefined(args.logCatArguments)) {
+                this.mobilePlatformOptions.logCatArguments = [parseLogCatArguments(args.logCatArguments)];
             }
 
-            return TelemetryHelper.generate("launch", (generator) => {
-                const resolver = new PlatformResolver();
-                return nodeDebugWrapper.remoteExtension.getPackagerPort()
+            return Promise.resolve().then(() => {
+                return TelemetryHelper.generate("launch", (generator) => {
+                    const resolver = new PlatformResolver();
+                    return this.remoteExtension.getPackagerPort()
                     .then(packagerPort => {
-                        nodeDebugWrapper.mobilePlatformOptions.packagerPort = packagerPort;
-                        const mobilePlatform = resolver.resolveMobilePlatform(args.platform, nodeDebugWrapper.mobilePlatformOptions);
+                        this.mobilePlatformOptions.packagerPort = packagerPort;
+                        const mobilePlatform = resolver.resolveMobilePlatform(args.platform, this.mobilePlatformOptions);
                         return Q({})
                             .then(() => {
                                 generator.step("checkPlatformCompatibility");
-                                TargetPlatformHelper.checkTargetPlatformSupport(nodeDebugWrapper.mobilePlatformOptions.platform);
+                                TargetPlatformHelper.checkTargetPlatformSupport(this.mobilePlatformOptions.platform);
                                 generator.step("startPackager");
                                 return mobilePlatform.startPackager();
                             })
@@ -99,174 +86,151 @@ export class NodeDebugWrapper {
                                 Log.logMessage("Building and running application.");
                                 return mobilePlatform.runApp();
                             })
-                            .then(() =>
-                                nodeDebugWrapper.attachRequest(this, request, args, mobilePlatform));
-                    }).catch(error =>
-                        nodeDebugWrapper.bailOut(this, error.message));
+                            .then(() => {
+                                generator.step("mobilePlatform.enableJSDebuggingMode");
+                                return mobilePlatform.enableJSDebuggingMode();
+                            })
+                            .then(() => {
+                                return super.launch(args);
+                            });
+                    }).catch(error => this.bailOut(error.message));
+                });
             });
-        };
-    }
-
-    /**
-     * Intecept the "attachRequest" instance method of NodeDebugSession to interpret arguments
-     */
-    private customizeAttachRequest(): void {
-        const nodeDebugWrapper = this;
-        this.nodeDebugSession.prototype.attachRequest = function (request: any, args: IAttachRequestArgs) {
-            nodeDebugWrapper.requestSetup(this, args);
-            nodeDebugWrapper.attachRequest(this, request, args, new GeneralMobilePlatform(nodeDebugWrapper.mobilePlatformOptions));
-        };
-    }
-
-    /**
-     * Intecept the "disconnectRequest" instance method of NodeDebugSession to interpret arguments
-     */
-    private customizeDisconnectRequest(): void {
-        const originalRequest = this.nodeDebugSession.prototype.disconnectRequest;
-        const nodeDebugWrapper = this;
-
-        this.nodeDebugSession.prototype.disconnectRequest = function (response: any, args: any): void {
-            // First we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
-
-            if (nodeDebugWrapper.mobilePlatformOptions.platform === "android") {
-                nodeDebugWrapper.remoteExtension.stopMonitoringLogcat()
-                    .catch(reason =>
-                        Log.logError(`WARNING: Couldn't stop monitoring logcat: ${reason.message || reason}\n`))
-                    .finally(() =>
-                        originalRequest.call(this, response, args));
-            } else {
-                originalRequest.call(this, response, args);
-            }
-        };
-    }
-
-    /**
-     * Makes the required setup for request customization
-     * - Enables telemetry
-     * - Sets up mobilePlatformOptions, remote extension and projectRootPath
-     * - Starts debug server
-     * - Create global logger
-     */
-    private requestSetup(debugSession: NodeDebugSession, args: any) {
-        this.projectRootPath = this.getProjectRoot(args);
-        this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
-        this.mobilePlatformOptions = {
-            projectRoot: this.projectRootPath,
-            platform: args.platform,
-        };
-
-        // Start to send telemetry
-        this.telemetryReporter.reassignTo(new ExtensionTelemetryReporter(
-            this.appName, this.version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
-
-        // Create a server waiting for messages to re-initialize the debug session;
-        const debugServerListeningPort = this.createReinitializeServer(debugSession, args.internalDebuggerPort, args.outDir);
-        args.args = [debugServerListeningPort.toString()];
-
-        Log.SetGlobalLogger(new NodeDebugAdapterLogger(this.vscodeDebugAdapterPackage, debugSession));
-    }
-
-    /**
-     * Runs logic needed to attach.
-     * Attach should:
-     * - Enable js debugging
-     */
-    private attachRequest(debugSession: NodeDebugSession, request: any, args: any, mobilePlatform: any): Q.Promise<void> {
-        return TelemetryHelper.generate("attach", (generator) => {
-            return Q({})
-                .then(() => {
-                    generator.step("mobilePlatform.enableJSDebuggingMode");
-                    if (mobilePlatform) {
-                        return mobilePlatform.enableJSDebuggingMode();
-                    } else {
-                        Log.logMessage("Debugger ready. Enable remote debugging in app.");
-                    }
-                }).then(() =>
-                    this.originalLaunchRequest.call(debugSession, request, args))
-                .catch(error =>
-                    this.bailOut(debugSession, error.message));
-        });
-    }
-
-    /**
-     * Creates internal debug server and returns the port that the server is hook up into.
-     */
-    private createReinitializeServer(debugSession: NodeDebugSession, internalDebuggerPort: string, sourcesDir: string): number {
-        // Create the server
-        const server = http.createServer((req, res) => {
-            res.statusCode = 404;
-            if (req.url === "/refreshBreakpoints") {
-                res.statusCode = 200;
-                if (debugSession) {
-                    const sourceMaps = debugSession._sourceMaps;
-                    if (sourceMaps) {
-                        // Flush any cached source maps
-                        // Rather than cleaning internal caches we recreate
-                        // SourceMaps to add downloaded bundle map to cache
-                        const bundlePattern = path.join(sourcesDir, "*.bundle");
-                        const sourceMaps = new this.sourceMapsConstructor(debugSession, sourcesDir, [bundlePattern]);
-                        debugSession._sourceMaps = sourceMaps;
-                    }
-                    // Send an "initialized" event to trigger breakpoints to be re-sent
-                    debugSession.sendEvent(new this.vscodeDebugAdapterPackage.InitializedEvent());
-                }
-            }
-            res.end();
-        });
-
-        // Setup listen port and on error response
-        const port = parseInt(internalDebuggerPort, 10) || 9090;
-
-        server.listen(port);
-        server.on("error", (err: Error) => {
-            TelemetryHelper.sendSimpleEvent("reinitializeServerError");
-            Log.logError("Error in debug adapter server: " + err.toString());
-            Log.logMessage("Breakpoints may not update. Consider restarting and specifying a different 'internalDebuggerPort' in launch.json");
-        });
-
-        // Return listen port
-        return port;
-    }
-
-    /**
-     * Logs error to user and finishes the debugging process.
-     */
-    private bailOut(debugSession: NodeDebugSession, message: string): void {
-        Log.logError(`Could not debug. ${message}`);
-        debugSession.sendEvent(new this.vscodeDebugAdapterPackage.TerminatedEvent());
-        process.exit(1);
-    }
-
-    /**
-     * Parses log cat arguments to a string
-     */
-    private parseLogCatArguments(userProvidedLogCatArguments: any): string {
-        return Array.isArray(userProvidedLogCatArguments)
-            ? userProvidedLogCatArguments.join(" ") // If it's an array, we join the arguments
-            : userProvidedLogCatArguments; // If not, we leave it as-is
-    }
-
-    /**
-     * Helper method to know if a value is either null or undefined
-     */
-    private isNullOrUndefined(value: any): boolean {
-        return typeof value === "undefined" || value === null;
-    }
-
-    /**
-     * Parses settings.json file for workspace root property
-     */
-    private getProjectRoot(args: any): string {
-        try {
-            let vsCodeRoot = path.resolve(args.program, "../..");
-            let settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
-            let settingsContent = fs.readFileSync(settingsPath, "utf8");
-            settingsContent = stripJsonComments(settingsContent);
-            let parsedSettings = JSON.parse(settingsContent);
-            let projectRootPath = parsedSettings["react-native-tools"].projectRoot;
-            return path.resolve(vsCodeRoot, projectRootPath);
-        } catch (e) {
-            return path.resolve(args.program, "../..");
         }
+
+        public attach(args: ReactNativeAttachRequestArguments): Promise<void> {
+            this.requestSetup(args);
+            const mobilePlatform = new GeneralMobilePlatform(this.mobilePlatformOptions);
+
+            return Promise.resolve().then(() => {
+                return TelemetryHelper.generate("attach", (generator) => {
+                    generator.step("mobilePlatform.enableJSDebuggingMode");
+                    return mobilePlatform.enableJSDebuggingMode()
+                    // FIXME: Need to think a bit more whether we need to call super.doAttach here or just super.attach
+                    .then(() => super.attach(args))
+                    .catch(error => this.bailOut(error.message));
+                });
+            });
+        }
+
+        // TODO: maybe better listen to terminateSession
+        public disconnect(): void {
+            this.reinitServer.close();
+
+            if (this.mobilePlatformOptions.platform !== "android") {
+                return super.disconnect();
+            }
+
+            // First we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
+            this.remoteExtension.stopMonitoringLogcat()
+            .catch(reason => Log.logError(`WARNING: Couldn't stop monitoring logcat: ${reason.message || reason}\n`))
+            .finally(() => super.disconnect());
+        }
+
+        /**
+         * Makes the required setup for request customization
+         * - Enables telemetry
+         * - Sets up mobilePlatformOptions, remote extension and projectRootPath
+         * - Starts debug server
+         * - Create global logger
+         */
+        private requestSetup(args: any) {
+            this.projectRootPath = getProjectRoot(args);
+            this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
+            this.mobilePlatformOptions = {
+                projectRoot: this.projectRootPath,
+                platform: args.platform,
+            };
+
+            // create reinit server and get its' port
+            this.reinitServer = createReinitializeServer(args.internalDebuggerPort, args.outDir)
+            .on("reinitialize", (bundleUrl: string, mapUrl: string) => {
+                // call internal `processNewSourceMap` method to add source map to the
+                // set of known maps so the breakpoints, set in this source, would pass
+                // validation even before the bundle is actually loaded at runtime
+                this._sourceMapTransformer.sourceMaps.processNewSourceMap(bundleUrl, mapUrl);
+                // call super method to really initialize
+                // super.sendInitializedEvent();
+            })
+            .on("error", (err: Error) => {
+                TelemetryHelper.sendSimpleEvent("reinitializeServerError");
+                Log.logError("Error in debug adapter server: " + err.toString());
+                Log.logMessage("Breakpoints may not update. Consider restarting and specifying a different 'internalDebuggerPort' in launch.json");
+            });
+
+            // Override args.args to pass reinitialize server port to debuggee worker
+            args.args = [ this.reinitServer.localPort.toString() ];
+
+            // Send an "initialized" event to trigger breakpoints to be re-sent
+            // TODO: send only when really initialized
+            // this._session.sendEvent(new InitializedEvent());
+
+            Log.SetGlobalLogger(new NodeDebugAdapterLogger(vscodeDebugPackage, this._session));
+        }
+
+        /**
+         * Logs error to user and finishes the debugging process.
+         */
+        private bailOut(message: string): void {
+            Log.logError(`Could not debug. ${message}`);
+            // use public terminateSession from Node2DebugAdapter
+            this.terminateSession(message);
+            // this._session.sendEvent(new TerminatedEvent());
+            process.exit(1);
+        };
+    };
+}
+
+/**
+ * Creates internal debug server and returns the port that the server is hook up into.
+ */
+function createReinitializeServer(internalDebuggerPort: string, sourcesDir: string) {
+    // Create the server
+    const server = createServer((req, res) => {
+        res.statusCode = 404;
+        if (req.url === "/refreshBreakpoints") {
+            res.statusCode = 200;
+
+            let { scriptpath, sourcemapurl } = <IReinitializeHeaders>req.headers;
+            server.emit("reinitialize", scriptpath, sourcemapurl);
+        }
+        res.end();
+    });
+
+    // Setup listen port and on error response
+    server.localPort = parseInt(internalDebuggerPort, 10) || 9090;
+    return server.listen(server.localPort);
+}
+
+/**
+ * Parses settings.json file for workspace root property
+ */
+function getProjectRoot(args: any): string {
+    try {
+        let vsCodeRoot = path.resolve(args.program, "../..");
+        let settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
+        let settingsContent = fs.readFileSync(settingsPath, "utf8");
+        settingsContent = stripJsonComments(settingsContent);
+        let parsedSettings = JSON.parse(settingsContent);
+        let projectRootPath = parsedSettings["react-native-tools"].projectRoot;
+        return path.resolve(vsCodeRoot, projectRootPath);
+    } catch (e) {
+        return path.resolve(args.program, "../..");
     }
+}
+
+/**
+ * Helper method to know if a value is either null or undefined
+ */
+function isNullOrUndefined(value: any): boolean {
+    return typeof value === "undefined" || value === null;
+}
+
+/**
+ * Parses log cat arguments to a string
+ */
+function parseLogCatArguments(userProvidedLogCatArguments: any): string {
+    return Array.isArray(userProvidedLogCatArguments)
+        ? userProvidedLogCatArguments.join(" ") // If it's an array, we join the arguments
+        : userProvidedLogCatArguments; // If not, we leave it as-is
 }

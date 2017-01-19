@@ -2,12 +2,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import http = require("http");
+import * as url from "url";
 import Q = require("q");
 
 export class Request {
-    public request(url: string, expectStatusOK = false): Q.Promise<any> {
+    public request(requestUrl: string, expectStatusOK = false, headers?: any): Q.Promise<any> {
         let deferred = Q.defer<string>();
-        let req = http.get(url, function(res) {
+
+        let requestOptions = { headers };
+        requestOptions = Object.assign(requestOptions, url.parse(requestUrl));
+
+        let req = http.get(requestOptions, function(res) {
             let responseString = "";
             res.on("data", (data: Buffer) => {
                 responseString += data.toString();
