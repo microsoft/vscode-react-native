@@ -40,6 +40,7 @@ interface ILaunchRequestArgs {
     args: string[];
     logCatArguments: any;
     program: string;
+    variant?: string;
 }
 
 interface IAttachRequestArgs {

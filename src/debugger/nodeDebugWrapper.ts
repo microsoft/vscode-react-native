@@ -74,6 +74,10 @@ export class NodeDebugWrapper {
                 nodeDebugWrapper.mobilePlatformOptions.logCatArguments = [nodeDebugWrapper.parseLogCatArguments(args.logCatArguments)];
             }
 
+            if (!nodeDebugWrapper.isNullOrUndefined(args.variant)) {
+                nodeDebugWrapper.mobilePlatformOptions.variant = args.variant;
+            }
+
             return TelemetryHelper.generate("launch", (generator) => {
                 const resolver = new PlatformResolver();
                 return nodeDebugWrapper.remoteExtension.getPackagerPort()
