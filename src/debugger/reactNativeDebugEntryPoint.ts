@@ -74,6 +74,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
 
             constructor(debuggerLinesAndColumnsStartAt1?: boolean, isServer?: boolean) {
                 super(debuggerLinesAndColumnsStartAt1, isServer, {
+                    logFilePath: path.join(`/Users/kotikov.vladimir/${extensionName}.log`),
                     adapter,
                     extensionName,
                 });

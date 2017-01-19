@@ -15,9 +15,11 @@
         },
         {
             "name": "Debug Debugger",
-            "type": "node",
+            // "type": "node",
+            "type": "node2",
             "request": "launch",
-            "program": "${workspaceRoot}/src/debugger/reactNativeDebugEntryPoint.ts",
+            // "program": "${workspaceRoot}/src/debugger/reactNativeDebugEntryPoint.ts",
+            "program": "${workspaceRoot}/out/debugger/reactNativeDebugEntryPoint.js",
             "runtimeArgs": [
                 "--harmony"
             ],

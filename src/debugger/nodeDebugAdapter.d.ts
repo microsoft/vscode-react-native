@@ -80,6 +80,7 @@ declare module ChromeDebuggerCorePackage {
 
     interface IChromeDebugSessionOpts {
         /** The class of the adapter, which is instantiated for each session */
+        logFilePath?: string;
         adapter: typeof ChromeDebugAdapter;
         extensionName: string;
     }
