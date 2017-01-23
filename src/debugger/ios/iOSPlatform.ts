@@ -29,10 +29,13 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private iosProjectPath: string;
 
     // We should add the common iOS build/run erros we find to this list
-    private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure = {
-        "No devices are booted": "Unable to launch iOS simulator. Try specifying a different target.",
-        "FBSOpenApplicationErrorDomain": "Unable to launch iOS simulator. Try specifying a different target.",
-    };
+    private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
+        pattern: "No devices are booted",
+        message: "Unable to launch iOS simulator. Try specifying a different target.",
+    }, {
+        pattern: "FBSOpenApplicationErrorDomain",
+        message: "Unable to launch iOS simulator. Try specifying a different target.",
+    }];
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 

@@ -24,13 +24,25 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private static MULTIPLE_DEVICES_ERROR = "error: more than one device/emulator";
 
     // We should add the common Android build/run erros we find to this list
-    private static RUN_ANDROID_FAILURE_PATTERNS: PatternToFailure = {
-        "Failed to install on any devices": "Could not install the app on any available device. Make sure you have a correctly"
-         + " configured device or emulator running. See https://facebook.github.io/react-native/docs/android-setup.html",
-    "com.android.ddmlib.ShellCommandUnresponsiveException": "An Android shell command timed-out. Please retry the operation.",
-    "Android project not found": "Android project not found.",
-    "error: more than one device/emulator": AndroidPlatform.MULTIPLE_DEVICES_ERROR,
-    };
+    private static RUN_ANDROID_FAILURE_PATTERNS: PatternToFailure[] = [{
+        pattern: "Failed to install on any devices",
+        message: "Could not install the app on any available device. Make sure you have a correctly"
+            + " configured device or emulator running. See https://facebook.github.io/react-native/docs/android-setup.html",
+    }, {
+        pattern: "com.android.ddmlib.ShellCommandUnresponsiveException",
+        message: "An Android shell command timed-out. Please retry the operation.",
+    }, {
+        pattern: "Android project not found",
+        message: "Android project not found.",
+
+    }, {
+        pattern: "error: more than one device/emulator",
+        message: AndroidPlatform.MULTIPLE_DEVICES_ERROR,
+    }, {
+        pattern: /^Error: Activity class \{.*\} does not exist\.$/m,
+        message: "Failed to launch the specified activity. Try running application manually and "
+            + "start debugging using 'Attach to packager' launch configuration.",
+    }];
 
     private static RUN_ANDROID_SUCCESS_PATTERNS: string[] = ["BUILD SUCCESSFUL", "Starting the app", "Starting: Intent"];
 

@@ -4,18 +4,21 @@
 import * as Q from "q";
 import {ISpawnResult} from "./node/childProcess";
 
-export type PatternToFailure = { [pattern: string]: string };
+export type PatternToFailure = {
+    pattern: string | RegExp,
+    message: string
+};
 
 /* This class transforms a spawn process to only succeed if all defined success patterns
    are found on stdout, and none of the failure patterns were found on stderr */
 export class OutputVerifier {
     private generatePatternsForSuccess: () => Q.Promise<string[]>;
-    private generatePatternToFailure: () => Q.Promise<PatternToFailure>;
+    private generatePatternToFailure: () => Q.Promise<PatternToFailure[]>;
 
     private output = "";
     private errors = "";
 
-    constructor(generatePatternsForSuccess: () => Q.Promise<string[]>, generatePatternToFailure: () => Q.Promise<PatternToFailure>) {
+    constructor(generatePatternsForSuccess: () => Q.Promise<string[]>, generatePatternToFailure: () => Q.Promise<PatternToFailure[]>) {
         this.generatePatternsForSuccess = generatePatternsForSuccess;
         this.generatePatternToFailure = generatePatternToFailure;
     }
@@ -29,8 +32,8 @@ export class OutputVerifier {
 
         return spawnResult.outcome // Wait for the process to finish
             .then(this.generatePatternToFailure) // Generate the failure patterns to check
-            .then(patternToFailure => {
-                const failureMessage = this.findAnyFailurePattern(patternToFailure);
+            .then(patterns => {
+                const failureMessage = this.findAnyFailurePattern(patterns);
                 if (failureMessage) {
                     return Q.reject<string[]>(new Error(failureMessage)); // If at least one failure happened, we fail
                 } else {
@@ -50,11 +53,15 @@ export class OutputVerifier {
     }
 
     // We check the failure patterns one by one, to see if any of those appeared on the errors. If they did, we return the associated error
-    private findAnyFailurePattern(patternToFailure: PatternToFailure): string {
+    private findAnyFailurePattern(patterns: PatternToFailure[]): string {
         const errorsAndOutput = this.errors + this.output;
-        const patternThatAppeared = Object.keys(patternToFailure).find(pattern =>
-            errorsAndOutput.indexOf(pattern) !== -1);
-        return patternThatAppeared ? patternToFailure[patternThatAppeared] : null;
+        const patternThatAppeared = patterns.find(pattern => {
+            return pattern.pattern instanceof RegExp ?
+                (pattern.pattern as RegExp).test(errorsAndOutput) :
+                errorsAndOutput.indexOf(pattern.pattern as string) !== -1;
+        });
+
+        return patternThatAppeared ? patternThatAppeared.message : null;
     }
 
     // We check that all the patterns appeared on the output
