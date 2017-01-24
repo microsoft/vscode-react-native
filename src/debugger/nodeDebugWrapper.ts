@@ -19,6 +19,9 @@ import {NodeDebugAdapterLogger} from "../common/log/loggers";
 import {Log} from "../common/log/log";
 import {GeneralMobilePlatform} from "../common/generalMobilePlatform";
 
+import { ScriptImporter } from "./scriptImporter";
+import { MultipleLifetimesAppWorker } from "./appWorker";
+
 interface ReactNativeLaunchRequestArguments extends ILaunchRequestArgs {
     args: string[];
     platform: string;
@@ -91,7 +94,23 @@ export function createAdapter (
                                 return mobilePlatform.enableJSDebuggingMode();
                             })
                             .then(() => {
-                                return super.launch(args);
+                                const workspaceRootPath = path.resolve(path.dirname(args.program), "..");
+                                const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
+
+                                new ScriptImporter(packagerPort, sourcesStoragePath)
+                                .downloadDebuggerWorker(sourcesStoragePath)
+                                .then(() => {
+                                    Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
+                                })
+                                .then(() => {
+                                    Log.logMessage("Starting debugger app worker.");
+                                    // TODO: remove this as we now have sourcemap reinit logic running in the same process
+                                    const debugAdapterPort = parseInt(process.argv[2], 10) || 9090;
+                                    return new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, debugAdapterPort).start();
+                                })
+                                .then(() => {
+                                    return super.launch(args);
+                                });
                             });
                     }).catch(error => this.bailOut(error.message));
                 });
