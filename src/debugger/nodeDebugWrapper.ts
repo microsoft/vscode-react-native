@@ -6,9 +6,6 @@ import * as path from "path";
 import * as fs from "fs";
 import stripJsonComments = require("strip-json-comments");
 
-import { createServer } from "http";
-import { Server } from "net";
-
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {RemoteExtension} from "../common/remoteExtension";
 import {IOSPlatform} from "./ios/iOSPlatform";
@@ -44,8 +41,6 @@ export function createAdapter (
         vscodeDebugPackage: typeof VSCodeDebugAdapterPackage) {
 
     return class ReactNativeDebugAdapter extends baseDebugAdapterClass {
-        private reinitServer: Server;
-
         private projectRootPath: string;
         private remoteExtension: RemoteExtension;
         private mobilePlatformOptions: IRunOptions;
@@ -134,8 +129,6 @@ export function createAdapter (
 
         // TODO: maybe better listen to terminateSession
         public disconnect(): void {
-            this.reinitServer.close();
-
             if (this.mobilePlatformOptions.platform !== "android") {
                 return super.disconnect();
             }
@@ -160,25 +153,6 @@ export function createAdapter (
                 projectRoot: this.projectRootPath,
                 platform: args.platform,
             };
-
-            // create reinit server and get its' port
-            this.reinitServer = createReinitializeServer(args.internalDebuggerPort, args.outDir)
-            .on("reinitialize", (bundleUrl: string, mapUrl: string) => {
-                // call internal `processNewSourceMap` method to add source map to the
-                // set of known maps so the breakpoints, set in this source, would pass
-                // validation even before the bundle is actually loaded at runtime
-                this._sourceMapTransformer.sourceMaps.processNewSourceMap(bundleUrl, mapUrl);
-                // call super method to really initialize
-                // super.sendInitializedEvent();
-            })
-            .on("error", (err: Error) => {
-                TelemetryHelper.sendSimpleEvent("reinitializeServerError");
-                Log.logError("Error in debug adapter server: " + err.toString());
-                Log.logMessage("Breakpoints may not update. Consider restarting and specifying a different 'internalDebuggerPort' in launch.json");
-            });
-
-            // Override args.args to pass reinitialize server port to debuggee worker
-            args.args = [ this.reinitServer.localPort.toString() ];
 
             // Send an "initialized" event to trigger breakpoints to be re-sent
             // TODO: send only when really initialized

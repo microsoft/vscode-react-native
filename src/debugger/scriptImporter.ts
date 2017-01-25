@@ -29,7 +29,7 @@ export class ScriptImporter {
         this.sourceMapUtil = new SourceMapUtil();
     }
 
-    public downloadAppScript(scriptUrlString: string, debugAdapterPort: number): Q.Promise<DownloadedScript> {
+    public downloadAppScript(scriptUrlString: string, debugAdapterPort?: number): Q.Promise<DownloadedScript> {
         const parsedScriptUrl = url.parse(scriptUrlString);
         const overriddenScriptUrlString = (parsedScriptUrl.hostname === "localhost") ? this.overridePackagerPort(scriptUrlString) : scriptUrlString;
         // We'll get the source code, and store it locally to have a better debugging experience
@@ -52,14 +52,6 @@ export class ScriptImporter {
                 .then((scriptFilePath: string) => {
                     Log.logInternalMessage(LogLevel.Info, `Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
                     return { contents: scriptBody, filepath: scriptFilePath };
-                })
-                .then(({ contents, filepath }) => {
-                    // Request that the debug adapter update sourcemaps now that we have written them
-                    return new Request().request(`http://localhost:${debugAdapterPort}/refreshBreakpoints`, false, {
-                        scriptpath: filepath,
-                        sourcemapurl: path.basename(sourceMappingUrl.pathname),
-                    } as IReinitializeHeaders)
-                    .thenResolve({ contents, filepath });
                 });
         });
     }
