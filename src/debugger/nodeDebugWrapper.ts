@@ -84,7 +84,7 @@ export function createAdapter (
                             .then(() => {
                                 generator.step("mobilePlatform.runApp");
                                 Log.logMessage("Building and running application.");
-                            	// FIXME: temporary commented out
+                                // FIXME: temporary commented out
                                 return mobilePlatform.runApp();
                             })
                             .then(() => {
@@ -92,23 +92,23 @@ export function createAdapter (
                                 return mobilePlatform.enableJSDebuggingMode();
                             })
                             .then(() => {
-                            	Log.logMessage("Starting debugger app worker.");
+                                Log.logMessage("Starting debugger app worker.");
 
                                 const workspaceRootPath = path.resolve(path.dirname(args.program), "..");
                                 const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
 
-	                            this.appWorker = new MultipleLifetimesAppWorker(
-	                                packagerPort, sourcesStoragePath, 9090, {
-	                                    sandboxedAppConstructor: (path: string, port: number, messageFunc: (message: any) => void) =>
-	                                        new ForkedAppWorker(packagerPort, path, port, messageFunc),
-	                                }
-	                            );
-	
-	                            this.appWorker.start();
-	                            return this.appWorker.waitForDebuggee();
+                                this.appWorker = new MultipleLifetimesAppWorker(
+                                    packagerPort, sourcesStoragePath, 9090, {
+                                        sandboxedAppConstructor: (path: string, port: number, messageFunc: (message: any) => void) =>
+                                            new ForkedAppWorker(packagerPort, path, port, messageFunc),
+                                    }
+                                );
+
+                                this.appWorker.start();
+                                return this.appWorker.waitForDebuggee();
                             })
-                            .then(() => {
-                            	return super.attach(Object.assign(args, { port: debuggee.port }));
+                            .then((debuggee: any) => {
+                                return super.attach(Object.assign(args, { port: debuggee.port }));
                             });
                     }).catch(error => this.bailOut(error.message));
                 });
