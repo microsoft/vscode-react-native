@@ -11,6 +11,7 @@ import {Node} from "./node/node";
 import {Package} from "./node/package";
 import {PromiseUtil} from "./node/promise";
 import {Request} from "./node/request";
+import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
 
 import * as Q from "q";
 import * as path from "path";
@@ -196,23 +197,33 @@ export class Packager {
                             if (runAs === PackagerRunAs.EXPONENT) {
                                 args = args.concat(["--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode"))]);
                             }
-                            let reactEnv = Object.assign({}, process.env, {
-                                REACT_DEBUGGER: "echo A debugger is not needed: ",
-                                REACT_EDITOR: this.openFileAtLocationCommand(),
-                            });
 
-                            Log.logMessage("Starting Packager");
-                            // The packager will continue running while we debug the application, so we can"t
-                            // wait for this command to finish
+                            let reactNativeProjectHelper = new ReactNativeProjectHelper(this.projectPath);
+                            reactNativeProjectHelper.getReactNativeVersion().then(version => {
 
-                            let spawnOptions = { env: reactEnv };
+                                //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
+                                //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210
+                                //  This bug will be fixed in 0.41
+                                const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
 
-                            const packagerSpawnResult = new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions);
-                            this.packagerProcess = packagerSpawnResult.spawnedProcess;
-                            packagerSpawnResult.outcome.done(() => { }, () => { }); /* Q prints a warning if we don't call .done().
-                                                                                     We ignore all outcome errors */
-                            return packagerSpawnResult.startup;
+                                let reactEnv = Object.assign({}, process.env, {
+                                    REACT_DEBUGGER: "echo A debugger is not needed: ",
+                                    REACT_EDITOR: failedRNVersions.indexOf(version) < 0 ? "code" : this.openFileAtLocationCommand(),
+                                });
+
+                                Log.logMessage("Starting Packager");
+                                // The packager will continue running while we debug the application, so we can"t
+                                // wait for this command to finish
+
+                                let spawnOptions = { env: reactEnv };
+
+                                const packagerSpawnResult = new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions);
+                                this.packagerProcess = packagerSpawnResult.spawnedProcess;
+                                packagerSpawnResult.outcome.done(() => { }, () => { }); /* Q prints a warning if we don't call .done().
+                                                                                        We ignore all outcome errors */
+                                return packagerSpawnResult.startup;
                         });
+                    });
                 }
             })
             .then(() =>
@@ -298,6 +309,14 @@ export class Packager {
     }
 
     private openFileAtLocationCommand(): string {
-        return "node " + path.join(__dirname, "..", "..", "scripts", "atom");
+        let atomScript: string = "node " + path.join(__dirname, "..", "..", "scripts", "atom");
+
+        //  shell-quote package incorrectly parses windows paths
+        //  https://github.com/facebook/react-native/blob/master/local-cli/server/util/launchEditor.js#L83
+        if (process.platform === "win32") {
+            return atomScript.replace(/\\/g, "/");
+        }
+
+        return atomScript;
     }
 }
