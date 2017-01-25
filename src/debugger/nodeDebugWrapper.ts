@@ -16,7 +16,7 @@ import {NodeDebugAdapterLogger} from "../common/log/loggers";
 import {Log} from "../common/log/log";
 import {GeneralMobilePlatform} from "../common/generalMobilePlatform";
 
-import { ScriptImporter } from "./scriptImporter";
+import { ForkedAppWorker } from "./forkedAppWorker";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 
 interface ReactNativeLaunchRequestArguments extends ILaunchRequestArgs {
@@ -44,6 +44,8 @@ export function createAdapter (
         private projectRootPath: string;
         private remoteExtension: RemoteExtension;
         private mobilePlatformOptions: IRunOptions;
+
+        private appWorker: MultipleLifetimesAppWorker;
 
         public launch(args: ReactNativeLaunchRequestArguments): Promise<void> {
             this.requestSetup(args);
@@ -89,23 +91,23 @@ export function createAdapter (
                                 return mobilePlatform.enableJSDebuggingMode();
                             })
                             .then(() => {
+                            	Log.logMessage("Starting debugger app worker.");
+
                                 const workspaceRootPath = path.resolve(path.dirname(args.program), "..");
                                 const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
 
-                                new ScriptImporter(packagerPort, sourcesStoragePath)
-                                .downloadDebuggerWorker(sourcesStoragePath)
-                                .then(() => {
-                                    Log.logMessage("Downloaded debuggerWorker.js (Logic to run the React Native app) from the Packager.");
-                                })
-                                .then(() => {
-                                    Log.logMessage("Starting debugger app worker.");
-                                    // TODO: remove this as we now have sourcemap reinit logic running in the same process
-                                    const debugAdapterPort = parseInt(process.argv[2], 10) || 9090;
-                                    return new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, debugAdapterPort).start();
-                                })
-                                .then(() => {
-                                    return super.launch(args);
-                                });
+	                            this.appWorker = new MultipleLifetimesAppWorker(
+	                                packagerPort, sourcesStoragePath, 9090, {
+	                                    sandboxedAppConstructor: (path: string, port: number, messageFunc: (message: any) => void) =>
+	                                        new ForkedAppWorker(packagerPort, path, port, messageFunc),
+	                                }
+	                            );
+	
+	                            this.appWorker.start();
+	                            return this.appWorker.waitForDebuggee();
+                            })
+                            .then(() => {
+                            	return super.attach(Object.assign(args, { port: debuggee.port }));
                             });
                     }).catch(error => this.bailOut(error.message));
                 });
@@ -172,27 +174,6 @@ export function createAdapter (
             process.exit(1);
         };
     };
-}
-
-/**
- * Creates internal debug server and returns the port that the server is hook up into.
- */
-function createReinitializeServer(internalDebuggerPort: string, sourcesDir: string) {
-    // Create the server
-    const server = createServer((req, res) => {
-        res.statusCode = 404;
-        if (req.url === "/refreshBreakpoints") {
-            res.statusCode = 200;
-
-            let { scriptpath, sourcemapurl } = <IReinitializeHeaders>req.headers;
-            server.emit("reinitialize", scriptpath, sourcemapurl);
-        }
-        res.end();
-    });
-
-    // Setup listen port and on error response
-    server.localPort = parseInt(internalDebuggerPort, 10) || 9090;
-    return server.listen(server.localPort);
 }
 
 /**

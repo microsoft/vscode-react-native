@@ -32,8 +32,9 @@ interface DebuggerWorkerSandbox {
     postMessageArgument: RNAppMessage; // We use this argument to pass messages to the worker
 }
 
-interface RNAppMessage {
+export interface RNAppMessage {
     method: string;
+    url?: string;
     // These objects have also other properties but that we don't currently use
 }
 
@@ -41,7 +42,7 @@ function printDebuggingError(message: string, reason: any) {
     Log.logWarning(ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`));
 }
 
-export class SandboxedAppWorker {
+export class SandboxedAppWorker implements IDebuggeeWorker {
     /** This class will run the RN App logic inside a sandbox. The framework to run the logic is provided by the file
      * debuggerWorker.js (designed to run on a WebWorker). We load that file inside a sandbox, and then we use the
      * PROCESS_MESSAGE_INSIDE_SANDBOX script to execute the logic to respond to a message inside the sandbox.
@@ -113,6 +114,8 @@ export class SandboxedAppWorker {
             // the debugging experience of debugging debuggerWorker.js itself (as part of the extension)
             this.runInSandbox(scriptToRunPath, "var onmessage = null; " + fileContents));
     }
+
+    public stop() { /* no-op */ }
 
     public postMessage(object: RNAppMessage): void {
         this.sandbox.postMessageArgument = object;
@@ -191,6 +194,12 @@ export class SandboxedAppWorker {
     }
 }
 
+export interface IDebuggeeWorker {
+    start(): Q.Promise<any>;
+    stop(): void;
+    postMessage(message: RNAppMessage): void;
+}
+
 export class MultipleLifetimesAppWorker {
     /** This class will create a SandboxedAppWorker that will run the RN App logic, and then create a socket
      * and send the RN App messages to the SandboxedAppWorker. The only RN App message that this class handles
@@ -201,9 +210,11 @@ export class MultipleLifetimesAppWorker {
     private sourcesStoragePath: string;
     private debugAdapterPort: number;
     private socketToApp: WebSocket;
-    private singleLifetimeWorker: SandboxedAppWorker;
+    private singleLifetimeWorker: IDebuggeeWorker;
+    private debuggeeStarted: Q.Deferred<any> = Q.defer<any>();
 
-    private sandboxedAppConstructor: (storagePath: string, adapterPort: number, messageFunction: (message: any) => void) => SandboxedAppWorker;
+    private sandboxedAppConstructor:
+        (storagePath: string, adapterPort: number, messageFunction: (message: any) => void) => IDebuggeeWorker;
     private webSocketConstructor: (url: string) => WebSocket;
 
     private executionLimiter = new ExecutionsLimiter();
@@ -212,6 +223,9 @@ export class MultipleLifetimesAppWorker {
         sandboxedAppConstructor = (path: string, port: number, messageFunc: (message: any) => void) =>
             new SandboxedAppWorker(packagerPort, path, port, messageFunc),
         webSocketConstructor = (url: string) => new WebSocket(url),
+    }: {
+        sandboxedAppConstructor?: (path: string, port: number, messageFunc: (message: any) => void) => IDebuggeeWorker;
+        webSocketConstructor?: (url: string) => WebSocket
     } = {}) {
         this.packagerPort = packagerPort;
         this.sourcesStoragePath = sourcesStoragePath;
@@ -232,12 +246,21 @@ export class MultipleLifetimesAppWorker {
             });
     }
 
+    public waitForDebuggee(): Q.Promise<any> {
+        return this.debuggeeStarted.promise;
+    }
+
     private startNewWorkerLifetime(): Q.Promise<void> {
+        if (this.singleLifetimeWorker) {
+            return Q.resolve<void>(void 0);
+        }
+
         this.singleLifetimeWorker = this.sandboxedAppConstructor(this.sourcesStoragePath, this.debugAdapterPort, (message) => {
             this.sendMessageToApp(message);
         });
         Log.logInternalMessage(LogLevel.Info, "A new app worker lifetime was created.");
-        return this.singleLifetimeWorker.start();
+        return this.singleLifetimeWorker.start()
+        .then((debuggee) => this.debuggeeStarted.resolve(debuggee));
     }
 
     private createSocketToApp(warnOnFailure: boolean = false): Q.Promise<void> {
@@ -299,6 +322,7 @@ export class MultipleLifetimesAppWorker {
                 this.gotPrepareJSRuntime(object);
             } else if (object.method === "$disconnected") {
                 // We need to shutdown the current app worker, and create a new lifetime
+                this.singleLifetimeWorker.stop();
                 this.singleLifetimeWorker = null;
             } else if (object.method) {
                 // All the other messages are handled by the single lifetime worker
