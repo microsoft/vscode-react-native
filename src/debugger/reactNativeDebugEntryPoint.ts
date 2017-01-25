@@ -40,7 +40,8 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
         // If it fails, we must not have been in a react native project
         try {
             /* tslint:disable:no-var-requires */
-            nodeDebugFolder = require("./nodeDebugLocation.json").nodeDebugPath;
+            // nodeDebugFolder = require("./nodeDebugLocation.json").nodeDebugPath;
+            nodeDebugFolder = "/Applications/Visual Studio Code.app/Contents/Resources/app/extensions/ms-vscode.node-debug2";
             VSCodeDebugAdapter = require(path.join(nodeDebugFolder, "node_modules/vscode-debugadapter"));
             ChromeDebugSession = require(path.join(nodeDebugFolder, "node_modules/vscode-chrome-debug-core")).ChromeDebugSession;
             Node2DebugAdapter = require(path.join(nodeDebugFolder, "out/src/nodeDebugAdapter")).NodeDebugAdapter;

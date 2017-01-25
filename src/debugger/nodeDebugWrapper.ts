@@ -84,6 +84,7 @@ export function createAdapter (
                             .then(() => {
                                 generator.step("mobilePlatform.runApp");
                                 Log.logMessage("Building and running application.");
+                            	// FIXME: temporary commented out
                                 return mobilePlatform.runApp();
                             })
                             .then(() => {

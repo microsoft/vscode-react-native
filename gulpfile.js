@@ -52,7 +52,7 @@ gulp.task('build', ["check-imports", "check-copyright"], function (callback) {
         .pipe(sourcemaps.write('.', {
             includeContent: false,
             sourceRoot: function (file) {
-                return path.relative(path.dirname(file.path), __dirname + '/src');
+                return path.relative(path.dirname(path.dirname(file.path)), __dirname + '/src');
             }
         }))
         .pipe(gulp.dest(outPath));
