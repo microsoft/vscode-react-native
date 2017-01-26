@@ -12,9 +12,11 @@ import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 
 // tslint:disable-next-line:align
-const WORKER_BOOTSTRAP = `/* global __fbBatchedBridge, self, importScripts, postMessage, onmessage: true */
-/* eslint no-unused-vars: 0 */
+const WORKER_BOOTSTRAP = `
+// Hacks to avoid accessing unitialized variables
 var onmessage=null, self=global;
+// Avoid Node's GLOBAL deprecation warning
+global.GLOBAL=global;
 process.on("message", function(message){
     if (onmessage) onmessage(message);
 });
@@ -26,7 +28,9 @@ importScripts = function(scriptUrl){
     require("vm").runInThisContext(scriptCode, { filename: scriptUrl });
 };`;
 
-const WORKER_DONE = `postMessage({workerLoaded:true});`;
+const WORKER_DONE = `// Notify debugger that we're done with loading
+// and started listening for IPC messages
+postMessage({workerLoaded:true});`;
 
 function printDebuggingError(message: string, reason: any) {
     Log.logWarning(ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`));
