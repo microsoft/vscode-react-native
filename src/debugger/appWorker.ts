@@ -5,6 +5,7 @@ import * as vm from "vm";
 import * as Q from "q";
 import * as path from "path";
 import * as WebSocket from "ws";
+import { EventEmitter } from "events";
 import {ScriptImporter}  from "./scriptImporter";
 import {Packager}  from "../common/packager";
 import {ErrorHelper} from "../common/error/errorHelper";
@@ -200,7 +201,7 @@ export interface IDebuggeeWorker {
     postMessage(message: RNAppMessage): void;
 }
 
-export class MultipleLifetimesAppWorker {
+export class MultipleLifetimesAppWorker extends EventEmitter {
     /** This class will create a SandboxedAppWorker that will run the RN App logic, and then create a socket
      * and send the RN App messages to the SandboxedAppWorker. The only RN App message that this class handles
      * is the prepareJSRuntime, which we reply to the RN App that the sandbox was created successfully.
@@ -211,7 +212,6 @@ export class MultipleLifetimesAppWorker {
     private debugAdapterPort: number;
     private socketToApp: WebSocket;
     private singleLifetimeWorker: IDebuggeeWorker;
-    private debuggeeStarted: Q.Deferred<any> = Q.defer<any>();
 
     private sandboxedAppConstructor:
         (storagePath: string, adapterPort: number, messageFunction: (message: any) => void) => IDebuggeeWorker;
@@ -227,6 +227,7 @@ export class MultipleLifetimesAppWorker {
         sandboxedAppConstructor?: (path: string, port: number, messageFunc: (message: any) => void) => IDebuggeeWorker;
         webSocketConstructor?: (url: string) => WebSocket
     } = {}) {
+        super();
         this.packagerPort = packagerPort;
         this.sourcesStoragePath = sourcesStoragePath;
         this.debugAdapterPort = debugAdapterPort;
@@ -246,8 +247,11 @@ export class MultipleLifetimesAppWorker {
             });
     }
 
-    public waitForDebuggee(): Q.Promise<any> {
-        return this.debuggeeStarted.promise;
+    public stop() {
+        this.socketToApp.removeAllListeners().close();
+        if (this.singleLifetimeWorker) {
+            this.singleLifetimeWorker.stop();
+        }
     }
 
     private startNewWorkerLifetime(): Q.Promise<void> {
@@ -260,7 +264,9 @@ export class MultipleLifetimesAppWorker {
         });
         Log.logInternalMessage(LogLevel.Info, "A new app worker lifetime was created.");
         return this.singleLifetimeWorker.start()
-        .then((debuggee) => this.debuggeeStarted.resolve(debuggee));
+        .then((debuggee) => {
+            this.emit("connect", debuggee.port);
+        });
     }
 
     private createSocketToApp(warnOnFailure: boolean = false): Q.Promise<void> {
@@ -269,8 +275,7 @@ export class MultipleLifetimesAppWorker {
         this.socketToApp.on("open", () => {
             this.onSocketOpened();
         });
-        this.socketToApp.on("close",
-            () => {
+        this.socketToApp.on("close", () => {
                 this.executionLimiter.execute("onSocketClose.msg", /*limitInSeconds*/ 10, () => {
                     /*
                      * It is not the best idea to compare with the message, but this is the only thing React Native gives that is unique when
@@ -322,6 +327,7 @@ export class MultipleLifetimesAppWorker {
                 this.gotPrepareJSRuntime(object);
             } else if (object.method === "$disconnected") {
                 // We need to shutdown the current app worker, and create a new lifetime
+                this.emit("disconnect");
                 this.singleLifetimeWorker.stop();
                 this.singleLifetimeWorker = null;
             } else if (object.method) {

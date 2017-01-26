@@ -38,14 +38,13 @@ interface ReactNativeAttachRequestArguments extends IAttachRequestArgs {
 
 export function createAdapter (
         baseDebugAdapterClass: typeof ChromeDebuggerCorePackage.ChromeDebugAdapter,
-        vscodeDebugPackage: typeof VSCodeDebugAdapterPackage) {
+        vscodeDebugPackage: typeof VSCodeDebugAdapterPackage,
+        appWorker: MultipleLifetimesAppWorker) {
 
     return class ReactNativeDebugAdapter extends baseDebugAdapterClass {
         private projectRootPath: string;
         private remoteExtension: RemoteExtension;
         private mobilePlatformOptions: IRunOptions;
-
-        private appWorker: MultipleLifetimesAppWorker;
 
         public launch(args: ReactNativeLaunchRequestArguments): Promise<void> {
             this.requestSetup(args);
@@ -84,7 +83,6 @@ export function createAdapter (
                             .then(() => {
                                 generator.step("mobilePlatform.runApp");
                                 Log.logMessage("Building and running application.");
-                                // FIXME: temporary commented out
                                 return mobilePlatform.runApp();
                             })
                             .then(() => {
@@ -93,22 +91,35 @@ export function createAdapter (
                             })
                             .then(() => {
                                 Log.logMessage("Starting debugger app worker.");
-
+                                // TODO: remove dependency on args.program - "program" property is technically
+                                // no more required in launch configuration and could be removed
                                 const workspaceRootPath = path.resolve(path.dirname(args.program), "..");
                                 const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
 
-                                this.appWorker = new MultipleLifetimesAppWorker(
-                                    packagerPort, sourcesStoragePath, 9090, {
-                                        sandboxedAppConstructor: (path: string, port: number, messageFunc: (message: any) => void) =>
-                                            new ForkedAppWorker(packagerPort, path, port, messageFunc),
-                                    }
-                                );
+                                // If launch is invoked first time, appWorker is undefined, so create it here
+                                if (!appWorker) {
+                                    appWorker = new MultipleLifetimesAppWorker( packagerPort, sourcesStoragePath, 9090, {
+                                            // Inject our custom debuggee worker
+                                            sandboxedAppConstructor: (path: string, port: number, messageFunc: (message: any) => void) =>
+                                                new ForkedAppWorker(packagerPort, path, port, messageFunc),
+                                        }
+                                    );
 
-                                this.appWorker.start();
-                                return this.appWorker.waitForDebuggee();
-                            })
-                            .then((debuggee: any) => {
-                                return super.attach(Object.assign(args, { port: debuggee.port }));
+                                    // Start worker only if it has been just created.
+                                    // Otherwise assume it's already running
+                                    appWorker.start();
+                                }
+
+                                // appworker will send every event only once so we use .once
+                                // method to avoid removing listeners when session restarts
+                                appWorker.once("connect", (debuggeePort: number) => {
+                                    super.attach(Object.assign(args, { port: debuggeePort, restart: true }));
+                                })
+                                .once("disconnect", () => {
+                                    // Terminate session early, don't wait for debuggee process to be
+                                    // killed and triggered terminateSession in Chrome debug adapter
+                                    this.terminateSession("App is reloading", true);
+                                });
                             });
                     }).catch(error => this.bailOut(error.message));
                 });
@@ -130,8 +141,15 @@ export function createAdapter (
             });
         }
 
-        // TODO: maybe better listen to terminateSession
-        public disconnect(): void {
+        public disconnect(args: {restart: boolean}): void {
+            if (args.restart) {
+                // Nothing to do here - this request has been sent due to app is being reloaded
+                return;
+            }
+
+            // stop debugger worker - disconnect from the packager and stop debuggee worker too
+            appWorker.stop();
+
             if (this.mobilePlatformOptions.platform !== "android") {
                 return super.disconnect();
             }

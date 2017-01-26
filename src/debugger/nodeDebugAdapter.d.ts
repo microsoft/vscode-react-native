@@ -59,6 +59,10 @@ interface IAttachRequestArgs {
     platform: string;
 }
 
+interface IDisconnectArgs {
+    restart?: boolean
+}
+
 declare module ChromeDebuggerCorePackage {
 
     class BaseSourceMapTransformer {
@@ -73,7 +77,7 @@ declare module ChromeDebuggerCorePackage {
         public launch(args: ILaunchRequestArgs): Promise<void>;
         public attach(args: IAttachRequestArgs): Promise<void>;
         public shutdown(): void;
-        public disconnect(): void;
+        public disconnect(args?: IDisconnectArgs): void;
         protected sendInitializedEvent(): void;
         protected terminateSession(reason: string, restart?: boolean): void;
     }

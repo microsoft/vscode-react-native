@@ -11,6 +11,7 @@ import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {NullTelemetryReporter, ReassignableTelemetryReporter} from "../common/telemetryReporters";
 
 import { createAdapter } from "./nodeDebugWrapper";
+import { MultipleLifetimesAppWorker } from "./appWorker";
 
 const version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
 const telemetryReporter = new ReassignableTelemetryReporter(new NullTelemetryReporter());
@@ -57,10 +58,11 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
          */
 
         let adapter: typeof ChromeDebuggerCorePackage.ChromeDebugAdapter;
+        let appWorker: MultipleLifetimesAppWorker = null;
         // Customize node adapter requests
         try {
             // Create customised react-native debug adapter based on Node-debug2 adapter
-            adapter = createAdapter(Node2DebugAdapter, VSCodeDebugAdapter);
+            adapter = createAdapter(Node2DebugAdapter, VSCodeDebugAdapter, appWorker);
         } catch (e) {
             const debugSession = new ChromeDebugSession();
             debugSession.sendEvent(new VSCodeDebugAdapter.OutputEvent("Unable to start debug adapter: " + e.toString(), "stderr"));
