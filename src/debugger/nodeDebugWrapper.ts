@@ -86,40 +86,7 @@ export function createAdapter (
                                 return mobilePlatform.runApp();
                             })
                             .then(() => {
-                                generator.step("mobilePlatform.enableJSDebuggingMode");
-                                return mobilePlatform.enableJSDebuggingMode();
-                            })
-                            .then(() => {
-                                Log.logMessage("Starting debugger app worker.");
-                                // TODO: remove dependency on args.program - "program" property is technically
-                                // no more required in launch configuration and could be removed
-                                const workspaceRootPath = path.resolve(path.dirname(args.program), "..");
-                                const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
-
-                                // If launch is invoked first time, appWorker is undefined, so create it here
-                                if (!appWorker) {
-                                    appWorker = new MultipleLifetimesAppWorker( packagerPort, sourcesStoragePath, 9090, {
-                                            // Inject our custom debuggee worker
-                                            sandboxedAppConstructor: (path: string, port: number, messageFunc: (message: any) => void) =>
-                                                new ForkedAppWorker(packagerPort, path, port, messageFunc),
-                                        }
-                                    );
-
-                                    // Start worker only if it has been just created.
-                                    // Otherwise assume it's already running
-                                    appWorker.start();
-                                }
-
-                                // appworker will send every event only once so we use .once
-                                // method to avoid removing listeners when session restarts
-                                appWorker.once("connect", (debuggeePort: number) => {
-                                    super.attach(Object.assign(args, { port: debuggeePort, restart: true }));
-                                })
-                                .once("disconnect", () => {
-                                    // Terminate session early, don't wait for debuggee process to be
-                                    // killed and triggered terminateSession in Chrome debug adapter
-                                    this.terminateSession("App is reloading", true);
-                                });
+                                return this.attachRequest(args, mobilePlatform, packagerPort);
                             });
                     }).catch(error => this.bailOut(error.message));
                 });
@@ -130,14 +97,10 @@ export function createAdapter (
             this.requestSetup(args);
             const mobilePlatform = new GeneralMobilePlatform(this.mobilePlatformOptions);
 
-            return Promise.resolve().then(() => {
-                return TelemetryHelper.generate("attach", (generator) => {
-                    generator.step("mobilePlatform.enableJSDebuggingMode");
-                    return mobilePlatform.enableJSDebuggingMode()
-                    // FIXME: Need to think a bit more whether we need to call super.doAttach here or just super.attach
-                    .then(() => super.attach(args))
-                    .catch(error => this.bailOut(error.message));
-                });
+            return Promise.resolve()
+            .then(() => this.remoteExtension.getPackagerPort())
+            .then(packagerPort => {
+                return this.attachRequest(args, mobilePlatform, packagerPort);
             });
         }
 
@@ -175,11 +138,59 @@ export function createAdapter (
                 platform: args.platform,
             };
 
-            // Send an "initialized" event to trigger breakpoints to be re-sent
-            // TODO: send only when really initialized
-            // this._session.sendEvent(new InitializedEvent());
-
             Log.SetGlobalLogger(new NodeDebugAdapterLogger(vscodeDebugPackage, this._session));
+        }
+
+        /**
+         * Runs logic needed to attach.
+         * Attach should:
+         * - Enable js debugging
+         * - Start debugger worker
+         * - Invoke parent's attach method when debugger worker got debuggee attached
+         */
+        private attachRequest(args: any, mobilePlatform: GeneralMobilePlatform, packagerPort: number): Q.Promise<void> {
+            return TelemetryHelper.generate("attach", (generator) => {
+                generator.step("mobilePlatform.enableJSDebuggingMode");
+
+                let promise = mobilePlatform ?
+                    mobilePlatform.enableJSDebuggingMode() :
+                    Q(Log.logMessage("Debugger ready. Enable remote debugging in app."));
+
+                return promise
+                .then(() => {
+                    Log.logMessage("Starting debugger app worker.");
+                    // TODO: remove dependency on args.program - "program" property is technically
+                    // no more required in launch configuration and could be removed
+                    const workspaceRootPath = path.resolve(path.dirname(args.program), "..");
+                    const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
+
+                    // If launch is invoked first time, appWorker is undefined, so create it here
+                    if (!appWorker) {
+                        appWorker = new MultipleLifetimesAppWorker( packagerPort, sourcesStoragePath, 9090, {
+                                // Inject our custom debuggee worker
+                                sandboxedAppConstructor: (path: string, port: number, messageFunc: (message: any) => void) =>
+                                    new ForkedAppWorker(packagerPort, path, port, messageFunc),
+                            }
+                        );
+
+                        // Start worker only if it has been just created.
+                        // Otherwise assume it's already running
+                        appWorker.start();
+                    }
+
+                    // appworker will send every event only once so we use .once
+                    // method to avoid removing listeners when session restarts
+                    appWorker.once("connect", (debuggeePort: number) => {
+                        super.attach(Object.assign(args, { port: debuggeePort, restart: true }));
+                    })
+                    .once("disconnect", () => {
+                        // Terminate session early, don't wait for debuggee process to be
+                        // killed and triggered terminateSession in Chrome debug adapter
+                        this.terminateSession("App is reloading", true);
+                    });
+                })
+                .catch(error => this.bailOut(error.message));
+            });
         }
 
         /**
