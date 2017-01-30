@@ -10,7 +10,6 @@ import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {NullTelemetryReporter, ReassignableTelemetryReporter} from "../common/telemetryReporters";
 
-import { createAdapter } from "./nodeDebugWrapper";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 
 
@@ -49,7 +48,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
         let nodeDebugFolder: string;
         let VSCodeDebugAdapter: typeof VSCodeDebugAdapterPackage;
         let Node2DebugAdapter: typeof Node2DebugAdapterPackage.Node2DebugAdapter;
-        let ChromeDebugSession: typeof ChromeDebuggerCorePackage.ChromeDebugSession;
+        let ChromeDebuggerPackage: typeof ChromeDebuggerCorePackage;
 
         // nodeDebugLocation.json is dynamically generated on extension activation.
         // If it fails, we must not have been in a react native project
@@ -58,7 +57,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
             // nodeDebugFolder = require("./nodeDebugLocation.json").nodeDebugPath;
             nodeDebugFolder = "/Applications/Visual Studio Code.app/Contents/Resources/app/extensions/ms-vscode.node-debug2";
             VSCodeDebugAdapter = require(path.join(nodeDebugFolder, "node_modules/vscode-debugadapter"));
-            ChromeDebugSession = require(path.join(nodeDebugFolder, "node_modules/vscode-chrome-debug-core")).ChromeDebugSession;
+            ChromeDebuggerPackage = require(path.join(nodeDebugFolder, "node_modules/vscode-chrome-debug-core"));
             Node2DebugAdapter = require(path.join(nodeDebugFolder, "out/src/nodeDebugAdapter")).NodeDebugAdapter;
             /* tslint:enable:no-var-requires */
         } catch (e) {
@@ -75,9 +74,17 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
         // Customize node adapter requests
         try {
             // Create customised react-native debug adapter based on Node-debug2 adapter
-            adapter = createAdapter(Node2DebugAdapter, VSCodeDebugAdapter);
+            adapter = class ReactNativeDebugAdapter extends Node2DebugAdapter {
+                protected doAttach(port: number, targetUrl?: string, address?: string, timeout?: number): Promise<void> {
+                    // HACK: Overwrite ChromeDebug's _attachMode to let Node2 adapter
+                    // to set up breakpoints on initial pause event
+                    this._attachMode = false;
+                    return super.doAttach(port, targetUrl, address, timeout);
+                }
+            };
+
         } catch (e) {
-            const debugSession = new ChromeDebugSession();
+            const debugSession = new ChromeDebuggerPackage.ChromeDebugSession();
             debugSession.sendEvent(new VSCodeDebugAdapter.OutputEvent("Unable to start debug adapter: " + e.toString(), "stderr"));
             debugSession.sendEvent(new VSCodeDebugAdapter.TerminatedEvent());
             bailOut(e.toString());
@@ -90,7 +97,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
         };
 
         // Create a debug session class based on ChromeDebugSession
-        const ReactNativeDebugSession = class extends ChromeDebugSession {
+        const ReactNativeDebugSession = class extends ChromeDebuggerPackage.ChromeDebugSession {
             protected appName: string = extensionName;
             protected version: string = version;
 
@@ -101,7 +108,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
             }
 
             public sendEvent(event: VSCodeDebugAdapterPackage.Event): void {
-                if (event.event === "terminated" && event.body.restart === true) {
+                if (event.event === "terminated" && event.body && event.body.restart === true) {
                     this._debugAdapter = new adapter(debugSessionOpts, this);
                     return;
                 }
@@ -124,7 +131,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
                     return super.dispatchRequest(request);
                 }
 
-                if (request.command !== "launch") {
+                if (request.command !== "launch" && request.command !== "attach") {
                     return super.dispatchRequest(request);
                 }
 
@@ -235,7 +242,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
         };
 
         // Run the debug session for the node debug adapter with our modified requests
-        ChromeDebugSession.run(ReactNativeDebugSession);
+        ChromeDebuggerPackage.ChromeDebugSession.run(ReactNativeDebugSession);
     });
 
 import stripJsonComments = require("strip-json-comments");
