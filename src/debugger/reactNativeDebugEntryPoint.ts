@@ -57,7 +57,7 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
          * And add our customizations to the requests.
          */
 
-        let adapter: typeof ChromeDebuggerCorePackage.ChromeDebugAdapter;
+        let adapter: any;
         let appWorker: MultipleLifetimesAppWorker = null;
         // Customize node adapter requests
         try {
@@ -70,18 +70,35 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
             bailOut(e.toString());
         }
 
+        const debugSessionOpts = {
+            logFilePath: path.join(`/Users/kotikov.vladimir/${extensionName}.log`),
+            adapter,
+            extensionName,
+        };
+
         // Create a debug session class based on ChromeDebugSession
         const ReactNativeDebugSession = class extends ChromeDebugSession {
             protected appName: string = extensionName;
             protected version: string = version;
 
             constructor(debuggerLinesAndColumnsStartAt1?: boolean, isServer?: boolean) {
-                super(debuggerLinesAndColumnsStartAt1, isServer, {
-                    logFilePath: path.join(`/Users/kotikov.vladimir/${extensionName}.log`),
-                    adapter,
-                    extensionName,
-                });
+                super(debuggerLinesAndColumnsStartAt1, isServer, debugSessionOpts);
             }
+
+            public sendEvent(event: VSCodeDebugAdapterPackage.Event): void {
+                if (event.event === "terminated" && event.body.restart === true) {
+                    this._debugAdapter = new adapter(debugSessionOpts, this);
+                    return;
+                }
+
+                super.sendEvent(event);
+            }
+
+            // protected dispatchRequest(request: { command: string }) {
+            //     if (request.command !== "launch" && request.command !== "attach") {
+            //         return super.dispatchRequest(request);
+            //     }
+            // }
         };
 
         // Run the debug session for the node debug adapter with our modified requests

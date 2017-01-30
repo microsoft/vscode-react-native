@@ -207,6 +207,11 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
      * is the prepareJSRuntime, which we reply to the RN App that the sandbox was created successfully.
      * When the socket closes, we'll create a new SandboxedAppWorker and a new socket pair and discard the old ones.
      */
+
+    public connected: Q.Deferred<number> = Q.defer<number>();
+
+    private connectTimer: number;
+
     private packagerPort: number;
     private sourcesStoragePath: string;
     private debugAdapterPort: number;
@@ -265,7 +270,12 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
         Log.logInternalMessage(LogLevel.Info, "A new app worker lifetime was created.");
         return this.singleLifetimeWorker.start()
         .then((debuggee) => {
-            this.emit("connect", debuggee.port);
+            console.log("SENDING 'CONNECT' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            this.connectTimer = <any>setInterval(() => {
+                this.emit("connected", debuggee.port);
+            }, 100);
+
+            this.connected.resolve(debuggee.port);
         });
     }
 
@@ -327,9 +337,11 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
                 this.gotPrepareJSRuntime(object);
             } else if (object.method === "$disconnected") {
                 // We need to shutdown the current app worker, and create a new lifetime
-                this.emit("disconnect");
+                clearInterval(this.connectTimer);
                 this.singleLifetimeWorker.stop();
                 this.singleLifetimeWorker = null;
+                // clear deferred to indicate that we've done with loading runtime
+                this.connected = Q.defer<number>();
             } else if (object.method) {
                 // All the other messages are handled by the single lifetime worker
                 this.singleLifetimeWorker.postMessage(object);

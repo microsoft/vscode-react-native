@@ -61,6 +61,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     public stop() {
         if (this.debuggeeProcess) {
+            console.log(`KILLING ${this.debuggeeProcess.pid} !!!!!!!!!!!!!!!!!!!!!!!!!!`);
             this.debuggeeProcess.kill();
             this.debuggeeProcess = null;
         }
@@ -90,6 +91,8 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                 this.postReplyToApp(message);
             });
 
+            console.log(`SPAWNED ${this.debuggeeProcess.pid} !!!!!!!!!!!!!!!!!!!!!!!!!!`);
+
             return {port};
         });
     }
@@ -100,7 +103,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             if (rnMessage.method !== "executeApplicationScript") return Q.resolve(rnMessage);
 
             return this.scriptImporter.downloadAppScript(rnMessage.url)
-            .then(downloadedScript =>  Object.assign(Object.assign({}, rnMessage), { url: downloadedScript.filepath }));
+            .then(downloadedScript => Object.assign({}, rnMessage, { url: downloadedScript.filepath }));
         })
         .done((message: RNAppMessage) => this.debuggeeProcess.send({ data: message }),
             reason => printDebuggingError(`Couldn't import script at <${rnMessage.url}>`, reason));

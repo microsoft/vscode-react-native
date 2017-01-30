@@ -59,6 +59,7 @@ export function createAdapter (
                 this.mobilePlatformOptions.logCatArguments = [parseLogCatArguments(args.logCatArguments)];
             }
 
+
             return Promise.resolve().then(() => {
                 return TelemetryHelper.generate("launch", (generator) => {
                     const resolver = new PlatformResolver();
@@ -66,6 +67,11 @@ export function createAdapter (
                     .then(packagerPort => {
                         this.mobilePlatformOptions.packagerPort = packagerPort;
                         const mobilePlatform = resolver.resolveMobilePlatform(args.platform, this.mobilePlatformOptions);
+
+                        if (appWorker) {
+                            return this.attachRequest(args, mobilePlatform, packagerPort);
+                        }
+
                         return Q({})
                             .then(() => {
                                 generator.step("checkPlatformCompatibility");
@@ -105,23 +111,34 @@ export function createAdapter (
         }
 
         public disconnect(args: {restart: boolean}): void {
-            if (args.restart) {
-                // Nothing to do here - this request has been sent due to app is being reloaded
-                return;
-            }
+            // TODO: check if we need to release all resources first
+            super.disconnect();
+
+            if (args.restart) return;
 
             // stop debugger worker - disconnect from the packager and stop debuggee worker too
             appWorker.stop();
+            appWorker = null;
 
-            if (this.mobilePlatformOptions.platform !== "android") {
-                return super.disconnect();
+            if (this.mobilePlatformOptions.platform === "android") {
+                // First we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
+                this.remoteExtension.stopMonitoringLogcat()
+                .catch(reason => Log.logError(`WARNING: Couldn't stop monitoring logcat: ${reason.message || reason}\n`));
             }
 
-            // First we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
-            this.remoteExtension.stopMonitoringLogcat()
-            .catch(reason => Log.logError(`WARNING: Couldn't stop monitoring logcat: ${reason.message || reason}\n`))
-            .finally(() => super.disconnect());
         }
+
+        // protected terminateSession(reason: string, restart?: boolean): void {
+        //     // if (this._chromeConnection.isAttached) {
+        //     //     this._chromeConnection.close();
+        //     // }
+
+        //     // if (restart) {
+        //     //     return;
+        //     // }
+
+        //     return super.terminateSession(reason, restart);
+        // }
 
         /**
          * Makes the required setup for request customization
@@ -178,16 +195,18 @@ export function createAdapter (
                         appWorker.start();
                     }
 
+                    appWorker.once("connected", (debuggeePort: number) => {
+                        console.log("ATTACHING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                        super.attach(Object.assign(args, { port: debuggeePort, restart: true }));
+                    });
+
                     // appworker will send every event only once so we use .once
                     // method to avoid removing listeners when session restarts
-                    appWorker.once("connect", (debuggeePort: number) => {
-                        super.attach(Object.assign(args, { port: debuggeePort, restart: true }));
-                    })
-                    .once("disconnect", () => {
-                        // Terminate session early, don't wait for debuggee process to be
-                        // killed and triggered terminateSession in Chrome debug adapter
-                        this.terminateSession("App is reloading", true);
-                    });
+                    // appWorker.connected.promise
+                    // .then((debuggeePort: number) => {
+                    //     console.log("ATTACHING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    //     return super.attach(Object.assign(args, { port: debuggeePort, restart: true }));
+                    // });
                 })
                 .catch(error => this.bailOut(error.message));
             });

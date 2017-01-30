@@ -13,14 +13,18 @@ declare module VSCodeDebugAdapterPackage {
         public attachRequest(response: any, args: any): void;
         public disconnectRequest(response: any, args: any): void;
     }
-    class InitializedEvent {
+    class InitializedEvent extends Event {
         constructor();
     }
-    class OutputEvent {
+    class OutputEvent extends Event {
         constructor(message: string, destination?: string);
     }
-    class TerminatedEvent {
+    class TerminatedEvent extends Event {
         constructor();
+    }
+    class Event {
+        event: string;
+        body: any;
     }
 }
 
@@ -90,9 +94,10 @@ declare module ChromeDebuggerCorePackage {
     }
 
     class ChromeDebugSession extends VSCodeDebugAdapterPackage.DebugSession {
-        private _debugAdapter;
+        protected _debugAdapter: any;
         constructor(debuggerLinesAndColumnsStartAt1?: boolean, isServer?: boolean, opts?: IChromeDebugSessionOpts);
         public sendEvent(event: VSCodeDebugAdapterPackage.InitializedEvent): void;
+        protected dispatchRequest(request: { command: string }): void;
     }
 
 }
