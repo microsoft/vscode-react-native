@@ -13,6 +13,20 @@ import {NullTelemetryReporter, ReassignableTelemetryReporter} from "../common/te
 import { createAdapter } from "./nodeDebugWrapper";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 
+
+import {RemoteExtension} from "../common/remoteExtension";
+import {IOSPlatform} from "./ios/iOSPlatform";
+import {PlatformResolver} from "./platformResolver";
+import {IRunOptions} from "../common/launchArgs";
+import {TargetPlatformHelper} from "../common/targetPlatformHelper";
+import {NodeDebugAdapterLogger} from "../common/log/loggers";
+import {Log} from "../common/log/log";
+import {GeneralMobilePlatform} from "../common/generalMobilePlatform";
+
+import { ForkedAppWorker } from "./forkedAppWorker";
+
+
+
 const version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
 const telemetryReporter = new ReassignableTelemetryReporter(new NullTelemetryReporter());
 const extensionName = "react-native-debug-adapter";
@@ -58,11 +72,10 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
          */
 
         let adapter: any;
-        let appWorker: MultipleLifetimesAppWorker = null;
         // Customize node adapter requests
         try {
             // Create customised react-native debug adapter based on Node-debug2 adapter
-            adapter = createAdapter(Node2DebugAdapter, VSCodeDebugAdapter, appWorker);
+            adapter = createAdapter(Node2DebugAdapter, VSCodeDebugAdapter);
         } catch (e) {
             const debugSession = new ChromeDebugSession();
             debugSession.sendEvent(new VSCodeDebugAdapter.OutputEvent("Unable to start debug adapter: " + e.toString(), "stderr"));
@@ -81,6 +94,8 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
             protected appName: string = extensionName;
             protected version: string = version;
 
+            private appWorker: MultipleLifetimesAppWorker = null;
+
             constructor(debuggerLinesAndColumnsStartAt1?: boolean, isServer?: boolean) {
                 super(debuggerLinesAndColumnsStartAt1, isServer, debugSessionOpts);
             }
@@ -94,13 +109,166 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
                 super.sendEvent(event);
             }
 
-            // protected dispatchRequest(request: { command: string }) {
-            //     if (request.command !== "launch" && request.command !== "attach") {
-            //         return super.dispatchRequest(request);
-            //     }
-            // }
+            protected dispatchRequest(request: { command: string, arguments: any }) {
+
+                if (request.command === "disconnect") {
+                    // stop debuggee worker and disconnect from the packager
+                    this.appWorker.stop();
+
+                    if (this.mobilePlatformOptions.platform === "android") {
+                        // First we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
+                        this.remoteExtension.stopMonitoringLogcat()
+                        .catch(reason => Log.logError(`WARNING: Couldn't stop monitoring logcat: ${reason.message || reason}\n`));
+                    }
+
+                    return super.dispatchRequest(request);
+                }
+
+                if (request.command !== "launch") {
+                    return super.dispatchRequest(request);
+                }
+
+                this.requestSetup(request.arguments);
+
+                this.mobilePlatformOptions.target = request.arguments.target || "simulator";
+                this.mobilePlatformOptions.iosRelativeProjectPath = !isNullOrUndefined(request.arguments.iosRelativeProjectPath) ?
+                    request.arguments.iosRelativeProjectPath :
+                    IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH;
+
+                // We add the parameter if it's defined (adapter crashes otherwise)
+                if (!isNullOrUndefined(request.arguments.logCatArguments)) {
+                    this.mobilePlatformOptions.logCatArguments = [parseLogCatArguments(request.arguments.logCatArguments)];
+                }
+
+                this.remoteExtension.getPackagerPort()
+                .then((packagerPort: number) => {
+                    this.packagerPort = packagerPort;
+                    return request.command === "attach" ?
+                        Promise.resolve(new GeneralMobilePlatform(this.mobilePlatformOptions)) :
+                        Promise.resolve().then(() => {
+                            this.mobilePlatformOptions.packagerPort = packagerPort;
+                            const resolver = new PlatformResolver();
+                            const mobilePlatform = resolver.resolveMobilePlatform(request.arguments.platform, this.mobilePlatformOptions);
+
+                            TargetPlatformHelper.checkTargetPlatformSupport(this.mobilePlatformOptions.platform);
+                            return mobilePlatform.startPackager()
+                            .then(() => {
+                                // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                                // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                                Log.logMessage("Prewarming bundle cache. This may take a while ...");
+                                return mobilePlatform.prewarmBundleCache();
+                            })
+                            .then(() => {
+                                Log.logMessage("Building and running application.");
+                                return mobilePlatform.runApp();
+                            })
+                            .then(() => {
+                                return mobilePlatform;
+                            });
+                        });
+                })
+                .then((mobilePlatform) => {
+                    return mobilePlatform.enableJSDebuggingMode();
+                })
+                .then(() => {
+                    Log.logMessage("Starting debugger app worker.");
+                    // TODO: remove dependency on args.program - "program" property is technically
+                    // no more required in launch configuration and could be removed
+                    const workspaceRootPath = path.resolve(path.dirname(request.arguments.program), "..");
+                    const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
+
+                    // If launch is invoked first time, appWorker is undefined, so create it here
+                    this.appWorker = new MultipleLifetimesAppWorker( this.packagerPort, sourcesStoragePath, 9090, {
+                            // Inject our custom debuggee worker
+                            sandboxedAppConstructor: (path: string, port: number, messageFunc: (message: any) => void) =>
+                                new ForkedAppWorker(this.packagerPort, path, port, messageFunc),
+                        }
+                    );
+
+                    this.appWorker.on("connected", (debuggeePort: number) => {
+                        let reqArgs = Object.assign({}, request.arguments, {
+                            port: debuggeePort,
+                            restart: true,
+                            request: "attach"
+                        });
+
+                        let req = Object.assign({}, request, {
+                            command: "attach",
+                            arguments: reqArgs
+                        });
+
+                        super.dispatchRequest(req);
+                    });
+                })
+                .then(() => {
+                    this.appWorker.start();
+                })
+                .catch((error: any) => this.bailOut(error.message));
+            }
+
+            /**
+             * Logs error to user and finishes the debugging process.
+             */
+            private bailOut(message: string): void {
+                Log.logError(`Could not debug. ${message}`);
+                // use public terminateSession from Node2DebugAdapter
+                // this.terminateSession(message);
+                // this._session.sendEvent(new TerminatedEvent());
+                // process.exit(1);
+            };
+
+            private packagerPort: number;
+            private projectRootPath: string;
+            private remoteExtension: RemoteExtension;
+            private mobilePlatformOptions: IRunOptions;
+
+            private requestSetup(args: any) {
+                this.projectRootPath = getProjectRoot(args);
+                this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
+                this.mobilePlatformOptions = {
+                    projectRoot: this.projectRootPath,
+                    platform: args.platform,
+                };
+
+                Log.SetGlobalLogger(new NodeDebugAdapterLogger(VSCodeDebugAdapter, this));
+            }
         };
 
         // Run the debug session for the node debug adapter with our modified requests
         ChromeDebugSession.run(ReactNativeDebugSession);
     });
+
+import stripJsonComments = require("strip-json-comments");
+
+/**
+ * Parses settings.json file for workspace root property
+ */
+function getProjectRoot(args: any): string {
+    try {
+        let vsCodeRoot = path.resolve(args.program, "../..");
+        let settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
+        let settingsContent = fs.readFileSync(settingsPath, "utf8");
+        settingsContent = stripJsonComments(settingsContent);
+        let parsedSettings = JSON.parse(settingsContent);
+        let projectRootPath = parsedSettings["react-native-tools"].projectRoot;
+        return path.resolve(vsCodeRoot, projectRootPath);
+    } catch (e) {
+        return path.resolve(args.program, "../..");
+    }
+}
+
+/**
+ * Helper method to know if a value is either null or undefined
+ */
+function isNullOrUndefined(value: any): boolean {
+    return typeof value === "undefined" || value === null;
+}
+
+/**
+ * Parses log cat arguments to a string
+ */
+function parseLogCatArguments(userProvidedLogCatArguments: any): string {
+    return Array.isArray(userProvidedLogCatArguments)
+        ? userProvidedLogCatArguments.join(" ") // If it's an array, we join the arguments
+        : userProvidedLogCatArguments; // If not, we leave it as-is
+}

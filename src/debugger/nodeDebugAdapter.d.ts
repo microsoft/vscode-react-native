@@ -76,6 +76,7 @@ declare module ChromeDebuggerCorePackage {
     abstract class ChromeDebugAdapter {
         protected _session: ChromeDebugSession;
         protected _sourceMapTransformer: BaseSourceMapTransformer;
+        protected _attachMode: boolean;
 
         // constructor({chromeConnection, lineColTransformer, sourceMapTransformer, pathTransformer}: IChromeDebugAdapterOpts, session: ChromeDebugSession);
         public launch(args: ILaunchRequestArgs): Promise<void>;
@@ -84,6 +85,7 @@ declare module ChromeDebuggerCorePackage {
         public disconnect(args?: IDisconnectArgs): void;
         protected sendInitializedEvent(): void;
         protected terminateSession(reason: string, restart?: boolean): void;
+        protected doAttach(port: number, targetUrl?: string, address?: string, timeout?: number): Promise<void>;
     }
 
     interface IChromeDebugSessionOpts {

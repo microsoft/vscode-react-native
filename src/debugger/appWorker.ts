@@ -271,10 +271,7 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
         return this.singleLifetimeWorker.start()
         .then((debuggee) => {
             console.log("SENDING 'CONNECT' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            this.connectTimer = <any>setInterval(() => {
-                this.emit("connected", debuggee.port);
-            }, 100);
-
+            this.emit("connected", debuggee.port);
             this.connected.resolve(debuggee.port);
         });
     }

@@ -80,7 +80,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             const port = Math.round(Math.random() * 40000 + 3000);
 
             this.debuggeeProcess = child_process.fork(scriptToRunPath, [], {
-                execArgv: [`--inspect=${port}`/*, "--debug-brk"*/],
+                execArgv: [`--inspect=${port}`, "--debug-brk"],
             })
             .on("message", (message: any) => {
                 if (message && message.workerLoaded) {
