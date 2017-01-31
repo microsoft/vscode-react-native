@@ -59,11 +59,12 @@ new EntryPointHandler(ProcessType.Debugger).runApp(extensionName, () => version,
         let adapter: typeof Node2DebugAdapterPackage.Node2DebugAdapter;
 
         try {
+            let logFilePath = "/Users/kotikov.vladimir/vscode-react-native-debug.log";
             /* Create customised react-native debug adapter based on Node-debug2 adapter */
             adapter = makeAdapter(Node2DebugAdapter);
             // Create a debug session class based on ChromeDebugSession
             session = makeSession(ChromeDebuggerPackage.ChromeDebugSession,
-                { adapter, extensionName }, VSCodeDebugAdapter, telemetryReporter, extensionName, version);
+                { adapter, extensionName, logFilePath }, VSCodeDebugAdapter, telemetryReporter, extensionName, version);
         } catch (e) {
             // TODO: this is declared as abstract in vscode-chrome-debug-core.
             // Need to check whether that possible to instantiate it here

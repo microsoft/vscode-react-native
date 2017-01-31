@@ -89,7 +89,9 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                 // Note that we set --debug-brk flag to pause the process on the first line - this is
                 // required for debug adapter to set the breakpoints BEFORE the debuggee has started.
                 // The adapter will continue execution once it's done with breakpoints.
-                execArgv: [`--inspect=${port}`, "--debug-brk"],
+                // FIXME: below commented out since in prod chrome debug doesn't seem to catch paused
+                // event from Chrome and doesn't continue the script
+                execArgv: [`--inspect=${port}`/*, "--debug-brk"*/],
             })
             // TODO: shouldn't this be of RNAppMessage?
             .on("message", (message: any) => {
@@ -105,6 +107,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                 this.postReplyToApp(message);
             });
 
+            // TODO: convert to Log. ?
             console.log(`SPAWNED ${this.debuggeeProcess.pid} !!!!!!!!!!!!!!!!!!!!!!!!!!`);
 
             // Resolve with port debugger server is listening on
@@ -122,8 +125,14 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             // When packager asks worker to load bundle we download that bundle first
             // and then set url field to point to that downloaded bundle, so the worker
             // will take our modified bundle
+            // TODO: Remove this
+            Log.logMessage("Packager requested runtime to load script from" + rnMessage.url);
             return this.scriptImporter.downloadAppScript(rnMessage.url)
-                .then(downloadedScript => Object.assign({}, rnMessage, { url: downloadedScript.filepath }));
+                .then(downloadedScript => {
+                    // TODO: Remove this
+                    Log.logMessage("Downloaded script from RN packager to " + downloadedScript.filepath);
+                    return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
+                });
         })
         .done((message: RNAppMessage) => this.debuggeeProcess.send({ data: message }),
             reason => printDebuggingError(`Couldn't import script at <${rnMessage.url}>`, reason));
