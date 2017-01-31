@@ -18,7 +18,6 @@ suite("appWorker", function() {
         suite("SandboxedAppWorker", function() {
             const sourcesStoragePath = path.resolve(__dirname, "assets");
             const startScriptFileName = require.resolve(path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME));
-            const debugAdapterPort = 9090;
 
             let sandboxedWorker: AppWorker.SandboxedAppWorker;
             let downloadAppScriptStub = sinon.stub();
@@ -34,7 +33,7 @@ suite("appWorker", function() {
                     downloadAppScript: downloadAppScriptStub,
                 };
 
-                sandboxedWorker = new AppWorker.SandboxedAppWorker(packagerPort, sourcesStoragePath, debugAdapterPort, postReplyFunction, {
+                sandboxedWorker = new AppWorker.SandboxedAppWorker(packagerPort, sourcesStoragePath, postReplyFunction, {
                     nodeFileSystem: nodeFileSystemMock,
                     scriptImporter: scriptImporterMock,
                 });
@@ -68,7 +67,7 @@ suite("appWorker", function() {
 
                 const testScriptContents = "postMessage('inImport')";
                 const scriptImportDeferred = Q.defer<void>();
-                downloadAppScriptStub.withArgs(scriptImportPath, debugAdapterPort).returns(scriptImportDeferred.promise.then(() => {
+                downloadAppScriptStub.withArgs(scriptImportPath).returns(scriptImportDeferred.promise.then(() => {
                     return {
                         contents: testScriptContents,
                         filepath: scriptImportPath,
@@ -117,7 +116,6 @@ suite("appWorker", function() {
 
         suite("MultipleLifetimesAppWorker", function() {
             const sourcesStoragePath = path.resolve(__dirname, "assets");
-            const debugAdapterPort = 9090;
 
             let multipleLifetimesWorker: AppWorker.MultipleLifetimesAppWorker;
             let sandboxedAppWorkerStub: Sinon.SinonStub;
@@ -144,7 +142,7 @@ suite("appWorker", function() {
                 packagerIsRunning = sinon.stub(Packager, "isPackagerRunning");
                 packagerIsRunning.returns(Q.resolve(true));
 
-                multipleLifetimesWorker = new AppWorker.MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, debugAdapterPort, {
+                multipleLifetimesWorker = new AppWorker.MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, {
                     sandboxedAppConstructor: sandboxedAppConstructor,
                     webSocketConstructor: webSocketConstructor,
                 });
@@ -152,6 +150,7 @@ suite("appWorker", function() {
 
             teardown(function() {
                 // Reset everything
+                multipleLifetimesWorker.stop();
                 multipleLifetimesWorker = null;
                 webSocket = null;
                 sandboxedAppWorkerStub = null;
