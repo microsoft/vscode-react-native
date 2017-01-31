@@ -33,7 +33,6 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
         private remoteExtension: RemoteExtension;
         private mobilePlatformOptions: IRunOptions;
         private appWorker: MultipleLifetimesAppWorker = null;
-        private packagerPort: number;
 
         constructor(debuggerLinesAndColumnsStartAt1?: boolean, isServer?: boolean) {
             super(debuggerLinesAndColumnsStartAt1, isServer, debugSessionOpts);
@@ -87,7 +86,6 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
             TelemetryHelper.generate("launch", (generator) => {
                 return this.remoteExtension.getPackagerPort()
                 .then((packagerPort: number) => {
-                    this.packagerPort = packagerPort;
                     this.mobilePlatformOptions.packagerPort = packagerPort;
                     const mobilePlatform = new PlatformResolver()
                         .resolveMobilePlatform(request.arguments.platform, this.mobilePlatformOptions);
@@ -109,21 +107,25 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
                         return mobilePlatform.runApp();
                     })
                     .then(() => {
-                        return this.attachRequest(request, mobilePlatform);
+                        return this.attachRequest(request, packagerPort, mobilePlatform);
                     });
-                });
+                })
+                .catch(error => this.bailOut(error.message));
             });
 
         }
 
         private attach(request: VSCodeDebugAdapterPackage.Request): void {
             this.requestSetup(request.arguments);
-            this.attachRequest(request);
+            this.remoteExtension.getPackagerPort()
+                .then((packagerPort: number) => this.attachRequest(request, packagerPort));
         }
 
         private disconnect(request: VSCodeDebugAdapterPackage.Request): void {
             // The client is about to disconnect so first we need to stop app worker
-            this.appWorker.stop();
+            if (this.appWorker) {
+                this.appWorker.stop();
+            }
 
             // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
             if (this.mobilePlatformOptions.platform === "android") {
@@ -135,7 +137,7 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
             }
         }
 
-        private requestSetup(args: any) {
+        private requestSetup(args: any): void {
             this.projectRootPath = getProjectRoot(args);
             this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
             this.mobilePlatformOptions = {
@@ -155,7 +157,9 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
          * Attach should:
          * - Enable js debugging
          */
-        private attachRequest(request: VSCodeDebugAdapterPackage.Request, mobilePlatform?: GeneralMobilePlatform): Q.Promise<void> {
+        private attachRequest(request: VSCodeDebugAdapterPackage.Request,
+                              packagerPort: number,
+                              mobilePlatform?: GeneralMobilePlatform): Q.Promise<void> {
             return TelemetryHelper.generate("attach", (generator) => {
                 return Q({})
                     .then(() => {
@@ -175,14 +179,15 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
                         const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
 
                         // If launch is invoked first time, appWorker is undefined, so create it here
-                        this.appWorker = new MultipleLifetimesAppWorker(this.packagerPort, sourcesStoragePath, {
+                        this.appWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, {
                                 // Inject our custom debuggee worker
                                 sandboxedAppConstructor: (path: string, messageFunc: (message: any) => void) =>
-                                    new ForkedAppWorker(this.packagerPort, path, messageFunc),
+                                    new ForkedAppWorker(packagerPort, path, messageFunc),
                             }
                         );
 
                         this.appWorker.on("connected", (port: number) => {
+                            Log.logMessage("Debugger worker loaded runtime on port " + port);
                             // Don't mutate original request to avoid side effects
                             let attachArguments = Object.assign({}, request.arguments, { port, restart: true, request: "attach" });
                             let attachRequest = Object.assign({}, request, { command: "attach", arguments: attachArguments });
@@ -201,7 +206,7 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
          */
         private bailOut(message: string): void {
             Log.logError(`Could not debug. ${message}`);
-            // use public terminateSession from Node2DebugAdapter
+            // FIXME: use public terminateSession from Node2DebugAdapter
             // this.terminateSession(message);
             // this._session.sendEvent(new TerminatedEvent());
             // process.exit(1);
