@@ -49,7 +49,7 @@ declare module ChromeDebuggerCorePackage {
 
 declare module Node2DebugAdapterPackage {
     class Node2DebugAdapter extends ChromeDebuggerCorePackage.ChromeDebugAdapter {
-        protected doAttach(port: number, targetUrl?: string, address?: string, timeout?: number): Promise<void>
+        protected doAttach(port: number, targetUrl?: string, address?: string, timeout?: number): Promise<void>;
     }
 }
 

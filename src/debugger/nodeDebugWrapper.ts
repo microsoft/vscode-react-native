@@ -206,10 +206,7 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
          */
         private bailOut(message: string): void {
             Log.logError(`Could not debug. ${message}`);
-            // FIXME: use public terminateSession from Node2DebugAdapter
-            // this.terminateSession(message);
-            // this._session.sendEvent(new TerminatedEvent());
-            // process.exit(1);
+            this.sendEvent(new debugAdapterPackage.TerminatedEvent());
         };
     };
 }
