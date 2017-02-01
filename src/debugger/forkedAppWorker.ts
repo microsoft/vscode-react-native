@@ -64,6 +64,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     public stop() {
         if (this.debuggeeProcess) {
+            // TODO: remove this or use Log facility
             console.log(`KILLING ${this.debuggeeProcess.pid} !!!!!!!!!!!!!!!!!!!!!!!!!!`);
             this.debuggeeProcess.kill();
             this.debuggeeProcess = null;
@@ -84,16 +85,14 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         .then(() => {
             // Create a random port to use for debugging
             const port = Math.round(Math.random() * 40000 + 3000);
-            // Start forked Node process in debugging mode
-            this.debuggeeProcess = child_process.fork(scriptToRunPath, [], {
-                // Note that we set --debug-brk flag to pause the process on the first line - this is
-                // required for debug adapter to set the breakpoints BEFORE the debuggee has started.
-                // The adapter will continue execution once it's done with breakpoints.
-                // FIXME: below commented out since in prod chrome debug doesn't seem to catch paused
-                // event from Chrome and doesn't continue the script
-                execArgv: [`--inspect=${port}`/*, "--debug-brk"*/],
+            // Note that we set --debug-brk flag to pause the process on the first line - this is
+            // required for debug adapter to set the breakpoints BEFORE the debuggee has started.
+            // The adapter will continue execution once it's done with breakpoints.
+            const nodeArgs = [`--inspect=${port}`, "--debug-brk", scriptToRunPath];
+            // Start child Node process in debugging mode
+            this.debuggeeProcess = child_process.spawn("node", nodeArgs, {
+                stdio: ["pipe", "pipe", "pipe", "ipc"],
             })
-            // TODO: shouldn't this be of RNAppMessage?
             .on("message", (message: any) => {
                 // 'workerLoaded' is a special message that indicates that worker is done with loading.
                 // We need to wait for it before doing any IPC because process.send doesn't seems to care
