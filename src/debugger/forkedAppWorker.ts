@@ -8,6 +8,7 @@ import {ScriptImporter}  from "./scriptImporter";
 import {FileSystem} from "../common/node/fileSystem";
 
 import { Log } from "../common/log/log";
+import { LogLevel } from "../common/log/logHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 
@@ -36,9 +37,6 @@ function printDebuggingError(message: string, reason: any) {
     Log.logWarning(ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`));
 }
 
-// TODO: Add more logging
-// TODO: Replace all console logging with Log calls
-
 /** This class will run the RN App logic inside a forked Node process. The framework to run the logic is provided by the file
  * debuggerWorker.js (designed to run on a WebWorker). We add a couple of tweaks (mostly to polyfill WebWorker API) to that
  * file and load it inside of a process.
@@ -64,8 +62,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     public stop() {
         if (this.debuggeeProcess) {
-            // TODO: remove this or use Log facility
-            console.log(`KILLING ${this.debuggeeProcess.pid} !!!!!!!!!!!!!!!!!!!!!!!!!!`);
+            Log.logInternalMessage(LogLevel.Info, `About to kill debuggee with pid ${this.debuggeeProcess.pid}`);
             this.debuggeeProcess.kill();
             this.debuggeeProcess = null;
         }
@@ -104,13 +101,15 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                 }
 
                 this.postReplyToApp(message);
+            })
+            .on("error", (error: Error) => {
+                Log.logWarning(error);
             });
-
-            // TODO: convert to Log. ?
-            console.log(`SPAWNED ${this.debuggeeProcess.pid} !!!!!!!!!!!!!!!!!!!!!!!!!!`);
 
             // Resolve with port debugger server is listening on
             // This will be sent to subscribers of MLAppWorker in "connected" event
+            Log.logInternalMessage(LogLevel.Info,
+                `Spawned debuggee process with pid ${this.debuggeeProcess.pid} listening to ${port}`);
             return port;
         });
     }
@@ -121,15 +120,12 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         .then(() => {
             if (rnMessage.method !== "executeApplicationScript") return Q.resolve(rnMessage);
 
-            // When packager asks worker to load bundle we download that bundle first
-            // and then set url field to point to that downloaded bundle, so the worker
+            // When packager asks worker to load bundle we download that bundle and
+            // then set url field to point to that downloaded bundle, so the worker
             // will take our modified bundle
-            // TODO: Remove this
-            Log.logMessage("Packager requested runtime to load script from" + rnMessage.url);
+            Log.logInternalMessage(LogLevel.Info, "Packager requested runtime to load script from " + rnMessage.url);
             return this.scriptImporter.downloadAppScript(rnMessage.url)
                 .then(downloadedScript => {
-                    // TODO: Remove this
-                    Log.logMessage("Downloaded script from RN packager to " + downloadedScript.filepath);
                     return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
                 });
         })

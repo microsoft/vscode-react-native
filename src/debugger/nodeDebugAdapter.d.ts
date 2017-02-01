@@ -7,6 +7,9 @@
 declare module VSCodeDebugAdapterPackage {
     class DebugSession {
         public static run(debugSession: typeof DebugSession): void;
+        // This is actually inherited from protocol server but we'll put it here
+        public start(inStream: NodeJS.ReadableStream, outStream: NodeJS.WritableStream): void;
+        public sendEvent(event: Event): void;
     }
     class InitializedEvent extends Event {
         constructor();
@@ -42,7 +45,6 @@ declare module ChromeDebuggerCorePackage {
     class ChromeDebugSession extends VSCodeDebugAdapterPackage.DebugSession {
         protected _debugAdapter: any;
         constructor(debuggerLinesAndColumnsStartAt1?: boolean, isServer?: boolean, opts?: IChromeDebugSessionOpts);
-        public sendEvent(event: VSCodeDebugAdapterPackage.InitializedEvent): void;
         protected dispatchRequest(request: { command: string }): void;
     }
 }
