@@ -254,10 +254,6 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
     }
 
     private startNewWorkerLifetime(): Q.Promise<void> {
-        if (this.singleLifetimeWorker) {
-            return Q.resolve<void>(void 0);
-        }
-
         this.singleLifetimeWorker = this.sandboxedAppConstructor(this.sourcesStoragePath, (message) => {
             this.sendMessageToApp(message);
         });
@@ -319,16 +315,24 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
     }
 
     private onMessage(message: string) {
+        function killWorker(worker: IDebuggeeWorker) {
+            if (!worker) return;
+            worker.stop();
+            worker = null;
+        }
+
         try {
             Log.logInternalMessage(LogLevel.Trace, "From RN APP: " + message);
             let object = <RNAppMessage>JSON.parse(message);
             if (object.method === "prepareJSRuntime") {
+                // In RN 0.40 Android runtime doesn't seem to be sending "$disconnected" event
+                // when user reloads an app, hence we need to try to kill it here either.
+                killWorker(this.singleLifetimeWorker);
                 // The MultipleLifetimesAppWorker will handle prepareJSRuntime aka create new lifetime
                 this.gotPrepareJSRuntime(object);
             } else if (object.method === "$disconnected") {
                 // We need to shutdown the current app worker, and create a new lifetime
-                this.singleLifetimeWorker.stop();
-                this.singleLifetimeWorker = null;
+                killWorker(this.singleLifetimeWorker);
             } else if (object.method) {
                 // All the other messages are handled by the single lifetime worker
                 this.singleLifetimeWorker.postMessage(object);
