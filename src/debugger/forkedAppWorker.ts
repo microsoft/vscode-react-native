@@ -14,20 +14,24 @@ import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 
 // tslint:disable-next-line:align
 const WORKER_BOOTSTRAP = `
-// Hacks to avoid accessing unitialized variables
-var onmessage=null, self=global;
-// Avoid Node's GLOBAL deprecation warning
-global.GLOBAL=global;
+// Initialize some variables before react-native code would access them
+// and also avoid Node's GLOBAL deprecation warning
+var onmessage=null, self=global.GLOBAL=global;
+// Cache Node's original require as __debug__.require
+var __debug__={require: require};
 process.on("message", function(message){
     if (onmessage) onmessage(message);
 });
-postMessage = function(message){
+var postMessage = function(message){
     process.send(message);
 };
-importScripts = function(scriptUrl){
-    var scriptCode = require("fs").readFileSync(scriptUrl, "utf8");
-    require("vm").runInThisContext(scriptCode, { filename: scriptUrl });
-};`;
+var importScripts = (function(){
+    var fs=require('fs'), vm=require('vm');
+    return function(scriptUrl){
+        var scriptCode = fs.readFileSync(scriptUrl, "utf8");
+        vm.runInThisContext(scriptCode, {filename: scriptUrl});
+    };
+})();`;
 
 const WORKER_DONE = `// Notify debugger that we're done with loading
 // and started listening for IPC messages
