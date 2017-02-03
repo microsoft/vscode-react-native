@@ -14,7 +14,7 @@ import * as ForkedAppWorkerModule from "../../debugger/forkedAppWorker";
 import {Packager} from "../../common/packager";
 
 suite("appWorker", function() {
-    suite.only("debuggerContext", function() {
+    suite("debuggerContext", function() {
         const packagerPort = 8081;
 
         // suite("SandboxedAppWorker", function() {
@@ -147,6 +147,8 @@ suite("appWorker", function() {
                 multipleLifetimesWorker = new AppWorker.MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, {
                     webSocketConstructor: webSocketConstructor,
                 });
+
+                sinon.stub(multipleLifetimesWorker, "downloadAndPatchDebuggerWorker").returns(Q.resolve({}));
             });
 
             teardown(function() {
@@ -180,9 +182,10 @@ suite("appWorker", function() {
             });
 
             test("with packager running should attempt to reconnect after disconnecting", function() {
+                let startWorker = sinon.spy(multipleLifetimesWorker, "start");
                 return multipleLifetimesWorker.start().then(() => {
                     // Forget previous invocations
-                    webSocketConstructor.reset();
+                    startWorker.reset();
                     packagerIsRunning.returns(Q.resolve(true));
 
                     clock = sinon.useFakeTimers();
@@ -192,11 +195,11 @@ suite("appWorker", function() {
 
                     // Ensure that the retry is 100ms after the disconnection
                     clock.tick(99);
-                    assert(webSocketConstructor.notCalled, "Attempted to reconnect too quickly");
+                    assert(startWorker.notCalled, "Attempted to reconnect too quickly");
 
                     clock.tick(1);
                 }).then(() => {
-                    assert(webSocketConstructor.called);
+                    assert(startWorker.called);
                 });
             });
 

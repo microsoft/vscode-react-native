@@ -5,37 +5,11 @@ import * as Q from "q";
 import * as path from "path";
 import * as child_process from "child_process";
 import {ScriptImporter}  from "./scriptImporter";
-import {FileSystem} from "../common/node/fileSystem";
 
 import { Log } from "../common/log/log";
 import { LogLevel } from "../common/log/logHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
-
-// tslint:disable-next-line:align
-const WORKER_BOOTSTRAP = `
-// Initialize some variables before react-native code would access them
-// and also avoid Node's GLOBAL deprecation warning
-var onmessage=null, self=global.GLOBAL=global;
-// Cache Node's original require as __debug__.require
-var __debug__={require: require};
-process.on("message", function(message){
-    if (onmessage) onmessage(message);
-});
-var postMessage = function(message){
-    process.send(message);
-};
-var importScripts = (function(){
-    var fs=require('fs'), vm=require('vm');
-    return function(scriptUrl){
-        var scriptCode = fs.readFileSync(scriptUrl, "utf8");
-        vm.runInThisContext(scriptCode, {filename: scriptUrl});
-    };
-})();`;
-
-const WORKER_DONE = `// Notify debugger that we're done with loading
-// and started listening for IPC messages
-postMessage({workerLoaded:true});`;
 
 function printDebuggingError(message: string, reason: any) {
     Log.logWarning(ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`));
@@ -50,7 +24,6 @@ function printDebuggingError(message: string, reason: any) {
  */
 export class ForkedAppWorker implements IDebuggeeWorker {
 
-    private nodeFileSystem: FileSystem = new FileSystem();
     private scriptImporter: ScriptImporter;
     private debuggeeProcess: child_process.ChildProcess = null;
     /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
@@ -74,48 +47,38 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     public start(): Q.Promise<number> {
         let scriptToRunPath = path.resolve(this.sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
+        const port = Math.round(Math.random() * 40000 + 3000);
 
-        return this.scriptImporter.downloadDebuggerWorker(this.sourcesStoragePath)
-        .then(() => this.nodeFileSystem.readFile(scriptToRunPath, "utf8"))
-        .then((workerContent: string) => {
-            // Add our customizations to debugger worker to get it working smoothly
-            // in Node env and polyfill WebWorkers API over Node's IPC.
-            const modifiedDebuggeeContent = [WORKER_BOOTSTRAP, workerContent, WORKER_DONE].join("\n");
-            return this.nodeFileSystem.writeFile(scriptToRunPath, modifiedDebuggeeContent);
+        // Note that we set --debug-brk flag to pause the process on the first line - this is
+        // required for debug adapter to set the breakpoints BEFORE the debuggee has started.
+        // The adapter will continue execution once it's done with breakpoints.
+        const nodeArgs = [`--inspect=${port}`, "--debug-brk", scriptToRunPath];
+        // Start child Node process in debugging mode
+        this.debuggeeProcess = child_process.spawn("node", nodeArgs, {
+            stdio: ["pipe", "pipe", "pipe", "ipc"],
         })
-        .then(() => {
-            // Create a random port to use for debugging
-            const port = Math.round(Math.random() * 40000 + 3000);
-            // Note that we set --debug-brk flag to pause the process on the first line - this is
-            // required for debug adapter to set the breakpoints BEFORE the debuggee has started.
-            // The adapter will continue execution once it's done with breakpoints.
-            const nodeArgs = [`--inspect=${port}`, "--debug-brk", scriptToRunPath];
-            // Start child Node process in debugging mode
-            this.debuggeeProcess = child_process.spawn("node", nodeArgs, {
-                stdio: ["pipe", "pipe", "pipe", "ipc"],
-            })
-            .on("message", (message: any) => {
-                // 'workerLoaded' is a special message that indicates that worker is done with loading.
-                // We need to wait for it before doing any IPC because process.send doesn't seems to care
-                // about whether the messahe has been received or not and the first messages are often get
-                // discarded by spawned process
-                if (message && message.workerLoaded) {
-                    this.workerLoaded.resolve(void 0);
-                    return;
-                }
+        .on("message", (message: any) => {
+            // 'workerLoaded' is a special message that indicates that worker is done with loading.
+            // We need to wait for it before doing any IPC because process.send doesn't seems to care
+            // about whether the messahe has been received or not and the first messages are often get
+            // discarded by spawned process
+            if (message && message.workerLoaded) {
+                this.workerLoaded.resolve(void 0);
+                return;
+            }
 
-                this.postReplyToApp(message);
-            })
-            .on("error", (error: Error) => {
-                Log.logWarning(error);
-            });
-
-            // Resolve with port debugger server is listening on
-            // This will be sent to subscribers of MLAppWorker in "connected" event
-            Log.logInternalMessage(LogLevel.Info,
-                `Spawned debuggee process with pid ${this.debuggeeProcess.pid} listening to ${port}`);
-            return port;
+            this.postReplyToApp(message);
+        })
+        .on("error", (error: Error) => {
+            Log.logWarning(error);
         });
+
+        // Resolve with port debugger server is listening on
+        // This will be sent to subscribers of MLAppWorker in "connected" event
+        Log.logInternalMessage(LogLevel.Info,
+            `Spawned debuggee process with pid ${this.debuggeeProcess.pid} listening to ${port}`);
+
+        return Q.resolve(port);
     }
 
     public postMessage(rnMessage: RNAppMessage): void {

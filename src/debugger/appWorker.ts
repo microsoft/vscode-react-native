@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
+import * as path from "path";
 import * as WebSocket from "ws";
 import { EventEmitter } from "events";
 import {Packager}  from "../common/packager";
@@ -9,7 +10,9 @@ import {ErrorHelper} from "../common/error/errorHelper";
 import {Log} from "../common/log/log";
 import {LogLevel} from "../common/log/logHelper";
 import {ExecutionsLimiter} from "../common/executionsLimiter";
+import { FileSystem as NodeFileSystem} from "../common/node/fileSystem";
 import { ForkedAppWorker } from "./forkedAppWorker";
+import { ScriptImporter } from "./scriptImporter";
 
 export interface RNAppMessage {
     method: string;
@@ -17,14 +20,39 @@ export interface RNAppMessage {
     // These objects have also other properties but that we don't currently use
 }
 
-function printDebuggingError(message: string, reason: any) {
-    Log.logWarning(ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`));
-}
-
 export interface IDebuggeeWorker {
     start(): Q.Promise<any>;
     stop(): void;
     postMessage(message: RNAppMessage): void;
+}
+
+// tslint:disable-next-line:align
+const WORKER_BOOTSTRAP = `
+// Initialize some variables before react-native code would access them
+// and also avoid Node's GLOBAL deprecation warning
+var onmessage=null, self=global.GLOBAL=global;
+// Cache Node's original require as __debug__.require
+var __debug__={require: require};
+process.on("message", function(message){
+    if (onmessage) onmessage(message);
+});
+var postMessage = function(message){
+    process.send(message);
+};
+var importScripts = (function(){
+    var fs=require('fs'), vm=require('vm');
+    return function(scriptUrl){
+        var scriptCode = fs.readFileSync(scriptUrl, "utf8");
+        vm.runInThisContext(scriptCode, {filename: scriptUrl});
+    };
+})();`;
+
+const WORKER_DONE = `// Notify debugger that we're done with loading
+// and started listening for IPC messages
+postMessage({workerLoaded:true});`;
+
+function printDebuggingError(message: string, reason: any) {
+    Log.logWarning(ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`));
 }
 
 export class MultipleLifetimesAppWorker extends EventEmitter {
@@ -40,6 +68,8 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
     private webSocketConstructor: (url: string) => WebSocket;
 
     private executionLimiter = new ExecutionsLimiter();
+    private nodeFileSystem = new NodeFileSystem();
+    private scriptImporter: ScriptImporter;
 
     constructor(packagerPort: number, sourcesStoragePath: string, {
         webSocketConstructor = (url: string) => new WebSocket(url),
@@ -50,16 +80,22 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
         console.assert(!!this.sourcesStoragePath, "The sourcesStoragePath argument was null or empty");
 
         this.webSocketConstructor = webSocketConstructor;
+        this.scriptImporter = new ScriptImporter(packagerPort, sourcesStoragePath);
     }
 
-    public start(warnOnFailure: boolean = false): Q.Promise<any> {
+    public start(retryAttempt: boolean = false): Q.Promise<any> {
         return Packager.isPackagerRunning(Packager.getHostForPort(this.packagerPort))
             .then(running => {
-                if (running) {
-                    return this.createSocketToApp(warnOnFailure);
+                if (!running) {
+                    throw new Error(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
                 }
-                throw new Error(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
-            });
+            })
+            .then(() => {
+                // Don't fetch debugger worker on socket disconnect
+                return retryAttempt ? Q.resolve<void>(void 0) :
+                    this.downloadAndPatchDebuggerWorker();
+            })
+            .then(() => this.createSocketToApp(retryAttempt));
     }
 
     public stop() {
@@ -73,18 +109,30 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
         }
     }
 
+    public downloadAndPatchDebuggerWorker(): Q.Promise<void> {
+        let scriptToRunPath = path.resolve(this.sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
+        return this.scriptImporter.downloadDebuggerWorker(this.sourcesStoragePath)
+            .then(() => this.nodeFileSystem.readFile(scriptToRunPath, "utf8"))
+            .then((workerContent: string) => {
+                // Add our customizations to debugger worker to get it working smoothly
+                // in Node env and polyfill WebWorkers API over Node's IPC.
+                const modifiedDebuggeeContent = [WORKER_BOOTSTRAP, workerContent, WORKER_DONE].join("\n");
+                return this.nodeFileSystem.writeFile(scriptToRunPath, modifiedDebuggeeContent);
+            });
+    }
+
     private startNewWorkerLifetime(): Q.Promise<void> {
         this.singleLifetimeWorker = new ForkedAppWorker(this.packagerPort, this.sourcesStoragePath, (message) => {
             this.sendMessageToApp(message);
         });
         Log.logInternalMessage(LogLevel.Info, "A new app worker lifetime was created.");
         return this.singleLifetimeWorker.start()
-        .then(startedEvent => {
-            this.emit("connected", startedEvent);
-        });
+            .then(startedEvent => {
+                this.emit("connected", startedEvent);
+            });
     }
 
-    private createSocketToApp(warnOnFailure: boolean = false): Q.Promise<void> {
+    private createSocketToApp(retryAttempt: boolean = false): Q.Promise<void> {
         let deferred = Q.defer<void>();
         this.socketToApp = this.webSocketConstructor(this.debuggerProxyUrl());
         this.socketToApp.on("open", () => {
@@ -111,7 +159,7 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
             (message: any) => this.onMessage(message));
         this.socketToApp.on("error",
             (error: Error) => {
-                if (warnOnFailure) {
+                if (retryAttempt) {
                     Log.logWarning(ErrorHelper.getNestedWarning(error,
                         "Reconnection to the proxy (Packager) failed. Please check the output window for Packager errors, if any. If failure persists, please restart the React Native debugger."));
                 }
