@@ -19,7 +19,6 @@ import {Log} from "../common/log/log";
 import {GeneralMobilePlatform} from "../common/generalMobilePlatform";
 
 import { MultipleLifetimesAppWorker } from "./appWorker";
-import { ForkedAppWorker } from "./forkedAppWorker";
 
 export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.ChromeDebugSession,
                             debugSessionOpts: ChromeDebuggerCorePackage.IChromeDebugSessionOpts,
@@ -179,13 +178,7 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
                         const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
 
                         // If launch is invoked first time, appWorker is undefined, so create it here
-                        this.appWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, {
-                                // Inject our custom debuggee worker
-                                sandboxedAppConstructor: (path: string, messageFunc: (message: any) => void) =>
-                                    new ForkedAppWorker(packagerPort, path, messageFunc),
-                            }
-                        );
-
+                        this.appWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath);
                         this.appWorker.on("connected", (port: number) => {
                             Log.logMessage("Debugger worker loaded runtime on port " + port);
                             // Don't mutate original request to avoid side effects
