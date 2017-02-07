@@ -114,6 +114,7 @@ gulp.task('check-copyright', function (cb) {
         "**/*.js",
         "!**/*.d.ts",
         "!node_modules/**",
+        "!out/test/**/*.js",
         "!SampleApplication/**",
         "!src/test/resources/sampleReactNative022Project/**/*.js",
     ])

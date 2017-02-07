@@ -26,8 +26,18 @@ export interface IDebuggeeWorker {
     postMessage(message: RNAppMessage): void;
 }
 
-// tslint:disable-next-line:align
-const WORKER_BOOTSTRAP = `
+function printDebuggingError(message: string, reason: any) {
+    Log.logWarning(ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`));
+}
+
+    /** This class will create a SandboxedAppWorker that will run the RN App logic, and then create a socket
+     * and send the RN App messages to the SandboxedAppWorker. The only RN App message that this class handles
+     * is the prepareJSRuntime, which we reply to the RN App that the sandbox was created successfully.
+     * When the socket closes, we'll create a new SandboxedAppWorker and a new socket pair and discard the old ones.
+     */
+
+export class MultipleLifetimesAppWorker extends EventEmitter {
+    public static WORKER_BOOTSTRAP = `
 // Initialize some variables before react-native code would access them
 // and also avoid Node's GLOBAL deprecation warning
 var onmessage=null, self=global.GLOBAL=global;
@@ -47,20 +57,10 @@ var importScripts = (function(){
     };
 })();`;
 
-const WORKER_DONE = `// Notify debugger that we're done with loading
+    public static WORKER_DONE = `// Notify debugger that we're done with loading
 // and started listening for IPC messages
 postMessage({workerLoaded:true});`;
 
-function printDebuggingError(message: string, reason: any) {
-    Log.logWarning(ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`));
-}
-
-export class MultipleLifetimesAppWorker extends EventEmitter {
-    /** This class will create a SandboxedAppWorker that will run the RN App logic, and then create a socket
-     * and send the RN App messages to the SandboxedAppWorker. The only RN App message that this class handles
-     * is the prepareJSRuntime, which we reply to the RN App that the sandbox was created successfully.
-     * When the socket closes, we'll create a new SandboxedAppWorker and a new socket pair and discard the old ones.
-     */
     private packagerPort: number;
     private sourcesStoragePath: string;
     private socketToApp: WebSocket;
@@ -116,7 +116,8 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
             .then((workerContent: string) => {
                 // Add our customizations to debugger worker to get it working smoothly
                 // in Node env and polyfill WebWorkers API over Node's IPC.
-                const modifiedDebuggeeContent = [WORKER_BOOTSTRAP, workerContent, WORKER_DONE].join("\n");
+                const modifiedDebuggeeContent = [MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
+                    workerContent, MultipleLifetimesAppWorker.WORKER_DONE].join("\n");
                 return this.nodeFileSystem.writeFile(scriptToRunPath, modifiedDebuggeeContent);
             });
     }

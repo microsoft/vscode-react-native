@@ -6,120 +6,105 @@ import * as WebSocket from "ws";
 import * as path from "path";
 import * as Q from "q";
 import * as sinon from "sinon";
+import * as child_process from "child_process";
 
-import * as AppWorker from "../../debugger/appWorker";
+import { MultipleLifetimesAppWorker } from "../../debugger/appWorker";
 import { ForkedAppWorker } from "../../debugger/forkedAppWorker";
 import * as ForkedAppWorkerModule from "../../debugger/forkedAppWorker";
-// import {ScriptImporter} from "../../debugger/scriptImporter";
 import {Packager} from "../../common/packager";
 
 suite("appWorker", function() {
     suite("debuggerContext", function() {
         const packagerPort = 8081;
 
-        // suite("SandboxedAppWorker", function() {
-        //     const sourcesStoragePath = path.resolve(__dirname, "assets");
-        //     const startScriptFileName = require.resolve(path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME));
+        suite("SandboxedAppWorker", function() {
+            const originalSpawn = child_process.spawn;
+            const sourcesStoragePath = path.resolve(__dirname, "assets");
 
-        //     let sandboxedWorker: AppWorker.SandboxedAppWorker;
-        //     let downloadAppScriptStub = sinon.stub();
-        //     let postReplyFunction = sinon.stub();
-        //     let readFileStub = sinon.stub();
+            // Inject 5 sec delay before shutting down to worker to give tests some time to execute
+            const WORKER_DELAY_SHUTDOWN = `setTimeout(() => {console.log("Shutting down")}, 5000)`;
 
-        //     setup(function() {
-        //         const nodeFileSystemMock: any = {
-        //             readFile: readFileStub,
-        //         };
+            let testWorker: ForkedAppWorker;
+            let spawnStub: Sinon.SinonStub;
+            let postReplyFunction = sinon.stub();
 
-        //         const scriptImporterMock: any = {
-        //             downloadAppScript: downloadAppScriptStub,
-        //         };
+            function workerWithScript(scriptBody: string): ForkedAppWorker {
+                const wrappedBody = [ MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
+                    scriptBody, MultipleLifetimesAppWorker.WORKER_DONE, WORKER_DELAY_SHUTDOWN ].join("\n");
 
-        //         sandboxedWorker = new AppWorker.SandboxedAppWorker(packagerPort, sourcesStoragePath, postReplyFunction, {
-        //             nodeFileSystem: nodeFileSystemMock,
-        //             scriptImporter: scriptImporterMock,
-        //         });
-        //     });
+                spawnStub = sinon.stub(child_process, "spawn", () =>
+                    originalSpawn("node", ["-e", wrappedBody], {stdio: ["pipe", "pipe", "pipe", "ipc"]}));
 
-        //     teardown(function() {
-        //         // Reset everything
-        //         sandboxedWorker = null;
+                testWorker = new ForkedAppWorker(packagerPort, sourcesStoragePath, postReplyFunction);
+                return testWorker;
+            }
 
-        //         readFileStub = sinon.stub();
-        //         downloadAppScriptStub = sinon.stub();
-        //         postReplyFunction = sinon.stub();
-        //     });
+            teardown(function() {
+                // Reset everything
+                spawnStub.restore();
+                postReplyFunction.reset();
+                if (testWorker) {
+                    testWorker.stop();
+                }
+            });
 
+            test("should execute scripts correctly and be able to invoke the callback", function() {
+                const expectedMessageResult = { success: true };
+                const startScriptContents = `var testResponse = ${JSON.stringify(expectedMessageResult)}; postMessage(testResponse);`;
 
-        //     test("should execute scripts correctly and be able to invoke the callback", function() {
-        //         const expectedMessageResult = { success: true };
-        //         const startScriptContents = `var testResponse = ${JSON.stringify(expectedMessageResult)}; postMessage(testResponse);`;
+                return workerWithScript(startScriptContents).start()
+                .then(() =>
+                    Q.delay(100))
+                .then(() =>
+                    assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
+            });
 
-        //         readFileStub.withArgs(startScriptFileName).returns(Q.resolve(startScriptContents));
+            test("should be able to import scripts", function() {
+                // NOTE: we're not able to mock out
+                const scriptImportPath = path.resolve(sourcesStoragePath, "importScriptsTest.js");
+                const startScriptContents = `importScripts("${scriptImportPath}"); postMessage("postImport");`;
 
-        //         return sandboxedWorker.start().then(() => {
-        //             assert(postReplyFunction.calledWithExactly(expectedMessageResult));
-        //         });
-        //     });
+                return workerWithScript(startScriptContents).start().then(() => {
+                    // We have not yet finished importing the script, we should not have posted a response yet
+                    assert(postReplyFunction.notCalled, "postReplyFuncton called before scripts imported");
+                    return Q.delay(100);
+                }).then(() => {
+                    assert(postReplyFunction.calledWith("postImport"), "postMessage after import not handled");
+                    assert(postReplyFunction.calledWith("inImport"), "postMessage not registered from within import");
+                });
+            });
 
-        //     test("should be able to import scripts", function() {
-        //         const scriptImportPath = "testScript.js";
-        //         const startScriptContents = `importScripts("${scriptImportPath}"); postMessage("postImport");`;
-        //         readFileStub.withArgs(startScriptFileName).returns(Q.resolve(startScriptContents));
+            test("should correctly pass postMessage to the loaded script", function() {
+                const startScriptContents = `onmessage = postMessage;`;
+                const testMessage = { method: "test", success: true };
 
-        //         const testScriptContents = "postMessage('inImport')";
-        //         const scriptImportDeferred = Q.defer<void>();
-        //         downloadAppScriptStub.withArgs(scriptImportPath).returns(scriptImportDeferred.promise.then(() => {
-        //             return {
-        //                 contents: testScriptContents,
-        //                 filepath: scriptImportPath,
-        //             };
-        //         }));
+                const worker = workerWithScript(startScriptContents);
+                return worker.start().then(() => {
+                    assert(postReplyFunction.notCalled, "postRepyFunction called before message sent");
+                    worker.postMessage(testMessage);
+                    return Q.delay(100);
+                }).then(() => {
+                    assert(postReplyFunction.calledWith({ data: testMessage }), "No echo back from app");
+                });
+            });
 
-        //         return sandboxedWorker.start().then(() => {
-        //             // We have not yet finished importing the script, we should not have posted a response yet
-        //             assert(postReplyFunction.notCalled, "postReplyFuncton called before scripts imported");
-        //             scriptImportDeferred.resolve(void 0);
-        //             return Q.delay(1);
-        //         }).then(() => {
-        //             assert(postReplyFunction.calledWith("postImport"), "postMessage after import not handled");
-        //             assert(postReplyFunction.calledWith("inImport"), "postMessage not registered from within import");
-        //         });
-        //     });
+            test("should be able to require an installed node module via __debug__.require", function () {
+                const expectedMessageResult = { qString: Q.toString() };
+                const startScriptContents = `var Q = __debug__.require('q');
+                    var testResponse = { qString: Q.toString() };
+                    postMessage(testResponse);`;
 
-        //     test("should correctly pass postMessage to the loaded script", function() {
-        //         const startScriptContents = `onmessage = postMessage;`;
-        //         readFileStub.withArgs(startScriptFileName).returns(Q.resolve(startScriptContents));
-
-        //         const testMessage = { method: "test", success: true };
-
-        //         return sandboxedWorker.start().then(() => {
-        //             assert(postReplyFunction.notCalled, "postRepyFunction called before message sent");
-        //             sandboxedWorker.postMessage(testMessage);
-        //             return Q.delay(1);
-        //         }).then(() => {
-        //             assert(postReplyFunction.calledWith({ data: testMessage }), "No echo back from app");
-        //         });
-        //     });
-
-        //     test("should be able to require an installed node module via __debug__.require", function () {
-        //         const expectedMessageResult = { qString: Q.toString() };
-        //         const startScriptContents = `var Q = __debug__.require('q');
-        //             var testResponse = { qString: Q.toString() };
-        //             postMessage(testResponse);`;
-
-        //         readFileStub.withArgs(startScriptFileName).returns(Q.resolve(startScriptContents));
-
-        //         return sandboxedWorker.start().then(() => {
-        //             assert(postReplyFunction.calledWithExactly(expectedMessageResult));
-        //         });
-        //     });
-        // });
+                return workerWithScript(startScriptContents).start()
+                .then(() => Q.delay(100))
+                .then(() =>
+                    assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
+            });
+        });
 
         suite("MultipleLifetimesAppWorker", function() {
             const sourcesStoragePath = path.resolve(__dirname, "assets");
 
-            let multipleLifetimesWorker: AppWorker.MultipleLifetimesAppWorker;
+            let multipleLifetimesWorker: MultipleLifetimesAppWorker;
             let sandboxedAppWorkerStub: Sinon.SinonStub;
             let appWorkerModuleStub: Sinon.SinonStub;
             let webSocket: Sinon.SinonStub;
@@ -144,7 +129,7 @@ suite("appWorker", function() {
                 packagerIsRunning = sinon.stub(Packager, "isPackagerRunning");
                 packagerIsRunning.returns(Q.resolve(true));
 
-                multipleLifetimesWorker = new AppWorker.MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, {
+                multipleLifetimesWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, {
                     webSocketConstructor: webSocketConstructor,
                 });
 
