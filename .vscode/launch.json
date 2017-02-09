@@ -101,7 +101,7 @@
         },
         {
             "name": "Run mocha",
-            "type": "node",
+            "type": "node2",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "stopOnEntry": false,
             // Command line arguments passed to the program.

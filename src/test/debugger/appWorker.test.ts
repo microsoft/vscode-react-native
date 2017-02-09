@@ -6,9 +6,11 @@ import * as WebSocket from "ws";
 import * as path from "path";
 import * as Q from "q";
 import * as sinon from "sinon";
+import * as child_process from "child_process";
 
-import * as AppWorker from "../../debugger/appWorker";
-import {ScriptImporter} from "../../debugger/scriptImporter";
+import { MultipleLifetimesAppWorker } from "../../debugger/appWorker";
+import { ForkedAppWorker } from "../../debugger/forkedAppWorker";
+import * as ForkedAppWorkerModule from "../../debugger/forkedAppWorker";
 import {Packager} from "../../common/packager";
 
 suite("appWorker", function() {
@@ -16,70 +18,57 @@ suite("appWorker", function() {
         const packagerPort = 8081;
 
         suite("SandboxedAppWorker", function() {
+            const originalSpawn = child_process.spawn;
             const sourcesStoragePath = path.resolve(__dirname, "assets");
-            const startScriptFileName = require.resolve(path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME));
-            const debugAdapterPort = 9090;
 
-            let sandboxedWorker: AppWorker.SandboxedAppWorker;
-            let downloadAppScriptStub = sinon.stub();
+            // Inject 5 sec delay before shutting down to worker to give tests some time to execute
+            const WORKER_DELAY_SHUTDOWN = `setTimeout(() => {console.log("Shutting down")}, 5000)`;
+
+            let testWorker: ForkedAppWorker;
+            let spawnStub: Sinon.SinonStub;
             let postReplyFunction = sinon.stub();
-            let readFileStub = sinon.stub();
 
-            setup(function() {
-                const nodeFileSystemMock: any = {
-                    readFile: readFileStub,
-                };
+            function workerWithScript(scriptBody: string): ForkedAppWorker {
+                const wrappedBody = [ MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
+                    scriptBody, MultipleLifetimesAppWorker.WORKER_DONE, WORKER_DELAY_SHUTDOWN ].join("\n");
 
-                const scriptImporterMock: any = {
-                    downloadAppScript: downloadAppScriptStub,
-                };
+                spawnStub = sinon.stub(child_process, "spawn", () =>
+                    originalSpawn("node", ["-e", wrappedBody], {stdio: ["pipe", "pipe", "pipe", "ipc"]}));
 
-                sandboxedWorker = new AppWorker.SandboxedAppWorker(packagerPort, sourcesStoragePath, debugAdapterPort, postReplyFunction, {
-                    nodeFileSystem: nodeFileSystemMock,
-                    scriptImporter: scriptImporterMock,
-                });
-            });
+                testWorker = new ForkedAppWorker(packagerPort, sourcesStoragePath, postReplyFunction);
+                return testWorker;
+            }
 
             teardown(function() {
                 // Reset everything
-                sandboxedWorker = null;
-
-                readFileStub = sinon.stub();
-                downloadAppScriptStub = sinon.stub();
-                postReplyFunction = sinon.stub();
+                spawnStub.restore();
+                postReplyFunction.reset();
+                if (testWorker) {
+                    testWorker.stop();
+                }
             });
-
 
             test("should execute scripts correctly and be able to invoke the callback", function() {
                 const expectedMessageResult = { success: true };
                 const startScriptContents = `var testResponse = ${JSON.stringify(expectedMessageResult)}; postMessage(testResponse);`;
 
-                readFileStub.withArgs(startScriptFileName).returns(Q.resolve(startScriptContents));
-
-                return sandboxedWorker.start().then(() => {
-                    assert(postReplyFunction.calledWithExactly(expectedMessageResult));
-                });
+                return workerWithScript(startScriptContents).start()
+                .then(() =>
+                    Q.delay(100))
+                .then(() =>
+                    assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
             });
 
             test("should be able to import scripts", function() {
-                const scriptImportPath = "testScript.js";
+                // NOTE: we're not able to mock reading script for import since this is performed by a
+                // separate node process and is out of control so we must provide a real script file
+                const scriptImportPath = path.resolve(sourcesStoragePath, "importScriptsTest.js");
                 const startScriptContents = `importScripts("${scriptImportPath}"); postMessage("postImport");`;
-                readFileStub.withArgs(startScriptFileName).returns(Q.resolve(startScriptContents));
 
-                const testScriptContents = "postMessage('inImport')";
-                const scriptImportDeferred = Q.defer<void>();
-                downloadAppScriptStub.withArgs(scriptImportPath, debugAdapterPort).returns(scriptImportDeferred.promise.then(() => {
-                    return {
-                        contents: testScriptContents,
-                        filepath: scriptImportPath,
-                    };
-                }));
-
-                return sandboxedWorker.start().then(() => {
+                return workerWithScript(startScriptContents).start().then(() => {
                     // We have not yet finished importing the script, we should not have posted a response yet
                     assert(postReplyFunction.notCalled, "postReplyFuncton called before scripts imported");
-                    scriptImportDeferred.resolve(void 0);
-                    return Q.delay(1);
+                    return Q.delay(100);
                 }).then(() => {
                     assert(postReplyFunction.calledWith("postImport"), "postMessage after import not handled");
                     assert(postReplyFunction.calledWith("inImport"), "postMessage not registered from within import");
@@ -88,14 +77,13 @@ suite("appWorker", function() {
 
             test("should correctly pass postMessage to the loaded script", function() {
                 const startScriptContents = `onmessage = postMessage;`;
-                readFileStub.withArgs(startScriptFileName).returns(Q.resolve(startScriptContents));
-
                 const testMessage = { method: "test", success: true };
 
-                return sandboxedWorker.start().then(() => {
+                const worker = workerWithScript(startScriptContents);
+                return worker.start().then(() => {
                     assert(postReplyFunction.notCalled, "postRepyFunction called before message sent");
-                    sandboxedWorker.postMessage(testMessage);
-                    return Q.delay(1);
+                    worker.postMessage(testMessage);
+                    return Q.delay(100);
                 }).then(() => {
                     assert(postReplyFunction.calledWith({ data: testMessage }), "No echo back from app");
                 });
@@ -107,22 +95,20 @@ suite("appWorker", function() {
                     var testResponse = { qString: Q.toString() };
                     postMessage(testResponse);`;
 
-                readFileStub.withArgs(startScriptFileName).returns(Q.resolve(startScriptContents));
-
-                return sandboxedWorker.start().then(() => {
-                    assert(postReplyFunction.calledWithExactly(expectedMessageResult));
-                });
+                return workerWithScript(startScriptContents).start()
+                .then(() => Q.delay(100))
+                .then(() =>
+                    assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
             });
         });
 
         suite("MultipleLifetimesAppWorker", function() {
             const sourcesStoragePath = path.resolve(__dirname, "assets");
-            const debugAdapterPort = 9090;
 
-            let multipleLifetimesWorker: AppWorker.MultipleLifetimesAppWorker;
+            let multipleLifetimesWorker: MultipleLifetimesAppWorker;
             let sandboxedAppWorkerStub: Sinon.SinonStub;
+            let appWorkerModuleStub: Sinon.SinonStub;
             let webSocket: Sinon.SinonStub;
-            let sandboxedAppConstructor: Sinon.SinonStub;
             let webSocketConstructor: Sinon.SinonStub;
             let packagerIsRunning: Sinon.SinonStub;
 
@@ -132,30 +118,32 @@ suite("appWorker", function() {
 
             setup(function() {
                 webSocket = sinon.createStubInstance(WebSocket);
-                sandboxedAppWorkerStub = sinon.createStubInstance(AppWorker.SandboxedAppWorker);
+
+                sandboxedAppWorkerStub = sinon.createStubInstance(ForkedAppWorker);
+                appWorkerModuleStub = sinon.stub(ForkedAppWorkerModule, "ForkedAppWorker").returns(sandboxedAppWorkerStub);
 
                 const messageInvocation: Sinon.SinonStub = (<any>webSocket).on.withArgs("message");
                 sendMessage = (message: string) => messageInvocation.callArgWith(1, message);
 
-                sandboxedAppConstructor = sinon.stub();
-                sandboxedAppConstructor.returns(sandboxedAppWorkerStub);
                 webSocketConstructor = sinon.stub();
                 webSocketConstructor.returns(webSocket);
                 packagerIsRunning = sinon.stub(Packager, "isPackagerRunning");
                 packagerIsRunning.returns(Q.resolve(true));
 
-                multipleLifetimesWorker = new AppWorker.MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, debugAdapterPort, {
-                    sandboxedAppConstructor: sandboxedAppConstructor,
+                multipleLifetimesWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, {
                     webSocketConstructor: webSocketConstructor,
                 });
+
+                sinon.stub(multipleLifetimesWorker, "downloadAndPatchDebuggerWorker").returns(Q.resolve({}));
             });
 
             teardown(function() {
                 // Reset everything
+                multipleLifetimesWorker.stop();
                 multipleLifetimesWorker = null;
+                appWorkerModuleStub.restore();
                 webSocket = null;
                 sandboxedAppWorkerStub = null;
-                sandboxedAppConstructor = null;
                 webSocketConstructor = null;
                 sendMessage = null;
                 packagerIsRunning.restore();
@@ -180,9 +168,10 @@ suite("appWorker", function() {
             });
 
             test("with packager running should attempt to reconnect after disconnecting", function() {
+                let startWorker = sinon.spy(multipleLifetimesWorker, "start");
                 return multipleLifetimesWorker.start().then(() => {
                     // Forget previous invocations
-                    webSocketConstructor.reset();
+                    startWorker.reset();
                     packagerIsRunning.returns(Q.resolve(true));
 
                     clock = sinon.useFakeTimers();
@@ -192,11 +181,11 @@ suite("appWorker", function() {
 
                     // Ensure that the retry is 100ms after the disconnection
                     clock.tick(99);
-                    assert(webSocketConstructor.notCalled, "Attempted to reconnect too quickly");
+                    assert(startWorker.notCalled, "Attempted to reconnect too quickly");
 
                     clock.tick(1);
                 }).then(() => {
-                    assert(webSocketConstructor.called);
+                    assert(startWorker.called);
                 });
             });
 

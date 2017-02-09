@@ -103,10 +103,10 @@ export class StreamLogger implements ILogger {
 }
 
 export class NodeDebugAdapterLogger implements ILogger {
-    private debugSession: NodeDebugSession;
-    private debugAdapterPackage: typeof VSCodeDebugAdapter;
+    private debugSession: ChromeDebuggerCorePackage.ChromeDebugSession;
+    private debugAdapterPackage: typeof VSCodeDebugAdapterPackage;
 
-    public constructor(adapterPackage: typeof VSCodeDebugAdapter, debugSession: NodeDebugSession) {
+    public constructor(adapterPackage: typeof VSCodeDebugAdapterPackage, debugSession: ChromeDebuggerCorePackage.ChromeDebugSession) {
         this.debugAdapterPackage = adapterPackage;
         this.debugSession = debugSession;
     }
