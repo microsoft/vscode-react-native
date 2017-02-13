@@ -41,12 +41,8 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
         public sendEvent(event: VSCodeDebugAdapterPackage.Event): void {
             // Do not send "terminated" events signaling about session's restart to client as it would cause it
             // to restart adapter's process, while we want to stay alive and don't want to interrupt connection
-            // to packager. Also in this case we need to reinstantiate the debug adapter, as the current
-            // implementation of ChromeDebugAdapter doesn't allow us to reattach to another debug target easily.
-            // As of now it's easier to throw previous instance out and create a new one.
+            // to packager.
             if (event.event === "terminated" && event.body && event.body.restart === true) {
-                // Casting debugAdapter to any to make this compile, as TS doesn't allow instantiating abstract classes
-                this._debugAdapter = new (<any>debugSessionOpts.adapter)(debugSessionOpts, this);
                 return;
             }
 
@@ -185,6 +181,10 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
                             let attachArguments = Object.assign({}, request.arguments, { port, restart: true, request: "attach" });
                             let attachRequest = Object.assign({}, request, { command: "attach", arguments: attachArguments });
 
+                            // Reinstantiate debug adapter, as the current implementation of ChromeDebugAdapter
+                            // doesn't allow us to reattach to another debug target easily. As of now it's easier
+                            // to throw previous instance out and create a new one.
+                            this._debugAdapter = new (<any>debugSessionOpts.adapter)(debugSessionOpts, this);
                             super.dispatchRequest(attachRequest);
                         });
 
