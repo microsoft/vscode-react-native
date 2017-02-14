@@ -110,6 +110,60 @@
             "outDir": "${workspaceRoot}/.vscode/.react"
           }
         ],
+        "configurationSnippets": [
+          {
+            "label": "Debug android: Launch",
+            "description": "A new configuration for launching react-native app on android",
+            "body": {
+              "name": "Debug Android",
+              "program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
+              "type": "reactnative",
+              "request": "launch",
+              "platform": "android",
+              "sourceMaps": true,
+              "outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+            }
+          },
+          {
+            "label": "Debug iOS: Launch",
+            "description": "A new configuration for launching react-native app on iOS",
+            "body": {
+              "name": "Debug iOS",
+              "program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
+              "type": "reactnative",
+              "request": "launch",
+              "platform": "ios",
+              "sourceMaps": true,
+              "target": "iPhone 5s",
+              "outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+            }
+          },
+          {
+            "label": "Attach to packager: Attach",
+            "description": "A new configuration for attaching to packager",
+            "body": {
+              "name": "Attach to packager",
+              "program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
+              "type": "reactnative",
+              "request": "attach",
+              "sourceMaps": true,
+              "outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+            }
+          },
+          {
+            "label": "Debug in Exponent: Launch",
+            "description": "A new configuration for launching exponent app",
+            "body": {
+              "name": "Debug in Exponent",
+              "program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
+              "type": "reactnative",
+              "request": "launch",
+              "platform": "exponent",
+              "sourceMaps": true,
+              "outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+            }
+          }
+        ],
         "configurationAttributes": {
           "attach": {
             "required": [
