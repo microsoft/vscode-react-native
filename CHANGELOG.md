@@ -1,3 +1,7 @@
+## 0.3.1
+* Fixed an issue when no .vscode folder is present in a project
+* Added support for launch.json snippets
+
 ## 0.3.0
 * Updated to use node2 debug engine instead of node. We now spawn a separate node process to run the app logic rather than using node's `vm` infrastructure.
 * Fixed support for android variants

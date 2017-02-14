@@ -96,7 +96,7 @@ suite("appWorker", function() {
                     postMessage(testResponse);`;
 
                 return workerWithScript(startScriptContents).start()
-                .then(() => Q.delay(100))
+                .then(() => Q.delay(500))
                 .then(() =>
                     assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
             });
