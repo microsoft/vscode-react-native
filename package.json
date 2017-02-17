@@ -112,7 +112,7 @@
         ],
         "configurationSnippets": [
           {
-            "label": "Debug android: Launch",
+            "label": "React Native: Debug Android",
             "description": "A new configuration for launching react-native app on android",
             "body": {
               "name": "Debug Android",
@@ -125,7 +125,7 @@
             }
           },
           {
-            "label": "Debug iOS: Launch",
+            "label": "React Native: Debug iOS",
             "description": "A new configuration for launching react-native app on iOS",
             "body": {
               "name": "Debug iOS",
@@ -139,7 +139,7 @@
             }
           },
           {
-            "label": "Attach to packager: Attach",
+            "label": "React Native: Attach to packager",
             "description": "A new configuration for attaching to packager",
             "body": {
               "name": "Attach to packager",
@@ -151,7 +151,7 @@
             }
           },
           {
-            "label": "Debug in Exponent: Launch",
+            "label": "React Native: Debug in Exponent",
             "description": "A new configuration for launching exponent app",
             "body": {
               "name": "Debug in Exponent",
