@@ -68,7 +68,7 @@ suite("appWorker", function() {
                 return workerWithScript(startScriptContents).start().then(() => {
                     // We have not yet finished importing the script, we should not have posted a response yet
                     assert(postReplyFunction.notCalled, "postReplyFuncton called before scripts imported");
-                    return Q.delay(100);
+                    return Q.delay(500);
                 }).then(() => {
                     assert(postReplyFunction.calledWith("postImport"), "postMessage after import not handled");
                     assert(postReplyFunction.calledWith("inImport"), "postMessage not registered from within import");
