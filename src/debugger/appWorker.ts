@@ -41,7 +41,7 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
 // Initialize some variables before react-native code would access them
 var onmessage=null, self=global;
 // Cache Node's original require as __debug__.require
-var __debug__={require: require};
+global.__debug__={require: require};
 // avoid Node's GLOBAL deprecation warning
 Object.defineProperty(global, "GLOBAL", {
     configurable: true,
