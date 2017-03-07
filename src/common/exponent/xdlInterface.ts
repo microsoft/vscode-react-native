@@ -9,7 +9,7 @@ import * as XDLPackage from "xdl";
 import * as path from "path";
 import * as Q from "q";
 
-const XDL_VERSION = "0.20.0";
+const XDL_VERSION = "32.0.0";
 let xdlPackage: Q.Promise<typeof XDLPackage>;
 
 function getPackage(): Q.Promise<typeof XDLPackage> {
