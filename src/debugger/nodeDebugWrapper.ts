@@ -16,6 +16,7 @@ import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {ExtensionTelemetryReporter, ReassignableTelemetryReporter} from "../common/telemetryReporters";
 import {NodeDebugAdapterLogger} from "../common/log/loggers";
 import {Log} from "../common/log/log";
+import {LogLevel} from "../common/log/logHelper";
 import {GeneralMobilePlatform} from "../common/generalMobilePlatform";
 
 import { MultipleLifetimesAppWorker } from "./appWorker";
@@ -211,6 +212,17 @@ export function makeAdapter(debugAdapterClass: typeof Node2DebugAdapterPackage.N
             // to set up breakpoints on initial pause event
             this._attachMode = false;
             return super.doAttach(port, targetUrl, address, timeout);
+        }
+
+        public setBreakpoints(args: any, requestSeq: number, ids?: number[]): Promise<Node2DebugAdapterPackage.ISetBreakpointsResponseBody> {
+            // We need to overwrite ChromeDebug's setBreakpoints to get rid unhandled rejections
+            // when breakpoints are being set up unsuccessfully
+            return super.setBreakpoints(args, requestSeq, ids).catch((err) => {
+                Log.logInternalMessage(LogLevel.Error, err.message);
+                return {
+                    breakpoints: [],
+                };
+            });
         }
     };
 }
