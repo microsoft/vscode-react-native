@@ -39,10 +39,16 @@ function printDebuggingError(message: string, reason: any) {
 export class MultipleLifetimesAppWorker extends EventEmitter {
     public static WORKER_BOOTSTRAP = `
 // Initialize some variables before react-native code would access them
-// and also avoid Node's GLOBAL deprecation warning
-var onmessage=null, self=global.GLOBAL=global;
+var onmessage=null, self=global;
 // Cache Node's original require as __debug__.require
-var __debug__={require: require};
+global.__debug__={require: require};
+// avoid Node's GLOBAL deprecation warning
+Object.defineProperty(global, "GLOBAL", {
+    configurable: true,
+    writable: true,
+    enumerable: true,
+    value: global
+});
 process.on("message", function(message){
     if (onmessage) onmessage(message);
 });
