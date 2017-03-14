@@ -28,7 +28,7 @@ interface IHasErrorCode {
 export abstract class TelemetryGeneratorBase {
     protected telemetryProperties: ICommandTelemetryProperties = {};
     private componentName: string;
-    private currentStepStartTime: number[];
+    private currentStepStartTime: [number, number];
     private currentStep: string = "initialStep";
     private errorIndex: number = -1; // In case we have more than one error (We start at -1 because we increment it before using it)
 
@@ -76,7 +76,7 @@ export abstract class TelemetryGeneratorBase {
     }
 
     public time<T>(name: string, codeToMeasure: { (): Thenable<T>|T }): Q.Promise<T> {
-        let startTime: number[] = process.hrtime();
+        let startTime: [number, number] = process.hrtime();
         return Q(codeToMeasure())
         .finally(() => this.finishTime(name, startTime))
         .fail((reason: any): Q.Promise<T> => {
@@ -132,8 +132,8 @@ export abstract class TelemetryGeneratorBase {
         return nonNullComponents.join(".");
     }
 
-    private finishTime(name: string, startTime: number[]): void {
-        let endTime: number[] = process.hrtime(startTime);
+    private finishTime(name: string, startTime: [number, number]): void {
+        let endTime: [number, number] = process.hrtime(startTime);
         this.add(this.combine(name, "time"), String(endTime[0] * 1000 + endTime[1] / 1000000), /*isPii*/ false);
     }
 }
@@ -230,7 +230,7 @@ export class TelemetryHelper {
         }
     }
 
-    private static addMultiValuedTelemetryEventProperty(event: Telemetry.TelemetryEvent, propertyName: string, propertyValue: string, isPii: boolean): void {
+    private static addMultiValuedTelemetryEventProperty(event: Telemetry.TelemetryEvent, propertyName: string, propertyValue: any, isPii: boolean): void {
         for (let i: number = 0; i < propertyValue.length; i++) {
             TelemetryHelper.setTelemetryEventProperty(event, propertyName + i, propertyValue[i], isPii);
         }

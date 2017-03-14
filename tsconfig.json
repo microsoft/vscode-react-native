@@ -4,11 +4,13 @@
         // We need to set ES6 target otherwise instantiating ChromeDebugSession
         // throws "Class constructor ChromeDebugSession cannot be invoked without 'new'" at runtime
         "target": "es6",
+        "lib": [
+            "es2015"
+        ],
         "outDir": "out",
-        "noLib": true,
         "sourceMap": true,
         "rootDir": "src",
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "removeComments": false,
         "noFallthroughCasesInSwitch": true
     },

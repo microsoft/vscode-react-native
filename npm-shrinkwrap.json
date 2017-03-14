@@ -1,6 +1,6 @@
 {
   "name": "vscode-react-native",
-  "version": "0.1.6",
+  "version": "0.3.1",
   "dependencies": {
     "amdefine": {
       "version": "1.0.0",

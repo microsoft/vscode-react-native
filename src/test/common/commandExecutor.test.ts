@@ -42,7 +42,7 @@ suite("commandExecutor", function() {
 
             return ce.execute("bar")
                 .then(() => {
-                    assert.fail("bar should not be a valid command");
+                    assert.fail(null, null, "bar should not be a valid command", null);
                 })
                 .catch((reason) => {
                     console.log(reason.message);
@@ -56,7 +56,7 @@ suite("commandExecutor", function() {
 
             return ce.execute("node install bad-package")
                 .then(() => {
-                    assert.fail("node should not be able to install bad-package");
+                    assert.fail(null, null, "node should not be able to install bad-package", null);
                 })
                 .catch((reason) => {
                     console.log(reason.message);
