@@ -147,7 +147,8 @@ postMessage({workerLoaded:true});`;
                      * it closes the socket because it already has a connection to a debugger.
                      * https://github.com/facebook/react-native/blob/588f01e9982775f0699c7bfd56623d4ed3949810/local-cli/server/util/webSocketProxy.js#L38
                      */
-                    if (this.socketToApp._closeMessage === "Another debugger is already connected") {
+                    let msgKey = "_closeMessage";
+                    if (this.socketToApp[msgKey] === "Another debugger is already connected") {
                         deferred.reject(new RangeError("Another debugger is already connected to packager. Please close it before trying to debug with VSCode."));
                     }
                     Log.logMessage("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon...");

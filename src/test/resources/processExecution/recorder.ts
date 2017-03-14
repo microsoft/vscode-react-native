@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as child_process from "child_process";
 import * as events from "events";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import child_process = require("child_process");
 
 import {ITimedEvent,
     IEventArguments,

@@ -45,7 +45,7 @@ gulp.task('build', ["check-imports", "check-copyright"], function (callback) {
     return tsProject.src()
         .pipe(preprocess({ context: preprocessorContext })) //To set environment variables in-line
         .pipe(sourcemaps.init())
-        .pipe(ts(tsProject))
+        .pipe(tsProject())
         .on('error', function (e) {
             callback(e);
         })

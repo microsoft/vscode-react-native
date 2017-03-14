@@ -16,14 +16,16 @@ export class ChildProcess extends events.EventEmitter implements child_process.C
     public stdout: stream.Readable = <stream.Readable>new Stream();
     public stderr: stream.Readable = <stream.Readable>new Stream();
     public pid: number; // Not yet implemented
+    public connected: boolean;
     public stdio: [stream.Writable, stream.Readable, stream.Readable]; // Not yet implemented
 
     public kill(signal?: string): void {
         this.notYetImplemented();
     }
 
-    public send(message: any, sendHandle?: any): void {
+    public send(message: any, sendHandle?: any): boolean {
         this.notYetImplemented();
+        return false;
     }
 
     public disconnect(): void {
@@ -31,6 +33,10 @@ export class ChildProcess extends events.EventEmitter implements child_process.C
     }
 
     public unref(): void {
+        this.notYetImplemented();
+    }
+
+    public ref(): void {
         this.notYetImplemented();
     }
 

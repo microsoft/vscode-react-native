@@ -54,7 +54,7 @@ suite("appWorker", function() {
 
                 return workerWithScript(startScriptContents).start()
                 .then(() =>
-                    Q.delay(100))
+                    Q.delay(1000))
                 .then(() =>
                     assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
             });
@@ -83,7 +83,7 @@ suite("appWorker", function() {
                 return worker.start().then(() => {
                     assert(postReplyFunction.notCalled, "postRepyFunction called before message sent");
                     worker.postMessage(testMessage);
-                    return Q.delay(100);
+                    return Q.delay(1000);
                 }).then(() => {
                     assert(postReplyFunction.calledWith({ data: testMessage }), "No echo back from app");
                 });

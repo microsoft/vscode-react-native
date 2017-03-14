@@ -55,8 +55,8 @@ export module Telemetry {
      * This event will include a property called reserved.activity.duration which represents time in milliseconds.
      */
     export class TelemetryActivity extends TelemetryEvent {
-        private startTime: number[];
-        private endTime: number[];
+        private startTime: [number, number];
+        private endTime: [number, number];
 
         constructor(name: string, properties?: ITelemetryProperties) {
             super(name, properties);
