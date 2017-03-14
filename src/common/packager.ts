@@ -3,6 +3,7 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
+import {ExponentHelper} from "./exponent/exponentHelper";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 import {Log} from "./log/log";
@@ -194,10 +195,25 @@ export class Packager {
                             if (resetCache) {
                                 args = args.concat("--resetCache");
                             }
-                            if (runAs === PackagerRunAs.EXPONENT) {
-                                args = args.concat(["--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode"))]);
+
+                            if (runAs !== PackagerRunAs.EXPONENT) {
+                                 return args;
                             }
 
+                            args = args.concat(["--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode"))]);
+                            let helper = new ExponentHelper(this.workspacePath, this.projectPath);
+                            return helper.getExponentPackagerOptions()
+                            .then((options) => {
+                                return Object.keys(options).reduce((args, key) => {
+                                    return args.concat(["--" + key, options[key]]);
+                                }, args);
+                            })
+                            .catch(() =>  {
+                                Log.logWarning("Couldn't read packager's options from exp.json, continue...");
+                                return args;
+                            });
+                         })
+                        .then((args) => {
                             let reactNativeProjectHelper = new ReactNativeProjectHelper(this.projectPath);
                             reactNativeProjectHelper.getReactNativeVersion().then(version => {
 

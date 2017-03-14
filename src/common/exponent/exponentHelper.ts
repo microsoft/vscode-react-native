@@ -105,6 +105,11 @@ export class ExponentHelper {
             });
     }
 
+    public getExponentPackagerOptions(): Q.Promise<any> {
+        this.lazilyInitialize();
+        return this.readFromExpJson<string>("packagerOpts");
+    }
+
     /**
      * File used as an entrypoint for exponent. This file's component should be registered as "main"
      * in the AppRegistry and should only render a entrypoint component.
