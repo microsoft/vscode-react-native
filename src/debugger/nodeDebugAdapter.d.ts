@@ -50,8 +50,42 @@ declare module ChromeDebuggerCorePackage {
 }
 
 declare module Node2DebugAdapterPackage {
+
+    type ChecksumAlgorithm = "MD5" | "SHA1" | "SHA256" | "timestamp";
+
+    interface Checksum {
+        algorithm: ChecksumAlgorithm;
+        checksum: string;
+    }
+
+    interface Source {
+        name?: string;
+        path?: string;
+        sourceReference?: number;
+        presentationHint?: "emphasize" | "deemphasize";
+        origin?: string;
+        adapterData?: any;
+        checksums?: Checksum[];
+    }
+
+    interface Breakpoint {
+        id?: number;
+        verified: boolean;
+        message?: string;
+        source?: Source;
+        line?: number;
+        column?: number;
+        endLine?: number;
+        endColumn?: number;
+    }
+
+    interface ISetBreakpointsResponseBody {
+        breakpoints: Breakpoint[];
+    }
+
     class Node2DebugAdapter extends ChromeDebuggerCorePackage.ChromeDebugAdapter {
         protected doAttach(port: number, targetUrl?: string, address?: string, timeout?: number): Promise<void>;
+        public setBreakpoints(args: any, requestSeq: number, ids?: number[]): Promise<ISetBreakpointsResponseBody>;
     }
 }
 
