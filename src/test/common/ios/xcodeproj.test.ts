@@ -31,5 +31,30 @@ suite("xcodeproj", function() {
                     });
                 });
         });
+        test("should look in the correct location for xcodeproj/xcworkspace files and prefer xcworkspace over xcodeproj", function() {
+            const projectRoot = path.join("/", "tmp", "myProject");
+            const projectName = "foo";
+            const xcodeprojFileType = ".xcodeproj";
+            const xcworkspaceFileType = ".xcworkspace";
+            const xcodeprojFileName = projectName + xcodeprojFileType;
+            const xcworkspaceFileName = projectName + xcworkspaceFileType;
+            const testFiles = [xcodeprojFileName, xcworkspaceFileName];
+            const mockFileSystem: any = {
+                readDir: (path: string) => {
+                    return Q(testFiles);
+                },
+            };
+
+            const xcodeproj = new Xcodeproj({ nodeFileSystem: mockFileSystem });
+
+            return xcodeproj.findXcodeprojFile(projectRoot)
+                .then((proj) => {
+                    assert.deepEqual(proj, {
+                        fileName: path.join(projectRoot, xcworkspaceFileName),
+                        fileType: xcworkspaceFileType,
+                        projectName,
+                    });
+                });
+        });
     });
 });

@@ -25,17 +25,23 @@ export class Xcodeproj {
         return this.nodeFileSystem
             .readDir(projectRoot)
             .then((files: string[]): IXcodeProjFile => {
+                const extensions = [".xcworkspace", ".xcodeproj"];
                 const sorted = files.sort();
-                const candidate = sorted.find((file: string) =>
-                    [".xcodeproj", ".xcworkspace"].indexOf(path.extname(file)) !== -1
+                const candidates = sorted.filter((file: string) =>
+                    extensions.indexOf(path.extname(file)) !== -1
+                ).sort((a, b) =>
+                    extensions.indexOf(path.extname(a)) - extensions.indexOf(path.extname(b))
                 );
-                if (!candidate) {
+
+                if (candidates.length === 0) {
                     throw new Error("Unable to find any xcodeproj or xcworkspace files.");
                 }
 
-                const fileName = path.join(projectRoot, candidate);
-                const fileType = path.extname(candidate);
-                const projectName = path.basename(candidate, fileType);
+                const bestCandidate = candidates[0];
+
+                const fileName = path.join(projectRoot, bestCandidate);
+                const fileType = path.extname(bestCandidate);
+                const projectName = path.basename(bestCandidate, fileType);
                 return {
                     fileName,
                     fileType,
