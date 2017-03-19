@@ -17,7 +17,7 @@ You can debug your code, quickly run `react-native` commands from the command pa
   1. Run `npm install -g react-native-cli` to install React Native CLI (0.1.10+)
   2. Set up React Native (0.19+) using the steps detailed on the React Native [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
 * Open your React Native project root folder in VS Code.
-  * Hint: you should create a `.babelrc` with `sourceMaps = true` and `"presets": [ "react-native" ]` for better source-mapping support. (**required if you want TypeScript support**)
+  * Hint: you should create a `.babelrc` with `sourceMaps: true` and `"presets": [ "react-native" ]` for better source-mapping support. (**required if you want TypeScript support**)
 
 ### Create a `.babelrc` file for ReactNative Packager transformer
   Create a `.babelrc` file in your React Native project root, the content of `.babelrc` at least with `sourceMaps = true`.
