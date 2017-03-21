@@ -9,7 +9,7 @@ import * as XDLPackage from "xdl";
 import * as path from "path";
 import * as Q from "q";
 
-const XDL_VERSION = "32.0.0";
+const XDL_VERSION = "36.1.0";
 let xdlPackage: Q.Promise<typeof XDLPackage>;
 
 function getPackage(): Q.Promise<typeof XDLPackage> {
@@ -70,13 +70,13 @@ export function currentUser(): Q.Promise<XDLPackage.IUser> {
 export function login(username: string, password: string): Q.Promise<XDLPackage.IUser> {
     return getPackage()
         .then((xdl) =>
-            xdl.User.loginAsync({ username: username, password: password }));
+            xdl.User.loginAsync("user-pass", { username: username, password: password }));
 }
 
 export function mapVersion(reactNativeVersion: string): Q.Promise<string> {
     return getPackage()
         .then((xdl) =>
-            xdl.Versions.facebookReactNativeVersionToExponentVersionAsync(reactNativeVersion));
+            xdl.Versions.facebookReactNativeVersionToExpoVersionAsync(reactNativeVersion));
 }
 
 export function publish(projectRoot: string, options?: XDLPackage.IPublishOptions): Q.Promise<XDLPackage.IPublishResponse> {
@@ -94,7 +94,7 @@ export function setOptions(projectRoot: string, options?: XDLPackage.IOptions): 
 export function startExponentServer(projectRoot: string): Q.Promise<void> {
     return getPackage()
         .then((xdl) =>
-            xdl.Project.startExponentServerAsync(projectRoot));
+            xdl.Project.startExpoServerAsync(projectRoot));
 }
 
 export function startTunnels(projectRoot: string): Q.Promise<void> {

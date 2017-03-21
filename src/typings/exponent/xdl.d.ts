@@ -14,7 +14,7 @@ declare module xdl {
     }
 
     var User: {
-        loginAsync(options: ILoginOptions): Promise<IUser>;
+        loginAsync(loginType: string, options: ILoginOptions): Promise<IUser>;
         logoutAsync(): Promise<void>;
         getCurrentUserAsync(): Promise<IUser>;
     }
@@ -52,8 +52,8 @@ declare module xdl {
         stopAsync(projectRoot: string): Promise<void>;
         getUrlAsync(projectRoot: string, options?: IUrlOptions): Promise<string>;
         publishAsync(projectRoot: string, options?: IPublishOptions): Promise<IPublishResponse>;
-        startExponentServerAsync(projectRoot: string): Promise<void>;
-        stopExponentServerAsync(projectRoot: string): Promise<void>;
+        startExpoServerAsync(projectRoot: string): Promise<void>;
+        stopExpoServerAsync(projectRoot: string): Promise<void>;
         startReactNativeServerAsync(projectRoot: string, options?: IReactNativeServerOptions): Promise<void>;
         stopReactNativeServerAsync(projectRoot: string): Promise<void>;
         startTunnelsAsync(projectRoot: string): Promise<void>;
@@ -63,7 +63,7 @@ declare module xdl {
 
     var Versions: {
         facebookReactNativeVersionsAsync(): Promise<Array<string>>;
-        facebookReactNativeVersionToExponentVersionAsync(facebookReactNativeVersion: string): Promise<string>;
+        facebookReactNativeVersionToExpoVersionAsync(facebookReactNativeVersion: string): Promise<string>;
     }
 
     interface IApiConfig {
