@@ -1,3 +1,11 @@
+## 0.3.2
+* Rename launch.json snippets to make it easier to add React Native launch configurations to existing `launch.json`
+* Fix regressions in app worker introduced after moving to 'node2' debugger
+* Fix bug with loading assets in exponent and upgrade XDL
+* Prevent unhandled rejection warnings to be logged to debug console when breakpoints are not set up successfully
+* Prefer `xcworkspace` files over `xcodeproj` when launching `xcodebuild`
+* Updated README `.babelrc` instructions
+
 ## 0.3.1
 * Fixed an issue when no .vscode folder is present in a project
 * Added support for launch.json snippets
