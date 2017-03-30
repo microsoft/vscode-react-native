@@ -133,7 +133,7 @@ export class CommandPaletteHandler {
                     Log.logMessage("Application is running on Exponent.");
                     const exponentOutput = `Open your exponent app at ${exponentUrl}`;
                     Log.logMessage(exponentOutput);
-                    vscode.window.showInformationMessage(exponentOutput);
+                    vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
                 });
         }
         return this.reactNativePackager.startAsReactNative(SettingsHelper.getPackagerPort())
