@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+
 import * as qr from "qr-image";
 import { TextDocumentContentProvider, Uri, CancellationToken } from "vscode";
 
