@@ -1,6 +1,6 @@
 {
   "name": "vscode-react-native",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "dependencies": {
     "amdefine": {
       "version": "1.0.0",
@@ -31,6 +31,11 @@
       "version": "1.4.1",
       "from": "q@1.4.1",
       "resolved": "https://registry.npmjs.org/q/-/q-1.4.1.tgz"
+    },
+    "qr-image": {
+      "version": "3.2.0",
+      "from": "qr-image@>=3.2.0 <4.0.0",
+      "resolved": "https://registry.npmjs.org/qr-image/-/qr-image-3.2.0.tgz"
     },
     "semver": {
       "version": "5.1.0",
