@@ -128,19 +128,20 @@ export class ExtensionServer implements vscode.Disposable {
             }
         }).then(() =>
             this.exponentHelper.configureExponentEnvironment()
-        ).then(() =>
-            this.exponentHelper.loginToExponent(
-                (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
-                (message) => { return Q(vscode.window.showInformationMessage(message)); }
-            ))
-        .then(() => {
-            const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
-            return this.reactNativePackager.startAsExponent(portToUse);
-        })
-        .then(exponentUrl => {
-            this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
-            return exponentUrl;
-        });
+            ).then(() =>
+                this.exponentHelper.loginToExponent(
+                    (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
+                    (message) => { return Q(vscode.window.showInformationMessage(message)); }
+                ))
+            .then(() => {
+                const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
+                return this.reactNativePackager.startAsExponent(portToUse);
+            })
+            .then(exponentUrl => {
+                vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
+                this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
+                return exponentUrl;
+            });
     }
 
     /**

@@ -36,7 +36,8 @@ import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
 import {DelayedOutputChannelLogger} from "./outputChannelLogger";
-import {ExponentHelper} from "../common/exponent/exponentHelper";
+import { ExponentHelper } from "../common/exponent/exponentHelper";
+import { QRCodeContentProvider } from "./qrCodeContentProvider";
 
 /* all components use the same packager instance */
 const projectRootPath = SettingsHelper.getReactNativeProjectRoot();
@@ -80,7 +81,10 @@ export function activate(context: vscode.ExtensionContext): void {
                     ErrorHelper.getInternalError(InternalErrorCode.NodeDebuggerConfigurationFailed), () => {
                         configureNodeDebuggerLocation();
                     });
+
                 registerReactNativeCommands(context);
+                context.subscriptions.push(vscode.workspace
+                    .registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
             });
     });
 }

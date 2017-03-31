@@ -17,7 +17,7 @@
     "url": "https://github.com/Microsoft/vscode-react-native"
   },
   "engines": {
-    "vscode": "^0.10.1"
+    "vscode": "^0.10.8"
   },
   "categories": [
     "Debuggers",
@@ -250,6 +250,7 @@
     "flatten-source-map": "0.0.2",
     "options": "0.0.6",
     "q": "1.4.1",
+    "qr-image": "^3.2.0",
     "semver": "5.1.0",
     "strip-json-comments": "2.0.1",
     "typechecker": "2.0.8",
