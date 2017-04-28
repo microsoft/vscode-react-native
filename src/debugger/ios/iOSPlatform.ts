@@ -58,6 +58,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
             runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath);
 
+            // provide any defined scheme
+            if (this.runOptions.scheme) {
+                runArguments.push("--scheme", this.runOptions.scheme);
+            }
+
             const runIosSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-ios", runArguments);
             return new OutputVerifier(
                 () =>
@@ -66,7 +71,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS)).process(runIosSpawn);
         }
 
-        return new Compiler(this.iosProjectPath).compile().then(() => {
+        return new Compiler(this.runOptions, this.iosProjectPath).compile().then(() => {
             return new DeviceDeployer(this.iosProjectPath).deploy();
         }).then(() => {
             return new DeviceRunner(this.iosProjectPath).run();

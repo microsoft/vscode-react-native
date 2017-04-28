@@ -231,6 +231,10 @@
               "variant": {
                 "type": "string",
                 "description": "A variant to be passed to react-native run-android, e.g. 'devDebug' to specify --variant=devDebug"
+              },
+              "scheme": {
+                "type": "string",
+                "description": "A scheme name to be passed to react-native run-ios, e.g. 'devDebug' to specify --scheme=devDebug"
               }
             }
           }

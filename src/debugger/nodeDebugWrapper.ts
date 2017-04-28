@@ -79,6 +79,10 @@ export function makeSession(debugSessionClass: typeof ChromeDebuggerCorePackage.
                 this.mobilePlatformOptions.variant = request.arguments.variant;
             }
 
+            if (!isNullOrUndefined(request.arguments.scheme)) {
+                this.mobilePlatformOptions.scheme = request.arguments.scheme;
+            }
+
             TelemetryHelper.generate("launch", (generator) => {
                 return this.remoteExtension.getPackagerPort()
                 .then((packagerPort: number) => {
