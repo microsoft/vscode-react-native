@@ -230,7 +230,7 @@
               },
               "variant": {
                 "type": "string",
-                "description": "A variant to be passed to react-native run-android, e.g. 'devDebug' to specify --variant=devDebug"
+                "description": "A variant to be passed to react-native run-android, e.g. 'debug' to specify --variant=debug"
               }
             }
           }
