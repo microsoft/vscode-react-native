@@ -86,6 +86,10 @@ export class OutputChannelLogger implements ILogger {
         this.outputChannel.show();
     }
 
+    public getOutputChannel():OutputChannel{
+        return this.outputChannel;
+    }
+
     private getFormattedMessage(message: string) {
         return `######### ${message} ##########`;
     }

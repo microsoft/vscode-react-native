@@ -4,9 +4,9 @@
 import * as Q from "q";
 import * as vscode from "vscode";
 
-import {ChildProcess, ISpawnResult} from "../../common/node/childProcess";
-import {OutputChannelLogger} from "../outputChannelLogger";
-import {ExecutionsFilterBeforeTimestamp} from "../../common/executionsLimiter";
+import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
+import { OutputChannelLogger } from "../outputChannelLogger";
+import { ExecutionsFilterBeforeTimestamp } from "../../common/executionsLimiter";
 
 /* This class will print the LogCat messages to an Output Channel. The configuration for logcat can be cutomized in
    the .vscode/launch.json file by defining a setting named logCatArguments for the configuration being used. The
@@ -26,11 +26,14 @@ export class LogCatMonitor implements vscode.Disposable {
 
     private _logCatSpawn: ISpawnResult;
 
+    private static loggers: { [loggerName: string]: OutputChannelLogger } = {};
+
     constructor(deviceId: string, userProvidedLogCatArguments: string, { childProcess = new ChildProcess() } = {}) {
         this._deviceId = deviceId;
         this._userProvidedLogCatArguments = userProvidedLogCatArguments;
         this._childProcess = childProcess;
-        this._logger = new OutputChannelLogger(vscode.window.createOutputChannel(`LogCat - ${deviceId}`));
+
+        this._logger = LogCatMonitor.getLogger(`LogCat - ${deviceId}`);
     }
 
     public start(): Q.Promise<void> {
@@ -70,6 +73,10 @@ export class LogCatMonitor implements vscode.Disposable {
             this._logCatSpawn = null;
             logCatSpawn.spawnedProcess.kill();
         }
+
+        for (let name in LogCatMonitor.loggers) {
+            LogCatMonitor.loggers[name].getOutputChannel().dispose();
+        }
     }
 
     private getLogCatArguments(): string[] {
@@ -81,5 +88,16 @@ export class LogCatMonitor implements vscode.Disposable {
 
     private isNullOrUndefined(value: any): boolean {
         return typeof value === "undefined" || value === null;
+    }
+
+    /**
+     * Fabric method to create new output channels and reuse old
+     */
+    private static getLogger(name: string): OutputChannelLogger {
+        if (!LogCatMonitor.loggers[name]) {
+            LogCatMonitor.loggers[name] = new OutputChannelLogger(vscode.window.createOutputChannel(name));
+        }
+        LogCatMonitor.loggers[name].getOutputChannel().clear();
+        return LogCatMonitor.loggers[name];
     }
 }
