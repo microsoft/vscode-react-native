@@ -5,27 +5,27 @@
  * Formatter for the Output channel.
  */
 
-import {ILogger} from "../common/log/loggers";
-import {LogHelper, LogLevel} from "../common/log/logHelper";
-import {SettingsHelper} from "./settingsHelper";
-import {OutputChannel} from "vscode";
+import { ILogger } from "../common/log/loggers";
+import { LogHelper, LogLevel } from "../common/log/logHelper";
+import { SettingsHelper } from "./settingsHelper";
+import { OutputChannel } from "vscode";
 import * as vscode from "vscode";
 
 export class DelayedOutputChannelLogger implements ILogger {
     private outputChannelLogger: OutputChannelLogger;
 
-    constructor(private channelName: string) {}
+    constructor(private channelName: string) { }
 
     public logInternalMessage(logLevel: LogLevel, message: string) {
         this.logger.logInternalMessage(logLevel, message);
     }
 
-    public logMessage(message: string, formatMessage: boolean = true ) {
+    public logMessage(message: string, formatMessage: boolean = true) {
         this.logger.logMessage(message, formatMessage);
     }
 
     public logError(errorMessage: string, error?: any, logStack: boolean = true) {
-       this.logger.logError(errorMessage, error, logStack);
+        this.logger.logError(errorMessage, error, logStack);
     }
 
     public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
@@ -64,7 +64,7 @@ export class OutputChannelLogger implements ILogger {
         console.log(this.getFormattedInternalMessage(logLevel, message));
     }
 
-    public logMessage(message: string, formatMessage: boolean = true ) {
+    public logMessage(message: string, formatMessage: boolean = true) {
         this.outputChannel.appendLine(formatMessage ?
             this.getFormattedMessage(message) :
             message);
@@ -86,7 +86,7 @@ export class OutputChannelLogger implements ILogger {
         this.outputChannel.show();
     }
 
-    public getOutputChannel():OutputChannel{
+    public getOutputChannel(): OutputChannel {
         return this.outputChannel;
     }
 

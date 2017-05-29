@@ -74,7 +74,7 @@ export class LogCatMonitor implements vscode.Disposable {
             logCatSpawn.spawnedProcess.kill();
         }
 
-        for (let name in LogCatMonitor.loggers) {
+        for (let name of Object.keys(LogCatMonitor.loggers)) {
             LogCatMonitor.loggers[name].getOutputChannel().dispose();
         }
     }
