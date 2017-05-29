@@ -57,9 +57,7 @@ function build(callback) {
         })
         .pipe(sourcemaps.write(".", {
             includeContent: false,
-            sourceRoot: function (file) {
-                return path.relative(path.dirname(path.dirname(file.path)), __dirname + "/src");
-            }
+            sourceRoot: "."
         }))
         .pipe(gulp.dest(outPath));
 }
