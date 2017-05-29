@@ -34,10 +34,16 @@ var knownOptions = {
 
 var options = minimist(process.argv.slice(2), knownOptions);
 
+var tsProject = ts.createProject("tsconfig.json");
+
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task("build", ["check-imports", "check-copyright"], function (callback) {
+gulp.task("build", ["check-imports", "check-copyright"], build);
+
+gulp.task("quick-build", build);
+
+function build(callback) {
     var tsProject = ts.createProject("tsconfig.json");
     var isProd = options.env === "production";
     var preprocessorContext = isProd ? { PROD: true } : { DEBUG: true };
@@ -54,7 +60,7 @@ gulp.task("build", ["check-imports", "check-copyright"], function (callback) {
             sourceRoot: "."
         }))
         .pipe(gulp.dest(outPath));
-});
+}
 
 gulp.task("watch", ["build"], function (cb) {
     log("Watching build sources...");
@@ -101,7 +107,6 @@ gulp.task("test", ["build", "tslint"], test);
 gulp.task("test-no-build", test);
 
 gulp.task("check-imports", function (cb) {
-    var tsProject = ts.createProject("tsconfig.json");
     return tsProject.src()
         .pipe(imports());
 });
@@ -159,11 +164,11 @@ gulp.task("release", ["build"], function () {
             console.log("Preparing license files for release...");
             fs.writeFileSync("LICENSE.txt", fs.readFileSync("release/LICENSE.txt"));
             fs.writeFileSync("ThirdPartyNotices.txt", fs.readFileSync("release/ThirdPartyNotices.txt"));
-        }).then(()=>{
+        }).then(() => {
             console.log("Creating release package...");
             var deferred = Q.defer();
             // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.
-            executeCommand("vsce", ["package"], function (arg) { if (arg) { deferred.reject(arg);} deferred.resolve()} , {cwd: path.resolve(__dirname)});
+            executeCommand("vsce", ["package"], function (arg) { if (arg) { deferred.reject(arg); } deferred.resolve() }, { cwd: path.resolve(__dirname) });
             return deferred.promise;
         }).finally(function () {
             /* restore backed up files */
