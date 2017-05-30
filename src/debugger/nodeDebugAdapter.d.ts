@@ -24,6 +24,14 @@ declare module VSCodeDebugAdapterPackage {
         public event: string;
         public body: any;
     }
+    class ContinuedEvent extends Event {
+        public seq: number;
+        /** Must be 'event'. */
+        public type: string;
+        public body: {
+            threadId: number;
+        };
+    }
     interface Request {
         command: string;
         arguments?: any;
