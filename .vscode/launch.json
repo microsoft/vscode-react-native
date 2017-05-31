@@ -26,6 +26,22 @@
             "preLaunchTask": "quick-build"
         },
         {
+            "name": "Quick Debug Debugger",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/src/debugger/reactNativeDebugEntryPoint.ts",
+            "runtimeArgs": [
+                "--harmony"
+            ],
+            "stopOnEntry": false,
+            "args": [
+                "--server=4712"
+            ], // Use "debugServer": "4712", on launch.json of the instance to debug
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/out",
+            "preLaunchTask": "quick-build"
+        },
+        {
             "name": "Debug Debugger",
             "type": "node",
             "request": "launch",
@@ -131,6 +147,15 @@
             },
             "sourceMaps": true,
             "outDir": "${workspaceRoot}/out"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Quick Extension + Debugger",
+            "configurations": [
+                "Quick Launch Extension",
+                "Quick Debug Debugger"
+            ]
         }
     ]
 }
