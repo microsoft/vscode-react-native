@@ -256,6 +256,7 @@
     "q": "1.4.1",
     "qr-image": "^3.2.0",
     "semver": "5.1.0",
+    "source-map-resolve": "^0.5.0",
     "strip-json-comments": "2.0.1",
     "typechecker": "2.0.8",
     "ultron": "1.0.2",

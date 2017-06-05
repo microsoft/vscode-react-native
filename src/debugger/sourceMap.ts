@@ -3,6 +3,7 @@
 
 import url = require("url");
 import path = require("path");
+import { SourceMapsCombinator } from "./sourceMapsCombinator";
 
 interface ISourceMap {
     file: string;
@@ -66,6 +67,9 @@ export class SourceMapUtil {
 
                 sourceMap = require("flatten-source-map")(sourceMap);
             }
+
+            let sourceMapsCombinator = new SourceMapsCombinator();
+            sourceMap = sourceMapsCombinator.convert(sourceMap);
 
             if (sourceMap.sources) {
                 sourceMap.sources = sourceMap.sources.map(sourcePath => {
