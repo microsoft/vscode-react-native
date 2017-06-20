@@ -104,6 +104,21 @@ Here is what happens behind the scenes to enable JSX support:
 1. If there is no tsconfig.json file in the project root, one is created with `allowJs: true` to allow TypeScript to process JavaScript files.
 2. Typings for React and React Native are copied into the .vscode directory (only if they don't already exist, we check for a `react` or `react-native` directory under `.vscode/typings`)
 
+## Using flowtype
+
+In order to make intellisense understand flow type annotations follow steps below:
+
+* [Install Flow for VS Code](https://github.com/flowtype/flow-for-vscode).
+
+* Add the following configuration in `$workspace/.vscode/settings.json`
+
+```
+{
+    "javascript.validate.enable": false,
+    "flow.useNPMPackagedFlow": true
+}
+```
+
 ## Customization
 
 There are a few customizations that are supported by this extension. They can be added to your `.vscode/settings.json` if you need them.
