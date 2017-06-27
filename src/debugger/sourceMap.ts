@@ -4,15 +4,9 @@
 import url = require("url");
 import path = require("path");
 import { SourceMapsCombinator } from "./sourceMapsCombinator";
+import { RawSourceMap } from "source-map";
 
-interface ISourceMap {
-    file: string;
-    sources?: string[];
-    version: number;
-    names?: string[];
-    mappings?: string;
-    sourceRoot?: string;
-    sourcesContent?: string[];
+interface ISourceMap extends RawSourceMap {
     sections?: ISourceMapSection[];
 }
 interface ISourceMapSection {
