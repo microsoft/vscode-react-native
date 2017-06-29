@@ -8,6 +8,7 @@ import {Packager} from "../common/packager";
 import {LogLevel} from "../common/log/logHelper";
 
 export class SettingsHelper {
+    public static DEFAULT_SIMULATOR_DEVICE = "iPhone 6";
 
     /**
      * Path to the workspace settings file
@@ -92,5 +93,16 @@ export class SettingsHelper {
             }
         }
         return vscode.workspace.rootPath;
+    }
+
+    /**
+     * Get Simulator Device Name
+     */
+    public static getSimulatorDeviceName(): string {
+        const workspaceConfiguration = vscode.workspace.getConfiguration();
+        if (workspaceConfiguration.has("react-native.simulator.device_name")) {
+            return ConfigurationReader.readString(workspaceConfiguration.get("react-native.simulator.device_name"));
+        }
+        return SettingsHelper.DEFAULT_SIMULATOR_DEVICE;
     }
 }
