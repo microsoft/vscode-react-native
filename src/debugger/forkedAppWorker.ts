@@ -28,7 +28,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     private debuggeeProcess: child_process.ChildProcess = null;
     /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
     private workerLoaded = Q.defer<void>();
-    private bundleLoaded = Q.defer<void>();
+    private bundleLoaded;
 
     constructor(
         private packagerPort: number,
@@ -88,10 +88,15 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             .then(() => {
                 if (rnMessage.method !== "executeApplicationScript") {
                     // Before sending messages, make sure that the app script executed
-                    return this.bundleLoaded.promise.then(() => {
+                    if (this.bundleLoaded) {
+                        return this.bundleLoaded.promise.then(() => {
+                            return rnMessage;
+                        });
+                    } else {
                         return rnMessage;
-                    });
+                    }
                 } else {
+                    this.bundleLoaded = Q.defer<void>();
                     // When packager asks worker to load bundle we download that bundle and
                     // then set url field to point to that downloaded bundle, so the worker
                     // will take our modified bundle
