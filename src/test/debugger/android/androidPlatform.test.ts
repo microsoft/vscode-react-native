@@ -73,7 +73,7 @@ suite("androidPlatform", function () {
         function shouldHaveReceivedNoLogCatMessages(): void {
             fakeExtensionMessageSender.getAllMessagesSent().should.eql([]);
         }
-        console.log(typeof beforeEach);
+
         setup(() => {
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
