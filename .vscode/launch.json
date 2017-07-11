@@ -146,7 +146,8 @@
                 "NODE_ENV": "development"
             },
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out"
+            "outDir": "${workspaceRoot}/out",
+            "preLaunchTask": "build"
         }
     ],
     "compounds": [

@@ -3,7 +3,7 @@
 
 import * as Q from "q";
 import * as path from "path";
-import * as mockFs from "mock-fs";
+import * as rimraf from "rimraf";
 
 import {AndroidPlatform} from "../../../common/android/androidPlatform";
 import {IRunOptions} from "../../../common/launchArgs";
@@ -22,7 +22,7 @@ import "should";
 
 suite("androidPlatform", function () {
     suite("debuggerContext", function () {
-        const projectRoot = "C:/projects/SampleApplication_21/";
+        const projectRoot = "./src/test/_mock/SampleApplication_21/";
         const androidProjectPath = path.join(projectRoot, "android");
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
@@ -44,6 +44,19 @@ suite("androidPlatform", function () {
             });
         }
 
+        // Hack for extension test, it doesn't have before(Each)/after(Each) methods
+        if (typeof beforeEach !== "undefined") {
+            beforeEach(() => {
+                rimraf.sync(path.join(projectRoot, ".."));
+            });
+        }
+
+        if (typeof afterEach !== "undefined") {
+            afterEach(() => {
+                rimraf.sync(path.join(projectRoot, ".."));
+            });
+        }
+
         function shouldHaveReceivedSingleLogCatMessage(deviceId: string): void {
             const expectedMessage = { message: ExtensionMessage.START_MONITORING_LOGCAT, args: [deviceId] };
 
@@ -60,10 +73,10 @@ suite("androidPlatform", function () {
         function shouldHaveReceivedNoLogCatMessages(): void {
             fakeExtensionMessageSender.getAllMessagesSent().should.eql([]);
         }
-
+        console.log(typeof beforeEach);
         setup(() => {
             // Configure all the dependencies we'll use in our tests
-            fileSystem = new FileSystem({ fs: mockFs.fs({}) });
+            fileSystem = new FileSystem();
             adb = new AdbSimulator(fileSystem);
             simulatedAVDManager = new AVDManager(adb);
             reactNative = new ReactNative022(adb, fileSystem);
