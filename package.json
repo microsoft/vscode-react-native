@@ -4,7 +4,7 @@
   "version": "0.4.0",
   "private": true,
   "publisher": "vsmobile",
-  "icon": "images/icon.svg",
+  "icon": "images/icon.png",
   "galleryBanner": {
     "color": "#3B3738",
     "theme": "dark"
