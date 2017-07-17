@@ -32,7 +32,9 @@ export enum CommandStatus {
 }
 
 export class CommandExecutor {
-    private static ReactNativeCommand = "react-native";
+
+    private static ReactNativeGlobal = "react-native";
+    private static ReactNativeCLI = "node_modules/react-native/local-cli/cli.js";
     private static ReactNativeVersionCommand = "-v";
     private currentWorkingDirectory: string;
     private childProcess = new Node.ChildProcess();
@@ -76,7 +78,7 @@ export class CommandExecutor {
      */
     public getReactNativeVersion(): Q.Promise<string> {
         let deferred = Q.defer<string>();
-        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
+        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeGlobal);
         let output = "";
 
         const result = this.childProcess.spawn(reactCommand,
@@ -120,8 +122,8 @@ export class CommandExecutor {
      * Executes a react native command and waits for its completion.
      */
     public spawnReactCommand(command: string, args?: string[], options: Options = {}): ISpawnResult {
-        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
-        return this.spawnChildProcess(reactCommand, this.combineArguments(command, args), options);
+        const reactCommand = CommandExecutor.ReactNativeCLI;
+        return this.spawnChildProcess("node", [reactCommand, command, ...args], options);
     }
 
     /**
@@ -208,9 +210,5 @@ export class CommandExecutor {
 
     private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {
         return Q.reject<void>(ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed, command));
-    }
-
-    private combineArguments(firstArgument: string, otherArguments: string[] = []) {
-        return [firstArgument].concat(otherArguments);
     }
 }

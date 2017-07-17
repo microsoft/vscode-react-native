@@ -40,9 +40,8 @@ export class CommandPaletteHandler {
                     return this.reactNativePackager.stop();
                 }
             })
-        ).then(() =>
-            this.exponentHelper.configureReactNativeEnvironment()
-        ).then(() => this.runStartPackagerCommandAndUpdateStatus());
+        )
+        .then(() => this.runStartPackagerCommandAndUpdateStatus());
     }
 
     /**

@@ -79,15 +79,19 @@ export class Packager {
             })
             .then(() =>
                 XDL.setOptions(this.projectPath, { packagerPort: port })
-            ).then(() =>
+            )
+            .then(() =>
                 XDL.startExponentServer(this.projectPath)
-            ).then(() =>
+            )
+            .then(() =>
                 XDL.startTunnels(this.projectPath)
-            ).then(() =>
+            )
+            .then(() =>
                 XDL.getUrl(this.projectPath, { dev: true, minify: false })
             ).then(exponentUrl => {
                 return "exp://" + url.parse(exponentUrl).host;
-            }).catch(reason => {
+            })
+            .catch(reason => {
                 return Q.reject<string>(reason);
             });
     }
@@ -191,28 +195,36 @@ export class Packager {
                     executedStartPackagerCmd = true;
                     return this.monkeyPatchOpnForRNPackager()
                         .then(() => {
-                            let args = ["--port", port.toString()];
+                            let args: any = ["--port", port.toString()];
                             if (resetCache) {
                                 args = args.concat("--resetCache");
                             }
 
                             if (runAs !== PackagerRunAs.EXPONENT) {
-                                 return args;
+                                return args;
                             }
 
-                            args = args.concat(["--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode"))]);
-                            let helper = new ExponentHelper(this.workspacePath, this.projectPath);
-                            return helper.getExponentPackagerOptions()
-                            .then((options) => {
-                                return Object.keys(options).reduce((args, key) => {
-                                    return args.concat(["--" + key, options[key]]);
-                                }, args);
-                            })
-                            .catch(() =>  {
-                                Log.logWarning("Couldn't read packager's options from exp.json, continue...");
-                                return args;
-                            });
-                         })
+                            args.push("--projectRoots", this.projectPath);
+
+                            let helper = new ExponentHelper(this.projectPath);
+                            return helper.getExpPackagerOptions()
+                                .then((options) => {
+                                    Object.keys(options).forEach(key => {
+                                        args.push(`--${key}`, options[key]);
+                                    });
+
+                                    // Patch for CRNA
+                                    if (args.indexOf("--assetExts") === -1) {
+                                        args.push("--assetExts", ["ttf"]);
+                                    }
+
+                                    return args;
+                                })
+                                .catch(() => {
+                                    Log.logWarning("Couldn't read packager's options from exp.json, continue...");
+                                    return args;
+                                });
+                        })
                         .then((args) => {
                             let reactNativeProjectHelper = new ReactNativeProjectHelper(this.projectPath);
                             reactNativeProjectHelper.getReactNativeVersion().then(version => {
@@ -238,8 +250,8 @@ export class Packager {
                                 packagerSpawnResult.outcome.done(() => { }, () => { }); /* Q prints a warning if we don't call .done().
                                                                                         We ignore all outcome errors */
                                 return packagerSpawnResult.startup;
+                            });
                         });
-                    });
                 }
             })
             .then(() =>
