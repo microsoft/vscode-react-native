@@ -75,7 +75,7 @@ The **Run Android** command triggers ```react-native run-android``` and starts y
 
 The **Run iOS** command similarly triggers ```react-native run-ios``` and starts your app in iOS simulator (iPhone 6).
 
-The **Packager** commands allow you to start/stop the [**React-packager**](https://github.com/facebook/react-native/tree/master/packager).
+The **Packager** commands allow you to start/stop the [**Metro Bundler**](https://github.com/facebook/metro-bundler) (formerly React Packager).
 
 ## Using IntelliSense
 
