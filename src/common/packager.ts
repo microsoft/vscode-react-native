@@ -204,7 +204,7 @@ export class Packager {
                                 return args;
                             }
 
-                            args.push("--projectRoots", this.projectPath);
+                            args.push("--root", path.resolve(this.projectPath + "/.vscode/"));
 
                             let helper = new ExponentHelper(this.projectPath);
                             return helper.getExpPackagerOptions()
