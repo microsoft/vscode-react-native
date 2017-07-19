@@ -1,3 +1,13 @@
+## 0.4.0
+* Fixed issue with infinite loops when reloading RN app
+* Fixed compatibility issues with react-native >=0.45
+* Added more robust sourcemaps support to enable Typescript debugging
+* Added instructions to enable Flowtype intellisense
+* Fixed error "Error processing 'continue'" appearing when reloading app while staying on breakpoint
+* Added “scheme” option to `launch.json` to pass build scheme to xcodebuild
+* Improved LogCat logging - now reusing existing output channel when possible
+* Added support for displaying Expo's QR code
+
 ## 0.3.2
 * Rename launch.json snippets to make it easier to add React Native launch configurations to existing `launch.json`
 * Fix regressions in app worker introduced after moving to 'node2' debugger
