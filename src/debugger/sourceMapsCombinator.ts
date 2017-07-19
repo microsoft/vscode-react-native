@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
+import * as path from "path";
 import { SourceMapConsumer, RawSourceMap, SourceMapGenerator, MappingItem, Mapping, Position, MappedPosition } from "source-map";
 import sourceMapResolve = require("source-map-resolve");
 
@@ -55,6 +56,14 @@ export class SourceMapsCombinator {
                     // skip them
                     return;
                 }
+
+                // Resolve TS source path to absolute because it might be relative to generated JS
+                // (this depends on whether "sourceRoot" option is specified in tsconfig.json)
+                tsPosition.source = path.resolve(
+                    rawBundleSourcemap.sourceRoot,
+                    path.dirname(item.source),
+                    tsPosition.source
+                );
 
                 // Update mapping w/ mapped position values
                 mapping = {
