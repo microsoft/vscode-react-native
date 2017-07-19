@@ -45,7 +45,7 @@ export function makeSession(
             // to restart adapter's process, while we want to stay alive and don't want to interrupt connection
             // to packager.
 
-            if (event.event === "terminated" && event.body && event.body.restart === true) {
+            if (event.event === "terminated" && event.body && event.body.restart) {
 
                 // Worker has been reloaded and switched to "continue" state
                 // So we have to send "continued" event to client instead of "terminated"
