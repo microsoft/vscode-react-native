@@ -58,13 +58,12 @@ suite("sourceMap", function() {
         });
 
         test("should update the contents of a source map file", function() {
-            const sourceMapBody: string = JSON.stringify({"version": 3, "sources": ["test/index.ts"], "names": [], "mappings": "", "file": "test/index.js", "sourceRoot": "../../src"});
+            const sourceMapBody: string = JSON.stringify({"version": 3, "sources": ["test/index.ts"], "names": [], "mappings": "", "file": "test/index.js", "sourceRoot": "/Project/fuzz"});
             const scriptPath: string = "test/newIndex.ts";
-            const sourcesRootPath: string = "new/src";
-            const expectedSourceMapBody: string = JSON.stringify({"version": 3, "sources": ["../../test/index.ts"], "names": [], "mappings": "", "file": scriptPath, "sourceRoot": ""});
+            const expectedSourceMapBody: string = JSON.stringify({"version": 3, "sources": ["/Project/fuzz/test/index.ts"], "names": [], "mappings": "", "file": scriptPath, "sourceRoot": ""});
             const sourceMap = new SourceMapUtil();
 
-            const result: string = sourceMap.updateSourceMapFile(sourceMapBody, scriptPath, sourcesRootPath);
+            const result: string = sourceMap.updateSourceMapFile(sourceMapBody, scriptPath);
             assert.equal(expectedSourceMapBody, result);
         });
 
@@ -87,13 +86,14 @@ suite("sourceMap", function() {
             assert.equal(scriptBody, result);
         });
 
-        test("should update absolute source path to relative unix style path", function() {
+        test("should update absolute source path to unix style path", function() {
+            const sourcesRootPath: string = "/Project/fuzz";
             const sourcePath: string = "foo/bar";
-            const sourcesRootPath: string = "baz/fuzz";
-            const expectedPath: string = "../../foo/bar";
+            const expectedPath: string = "/Project/fuzz/foo/bar";
+            // const expectedPath: string = `${process.cwd().replace(/\\/g, "/")}/baz/fuzz/foo/bar`;
             const sourceMap = new SourceMapUtil();
 
-            const result = (<any>sourceMap).updateSourceMapPath(sourcePath, sourcesRootPath);
+            const result = (<any>sourceMap).updateSourceMapPath(sourcesRootPath, sourcePath);
             assert.equal(expectedPath, result);
         });
     });
