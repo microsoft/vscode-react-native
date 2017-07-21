@@ -6,6 +6,8 @@ import path = require("path");
 import { SourceMapsCombinator } from "./sourceMapsCombinator";
 import { RawSourceMap } from "source-map";
 
+const IS_REMOTE = /^[a-zA-z]{2,}:\/\//; // Detection remote sources or specific protocols (like "webpack:///")
+
 interface ISourceMap extends RawSourceMap {
     sections?: ISourceMapSection[];
 }
@@ -67,7 +69,7 @@ export class SourceMapUtil {
 
             if (sourceMap.sources) {
                 sourceMap.sources = sourceMap.sources.map(sourcePath => {
-                    return this.updateSourceMapPath(sourcePath, sourcesRootPath);
+                    return IS_REMOTE.test(sourcePath) ? sourcePath : this.updateSourceMapPath(sourcePath, sourcesRootPath);
                 });
             }
 

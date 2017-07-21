@@ -48,6 +48,19 @@ You can modify these configurations or add new ones to the list. You can use oth
 
 For example, you can modify the `target` field to specify the simulator you want to target for iOS debugging.
 
+### Debugging with Typescript and Haul
+If you use Haul instead react-native packager, you have to add `sourceMapPathOverrides` option to `launch.json`
+
+For example:
+```
+"sourceMapPathOverrides": {
+    "webpack:///./~/*":   "${workspaceRoot}/node_modules/*",
+    "webpack:///./*":   "${workspaceRoot}/*",
+    "webpack:///*":     "*"
+}
+```
+See more about source map overrides [here](https://github.com/Microsoft/vscode-node-debug2#sourcemappathoverrides)
+
 ### Start debug session
 To start the debug session, select a configuration from the Configuration dropdown, and then click the start button ![Configure-gear](images/debug-icon.png) (or press F5).
 
