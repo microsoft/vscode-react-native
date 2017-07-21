@@ -6,8 +6,7 @@ import path = require("path");
 import { SourceMapsCombinator } from "./sourceMapsCombinator";
 import { RawSourceMap } from "source-map";
 
-const IS_REMOTE = /^[a-zA-z]*:\/\//; // Detection remote sources or specific protocols (like "webpack:///")
-const BK_SLASHES = /\\/g;
+const IS_REMOTE = /^[a-zA-z]{2,}:\/\//; // Detection remote sources or specific protocols (like "webpack:///")
 
 interface ISourceMap extends RawSourceMap {
     sections?: ISourceMapSection[];
@@ -50,7 +49,7 @@ export class SourceMapUtil {
      * @parameter scriptPath - path of the script file asssociated with this source map.
      *
      */
-    public updateSourceMapFile(sourceMapBody: string, scriptPath: string): string {
+    public updateSourceMapFile(sourceMapBody: string, scriptPath: string, sourcesRootPath: string): string {
         try {
             let sourceMap = <ISourceMap>JSON.parse(sourceMapBody);
 
@@ -69,11 +68,7 @@ export class SourceMapUtil {
 
             if (sourceMap.sources) {
                 sourceMap.sources = sourceMap.sources.map(sourcePath => {
-                    if (IS_REMOTE.test(sourcePath) || path.isAbsolute(sourcePath)) {
-                        return sourcePath;
-                    } else {
-                        return this.updateSourceMapPath(sourceMap.sourceRoot, sourcePath);
-                    }
+                    return IS_REMOTE.test(sourcePath) ? sourcePath : this.updateSourceMapPath(sourcePath);
                 });
             }
 
@@ -100,8 +95,8 @@ export class SourceMapUtil {
      * 1. It changes the path from absolute to be relative to the sourcesRootPath parameter.
      * 2. It changes the path separators to Unix style.
      */
-    private updateSourceMapPath(sourcesRootPath: string, sourcePath: string, ) {
-        let relativeSourcePath = path.resolve(sourcesRootPath, sourcePath);
+    private updateSourceMapPath(sourcePath: string, sourcesRootPath: string) {
+        let relativeSourcePath = path.relative(sourcesRootPath, sourcePath);
         return this.makeUnixStylePath(relativeSourcePath);
     }
 
@@ -110,7 +105,8 @@ export class SourceMapUtil {
      * This method replaces all back-slash characters in a given string with forward-slash ones.
      */
     private makeUnixStylePath(p: string): string {
-        return p.replace(BK_SLASHES, "/");
+        let pathArgs = p.split(path.sep);
+        return path.posix.join.apply(null, pathArgs);
     }
 
     /**

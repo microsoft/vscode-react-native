@@ -56,11 +56,10 @@ For example:
 "sourceMapPathOverrides": {
     "webpack:///./~/*":   "${workspaceRoot}/node_modules/*",
     "webpack:///./*":   "${workspaceRoot}/*",
-    "webpack:///*":     "*",
-    "meteor://💻app/*": "${workspaceRoot}/*"
+    "webpack:///*":     "*"
 }
 ```
-See more about [vscode-node-debug2](https://github.com/Microsoft/vscode-node-debug2#sourcemappathoverrides)
+See more about source map overrides [here](https://github.com/Microsoft/vscode-node-debug2#sourcemappathoverrides)
 
 ### Start debug session
 To start the debug session, select a configuration from the Configuration dropdown, and then click the start button ![Configure-gear](images/debug-icon.png) (or press F5).
