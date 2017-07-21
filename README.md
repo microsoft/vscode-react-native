@@ -49,7 +49,7 @@ You can modify these configurations or add new ones to the list. You can use oth
 For example, you can modify the `target` field to specify the simulator you want to target for iOS debugging.
 
 ### Debugging with Typescript and Haul
-If you use Haul instead react-native packager, you have to add `sourceMapPathOverrides` option in `launch.json`
+If you use Haul instead react-native packager, you have to add `sourceMapPathOverrides` option to `launch.json`
 
 For example:
 ```
