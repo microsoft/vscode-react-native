@@ -48,6 +48,19 @@ You can modify these configurations or add new ones to the list. You can use oth
 
 For example, you can modify the `target` field to specify the simulator you want to target for iOS debugging.
 
+### Debugging with Typescript and Haul
+If you use Haul instead react-native packager, you have to add `sourceMapPathOverrides` option to `launch.json`
+
+For example:
+```
+"sourceMapPathOverrides": {
+    "webpack:///./~/*":   "${workspaceRoot}/node_modules/*",
+    "webpack:///./*":   "${workspaceRoot}/*",
+    "webpack:///*":     "*"
+}
+```
+See more about source map overrides [here](https://github.com/Microsoft/vscode-node-debug2#sourcemappathoverrides)
+
 ### Start debug session
 To start the debug session, select a configuration from the Configuration dropdown, and then click the start button ![Configure-gear](images/debug-icon.png) (or press F5).
 
@@ -60,10 +73,9 @@ More information about debugging using VS Code can be found in this [guide](http
 #### Debugging on iOS device
 Debugging on iOS device would require following manual steps.
 * You need to install [ideviceinstaller](https://github.com/libimobiledevice/ideviceinstaller) `brew install ideviceinstaller`
-* In your launch.json file, set target to "device"
-* Change the `jsCodeLocation` IP in your app using the steps detailed [here](https://facebook.github.io/react-native/docs/running-on-device-ios.html#accessing-development-server-from-device).
+* In your launch.json file, set target to "device" in iOS debugging configuration
 * Choose **Debug iOS** configuration from the Configuration dropdown and press F5.
-* Shake the device to open development menu and select "Debug in Chrome".
+* Shake the device to open development menu and select "Debug JS Remotely".
 
 ## Using React Native commands in the Command Palette
 

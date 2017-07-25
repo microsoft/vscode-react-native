@@ -1,10 +1,10 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "private": true,
   "publisher": "vsmobile",
-  "icon": "images/icon.svg",
+  "icon": "images/icon.png",
   "galleryBanner": {
     "color": "#3B3738",
     "theme": "dark"
@@ -183,6 +183,10 @@
                 "type": "string",
                 "description": "The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
                 "default": null
+              },
+              "sourceMapPathOverrides": {
+                "type": "object",
+                "description": "A set of mappings for rewriting the locations of source files from what the sourcemap says, to their locations on disk. See README for details."
               }
             }
           },
