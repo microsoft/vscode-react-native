@@ -28,6 +28,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     private debuggeeProcess: child_process.ChildProcess = null;
     /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
     private workerLoaded = Q.defer<void>();
+    private bundleLoaded;
 
     constructor(
         private packagerPort: number,
@@ -84,19 +85,30 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     public postMessage(rnMessage: RNAppMessage): void {
         // Before sending messages, make sure that the worker is loaded
         this.workerLoaded.promise
-        .then(() => {
-            if (rnMessage.method !== "executeApplicationScript") return Q.resolve(rnMessage);
-
-            // When packager asks worker to load bundle we download that bundle and
-            // then set url field to point to that downloaded bundle, so the worker
-            // will take our modified bundle
-            Log.logInternalMessage(LogLevel.Info, "Packager requested runtime to load script from " + rnMessage.url);
-            return this.scriptImporter.downloadAppScript(rnMessage.url)
-                .then(downloadedScript => {
-                    return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
-                });
-        })
-        .done((message: RNAppMessage) => this.debuggeeProcess.send({ data: message }),
+            .then(() => {
+                if (rnMessage.method !== "executeApplicationScript") {
+                    // Before sending messages, make sure that the app script executed
+                    if (this.bundleLoaded) {
+                        return this.bundleLoaded.promise.then(() => {
+                            return rnMessage;
+                        });
+                    } else {
+                        return rnMessage;
+                    }
+                } else {
+                    this.bundleLoaded = Q.defer<void>();
+                    // When packager asks worker to load bundle we download that bundle and
+                    // then set url field to point to that downloaded bundle, so the worker
+                    // will take our modified bundle
+                    Log.logInternalMessage(LogLevel.Info, "Packager requested runtime to load script from " + rnMessage.url);
+                    return this.scriptImporter.downloadAppScript(rnMessage.url)
+                        .then(downloadedScript => {
+                            this.bundleLoaded.resolve(void 0);
+                            return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
+                        });
+                }
+            })
+            .done((message: RNAppMessage) => this.debuggeeProcess.send({ data: message }),
             reason => printDebuggingError(`Couldn't import script at <${rnMessage.url}>`, reason));
     }
 }

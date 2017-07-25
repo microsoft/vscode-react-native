@@ -48,6 +48,19 @@ You can modify these configurations or add new ones to the list. You can use oth
 
 For example, you can modify the `target` field to specify the simulator you want to target for iOS debugging.
 
+### Debugging with Typescript and Haul
+If you use Haul instead react-native packager, you have to add `sourceMapPathOverrides` option to `launch.json`
+
+For example:
+```
+"sourceMapPathOverrides": {
+    "webpack:///./~/*":   "${workspaceRoot}/node_modules/*",
+    "webpack:///./*":   "${workspaceRoot}/*",
+    "webpack:///*":     "*"
+}
+```
+See more about source map overrides [here](https://github.com/Microsoft/vscode-node-debug2#sourcemappathoverrides)
+
 ### Start debug session
 To start the debug session, select a configuration from the Configuration dropdown, and then click the start button ![Configure-gear](images/debug-icon.png) (or press F5).
 
@@ -73,7 +86,7 @@ The **Run Android** command triggers ```react-native run-android``` and starts y
 
 The **Run iOS** command similarly triggers ```react-native run-ios``` and starts your app in iOS simulator (iPhone 6).
 
-The **Packager** commands allow you to start/stop the [**React-packager**](https://github.com/facebook/react-native/tree/master/packager).
+The **Packager** commands allow you to start/stop the [**Metro Bundler**](https://github.com/facebook/metro-bundler) (formerly React Packager).
 
 ## Using IntelliSense
 
@@ -101,6 +114,29 @@ Once you have enabled IntelliSense by following the above steps, you can start t
 Here is what happens behind the scenes to enable JSX support:
 1. If there is no tsconfig.json file in the project root, one is created with `allowJs: true` to allow TypeScript to process JavaScript files.
 2. Typings for React and React Native are copied into the .vscode directory (only if they don't already exist, we check for a `react` or `react-native` directory under `.vscode/typings`)
+
+## Using Flowtype
+
+In order to make intellisense understand Flow type annotations follow steps below:
+
+* Install Flow npm package
+
+```
+$ npm install --global flow-bin
+```
+
+* [Install Flow for VS Code](https://github.com/flowtype/flow-for-vscode).
+
+* Add the following configuration in `$workspace/.vscode/settings.json`
+
+```
+{
+    "javascript.validate.enable": false,
+    "flow.useNPMPackagedFlow": true
+}
+```
+
+* **Note:** Be sure your project have a `.flowconfig` file.
 
 ## Customization
 

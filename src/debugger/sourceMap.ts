@@ -3,15 +3,12 @@
 
 import url = require("url");
 import path = require("path");
+import { SourceMapsCombinator } from "./sourceMapsCombinator";
+import { RawSourceMap } from "source-map";
 
-interface ISourceMap {
-    file: string;
-    sources?: string[];
-    version: number;
-    names?: string[];
-    mappings?: string;
-    sourceRoot?: string;
-    sourcesContent?: string[];
+const IS_REMOTE = /^[a-zA-z]{2,}:\/\//; // Detection remote sources or specific protocols (like "webpack:///")
+
+interface ISourceMap extends RawSourceMap {
     sections?: ISourceMapSection[];
 }
 interface ISourceMapSection {
@@ -67,9 +64,12 @@ export class SourceMapUtil {
                 sourceMap = require("flatten-source-map")(sourceMap);
             }
 
+            let sourceMapsCombinator = new SourceMapsCombinator();
+            sourceMap = sourceMapsCombinator.convert(sourceMap);
+
             if (sourceMap.sources) {
                 sourceMap.sources = sourceMap.sources.map(sourcePath => {
-                    return this.updateSourceMapPath(sourcePath, sourcesRootPath);
+                    return IS_REMOTE.test(sourcePath) ? sourcePath : this.updateSourceMapPath(sourcePath, sourcesRootPath);
                 });
             }
 
