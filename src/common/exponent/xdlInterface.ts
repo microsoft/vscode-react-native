@@ -35,7 +35,7 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
     }
     let commandExecutor = new CommandExecutor();
     xdlPackage = commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"),
-        ["install", EXPO_DEPS.join(", "), "--verbose"],
+        ["install", EXPO_DEPS.join(" "), "--verbose"],
         { verbosity: CommandVerbosity.PROGRESS,
           cwd: path.dirname(require.resolve("../../../"))})
         .then((): typeof XDLPackage => {
@@ -103,7 +103,7 @@ export function startExponentServer(projectRoot: string): Q.Promise<void> {
 
 export function startTunnels(projectRoot: string): Q.Promise<void> {
     return getPackage()
-        .then((xdl: any) =>
+        .then((xdl) =>
             xdl.Project.startTunnelsAsync(projectRoot));
 }
 

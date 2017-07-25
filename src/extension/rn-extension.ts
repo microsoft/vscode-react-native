@@ -44,7 +44,7 @@ const projectRootPath = SettingsHelper.getReactNativeProjectRoot();
 const workspaceRootPath = vscode.workspace.rootPath;
 const globalPackager = new Packager(workspaceRootPath, projectRootPath);
 const packagerStatusIndicator = new PackagerStatusIndicator();
-const globalExponentHelper = new ExponentHelper(projectRootPath);
+const globalExponentHelper = new ExponentHelper(workspaceRootPath, projectRootPath);
 const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper);
 
 const outputChannelLogger = new DelayedOutputChannelLogger("React-Native");

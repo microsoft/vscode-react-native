@@ -5,18 +5,17 @@
 
 import * as path from "path";
 import * as Q from "q";
-import stripJSONComments = require("strip-json-comments");
-
 import * as XDL from "./xdlInterface";
 import { Package } from "../node/package";
 import { ReactNativeProjectHelper } from "../reactNativeProjectHelper";
 import { FileSystem } from "../node/fileSystem";
 import { Log } from "../log/log";
+import stripJSONComments = require("strip-json-comments");
 
 const APP_JSON = "app.json";
 const EXP_JSON = "exp.json";
 
-const EXPONENT_INDEX = "./.vscode/exponentIndex.js";
+const EXPONENT_INDEX = "exponentIndex.js";
 const DEFAULT_EXPONENT_INDEX = "index.js";
 const DEFAULT_IOS_INDEX = "index.ios.js";
 const DEFAULT_ANDROID_INDEX = "index.android.js";
@@ -24,11 +23,13 @@ const DEFAULT_ANDROID_INDEX = "index.android.js";
 const DBL_SLASHES = /\\/g;
 
 export class ExponentHelper {
+    private workspaceRootPath: string;
     private projectRootPath: string;
     private fs: FileSystem;
     private hasInitialized: boolean;
 
-    public constructor(projectRootPath: string) {
+    public constructor(workspaceRootPath: string, projectRootPath: string) {
+        this.workspaceRootPath = workspaceRootPath;
         this.projectRootPath = projectRootPath;
         this.hasInitialized = false;
         // Constructor is slim by design. This is to add as less computation as possible
@@ -80,12 +81,19 @@ export class ExponentHelper {
             .then(opts => opts || {});
     }
 
+    /**
+     * Path to a given file inside the .vscode directory
+     */
+    private dotvscodePath(filename: string): string {
+        return path.join(this.workspaceRootPath, ".vscode", filename);
+    }
+
     private createExpoEntry(name: string): Q.Promise<void> {
         this.lazilyInitialize();
         return this.detectEntry()
             .then((entryPoint: string) => {
                 const content = this.generateFileContent(name, entryPoint);
-                return this.fs.writeFile(this.pathToFileInWorkspace(EXPONENT_INDEX), content);
+                return this.fs.writeFile(this.dotvscodePath(EXPONENT_INDEX), content);
             });
 
     }
@@ -97,7 +105,7 @@ export class ExponentHelper {
             this.fs.exists(this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)),
             this.fs.exists(this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX)),
         ])
-        .spread((expo: boolean, ios: boolean, android: boolean): string => {
+        .spread((expo: boolean, ios: boolean): string => {
             return expo ? this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX) :
                 ios ? this.pathToFileInWorkspace(DEFAULT_IOS_INDEX) :
                 this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX);
@@ -119,6 +127,10 @@ AppRegistry.registerRunnable('main', function(appParameters) {
 
     private patchAppJson(isExpo: boolean = true): Q.Promise<void> {
         return this.readAppJson()
+            .catch(() => {
+                // if app.json doesn't exist but it's ok, we will create it
+                return {};
+            })
             .then((config: AppJson) => {
                 let expoConfig = <ExpConfig>(config.expo || {});
                 if (!expoConfig.name || !expoConfig.slug) {
@@ -145,7 +157,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
             })
             .then((config: AppJson) => {
                 if (!isExpo) {
-                    config.expo.entryPoint = this.pathToFileInWorkspace(EXPONENT_INDEX);
+                    config.expo.entryPoint = this.dotvscodePath(EXPONENT_INDEX);
                 }
 
                 return config;
