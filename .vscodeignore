@@ -4,6 +4,7 @@
 .vscode-test/**
 .gitignore
 src/**
+test/**
 out/test/**
 **/*.js.map
 SampleApplication/**
@@ -19,4 +20,3 @@ release/**
 .npmignore
 npm-shrinkwrap.json
 typings
-.idea

@@ -273,6 +273,7 @@
     "@types/q": "^1.0.2",
     "@types/should": "^8.3.0",
     "@types/source-map": "^0.5.0",
+    "del": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-mocha": "^2.2.0",
     "gulp-preprocess": "^2.0.0",
