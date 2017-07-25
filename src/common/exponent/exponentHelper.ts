@@ -77,7 +77,7 @@ export class ExponentHelper {
 
     public getExpPackagerOptions(): Q.Promise<ExpConfigPackager> {
         this.lazilyInitialize();
-        return this.getFromExpConfig<ExpConfigPackager>("packagerOpts")
+        return this.getFromExpConfig("packagerOpts")
             .then(opts => opts || {});
     }
 
@@ -222,7 +222,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
             });
     }
 
-    private getFromExpConfig<T>(key: string): Q.Promise<T> {
+    private getFromExpConfig(key: string): Q.Promise<any> {
         return this.getExpConfig()
             .then((config: ExpConfig) => config[key]);
     }

@@ -61,43 +61,43 @@ export function attachLoggerStream(rootPath: string, options?: XDLPackage.IBunya
 
 export function supportedVersions(): Q.Promise<string[]> {
     return getPackage()
-        .then((xdl: any) =>
+        .then((xdl) =>
             xdl.Versions.facebookReactNativeVersionsAsync());
 }
 
 export function currentUser(): Q.Promise<XDLPackage.IUser> {
     return getPackage()
-        .then((xdl: any) =>
+        .then((xdl) =>
             xdl.User.getCurrentUserAsync());
 }
 
 export function login(username: string, password: string): Q.Promise<XDLPackage.IUser> {
     return getPackage()
-        .then((xdl: any) =>
+        .then((xdl) =>
             xdl.User.loginAsync("user-pass", { username: username, password: password }));
 }
 
 export function mapVersion(reactNativeVersion: string): Q.Promise<string> {
     return getPackage()
-        .then((xdl: any) =>
+        .then((xdl) =>
             xdl.Versions.facebookReactNativeVersionToExpoVersionAsync(reactNativeVersion));
 }
 
 export function publish(projectRoot: string, options?: XDLPackage.IPublishOptions): Q.Promise<XDLPackage.IPublishResponse> {
     return getPackage()
-        .then((xdl: any) =>
+        .then((xdl) =>
             xdl.Project.publishAsync(projectRoot, options));
 }
 
 export function setOptions(projectRoot: string, options?: XDLPackage.IOptions): Q.Promise<void> {
     return getPackage()
-        .then((xdl: any) =>
+        .then((xdl) =>
             xdl.Project.setOptionsAsync(projectRoot, options));
 }
 
 export function startExponentServer(projectRoot: string): Q.Promise<void> {
     return getPackage()
-        .then((xdl: any) =>
+        .then((xdl) =>
             xdl.Project.startExpoServerAsync(projectRoot));
 }
 
@@ -109,12 +109,12 @@ export function startTunnels(projectRoot: string): Q.Promise<void> {
 
 export function getUrl(projectRoot: string, options?: XDLPackage.IUrlOptions): Q.Promise<string> {
     return getPackage()
-        .then((xdl: any) =>
+        .then((xdl) =>
             xdl.Project.getUrlAsync(projectRoot, options));
 }
 
 export function stopAll(projectRoot: string): Q.Promise<void> {
     return getPackage()
-        .then((xdl: any) =>
+        .then((xdl) =>
             xdl.Project.stopAsync(projectRoot));
 }

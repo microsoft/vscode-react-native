@@ -195,7 +195,7 @@ export class Packager {
                     executedStartPackagerCmd = true;
                     return this.monkeyPatchOpnForRNPackager()
                         .then(() => {
-                            let args: any = ["--port", port.toString()];
+                            let args: string[] = ["--port", port.toString()];
                             if (resetCache) {
                                 args = args.concat("--resetCache");
                             }
@@ -208,14 +208,14 @@ export class Packager {
 
                             let helper = new ExponentHelper(this.workspacePath, this.projectPath);
                             return helper.getExpPackagerOptions()
-                                .then((options) => {
+                                .then((options: ExpConfigPackager) => {
                                     Object.keys(options).forEach(key => {
-                                        args.push(`--${key}`, options[key]);
+                                        args.concat([`--${key}`, options[key]]);
                                     });
 
                                     // Patch for CRNA
                                     if (args.indexOf("--assetExts") === -1) {
-                                        args.push("--assetExts", ["ttf"]);
+                                        args.push("--assetExts", "ttf");
                                     }
 
                                     return args;

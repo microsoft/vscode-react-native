@@ -33,8 +33,7 @@ export enum CommandStatus {
 
 export class CommandExecutor {
 
-    private static ReactNativeGlobal = "react-native";
-    private static ReactNativeCLI = "node_modules/react-native/local-cli/cli.js";
+    private static ReactNativeCommand = "react-native";
     private static ReactNativeVersionCommand = "-v";
     private currentWorkingDirectory: string;
     private childProcess = new Node.ChildProcess();
@@ -78,7 +77,7 @@ export class CommandExecutor {
      */
     public getReactNativeVersion(): Q.Promise<string> {
         let deferred = Q.defer<string>();
-        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeGlobal);
+        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
         let output = "";
 
         const result = this.childProcess.spawn(reactCommand,
@@ -122,8 +121,8 @@ export class CommandExecutor {
      * Executes a react native command and waits for its completion.
      */
     public spawnReactCommand(command: string, args?: string[], options: Options = {}): ISpawnResult {
-        const reactCommand = CommandExecutor.ReactNativeCLI;
-        return this.spawnChildProcess("node", [reactCommand, command, ...args], options);
+        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
+        return this.spawnChildProcess(reactCommand, [command, ...args], options);
     }
 
     /**
