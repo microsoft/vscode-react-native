@@ -63,7 +63,7 @@ export class IntellisenseHelper {
             Q.all([enableSalsa(), installTypescript(), configureWorkspace()])
             .then((result) => warnIfRestartIsRequired(result.any((x) => x)))
         */
-        return Q.all([configureWorkspace, configureTypescript]).then(() => { });
+        return Q.all([configureWorkspace, configureTypescript]).then(() => null);
     }
 
     /**
@@ -120,7 +120,7 @@ export class IntellisenseHelper {
             copyReactTypingsIfNeeded,
             copyReactNativeTypingsIfNeeded,
             copyTypingsIndexIfNeeded,
-        ]).then(() => { });
+        ]).then(() => null);
     }
 
     /**

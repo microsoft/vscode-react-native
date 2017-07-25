@@ -235,7 +235,7 @@ export class Packager {
 
                                 const packagerSpawnResult = new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions);
                                 this.packagerProcess = packagerSpawnResult.spawnedProcess;
-                                packagerSpawnResult.outcome.done(() => { }, () => { }); /* Q prints a warning if we don't call .done().
+                                packagerSpawnResult.outcome.done(() => null, () => null); /* Q prints a warning if we don't call .done().
                                                                                         We ignore all outcome errors */
                                 return packagerSpawnResult.startup;
                         });
@@ -275,7 +275,7 @@ export class Packager {
             // Attempt to find the 'opn' package directly under the project's node_modules folder (node4 +)
             // Else, attempt to find the package within the dependent node_modules of react-native package
             let possiblePaths = [flatDependencyPackagePath, nestedDependencyPackagePath];
-            return Q.any(possiblePaths.map(path =>
+            return Q["any"](possiblePaths.map(path =>
                 fsHelper.exists(path).then(exists =>
                     exists
                         ? Q.resolve(path)

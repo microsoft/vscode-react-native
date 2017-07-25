@@ -50,7 +50,7 @@ export class EntryPointHandler {
     }
 
     private handleErrors(error: InternalError, resultOfCode: Q.Promise<void>, errorsAreFatal: boolean): void {
-        resultOfCode.done(() => { }, reason => {
+        resultOfCode.done(() => null, reason => {
             const isDebugeeProcess = this.processType === ProcessType.Debugee;
             const shouldLogStack = !errorsAreFatal || isDebugeeProcess;
             Log.logError(ErrorHelper.wrapError(error, reason), /*logStack*/ shouldLogStack);

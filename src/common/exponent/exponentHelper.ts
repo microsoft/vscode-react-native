@@ -116,7 +116,7 @@ export class ExponentHelper {
      */
     private createIndex(): Q.Promise<void> {
         this.lazilyInitialize();
-        const pkg = require("../../../package.json");
+        const pkg = require("../../../../package.json");
         const extensionVersionNumber = pkg.version;
         const extensionName = pkg.name;
 
@@ -286,13 +286,17 @@ AppRegistry.registerRunnable('main', function(appParameters) {
      * If react native version is not supported it returns null.
      */
     private exponentSdk(showProgress: boolean = false): Q.Promise<string> {
-        if (showProgress) Log.logString("...");
+        if (showProgress) {
+            Log.logString("...");
+        }
         if (this.expSdkVersion) {
             return Q(this.expSdkVersion);
         }
         return this.readFromExpJson<string>("sdkVersion")
             .then((sdkVersion) => {
-                if (showProgress) Log.logString(".");
+                if (showProgress) {
+                    Log.logString(".");
+                }
                 if (sdkVersion) {
                     this.expSdkVersion = sdkVersion;
                     return this.expSdkVersion;
@@ -300,7 +304,9 @@ AppRegistry.registerRunnable('main', function(appParameters) {
                 let reactNativeProjectHelper = new ReactNativeProjectHelper(this.projectRootPath);
                 return reactNativeProjectHelper.getReactNativeVersion()
                     .then(version => {
-                        if (showProgress) Log.logString(".");
+                        if (showProgress) {
+                            Log.logString(".");
+                        }
                         return XDL.mapVersion(version)
                             .then(exponentVersion => {
                                 this.expSdkVersion = exponentVersion;
@@ -332,7 +338,9 @@ AppRegistry.registerRunnable('main', function(appParameters) {
      * to figure out if it's using exponent.
      */
     private usingReactNativeExponent(showProgress: boolean = false): Q.Promise<boolean> {
-        if (showProgress) Log.logString("...");
+        if (showProgress) {
+            Log.logString("...");
+        }
         if (this.dependencyPackage !== ReactNativePackageStatus.UNKNOWN) {
             return Q(this.dependencyPackage === ReactNativePackageStatus.EXPONENT_PACKAGE);
         }
@@ -343,10 +351,14 @@ AppRegistry.registerRunnable('main', function(appParameters) {
                 const packageJson = JSON.parse(jsonContents);
                 const isExp = /\bexponentjs\/react-native\b/.test(packageJson._from);
                 this.dependencyPackage = isExp ? ReactNativePackageStatus.EXPONENT_PACKAGE : ReactNativePackageStatus.FACEBOOK_PACKAGE;
-                if (showProgress) Log.logString(".");
+                if (showProgress) {
+                    Log.logString(".");
+                }
                 return isExp;
             }).catch(() => {
-                if (showProgress) Log.logString(".");
+                if (showProgress) {
+                    Log.logString(".");
+                }
                 // Not in a react-native project
                 return false;
             });

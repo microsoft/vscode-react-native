@@ -92,10 +92,10 @@ export class FileSystem {
     /**
      *  Helper function to asynchronously copy a file
      */
-    public copyFile(from: string, to: string, encoding?: string): Q.Promise<void> {
+    public copyFile(from: string, to: string): Q.Promise<void> {
         let deferred: Q.Deferred<void> = Q.defer<void>();
-        let destFile: nodeFs.WriteStream = this.fs.createWriteStream(to, { encoding: encoding });
-        let srcFile: nodeFs.ReadStream = this.fs.createReadStream(from, { encoding: encoding });
+        let destFile: nodeFs.WriteStream = this.fs.createWriteStream(to);
+        let srcFile: nodeFs.ReadStream = this.fs.createReadStream(from);
         destFile.on("finish", function(): void {
             deferred.resolve(void 0);
         });

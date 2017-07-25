@@ -13,7 +13,7 @@ export class QRCodeContentProvider implements TextDocumentContentProvider {
         let stringUri = uri.toString();
 
         if (!this.cache[stringUri]) {
-            const imageBuffer: NodeBuffer = qr.imageSync(stringUri);
+            const imageBuffer: Buffer = qr.imageSync(stringUri);
             this.cache[stringUri] = "data:image/png;base64," + imageBuffer.toString("base64");
         }
 

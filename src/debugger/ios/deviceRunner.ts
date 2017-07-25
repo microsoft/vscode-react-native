@@ -28,7 +28,7 @@ export class DeviceRunner {
                     this.startAppViaDebugger(proxyPort, path, appLaunchStepTimeout)
                 )
             )
-            .then(() => { });
+            .then(() => null);
     }
 
     // Attempt to start the app on the device, using the debug server proxy on a given port.
@@ -140,7 +140,7 @@ export class DeviceRunner {
 
         return this.mountDeveloperImage().then((): Q.Promise<any> => {
             let result = this.childProcess.spawn("idevicedebugserverproxy",  [proxyPort.toString()]);
-            result.outcome.done(() => {}, () => {}); // Q prints a warning if we don't call .done(). We ignore all outcome errors
+            result.outcome.done(() => null, () => null); // Q prints a warning if we don't call .done(). We ignore all outcome errors
             return result.startup.then(() => this.nativeDebuggerProxyInstance = result.spawnedProcess);
         });
     }

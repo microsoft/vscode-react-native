@@ -1,18 +1,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+/// <reference path="./xdlInterface.d.ts" />
+
 import {CommandExecutor, CommandVerbosity} from "../commandExecutor";
 import {HostPlatform} from "../hostPlatform";
 import {Log} from "../log/log";
 
-import * as XDLPackage from "xdl";
 import * as path from "path";
 import * as Q from "q";
+import * as XDLPackage from "XDLPackage";
 
 const XDL_VERSION = "36.1.0";
-let xdlPackage: Q.Promise<typeof XDLPackage>;
+let xdlPackage: Q.Promise<any>;
 
-function getPackage(): Q.Promise<typeof XDLPackage> {
+function getPackage(): Q.Promise<any> {
     if (xdlPackage) {
         return xdlPackage;
     }
@@ -33,8 +35,8 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
     xdlPackage = commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"),
         ["install", `xdl@${XDL_VERSION}`, "--verbose"],
         { verbosity: CommandVerbosity.PROGRESS,
-          cwd: path.dirname(require.resolve("../../../"))})
-        .then((): typeof XDLPackage => {
+          cwd: path.dirname(require.resolve("../../../../"))})
+        .then(() => {
             return require("xdl");
         });
     return xdlPackage;

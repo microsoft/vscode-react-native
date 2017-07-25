@@ -12,7 +12,7 @@ export class PromiseUtil {
         return Q(sourcesPromise).then(sources => {
             return Q.all(sources.map(source => {
                 return promiseGenerator(source);
-            })).then(() => { });
+            })).then(() => null);
         });
     }
 

@@ -5,6 +5,7 @@ import * as nodeChildProcess from "child_process";
 import Q = require("q");
 import {ErrorHelper} from "../error/errorHelper";
 import {InternalErrorCode} from "../error/internalErrorCode";
+import {ExecOptions} from "child_process";
 
 // Uncomment the following lines to record all spawned processes executions
 // import {Recorder} from "../../test/resources/processExecution/recorder";
@@ -49,7 +50,7 @@ export class ChildProcess {
         this.childProcess = childProcess;
     }
 
-    public exec(command: string, options: IExecOptions = {}): IExecResult {
+    public exec(command: string, options: ExecOptions = {}): IExecResult {
         let outcome = Q.defer<string>();
 
         let execProcess = this.childProcess.exec(command, options, (error: Error, stdout: string, stderr: string) => {
@@ -63,7 +64,7 @@ export class ChildProcess {
         return { process: execProcess, outcome: outcome.promise };
     }
 
-    public execToString(command: string, options: IExecOptions = {}): Q.Promise<string> {
+    public execToString(command: string, options: ExecOptions = {}): Q.Promise<string> {
         return this.exec(command, options).outcome.then(stdout => stdout.toString());
     }
 
@@ -81,7 +82,7 @@ export class ChildProcess {
         Q.delay(ChildProcess.ERROR_TIMEOUT_MILLISECONDS).done(() =>
             startup.resolve(void 0));
 
-        startup.promise.done(() => {}, () => {}); // Most callers don't use startup, and Q prints a warning if we don't attach any .done()
+        startup.promise.done(() => null, () => null); // Most callers don't use startup, and Q prints a warning if we don't attach any .done()
 
         spawnedProcess.once("exit", (code: number) => {
             if (code === 0) {
