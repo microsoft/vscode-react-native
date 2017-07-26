@@ -11,7 +11,12 @@ import * as path from "path";
 import * as Q from "q";
 import * as XDLPackage from "XDLPackage";
 
-const XDL_VERSION = "36.1.0";
+
+const EXPO_DEPS: string[] = [
+    "xdl",
+    "@expo/ngrok", // devDependencies for xdl
+];
+
 let xdlPackage: Q.Promise<any>; // TODO something with XDLPackage type
 
 function getPackage(): Q.Promise<any> {
@@ -33,7 +38,7 @@ function getPackage(): Q.Promise<any> {
     }
     let commandExecutor = new CommandExecutor();
     xdlPackage = commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"),
-        ["install", `xdl@${XDL_VERSION}`, "--verbose"],
+        ["install", EXPO_DEPS.join(" "), "--verbose"],
         { verbosity: CommandVerbosity.PROGRESS,
           cwd: path.dirname(require.resolve("../../../../"))})
         .then(() => {
@@ -51,13 +56,13 @@ export function configReactNativeVersionWargnings(): Q.Promise<void> {
         });
 }
 
-export function attachLoggerStream(rootPath: string, options?: XDLPackage.IBunyanStream): Q.Promise<void> {
+export function attachLoggerStream(rootPath: string, options?: XDLPackage.IBunyanStream | any): Q.Promise<void> {
     return getPackage()
         .then((xdl) =>
             xdl.ProjectUtils.attachLoggerStream(rootPath, options));
 }
 
-export function supportedVersions(): Q.Promise<Array<string>> {
+export function supportedVersions(): Q.Promise<string[]> {
     return getPackage()
         .then((xdl) =>
             xdl.Versions.facebookReactNativeVersionsAsync());
