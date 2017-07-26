@@ -272,7 +272,9 @@ AppRegistry.registerRunnable('main', function(appParameters) {
             .then(content => {
                 const packageJson = JSON.parse(content);
                 const isExp = packageJson.dependencies && !!packageJson.dependencies.expo || false;
-                if (showProgress) Log.logString(".");
+                if (showProgress) {
+                    Log.logString(".");
+                }
                 return isExp;
             }).catch(() => {
                 if (showProgress) {
