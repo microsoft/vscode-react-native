@@ -3,6 +3,8 @@
 
 var gulp = require("gulp");
 var log = require("gulp-util").log;
+var istanbul = require('gulp-istanbul');
+var isparta = require('isparta');
 var sourcemaps = require("gulp-sourcemaps");
 var path = require("path");
 var preprocess = require("gulp-preprocess");
@@ -14,6 +16,7 @@ var minimist = require("minimist");
 var os = require("os");
 var fs = require("fs");
 var Q = require("q");
+var remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
 
 var copyright = GulpExtras.checkCopyright;
 var imports = GulpExtras.checkImports;
@@ -104,6 +107,45 @@ function test() {
 }
 
 gulp.task("test", ["build", "tslint"], test);
+
+gulp.task('coverage:instrument', function () {
+    return gulp.src(["out/**/*.js", "!out/test/**"])
+        .pipe(istanbul({
+            // Use the isparta instrumenter (code coverage for ES6)
+            instrumenter: isparta.Instrumenter,
+            includeUntested: true
+        }))
+        // Force `require` to return covered files
+        .pipe(istanbul.hookRequire());
+});
+
+gulp.task('coverage:report', function (done) {
+    return gulp.src(
+        ["out/**/*.js", "!out/test/**"],
+        { read: false }
+    )
+        .pipe(istanbul.writeReports({
+            reporters: ['json', 'text-summary', 'lcov']
+        }));
+});
+
+gulp.task('coverage:remap', function () {
+    return gulp.src('coverage/coverage-final.json')
+        .pipe(remapIstanbul({
+            basePath: "src",
+            reports: {
+                'json': 'coverage/coverage.json',
+                'lcovonly': 'coverage/lcov.info',
+                'html': 'coverage/html-report'
+            }
+        }));
+});
+
+gulp.task("test:coverage", function (done) {
+    runSequence("quick-build", 'coverage:instrument',
+        "test-no-build", 'coverage:report', 'coverage:remap', done);
+});
+
 gulp.task("test-no-build", test);
 
 gulp.task("check-imports", function (cb) {

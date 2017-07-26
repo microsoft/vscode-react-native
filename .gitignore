@@ -2,6 +2,7 @@
 node_modules/
 out/
 .vscode-test/
+coverage/
 
 # Sample Application auto-generated files
 SampleApplication/.vscode/.react/debuggerWorker.js
