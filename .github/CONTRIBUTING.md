@@ -13,12 +13,22 @@ To avoid a conflict, delete the installed extension at `~/.vscode/extensions/vsm
 
 ### Then...
 * `cd` to the folder you just cloned
-* Run `npm install -g gulp` and `npm install`
+* Install TypeScript
+  ```bash
+  npm install -g typescript@2.2.2
+  ```
+* Install Gulp
+  ```bash
+  npm install -g gulp
+  ```
     * You may see an error if `bufferutil` or `utf-8-validate` fail to build. These native modules required by `ws` are optional and the debug adapter should work fine without them.
-* Run `gulp build`
+* Install Typings
+  ```bash
+  npm install -g typings@2.0.0
+  ```
+* Run `npm run setup`
 
-
-##Debugging
+## Debugging
 There are currently 3 components to our extension: The extension running in the vscode process, the debug adapter, and some code wrapping the user react-native code which is launched by the debug adapter. These are all debugged in different ways:
 
 * To debug the extension process itself, in VS Code run the `Launch Extension` debug target which will spawn a new instance of VS code with the extension installed. You can set breakpoints in the typescript and debug things such as extension activation and the command palette.

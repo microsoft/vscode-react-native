@@ -19,7 +19,7 @@ export class ExtensionTelemetryReporter implements Telemetry.ITelemetryReporter 
 
     public sendTelemetryEvent(eventName: string, properties?: Telemetry.ITelemetryEventProperties, measures?: Telemetry.ITelemetryEventMeasures): void {
         this.remoteExtension.sendTelemetry(this.extensionId, this.extensionVersion, this.appInsightsKey, eventName, properties, measures)
-            .catch(function() { });
+            .catch(() => null);
     }
 }
 

@@ -282,6 +282,6 @@ export class ExtensionServer implements vscode.Disposable {
      * Message handler for SHOW_INFORMATION_MESSAGE
      */
     private showInformationMessage(message: string): Q.Promise<void> {
-        return Q(vscode.window.showInformationMessage(message)).then(() => {});
+        return Q(vscode.window.showInformationMessage(message)).then(() => null);
     }
 }

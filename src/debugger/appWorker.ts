@@ -191,9 +191,10 @@ postMessage({workerLoaded:true});`;
     }
 
     private killWorker() {
-        if (!this.singleLifetimeWorker) return;
-        this.singleLifetimeWorker.stop();
-        this.singleLifetimeWorker = null;
+        if (this.singleLifetimeWorker) {
+            this.singleLifetimeWorker.stop();
+            this.singleLifetimeWorker = null;
+        }
     }
 
     private onMessage(message: string) {

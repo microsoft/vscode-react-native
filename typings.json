@@ -1,0 +1,27 @@
+{
+  "name": "",
+  "dependencies": {
+    "semver": "registry:dt/semver#5.3.0+20170313061406",
+    "strip-json-comments": "registry:dt/strip-json-comments#0.0.0+20160428043022",
+    "ws": "registry:dt/ws#0.0.0+20170307231658"
+  },
+  "globalDevDependencies": {
+    "mocha": "registry:dt/mocha#2.2.5+20170311011848",
+    "sinon": "registry:dt/sinon#1.16.1+20161208163514"
+  },
+  "globalDependencies": {
+    "node": "registry:env/node#6.0.0+20170213133316"
+  },
+  "devDependencies": {
+    "gulp": "registry:dt/gulp#4.0.0+20170315213030",
+    "gulp-mocha": "registry:dt/gulp-mocha#0.0.0+20160510010627",
+    "gulp-sourcemaps": "registry:dt/gulp-sourcemaps#0.0.0+20160510010627",
+    "gulp-tslint": "registry:dt/gulp-tslint#3.6.0+20160708003644",
+    "gulp-typescript": "registry:dt/gulp-typescript#0.0.0+20160720002434",
+    "gulp-util": "registry:dt/gulp-util#3.0.0+20161129185857",
+    "minimist": "registry:dt/minimist#1.2.0+20161224101431",
+    "run-sequence": "registry:dt/run-sequence#0.0.0+20160510010627",
+    "source-map-support": "registry:dt/source-map-support#0.2.10+20160510010627",
+    "through2": "registry:dt/through2#2.0.0+20161122001659"
+  }
+}

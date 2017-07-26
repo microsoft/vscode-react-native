@@ -14,12 +14,15 @@ export class SourceMapsCombinator {
         const consumers: { [key: string]: SourceMapConsumer } = rawBundleSourcemap.sources
             .reduce((result, file) => {
                 // Skip files inside node_modules
-                if (file.indexOf("node_modules") >= 0) return result;
+                if (file.indexOf("node_modules") >= 0) {
+                    return result;
+                }
 
                 try {
                     let consumer: SourceMapConsumer = this.getSourceMapConsumerFrom(file);
-                    if (consumer)
+                    if (consumer) {
                         result[file] = consumer;
+                    }
                 } finally {
                     return result;
                 }
@@ -75,7 +78,7 @@ export class SourceMapsCombinator {
             try {
                 generator.addMapping(mapping);
             } catch (err) {
-
+                // ignore
             }
         });
 

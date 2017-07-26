@@ -26,7 +26,7 @@
   "activationEvents": [
     "*"
   ],
-  "main": "./out/extension/rn-extension",
+  "main": "./out/src/extension/rn-extension",
   "contributes": {
     "commands": [
       {
@@ -247,6 +247,7 @@
     ]
   },
   "scripts": {
+    "setup": "npm install && typings install && gulp build",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
     "vscode:prepublish": "gulp",
@@ -265,18 +266,14 @@
     "typechecker": "2.0.8",
     "ultron": "1.0.2",
     "vscode-extension-telemetry": "0.0.5",
-    "ws": "1.0.1"
+    "ws": "1.0.1",
+    "xdl": "^36.1.0"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.40",
-    "@types/mock-fs": "^3.6.30",
-    "@types/node": "^6.0.65",
-    "@types/shelljs": "^0.7.0",
+    "@types/q": "^1.0.2",
+    "@types/should": "^8.3.0",
     "@types/source-map": "^0.5.0",
-    "@types/source-map-support": "^0.2.28",
-    "@types/websocket": "0.0.33",
-    "@types/ws": "^0.0.39",
-    "del": "^2.2.0",
+    "del": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-mocha": "^2.2.0",
     "gulp-preprocess": "^2.0.0",

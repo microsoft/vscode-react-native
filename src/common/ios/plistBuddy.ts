@@ -36,11 +36,11 @@ export class PlistBuddy {
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
         return this.invokePlistBuddy(`Set ${property} ${value}`, plistFile).fail(() =>
             this.invokePlistBuddy(`Add ${property} string ${value}`, plistFile)
-        ).then(() => { });
+        ).then(() => null);
     }
 
     public deletePlistProperty(plistFile: string, property: string): Q.Promise<void> {
-        return this.invokePlistBuddy(`Delete ${property}`, plistFile).then(() => { });
+        return this.invokePlistBuddy(`Delete ${property}`, plistFile).then(() => null);
     }
 
     public readPlistProperty(plistFile: string, property: string): Q.Promise<string> {

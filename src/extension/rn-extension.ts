@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+/// <reference path="../../typings/index.d.ts" />
+
 import * as fs from "fs";
 
 // @ifdef DEBUG
@@ -58,7 +60,7 @@ interface ISetupableDisposable extends vscode.Disposable {
 
 export function activate(context: vscode.ExtensionContext): void {
     configureLogLevel();
-    entryPointHandler.runApp("react-native", () => <string>require("../../package.json").version,
+    entryPointHandler.runApp("react-native", () => <string>require("../../../package.json").version,
         ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), projectRootPath, () => {
         return reactNativeProjectHelper.isReactNativeProject()
             .then(isRNProject => {
@@ -72,7 +74,7 @@ export function activate(context: vscode.ExtensionContext): void {
                             setupAndDispose(new ReactDirManager(), context)
                             .then(() =>
                                 setupAndDispose(new ExtensionServer(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper), context))
-                            .then(() => {}));
+                            .then(() => null));
                     entryPointHandler.runFunction("intelliSense.setup",
                         ErrorHelper.getInternalError(InternalErrorCode.IntellisenseSetupFailed), () =>
                         IntellisenseHelper.setupReactNativeIntellisense());
@@ -125,7 +127,7 @@ function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T
 }
 
 function warnWhenReactNativeVersionIsNotSupported(): void {
-    return reactNativeProjectHelper.validateReactNativeVersion().done(() => { }, reason => {
+    return reactNativeProjectHelper.validateReactNativeVersion().done(() => null, reason => {
         TelemetryHelper.sendSimpleEvent("unsupportedRNVersion", { rnVersion: reason });
         const shortMessage = `React Native Tools need React Native version 0.19.0 or later to be installed in <PROJECT_ROOT>/node_modules/`;
         const longMessage = `${shortMessage}: ${reason}`;

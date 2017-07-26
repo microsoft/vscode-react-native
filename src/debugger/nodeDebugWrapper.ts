@@ -65,16 +65,16 @@ export function makeSession(
         }
 
         protected dispatchRequest(request: VSCodeDebugAdapterPackage.Request): void {
-            if (request.command === "disconnect")
-                return this.disconnect(request);
-
-            if (request.command === "attach")
-                return this.attach(request);
-
-            if (request.command === "launch")
-                return this.launch(request);
-
-            return super.dispatchRequest(request);
+            switch(request.command) {
+                case "disconnect":
+                    return this.disconnect(request);
+                case "attach":
+                    return this.attach(request);
+                case "launch":
+                    return this.launch(request);
+                default:
+                    return super.dispatchRequest(request);
+            }
         }
 
         private launch(request: VSCodeDebugAdapterPackage.Request): void {

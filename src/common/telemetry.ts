@@ -1,12 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-/// <reference path="../typings/winreg/winreg.d.ts" />
-
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
-import {HostPlatform} from "../common/hostPlatform";
+import {HostPlatform} from "./hostPlatform";
 
 /**
  * Telemetry module specialized for vscode integration.

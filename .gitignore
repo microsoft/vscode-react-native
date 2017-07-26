@@ -2,6 +2,8 @@
 node_modules/
 out/
 .vscode-test/
+.idea
+typings
 
 # Sample Application auto-generated files
 SampleApplication/.vscode/.react/debuggerWorker.js

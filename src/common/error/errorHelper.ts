@@ -6,7 +6,8 @@ import {InternalError, NestedError, InternalErrorLevel} from "./internalError";
 import {InternalErrorCode} from "./internalErrorCode";
 
 export class ErrorHelper {
-    private static errorStringsJsonLoc = path.resolve(__dirname, "..", "..", "..", "errorStrings", "errorStrings.json");
+    // Path from compiled source in "out" folder
+    private static errorStringsJsonLoc = path.resolve(__dirname, "..", "..", "..", "..", "errorStrings", "errorStrings.json");
     public static getInternalError(errorCode: InternalErrorCode, ...optionalArgs: any[]): InternalError {
         let message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
         return new InternalError(<number> errorCode, message);
@@ -29,7 +30,7 @@ export class ErrorHelper {
     }
 
     private static getErrorMessage(errorCode: InternalErrorCode, ...optionalArgs: any[]): string {
-        let errorStrings = require (ErrorHelper.errorStringsJsonLoc);
+        let errorStrings = require(ErrorHelper.errorStringsJsonLoc);
         return ErrorHelper.formatErrorMessage(errorStrings[InternalErrorCode[errorCode]], ...optionalArgs);
     }
 

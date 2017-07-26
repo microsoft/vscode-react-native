@@ -19,15 +19,15 @@ var copyright = GulpExtras.checkCopyright;
 var imports = GulpExtras.checkImports;
 var executeCommand = GulpExtras.executeCommand;
 
-var srcPath = "src";
-var outPath = "out";
+const srcPath = "src";
+const outPath = "out";
 
 var sources = [
     srcPath,
 ].map(function (tsFolder) { return tsFolder + "/**/*.ts"; })
     .concat(["test/*.ts"]);
 
-var knownOptions = {
+const knownOptions = {
     string: "env",
     default: { env: "production" }
 };
@@ -39,7 +39,7 @@ var tsProject = ts.createProject("tsconfig.json");
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task("build", ["check-imports", "check-copyright"], build);
+gulp.task("build", ["check-imports", "check-copyright", "tslint"], build);
 
 gulp.task("quick-build", build);
 
@@ -119,7 +119,7 @@ gulp.task("check-copyright", function (cb) {
         "!node_modules/**",
         "!out/test/**/*.js",
         "!SampleApplication/**",
-        "!src/test/resources/sampleReactNative022Project/**/*.js",
+        "!test/resources/sampleReactNative022Project/**/*.js",
     ])
         .pipe(copyright());
 });
@@ -177,4 +177,4 @@ gulp.task("release", ["build"], function () {
                 fs.writeFileSync(path.join(__dirname, fileName), fs.readFileSync(path.join(backupFolder, fileName)));
             });
         });
-})
+});

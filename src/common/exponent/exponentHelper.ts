@@ -186,7 +186,9 @@ AppRegistry.registerRunnable('main', function(appParameters) {
         let reactNativeProjectHelper = new ReactNativeProjectHelper(this.projectRootPath);
         return reactNativeProjectHelper.getReactNativeVersion()
             .then(version => {
-                if (showProgress) Log.logString(".");
+                if (showProgress) {
+                  Log.logString(".");
+                }
                 return XDL.mapVersion(version)
                     .then(sdkVersion => {
                         if (!sdkVersion) {
@@ -270,7 +272,9 @@ AppRegistry.registerRunnable('main', function(appParameters) {
             .then(content => {
                 const packageJson = JSON.parse(content);
                 const isExp = packageJson.dependencies && !!packageJson.dependencies.expo || false;
-                if (showProgress) Log.logString(".");
+                if (showProgress) {
+                    Log.logString(".");
+                }
                 return isExp;
             }).catch(() => {
                 if (showProgress) {

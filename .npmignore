@@ -3,6 +3,8 @@
 node_modules/
 src/
 .vscode-test/
+.idea
+typings
 
 tools/
 

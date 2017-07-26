@@ -11,7 +11,7 @@ import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { NullTelemetryReporter, ReassignableTelemetryReporter } from "../common/telemetryReporters";
 import { makeAdapter, makeSession } from "./nodeDebugWrapper";
 
-const version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
+const version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "..", "package.json"), "utf-8")).version;
 const telemetryReporter = new ReassignableTelemetryReporter(new NullTelemetryReporter());
 const extensionName = "react-native-debug-adapter";
 
