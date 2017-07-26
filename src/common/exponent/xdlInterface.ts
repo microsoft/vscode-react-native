@@ -12,7 +12,7 @@ import * as Q from "q";
 import * as XDLPackage from "XDLPackage";
 
 const XDL_VERSION = "36.1.0";
-let xdlPackage: Q.Promise<any>;
+let xdlPackage: Q.Promise<any>; // TODO something with XDLPackage type
 
 function getPackage(): Q.Promise<any> {
     if (xdlPackage) {

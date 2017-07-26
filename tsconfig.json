@@ -14,10 +14,7 @@
         "rootDir": "./",
         "outDir": "out",
         "lib": [
-            "es6",
-            "es2015.promise",
-            "es2015.core",
-            "dom"
+            "es6"
         ],
         "typeRoots": [
             "typings/global",
