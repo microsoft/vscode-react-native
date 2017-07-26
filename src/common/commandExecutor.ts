@@ -32,6 +32,7 @@ export enum CommandStatus {
 }
 
 export class CommandExecutor {
+
     private static ReactNativeCommand = "react-native";
     private static ReactNativeVersionCommand = "-v";
     private currentWorkingDirectory: string;
@@ -121,7 +122,7 @@ export class CommandExecutor {
      */
     public spawnReactCommand(command: string, args?: string[], options: Options = {}): ISpawnResult {
         const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
-        return this.spawnChildProcess(reactCommand, this.combineArguments(command, args), options);
+        return this.spawnChildProcess(reactCommand, [command, ...args], options);
     }
 
     /**
@@ -208,9 +209,5 @@ export class CommandExecutor {
 
     private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {
         return Q.reject<void>(ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed, command));
-    }
-
-    private combineArguments(firstArgument: string, otherArguments: string[] = []) {
-        return [firstArgument].concat(otherArguments);
     }
 }

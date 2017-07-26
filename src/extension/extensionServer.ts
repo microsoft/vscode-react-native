@@ -103,9 +103,8 @@ export class ExtensionServer implements vscode.Disposable {
 
                 Log.logMessage("Attaching to running React Native packager");
             }
-        }).then(() =>
-            this.exponentHelper.configureReactNativeEnvironment()
-        ).then(() => {
+        })
+        .then(() => {
             const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
             return this.reactNativePackager.startAsReactNative(portToUse);
         })
