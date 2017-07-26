@@ -15,7 +15,7 @@ import {Recording, Simulator} from "./processExecution/simulator";
 import {AdbSimulator} from "./simulators/adbSimulator";
 import {APKSerializer} from "./simulators/apkSerializer";
 
-const resourcesPath = path.join(__dirname, "../../../src/test/resources/");
+const resourcesPath = path.join(__dirname, "../../../test/resources/");
 const sampleRNProjectPath = path.join(resourcesPath, "sampleReactNative022Project");
 const processExecutionsRecordingsPath = path.join(resourcesPath, "processExecutionsRecordings");
 
