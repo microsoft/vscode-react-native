@@ -158,6 +158,7 @@ gulp.task("check-copyright", function (cb) {
         "**/*.ts",
         "**/*.js",
         "!**/*.d.ts",
+        "!coverage/**",
         "!node_modules/**",
         "!out/test/**/*.js",
         "!SampleApplication/**",
