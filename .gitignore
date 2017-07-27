@@ -3,6 +3,7 @@ node_modules/
 out/
 .vscode-test/
 coverage/
+.idea
 
 # Sample Application auto-generated files
 SampleApplication/.vscode/.react/debuggerWorker.js

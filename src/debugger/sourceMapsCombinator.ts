@@ -90,10 +90,21 @@ export class SourceMapsCombinator {
     }
 
     private readSourcemap(file: string, code: string): SourceMapConsumer | null {
-        let result = sourceMapResolve.resolveSync(code, file, fs.readFileSync);
+        let result = sourceMapResolve.resolveSync(code, file, readFileSync.bind(null, getDiskLetter(file)));
         if (result === null) {
             return null;
         }
         return new SourceMapConsumer(result.map);
     }
+}
+
+// Hack for source-map-resolve and cutted disk letter
+// https://github.com/lydell/source-map-resolve/issues/9
+function readFileSync(diskLetter: string, filePath: string) {
+    return fs.readFileSync(`${filePath}`);
+}
+
+function getDiskLetter(filePath: string): string {
+    const matched = filePath.match(/^[a-z]:/i);
+    return matched ? matched[0] : "";
 }
