@@ -101,7 +101,7 @@ export class SourceMapsCombinator {
 // Hack for source-map-resolve and cutted disk letter
 // https://github.com/lydell/source-map-resolve/issues/9
 function readFileSync(diskLetter: string, filePath: string) {
-    return fs.readFileSync(`${filePath}`);
+    return fs.readFileSync(`${diskLetter}${filePath}`);
 }
 
 function getDiskLetter(filePath: string): string {
