@@ -92,7 +92,7 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Message handler for START_PACKAGER.
      */
-    private startPackager(port?: any): Q.Promise<any> {
+    private startPackager(): Q.Promise<any> {
         return this.reactNativePackager.isRunning().then((running) => {
             if (running) {
                 if (this.reactNativePackager.getRunningAs() !== PackagerRunAs.REACT_NATIVE) {
@@ -105,8 +105,7 @@ export class ExtensionServer implements vscode.Disposable {
             }
         })
         .then(() => {
-            const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
-            return this.reactNativePackager.startAsReactNative(portToUse);
+            return this.reactNativePackager.startAsReactNative();
         })
         .then(() =>
                 this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
@@ -115,7 +114,7 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Message handler for START_EXPONENT_PACKAGER.
      */
-    private startExponentPackager(port?: any): Q.Promise<any> {
+    private startExponentPackager(): Q.Promise<any> {
         return this.reactNativePackager.isRunning().then((running) => {
             if (running) {
                 if (this.reactNativePackager.getRunningAs() !== PackagerRunAs.EXPONENT) {
@@ -133,8 +132,7 @@ export class ExtensionServer implements vscode.Disposable {
                     (message) => { return Q(vscode.window.showInformationMessage(message)); }
                 ))
             .then(() => {
-                const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
-                return this.reactNativePackager.startAsExponent(portToUse);
+                return this.reactNativePackager.startAsExponent();
             })
             .then(exponentUrl => {
                 vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
