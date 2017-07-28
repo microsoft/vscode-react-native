@@ -152,7 +152,7 @@ export class Packager {
 
     public static isPackagerRunning(packagerURL: string): Q.Promise<boolean> {
         let statusURL = `http://${packagerURL}/status`;
-        return new Request().request(statusURL)
+        return Request.request(statusURL)
             .then((body: string) => {
                 return body === "packager-status:running";
             },
@@ -162,14 +162,13 @@ export class Packager {
     }
 
     public isRunning(): Q.Promise<boolean> {
-
         return Packager.isPackagerRunning(this.getHost());
     }
 
     private prewarmBundleCacheWithBundleFilename(bundleFilename: string, platform: string) {
         const bundleURL = `http://${this.getHost()}/${bundleFilename}.bundle?platform=${platform}`;
         Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
-        return new Request().request(bundleURL, true).then(() => {
+        return Request.request(bundleURL, true).then(() => {
             Log.logMessage("The Bundle Cache was prewarmed.");
         }).catch(() => {
             // The attempt to prefetch the bundle failed.

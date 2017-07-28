@@ -5,7 +5,7 @@ import http = require("http");
 import Q = require("q");
 
 export class Request {
-    public request(url: string, expectStatusOK = false): Q.Promise<any> {
+    public static request(url: string, expectStatusOK = false): Q.Promise<any> {
         let deferred = Q.defer<string>();
         let req = http.get(url, function(res) {
             let responseString = "";
