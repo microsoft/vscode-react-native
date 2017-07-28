@@ -6,6 +6,7 @@
 * Fixed error "Error processing 'continue'" appearing when reloading app while staying on breakpoint
 * Added “scheme” option to `launch.json` to pass build scheme to xcodebuild
 * Improved LogCat logging - now reusing existing output channel when possible
+* Refactored extension to support debugging of Expo and CRNA apps better (#478)
 * Added support for displaying Expo's QR code
 
 ## 0.3.2
