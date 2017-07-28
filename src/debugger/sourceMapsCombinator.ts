@@ -6,6 +6,8 @@ import * as path from "path";
 import { SourceMapConsumer, RawSourceMap, SourceMapGenerator, MappingItem, Mapping, Position, MappedPosition } from "source-map";
 import sourceMapResolve = require("source-map-resolve");
 
+const DISK: RegExp = /^[a-z]:/i;
+
 export class SourceMapsCombinator {
 
     public convert(rawBundleSourcemap: RawSourceMap): RawSourceMap {
@@ -101,10 +103,14 @@ export class SourceMapsCombinator {
 // Hack for source-map-resolve and cutted disk letter
 // https://github.com/lydell/source-map-resolve/issues/9
 function readFileSync(diskLetter: string, filePath: string) {
-    return fs.readFileSync(`${diskLetter}${filePath}`);
+    if (filePath.match(DISK)) {
+        return fs.readFileSync(filePath);
+    } else {
+        return fs.readFileSync(`${diskLetter}${filePath}`);
+    }
 }
 
 function getDiskLetter(filePath: string): string {
-    const matched = filePath.match(/^[a-z]:/i);
+    const matched = filePath.match(DISK);
     return matched ? matched[0] : "";
 }
