@@ -31,7 +31,7 @@ suite("sourceMapsCombinator", function () {
             const expected = {
                 "version": 3,
                 "sources": [
-                    "D:\\hello.ts",
+                    "D:/hello.ts",
                 ],
                 "names": [],
                 "mappings": "AAAA,IAAA,MAAM,EAAM,CAAA,SAAA,CAAA,EAAA;IACR,SAAA,KAAa,CAAA,GAAA,EAAO;QACpB,IAAA,CAAA,IAAA,EAAA,GAAA;IACA;SACI,CAAA,SAAO,CAAA,SAAc,EAAA,SAAM,CAAA,EAAO;QACtC,OAAA,OAAA,EAAA,IAAA,CAAA,IAAA,EAAA,OAAA;IACJ,CAAA;;AAEA,CAAA,CAAA,CAAA,CAAA;;AAEA,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC",
@@ -46,6 +46,9 @@ suite("sourceMapsCombinator", function () {
             stub.withArgs(pathToTS).returns(codeTS);
             let sourceMapsCombinator = new SourceMapsCombinator();
             let result = sourceMapsCombinator.convert(rawBundleSourcemap);
+            result.sources = result.sources.map(p => {
+                return p.replace(/\\/g, "/");
+            });
             assert.deepEqual(expected, result);
         });
     });
