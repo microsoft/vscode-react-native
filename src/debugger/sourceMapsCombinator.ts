@@ -61,11 +61,13 @@ export class SourceMapsCombinator {
 
                 // Resolve TS source path to absolute because it might be relative to generated JS
                 // (this depends on whether "sourceRoot" option is specified in tsconfig.json)
-                tsPosition.source = path.resolve(
-                    rawBundleSourcemap.sourceRoot,
-                    path.dirname(item.source),
-                    tsPosition.source
-                );
+                if (!tsPosition.source.match(DISK)) {
+                    tsPosition.source = path.resolve(
+                        rawBundleSourcemap.sourceRoot,
+                        path.dirname(item.source),
+                        tsPosition.source
+                    );
+                }
 
                 // Update mapping w/ mapped position values
                 mapping = {
