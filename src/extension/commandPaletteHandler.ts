@@ -126,7 +126,7 @@ export class CommandPaletteHandler {
         if (startAs === PackagerRunAs.EXPONENT) {
             return this.loginToExponent()
                 .then(() =>
-                    this.reactNativePackager.startAsExponent(SettingsHelper.getPackagerPort())
+                    this.reactNativePackager.startAsExponent()
                 ).then(exponentUrl => {
                     this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
                     Log.logMessage("Application is running on Exponent.");
@@ -135,7 +135,7 @@ export class CommandPaletteHandler {
                     vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
                 });
         }
-        return this.reactNativePackager.startAsReactNative(SettingsHelper.getPackagerPort())
+        return this.reactNativePackager.startAsReactNative()
             .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 

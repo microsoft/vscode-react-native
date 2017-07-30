@@ -27,10 +27,6 @@ export enum PackagerRunAs {
 
 export class Packager {
     public static DEFAULT_PORT = 8081;
-
-    private workspacePath: string;
-    private projectPath: string;
-    private port: number;
     private packagerProcess: ChildProcess;
     private packagerRunningAs: PackagerRunAs;
 
@@ -41,9 +37,7 @@ export class Packager {
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
 
-    constructor(workspacePath: string, projectPath: string) {
-        this.workspacePath = workspacePath;
-        this.projectPath = projectPath;
+    constructor(private workspacePath: string, private projectPath: string, private port: number) {
         this.packagerRunningAs = PackagerRunAs.NOT_RUNNING;
     }
 
@@ -59,26 +53,26 @@ export class Packager {
         return this.packagerRunningAs;
     }
 
-    public startAsReactNative(port: number): Q.Promise<void> {
-        return this.start(port, PackagerRunAs.REACT_NATIVE);
+    public startAsReactNative(): Q.Promise<void> {
+        return this.start(PackagerRunAs.REACT_NATIVE);
     }
 
-    public startAsExponent(port: number): Q.Promise<string> {
+    public startAsExponent(): Q.Promise<string> {
         return this.isRunning()
             .then(running => {
                 if (running && this.packagerRunningAs === PackagerRunAs.REACT_NATIVE) {
                     return this.killPackagerProcess()
                         .then(() =>
-                            this.start(port, PackagerRunAs.EXPONENT));
+                            this.start(PackagerRunAs.EXPONENT));
                 } else if (running && this.packagerRunningAs === PackagerRunAs.NOT_RUNNING) {
                     Log.logWarning(ErrorHelper.getWarning("Packager running outside of VS Code. To avoid issues with exponent make sure it is running with .vscode/ as a root."));
                     return Q.resolve<void>(void 0);
                 } else if (this.packagerRunningAs !== PackagerRunAs.EXPONENT) {
-                    return this.start(port, PackagerRunAs.EXPONENT);
+                    return this.start(PackagerRunAs.EXPONENT);
                 }
             })
             .then(() =>
-                XDL.setOptions(this.projectPath, { packagerPort: port })
+                XDL.setOptions(this.projectPath, { packagerPort: this.port })
             )
             .then(() =>
                 XDL.startExponentServer(this.projectPath)
@@ -137,7 +131,7 @@ export class Packager {
             })
             .then(stoppedOK => {
                 if (stoppedOK) {
-                    return this.start(port, currentRunningState,  true);
+                    return this.start(currentRunningState,  true);
                 } else {
                     return Q.resolve<void>(void 0);
                 }
@@ -158,7 +152,7 @@ export class Packager {
 
     public static isPackagerRunning(packagerURL: string): Q.Promise<boolean> {
         let statusURL = `http://${packagerURL}/status`;
-        return new Request().request(statusURL)
+        return Request.request(statusURL)
             .then((body: string) => {
                 return body === "packager-status:running";
             },
@@ -174,7 +168,7 @@ export class Packager {
     private prewarmBundleCacheWithBundleFilename(bundleFilename: string, platform: string) {
         const bundleURL = `http://${this.getHost()}/${bundleFilename}.bundle?platform=${platform}`;
         Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
-        return new Request().request(bundleURL, true).then(() => {
+        return Request.request(bundleURL, true).then(() => {
             Log.logMessage("The Bundle Cache was prewarmed.");
         }).catch(() => {
             // The attempt to prefetch the bundle failed.
@@ -182,12 +176,7 @@ export class Packager {
         });
     }
 
-    private start(port: number, runAs: PackagerRunAs, resetCache: boolean = false): Q.Promise<void> {
-        if (this.port && this.port !== port) {
-            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
-        }
-
-        this.port = port;
+    private start(runAs: PackagerRunAs, resetCache: boolean = false): Q.Promise<void> {
         let executedStartPackagerCmd = false;
         return this.isRunning()
             .then(running => {
@@ -195,7 +184,7 @@ export class Packager {
                     executedStartPackagerCmd = true;
                     return this.monkeyPatchOpnForRNPackager()
                         .then(() => {
-                            let args: string[] = ["--port", port.toString()];
+                            let args: string[] = ["--port", this.port.toString()];
                             if (resetCache) {
                                 args = args.concat("--resetCache");
                             }
@@ -324,7 +313,6 @@ export class Packager {
         Log.logMessage("Stopping Packager");
         return new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess).then(() => {
             this.packagerProcess = null;
-            this.port = null;
             if (this.packagerRunningAs === PackagerRunAs.EXPONENT) {
                 Log.logMessage("Stopping Exponent");
                 return XDL.stopAll(this.projectPath)

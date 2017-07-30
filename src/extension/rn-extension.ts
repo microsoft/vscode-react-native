@@ -38,11 +38,16 @@ import {ExtensionServer} from "./extensionServer";
 import {DelayedOutputChannelLogger} from "./outputChannelLogger";
 import { ExponentHelper } from "../common/exponent/exponentHelper";
 import { QRCodeContentProvider } from "./qrCodeContentProvider";
+import { ConfigurationReader } from "../common/configurationReader";
 
 /* all components use the same packager instance */
 const projectRootPath = SettingsHelper.getReactNativeProjectRoot();
 const workspaceRootPath = vscode.workspace.rootPath;
-const globalPackager = new Packager(workspaceRootPath, projectRootPath);
+
+const packagerPort = ConfigurationReader.readIntWithDefaultSync(
+    Packager.DEFAULT_PORT, SettingsHelper.getPackagerPort());
+
+const globalPackager = new Packager(workspaceRootPath, projectRootPath, packagerPort);
 const packagerStatusIndicator = new PackagerStatusIndicator();
 const globalExponentHelper = new ExponentHelper(workspaceRootPath, projectRootPath);
 const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper);
