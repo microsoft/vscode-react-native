@@ -61,7 +61,7 @@ export class SourceMapsCombinator {
 
                 // Resolve TS source path to absolute because it might be relative to generated JS
                 // (this depends on whether "sourceRoot" option is specified in tsconfig.json)
-                if (!tsPosition.source.match(DISK_LETTER_RE)) {
+                if (!tsPosition.source.match(DISK_LETTER_RE)) { // This check for Windows tests which were run on MacOs
                     tsPosition.source = path.resolve(
                         rawBundleSourcemap.sourceRoot,
                         path.dirname(item.source),

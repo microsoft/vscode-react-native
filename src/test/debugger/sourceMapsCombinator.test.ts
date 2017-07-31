@@ -57,7 +57,7 @@ suite("sourceMapsCombinator", function () {
 
             fsReadFileStub.withArgs(pathToJS).returns(codeJS);
             fsReadFileStub.withArgs(pathToTS).returns(codeTS);
-            fsReadFileStub.withArgs(sourcemapPath).returns(sourcemap);
+            fsReadFileStub.withArgs(sourcemapPath).returns(JSON.stringify(sourcemap));
 
             let sourceMapsCombinator = new SourceMapsCombinator();
             let result = sourceMapsCombinator.convert(rawBundleSourcemap);
