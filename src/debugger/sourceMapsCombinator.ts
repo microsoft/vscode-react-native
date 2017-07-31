@@ -6,6 +6,8 @@ import * as path from "path";
 import { SourceMapConsumer, RawSourceMap, SourceMapGenerator, MappingItem, Mapping, Position, MappedPosition } from "source-map";
 import sourceMapResolve = require("source-map-resolve");
 
+const DISK_LETTER_RE: RegExp = /^[a-z]:/i;
+
 export class SourceMapsCombinator {
 
     public convert(rawBundleSourcemap: RawSourceMap): RawSourceMap {
@@ -59,11 +61,13 @@ export class SourceMapsCombinator {
 
                 // Resolve TS source path to absolute because it might be relative to generated JS
                 // (this depends on whether "sourceRoot" option is specified in tsconfig.json)
-                tsPosition.source = path.resolve(
-                    rawBundleSourcemap.sourceRoot,
-                    path.dirname(item.source),
-                    tsPosition.source
-                );
+                if (!tsPosition.source.match(DISK_LETTER_RE)) { // This check for Windows tests which were run on MacOs
+                    tsPosition.source = path.resolve(
+                        rawBundleSourcemap.sourceRoot,
+                        path.dirname(item.source),
+                        tsPosition.source
+                    );
+                }
 
                 // Update mapping w/ mapped position values
                 mapping = {
@@ -90,10 +94,25 @@ export class SourceMapsCombinator {
     }
 
     private readSourcemap(file: string, code: string): SourceMapConsumer | null {
-        let result = sourceMapResolve.resolveSync(code, file, fs.readFileSync);
+        let result = sourceMapResolve.resolveSync(code, file, readFileSync.bind(null, getDiskLetter(file)));
         if (result === null) {
             return null;
         }
         return new SourceMapConsumer(result.map);
     }
+}
+
+// Hack for source-map-resolve and cutted disk letter
+// https://github.com/lydell/source-map-resolve/issues/9
+function readFileSync(diskLetter: string, filePath: string) {
+    if (filePath.match(DISK_LETTER_RE)) {
+        return fs.readFileSync(filePath);
+    } else {
+        return fs.readFileSync(`${diskLetter}${filePath}`);
+    }
+}
+
+function getDiskLetter(filePath: string): string {
+    const matched = filePath.match(DISK_LETTER_RE);
+    return matched ? matched[0] : "";
 }
