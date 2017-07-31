@@ -108,7 +108,8 @@ export class CommandPaletteHandler {
         TargetPlatformHelper.checkTargetPlatformSupport("ios");
         return this.executeCommandInContext("runIos", () => {
             // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
-            return new IOSDebugModeManager(this.workspaceRoot).setSimulatorJSDebuggingModeSetting(/*enable=*/ false)
+            return new IOSDebugModeManager(this.workspaceRoot)
+                .setSimulatorJSDebuggingModeSetting(/*enable=*/ false)
                 .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
                 .then(() => this.executeReactNativeRunCommand("run-ios"));
         });
@@ -144,9 +145,10 @@ export class CommandPaletteHandler {
      * {command} The command to be executed
      * {args} The arguments to be passed to the command
      */
-    private executeReactNativeRunCommand(command: string, args?: string[]): Q.Promise<void> {
+    private executeReactNativeRunCommand(command: string, args: string[] = []): Q.Promise<void> {
         return this.executeWithPackagerRunning(() => {
-            return new CommandExecutor(this.workspaceRoot).spawnReactCommand(command, args).outcome;
+            return new CommandExecutor(this.workspaceRoot)
+                .spawnReactCommand(command, args).outcome;
         });
     }
 
