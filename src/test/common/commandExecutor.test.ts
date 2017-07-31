@@ -2,23 +2,39 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {CommandExecutor} from "../../common/commandExecutor";
-import {Log} from "../../common/log/log";
+import { Log } from "../../common/log/log";
 
+import { Node } from "../../common/node/node";
+import { ChildProcess } from "../../common/node/childProcess";
+
+
+import { EventEmitter } from "events";
 import * as assert from "assert";
 import * as semver from "semver";
 import * as sinon from "sinon";
 import * as Q from "q";
 
 suite("commandExecutor", function() {
-    suite("commonContext", function() {
+    suite("commonContext", function () {
+
+        let childProcessStubInstance = new ChildProcess();
+        let childProcessStub: Sinon.SinonStub & ChildProcess;
+
         teardown(function() {
-            let mockedMethods = [Log.logMessage, Log.logCommandStatus];
+            let mockedMethods = [Log.logMessage, Log.logCommandStatus, ...Object.keys(childProcessStubInstance)];
 
             mockedMethods.forEach((method) => {
                 if (method.hasOwnProperty("restore")) {
                     (<any>method).restore();
                 }
             });
+
+            childProcessStub.restore();
+        });
+
+        setup(() => {
+            childProcessStub = sinon.stub(Node, "ChildProcess")
+                .returns(childProcessStubInstance) as ChildProcess & Sinon.SinonStub;
         });
 
         test("should execute a command", function() {
@@ -98,6 +114,21 @@ suite("commandExecutor", function() {
                     assert.equal(reason.errorCode, 101);
                     assert.equal(reason.errorLevel, 0);
                 }).done(() => done(), done);
+        });
+
+        test("should not fail on react-native command without arguments", function (done: MochaDone) {
+            (sinon.stub(childProcessStubInstance, "spawn") as Sinon.SinonStub)
+                .returns({
+                    stdout: new EventEmitter(),
+                    stderr: new EventEmitter(),
+                    outcome: Promise.resolve(void 0),
+                });
+
+            new CommandExecutor()
+                .spawnReactCommand("run-ios").outcome
+                .then(done, err => {
+                    assert.fail(null, null, "react-natibe command was not expected to fail", null);
+                });
         });
     });
 });

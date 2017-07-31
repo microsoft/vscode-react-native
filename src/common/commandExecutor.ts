@@ -120,7 +120,7 @@ export class CommandExecutor {
     /**
      * Executes a react native command and waits for its completion.
      */
-    public spawnReactCommand(command: string, args?: string[], options: Options = {}): ISpawnResult {
+    public spawnReactCommand(command: string, args: string[] = [], options: Options = {}): ISpawnResult {
         const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
         return this.spawnChildProcess(reactCommand, [command, ...args], options);
     }
