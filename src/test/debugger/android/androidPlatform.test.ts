@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
+import * as fs from "fs";
 import * as path from "path";
 import * as mockFs from "mock-fs";
 
@@ -27,6 +28,8 @@ suite("androidPlatform", function () {
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
         const genericRunOptions: IRunOptions = { projectRoot: projectRoot };
+
+        const rnProjectContent = fs.readFileSync(ReactNative022.DEFAULT_PROJECT_FILE, "utf8");
 
         let fileSystem: FileSystem;
         let adb: AdbSimulator;
@@ -62,8 +65,10 @@ suite("androidPlatform", function () {
         }
 
         setup(() => {
+            mockFs();
+
             // Configure all the dependencies we'll use in our tests
-            fileSystem = new FileSystem({ fs: mockFs.fs({}) });
+            fileSystem = new FileSystem();
             adb = new AdbSimulator(fileSystem);
             simulatedAVDManager = new AVDManager(adb);
             reactNative = new ReactNative022(adb, fileSystem);
@@ -71,7 +76,13 @@ suite("androidPlatform", function () {
             androidPlatform = createAndroidPlatform(genericRunOptions);
 
             // Create a React-Native project we'll use in our tests
-            return reactNative.createProject(projectRoot, applicationName);
+            return reactNative
+                .fromProjectFileContent(rnProjectContent)
+                .createProject(projectRoot, applicationName);
+        });
+
+        teardown(() => {
+            mockFs.restore();
         });
 
         const testWithRecordings = new RecordingsHelper(() => reactNative).test;
