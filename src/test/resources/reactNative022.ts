@@ -24,7 +24,12 @@ export type IReactNative = reactNative.IReactNative;
 /* This class simulates calling the React-Native CLI v0.22. It currently supports react-native init
     and react-native run-android. */
 export class ReactNative022 implements IReactNative {
+
+    public static DEFAULT_PROJECT_FILE = path.join(sampleRNProjectPath, "package.json");
+
     private static ANDROID_APK_RELATIVE_PATH = "android/app/build/outputs/apk/app-debug.apk";
+
+    private projectFileContent: string;
 
     private simulator: Simulator = new Simulator({
         beforeStart: () => this.readAndroidPackageName(), // 1. We read the package.json to verify this is a RN project
@@ -53,8 +58,17 @@ export class ReactNative022 implements IReactNative {
         assert(this.fileSystem, "fileSystem shouldn't be null");
     }
 
+    public fromProjectFileContent(content: string): this {
+        this.projectFileContent = content;
+        return this;
+    }
+
     public loadRecordingFromName(recordingName: string): Q.Promise<void> {
         return this.loadRecordingFromFile(path.join(processExecutionsRecordingsPath, `${recordingName}.json`));
+    }
+
+    public loadRecordingFromString(recordingContent: string): Q.Promise<void> {
+        return Q.when(this.loadRecording(JSON.parse(recordingContent)));
     }
 
     public loadRecordingFromFile(recordingPath: string): Q.Promise<void> {
@@ -75,7 +89,9 @@ export class ReactNative022 implements IReactNative {
         return Q({})
             .then(() => {
                 this.fileSystem.makeDirectoryRecursiveSync(projectRoot);
-                return this.readDefaultProjectFile("package.json");
+                return this.projectFileContent !== undefined ?
+                    this.projectFileContent :
+                    this.readDefaultProjectFile();
             }).then(defaultContents => {
                 const reactNativeConfiguration = JSON.parse(defaultContents);
                 reactNativeConfiguration.name = projectName;
@@ -170,8 +186,8 @@ export class ReactNative022 implements IReactNative {
         }
     }
 
-    private readDefaultProjectFile(relativeFilePath: string): Q.Promise<string> {
+    private readDefaultProjectFile(): Q.Promise<string> {
         const realFileSystem = new FileSystem(); // We always use the real file system (not the mock one) to read the sample project
-        return realFileSystem.readFile(path.join(sampleRNProjectPath, relativeFilePath));
+        return realFileSystem.readFile(ReactNative022.DEFAULT_PROJECT_FILE);
     }
 }

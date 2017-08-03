@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as fs from "fs";
+import * as path from "path";
+
+const RECORDINGS_ROOT = path.resolve(__dirname, "../../../src/test/resources/", "processExecutionsRecordings");
+
 interface TestUsingRecording {
     (expectation: string, recordingNames: string[], assertion?: () => void): Mocha.ITest;
     (expectation: string, recordingNames: string[], assertion?: (done: MochaDone) => void): Mocha.ITest;
@@ -12,6 +17,7 @@ interface TestUsingRecording {
 
 export interface IRecordingConsumer {
     loadRecordingFromName(recordingName: string): Q.Promise<void>;
+    loadRecordingFromString(recordingName: string): Q.Promise<void>;
 }
 
 /* This class makes it easy to create a test using a recording. Recommended usage is:
@@ -27,7 +33,10 @@ export interface IRecordingConsumer {
 export class RecordingsHelper {
     public test: TestUsingRecording;
 
+    private recordings: { [name: string]: string };
+
     constructor(private getRecordingConsumer: () => IRecordingConsumer) {
+        this.recordings = {};
         this.initializeTest();
     }
 
@@ -38,8 +47,18 @@ export class RecordingsHelper {
             }
             const recordingsHelper = this;
             recordingNames.forEach(recordingName => {
+
+                let recording: string = this.recordings[recordingName];
+                if (!recording) {
+                    recording = fs.readFileSync(path.resolve(RECORDINGS_ROOT, recordingName) + ".json", "utf8");
+                    this.recordings[recordingName] = recording;
+                }
+
                 test(`${testName} using recording ${recordingName}`, function () { // We use function () because we need the this pointer
-                    return recordingsHelper.getRecordingConsumer().loadRecordingFromName(recordingName).then(code.bind(this));
+                    return recordingsHelper
+                        .getRecordingConsumer()
+                        .loadRecordingFromString(recording)
+                        .then(code.bind(this));
                 });
             });
         });
