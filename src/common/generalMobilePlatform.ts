@@ -3,16 +3,20 @@
 
 import * as Q from "q";
 
-import {Log} from "../common/log/log";
-import {IRunOptions} from "../common/launchArgs";
-import {RemoteExtension} from "../common/remoteExtension";
+import {Log} from "./log/log";
+import {IRunOptions} from "./launchArgs";
+import {RemoteExtension} from "./remoteExtension";
+
+export interface IRemoteExtensionOpt {
+    remoteExtension?: RemoteExtension;
+}
 
 export class GeneralMobilePlatform {
     protected projectPath: string;
     protected remoteExtension: RemoteExtension;
     protected platformName: string;
 
-    constructor(protected runOptions: IRunOptions, { remoteExtension = null } = {}) {
+    constructor(protected runOptions: IRunOptions, { remoteExtension = null }: IRemoteExtensionOpt = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
         this.remoteExtension = (remoteExtension) ? remoteExtension : RemoteExtension.atProjectRootPath(runOptions.projectRoot);

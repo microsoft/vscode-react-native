@@ -15,6 +15,7 @@ import {IRunOptions} from "../../common/launchArgs";
 import {PlistBuddy} from "../../common/ios/plistBuddy";
 import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
+import {RemoteExtension} from "../../common/remoteExtension";
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
@@ -40,7 +41,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
     // We set remoteExtension = null so that if there is an instance of iOSPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(runOptions: IRunOptions, { remoteExtension = null } = {}) {
+    constructor(runOptions: IRunOptions, { remoteExtension = null }: {remoteExtension?: RemoteExtension} = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
         this.simulatorTarget = this.runOptions.target || IOSPlatform.simulatorString;
         this.isSimulator = this.simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;

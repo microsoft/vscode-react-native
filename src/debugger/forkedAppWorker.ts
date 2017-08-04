@@ -28,7 +28,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     private debuggeeProcess: child_process.ChildProcess = null;
     /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
     private workerLoaded = Q.defer<void>();
-    private bundleLoaded;
+    private bundleLoaded: Q.Deferred<void>;
 
     constructor(
         private packagerPort: number,

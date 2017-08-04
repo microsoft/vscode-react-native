@@ -61,11 +61,11 @@ export class ExponentHelper {
                     return showMessage("You need to login to exponent. Please provide username and password to login. If you don't have an account we will create one for you.")
                         .then(() =>
                             promptForInformation("Exponent username", false)
-                        ).then((name) => {
+                        ).then((name: string) => {
                             username = name;
                             return promptForInformation("Exponent password", true);
                         })
-                        .then((password) =>
+                        .then((password: string) =>
                             XDL.login(username, password));
                 }
                 return user;

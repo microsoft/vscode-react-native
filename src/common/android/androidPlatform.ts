@@ -3,7 +3,7 @@
 
 import * as Q from "q";
 
-import {GeneralMobilePlatform} from "../generalMobilePlatform";
+import {GeneralMobilePlatform, IRemoteExtensionOpt} from "../generalMobilePlatform";
 import {Packager} from "../packager";
 import {IRunOptions} from "../launchArgs";
 import {Log} from "../log/log";
@@ -16,7 +16,11 @@ import {FileSystem} from "../node/fileSystem";
 import {IReactNative, ReactNative} from "../reactNative";
 import {TelemetryHelper} from "../telemetryHelper";
 
-
+export interface IRemoteExtensionOptAndroid extends IRemoteExtensionOpt {
+    adb?: IAdb;
+    reactNative?: IReactNative;
+    fileSystem?: FileSystem;
+}
 /**
  * Android specific platform implementation for debugging RN applications.
  */
@@ -60,7 +64,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         adb = <IAdb>new Adb(),
         reactNative = <IReactNative>new ReactNative(),
         fileSystem = new FileSystem(),
-    } = {}) {
+    }: IRemoteExtensionOptAndroid = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
         this.adb = adb;
         this.reactNative = reactNative;
