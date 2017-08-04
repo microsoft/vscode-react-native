@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { SourceMapsCombinator } from "../../debugger/sourceMapsCombinator";
+import { RawSourceMap } from "source-map";
 
 import * as assert from "assert";
 import * as sinon from "sinon";
@@ -26,7 +27,7 @@ suite("sourceMapsCombinator", function () {
             const sourcemapPath = "d:/hello.js.map";
             const codeJS = fs.readFileSync(path.resolve(__dirname, "assets/hello.js"));
             const codeTS = fs.readFileSync(path.resolve(__dirname, "../../../src/test/debugger/assets/hello.ts"));
-            const sourcemap = {
+            const sourcemap: RawSourceMap = {
                 "version": 3,
                 "sources": [
                     "d:/hello.ts",
@@ -40,16 +41,16 @@ suite("sourceMapsCombinator", function () {
                 "sources": [
                     "d:/hello.ts",
                 ],
-                "names": [],
+                "names": <string[]>[],
                 "mappings": "AAAA,IAAA,MAAM,EAAM,CAAA,SAAA,CAAA,EAAA;IACR,SAAA,KAAa,CAAA,GAAA,EAAO;QACpB,IAAA,CAAA,IAAA,EAAA,GAAA;IACA;SACI,CAAA,SAAO,CAAA,SAAc,EAAA,SAAM,CAAA,EAAO;QACtC,OAAA,OAAA,EAAA,IAAA,CAAA,IAAA,EAAA,OAAA;IACJ,CAAA;;AAEA,CAAA,CAAA,CAAA,CAAA;;AAEA,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC",
             };
 
-            let rawBundleSourcemap = {
+            let rawBundleSourcemap: RawSourceMap = {
                 "version": 3,
                 "sources": [
                     "d:/hello.js",
                 ],
-                "names": [],
+                "names": <string[]>[],
                 "mappings": "AAAA,IAAI,MAAM,EAAE,CAAC,SAAS,CAAC,EAAE;IACrB,SAAS,KAAK,CAAC,GAAG,EAAE;QAChB,IAAI,CAAC,IAAI,EAAE,GAAG;IAClB;IACA,KAAK,CAAC,SAAS,CAAC,SAAS,EAAE,SAAS,CAAC,EAAE;QACnC,OAAO,OAAO,EAAE,IAAI,CAAC,IAAI,EAAE,OAAO;IACtC,CAAC;IACD,OAAO,KAAK;AAChB,CAAC,CAAC,CAAC,CAAC;AACJ,IAAI,MAAM,EAAE,IAAI,KAAK,CAAC,gDAAgD,CAAC;AACvE,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC", "file": "hello.js", "sourceRoot": "",
             };
 

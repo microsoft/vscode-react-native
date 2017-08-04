@@ -75,7 +75,7 @@ export abstract class TelemetryGeneratorBase {
         return this;
     }
 
-    public time<T>(name: string, codeToMeasure: { (): Thenable<T>|T }): Q.Promise<T> {
+    public time<T>(name: string, codeToMeasure: { (): Q.Promise<T>|T }): Q.Promise<T> {
         let startTime: [number, number] = process.hrtime();
         return Q(codeToMeasure())
         .finally(() => this.finishTime(name, startTime))
@@ -203,7 +203,7 @@ export class TelemetryHelper {
         return telemetryProperties;
     }
 
-    public static generate<T>(name: string, codeGeneratingTelemetry: { (telemetry: TelemetryGenerator): Thenable<T>|T }): Q.Promise<T> {
+    public static generate<T>(name: string, codeGeneratingTelemetry: { (telemetry: TelemetryGenerator): Q.Promise<T>|T }): Q.Promise<T> {
         let generator: TelemetryGenerator = new TelemetryGenerator(name);
         return generator.time(null, () => codeGeneratingTelemetry(generator)).finally(() => generator.send());
     }

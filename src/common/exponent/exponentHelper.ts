@@ -52,7 +52,7 @@ export class ExponentHelper {
     /**
      * Returns the current user. If there is none, asks user for username and password and logins to exponent servers.
      */
-    public loginToExponent(promptForInformation: (message: string, password: boolean) => Q.Promise<string>, showMessage: (message: string) => Q.Promise<string>): Q.Promise<XDL.IUser> {
+    public loginToExponent(promptForInformation: (message: string, password: boolean) => any, showMessage: (message: string) => any): Q.Promise<XDL.IUser> {
         this.lazilyInitialize();
         return XDL.currentUser()
             .then((user) => {

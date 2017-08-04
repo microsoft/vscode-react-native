@@ -4,17 +4,17 @@
 import * as Q from "q";
 
 import {GeneralMobilePlatform} from "../generalMobilePlatform";
-import {Packager} from "../../common/packager";
-import {IRunOptions} from "../../common/launchArgs";
-import {Log} from "../../common/log/log";
-import {IAdb, Adb, AndroidAPILevel, IDevice, DeviceType} from "../../common/android/adb";
-import {Package} from "../../common/node/package";
-import {PromiseUtil} from "../../common/node/promise";
-import {PackageNameResolver} from "../../common/android/packageNameResolver";
-import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
-import {FileSystem} from "../../common/node/fileSystem";
-import {IReactNative, ReactNative} from "../../common/reactNative";
-import {TelemetryHelper} from "../../common/telemetryHelper";
+import {Packager} from "../packager";
+import {IRunOptions} from "../launchArgs";
+import {Log} from "../log/log";
+import {IAdb, Adb, AndroidAPILevel, IDevice, DeviceType} from "./adb";
+import {Package} from "../node/package";
+import {PromiseUtil} from "../node/promise";
+import {PackageNameResolver} from "./packageNameResolver";
+import {OutputVerifier, PatternToFailure} from "../outputVerifier";
+import {FileSystem} from "../node/fileSystem";
+import {IReactNative, ReactNative} from "../reactNative";
+import {TelemetryHelper} from "../telemetryHelper";
 
 
 /**

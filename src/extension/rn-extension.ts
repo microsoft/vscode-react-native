@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as fs from "fs";
-
 // @ifdef DEBUG
 try {
-    fs.statSync(`${__filename}.map`); // We check if source maps are available
     /* tslint:disable:no-var-requires */
+    require("fs").statSync(`${__filename}.map`); // We check if source maps are available
     require("source-map-support").install(); // If they are, we enable stack traces translation to typescript
     /* tslint:enable:no-var-requires */
 } catch (exceptions) {

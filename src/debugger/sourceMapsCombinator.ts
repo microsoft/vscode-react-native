@@ -14,7 +14,7 @@ export class SourceMapsCombinator {
 
         // Find user files from bundle files list
         const consumers: { [key: string]: SourceMapConsumer } = rawBundleSourcemap.sources
-            .reduce((result, file) => {
+            .reduce((result: { [key: string]: SourceMapConsumer }, file) => {
                 // Skip files inside node_modules
                 if (file.indexOf("node_modules") >= 0) return result;
 
@@ -70,10 +70,9 @@ export class SourceMapsCombinator {
                 }
 
                 // Update mapping w/ mapped position values
-                mapping = {
-                    ...mapping, ...tsPosition,
-                    original: { line: tsPosition.line, column: tsPosition.column },
-                };
+                mapping.source = tsPosition.source;
+                mapping.name = tsPosition.name || mapping.name;
+                mapping.original = { line: tsPosition.line, column: tsPosition.column };
             }
 
             try {

@@ -128,8 +128,12 @@ export class ExtensionServer implements vscode.Disposable {
             this.exponentHelper.configureExponentEnvironment()
             ).then(() =>
                 this.exponentHelper.loginToExponent(
-                    (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
-                    (message) => { return Q(vscode.window.showInformationMessage(message)); }
+                    (message, password) => {
+                        return Q(vscode.window.showInputBox({ placeHolder: message, password: password }));
+                    },
+                    (message) => {
+                        return Q(vscode.window.showInformationMessage(message));
+                    }
                 ))
             .then(() => {
                 return this.reactNativePackager.startAsExponent();
@@ -185,7 +189,7 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Message handler for OPEN_FILE_AT_LOCATION
      */
-    private openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void> {
+    private openFileAtLocation(filename: string, lineNumber: number): Q.Promise<PromiseLike<void>> {
         return Q(vscode.workspace.openTextDocument(vscode.Uri.file(filename)).then((document: vscode.TextDocument) => {
             return vscode.window.showTextDocument(document).then((editor: vscode.TextEditor) => {
                 let range = editor.document.lineAt(lineNumber - 1).range;

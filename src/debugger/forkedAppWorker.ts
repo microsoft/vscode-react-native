@@ -35,7 +35,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         private sourcesStoragePath: string,
         private postReplyToApp: (message: any) => void
     ) {
-        this.scriptImporter = new ScriptImporter(packagerPort, sourcesStoragePath);
+        this.scriptImporter = new ScriptImporter(this.packagerPort, this.sourcesStoragePath);
     }
 
     public stop() {
