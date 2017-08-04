@@ -96,7 +96,8 @@ export class CommandPaletteHandler {
         TargetPlatformHelper.checkTargetPlatformSupport("android");
         return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
             const packagerPort = SettingsHelper.getPackagerPort();
-            return new AndroidPlatform({ projectRoot: this.workspaceRoot, packagerPort: packagerPort }).runApp(/*shouldLaunchInAllDevices*/true);
+            const variant = SettingsHelper.getVariant();
+            return new AndroidPlatform({ projectRoot: this.workspaceRoot, packagerPort: packagerPort, variant: variant }).runApp(/*shouldLaunchInAllDevices*/true);
         }));
     }
 

@@ -54,7 +54,16 @@ export class SettingsHelper {
         }
         return Packager.DEFAULT_PORT;
     }
-
+    /**
+     * Get android variant for React-Native.RunAndroid
+     */
+    public static getVariant() {
+        const workspaceConfiguration = vscode.workspace.getConfiguration();
+        if (workspaceConfiguration.has("react-native.variant")) {
+            return ConfigurationReader.readString(workspaceConfiguration.get("react-native.variant"));
+        }
+        return null;
+    }
     /**
      * Get showInternalLogs setting
      */
