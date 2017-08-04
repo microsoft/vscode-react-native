@@ -1,3 +1,9 @@
+## 0.4.1
+* Added notice about `.vscode/.react` directory (#505)
+* Fixed bug in typescript sourcemaps rewrite logic when project and vscode are on different drives
+* Fixed regression causing `react-native` commands ran from command palette to fail
+* Fixed regression causing debugging to fail when start debugging Expo project first time
+
 ## 0.4.0
 * Fixed issue with infinite loops when reloading RN app
 * Fixed compatibility issues with react-native >=0.45
