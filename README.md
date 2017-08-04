@@ -19,6 +19,8 @@ You can debug your code, quickly run `react-native` commands from the command pa
 * Open your React Native project root folder in VS Code.
   * Hint: you should create a `.babelrc` with `sourceMaps: true` and `"presets": [ "react-native" ]` for better source-mapping support. (**required if you want TypeScript support**)
 
+Please notice that the extension uses `.vscode/.react` directory at the project root to store intermediate files required for debugging. Though these files are usually get removed after debug session ends you still might want to add this directory to your `.gitignore`
+
 ### Create a `.babelrc` file for ReactNative Packager transformer
   Create a `.babelrc` file in your React Native project root, the content of `.babelrc` at least with `sourceMaps = true`.
   for example:
