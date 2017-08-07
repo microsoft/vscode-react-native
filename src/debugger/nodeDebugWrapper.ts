@@ -33,7 +33,7 @@ export function makeSession(
         private projectRootPath: string;
         private remoteExtension: RemoteExtension;
         private mobilePlatformOptions: IRunOptions;
-        private appWorker: MultipleLifetimesAppWorker = null;
+        private appWorker: MultipleLifetimesAppWorker | null = null;
 
         constructor(debuggerLinesAndColumnsStartAt1?: boolean, isServer?: boolean) {
             super(debuggerLinesAndColumnsStartAt1, isServer, debugSessionOpts);

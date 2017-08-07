@@ -4,7 +4,7 @@
 declare class AppJson {
     public name: string;
     public displayName?: string;
-    public expo?: ExpConfig;
+    public expo: ExpConfig;
 }
 
 declare class ExpConfig {

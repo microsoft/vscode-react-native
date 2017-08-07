@@ -140,18 +140,11 @@ suite("appWorker", function() {
             teardown(function() {
                 // Reset everything
                 multipleLifetimesWorker.stop();
-                multipleLifetimesWorker = null;
                 appWorkerModuleStub.restore();
-                webSocket = null;
-                sandboxedAppWorkerStub = null;
-                webSocketConstructor = null;
-                sendMessage = null;
                 packagerIsRunning.restore();
-                packagerIsRunning = null;
 
                 if (clock) {
                     clock.restore();
-                    clock = null;
                 }
             });
 

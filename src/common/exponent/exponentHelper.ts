@@ -166,7 +166,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
                 return config ? this.writeAppJson(config) : config;
             })
             .then((config: AppJson) => {
-                return isExpo ? null : this.createExpoEntry(config.expo.name);
+                return isExpo ? Q.resolve(void 0) : this.createExpoEntry(config.expo.name);
             });
     };
 

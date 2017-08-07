@@ -29,7 +29,7 @@ suite("packager", function () {
                 assert(requestStub.firstCall.args[0].match("http://localhost:" + Packager.DEFAULT_PORT));
             })
             .then(done, () => {
-                assert.fail(null, null, "packager was expected to be running", null);
+                assert.fail(null, null, "packager was expected to be running");
                 done();
             });
     });
@@ -41,7 +41,7 @@ suite("packager", function () {
             .isRunning()
             .then(isRunning => assert(!isRunning))
             .then(done, () => {
-                assert.fail(null, null, "packager was not expected to be running", null);
+                assert.fail(null, null, "packager was not expected to be running");
                 done();
             });
     });
@@ -53,7 +53,7 @@ suite("packager", function () {
             .isRunning()
             .then(isRunning => assert(!isRunning))
             .then(done, () => {
-                assert.fail(null, null, "packager was not expected to be running", null);
+                assert.fail(null, null, "packager was not expected to be running");
                 done();
             });
     });

@@ -63,7 +63,7 @@ export class IOSDebugModeManager {
     private tryOneAttemptToFindPListFile(): Q.Promise<string> {
         return this.simulatorPlist.findPlistFile().catch(reason => {
             Log.logInternalMessage(LogLevel.Info, `Failed one attempt to find plist file: ${reason}`);
-            return null;
+            return Q.reject(reason);
         });
     }
 }

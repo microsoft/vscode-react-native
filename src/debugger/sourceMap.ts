@@ -16,6 +16,11 @@ interface ISourceMapSection {
     offset: { column: number, line: number };
 }
 
+export interface IStrictUrl extends url.Url {
+    pathname: string;
+    href: string;
+}
+
 export class SourceMapUtil {
     private static SourceMapURLRegex: RegExp = /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/m;
 
@@ -23,8 +28,8 @@ export class SourceMapUtil {
      * Given a script body and URL, this method parses the body and finds the corresponding source map URL.
      * If the source map URL is not found in the body in the expected form, null is returned.
      */
-    public getSourceMapURL(scriptUrl: url.Url, scriptBody: string): url.Url {
-        let result: url.Url = null;
+    public getSourceMapURL(scriptUrl: url.Url, scriptBody: string): IStrictUrl {
+        let result: IStrictUrl = {pathname: "", href: ""};
 
         // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
         let sourceMappingRelativeUrl = this.getSourceMapRelativeUrl(scriptBody); // sourceMappingRelativeUrl = "/index.ios.map?platform=ios&dev=true"
@@ -33,7 +38,7 @@ export class SourceMapUtil {
             sourceMappingUrl.protocol = scriptUrl.protocol;
             sourceMappingUrl.host = scriptUrl.host;
             // parse() repopulates all the properties of the URL
-            result = url.parse(url.format(sourceMappingUrl));
+            result = <IStrictUrl>url.parse(url.format(sourceMappingUrl));
         }
 
         return result;
@@ -85,7 +90,7 @@ export class SourceMapUtil {
     /**
      * Updates source map URLs in the script body.
      */
-    public updateScriptPaths(scriptBody: string, sourceMappingUrl: url.Url) {
+    public updateScriptPaths(scriptBody: string, sourceMappingUrl: IStrictUrl) {
         // Update the body with the new location of the source map on storage.
         return scriptBody.replace(SourceMapUtil.SourceMapURLRegex,
             "//# sourceMappingURL=" + path.basename(sourceMappingUrl.pathname));

@@ -12,8 +12,8 @@
         "removeComments": false,
         "preserveConstEnums": true,
         "alwaysStrict": true,
-        "strictNullChecks": false, // TODO change to true (86)
-        "noImplicitAny": false, // TODO change to true when dependency `source-map-resolve` will be removed
+        "strictNullChecks": true,
+        "noImplicitAny": true,
         "suppressImplicitAnyIndexErrors": true,
         "noImplicitThis": true,
         "noImplicitReturns": true,

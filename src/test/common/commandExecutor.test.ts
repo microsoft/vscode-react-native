@@ -58,7 +58,7 @@ suite("commandExecutor", function() {
 
             return ce.execute("bar")
                 .then(() => {
-                    assert.fail(null, null, "bar should not be a valid command", null);
+                    assert.fail(null, null, "bar should not be a valid command");
                 })
                 .catch((reason) => {
                     console.log(reason.message);
@@ -72,7 +72,7 @@ suite("commandExecutor", function() {
 
             return ce.execute("node install bad-package")
                 .then(() => {
-                    assert.fail(null, null, "node should not be able to install bad-package", null);
+                    assert.fail(null, null, "node should not be able to install bad-package");
                 })
                 .catch((reason) => {
                     console.log(reason.message);
@@ -127,7 +127,7 @@ suite("commandExecutor", function() {
             new CommandExecutor()
                 .spawnReactCommand("run-ios").outcome
                 .then(done, err => {
-                    assert.fail(null, null, "react-natibe command was not expected to fail", null);
+                    assert.fail(null, null, "react-natibe command was not expected to fail");
                 });
         });
     });

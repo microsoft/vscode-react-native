@@ -34,7 +34,7 @@ suite("deviceRunner", function() {
                 mockDebuggerProxy.close();
                 client.on("data", function (data: Buffer): void {
                     let dataString: string = data.toString();
-                    if (mockDebuggerProxy.protocolState % 2 === 1) {
+                    if (mockDebuggerProxy.protocolState && mockDebuggerProxy.protocolState % 2 === 1) {
                         // Every second message should be an acknowledgement of a send of ours
                         dataString[0].should.equal("+");
                         mockDebuggerProxy.protocolState++;
@@ -110,7 +110,7 @@ suite("deviceRunner", function() {
                 mockDebuggerProxy.close();
                 client.on("data", function (data: Buffer): void {
                     let dataString: string = data.toString();
-                    if (mockDebuggerProxy.protocolState % 2 === 1) {
+                    if (mockDebuggerProxy.protocolState && mockDebuggerProxy.protocolState % 2 === 1) {
                         // Every second message should be an acknowledgement of a send of ours
                         dataString[0].should.equal("+");
                         mockDebuggerProxy.protocolState++;

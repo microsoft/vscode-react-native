@@ -12,9 +12,9 @@ import * as Q from "q";
 export class ExponentPlatform extends GeneralMobilePlatform {
     private exponentTunnelPath: string;
 
-    constructor(runOptions: IRunOptions, {remoteExtension = null}: IRemoteExtensionOpt = {}) {
+    constructor(runOptions: IRunOptions, {remoteExtension}: IRemoteExtensionOpt = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
-        this.exponentTunnelPath = null;
+        this.exponentTunnelPath = "";
     }
 
     public runApp(): Q.Promise<void> {
@@ -37,7 +37,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                         "No link provided by exponent. Is your project correctly setup?"));
                 }
                 this.exponentTunnelPath = exponentUrl;
-                return null;
+                return Q.resolve(void 0);
             });
     }
 }

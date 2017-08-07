@@ -124,7 +124,7 @@ export class ReactNative022 implements IReactNative {
 
     private createAPK(): Q.Promise<void> {
         return this.isAndroidProjectPresent().then(isPresent => {
-            return isPresent ? null : Q.reject<void>(new Error("The recording expects the Android project to be present, but it's not"));
+            return isPresent ? void 0 : Q.reject<void>(new Error("The recording expects the Android project to be present, but it's not"));
         }).then(() => {
             this.androidAPKPath = path.join(this.projectRoot, ReactNative022.ANDROID_APK_RELATIVE_PATH);
             return new APKSerializer(this.fileSystem).writeApk(this.androidAPKPath, { packageName: this.androidPackageName });
@@ -146,7 +146,7 @@ export class ReactNative022 implements IReactNative {
                 return this.adb.installApp(this.androidAPKPath, deviceId);
             } else {
                 // TODO: Figure out what's the right thing to do here, if we ever need this for the tests
-                return null;
+                return void 0;
             }
         });
     }
@@ -182,7 +182,7 @@ export class ReactNative022 implements IReactNative {
             }
         } else {
             // The record doesn't indicate that the app was launched, so we don't do anything
-            return null;
+            return Q.resolve(void 0);
         }
     }
 

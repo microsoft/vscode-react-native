@@ -10,7 +10,7 @@ import {PlistBuddy} from "../../common/ios/plistBuddy";
 
 export class DeviceRunner {
     private projectRoot: string;
-    private nativeDebuggerProxyInstance: ChildProcess;
+    private nativeDebuggerProxyInstance: ChildProcess | null;
     private childProcess = new Node.ChildProcess();
 
     constructor(projectRoot: string) {
@@ -44,8 +44,8 @@ export class DeviceRunner {
         // For more info, see http://www.opensource.apple.com/source/lldb/lldb-167.2/docs/lldb-gdb-remote.txt
         const socket: net.Socket = new net.Socket();
         let initState: number = 0;
-        let endStatus: number = null;
-        let endSignal: number = null;
+        let endStatus: number;
+        let endSignal: number;
 
         const deferred1: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
         const deferred2: Q.Deferred<net.Socket> = Q.defer<net.Socket>();

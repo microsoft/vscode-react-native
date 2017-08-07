@@ -41,7 +41,7 @@ export class SettingsHelper {
                 return ConfigurationReader.readString(tsdk);
             }
         }
-        return null;
+        return "";
     }
 
     /**

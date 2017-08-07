@@ -41,11 +41,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
     // We set remoteExtension = null so that if there is an instance of iOSPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(runOptions: IRunOptions, { remoteExtension = null }: {remoteExtension?: RemoteExtension} = {}) {
+    constructor(runOptions: IRunOptions, { remoteExtension = undefined }: {remoteExtension?: RemoteExtension} = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
         this.simulatorTarget = this.runOptions.target || IOSPlatform.simulatorString;
         this.isSimulator = this.simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;
-        this.iosProjectPath = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath);
+        this.iosProjectPath = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "");
     }
 
     public runApp(): Q.Promise<void> {
@@ -57,7 +57,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 runArguments.push("--simulator", this.simulatorTarget);
             }
 
-            runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath);
+            runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath || "");
 
             // provide any defined scheme
             if (this.runOptions.scheme) {
@@ -116,7 +116,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     return this.runApp();
                 });
             }
-            return null;
+            return Q.resolve(void 0);
         });
     }
 

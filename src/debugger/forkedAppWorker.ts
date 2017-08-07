@@ -25,7 +25,7 @@ function printDebuggingError(message: string, reason: any) {
 export class ForkedAppWorker implements IDebuggeeWorker {
 
     private scriptImporter: ScriptImporter;
-    private debuggeeProcess: child_process.ChildProcess = null;
+    private debuggeeProcess: child_process.ChildProcess | null = null;
     /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
     private workerLoaded = Q.defer<void>();
     private bundleLoaded: Q.Deferred<void>;
@@ -108,7 +108,12 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                         });
                 }
             })
-            .done((message: RNAppMessage) => this.debuggeeProcess.send({ data: message }),
-            reason => printDebuggingError(`Couldn't import script at <${rnMessage.url}>`, reason));
+            .done(
+            (message: RNAppMessage) => {
+                if (this.debuggeeProcess) {
+                    this.debuggeeProcess.send({ data: message });
+                }
+            },
+            (reason) => printDebuggingError(`Couldn't import script at <${rnMessage.url}>`, reason));
     }
 }

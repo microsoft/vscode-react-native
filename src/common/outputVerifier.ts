@@ -43,7 +43,7 @@ export class OutputVerifier {
                 if (!this.areAllSuccessPatternsPresent(successPatterns)) { // If we don't find all the success patterns, we also fail
                     return Q.reject<void>(new Error("Unknown error"));
                 } // else we found all the success patterns, so we succeed
-                return null;
+                return Q.resolve(void 0);
             });
     }
 
@@ -62,7 +62,7 @@ export class OutputVerifier {
                 errorsAndOutput.indexOf(pattern.pattern as string) !== -1;
         });
 
-        return patternThatAppeared ? patternThatAppeared.message : null;
+        return patternThatAppeared ? patternThatAppeared.message : "";
     }
 
     // We check that all the patterns appeared on the output

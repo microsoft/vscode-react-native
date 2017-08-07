@@ -105,7 +105,7 @@ export class Simulator {
 
         this.outputEventBasedDefinitions.forEach(definition => {
             const match = data.match(definition.eventPattern);
-            if (match) {
+            if (match && match.index !== undefined) {
                 applicableSideEffectDefinitions.push({
                     index: previousOutputLength + match.index, // Index relative to the whole output
                     definition: definition,
@@ -117,7 +117,7 @@ export class Simulator {
             from future iterations of wholeOutputBasedDefinitions so they won't be matched again. */
         this.wholeOutputBasedDefinitions = this.wholeOutputBasedDefinitions.filter(definition => {
             const match = this.allStdout.match(definition.wholeOutputPattern);
-            if (match) {
+            if (match && match.index !== undefined) {
                 applicableSideEffectDefinitions.push({
                     index: match.index,
                     definition: definition,

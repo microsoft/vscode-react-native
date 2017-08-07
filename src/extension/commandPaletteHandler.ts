@@ -36,7 +36,7 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("startPackager", () =>
             this.reactNativePackager.isRunning()
             .then((running) => {
-                return running ? this.reactNativePackager.stop() : null;
+                return running ? this.reactNativePackager.stop() : Q.resolve(void 0);
             })
         )
         .then(() => this.runStartPackagerCommandAndUpdateStatus());
@@ -49,7 +49,7 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("startExponentPackager", () =>
             this.reactNativePackager.isRunning()
             .then((running) => {
-                return running ? this.reactNativePackager.stop() : null;
+                return running ? this.reactNativePackager.stop() : Q.resolve(void 0);
             })
         ).then(() =>
             this.exponentHelper.configureExponentEnvironment()

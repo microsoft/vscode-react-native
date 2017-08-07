@@ -27,7 +27,7 @@ export enum PackagerRunAs {
 
 export class Packager {
     public static DEFAULT_PORT = 8081;
-    private packagerProcess: ChildProcess;
+    private packagerProcess: ChildProcess | undefined;
     private packagerRunningAs: PackagerRunAs;
 
     private static JS_INJECTOR_FILENAME = "opn-main.js";
@@ -70,7 +70,7 @@ export class Packager {
                 } else if (this.packagerRunningAs !== PackagerRunAs.EXPONENT) {
                     return this.start(PackagerRunAs.EXPONENT);
                 } else {
-                    return null;
+                    return Q.resolve(void 0);
                 }
             })
             .then(() =>
@@ -146,7 +146,7 @@ export class Packager {
         }
         return this.isRunning()
             .then(running => {
-                return running ? this.prewarmBundleCacheWithBundleFilename(`index.${platform}`, platform) : null;
+                return running ? this.prewarmBundleCacheWithBundleFilename(`index.${platform}`, platform) : void 0;
             });
     }
 
@@ -176,7 +176,7 @@ export class Packager {
         });
     }
 
-    private start(runAs: PackagerRunAs, resetCache: boolean = false): Q.Promise<void> {
+    private start(runAs: PackagerRunAs, resetCache: boolean = false): Q.Promise<any> {
         let executedStartPackagerCmd = false;
         return this.isRunning()
             .then(running => {
@@ -242,7 +242,7 @@ export class Packager {
                             });
                         });
                 }
-                return null;
+                return void 0;
             })
             .then(() =>
                 this.awaitStart())
@@ -307,14 +307,14 @@ export class Packager {
                             return opnPackage.setMainFile(Packager.JS_INJECTOR_FILENAME);
                         });
                 }
-                return null;
+                return Q.resolve(void 0);
             });
     }
 
     private killPackagerProcess(): Q.Promise<void> {
         Log.logMessage("Stopping Packager");
         return new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess).then(() => {
-            this.packagerProcess = null;
+            this.packagerProcess = undefined;
             if (this.packagerRunningAs === PackagerRunAs.EXPONENT) {
                 Log.logMessage("Stopping Exponent");
                 return XDL.stopAll(this.projectPath)

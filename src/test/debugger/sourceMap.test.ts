@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {SourceMapUtil} from "../../debugger/sourceMap";
+import {SourceMapUtil, IStrictUrl} from "../../debugger/sourceMap";
 
 import * as assert from "assert";
 import * as path from "path";
@@ -38,23 +38,23 @@ suite("sourceMap", function() {
             assert.equal(expectedUrlHref, result.href);
         });
 
-        test("should return null for an invalid sourcemap url", function () {
+        test("should return default IStrictUrl for an invalid sourcemap url", function () {
             const scriptUrl: url.Url = url.parse("http://localhost:8081/index.ios.bundle?platform=ios&dev=true");
             const scriptBody = "";
 
             const sourceMap = new SourceMapUtil();
             const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
-            assert(result === null);
+            assert.deepEqual({pathname: "", href: ""}, result);
         });
 
-        test("should return null if there are only inline sourcemap urls", function () {
+        test("should return default IStrictUrl if there are only inline sourcemap urls", function () {
             const scriptUrl: url.Url = url.parse("http://localhost:8081/index.ios.bundle?platform=ios&dev=true");
             const scriptBody = "//# sourceMappingURL=data:application/json;base64,eyJmb28iOiJiYXIifQ==\n" +
                                "//# sourceMappingURL=data:application/json;base64,eyJiYXoiOiJxdXV4In0=";
 
             const sourceMap = new SourceMapUtil();
             const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
-            assert(result === null);
+            assert.deepEqual({pathname: "", href: ""}, result);
         });
 
         test("should update the contents of a source map file", function() {
@@ -70,7 +70,7 @@ suite("sourceMap", function() {
 
         test("should update scripts with source mapping urls", function() {
             const scriptBody: string = "//# sourceMappingURL=/index.ios.map?platform=ios&dev=true";
-            const sourceMappingUrl: url.Url = url.parse("/index.android.map");
+            const sourceMappingUrl: IStrictUrl = <IStrictUrl>url.parse("/index.android.map");
             const expectedScriptBody = "//# sourceMappingURL=index.android.map";
             const sourceMap = new SourceMapUtil();
 
@@ -80,7 +80,7 @@ suite("sourceMap", function() {
 
         test("should not update scripts without source mapping urls", function() {
             const scriptBody: string = "var path = require('path');";
-            const sourceMappingUrl: url.Url = url.parse("/index.android.map");
+            const sourceMappingUrl: IStrictUrl = <IStrictUrl>url.parse("/index.android.map");
             const sourceMap = new SourceMapUtil();
 
             const result = sourceMap.updateScriptPaths(scriptBody, sourceMappingUrl);

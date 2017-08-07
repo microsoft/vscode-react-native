@@ -9,10 +9,10 @@ import * as mockFs from "mock-fs";
 import {AndroidPlatform} from "../../../common/android/androidPlatform";
 import {IRunOptions} from "../../../common/launchArgs";
 import {FileSystem} from "../../../common/node/fileSystem";
-import {ReactNative022} from "../../../test/resources/reactNative022";
-import {AdbSimulator} from "../../../test/resources/simulators/adbSimulator";
-import {AVDManager} from "../../../test/resources/simulators/avdManager";
-import {FakeExtensionMessageSender} from "../../../test/resources/fakeExtensionMessageSender";
+import {ReactNative022} from "../../resources/reactNative022";
+import {AdbSimulator} from "../../resources/simulators/adbSimulator";
+import {AVDManager} from "../../resources/simulators/avdManager";
+import {FakeExtensionMessageSender} from "../../resources/fakeExtensionMessageSender";
 import {ExtensionMessage} from "../../../common/extensionMessaging";
 import {RecordingsHelper} from "../../resources/recordingsHelper";
 import {RemoteExtension} from "../../../common/remoteExtension";
@@ -54,7 +54,7 @@ suite("androidPlatform", function () {
             const messagesWithoutUndefineds = messagesSent.map(message => {
                 return {
                     message: message.message,
-                    args: message.args.filter(value => value),
+                    args: message.args && message.args.filter(value => value) || [],
                 };
             });
             messagesWithoutUndefineds.should.eql([expectedMessage]);

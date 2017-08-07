@@ -14,9 +14,9 @@ export interface IRemoteExtensionOpt {
 export class GeneralMobilePlatform {
     protected projectPath: string;
     protected remoteExtension: RemoteExtension;
-    protected platformName: string;
+    protected platformName: string | undefined;
 
-    constructor(protected runOptions: IRunOptions, { remoteExtension = null }: IRemoteExtensionOpt = {}) {
+    constructor(protected runOptions: IRunOptions, { remoteExtension }: IRemoteExtensionOpt = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
         this.remoteExtension = (remoteExtension) ? remoteExtension : RemoteExtension.atProjectRootPath(runOptions.projectRoot);

@@ -36,7 +36,7 @@ export class FileSystem {
                 if (contents !== existingContents) {
                     return this.writeFile(file, contents);
                 }
-                return null;
+                return Q.resolve(void 0);
             });
         }, (err: Error & { code?: string }): Q.Promise<any> => {
             if (err && err.code === "ENOENT") {
@@ -172,7 +172,7 @@ export class FileSystem {
             if (stats.isDirectory()) {
                 return this.exists(target)
                     .then(exists => {
-                        return exists ? null : Q.nfcall<void>(this.fs.mkdir, target);
+                        return exists ? void 0 : Q.nfcall<void>(this.fs.mkdir, target);
                     })
                     .then(() => {
                         return Q.nfcall<string[]>(this.fs.readdir, source);
@@ -206,7 +206,7 @@ export class FileSystem {
                     }
                 });
             }
-            return null;
+            return Q.resolve(void 0);
         });
     }
 

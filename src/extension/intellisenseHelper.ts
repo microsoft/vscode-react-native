@@ -46,7 +46,7 @@ export class IntellisenseHelper {
             if (semver.lt(vscode.version, IntellisenseHelper.VSCODE_SUPPORTS_ATA_SINCE)) {
                 return IntellisenseHelper.installReactNativeTypings();
             }
-            return null;
+            return void 0;
         });
 
         // The actions taken in the promise chain below may result in requring a restart.
@@ -92,11 +92,11 @@ export class IntellisenseHelper {
             });
         const copyReactTypingsIfNeeded = fileSystem.directoryExists(reactTypingsDestination)
             .then((exists) => {
-                return exists ? null : fileSystem.copyRecursive(reactTypings, reactTypingsDestination);
+                return exists ? void 0 : fileSystem.copyRecursive(reactTypings, reactTypingsDestination);
             });
         const copyReactNativeTypingsIfNeeded = fileSystem.directoryExists(reactNativeTypingsDestination)
             .then((exists) => {
-                return exists ? null : fileSystem.copyRecursive(reactNativeTypings, reactNativeTypingsDestination);
+                return exists ? void 0 : fileSystem.copyRecursive(reactNativeTypings, reactNativeTypingsDestination);
             });
 
         const copyTypingsIndexIfNeeded = fileSystem.directoryExists(typingsIndexDestination)
@@ -105,7 +105,7 @@ export class IntellisenseHelper {
             })
             .then(() => fileSystem.exists(typingIndexFinalPath))
             .then((exists) => {
-                return exists ? null : fileSystem.copyFile(typingsIndex, typingIndexFinalPath);
+                return exists ? void 0 : fileSystem.copyFile(typingsIndex, typingIndexFinalPath);
             });
 
         return Q.all([
@@ -203,7 +203,7 @@ export class IntellisenseHelper {
             vscode.window.showInformationMessage("React Native intellisense was successfully configured for this project. Restart to enable it.");
         }
 
-        return null;
+        return Q.resolve(void 0);
     }
 
     /**

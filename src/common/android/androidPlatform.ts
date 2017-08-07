@@ -60,7 +60,8 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private needsToLaunchApps: boolean = false;
 
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(runOptions: IRunOptions, { remoteExtension = null,
+    constructor(runOptions: IRunOptions, {
+        remoteExtension,
         adb = <IAdb>new Adb(),
         reactNative = <IReactNative>new ReactNative(),
         fileSystem = new FileSystem(),

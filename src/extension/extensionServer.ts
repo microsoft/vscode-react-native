@@ -18,12 +18,12 @@ import {Telemetry} from "../common/telemetry";
 import {ExponentHelper} from "../common/exponent/exponentHelper";
 
 export class ExtensionServer implements vscode.Disposable {
-    private serverInstance: net.Server = null;
+    private serverInstance: net.Server | null = null;
     private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
     private reactNativePackager: Packager;
     private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private pipePath: string;
-    private logCatMonitor: LogCatMonitor = null;
+    private logCatMonitor: LogCatMonitor | null = null;
     private exponentHelper: ExponentHelper;
 
     public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator, exponentHelper: ExponentHelper) {
@@ -59,7 +59,7 @@ export class ExtensionServer implements vscode.Disposable {
             if (error) {
                 deferred.reject(error);
             } else {
-                deferred.resolve(null);
+                deferred.resolve(void 0);
             }
         };
 
@@ -103,7 +103,7 @@ export class ExtensionServer implements vscode.Disposable {
 
                 Log.logMessage("Attaching to running React Native packager");
             }
-            return null;
+            return void 0;
         })
         .then(() => {
             return this.reactNativePackager.startAsReactNative();
@@ -125,7 +125,7 @@ export class ExtensionServer implements vscode.Disposable {
 
                 Log.logMessage("Attaching to running Exponent packager");
             }
-            return null;
+            return void 0;
         }).then(() =>
             this.exponentHelper.configureExponentEnvironment()
             ).then(() =>
@@ -266,7 +266,9 @@ export class ExtensionServer implements vscode.Disposable {
             if (e.code === "ECONNREFUSED") {
                 new FileSystem().removePathRecursivelyAsync(this.pipePath)
                     .then(() => {
-                        this.serverInstance.listen(this.pipePath);
+                        if (this.serverInstance) {
+                            this.serverInstance.listen(this.pipePath);
+                        }
                     })
                     .done();
             }
