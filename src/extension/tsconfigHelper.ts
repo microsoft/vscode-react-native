@@ -35,7 +35,7 @@ export class JsConfigHelper {
         return Q.all([fileSystem.exists(JsConfigHelper.jsConfigPath), fileSystem.exists(JsConfigHelper.tsConfigPath)])
         .spread((hasJsConfig, hasTsConfig) => {
             if (hasJsConfig || hasTsConfig) {
-                return;
+                return null;
             }
 
             return fileSystem.writeFile(JsConfigHelper.jsConfigPath,

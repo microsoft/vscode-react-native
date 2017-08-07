@@ -107,9 +107,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     const match = regex.exec(output);
 
                     // If we don't find a match, the app must not be running and so we do not need to close it
-                    if (match) {
-                        return childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`);
-                    }
+                    return match ? childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`) : null;
                 }).then(() => {
                     // Write to the settings file while the app is not running to avoid races
                     return iosDebugModeManager.setSimulatorJSDebuggingModeSetting(/*enable=*/ true);
@@ -118,6 +116,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     return this.runApp();
                 });
             }
+            return null;
         });
     }
 

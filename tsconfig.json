@@ -16,7 +16,7 @@
         "noImplicitAny": false, // TODO change to true when dependency `source-map-resolve` will be removed
         "suppressImplicitAnyIndexErrors": true,
         "noImplicitThis": true,
-        "noImplicitReturns": false, // TODO change to true (32)
+        "noImplicitReturns": true,
         "noEmitOnError": true,
         "noUnusedLocals": true,
         "noFallthroughCasesInSwitch": true,

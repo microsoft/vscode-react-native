@@ -103,6 +103,7 @@ export class ExtensionServer implements vscode.Disposable {
 
                 Log.logMessage("Attaching to running React Native packager");
             }
+            return null;
         })
         .then(() => {
             return this.reactNativePackager.startAsReactNative();
@@ -124,6 +125,7 @@ export class ExtensionServer implements vscode.Disposable {
 
                 Log.logMessage("Attaching to running Exponent packager");
             }
+            return null;
         }).then(() =>
             this.exponentHelper.configureExponentEnvironment()
             ).then(() =>

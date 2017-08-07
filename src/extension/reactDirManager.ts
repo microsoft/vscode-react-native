@@ -26,6 +26,7 @@ export class ReactDirManager implements vscode.Disposable {
                 if (!fs.existsSync(ReactDirManager.VscodeDirPath)) {
                     return fs.mkDir(ReactDirManager.VscodeDirPath);
                 }
+                return null;
             }).then(() =>
                 fs.mkDir(ReactDirManager.ReactDirPath)
             );

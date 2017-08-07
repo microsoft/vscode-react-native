@@ -163,14 +163,10 @@ AppRegistry.registerRunnable('main', function(appParameters) {
                 return config;
             })
             .then((config: AppJson) => {
-                if (config) {
-                    return this.writeAppJson(config);
-                }
+                return config ? this.writeAppJson(config) : config;
             })
             .then((config: AppJson) => {
-                if (!isExpo) {
-                    return this.createExpoEntry(config.expo.name);
-                }
+                return isExpo ? null : this.createExpoEntry(config.expo.name);
             });
     };
 

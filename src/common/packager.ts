@@ -69,6 +69,8 @@ export class Packager {
                     return Q.resolve<void>(void 0);
                 } else if (this.packagerRunningAs !== PackagerRunAs.EXPONENT) {
                     return this.start(PackagerRunAs.EXPONENT);
+                } else {
+                    return null;
                 }
             })
             .then(() =>
@@ -144,9 +146,7 @@ export class Packager {
         }
         return this.isRunning()
             .then(running => {
-                if (running) {
-                    return this.prewarmBundleCacheWithBundleFilename(`index.${platform}`, platform);
-                }
+                return running ? this.prewarmBundleCacheWithBundleFilename(`index.${platform}`, platform) : null;
             });
     }
 
@@ -242,6 +242,7 @@ export class Packager {
                             });
                         });
                 }
+                return null;
             })
             .then(() =>
                 this.awaitStart())
@@ -282,7 +283,7 @@ export class Packager {
                         ? Q.resolve(path)
                         : Q.reject<string>("opn package location not found"))));
         } catch (err) {
-            console.error("The package \'opn\' was not found." + err);
+            return Q.reject<string>("The package 'opn' was not found. " + err);
         }
     }
 
@@ -306,6 +307,7 @@ export class Packager {
                             return opnPackage.setMainFile(Packager.JS_INJECTOR_FILENAME);
                         });
                 }
+                return null;
             });
     }
 

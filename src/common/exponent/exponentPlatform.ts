@@ -37,6 +37,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                         "No link provided by exponent. Is your project correctly setup?"));
                 }
                 this.exponentTunnelPath = exponentUrl;
+                return null;
             });
     }
 }

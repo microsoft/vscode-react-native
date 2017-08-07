@@ -46,6 +46,7 @@ export class IntellisenseHelper {
             if (semver.lt(vscode.version, IntellisenseHelper.VSCODE_SUPPORTS_ATA_SINCE)) {
                 return IntellisenseHelper.installReactNativeTypings();
             }
+            return null;
         });
 
         // The actions taken in the promise chain below may result in requring a restart.
@@ -91,28 +92,20 @@ export class IntellisenseHelper {
             });
         const copyReactTypingsIfNeeded = fileSystem.directoryExists(reactTypingsDestination)
             .then((exists) => {
-                if (!exists) {
-                    return fileSystem.copyRecursive(reactTypings, reactTypingsDestination);
-                }
+                return exists ? null : fileSystem.copyRecursive(reactTypings, reactTypingsDestination);
             });
         const copyReactNativeTypingsIfNeeded = fileSystem.directoryExists(reactNativeTypingsDestination)
             .then((exists) => {
-                if (!exists) {
-                    return fileSystem.copyRecursive(reactNativeTypings, reactNativeTypingsDestination);
-                }
+                return exists ? null : fileSystem.copyRecursive(reactNativeTypings, reactNativeTypingsDestination);
             });
 
         const copyTypingsIndexIfNeeded = fileSystem.directoryExists(typingsIndexDestination)
             .then((exists) => {
-                if (!exists) {
-                    return fileSystem.makeDirectoryRecursiveSync(typingsIndexDestination);
-                }
+                return exists ? null : fileSystem.makeDirectoryRecursiveSync(typingsIndexDestination);
             })
             .then(() => fileSystem.exists(typingIndexFinalPath))
             .then((exists) => {
-                if (!exists) {
-                    return fileSystem.copyFile(typingsIndex, typingIndexFinalPath);
-                }
+                return exists ? null : fileSystem.copyFile(typingsIndex, typingIndexFinalPath);
             });
 
         return Q.all([
@@ -210,7 +203,7 @@ export class IntellisenseHelper {
             vscode.window.showInformationMessage("React Native intellisense was successfully configured for this project. Restart to enable it.");
         }
 
-        return;
+        return null;
     }
 
     /**

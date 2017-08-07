@@ -141,7 +141,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     if (apiVersion >= AndroidAPILevel.LOLLIPOP) { // If we support adb reverse
                         return this.adb.reverseAdd(device.id, Packager.DEFAULT_PORT.toString(), this.runOptions.packagerPort);
                     } else {
-                        Log.logWarning(`Device ${device.id} supports only API Level ${apiVersion}. `
+                        return Log.logWarning(`Device ${device.id} supports only API Level ${apiVersion}. `
                         + `Level ${AndroidAPILevel.LOLLIPOP} is needed to support port forwarding via adb reverse. `
                         + "For debugging to work you'll need <Shake or press menu button> for the dev menu, "
                         + "go into <Dev Settings> and configure <Debug Server host & port for Device> to be "

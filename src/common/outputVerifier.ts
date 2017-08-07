@@ -43,6 +43,7 @@ export class OutputVerifier {
                 if (!this.areAllSuccessPatternsPresent(successPatterns)) { // If we don't find all the success patterns, we also fail
                     return Q.reject<void>(new Error("Unknown error"));
                 } // else we found all the success patterns, so we succeed
+                return null;
             });
     }
 
