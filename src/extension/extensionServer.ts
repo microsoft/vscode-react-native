@@ -131,10 +131,16 @@ export class ExtensionServer implements vscode.Disposable {
             ).then(() =>
                 this.exponentHelper.loginToExponent(
                     (message, password) => {
-                        return Q(vscode.window.showInputBox({ placeHolder: message, password: password }));
+                        return Q.Promise((resolve, reject) => {
+                            vscode.window.showInputBox({ placeHolder: message, password: password })
+                                .then(resolve, reject);
+                        });
                     },
                     (message) => {
-                        return Q(vscode.window.showInformationMessage(message));
+                        return Q.Promise((resolve, reject) => {
+                            vscode.window.showInformationMessage(message)
+                                .then(resolve, reject);
+                        });
                     }
                 ))
             .then(() => {
