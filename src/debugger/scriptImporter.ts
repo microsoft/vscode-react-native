@@ -48,7 +48,7 @@ export class ScriptImporter {
                 /* handle source map - request it and store it locally */
                 waitForSourceMapping = this.writeAppSourceMap(sourceMappingUrl, scriptUrl)
                     .then(() => {
-                        scriptBody = this.sourceMapUtil.updateScriptPaths(scriptBody, sourceMappingUrl);
+                        scriptBody = this.sourceMapUtil.updateScriptPaths(scriptBody, <IStrictUrl>sourceMappingUrl);
                     });
             }
 

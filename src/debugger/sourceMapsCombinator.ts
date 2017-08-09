@@ -5,7 +5,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { SourceMapConsumer, RawSourceMap, SourceMapGenerator, MappingItem, Mapping, Position, MappedPosition } from "source-map";
+import { SourceMapConsumer, RawSourceMap, SourceMapGenerator, MappingItem, Mapping, Position, NullableMappedPosition } from "source-map";
 import sourceMapResolve = require("source-map-resolve");
 
 const DISK_LETTER_RE: RegExp = /^[a-z]:/i;
@@ -53,7 +53,7 @@ export class SourceMapsCombinator {
 
             if (consumers[item.source]) {
                 let jsPosition: Position = { line: item.originalLine, column: item.originalColumn };
-                let tsPosition: MappedPosition = <MappedPosition>consumers[item.source].originalPositionFor(jsPosition);
+                let tsPosition: NullableMappedPosition = consumers[item.source].originalPositionFor(jsPosition);
 
                 if (tsPosition.source === null) {
                     // Some positions from react native generated bundle can not translate to TS source positions
@@ -74,7 +74,9 @@ export class SourceMapsCombinator {
                 // Update mapping w/ mapped position values
                 mapping.source = tsPosition.source;
                 mapping.name = tsPosition.name || mapping.name;
-                mapping.original = { line: tsPosition.line, column: tsPosition.column};
+                if (tsPosition.line !== null && tsPosition.column !== null) {
+                    mapping.original = { line: tsPosition.line, column: tsPosition.column};
+                }
             }
 
             try {

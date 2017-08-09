@@ -142,12 +142,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     if (apiVersion >= AndroidAPILevel.LOLLIPOP) { // If we support adb reverse
                         return this.adb.reverseAdd(device.id, Packager.DEFAULT_PORT.toString(), this.runOptions.packagerPort);
                     } else {
-                        return Log.logWarning(`Device ${device.id} supports only API Level ${apiVersion}. `
+                        Log.logWarning(`Device ${device.id} supports only API Level ${apiVersion}. `
                         + `Level ${AndroidAPILevel.LOLLIPOP} is needed to support port forwarding via adb reverse. `
                         + "For debugging to work you'll need <Shake or press menu button> for the dev menu, "
                         + "go into <Dev Settings> and configure <Debug Server host & port for Device> to be "
                         + "an IP address of your computer that the Device can reach. More info at: "
                         + "https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps");
+                        return void 0;
                     }
                 });
         } else {

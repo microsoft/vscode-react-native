@@ -28,8 +28,8 @@ export class SourceMapUtil {
      * Given a script body and URL, this method parses the body and finds the corresponding source map URL.
      * If the source map URL is not found in the body in the expected form, null is returned.
      */
-    public getSourceMapURL(scriptUrl: url.Url, scriptBody: string): IStrictUrl {
-        let result: IStrictUrl = {pathname: "", href: ""};
+    public getSourceMapURL(scriptUrl: url.Url, scriptBody: string): IStrictUrl | null {
+        let result: IStrictUrl | null = null;
 
         // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
         let sourceMappingRelativeUrl = this.getSourceMapRelativeUrl(scriptBody); // sourceMappingRelativeUrl = "/index.ios.map?platform=ios&dev=true"

@@ -35,7 +35,7 @@ export class TargetPlatformHelper {
     /**
      * Checks whether the current host platform supports the target mobile platform.
      */
-    public static checkTargetPlatformSupport(platformName: string = ""): void {
+    public static checkTargetPlatformSupport(platformName: string): void {
         let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(platformName);
         try {
             if (!HostPlatform.isCompatibleWithTarget(targetPlatformId)) {

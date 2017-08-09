@@ -24,7 +24,7 @@ suite("sourceMap", function() {
 
             const sourceMap = new SourceMapUtil();
             const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
-            assert.equal(expectedUrlHref, result.href);
+            assert.equal(expectedUrlHref, result && result.href);
         });
 
         test("should ignore inline sourcemap urls", function () {
@@ -35,7 +35,7 @@ suite("sourceMap", function() {
 
             const sourceMap = new SourceMapUtil();
             const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
-            assert.equal(expectedUrlHref, result.href);
+            assert.equal(expectedUrlHref, result && result.href);
         });
 
         test("should return default IStrictUrl for an invalid sourcemap url", function () {
@@ -44,7 +44,7 @@ suite("sourceMap", function() {
 
             const sourceMap = new SourceMapUtil();
             const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
-            assert.deepEqual({pathname: "", href: ""}, result);
+            assert.deepEqual(null, result);
         });
 
         test("should return default IStrictUrl if there are only inline sourcemap urls", function () {
@@ -54,7 +54,7 @@ suite("sourceMap", function() {
 
             const sourceMap = new SourceMapUtil();
             const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
-            assert.deepEqual({pathname: "", href: ""}, result);
+            assert.deepEqual(null, result);
         });
 
         test("should update the contents of a source map file", function() {
