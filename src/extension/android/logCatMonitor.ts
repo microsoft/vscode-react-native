@@ -59,7 +59,8 @@ export class LogCatMonitor implements vscode.Disposable {
                 this._logger.logMessage("LogCat monitoring stopped because the process exited."),
             (reason) => {
                 if (!this._logCatSpawn) { // We stopped log cat ourselves
-                    return this._logger.logMessage("LogCat monitoring stopped because the debugging session finished");
+                    this._logger.logMessage("LogCat monitoring stopped because the debugging session finished");
+                    return Q.resolve(void 0);
                 } else {
                     return Q.reject<void>(reason); // Unkown error. Pass it up the promise chain
                 }

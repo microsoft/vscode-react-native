@@ -54,7 +54,7 @@ export class OutputVerifier {
     }
 
     // We check the failure patterns one by one, to see if any of those appeared on the errors. If they did, we return the associated error
-    private findAnyFailurePattern(patterns: PatternToFailure[]): string {
+    private findAnyFailurePattern(patterns: PatternToFailure[]): string | null {
         const errorsAndOutput = this.errors + this.output;
         const patternThatAppeared = patterns.find(pattern => {
             return pattern.pattern instanceof RegExp ?
@@ -62,7 +62,7 @@ export class OutputVerifier {
                 errorsAndOutput.indexOf(pattern.pattern as string) !== -1;
         });
 
-        return patternThatAppeared ? patternThatAppeared.message : "";
+        return patternThatAppeared ? patternThatAppeared.message : null;
     }
 
     // We check that all the patterns appeared on the output

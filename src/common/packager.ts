@@ -176,7 +176,7 @@ export class Packager {
         });
     }
 
-    private start(runAs: PackagerRunAs, resetCache: boolean = false): Q.Promise<any> {
+    private start(runAs: PackagerRunAs, resetCache: boolean = false): Q.Promise<void> {
         let executedStartPackagerCmd = false;
         return this.isRunning()
             .then(running => {

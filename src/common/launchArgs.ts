@@ -16,7 +16,7 @@ export interface IRunOptions extends ILaunchArgs {
  * Add more arguments here as needed.
  */
 export interface ILaunchArgs {
-    platform?: string;
+    platform: string;
     target?: string;
     debugAdapterPort?: number;
     logCatArguments?: any;

@@ -5,16 +5,16 @@ import {ErrorHelper} from "../error/errorHelper";
 import {InternalErrorCode} from "../error/internalErrorCode";
 import {IRunOptions} from "../launchArgs";
 import {Log} from "../log/log";
-import {GeneralMobilePlatform, IRemoteExtensionOpt} from "../generalMobilePlatform";
+import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
 
 import * as Q from "q";
 
 export class ExponentPlatform extends GeneralMobilePlatform {
-    private exponentTunnelPath: string;
+    private exponentTunnelPath: string | null;
 
-    constructor(runOptions: IRunOptions, {remoteExtension}: IRemoteExtensionOpt = {}) {
+    constructor(runOptions: IRunOptions, {remoteExtension}: MobilePlatformDeps = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
-        this.exponentTunnelPath = "";
+        this.exponentTunnelPath = null;
     }
 
     public runApp(): Q.Promise<void> {

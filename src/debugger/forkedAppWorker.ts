@@ -4,7 +4,7 @@
 import * as Q from "q";
 import * as path from "path";
 import * as child_process from "child_process";
-import {ScriptImporter}  from "./scriptImporter";
+import {ScriptImporter, DownloadedScript}  from "./scriptImporter";
 
 import { Log } from "../common/log/log";
 import { LogLevel } from "../common/log/logHelper";
@@ -100,12 +100,16 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                     // When packager asks worker to load bundle we download that bundle and
                     // then set url field to point to that downloaded bundle, so the worker
                     // will take our modified bundle
-                    Log.logInternalMessage(LogLevel.Info, "Packager requested runtime to load script from " + rnMessage.url);
-                    return this.scriptImporter.downloadAppScript(rnMessage.url)
-                        .then(downloadedScript => {
-                            this.bundleLoaded.resolve(void 0);
-                            return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
-                        });
+                    if (rnMessage.url) {
+                        Log.logInternalMessage(LogLevel.Info, "Packager requested runtime to load script from " + rnMessage.url);
+                        return this.scriptImporter.downloadAppScript(rnMessage.url)
+                            .then((downloadedScript: DownloadedScript) => {
+                                this.bundleLoaded.resolve(void 0);
+                                return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
+                            });
+                    } else {
+                        throw Error("RNMessage with method 'executeApplicationScript' doesn't have 'url' property");
+                    }
                 }
             })
             .done(

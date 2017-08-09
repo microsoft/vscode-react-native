@@ -54,7 +54,7 @@ export class IOSDebugModeManager {
             () =>
                 this.tryOneAttemptToFindPListFile(), // Operation to retry until successful
             (file: string) =>
-                file !== null, // Condition to check if the operation was successful, and this logic is done
+                file !== "", // Condition to check if the operation was successful, and this logic is done
             IOSDebugModeManager.MAX_RETRIES,
             IOSDebugModeManager.DELAY_UNTIL_RETRY,
             failureString); // Error to show in case all retries fail
@@ -63,7 +63,7 @@ export class IOSDebugModeManager {
     private tryOneAttemptToFindPListFile(): Q.Promise<string> {
         return this.simulatorPlist.findPlistFile().catch(reason => {
             Log.logInternalMessage(LogLevel.Info, `Failed one attempt to find plist file: ${reason}`);
-            return Q.reject(reason);
+            return "";
         });
     }
 }

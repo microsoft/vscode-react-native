@@ -11,7 +11,7 @@ import {Request} from "../common/node/request";
 import {SourceMapUtil} from "./sourceMap";
 import url = require("url");
 
-interface DownloadedScript {
+export interface DownloadedScript {
     contents: string;
     filepath: string;
 }
@@ -34,7 +34,7 @@ export class ScriptImporter {
         this.sourceMapUtil = new SourceMapUtil();
     }
 
-    public downloadAppScript(scriptUrlString: string = ""): Q.Promise<DownloadedScript> {
+    public downloadAppScript(scriptUrlString: string): Q.Promise<DownloadedScript> {
         const parsedScriptUrl = url.parse(scriptUrlString);
         const overriddenScriptUrlString = (parsedScriptUrl.hostname === "localhost") ? this.overridePackagerPort(scriptUrlString) : scriptUrlString;
         // We'll get the source code, and store it locally to have a better debugging experience

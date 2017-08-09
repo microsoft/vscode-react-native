@@ -27,7 +27,7 @@ suite("androidPlatform", function () {
         const androidProjectPath = path.join(projectRoot, "android");
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
-        const genericRunOptions: IRunOptions = { projectRoot: projectRoot };
+        const genericRunOptions: IRunOptions = { platform: "android", projectRoot: projectRoot };
 
         const rnProjectContent = fs.readFileSync(ReactNative022.DEFAULT_PROJECT_FILE, "utf8");
 
@@ -189,7 +189,7 @@ suite("androidPlatform", function () {
                     .then(() => {
                         return simulatedAVDManager.createAndLaunchAll(["Nexus_5", "Nexus_6", "Nexus_10", "Nexus_11", "Nexus_12"]);
                     }).then(() => {
-                        const runOptions: IRunOptions = { projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: IRunOptions = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
                         return adb.isAppRunning(androidPackageName, "Nexus_12");
@@ -209,7 +209,7 @@ suite("androidPlatform", function () {
                     }).then(() => {
                         return adb.notifyDevicesAreOffline(offineDevicesIds);
                     }).then(() => {
-                        const runOptions: IRunOptions = { projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: IRunOptions = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
                         return adb.findDevicesRunningApp(androidPackageName);

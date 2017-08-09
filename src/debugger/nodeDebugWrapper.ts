@@ -182,7 +182,8 @@ export function makeSession(
                         if (mobilePlatform) {
                             return mobilePlatform.enableJSDebuggingMode();
                         } else {
-                            return Log.logMessage("Debugger ready. Enable remote debugging in app.");
+                            Log.logMessage("Debugger ready. Enable remote debugging in app.");
+                            return void 0;
                         }
                     })
                     .then(() => {

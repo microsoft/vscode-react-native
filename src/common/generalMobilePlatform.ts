@@ -7,16 +7,16 @@ import {Log} from "./log/log";
 import {IRunOptions} from "./launchArgs";
 import {RemoteExtension} from "./remoteExtension";
 
-export interface IRemoteExtensionOpt {
+export interface MobilePlatformDeps {
     remoteExtension?: RemoteExtension;
 }
 
 export class GeneralMobilePlatform {
     protected projectPath: string;
     protected remoteExtension: RemoteExtension;
-    protected platformName: string | undefined;
+    protected platformName: string;
 
-    constructor(protected runOptions: IRunOptions, { remoteExtension }: IRemoteExtensionOpt = {}) {
+    constructor(protected runOptions: IRunOptions, { remoteExtension }: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
         this.remoteExtension = (remoteExtension) ? remoteExtension : RemoteExtension.atProjectRootPath(runOptions.projectRoot);

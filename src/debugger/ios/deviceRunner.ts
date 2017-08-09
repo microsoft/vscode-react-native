@@ -44,8 +44,6 @@ export class DeviceRunner {
         // For more info, see http://www.opensource.apple.com/source/lldb/lldb-167.2/docs/lldb-gdb-remote.txt
         const socket: net.Socket = new net.Socket();
         let initState: number = 0;
-        let endStatus: number;
-        let endSignal: number;
 
         const deferred1: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
         const deferred2: Q.Deferred<net.Socket> = Q.defer<net.Socket>();
@@ -56,15 +54,7 @@ export class DeviceRunner {
             // Acknowledge any packets sent our way
             if (data[0] === "$") {
                 socket.write("+");
-                if (data[1] === "W") {
-                    // The app process has exited, with hex status given by data[2-3]
-                    let status: number = parseInt(data.substring(2, 4), 16);
-                    endStatus = status;
-                    socket.end();
-                } else if (data[1] === "X") {
-                    // The app rocess exited because of signal given by data[2-3]
-                    let signal: number = parseInt(data.substring(2, 4), 16);
-                    endSignal = signal;
+                if (data[1] === "W" || data[1] === "X") {
                     socket.end();
                 } else if (data.substring(1, 3) === "OK") {
                     // last command was received OK;
