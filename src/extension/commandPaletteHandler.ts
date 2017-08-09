@@ -210,8 +210,18 @@ export class CommandPaletteHandler {
 
     private loginToExponent(): Q.Promise<XDL.IUser> {
         return this.exponentHelper.loginToExponent(
-            (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
-            (message) => { return Q(vscode.window.showInformationMessage(message)); }
+            (message, password) => {
+                return Q.Promise((resolve, reject) => {
+                    vscode.window.showInputBox({ placeHolder: message, password: password })
+                    .then(resolve, reject);
+                });
+            },
+            (message) => {
+                return Q.Promise((resolve, reject) => {
+                    vscode.window.showInformationMessage(message)
+                        .then(resolve, reject);
+                });
+            }
         );
     }
 }
