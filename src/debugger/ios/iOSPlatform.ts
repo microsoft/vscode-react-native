@@ -15,6 +15,7 @@ import {IRunOptions} from "../../common/launchArgs";
 import {PlistBuddy} from "../../common/ios/plistBuddy";
 import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
+import {RemoteExtension} from "../../common/remoteExtension";
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
@@ -40,11 +41,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
     // We set remoteExtension = null so that if there is an instance of iOSPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(runOptions: IRunOptions, { remoteExtension = null } = {}) {
+    constructor(runOptions: IRunOptions, { remoteExtension = undefined }: {remoteExtension?: RemoteExtension} = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
         this.simulatorTarget = this.runOptions.target || IOSPlatform.simulatorString;
         this.isSimulator = this.simulatorTarget.toLowerCase() !== IOSPlatform.deviceString;
-        this.iosProjectPath = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath);
+        this.iosProjectPath = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "");
     }
 
     public runApp(): Q.Promise<void> {
@@ -56,7 +57,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 runArguments.push("--simulator", this.simulatorTarget);
             }
 
-            runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath);
+            runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath || "");
 
             // provide any defined scheme
             if (this.runOptions.scheme) {
@@ -106,9 +107,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     const match = regex.exec(output);
 
                     // If we don't find a match, the app must not be running and so we do not need to close it
-                    if (match) {
-                        return childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`);
-                    }
+                    return match ? childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`) : null;
                 }).then(() => {
                     // Write to the settings file while the app is not running to avoid races
                     return iosDebugModeManager.setSimulatorJSDebuggingModeSetting(/*enable=*/ true);
@@ -117,6 +116,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     return this.runApp();
                 });
             }
+            return Q.resolve(void 0);
         });
     }
 

@@ -36,9 +36,7 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("startPackager", () =>
             this.reactNativePackager.isRunning()
             .then((running) => {
-                if (running) {
-                    return this.reactNativePackager.stop();
-                }
+                return running ? this.reactNativePackager.stop() : Q.resolve(void 0);
             })
         )
         .then(() => this.runStartPackagerCommandAndUpdateStatus());
@@ -51,9 +49,7 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("startExponentPackager", () =>
             this.reactNativePackager.isRunning()
             .then((running) => {
-                if (running) {
-                    return this.reactNativePackager.stop();
-                }
+                return running ? this.reactNativePackager.stop() : Q.resolve(void 0);
             })
         ).then(() =>
             this.exponentHelper.configureExponentEnvironment()
@@ -96,7 +92,7 @@ export class CommandPaletteHandler {
         TargetPlatformHelper.checkTargetPlatformSupport("android");
         return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
             const packagerPort = SettingsHelper.getPackagerPort();
-            return new AndroidPlatform({ projectRoot: this.workspaceRoot, packagerPort: packagerPort }).runApp(/*shouldLaunchInAllDevices*/true);
+            return new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort }).runApp(/*shouldLaunchInAllDevices*/true);
         }));
     }
 
@@ -214,8 +210,18 @@ export class CommandPaletteHandler {
 
     private loginToExponent(): Q.Promise<XDL.IUser> {
         return this.exponentHelper.loginToExponent(
-            (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
-            (message) => { return Q(vscode.window.showInformationMessage(message)); }
+            (message, password) => {
+                return Q.Promise((resolve, reject) => {
+                    vscode.window.showInputBox({ placeHolder: message, password: password })
+                    .then(resolve, reject);
+                });
+            },
+            (message) => {
+                return Q.Promise((resolve, reject) => {
+                    vscode.window.showInformationMessage(message)
+                        .then(resolve, reject);
+                });
+            }
         );
     }
 }

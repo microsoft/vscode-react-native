@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+/// <reference path="./../typings/debugger/sourceMapsCombinator.d.ts" />
+
 import * as fs from "fs";
 import * as path from "path";
-import { SourceMapConsumer, RawSourceMap, SourceMapGenerator, MappingItem, Mapping, Position, MappedPosition } from "source-map";
+import { SourceMapConsumer, RawSourceMap, SourceMapGenerator, MappingItem, Mapping, Position, NullableMappedPosition } from "source-map";
 import sourceMapResolve = require("source-map-resolve");
 
 const DISK_LETTER_RE: RegExp = /^[a-z]:/i;
@@ -14,12 +16,12 @@ export class SourceMapsCombinator {
 
         // Find user files from bundle files list
         const consumers: { [key: string]: SourceMapConsumer } = rawBundleSourcemap.sources
-            .reduce((result, file) => {
+            .reduce((result: { [key: string]: SourceMapConsumer }, file) => {
                 // Skip files inside node_modules
                 if (file.indexOf("node_modules") >= 0) return result;
 
                 try {
-                    let consumer: SourceMapConsumer = this.getSourceMapConsumerFrom(file);
+                    let consumer: SourceMapConsumer | null = this.getSourceMapConsumerFrom(file);
                     if (consumer)
                         result[file] = consumer;
                 } finally {
@@ -51,7 +53,7 @@ export class SourceMapsCombinator {
 
             if (consumers[item.source]) {
                 let jsPosition: Position = { line: item.originalLine, column: item.originalColumn };
-                let tsPosition: MappedPosition = consumers[item.source].originalPositionFor(jsPosition);
+                let tsPosition: NullableMappedPosition = consumers[item.source].originalPositionFor(jsPosition);
 
                 if (tsPosition.source === null) {
                     // Some positions from react native generated bundle can not translate to TS source positions
@@ -70,10 +72,11 @@ export class SourceMapsCombinator {
                 }
 
                 // Update mapping w/ mapped position values
-                mapping = {
-                    ...mapping, ...tsPosition,
-                    original: { line: tsPosition.line, column: tsPosition.column },
-                };
+                mapping.source = tsPosition.source;
+                mapping.name = tsPosition.name || mapping.name;
+                if (tsPosition.line !== null && tsPosition.column !== null) {
+                    mapping.original = { line: tsPosition.line, column: tsPosition.column};
+                }
             }
 
             try {

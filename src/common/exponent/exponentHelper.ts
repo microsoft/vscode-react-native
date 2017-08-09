@@ -52,7 +52,10 @@ export class ExponentHelper {
     /**
      * Returns the current user. If there is none, asks user for username and password and logins to exponent servers.
      */
-    public loginToExponent(promptForInformation: (message: string, password: boolean) => Q.Promise<string>, showMessage: (message: string) => Q.Promise<string>): Q.Promise<XDL.IUser> {
+    public loginToExponent(
+        promptForInformation: (message: string, password: boolean) => Q.Promise<string>,
+        showMessage: (message: string) => Q.Promise<string>
+    ): Q.Promise<XDL.IUser> {
         this.lazilyInitialize();
         return XDL.currentUser()
             .then((user) => {
@@ -61,11 +64,11 @@ export class ExponentHelper {
                     return showMessage("You need to login to exponent. Please provide username and password to login. If you don't have an account we will create one for you.")
                         .then(() =>
                             promptForInformation("Exponent username", false)
-                        ).then((name) => {
+                        ).then((name: string) => {
                             username = name;
                             return promptForInformation("Exponent password", true);
                         })
-                        .then((password) =>
+                        .then((password: string) =>
                             XDL.login(username, password));
                 }
                 return user;
@@ -163,14 +166,10 @@ AppRegistry.registerRunnable('main', function(appParameters) {
                 return config;
             })
             .then((config: AppJson) => {
-                if (config) {
-                    return this.writeAppJson(config);
-                }
+                return config ? this.writeAppJson(config) : config;
             })
             .then((config: AppJson) => {
-                if (!isExpo) {
-                    return this.createExpoEntry(config.expo.name);
-                }
+                return isExpo ? Q.resolve(void 0) : this.createExpoEntry(config.expo.name);
             });
     };
 

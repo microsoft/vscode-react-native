@@ -6,7 +6,7 @@
 /* tslint:disable:no-unused-variable */
 // var require needed for should module to work correctly
 // Note not import: We don't want to refer to shouldModule, but we need the require to occur since it modifies the prototype of Object.
-var shouldModule: any = require("should");
+require("should");
 /* tslint:enable:no-unused-variable */
 /* tslint:enable:no-var-requires */
 /* tslint:enable:no-var-keyword */
@@ -18,7 +18,7 @@ import {DeviceRunner} from "../../../debugger/ios/deviceRunner";
 
 interface IMockDebuggerProxy extends net.Server {
     protocolState?: number;
-};
+}
 
 suite("deviceRunner", function() {
     suite("commonContext", function() {
@@ -34,7 +34,7 @@ suite("deviceRunner", function() {
                 mockDebuggerProxy.close();
                 client.on("data", function (data: Buffer): void {
                     let dataString: string = data.toString();
-                    if (mockDebuggerProxy.protocolState % 2 === 1) {
+                    if (mockDebuggerProxy.protocolState && mockDebuggerProxy.protocolState % 2 === 1) {
                         // Every second message should be an acknowledgement of a send of ours
                         dataString[0].should.equal("+");
                         mockDebuggerProxy.protocolState++;
@@ -52,7 +52,7 @@ suite("deviceRunner", function() {
                             let checksum: number = 0;
                             for (let i: number = 0; i < expectedResponse.length; ++i) {
                                 checksum += expectedResponse.charCodeAt(i);
-                            };
+                            }
                             /* tslint:disable:no-bitwise */
                             // Some bitwise operations needed to calculate the checksum here
                             checksum = checksum & 0xFF;
@@ -110,7 +110,7 @@ suite("deviceRunner", function() {
                 mockDebuggerProxy.close();
                 client.on("data", function (data: Buffer): void {
                     let dataString: string = data.toString();
-                    if (mockDebuggerProxy.protocolState % 2 === 1) {
+                    if (mockDebuggerProxy.protocolState && mockDebuggerProxy.protocolState % 2 === 1) {
                         // Every second message should be an acknowledgement of a send of ours
                         dataString[0].should.equal("+");
                         mockDebuggerProxy.protocolState++;
@@ -129,7 +129,7 @@ suite("deviceRunner", function() {
                             let checksum: number = 0;
                             for (let i: number = 0; i < expectedResponse.length; ++i) {
                                 checksum += expectedResponse.charCodeAt(i);
-                            };
+                            }
                             /* tslint:disable:no-bitwise */
                             // Some bit operations needed to calculate checksum
                             checksum = checksum & 0xFF;

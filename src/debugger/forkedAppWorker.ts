@@ -4,7 +4,7 @@
 import * as Q from "q";
 import * as path from "path";
 import * as child_process from "child_process";
-import {ScriptImporter}  from "./scriptImporter";
+import {ScriptImporter, DownloadedScript}  from "./scriptImporter";
 
 import { Log } from "../common/log/log";
 import { LogLevel } from "../common/log/logHelper";
@@ -25,17 +25,17 @@ function printDebuggingError(message: string, reason: any) {
 export class ForkedAppWorker implements IDebuggeeWorker {
 
     private scriptImporter: ScriptImporter;
-    private debuggeeProcess: child_process.ChildProcess = null;
+    private debuggeeProcess: child_process.ChildProcess | null = null;
     /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
     private workerLoaded = Q.defer<void>();
-    private bundleLoaded;
+    private bundleLoaded: Q.Deferred<void>;
 
     constructor(
         private packagerPort: number,
         private sourcesStoragePath: string,
         private postReplyToApp: (message: any) => void
     ) {
-        this.scriptImporter = new ScriptImporter(packagerPort, sourcesStoragePath);
+        this.scriptImporter = new ScriptImporter(this.packagerPort, this.sourcesStoragePath);
     }
 
     public stop() {
@@ -100,15 +100,24 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                     // When packager asks worker to load bundle we download that bundle and
                     // then set url field to point to that downloaded bundle, so the worker
                     // will take our modified bundle
-                    Log.logInternalMessage(LogLevel.Info, "Packager requested runtime to load script from " + rnMessage.url);
-                    return this.scriptImporter.downloadAppScript(rnMessage.url)
-                        .then(downloadedScript => {
-                            this.bundleLoaded.resolve(void 0);
-                            return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
-                        });
+                    if (rnMessage.url) {
+                        Log.logInternalMessage(LogLevel.Info, "Packager requested runtime to load script from " + rnMessage.url);
+                        return this.scriptImporter.downloadAppScript(rnMessage.url)
+                            .then((downloadedScript: DownloadedScript) => {
+                                this.bundleLoaded.resolve(void 0);
+                                return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
+                            });
+                    } else {
+                        throw Error("RNMessage with method 'executeApplicationScript' doesn't have 'url' property");
+                    }
                 }
             })
-            .done((message: RNAppMessage) => this.debuggeeProcess.send({ data: message }),
-            reason => printDebuggingError(`Couldn't import script at <${rnMessage.url}>`, reason));
+            .done(
+            (message: RNAppMessage) => {
+                if (this.debuggeeProcess) {
+                    this.debuggeeProcess.send({ data: message });
+                }
+            },
+            (reason) => printDebuggingError(`Couldn't import script at <${rnMessage.url}>`, reason));
     }
 }

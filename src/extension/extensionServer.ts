@@ -18,12 +18,12 @@ import {Telemetry} from "../common/telemetry";
 import {ExponentHelper} from "../common/exponent/exponentHelper";
 
 export class ExtensionServer implements vscode.Disposable {
-    private serverInstance: net.Server = null;
+    private serverInstance: net.Server | null = null;
     private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
     private reactNativePackager: Packager;
     private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private pipePath: string;
-    private logCatMonitor: LogCatMonitor = null;
+    private logCatMonitor: LogCatMonitor | null = null;
     private exponentHelper: ExponentHelper;
 
     public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator, exponentHelper: ExponentHelper) {
@@ -59,7 +59,7 @@ export class ExtensionServer implements vscode.Disposable {
             if (error) {
                 deferred.reject(error);
             } else {
-                deferred.resolve(null);
+                deferred.resolve(void 0);
             }
         };
 
@@ -103,6 +103,7 @@ export class ExtensionServer implements vscode.Disposable {
 
                 Log.logMessage("Attaching to running React Native packager");
             }
+            return void 0;
         })
         .then(() => {
             return this.reactNativePackager.startAsReactNative();
@@ -124,12 +125,23 @@ export class ExtensionServer implements vscode.Disposable {
 
                 Log.logMessage("Attaching to running Exponent packager");
             }
+            return void 0;
         }).then(() =>
             this.exponentHelper.configureExponentEnvironment()
             ).then(() =>
                 this.exponentHelper.loginToExponent(
-                    (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
-                    (message) => { return Q(vscode.window.showInformationMessage(message)); }
+                    (message, password) => {
+                        return Q.Promise((resolve, reject) => {
+                            vscode.window.showInputBox({ placeHolder: message, password: password })
+                                .then(resolve, reject);
+                        });
+                    },
+                    (message) => {
+                        return Q.Promise((resolve, reject) => {
+                            vscode.window.showInformationMessage(message)
+                                .then(resolve, reject);
+                        });
+                    }
                 ))
             .then(() => {
                 return this.reactNativePackager.startAsExponent();
@@ -185,7 +197,7 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Message handler for OPEN_FILE_AT_LOCATION
      */
-    private openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void> {
+    private openFileAtLocation(filename: string, lineNumber: number): Q.Promise<PromiseLike<void>> {
         return Q(vscode.workspace.openTextDocument(vscode.Uri.file(filename)).then((document: vscode.TextDocument) => {
             return vscode.window.showTextDocument(document).then((editor: vscode.TextEditor) => {
                 let range = editor.document.lineAt(lineNumber - 1).range;
@@ -260,7 +272,9 @@ export class ExtensionServer implements vscode.Disposable {
             if (e.code === "ECONNREFUSED") {
                 new FileSystem().removePathRecursivelyAsync(this.pipePath)
                     .then(() => {
-                        this.serverInstance.listen(this.pipePath);
+                        if (this.serverInstance) {
+                            this.serverInstance.listen(this.pipePath);
+                        }
                     })
                     .done();
             }

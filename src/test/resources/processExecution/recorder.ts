@@ -38,7 +38,7 @@ export class Recorder {
         }
     }
 
-    public static recordAndSpawn(command: string, args?: string[], options: ISpawnOptions = {}): child_process.ChildProcess {
+    public static recordAndSpawn(command: string, args: string[] = [], options: ISpawnOptions = {}): child_process.ChildProcess {
         const spawnedProcess = this.originalSpawn(command, args, options);
         new Recorder(spawnedProcess, { command, args, options }).record();
         return spawnedProcess;

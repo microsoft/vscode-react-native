@@ -1,18 +1,26 @@
 {
     "compilerOptions": {
+        "moduleResolution": "node",
         "module": "commonjs",
-        // We need to set ES6 target otherwise instantiating ChromeDebugSession
-        // throws "Class constructor ChromeDebugSession cannot be invoked without 'new'" at runtime
         "target": "es6",
         "lib": [
             "es2015"
         ],
         "outDir": "out",
-        "sourceMap": true,
         "rootDir": "src",
-        "noImplicitAny": false,
+        "sourceMap": true,
         "removeComments": false,
-        "noFallthroughCasesInSwitch": true
+        "preserveConstEnums": true,
+        "alwaysStrict": true,
+        "strictNullChecks": true,
+        "noImplicitAny": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "noImplicitThis": true,
+        "noImplicitReturns": true,
+        "noEmitOnError": true,
+        "noUnusedLocals": true,
+        "noFallthroughCasesInSwitch": true,
+        "forceConsistentCasingInFileNames": true
     },
     "exclude": [
         ".vscode-test",
@@ -22,7 +30,6 @@
         "SampleApplication/.vscode",
         "ReactTypings",
         "tools/",
-        "src/test/resources/sampleReactNative022Project/",
-        ".vscode-test"
+        "src/test/resources/sampleReactNative022Project/"
     ]
 }

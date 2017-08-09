@@ -75,7 +75,7 @@ export abstract class TelemetryGeneratorBase {
         return this;
     }
 
-    public time<T>(name: string, codeToMeasure: { (): Thenable<T>|T }): Q.Promise<T> {
+    public time<T>(name: string, codeToMeasure: { (): Q.Promise<T>|T }): Q.Promise<T> {
         let startTime: [number, number] = process.hrtime();
         return Q(codeToMeasure())
         .finally(() => this.finishTime(name, startTime))
@@ -102,7 +102,7 @@ export abstract class TelemetryGeneratorBase {
             this.add("lastStepExecuted", this.currentStep, /*isPii*/ false);
         }
 
-        this.step(null); // Send the last step
+        this.step(""); // Send the last step
     }
 
     private sendCurrentStep(): void {
@@ -167,7 +167,7 @@ export class TelemetryHelper {
         });
     }
 
-    public static sendCommandSuccessTelemetry(commandName: string, commandProperties: ICommandTelemetryProperties, args: string[] = null): void {
+    public static sendCommandSuccessTelemetry(commandName: string, commandProperties: ICommandTelemetryProperties, args: string[] = []): void {
         let successEvent: Telemetry.TelemetryEvent = TelemetryHelper.createBasicCommandTelemetry(commandName, args);
 
         TelemetryHelper.addTelemetryEventProperties(successEvent, commandProperties);
@@ -203,12 +203,12 @@ export class TelemetryHelper {
         return telemetryProperties;
     }
 
-    public static generate<T>(name: string, codeGeneratingTelemetry: { (telemetry: TelemetryGenerator): Thenable<T>|T }): Q.Promise<T> {
+    public static generate<T>(name: string, codeGeneratingTelemetry: { (telemetry: TelemetryGenerator): Q.Promise<T>|T }): Q.Promise<T> {
         let generator: TelemetryGenerator = new TelemetryGenerator(name);
-        return generator.time(null, () => codeGeneratingTelemetry(generator)).finally(() => generator.send());
+        return generator.time("", () => codeGeneratingTelemetry(generator)).finally(() => generator.send());
     }
 
-    private static createBasicCommandTelemetry(commandName: string, args: string[] = null): Telemetry.TelemetryEvent {
+    private static createBasicCommandTelemetry(commandName: string, args: string[] = []): Telemetry.TelemetryEvent {
         let commandEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(commandName || "command");
 
         if (!commandName && args && args.length > 0) {

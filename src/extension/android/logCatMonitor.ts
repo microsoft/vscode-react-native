@@ -24,7 +24,7 @@ export class LogCatMonitor implements vscode.Disposable {
     private _deviceId: string;
     private _userProvidedLogCatArguments: any; // This is user input, we don't know what's here
 
-    private _logCatSpawn: ISpawnResult;
+    private _logCatSpawn: ISpawnResult | null;
 
     private static loggers: { [loggerName: string]: OutputChannelLogger } = {};
 
@@ -57,14 +57,16 @@ export class LogCatMonitor implements vscode.Disposable {
         return this._logCatSpawn.outcome.then(
             () =>
                 this._logger.logMessage("LogCat monitoring stopped because the process exited."),
-            reason => {
+            (reason) => {
                 if (!this._logCatSpawn) { // We stopped log cat ourselves
                     this._logger.logMessage("LogCat monitoring stopped because the debugging session finished");
+                    return Q.resolve(void 0);
                 } else {
                     return Q.reject<void>(reason); // Unkown error. Pass it up the promise chain
                 }
-            }).finally(() =>
-                this._logCatSpawn = null);
+            }).finally(() => {
+                this._logCatSpawn = null;
+            });
     }
 
     public dispose(): void {

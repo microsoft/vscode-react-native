@@ -5,14 +5,14 @@ import {ErrorHelper} from "../error/errorHelper";
 import {InternalErrorCode} from "../error/internalErrorCode";
 import {IRunOptions} from "../launchArgs";
 import {Log} from "../log/log";
-import {GeneralMobilePlatform} from "../generalMobilePlatform";
+import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
 
 import * as Q from "q";
 
 export class ExponentPlatform extends GeneralMobilePlatform {
-    private exponentTunnelPath: string;
+    private exponentTunnelPath: string | null;
 
-    constructor(runOptions: IRunOptions, { remoteExtension = null } = {}) {
+    constructor(runOptions: IRunOptions, {remoteExtension}: MobilePlatformDeps = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
         this.exponentTunnelPath = null;
     }
@@ -37,6 +37,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                         "No link provided by exponent. Is your project correctly setup?"));
                 }
                 this.exponentTunnelPath = exponentUrl;
+                return Q.resolve(void 0);
             });
     }
 }

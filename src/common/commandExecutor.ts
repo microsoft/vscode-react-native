@@ -6,7 +6,7 @@ import {ChildProcess} from "child_process";
 import {Log} from "./log/log";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
-import {HostPlatform, HostPlatformId} from "../common/hostPlatform";
+import {HostPlatform, HostPlatformId} from "./hostPlatform";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 
@@ -90,7 +90,7 @@ export class CommandExecutor {
 
         result.stdout.on("end", () => {
             const match = output.match(/react-native: ([\d\.]+)/);
-            deferred.resolve(match && match[1]);
+            deferred.resolve(match && match[1] || "");
         });
 
         return deferred.promise;
@@ -99,13 +99,14 @@ export class CommandExecutor {
     /**
      * Kills the React Native packager in a child process.
      */
-    public killReactPackager(packagerProcess: ChildProcess): Q.Promise<void> {
+    public killReactPackager(packagerProcess?: ChildProcess): Q.Promise<void> {
         if (packagerProcess) {
             return Q({}).then(() => {
                 if (HostPlatform.getPlatformId() === HostPlatformId.WINDOWS) {
                     return this.childProcess.exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome;
                 } else {
                     packagerProcess.kill();
+                    return Q.resolve(void 0);
                 }
             }).then(() => {
                 Log.logMessage("Packager stopped");

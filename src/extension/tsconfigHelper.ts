@@ -29,13 +29,13 @@ export class JsConfigHelper {
     /**
      * Constructs a JSON object from jsconfig.json. Will create the file if needed.
      */
-    public static createJsConfigIfNotPresent(): Q.Promise<any> {
+    public static createJsConfigIfNotPresent(): Q.Promise<void> {
         let fileSystem = new FileSystem();
 
         return Q.all([fileSystem.exists(JsConfigHelper.jsConfigPath), fileSystem.exists(JsConfigHelper.tsConfigPath)])
         .spread((hasJsConfig, hasTsConfig) => {
             if (hasJsConfig || hasTsConfig) {
-                return;
+                return Q.resolve(void 0);
             }
 
             return fileSystem.writeFile(JsConfigHelper.jsConfigPath,

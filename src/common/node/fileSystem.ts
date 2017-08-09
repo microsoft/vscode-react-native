@@ -36,6 +36,7 @@ export class FileSystem {
                 if (contents !== existingContents) {
                     return this.writeFile(file, contents);
                 }
+                return Q.resolve(void 0);
             });
         }, (err: Error & { code?: string }): Q.Promise<any> => {
             if (err && err.code === "ENOENT") {
@@ -169,11 +170,10 @@ export class FileSystem {
     public copyRecursive(source: string, target: string): Q.Promise<void> {
         return Q.nfcall<nodeFs.Stats>(this.fs.stat, source).then(stats => {
             if (stats.isDirectory()) {
-                return this.exists(target).then(exists => {
-                    if (!exists) {
-                        return Q.nfcall<void>(this.fs.mkdir, target);
-                    }
-                })
+                return this.exists(target)
+                    .then(exists => {
+                        return exists ? void 0 : Q.nfcall<void>(this.fs.mkdir, target);
+                    })
                     .then(() => {
                         return Q.nfcall<string[]>(this.fs.readdir, source);
                     })
@@ -206,6 +206,7 @@ export class FileSystem {
                     }
                 });
             }
+            return Q.resolve(void 0);
         });
     }
 

@@ -42,35 +42,36 @@ function codeToRun() {
         ChromeDebuggerPackage = require(path.join(nodeDebugFolder, "node_modules/vscode-chrome-debug-core"));
         Node2DebugAdapter = require(path.join(nodeDebugFolder, "out/src/nodeDebugAdapter")).NodeDebugAdapter;
         /* tslint:enable:no-var-requires */
+
+        /**
+         * We did find chrome debugger package and node2 debug adapter. Lets create debug
+         * session and adapter with our customizations.
+         */
+        let session: typeof ChromeDebuggerCorePackage.ChromeDebugSession;
+        let adapter: typeof Node2DebugAdapterPackage.Node2DebugAdapter;
+
+        try {
+            /* Create customised react-native debug adapter based on Node-debug2 adapter */
+            adapter = makeAdapter(Node2DebugAdapter);
+            // Create a debug session class based on ChromeDebugSession
+            session = makeSession(ChromeDebuggerPackage.ChromeDebugSession,
+                { adapter, extensionName }, VSCodeDebugAdapter, telemetryReporter, extensionName, version);
+
+            // Run the debug session for the node debug adapter with our modified requests
+            ChromeDebuggerPackage.ChromeDebugSession.run(session);
+        } catch (e) {
+            const debugSession = new VSCodeDebugAdapter.DebugSession();
+            // Start session before sending any events otherwise the client wouldn't receive them
+            debugSession.start(process.stdin, process.stdout);
+            debugSession.sendEvent(new VSCodeDebugAdapter.OutputEvent("Unable to start debug adapter: " + e.toString(), "stderr"));
+            debugSession.sendEvent(new VSCodeDebugAdapter.TerminatedEvent());
+            bailOut(e.toString());
+        }
     } catch (e) {
         // Nothing we can do here: can't even communicate back because we don't know how to speak debug adapter
         bailOut("cannotFindDebugAdapter");
     }
 
-    /**
-     * We did find chrome debugger package and node2 debug adapter. Lets create debug
-     * session and adapter with our customizations.
-     */
-    let session: typeof ChromeDebuggerCorePackage.ChromeDebugSession;
-    let adapter: typeof Node2DebugAdapterPackage.Node2DebugAdapter;
-
-    try {
-        /* Create customised react-native debug adapter based on Node-debug2 adapter */
-        adapter = makeAdapter(Node2DebugAdapter);
-        // Create a debug session class based on ChromeDebugSession
-        session = makeSession(ChromeDebuggerPackage.ChromeDebugSession,
-            { adapter, extensionName }, VSCodeDebugAdapter, telemetryReporter, extensionName, version);
-    } catch (e) {
-        const debugSession = new VSCodeDebugAdapter.DebugSession();
-        // Start session before sending any events otherwise the client wouldn't receive them
-        debugSession.start(process.stdin, process.stdout);
-        debugSession.sendEvent(new VSCodeDebugAdapter.OutputEvent("Unable to start debug adapter: " + e.toString(), "stderr"));
-        debugSession.sendEvent(new VSCodeDebugAdapter.TerminatedEvent());
-        bailOut(e.toString());
-    }
-
-    // Run the debug session for the node debug adapter with our modified requests
-    ChromeDebuggerPackage.ChromeDebugSession.run(session);
 }
 
 // Enable telemetry
