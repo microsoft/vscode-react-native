@@ -3,6 +3,7 @@
 
 import {ExtensionMessage, MessagingChannel} from "./extensionMessaging";
 import {IInterProcessMessageSender, InterProcessMessageSender} from "./interProcessMessageSender";
+import {Telemetry} from "./telemetry";
 
 export class RemoteExtension {
     public static atProjectRootPath(projectRootPath: string) {
@@ -34,7 +35,7 @@ export class RemoteExtension {
     }
 
     public sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string,
-                         properties: { [key: string]: string }, measures: { [key: string]: number }): Q.Promise<any> {
+                         properties?: Telemetry.ITelemetryEventProperties, measures?: Telemetry.ITelemetryEventMeasures): Q.Promise<any> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.SEND_TELEMETRY,
             [extensionId, extensionVersion, appInsightsKey, eventName, properties, measures]);
     }

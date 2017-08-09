@@ -1,3 +1,20 @@
+## 0.4.1
+* Added notice about `.vscode/.react` directory (#505)
+* Fixed bug in typescript sourcemaps rewrite logic when project and vscode are on different drives
+* Fixed regression causing `react-native` commands ran from command palette to fail
+* Fixed regression causing debugging to fail when start debugging Expo project first time
+
+## 0.4.0
+* Fixed issue with infinite loops when reloading RN app
+* Fixed compatibility issues with react-native >=0.45
+* Added more robust sourcemaps support to enable Typescript debugging
+* Added instructions to enable Flowtype intellisense
+* Fixed error "Error processing 'continue'" appearing when reloading app while staying on breakpoint
+* Added “scheme” option to `launch.json` to pass build scheme to xcodebuild
+* Improved LogCat logging - now reusing existing output channel when possible
+* Refactored extension to support debugging of Expo and CRNA apps better (#478)
+* Added support for displaying Expo's QR code
+
 ## 0.3.2
 * Rename launch.json snippets to make it easier to add React Native launch configurations to existing `launch.json`
 * Fix regressions in app worker introduced after moving to 'node2' debugger

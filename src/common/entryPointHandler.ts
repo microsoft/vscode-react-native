@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {ErrorHelper} from "../common/error/errorHelper";
-import {ExtensionTelemetryReporter} from "../common/telemetryReporters";
-import {InternalError} from "../common/error/internalError";
-import {TelemetryHelper} from "../common/telemetryHelper";
-import {Telemetry} from "../common/telemetry";
-import {Log} from "../common/log/log";
-import {ILogger} from "../common/log/loggers";
+import {ErrorHelper} from "./error/errorHelper";
+import {ExtensionTelemetryReporter} from "./telemetryReporters";
+import {InternalError} from "./error/internalError";
+import {TelemetryHelper, TelemetryGenerator} from "./telemetryHelper";
+import {Telemetry} from "./telemetry";
+import {Log} from "./log/log";
+import {ILogger} from "./log/loggers";
 
 export enum ProcessType {
     Extension,
@@ -28,7 +28,7 @@ export class EntryPointHandler {
     }
 
     /* This method should wrap any async entry points to the code, so we handle telemetry and error reporting properly */
-    public runFunction(taskName: string, error: InternalError, codeToRun: () => Q.Promise<void> | void, errorsAreFatal: boolean = false): void {
+    public runFunction(taskName: string, error: InternalError, codeToRun: (telemetry: TelemetryGenerator) => Q.Promise<void> | void, errorsAreFatal: boolean = false): void {
         return this.handleErrors(error, TelemetryHelper.generate(taskName, codeToRun), /*errorsAreFatal*/ errorsAreFatal);
     }
 

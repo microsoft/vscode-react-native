@@ -11,9 +11,14 @@ import {Request} from "../common/node/request";
 import {SourceMapUtil} from "./sourceMap";
 import url = require("url");
 
-interface DownloadedScript {
+export interface DownloadedScript {
     contents: string;
     filepath: string;
+}
+
+interface IStrictUrl extends url.Url {
+    pathname: string;
+    href: string;
 }
 
 export class ScriptImporter {
@@ -33,17 +38,17 @@ export class ScriptImporter {
         const parsedScriptUrl = url.parse(scriptUrlString);
         const overriddenScriptUrlString = (parsedScriptUrl.hostname === "localhost") ? this.overridePackagerPort(scriptUrlString) : scriptUrlString;
         // We'll get the source code, and store it locally to have a better debugging experience
-        return new Request().request(overriddenScriptUrlString, true).then(scriptBody => {
+        return Request.request(overriddenScriptUrlString, true).then(scriptBody => {
             // Extract sourceMappingURL from body
-            let scriptUrl = url.parse(overriddenScriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
+            let scriptUrl = <IStrictUrl>url.parse(overriddenScriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
             let sourceMappingUrl = this.sourceMapUtil.getSourceMapURL(scriptUrl, scriptBody); // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
 
-            let waitForSourceMapping = Q<void>(null);
+            let waitForSourceMapping = Q<void>(void 0);
             if (sourceMappingUrl) {
                 /* handle source map - request it and store it locally */
                 waitForSourceMapping = this.writeAppSourceMap(sourceMappingUrl, scriptUrl)
                     .then(() => {
-                        scriptBody = this.sourceMapUtil.updateScriptPaths(scriptBody, sourceMappingUrl);
+                        scriptBody = this.sourceMapUtil.updateScriptPaths(scriptBody, <IStrictUrl>sourceMappingUrl);
                     });
             }
 
@@ -63,7 +68,7 @@ export class ScriptImporter {
                     let debuggerWorkerURL = `http://${Packager.getHostForPort(this.packagerPort)}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
                     let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
                     Log.logInternalMessage(LogLevel.Info, "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
-                    return new Request().request(debuggerWorkerURL, true).then((body: string) => {
+                    return Request.request(debuggerWorkerURL, true).then((body: string) => {
                         return new FileSystem().writeFile(debuggerWorkerLocalPath, body);
                     });
                 }
@@ -74,7 +79,7 @@ export class ScriptImporter {
     /**
      * Writes the script file to the project temporary location.
      */
-    private writeAppScript(scriptBody: string, scriptUrl: url.Url): Q.Promise<String> {
+    private writeAppScript(scriptBody: string, scriptUrl: IStrictUrl): Q.Promise<String> {
         let scriptFilePath = path.join(this.sourcesStoragePath, path.basename(scriptUrl.pathname)); // scriptFilePath = "$TMPDIR/index.ios.bundle"
         return new FileSystem().writeFile(scriptFilePath, scriptBody)
             .then(() => scriptFilePath);
@@ -83,8 +88,8 @@ export class ScriptImporter {
     /**
      * Writes the source map file to the project temporary location.
      */
-    private writeAppSourceMap(sourceMapUrl: url.Url, scriptUrl: url.Url): Q.Promise<void> {
-        return new Request().request(sourceMapUrl.href, true)
+    private writeAppSourceMap(sourceMapUrl: IStrictUrl, scriptUrl: IStrictUrl): Q.Promise<void> {
+        return Request.request(sourceMapUrl.href, true)
             .then((sourceMapBody: string) => {
                 let sourceMappingLocalPath = path.join(this.sourcesStoragePath, path.basename(sourceMapUrl.pathname)); // sourceMappingLocalPath = "$TMPDIR/index.ios.map"
                 let scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"

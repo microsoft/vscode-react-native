@@ -8,6 +8,7 @@ export interface IRunOptions extends ILaunchArgs {
     projectRoot: string;
     iosRelativeProjectPath?: string;
     variant?: string;
+    scheme?: string;
 }
 
 /**
@@ -15,7 +16,7 @@ export interface IRunOptions extends ILaunchArgs {
  * Add more arguments here as needed.
  */
 export interface ILaunchArgs {
-    platform?: string;
+    platform: string;
     target?: string;
     debugAdapterPort?: number;
     logCatArguments?: any;

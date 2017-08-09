@@ -6,7 +6,7 @@ import {ChildProcess} from "child_process";
 import {Log} from "./log/log";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
-import {HostPlatform, HostPlatformId} from "../common/hostPlatform";
+import {HostPlatform, HostPlatformId} from "./hostPlatform";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 
@@ -32,6 +32,7 @@ export enum CommandStatus {
 }
 
 export class CommandExecutor {
+
     private static ReactNativeCommand = "react-native";
     private static ReactNativeVersionCommand = "-v";
     private currentWorkingDirectory: string;
@@ -89,7 +90,7 @@ export class CommandExecutor {
 
         result.stdout.on("end", () => {
             const match = output.match(/react-native: ([\d\.]+)/);
-            deferred.resolve(match && match[1]);
+            deferred.resolve(match && match[1] || "");
         });
 
         return deferred.promise;
@@ -98,13 +99,14 @@ export class CommandExecutor {
     /**
      * Kills the React Native packager in a child process.
      */
-    public killReactPackager(packagerProcess: ChildProcess): Q.Promise<void> {
+    public killReactPackager(packagerProcess?: ChildProcess): Q.Promise<void> {
         if (packagerProcess) {
             return Q({}).then(() => {
                 if (HostPlatform.getPlatformId() === HostPlatformId.WINDOWS) {
                     return this.childProcess.exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome;
                 } else {
                     packagerProcess.kill();
+                    return Q.resolve(void 0);
                 }
             }).then(() => {
                 Log.logMessage("Packager stopped");
@@ -119,9 +121,9 @@ export class CommandExecutor {
     /**
      * Executes a react native command and waits for its completion.
      */
-    public spawnReactCommand(command: string, args?: string[], options: Options = {}): ISpawnResult {
+    public spawnReactCommand(command: string, args: string[] = [], options: Options = {}): ISpawnResult {
         const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
-        return this.spawnChildProcess(reactCommand, this.combineArguments(command, args), options);
+        return this.spawnChildProcess(reactCommand, [command, ...args], options);
     }
 
     /**
@@ -208,9 +210,5 @@ export class CommandExecutor {
 
     private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {
         return Q.reject<void>(ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed, command));
-    }
-
-    private combineArguments(firstArgument: string, otherArguments: string[] = []) {
-        return [firstArgument].concat(otherArguments);
     }
 }

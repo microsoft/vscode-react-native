@@ -33,7 +33,7 @@ export class SettingsHelper {
     /**
      * Get the path of the Typescript TSDK as it is in the workspace configuration
      */
-    public static getTypeScriptTsdk(): string {
+    public static getTypeScriptTsdk(): string | null {
         const workspaceConfiguration = vscode.workspace.getConfiguration();
         if (workspaceConfiguration.has("typescript.tsdk")) {
             const tsdk = workspaceConfiguration.get("typescript.tsdk");

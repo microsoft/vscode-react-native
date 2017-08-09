@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as os from "os";
-import {ErrorHelper} from "../common/error/errorHelper";
-import {HostPlatform} from "../common/hostPlatform";
-import {InternalErrorCode} from "../common/error/internalErrorCode";
+import {ErrorHelper} from "./error/errorHelper";
+import {HostPlatform} from "./hostPlatform";
+import {InternalErrorCode} from "./error/internalErrorCode";
 
 /**
  * Defines the identifiers of all the mobile target platforms React Native supports.

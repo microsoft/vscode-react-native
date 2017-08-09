@@ -19,6 +19,8 @@ You can debug your code, quickly run `react-native` commands from the command pa
 * Open your React Native project root folder in VS Code.
   * Hint: you should create a `.babelrc` with `sourceMaps: true` and `"presets": [ "react-native" ]` for better source-mapping support. (**required if you want TypeScript support**)
 
+Please notice that the extension uses `.vscode/.react` directory at the project root to store intermediate files required for debugging. Though these files are usually get removed after debug session ends you still might want to add this directory to your `.gitignore`
+
 ### Create a `.babelrc` file for ReactNative Packager transformer
   Create a `.babelrc` file in your React Native project root, the content of `.babelrc` at least with `sourceMaps = true`.
   for example:
@@ -48,6 +50,19 @@ You can modify these configurations or add new ones to the list. You can use oth
 
 For example, you can modify the `target` field to specify the simulator you want to target for iOS debugging.
 
+### Debugging with Typescript and Haul
+If you use Haul instead react-native packager, you have to add `sourceMapPathOverrides` option to `launch.json`
+
+For example:
+```
+"sourceMapPathOverrides": {
+    "webpack:///./~/*":   "${workspaceRoot}/node_modules/*",
+    "webpack:///./*":   "${workspaceRoot}/*",
+    "webpack:///*":     "*"
+}
+```
+See more about source map overrides [here](https://github.com/Microsoft/vscode-node-debug2#sourcemappathoverrides)
+
 ### Start debug session
 To start the debug session, select a configuration from the Configuration dropdown, and then click the start button ![Configure-gear](images/debug-icon.png) (or press F5).
 
@@ -60,10 +75,9 @@ More information about debugging using VS Code can be found in this [guide](http
 #### Debugging on iOS device
 Debugging on iOS device would require following manual steps.
 * You need to install [ideviceinstaller](https://github.com/libimobiledevice/ideviceinstaller) `brew install ideviceinstaller`
-* In your launch.json file, set target to "device"
-* Change the `jsCodeLocation` IP in your app using the steps detailed [here](https://facebook.github.io/react-native/docs/running-on-device-ios.html#accessing-development-server-from-device).
+* In your launch.json file, set target to "device" in iOS debugging configuration
 * Choose **Debug iOS** configuration from the Configuration dropdown and press F5.
-* Shake the device to open development menu and select "Debug in Chrome".
+* Shake the device to open development menu and select "Debug JS Remotely".
 
 ## Using React Native commands in the Command Palette
 
@@ -75,7 +89,7 @@ The **Run Android** command triggers ```react-native run-android``` and starts y
 
 The **Run iOS** command similarly triggers ```react-native run-ios``` and starts your app in iOS simulator (iPhone 6).
 
-The **Packager** commands allow you to start/stop the [**React-packager**](https://github.com/facebook/react-native/tree/master/packager).
+The **Packager** commands allow you to start/stop the [**Metro Bundler**](https://github.com/facebook/metro-bundler) (formerly React Packager).
 
 ## Using IntelliSense
 
@@ -103,6 +117,29 @@ Once you have enabled IntelliSense by following the above steps, you can start t
 Here is what happens behind the scenes to enable JSX support:
 1. If there is no tsconfig.json file in the project root, one is created with `allowJs: true` to allow TypeScript to process JavaScript files.
 2. Typings for React and React Native are copied into the .vscode directory (only if they don't already exist, we check for a `react` or `react-native` directory under `.vscode/typings`)
+
+## Using Flowtype
+
+In order to make intellisense understand Flow type annotations follow steps below:
+
+* Install Flow npm package
+
+```
+$ npm install --global flow-bin
+```
+
+* [Install Flow for VS Code](https://github.com/flowtype/flow-for-vscode).
+
+* Add the following configuration in `$workspace/.vscode/settings.json`
+
+```
+{
+    "javascript.validate.enable": false,
+    "flow.useNPMPackagedFlow": true
+}
+```
+
+* **Note:** Be sure your project have a `.flowconfig` file.
 
 ## Customization
 

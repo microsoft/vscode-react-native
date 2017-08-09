@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as fs from "fs";
-
 // @ifdef DEBUG
 try {
-    fs.statSync(`${__filename}.map`); // We check if source maps are available
     /* tslint:disable:no-var-requires */
+    require("fs").statSync(`${__filename}.map`); // We check if source maps are available
     require("source-map-support").install(); // If they are, we enable stack traces translation to typescript
     /* tslint:enable:no-var-requires */
 } catch (exceptions) {
@@ -38,11 +36,16 @@ import {ExtensionServer} from "./extensionServer";
 import {DelayedOutputChannelLogger} from "./outputChannelLogger";
 import { ExponentHelper } from "../common/exponent/exponentHelper";
 import { QRCodeContentProvider } from "./qrCodeContentProvider";
+import { ConfigurationReader } from "../common/configurationReader";
 
 /* all components use the same packager instance */
 const projectRootPath = SettingsHelper.getReactNativeProjectRoot();
 const workspaceRootPath = vscode.workspace.rootPath;
-const globalPackager = new Packager(workspaceRootPath, projectRootPath);
+
+const packagerPort = ConfigurationReader.readIntWithDefaultSync(
+    Packager.DEFAULT_PORT, SettingsHelper.getPackagerPort());
+
+const globalPackager = new Packager(workspaceRootPath, projectRootPath, packagerPort);
 const packagerStatusIndicator = new PackagerStatusIndicator();
 const globalExponentHelper = new ExponentHelper(workspaceRootPath, projectRootPath);
 const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper);

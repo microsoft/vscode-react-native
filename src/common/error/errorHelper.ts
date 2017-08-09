@@ -51,7 +51,7 @@ export class ErrorHelper {
 
     private static getOptionalArgsArrayFromFunctionCall(functionArguments: IArguments, startIndex: number): any[] {
         if (functionArguments.length <= startIndex) {
-            return null;
+            return [];
         }
 
         if (Array.isArray(functionArguments[startIndex])) {

@@ -6,7 +6,7 @@
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
-import {HostPlatform} from "../common/hostPlatform";
+import {HostPlatform} from "./hostPlatform";
 
 /**
  * Telemetry module specialized for vscode integration.
@@ -159,7 +159,7 @@ export module Telemetry {
         public static optInCollectedForCurrentSession: boolean;
 
         private static userId: string;
-        private static telemetrySettings: ITelemetrySettings = null;
+        private static telemetrySettings: ITelemetrySettings;
         private static TELEMETRY_SETTINGS_FILENAME: string = "VSCodeTelemetrySettings.json";
         private static INTERNAL_DOMAIN_SUFFIX: string = "microsoft.com";
         private static INTERNAL_USER_ENV_VAR: string = "TACOINTERNAL";
@@ -223,14 +223,14 @@ export module Telemetry {
         }
 
         private static getUserType(): string {
-            let userType: string = TelemetryUtils.telemetrySettings.userType;
+            let userType: string | undefined = TelemetryUtils.telemetrySettings.userType;
 
             if (userType === undefined) {
                 if (process.env[TelemetryUtils.INTERNAL_USER_ENV_VAR]) {
                     userType = TelemetryUtils.USERTYPE_INTERNAL;
                 } else {
                     let domain: string = process.env.USERDNSDOMAIN;
-                    domain = domain ? domain.toLowerCase().substring(domain.length - TelemetryUtils.INTERNAL_DOMAIN_SUFFIX.length) : null;
+                    domain = domain ? domain.toLowerCase().substring(domain.length - TelemetryUtils.INTERNAL_DOMAIN_SUFFIX.length) : "";
                     userType = domain === TelemetryUtils.INTERNAL_DOMAIN_SUFFIX ? TelemetryUtils.USERTYPE_INTERNAL : TelemetryUtils.USERTYPE_EXTERNAL;
                 }
 

@@ -36,13 +36,10 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("startPackager", () =>
             this.reactNativePackager.isRunning()
             .then((running) => {
-                if (running) {
-                    return this.reactNativePackager.stop();
-                }
+                return running ? this.reactNativePackager.stop() : Q.resolve(void 0);
             })
-        ).then(() =>
-            this.exponentHelper.configureReactNativeEnvironment()
-        ).then(() => this.runStartPackagerCommandAndUpdateStatus());
+        )
+        .then(() => this.runStartPackagerCommandAndUpdateStatus());
     }
 
     /**
@@ -52,9 +49,7 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("startExponentPackager", () =>
             this.reactNativePackager.isRunning()
             .then((running) => {
-                if (running) {
-                    return this.reactNativePackager.stop();
-                }
+                return running ? this.reactNativePackager.stop() : Q.resolve(void 0);
             })
         ).then(() =>
             this.exponentHelper.configureExponentEnvironment()
@@ -97,7 +92,7 @@ export class CommandPaletteHandler {
         TargetPlatformHelper.checkTargetPlatformSupport("android");
         return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
             const packagerPort = SettingsHelper.getPackagerPort();
-            return new AndroidPlatform({ projectRoot: this.workspaceRoot, packagerPort: packagerPort }).runApp(/*shouldLaunchInAllDevices*/true);
+            return new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort }).runApp(/*shouldLaunchInAllDevices*/true);
         }));
     }
 
@@ -109,7 +104,8 @@ export class CommandPaletteHandler {
         TargetPlatformHelper.checkTargetPlatformSupport("ios");
         return this.executeCommandInContext("runIos", () => {
             // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
-            return new IOSDebugModeManager(this.workspaceRoot).setSimulatorJSDebuggingModeSetting(/*enable=*/ false)
+            return new IOSDebugModeManager(this.workspaceRoot)
+                .setSimulatorJSDebuggingModeSetting(/*enable=*/ false)
                 .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
                 .then(() => this.executeReactNativeRunCommand("run-ios"));
         });
@@ -127,7 +123,7 @@ export class CommandPaletteHandler {
         if (startAs === PackagerRunAs.EXPONENT) {
             return this.loginToExponent()
                 .then(() =>
-                    this.reactNativePackager.startAsExponent(SettingsHelper.getPackagerPort())
+                    this.reactNativePackager.startAsExponent()
                 ).then(exponentUrl => {
                     this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
                     Log.logMessage("Application is running on Exponent.");
@@ -136,7 +132,7 @@ export class CommandPaletteHandler {
                     vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
                 });
         }
-        return this.reactNativePackager.startAsReactNative(SettingsHelper.getPackagerPort())
+        return this.reactNativePackager.startAsReactNative()
             .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
@@ -145,9 +141,10 @@ export class CommandPaletteHandler {
      * {command} The command to be executed
      * {args} The arguments to be passed to the command
      */
-    private executeReactNativeRunCommand(command: string, args?: string[]): Q.Promise<void> {
+    private executeReactNativeRunCommand(command: string, args: string[] = []): Q.Promise<void> {
         return this.executeWithPackagerRunning(() => {
-            return new CommandExecutor(this.workspaceRoot).spawnReactCommand(command, args).outcome;
+            return new CommandExecutor(this.workspaceRoot)
+                .spawnReactCommand(command, args).outcome;
         });
     }
 
@@ -213,8 +210,18 @@ export class CommandPaletteHandler {
 
     private loginToExponent(): Q.Promise<XDL.IUser> {
         return this.exponentHelper.loginToExponent(
-            (message, password) => { return Q(vscode.window.showInputBox({ placeHolder: message, password: password })); },
-            (message) => { return Q(vscode.window.showInformationMessage(message)); }
+            (message, password) => {
+                return Q.Promise((resolve, reject) => {
+                    vscode.window.showInputBox({ placeHolder: message, password: password })
+                    .then(resolve, reject);
+                });
+            },
+            (message) => {
+                return Q.Promise((resolve, reject) => {
+                    vscode.window.showInformationMessage(message)
+                        .then(resolve, reject);
+                });
+            }
         );
     }
 }

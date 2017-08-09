@@ -23,7 +23,10 @@ install:
 
 script:
   - npm test
-  - node_modules/.bin/gulp test
+  - node_modules/.bin/gulp test:coverage
+
+after_script:
+  - bash <(curl -s https://codecov.io/bash)
 
 notifications:
   slack:

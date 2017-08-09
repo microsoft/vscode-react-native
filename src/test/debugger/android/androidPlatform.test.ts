@@ -2,16 +2,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
+import * as fs from "fs";
 import * as path from "path";
 import * as mockFs from "mock-fs";
 
 import {AndroidPlatform} from "../../../common/android/androidPlatform";
 import {IRunOptions} from "../../../common/launchArgs";
 import {FileSystem} from "../../../common/node/fileSystem";
-import {ReactNative022} from "../../../test/resources/reactNative022";
-import {AdbSimulator} from "../../../test/resources/simulators/adbSimulator";
-import {AVDManager} from "../../../test/resources/simulators/avdManager";
-import {FakeExtensionMessageSender} from "../../../test/resources/fakeExtensionMessageSender";
+import {ReactNative022} from "../../resources/reactNative022";
+import {AdbSimulator} from "../../resources/simulators/adbSimulator";
+import {AVDManager} from "../../resources/simulators/avdManager";
+import {FakeExtensionMessageSender} from "../../resources/fakeExtensionMessageSender";
 import {ExtensionMessage} from "../../../common/extensionMessaging";
 import {RecordingsHelper} from "../../resources/recordingsHelper";
 import {RemoteExtension} from "../../../common/remoteExtension";
@@ -26,7 +27,9 @@ suite("androidPlatform", function () {
         const androidProjectPath = path.join(projectRoot, "android");
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
-        const genericRunOptions: IRunOptions = { projectRoot: projectRoot };
+        const genericRunOptions: IRunOptions = { platform: "android", projectRoot: projectRoot };
+
+        const rnProjectContent = fs.readFileSync(ReactNative022.DEFAULT_PROJECT_FILE, "utf8");
 
         let fileSystem: FileSystem;
         let adb: AdbSimulator;
@@ -51,7 +54,7 @@ suite("androidPlatform", function () {
             const messagesWithoutUndefineds = messagesSent.map(message => {
                 return {
                     message: message.message,
-                    args: message.args.filter(value => value),
+                    args: message.args && message.args.filter(value => value) || [],
                 };
             });
             messagesWithoutUndefineds.should.eql([expectedMessage]);
@@ -62,8 +65,10 @@ suite("androidPlatform", function () {
         }
 
         setup(() => {
+            mockFs();
+
             // Configure all the dependencies we'll use in our tests
-            fileSystem = new FileSystem({ fs: mockFs.fs({}) });
+            fileSystem = new FileSystem();
             adb = new AdbSimulator(fileSystem);
             simulatedAVDManager = new AVDManager(adb);
             reactNative = new ReactNative022(adb, fileSystem);
@@ -71,7 +76,13 @@ suite("androidPlatform", function () {
             androidPlatform = createAndroidPlatform(genericRunOptions);
 
             // Create a React-Native project we'll use in our tests
-            return reactNative.createProject(projectRoot, applicationName);
+            return reactNative
+                .fromProjectFileContent(rnProjectContent)
+                .createProject(projectRoot, applicationName);
+        });
+
+        teardown(() => {
+            mockFs.restore();
         });
 
         const testWithRecordings = new RecordingsHelper(() => reactNative).test;
@@ -178,7 +189,7 @@ suite("androidPlatform", function () {
                     .then(() => {
                         return simulatedAVDManager.createAndLaunchAll(["Nexus_5", "Nexus_6", "Nexus_10", "Nexus_11", "Nexus_12"]);
                     }).then(() => {
-                        const runOptions: IRunOptions = { projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: IRunOptions = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
                         return adb.isAppRunning(androidPackageName, "Nexus_12");
@@ -198,7 +209,7 @@ suite("androidPlatform", function () {
                     }).then(() => {
                         return adb.notifyDevicesAreOffline(offineDevicesIds);
                     }).then(() => {
-                        const runOptions: IRunOptions = { projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: IRunOptions = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
                         return adb.findDevicesRunningApp(androidPackageName);

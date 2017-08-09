@@ -3,20 +3,24 @@
 
 import * as Q from "q";
 
-import {GeneralMobilePlatform} from "../generalMobilePlatform";
-import {Packager} from "../../common/packager";
-import {IRunOptions} from "../../common/launchArgs";
-import {Log} from "../../common/log/log";
-import {IAdb, Adb, AndroidAPILevel, IDevice, DeviceType} from "../../common/android/adb";
-import {Package} from "../../common/node/package";
-import {PromiseUtil} from "../../common/node/promise";
-import {PackageNameResolver} from "../../common/android/packageNameResolver";
-import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
-import {FileSystem} from "../../common/node/fileSystem";
-import {IReactNative, ReactNative} from "../../common/reactNative";
-import {TelemetryHelper} from "../../common/telemetryHelper";
+import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
+import {Packager} from "../packager";
+import {IRunOptions} from "../launchArgs";
+import {Log} from "../log/log";
+import {IAdb, Adb, AndroidAPILevel, IDevice, DeviceType} from "./adb";
+import {Package} from "../node/package";
+import {PromiseUtil} from "../node/promise";
+import {PackageNameResolver} from "./packageNameResolver";
+import {OutputVerifier, PatternToFailure} from "../outputVerifier";
+import {FileSystem} from "../node/fileSystem";
+import {IReactNative, ReactNative} from "../reactNative";
+import {TelemetryHelper} from "../telemetryHelper";
 
-
+export interface AndroidPlatformDeps extends MobilePlatformDeps  {
+    adb?: IAdb;
+    reactNative?: IReactNative;
+    fileSystem?: FileSystem;
+}
 /**
  * Android specific platform implementation for debugging RN applications.
  */
@@ -56,11 +60,12 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private needsToLaunchApps: boolean = false;
 
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(runOptions: IRunOptions, { remoteExtension = null,
+    constructor(runOptions: IRunOptions, {
+        remoteExtension,
         adb = <IAdb>new Adb(),
         reactNative = <IReactNative>new ReactNative(),
         fileSystem = new FileSystem(),
-    } = {}) {
+    }: AndroidPlatformDeps = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
         this.adb = adb;
         this.reactNative = reactNative;
@@ -143,6 +148,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         + "go into <Dev Settings> and configure <Debug Server host & port for Device> to be "
                         + "an IP address of your computer that the Device can reach. More info at: "
                         + "https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps");
+                        return void 0;
                     }
                 });
         } else {

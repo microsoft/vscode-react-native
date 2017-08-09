@@ -32,6 +32,7 @@ var checkCopyright = function() {
         if (file.isBuffer()) {
             var fileContents = file.contents.toString(encoding);
             fileContents = fileContents.replace("\r\n", "\n");
+            fileContents = fileContents.replace("\"use strict\";\n", "");
 
             if (fileContents.indexOf(copyrightNotice) !== 0) {
                 logError(pluginName, file, "missing copyright notice");

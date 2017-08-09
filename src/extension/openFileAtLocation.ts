@@ -25,7 +25,7 @@ import * as Q from "q";
 
     if (process.argv.length === 3) {
         fullpath = process.argv[2];
-        workspace = null;
+        workspace = "";
     } else {
         fullpath = process.argv[3];
         workspace = process.argv[2];

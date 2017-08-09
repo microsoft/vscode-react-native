@@ -6,11 +6,14 @@ import * as Q from "q";
 
 import {CommandExecutor} from "../../common/commandExecutor";
 import {Xcodeproj, IXcodeProjFile} from "../../common/ios/xcodeproj";
+import {IRunOptions} from "../../common/launchArgs";
 
 export class Compiler {
     private projectRoot: string;
+    private runOptions: IRunOptions;
 
-    constructor(projectRoot: string) {
+    constructor(runOptions: IRunOptions, projectRoot: string) {
+        this.runOptions = runOptions;
         this.projectRoot = projectRoot;
     }
 
@@ -27,7 +30,7 @@ export class Compiler {
         return new Xcodeproj().findXcodeprojFile(this.projectRoot).then((projectFile: IXcodeProjFile) => {
             return [
                 projectFile.fileType === ".xcworkspace" ? "-workspace" : "-project", projectFile.fileName,
-                "-scheme", projectFile.projectName,
+                "-scheme", this.runOptions.scheme ? this.runOptions.scheme : projectFile.projectName,
                 "-destination", "generic/platform=iOS", // Build for a generic iOS device
                 "-derivedDataPath", path.join(this.projectRoot, "build"),
             ];

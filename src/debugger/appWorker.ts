@@ -70,7 +70,7 @@ postMessage({workerLoaded:true});`;
     private packagerPort: number;
     private sourcesStoragePath: string;
     private socketToApp: WebSocket;
-    private singleLifetimeWorker: IDebuggeeWorker;
+    private singleLifetimeWorker: IDebuggeeWorker | null;
     private webSocketConstructor: (url: string) => WebSocket;
 
     private executionLimiter = new ExecutionsLimiter();
@@ -211,7 +211,9 @@ postMessage({workerLoaded:true});`;
                 this.killWorker();
             } else if (object.method) {
                 // All the other messages are handled by the single lifetime worker
-                this.singleLifetimeWorker.postMessage(object);
+                if (this.singleLifetimeWorker) {
+                    this.singleLifetimeWorker.postMessage(object);
+                }
             } else {
                 // Message doesn't have a method. Ignore it. This is an info message instead of warn because it's normal and expected
                 Log.logInternalMessage(LogLevel.Info, "The react-native app sent a message without specifying a method: " + message);
@@ -229,7 +231,7 @@ postMessage({workerLoaded:true});`;
     }
 
     private sendMessageToApp(message: any): void {
-        let stringified: string = null;
+        let stringified: string = "";
         try {
             stringified = JSON.stringify(message);
             Log.logInternalMessage(LogLevel.Trace, "To RN APP: " + stringified);
