@@ -19,7 +19,7 @@ export module Telemetry {
 
     export interface ITelemetryProperties {
         [propertyName: string]: any;
-    };
+    }
 
     /**
      * TelemetryEvent represents a basic telemetry data point
@@ -47,7 +47,7 @@ export module Telemetry {
                 this.properties[name + ".nothashed"] = value;
             }
         }
-    };
+    }
 
     /**
      * TelemetryActivity automatically includes timing data, used for scenarios where we want to track performance.
@@ -75,7 +75,7 @@ export module Telemetry {
                 this.properties["reserved.activity.duration"] = this.endTime[0] * 1000 + this.endTime[1] / 1000000;
             }
         }
-    };
+    }
 
     export function init(appNameValue: string, appVersion: string, reporterToUse: ITelemetryReporter): void {
         try {
@@ -265,7 +265,7 @@ export module Telemetry {
 
             fs.writeFileSync(TelemetryUtils.telemetrySettingsFile, JSON.stringify(TelemetryUtils.telemetrySettings));
         }
-    };
+    }
 
     export interface ITelemetryEventProperties {
         [key: string]: string;
@@ -290,4 +290,4 @@ export module Telemetry {
 
         extensionTelemetryReporter.sendTelemetryEvent(eventName, properties, measures);
     }
-};
+}

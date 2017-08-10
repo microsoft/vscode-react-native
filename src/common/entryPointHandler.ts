@@ -12,7 +12,7 @@ import {ILogger} from "./log/loggers";
 export enum ProcessType {
     Extension,
     Debugee,
-    Debugger
+    Debugger,
 }
 
 /* This class should we used for each entry point of the code, so we handle telemetry and error reporting properly */

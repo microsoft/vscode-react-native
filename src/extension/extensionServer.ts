@@ -261,7 +261,7 @@ export class ExtensionServer implements vscode.Disposable {
         };
 
         socket.on("data", dataCallback);
-    };
+    }
 
     /**
      * Recovers the server in case the named socket we use already exists, but no other instance of VSCode is active.

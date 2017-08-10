@@ -22,7 +22,7 @@ import * as url from "url";
 export enum PackagerRunAs {
     REACT_NATIVE,
     EXPONENT,
-    NOT_RUNNING
+    NOT_RUNNING,
 }
 
 export class Packager {

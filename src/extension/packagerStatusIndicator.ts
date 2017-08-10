@@ -10,7 +10,7 @@ import {window, Disposable, StatusBarItem, StatusBarAlignment} from "vscode";
 export enum PackagerStatus {
     PACKAGER_STARTED = 0,
     EXPONENT_PACKAGER_STARTED,
-    PACKAGER_STOPPED
+    PACKAGER_STOPPED,
 }
 
 export class PackagerStatusIndicator implements Disposable {

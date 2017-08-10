@@ -21,7 +21,7 @@ export enum AndroidAPILevel {
 
 export enum DeviceType {
     AndroidSdkEmulator, // These seem to have emulator-<port> ids
-    Other
+    Other,
 }
 
 const AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;

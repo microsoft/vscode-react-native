@@ -92,7 +92,7 @@ export class Simulator {
 
     public getAllSimulatedEvents(): IEventArguments[] {
         return this.allSimulatedEvents;
-    };
+    }
 
     private isWholeOutputDefinition(definition: IOutputBasedSideEffectDefinition): boolean {
         return definition.hasOwnProperty("wholeOutputPattern");

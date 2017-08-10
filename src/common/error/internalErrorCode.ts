@@ -62,5 +62,5 @@ export enum InternalErrorCode {
 
         // Inter Process Communication errors
         ErrorWhileProcessingMessageInIPMSServer = 901,
-        ErrorNoPipeFound = 902
+        ErrorNoPipeFound = 902,
     }

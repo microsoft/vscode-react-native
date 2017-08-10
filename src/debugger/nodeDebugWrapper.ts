@@ -221,7 +221,7 @@ export function makeSession(
         private bailOut(message: string): void {
             Log.logError(`Could not debug. ${message}`);
             this.sendEvent(new debugAdapterPackage.TerminatedEvent());
-        };
+        }
     };
 }
 

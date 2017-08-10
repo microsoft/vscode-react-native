@@ -5,6 +5,6 @@ import * as childProcess from "./childProcess";
 import * as file from "./fileSystem";
 
 export module Node {
-    export var ChildProcess = childProcess.ChildProcess;
-    export var FileSystem = file.FileSystem;
+    export const ChildProcess = childProcess.ChildProcess;
+    export const FileSystem = file.FileSystem;
 }

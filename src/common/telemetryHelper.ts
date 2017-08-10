@@ -235,4 +235,4 @@ export class TelemetryHelper {
             TelemetryHelper.setTelemetryEventProperty(event, propertyName + i, propertyValue[i], isPii);
         }
     }
-};
+}

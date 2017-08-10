@@ -26,7 +26,7 @@ interface IHostPlatform {
 export enum HostPlatformId {
     WINDOWS,
     OSX,
-    LINUX
+    LINUX,
 }
 
 /**
