@@ -82,11 +82,16 @@ lintSources = lintSources.concat([
     "!src/test/resources/sampleReactNative022Project/**",
 ]);
 
+var libtslint = require("tslint");
 var tslint = require("gulp-tslint");
 gulp.task("tslint", function () {
+    var program = libtslint.Linter.createProgram("./tsconfig.json");
     return gulp.src(lintSources, { base: "." })
-        .pipe(tslint())
-        .pipe(tslint.report("verbose"));
+        .pipe(tslint({
+            formatter: "verbose",
+            program: program
+        }))
+        .pipe(tslint.report());
 });
 
 function test() {
