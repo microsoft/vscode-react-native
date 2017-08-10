@@ -79,10 +79,10 @@ export class Simulator {
         return new ChildProcess({ childProcess: fakeChildProcessModule }).spawn("", []);
     }
 
-    public simulate(recording: Recording): Q.Promise<void> {
-        assert(recording, "recording shouldn't be null");
+    public simulate(simRecording: Recording): Q.Promise<void> {
+        assert(simRecording, "recording shouldn't be null");
         return this.sideEffectsDefinition.beforeStart().then(() => {
-            return this.simulateAllEvents(recording.events);
+            return this.simulateAllEvents(simRecording.events);
         });
     }
 
@@ -92,7 +92,7 @@ export class Simulator {
 
     public getAllSimulatedEvents(): IEventArguments[] {
         return this.allSimulatedEvents;
-    };
+    }
 
     private isWholeOutputDefinition(definition: IOutputBasedSideEffectDefinition): boolean {
         return definition.hasOwnProperty("wholeOutputPattern");

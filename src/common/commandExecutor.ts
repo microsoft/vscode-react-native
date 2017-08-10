@@ -28,7 +28,7 @@ interface Options {
 
 export enum CommandStatus {
     Start = 0,
-    End = 1
+    End = 1,
 }
 
 export class CommandExecutor {

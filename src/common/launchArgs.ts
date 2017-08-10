@@ -2,16 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 /**
- * Defines the options needed to start debugging a project.
- */
-export interface IRunOptions extends ILaunchArgs {
-    projectRoot: string;
-    iosRelativeProjectPath?: string;
-    variant?: string;
-    scheme?: string;
-}
-
-/**
  * Defines the supported launch arguments.
  * Add more arguments here as needed.
  */
@@ -21,4 +11,14 @@ export interface ILaunchArgs {
     debugAdapterPort?: number;
     logCatArguments?: any;
     packagerPort?: any;
+}
+
+/**
+ * Defines the options needed to start debugging a project.
+ */
+export interface IRunOptions extends ILaunchArgs {
+    projectRoot: string;
+    iosRelativeProjectPath?: string;
+    variant?: string;
+    scheme?: string;
 }

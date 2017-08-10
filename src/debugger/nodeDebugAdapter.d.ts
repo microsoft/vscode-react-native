@@ -5,6 +5,12 @@
 // but rather as they exist in truth, so we can reach into the internals
 // and access what we need.
 declare module VSCodeDebugAdapterPackage {
+
+    class Event {
+        public event: string;
+        public body: any;
+    }
+
     class DebugSession {
         public static run(debugSession: typeof DebugSession): void;
         // This is actually inherited from protocol server but we'll put it here
@@ -20,10 +26,7 @@ declare module VSCodeDebugAdapterPackage {
     class TerminatedEvent extends Event {
         constructor();
     }
-    class Event {
-        public event: string;
-        public body: any;
-    }
+
     class ContinuedEvent extends Event {
         public seq: number;
         /** Must be 'event'. */

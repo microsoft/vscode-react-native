@@ -3,7 +3,7 @@
 
 export enum InternalErrorLevel {
     Error,
-    Warning
+    Warning,
 }
 
 export class InternalError extends Error {

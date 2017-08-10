@@ -12,7 +12,7 @@ import {InternalErrorCode} from "./error/internalErrorCode";
 export enum TargetPlatformId {
     ANDROID,
     IOS,
-    EXPONENT
+    EXPONENT,
 }
 
 export class TargetPlatformHelper {

@@ -171,7 +171,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
             .then((config: AppJson) => {
                 return isExpo ? Q.resolve(void 0) : this.createExpoEntry(config.expo.name);
             });
-    };
+    }
 
     /**
      * Exponent sdk version that maps to the current react-native version

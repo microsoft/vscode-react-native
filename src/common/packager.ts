@@ -22,7 +22,7 @@ import * as url from "url";
 export enum PackagerRunAs {
     REACT_NATIVE,
     EXPONENT,
-    NOT_RUNNING
+    NOT_RUNNING,
 }
 
 export class Packager {
@@ -277,10 +277,10 @@ export class Packager {
             // Attempt to find the 'opn' package directly under the project's node_modules folder (node4 +)
             // Else, attempt to find the package within the dependent node_modules of react-native package
             let possiblePaths = [flatDependencyPackagePath, nestedDependencyPackagePath];
-            return Q.any(possiblePaths.map(path =>
-                fsHelper.exists(path).then(exists =>
+            return Q.any(possiblePaths.map(fsPath =>
+                fsHelper.exists(fsPath).then(exists =>
                     exists
-                        ? Q.resolve(path)
+                        ? Q.resolve(fsPath)
                         : Q.reject<string>("opn package location not found"))));
         } catch (err) {
             return Q.reject<string>("The package 'opn' was not found. " + err);
