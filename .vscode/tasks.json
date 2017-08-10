@@ -5,21 +5,18 @@
     "tasks": [
         {
             "taskName": "watch",
-            "args": [],
             "isBuildCommand": true,
-            "isWatching": true,
-            "problemMatcher": [
-                "$tsc"
-            ]
+            "isBackground": true,
+            "problemMatcher": "$gulp-tsc"
         },
         {
             "taskName": "build",
-            "args": [],
             "isBuildCommand": true,
-            "isWatching": false,
-            "problemMatcher": [
-                "$tsc"
-            ]
+            "problemMatcher": "$gulp-tsc"
+        },
+        {
+            "taskName": "tslint",
+            "problemMatcher": "$tslint5"
         }
     ]
 }
