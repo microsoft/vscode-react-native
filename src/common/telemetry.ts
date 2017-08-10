@@ -21,6 +21,111 @@ export module Telemetry {
         [propertyName: string]: any;
     }
 
+    class TelemetryUtils {
+        public static USERTYPE_INTERNAL: string = "Internal";
+        public static USERTYPE_EXTERNAL: string = "External";
+        public static userType: string;
+        public static sessionId: string;
+        public static optInCollectedForCurrentSession: boolean;
+
+        private static userId: string;
+        private static telemetrySettings: ITelemetrySettings;
+        private static TELEMETRY_SETTINGS_FILENAME: string = "VSCodeTelemetrySettings.json";
+        private static INTERNAL_DOMAIN_SUFFIX: string = "microsoft.com";
+        private static INTERNAL_USER_ENV_VAR: string = "TACOINTERNAL";
+
+        private static get telemetrySettingsFile(): string {
+            let settingsHome = HostPlatform.getSettingsHome();
+            return path.join(settingsHome, TelemetryUtils.TELEMETRY_SETTINGS_FILENAME);
+        }
+
+        public static init(appVersion: string, reporterToUse: ITelemetryReporter): void {
+            TelemetryUtils.loadSettings();
+            Telemetry.reporter = reporterToUse;
+            TelemetryUtils.userType = TelemetryUtils.getUserType();
+            Telemetry.isOptedIn = TelemetryUtils.getTelemetryOptInSetting();
+            TelemetryUtils.saveSettings();
+        }
+
+        public static addCommonProperties(event: any): void {
+            if (Telemetry.isOptedIn) {
+                event.properties["RN.userId"] = TelemetryUtils.userId;
+            }
+
+            event.properties["RN.userType"] = TelemetryUtils.userType;
+        }
+
+        public static generateGuid(): string {
+            let hexValues: string[] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
+            // c.f. rfc4122 (UUID version 4 = xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx)
+            let oct: string = "";
+            let tmp: number;
+            /* tslint:disable:no-bitwise */
+            for (let a: number = 0; a < 4; a++) {
+                tmp = (4294967296 * Math.random()) | 0;
+                oct += hexValues[tmp & 0xF] + hexValues[tmp >> 4 & 0xF] + hexValues[tmp >> 8 & 0xF] + hexValues[tmp >> 12 & 0xF] + hexValues[tmp >> 16 & 0xF] + hexValues[tmp >> 20 & 0xF] + hexValues[tmp >> 24 & 0xF] + hexValues[tmp >> 28 & 0xF];
+            }
+
+            // "Set the two most significant bits (bits 6 and 7) of the clock_seq_hi_and_reserved to zero and one, respectively"
+            let clockSequenceHi: string = hexValues[8 + (Math.random() * 4) | 0];
+            return oct.substr(0, 8) + "-" + oct.substr(9, 4) + "-4" + oct.substr(13, 3) + "-" + clockSequenceHi + oct.substr(16, 3) + "-" + oct.substr(19, 12);
+            /* tslint:enable:no-bitwise */
+        }
+
+        public static getTelemetryOptInSetting(): boolean {
+            if (TelemetryUtils.telemetrySettings.optIn === undefined) {
+                // Opt-in by default
+                TelemetryUtils.telemetrySettings.optIn = true;
+            }
+
+            return TelemetryUtils.telemetrySettings.optIn;
+        }
+
+        private static getUserType(): string {
+            let userType: string | undefined = TelemetryUtils.telemetrySettings.userType;
+
+            if (userType === undefined) {
+                if (process.env[TelemetryUtils.INTERNAL_USER_ENV_VAR]) {
+                    userType = TelemetryUtils.USERTYPE_INTERNAL;
+                } else {
+                    let domain: string = process.env.USERDNSDOMAIN;
+                    domain = domain ? domain.toLowerCase().substring(domain.length - TelemetryUtils.INTERNAL_DOMAIN_SUFFIX.length) : "";
+                    userType = domain === TelemetryUtils.INTERNAL_DOMAIN_SUFFIX ? TelemetryUtils.USERTYPE_INTERNAL : TelemetryUtils.USERTYPE_EXTERNAL;
+                }
+
+                TelemetryUtils.telemetrySettings.userType = userType;
+            }
+
+            return userType;
+        }
+
+        /*
+            * Load settings data from settingsHome/TelemetrySettings.json
+            */
+        private static loadSettings(): ITelemetrySettings {
+            try {
+                TelemetryUtils.telemetrySettings = JSON.parse(<any>fs.readFileSync(TelemetryUtils.telemetrySettingsFile));
+            } catch (e) {
+                // if file does not exist or fails to parse then assume no settings are saved and start over
+                TelemetryUtils.telemetrySettings = {};
+            }
+
+            return TelemetryUtils.telemetrySettings;
+        }
+
+        /*
+            * Save settings data in settingsHome/TelemetrySettings.json
+            */
+        private static saveSettings(): void {
+            let settingsHome = HostPlatform.getSettingsHome();
+            if (!fs.existsSync(settingsHome)) {
+                fs.mkdirSync(settingsHome);
+            }
+
+            fs.writeFileSync(TelemetryUtils.telemetrySettingsFile, JSON.stringify(TelemetryUtils.telemetrySettings));
+        }
+    }
+
     /**
      * TelemetryEvent represents a basic telemetry data point
      */
@@ -149,122 +254,6 @@ export module Telemetry {
     export function defaultTelemetryReporter(appVersion: string): ITelemetryReporter {
         const TelemetryReporter = require("vscode-extension-telemetry").default;
         return new TelemetryReporter(Telemetry.appName, appVersion, APPINSIGHTS_INSTRUMENTATIONKEY);
-    }
-
-    class TelemetryUtils {
-        public static USERTYPE_INTERNAL: string = "Internal";
-        public static USERTYPE_EXTERNAL: string = "External";
-        public static userType: string;
-        public static sessionId: string;
-        public static optInCollectedForCurrentSession: boolean;
-
-        private static userId: string;
-        private static telemetrySettings: ITelemetrySettings;
-        private static TELEMETRY_SETTINGS_FILENAME: string = "VSCodeTelemetrySettings.json";
-        private static INTERNAL_DOMAIN_SUFFIX: string = "microsoft.com";
-        private static INTERNAL_USER_ENV_VAR: string = "TACOINTERNAL";
-
-        private static get telemetrySettingsFile(): string {
-            let settingsHome = HostPlatform.getSettingsHome();
-            return path.join(settingsHome, TelemetryUtils.TELEMETRY_SETTINGS_FILENAME);
-        }
-
-        public static init(appVersion: string, reporterToUse: ITelemetryReporter): void {
-            TelemetryUtils.loadSettings();
-            Telemetry.reporter = reporterToUse;
-            TelemetryUtils.userType = TelemetryUtils.getUserType();
-            Telemetry.isOptedIn = TelemetryUtils.getTelemetryOptInSetting();
-            TelemetryUtils.saveSettings();
-        }
-
-        public static addCommonProperties(event: any): void {
-            if (Telemetry.isOptedIn) {
-                event.properties["RN.userId"] = TelemetryUtils.userId;
-            }
-
-            event.properties["RN.userType"] = TelemetryUtils.userType;
-        }
-
-        public static generateGuid(): string {
-            let hexValues: string[] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
-            // c.f. rfc4122 (UUID version 4 = xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx)
-            let oct: string = "";
-            let tmp: number;
-            /* tslint:disable:no-bitwise */
-            for (let a: number = 0; a < 4; a++) {
-                tmp = (4294967296 * Math.random()) | 0;
-                oct += hexValues[tmp & 0xF] + hexValues[tmp >> 4 & 0xF] + hexValues[tmp >> 8 & 0xF] + hexValues[tmp >> 12 & 0xF] + hexValues[tmp >> 16 & 0xF] + hexValues[tmp >> 20 & 0xF] + hexValues[tmp >> 24 & 0xF] + hexValues[tmp >> 28 & 0xF];
-            }
-
-            // "Set the two most significant bits (bits 6 and 7) of the clock_seq_hi_and_reserved to zero and one, respectively"
-            let clockSequenceHi: string = hexValues[8 + (Math.random() * 4) | 0];
-            return oct.substr(0, 8) + "-" + oct.substr(9, 4) + "-4" + oct.substr(13, 3) + "-" + clockSequenceHi + oct.substr(16, 3) + "-" + oct.substr(19, 12);
-            /* tslint:enable:no-bitwise */
-        }
-
-        public static getTelemetryOptInSetting(): boolean {
-            if (TelemetryUtils.telemetrySettings.optIn === undefined) {
-                // Opt-in by default
-                TelemetryUtils.telemetrySettings.optIn = true;
-            }
-
-            return TelemetryUtils.telemetrySettings.optIn;
-        }
-
-        public static setTelemetryOptInSetting(optIn: boolean): void {
-            TelemetryUtils.telemetrySettings.optIn = optIn;
-
-            if (!optIn) {
-                Telemetry.send(new TelemetryEvent(Telemetry.appName + "/telemetryOptOut"), true);
-            }
-
-            TelemetryUtils.optInCollectedForCurrentSession = true;
-            TelemetryUtils.saveSettings();
-        }
-
-        private static getUserType(): string {
-            let userType: string | undefined = TelemetryUtils.telemetrySettings.userType;
-
-            if (userType === undefined) {
-                if (process.env[TelemetryUtils.INTERNAL_USER_ENV_VAR]) {
-                    userType = TelemetryUtils.USERTYPE_INTERNAL;
-                } else {
-                    let domain: string = process.env.USERDNSDOMAIN;
-                    domain = domain ? domain.toLowerCase().substring(domain.length - TelemetryUtils.INTERNAL_DOMAIN_SUFFIX.length) : "";
-                    userType = domain === TelemetryUtils.INTERNAL_DOMAIN_SUFFIX ? TelemetryUtils.USERTYPE_INTERNAL : TelemetryUtils.USERTYPE_EXTERNAL;
-                }
-
-                TelemetryUtils.telemetrySettings.userType = userType;
-            }
-
-            return userType;
-        }
-
-        /*
-            * Load settings data from settingsHome/TelemetrySettings.json
-            */
-        private static loadSettings(): ITelemetrySettings {
-            try {
-                TelemetryUtils.telemetrySettings = JSON.parse(<any>fs.readFileSync(TelemetryUtils.telemetrySettingsFile));
-            } catch (e) {
-                // if file does not exist or fails to parse then assume no settings are saved and start over
-                TelemetryUtils.telemetrySettings = {};
-            }
-
-            return TelemetryUtils.telemetrySettings;
-        }
-
-        /*
-            * Save settings data in settingsHome/TelemetrySettings.json
-            */
-        private static saveSettings(): void {
-            let settingsHome = HostPlatform.getSettingsHome();
-            if (!fs.existsSync(settingsHome)) {
-                fs.mkdirSync(settingsHome);
-            }
-
-            fs.writeFileSync(TelemetryUtils.telemetrySettingsFile, JSON.stringify(TelemetryUtils.telemetrySettings));
-        }
     }
 
     export interface ITelemetryEventProperties {

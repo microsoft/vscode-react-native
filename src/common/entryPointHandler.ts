@@ -4,7 +4,8 @@
 import {ErrorHelper} from "./error/errorHelper";
 import {ExtensionTelemetryReporter} from "./telemetryReporters";
 import {InternalError} from "./error/internalError";
-import {TelemetryHelper, TelemetryGenerator} from "./telemetryHelper";
+import {TelemetryHelper} from "./telemetryHelper";
+import {TelemetryGenerator} from "./telemetryGenerators";
 import {Telemetry} from "./telemetry";
 import {Log} from "./log/log";
 import {ILogger} from "./log/loggers";

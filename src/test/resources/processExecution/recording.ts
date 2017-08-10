@@ -74,6 +74,10 @@ export type IIOSDeviceType = "TBD";
 
 export type IEventArguments = IStdOutEvent | IStdErrEvent | IErrorEvent | IExitEvent | ICustomEvent;
 
+export interface ITimedEvent {
+    after: number;
+}
+
 export interface IStdOutEvent extends ITimedEvent {
     stdout: { data: string };
 }
@@ -92,8 +96,4 @@ export interface IExitEvent extends ITimedEvent {
 
 export interface ICustomEvent extends ITimedEvent {
     custom: { lambda: () => Q.Promise<void> | void };
-}
-
-export interface ITimedEvent {
-    after: number;
 }

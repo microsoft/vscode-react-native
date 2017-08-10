@@ -15,7 +15,7 @@ suite("xcodeproj", function() {
             const fileType = ".xcodeproj";
             const testFiles = [projectName + fileType];
             const mockFileSystem: any = {
-                readDir: (path: string) => {
+                readDir: () => {
                     return Q(testFiles);
                 },
             };
@@ -40,7 +40,7 @@ suite("xcodeproj", function() {
             const xcworkspaceFileName = projectName + xcworkspaceFileType;
             const testFiles = [xcodeprojFileName, xcworkspaceFileName];
             const mockFileSystem: any = {
-                readDir: (path: string) => {
+                readDir: () => {
                     return Q(testFiles);
                 },
             };

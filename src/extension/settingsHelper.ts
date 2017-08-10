@@ -19,15 +19,15 @@ export class SettingsHelper {
     /**
      * Enable javascript intellisense via typescript.
      */
-    public static notifyUserToAddTSDKInSettingsJson(path: string): void {
-        vscode.window.showInformationMessage(`Please make sure you have \"typescript.tsdk\": \"${path}\" in .vscode/settings.json and restart VSCode afterwards.`);
+    public static notifyUserToAddTSDKInSettingsJson(tsdkPath: string): void {
+        vscode.window.showInformationMessage(`Please make sure you have \"typescript.tsdk\": \"${tsdkPath}\" in .vscode/settings.json and restart VSCode afterwards.`);
     }
 
     /**
      * Removes javascript intellisense via typescript.
      */
-    public static notifyUserToRemoveTSDKFromSettingsJson(path: string): void {
-        vscode.window.showInformationMessage(`Please remove \"typescript.tsdk\": \"${path}\" from .vscode/settings.json and restart VSCode afterwards.`);
+    public static notifyUserToRemoveTSDKFromSettingsJson(tsdkPath: string): void {
+        vscode.window.showInformationMessage(`Please remove \"typescript.tsdk\": \"${tsdkPath}\" from .vscode/settings.json and restart VSCode afterwards.`);
     }
 
     /**

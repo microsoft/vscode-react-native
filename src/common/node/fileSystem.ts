@@ -135,8 +135,8 @@ export class FileSystem {
         return Q.nfcall<void>(this.fs.mkdir, p);
     }
 
-    public stat(path: string): Q.Promise<nodeFs.Stats> {
-        return Q.nfcall<nodeFs.Stats>(this.fs.stat, path);
+    public stat(fsPath: string): Q.Promise<nodeFs.Stats> {
+        return Q.nfcall<nodeFs.Stats>(this.fs.stat, fsPath);
     }
 
     public directoryExists(directoryPath: string): Q.Promise<boolean> {
