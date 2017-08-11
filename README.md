@@ -145,6 +145,24 @@ $ npm install --global flow-bin
 
 There are a few customizations that are supported by this extension. They can be added to your `.vscode/settings.json` if you need them.
 
+For using another simulator device which is different to the default `iPhone 6`:
+
+```
+{
+  "react-native": {
+    "simulator" : {
+      "device_name": "iPad Pro (9.7 inch)"
+    }
+  }
+}
+```
+
+* **Note:** You can get the list of installed simulator devices by:
+
+```
+xcrun simctl list --json devices
+```
+
 For using a custom port for the `react-native` packager:
 
 ```
