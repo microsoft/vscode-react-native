@@ -39,6 +39,15 @@ export class PlistBuddy {
         ).then(() => { });
     }
 
+    public setPlistBooleanProperty(plistFile: string, property: string, value: boolean): Q.Promise<void> {
+        // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
+        return this.invokePlistBuddy(`Set ${property} ${value}`, plistFile)
+            .fail(() =>
+                this.invokePlistBuddy(`Add ${property} bool ${value}`, plistFile)
+            )
+            .then(() => { });
+    }
+
     public deletePlistProperty(plistFile: string, property: string): Q.Promise<void> {
         return this.invokePlistBuddy(`Delete ${property}`, plistFile).then(() => { });
     }

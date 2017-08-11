@@ -105,7 +105,7 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("runIos", () => {
             // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
             return new IOSDebugModeManager(this.workspaceRoot)
-                .setSimulatorJSDebuggingModeSetting(/*enable=*/ false)
+                .setSimulatorRemoteDebuggingSetting(/*enable=*/ false)
                 .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
                 .then(() => this.executeReactNativeRunCommand("run-ios"));
         });

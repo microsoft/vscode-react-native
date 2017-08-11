@@ -12,6 +12,7 @@ import {SimulatorPlist} from "./simulatorPlist";
 export class IOSDebugModeManager {
     public static WEBSOCKET_EXECUTOR_NAME = "RCTWebSocketExecutor";
     private static EXECUTOR_CLASS_SETTING_NAME = ":RCTDevMenu:executorClass";
+    private static REMOTE_DEBUGGING_SETTING_NAME = ":RCTDevMenu:isDebuggingRemotely";
     private static MAX_RETRIES = 5;
     private static DELAY_UNTIL_RETRY = 2000;
 
@@ -23,7 +24,7 @@ export class IOSDebugModeManager {
         this.simulatorPlist = new SimulatorPlist(this.projectRoot);
     }
 
-    public setSimulatorJSDebuggingModeSetting(enable: boolean): Q.Promise<void> {
+    public setSimulatorRemoteDebuggingSetting(enable: boolean): Q.Promise<void> {
         const plistBuddy = new PlistBuddy();
 
         // Find the plistFile with the configuration setting
@@ -32,18 +33,28 @@ export class IOSDebugModeManager {
             .then((plistFile: string) => {
                 // Set the executorClass to be RCTWebSocketExecutor so on the next startup it will default into debug mode
                 // This is approximately equivalent to clicking the "Debug in Chrome" button
-                return enable
+
+                return (enable
                     ? plistBuddy.setPlistProperty(plistFile, IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME, IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME)
-                    : plistBuddy.deletePlistProperty(plistFile, IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME);
+                    : plistBuddy.deletePlistProperty(plistFile, IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME))
+                    .then(() => plistBuddy.setPlistBooleanProperty(plistFile, IOSDebugModeManager.REMOTE_DEBUGGING_SETTING_NAME, enable));
             });
     }
 
-    public getSimulatorJSDebuggingModeSetting(): Q.Promise<string> {
-        return this.findPListFile().then((plistFile: string) => {
-            // Attempt to read from the file, but if the property is not defined then return the empty string
-            return new PlistBuddy().readPlistProperty(plistFile, IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME)
-                .catch(() => "");
-        });
+    public getSimulatorRemoteDebuggingSetting(): Q.Promise<boolean> {
+        return this.findPListFile()
+            .then((plistFile: string) => {
+                // Attempt to read from the file, but if the property is not defined then return the empty string
+                return Q.all([
+                    new PlistBuddy().readPlistProperty(plistFile, IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME),
+                    new PlistBuddy().readPlistProperty(plistFile, IOSDebugModeManager.REMOTE_DEBUGGING_SETTING_NAME),
+                ])
+                    .spread((executorClassName: string, remoteDebugEnabled: string) => {
+                        return executorClassName === IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME
+                            && remoteDebugEnabled === "true";
+                    })
+                    .catch(() => false);
+            });
     }
 
     public findPListFile(): Q.Promise<string> {
