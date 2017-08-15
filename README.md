@@ -151,12 +151,12 @@ For using another simulator device which is different to the default `iPhone 5`:
 {
   "react-native": {
     "simulator" : {
-      "ios": "iPad Pro",
-      "android": "emulator-5556",
+      "ios": "iPad Pro (9.7 inch)",
+      "android": "emulator-5556"
     },
     "device" : {
       "ios": "Max's iPhone",
-      "android": "emulator-5556",
+      "android": "emulator-5556"
     }
   }
 }
@@ -169,6 +169,10 @@ iOS devices(MacOS only):
 ```
 xcrun simctl list --json devices
 ```
+Make sure you have ios-deploy installed globally.
+
+```npm install -g ios-deploy```
+
 Android devices:
 
 ```
