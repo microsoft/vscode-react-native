@@ -88,27 +88,27 @@ export class CommandPaletteHandler {
     /**
      * Executes the 'react-native run-android' command
      */
-    public runAndroid(): Q.Promise<void> {
+    public runAndroid(targetType: string = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("android");
+        const targetName = SettingsHelper.getApplicationTarget(targetType, "android");
         return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
             const packagerPort = SettingsHelper.getPackagerPort();
-            return new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort }).runApp(/*shouldLaunchInAllDevices*/true);
+            return new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, deviceId: targetName }).runApp(/*shouldLaunchInAllDevices*/true);
         }));
     }
-
 
     /**
      * Executes the 'react-native run-ios' command
      */
-    public runIos(): Q.Promise<void> {
+    public runIos(targetType: string = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("ios");
         return this.executeCommandInContext("runIos", () => {
-            const simulatorDeviceName = SettingsHelper.getSimulatorDeviceName();
+            const targetName = SettingsHelper.getApplicationTarget(targetType, "ios");
             // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
             return new IOSDebugModeManager(this.workspaceRoot)
                 .setSimulatorRemoteDebuggingSetting(/*enable=*/ false)
                 .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
-                .then(() => this.executeReactNativeRunCommand("run-ios", ["--simulator", simulatorDeviceName]));
+                .then(() => this.executeReactNativeRunCommand("run-ios", [`--${targetType}`, targetName]));
         });
     }
 

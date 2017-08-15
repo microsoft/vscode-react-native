@@ -30,12 +30,20 @@
   "contributes": {
     "commands": [
       {
-        "command": "reactNative.runAndroid",
-        "title": "React Native: Run Android"
+        "command": "reactNative.runAndroidSimulator",
+        "title": "React Native: Run Android on Simulator"
       },
       {
-        "command": "reactNative.runIos",
-        "title": "React Native: Run iOS"
+        "command": "reactNative.runAndroidDevice",
+        "title": "React Native: Run Android on Device"
+      },
+      {
+        "command": "reactNative.runIosSimulator",
+        "title": "React Native: Run iOS on Simulator"
+      },
+      {
+        "command": "reactNative.runIosDevice",
+        "title": "React Native: Run iOS on Device"
       },
       {
         "command": "reactNative.startPackager",

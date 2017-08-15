@@ -139,8 +139,10 @@ function warnWhenReactNativeVersionIsNotSupported(): void {
 
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     // Register React Native commands
-    registerVSCodeCommand(context, "runAndroid", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => commandPaletteHandler.runAndroid());
-    registerVSCodeCommand(context, "runIos", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => commandPaletteHandler.runIos());
+    registerVSCodeCommand(context, "runAndroidSimulator", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => commandPaletteHandler.runAndroid("simulator"));
+    registerVSCodeCommand(context, "runAndroidDevice", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => commandPaletteHandler.runAndroid("device"));
+    registerVSCodeCommand(context, "runIosSimulator", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => commandPaletteHandler.runIos("simulator"));
+    registerVSCodeCommand(context, "runIosDevice", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => commandPaletteHandler.runIos("device"));
     registerVSCodeCommand(context, "startPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager), () => commandPaletteHandler.startPackager());
     registerVSCodeCommand(context, "startExponentPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStartExponentPackager), () => commandPaletteHandler.startExponentPackager());
     registerVSCodeCommand(context, "stopPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager), () => commandPaletteHandler.stopPackager());

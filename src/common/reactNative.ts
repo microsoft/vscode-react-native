@@ -7,16 +7,19 @@ import {CommandExecutor} from "./commandExecutor";
 import {ISpawnResult} from "./node/childProcess";
 
 export interface IReactNative {
-    runAndroid(projectRoot: string, variant?: string): ISpawnResult;
+    runAndroid(projectRoot: string, variant?: string, deviceId?: string): ISpawnResult;
     createProject(projectRoot: string, projectName: string): Q.Promise<void>;
 }
 
 export class ReactNative implements IReactNative {
-    public runAndroid(projectRoot: string, variant?: string): ISpawnResult {
+    public runAndroid(projectRoot: string, variant?: string, deviceId?: string): ISpawnResult {
         let cexec = new CommandExecutor(projectRoot);
         let args: string[] = [];
         if (variant) {
             args.push(`--variant=${variant}`);
+        }
+        if (deviceId) {
+            args.push(`--deviceId=${deviceId}`);
         }
         return cexec.spawnReactCommand("run-android", args);
     }
