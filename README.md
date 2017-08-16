@@ -149,15 +149,13 @@ For using another simulator device which is different to the default `iPhone 5`:
 
 ```
 {
-  "react-native": {
-    "simulator" : {
-      "ios": "iPad Pro (9.7 inch)",
-      "android": "emulator-5556"
-    },
-    "device" : {
-      "ios": "Max's iPhone",
-      "android": "emulator-5556"
-    }
+  "react-native.ios": {
+    "simulator" : "iPad Pro (9.7 inch)",
+    "device": "Max's iPhone"
+  },
+  "react-native.android": {
+    "simulator" : "emulator-5556",
+    "device": "emulator-5556"
   }
 }
 ```
@@ -169,15 +167,16 @@ iOS devices(MacOS only):
 ```
 xcrun simctl list --json devices
 ```
-Make sure you have ios-deploy installed globally.
-
-```npm install -g ios-deploy```
 
 Android devices:
 
 ```
 adb devices
 ```
+
+* **Note:** If you want run application on iOS devices make sure you have `ios-deploy` installed globally.
+
+```npm install -g ios-deploy```
 
 For using a custom port for the `react-native` packager:
 

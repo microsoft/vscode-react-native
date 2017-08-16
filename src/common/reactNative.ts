@@ -12,14 +12,14 @@ export interface IReactNative {
 }
 
 export class ReactNative implements IReactNative {
-    public runAndroid(projectRoot: string, variant?: string, deviceId?: string): ISpawnResult {
+    public runAndroid(projectRoot: string, variant?: string, target?: string): ISpawnResult {
         let cexec = new CommandExecutor(projectRoot);
         let args: string[] = [];
         if (variant) {
             args.push(`--variant=${variant}`);
         }
-        if (deviceId) {
-            args.push(`--deviceId=${deviceId}`);
+        if (target) {
+            args.push(`--deviceId=${target}`);
         }
         return cexec.spawnReactCommand("run-android", args);
     }

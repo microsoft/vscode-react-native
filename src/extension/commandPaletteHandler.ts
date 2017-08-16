@@ -90,10 +90,10 @@ export class CommandPaletteHandler {
      */
     public runAndroid(targetType: string = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("android");
-        const targetName = SettingsHelper.getApplicationTarget(targetType, "android");
+        const targetName = SettingsHelper.getApplicationTarget("android", targetType);
         return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
             const packagerPort = SettingsHelper.getPackagerPort();
-            return new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, deviceId: targetName }).runApp(/*shouldLaunchInAllDevices*/true);
+            return new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, target: targetName }).runApp(/*shouldLaunchInAllDevices*/true);
         }));
     }
 
@@ -103,7 +103,7 @@ export class CommandPaletteHandler {
     public runIos(targetType: string = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("ios");
         return this.executeCommandInContext("runIos", () => {
-            const targetName = SettingsHelper.getApplicationTarget(targetType, "ios");
+            const targetName = SettingsHelper.getApplicationTarget("ios", targetType);
             // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
             return new IOSDebugModeManager(this.workspaceRoot)
                 .setSimulatorRemoteDebuggingSetting(/*enable=*/ false)

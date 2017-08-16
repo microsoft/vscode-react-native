@@ -21,5 +21,4 @@ export interface IRunOptions extends ILaunchArgs {
     iosRelativeProjectPath?: string;
     variant?: string;
     scheme?: string;
-    deviceId?: string;
 }

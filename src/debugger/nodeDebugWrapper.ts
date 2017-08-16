@@ -18,6 +18,7 @@ import { NodeDebugAdapterLogger } from "../common/log/loggers";
 import { Log } from "../common/log/log";
 import { LogLevel } from "../common/log/logHelper";
 import { GeneralMobilePlatform } from "../common/generalMobilePlatform";
+import { SettingsHelper } from "../extension/settingsHelper";
 
 import { MultipleLifetimesAppWorker } from "./appWorker";
 
@@ -79,7 +80,6 @@ export function makeSession(
 
         private launch(request: VSCodeDebugAdapterPackage.Request): void {
             this.requestSetup(request.arguments);
-            this.mobilePlatformOptions.target = request.arguments.target || "simulator";
             this.mobilePlatformOptions.iosRelativeProjectPath = !isNullOrUndefined(request.arguments.iosRelativeProjectPath) ?
                 request.arguments.iosRelativeProjectPath :
                 IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH;
@@ -157,6 +157,7 @@ export function makeSession(
             this.mobilePlatformOptions = {
                 projectRoot: this.projectRootPath,
                 platform: args.platform,
+                target: args.target || SettingsHelper.getApplicationTarget(args.platform, "simulator") || "simulator", // TODO smth with launch.json for target type identification
             };
 
             // Start to send telemetry

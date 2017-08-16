@@ -252,7 +252,41 @@
           }
         }
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "React-Native configuration",
+      "properties": {
+        "react-native.ios": {
+          "description": "Run configuration for iOS",
+          "type": "object",
+          "properties": {
+            "simulator": {
+              "type":"string",
+              "description": "iOS simulator name (e.g \"iPad Pro (9.7 inch)\")"
+            },
+            "device": {
+              "type":"string",
+              "description": "iOS device name (e.g \"Max's iPhone\")"
+            }
+          }
+        },
+        "react-native.android": {
+          "description": "Run configuration for Android",
+          "type": "object",
+          "properties": {
+            "simulator": {
+              "type":"string",
+              "description": "Android simulator ID (e.g \"emulator-5554\")"
+            },
+            "device": {
+              "type":"string",
+              "description": "Android device ID"
+            }
+          }
+        }
+      }
+    }
   },
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
