@@ -149,11 +149,11 @@ For using another simulator device which is different to the default `iPhone 5`:
 
 ```
 {
-  "react-native.ios": {
+  "react-native.ios.launchTarget": {
     "simulator" : "iPad Pro (9.7 inch)",
     "device": "Max's iPhone"
   },
-  "react-native.android": {
+  "react-native.android.launchTarget": {
     "simulator" : "emulator-5556",
     "device": "emulator-5556"
   }
@@ -162,17 +162,17 @@ For using another simulator device which is different to the default `iPhone 5`:
 
 * **Note:** You can get the list of installed simulator devices by:
 
-iOS devices(MacOS only):
+  iOS devices(MacOS only):
 
-```
-xcrun simctl list --json devices
-```
+  ```
+  xcrun simctl list --json devices
+  ```
 
-Android devices:
+  Android devices:
 
-```
-adb devices
-```
+  ```
+  adb devices
+  ```
 
 * **Note:** If you want run application on iOS devices make sure you have `ios-deploy` installed globally.
 

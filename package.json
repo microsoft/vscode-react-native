@@ -257,31 +257,32 @@
       "type": "object",
       "title": "React-Native configuration",
       "properties": {
-        "react-native.ios": {
+        "react-native.ios.launchTarget": {
           "description": "Run configuration for iOS",
           "type": "object",
           "properties": {
             "simulator": {
               "type":"string",
-              "description": "iOS simulator name (e.g \"iPad Pro (9.7 inch)\")"
+              "description": "iOS simulator name (e.g \"iPad Pro (9.7 inch)\"). Run \"xcrun simctl list devices\" in terminal to see all available simulators and their names",
+              "default": "iPhone 5"
             },
             "device": {
               "type":"string",
-              "description": "iOS device name (e.g \"Max's iPhone\")"
+              "description": "iOS device name (e.g \"Max's iPhone\"). If you have \"ios-deploy\" installed you might want to try running \"ios-deploy --detect\" in terminal to see connected devices"
             }
           }
         },
-        "react-native.android": {
+        "react-native.android.launchTarget": {
           "description": "Run configuration for Android",
           "type": "object",
           "properties": {
             "simulator": {
               "type":"string",
-              "description": "Android simulator ID (e.g \"emulator-5554\")"
+              "description": "Android simulator  ID (e.g \"emulator-5554\"). Run \"adb devices\" in terminal to see all available simulators and their names"
             },
             "device": {
               "type":"string",
-              "description": "Android device ID"
+              "description": "Android device ID. Run \"adb devices\" in terminal to see all available simulators and their names"
             }
           }
         }

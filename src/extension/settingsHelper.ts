@@ -100,7 +100,7 @@ export class SettingsHelper {
      */
     public static getApplicationTarget(platform: string, targetType: string): string {
         const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration();
-        const configKey: string = `react-native.${platform}.${targetType}`;
+        const configKey: string = `react-native.${platform}.launchTarget.${targetType}`;
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readString(workspaceConfiguration.get(configKey));
         } else if (platform === "ios") {
