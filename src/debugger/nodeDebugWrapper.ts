@@ -18,7 +18,6 @@ import { NodeDebugAdapterLogger } from "../common/log/loggers";
 import { Log } from "../common/log/log";
 import { LogLevel } from "../common/log/logHelper";
 import { GeneralMobilePlatform } from "../common/generalMobilePlatform";
-import { SettingsHelper } from "../extension/settingsHelper";
 
 import { MultipleLifetimesAppWorker } from "./appWorker";
 
@@ -79,60 +78,63 @@ export function makeSession(
         }
 
         private launch(request: VSCodeDebugAdapterPackage.Request): void {
-            this.requestSetup(request.arguments);
-            this.mobilePlatformOptions.iosRelativeProjectPath = !isNullOrUndefined(request.arguments.iosRelativeProjectPath) ?
-                request.arguments.iosRelativeProjectPath :
-                IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH;
+            this.requestSetup(request.arguments)
+                .then(() => {
+                    this.mobilePlatformOptions.iosRelativeProjectPath = !isNullOrUndefined(request.arguments.iosRelativeProjectPath) ?
+                    request.arguments.iosRelativeProjectPath :
+                    IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH;
 
-            // We add the parameter if it's defined (adapter crashes otherwise)
-            if (!isNullOrUndefined(request.arguments.logCatArguments)) {
-                this.mobilePlatformOptions.logCatArguments = [parseLogCatArguments(request.arguments.logCatArguments)];
-            }
+                    // We add the parameter if it's defined (adapter crashes otherwise)
+                    if (!isNullOrUndefined(request.arguments.logCatArguments)) {
+                        this.mobilePlatformOptions.logCatArguments = [parseLogCatArguments(request.arguments.logCatArguments)];
+                    }
 
-            if (!isNullOrUndefined(request.arguments.variant)) {
-                this.mobilePlatformOptions.variant = request.arguments.variant;
-            }
+                    if (!isNullOrUndefined(request.arguments.variant)) {
+                        this.mobilePlatformOptions.variant = request.arguments.variant;
+                    }
 
-            if (!isNullOrUndefined(request.arguments.scheme)) {
-                this.mobilePlatformOptions.scheme = request.arguments.scheme;
-            }
+                    if (!isNullOrUndefined(request.arguments.scheme)) {
+                        this.mobilePlatformOptions.scheme = request.arguments.scheme;
+                    }
 
-            TelemetryHelper.generate("launch", (generator) => {
-                return this.remoteExtension.getPackagerPort()
-                    .then((packagerPort: number) => {
-                        this.mobilePlatformOptions.packagerPort = packagerPort;
-                        const mobilePlatform = new PlatformResolver()
-                            .resolveMobilePlatform(request.arguments.platform, this.mobilePlatformOptions);
+                    TelemetryHelper.generate("launch", (generator) => {
+                        return this.remoteExtension.getPackagerPort()
+                            .then((packagerPort: number) => {
+                                this.mobilePlatformOptions.packagerPort = packagerPort;
+                                const mobilePlatform = new PlatformResolver()
+                                    .resolveMobilePlatform(request.arguments.platform, this.mobilePlatformOptions);
 
-                        generator.step("checkPlatformCompatibility");
-                        TargetPlatformHelper.checkTargetPlatformSupport(this.mobilePlatformOptions.platform);
-                        generator.step("startPackager");
-                        return mobilePlatform.startPackager()
-                            .then(() => {
-                                // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
-                                // and the user needs to Reload JS manually. We prewarm it to prevent that issue
-                                generator.step("prewarmBundleCache");
-                                Log.logMessage("Prewarming bundle cache. This may take a while ...");
-                                return mobilePlatform.prewarmBundleCache();
+                                generator.step("checkPlatformCompatibility");
+                                TargetPlatformHelper.checkTargetPlatformSupport(this.mobilePlatformOptions.platform);
+                                generator.step("startPackager");
+                                return mobilePlatform.startPackager()
+                                    .then(() => {
+                                        // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                                        // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                                        generator.step("prewarmBundleCache");
+                                        Log.logMessage("Prewarming bundle cache. This may take a while ...");
+                                        return mobilePlatform.prewarmBundleCache();
+                                    })
+                                    .then(() => {
+                                        generator.step("mobilePlatform.runApp");
+                                        Log.logMessage("Building and running application.");
+                                        return mobilePlatform.runApp();
+                                    })
+                                    .then(() => {
+                                        return this.attachRequest(request, packagerPort, mobilePlatform);
+                                    });
                             })
-                            .then(() => {
-                                generator.step("mobilePlatform.runApp");
-                                Log.logMessage("Building and running application.");
-                                return mobilePlatform.runApp();
-                            })
-                            .then(() => {
-                                return this.attachRequest(request, packagerPort, mobilePlatform);
-                            });
-                    })
-                    .catch(error => this.bailOut(error.message));
-            });
-
+                            .catch(error => this.bailOut(error.message));
+                    });
+                });
         }
 
         private attach(request: VSCodeDebugAdapterPackage.Request): void {
-            this.requestSetup(request.arguments);
-            this.remoteExtension.getPackagerPort()
-                .then((packagerPort: number) => this.attachRequest(request, packagerPort));
+            this.requestSetup(request.arguments)
+                .then(() => {
+                    this.remoteExtension.getPackagerPort()
+                        .then((packagerPort: number) => this.attachRequest(request, packagerPort));
+                });
         }
 
         private disconnect(request: VSCodeDebugAdapterPackage.Request): void {
@@ -151,13 +153,12 @@ export function makeSession(
             }
         }
 
-        private requestSetup(args: any): void {
+        private requestSetup(args: any): Q.Promise<void> {
             this.projectRootPath = getProjectRoot(args);
             this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
             this.mobilePlatformOptions = {
                 projectRoot: this.projectRootPath,
                 platform: args.platform,
-                target: args.target || SettingsHelper.getApplicationTarget(args.platform, "simulator") || "simulator", // TODO smth with launch.json for target type identification
             };
 
             // Start to send telemetry
@@ -165,6 +166,17 @@ export function makeSession(
                 appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
 
             Log.SetGlobalLogger(new NodeDebugAdapterLogger(debugAdapterPackage, this));
+
+            if (args.target) {
+                this.mobilePlatformOptions.target = args.target;
+                return Q.resolve(void 0);
+
+            } else {
+                return this.remoteExtension.getApplicationTarget(args.platform, "simulator")
+                    .then(target => {
+                        this.mobilePlatformOptions.target = target;
+                    });
+            }
         }
 
         /**
