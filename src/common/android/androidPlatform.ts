@@ -74,7 +74,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {
         return TelemetryHelper.generate("AndroidPlatform.runApp", () => {
-            const runAndroidSpawn = this.reactNative.runAndroid(this.runOptions.projectRoot, this.runOptions.variant);
+            const runAndroidSpawn = this.reactNative.runAndroid(this.runOptions.projectRoot, this.runOptions.variant, this.runOptions.target);
             const output = new OutputVerifier(
                 () =>
                     Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),

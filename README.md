@@ -145,6 +145,39 @@ $ npm install --global flow-bin
 
 There are a few customizations that are supported by this extension. They can be added to your `.vscode/settings.json` if you need them.
 
+For using another simulator device which is different to the default `iPhone 5`:
+
+```
+{
+  "react-native.ios.launchTarget": {
+    "simulator" : "iPad Pro (9.7 inch)",
+    "device": "Max's iPhone"
+  },
+  "react-native.android.launchTarget": {
+    "simulator" : "emulator-5556",
+    "device": "emulator-5556"
+  }
+}
+```
+
+* **Note:** You can get the list of installed simulator devices by:
+
+  iOS devices(MacOS only):
+
+  ```
+  xcrun simctl list --json devices
+  ```
+
+  Android devices:
+
+  ```
+  adb devices
+  ```
+
+* **Note:** If you want run application on iOS devices make sure you have `ios-deploy` installed globally.
+
+```npm install -g ios-deploy```
+
 For using a custom port for the `react-native` packager:
 
 ```

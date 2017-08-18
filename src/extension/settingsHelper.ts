@@ -8,6 +8,7 @@ import {Packager} from "../common/packager";
 import {LogLevel} from "../common/log/logHelper";
 
 export class SettingsHelper {
+    public static DEFAULT_IOS_SIMULATOR = "iPhone 5";
 
     /**
      * Path to the workspace settings file
@@ -92,5 +93,20 @@ export class SettingsHelper {
             }
         }
         return vscode.workspace.rootPath;
+    }
+
+    /**
+     * Get application target from settings.json
+     */
+    public static getApplicationTarget(platform: string, targetType: string): string {
+        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration();
+        const configKey: string = `react-native.${platform}.launchTarget.${targetType}`;
+        if (workspaceConfiguration.has(configKey)) {
+            return ConfigurationReader.readString(workspaceConfiguration.get(configKey));
+        } else if (platform === "ios") {
+            return targetType === "simulator" ? SettingsHelper.DEFAULT_IOS_SIMULATOR : "";
+        }
+
+        return "";
     }
 }
