@@ -8,33 +8,17 @@ You can debug your code, quickly run `react-native` commands from the command pa
 
 ## Getting started
 
-* [Install VS Code](https://code.visualstudio.com) (0.10.10+ is preferred).
+* [Install VS Code](https://code.visualstudio.com).
 * [Install the extension](https://code.visualstudio.com/docs/editor/extension-gallery) in VS Code:
   1. Press `Ctrl + Shift + X` (`Cmd + Shift + X` on Mac OS), wait a moment while the list of available extensions is populated
   2. Type `react-native` and install **React Native Tools**
   3. For more guidance view [VS Code Extension Gallery](https://code.visualstudio.com/docs/editor/extension-gallery)
 * If you haven't already, install React Native:
-  1. Run `npm install -g react-native-cli` to install React Native CLI (0.1.10+)
-  2. Set up React Native (0.19+) using the steps detailed on the React Native [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
+  1. Run `npm install -g react-native-cli` to install React Native CLI
+  2. Set up React Native using the steps detailed on the React Native [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
 * Open your React Native project root folder in VS Code.
-  * Hint: you should create a `.babelrc` with `sourceMaps: true` and `"presets": [ "react-native" ]` for better source-mapping support. (**required if you want TypeScript support**)
 
 Please notice that the extension uses `.vscode/.react` directory at the project root to store intermediate files required for debugging. Though these files are usually get removed after debug session ends you still might want to add this directory to your `.gitignore`
-
-### Create a `.babelrc` file for ReactNative Packager transformer
-  Create a `.babelrc` file in your React Native project root, the content of `.babelrc` at least with `sourceMaps = true`.
-  for example:
-  ```
-{
-  "presets": [
-    "react-native" // this is required for debugging with react-native/packager/transformer
-  ],
-  "plugins": [],
-  "sourceMaps": true // must be true react-native/packager/transformer using with node-module-debug
-  // because of some bugs from vscode-node-debug & vscode-react-native, "sourceMaps" cannot be "inline" or "both"
-}
-  ```
-  ** This is a requirement step if you want to debug with TypeScript. **
 
 ## Using React Native commands in the Command Palette
 
@@ -79,16 +63,6 @@ To debug a React-Native project in exponent:
 6. Once the packager starts, it will provide a URL to enter into the exponent app.
    Once you do so, the exponent app will connect to the packager and begin running your app.
    From here you can run and debug the app as normal.
-
-### Changing React Native version
-
-To change the version of React Native that your app uses, the following steps are required:
-
-1. In package.json, change the `"react-native"` dependency as desired, and also change the `"react"` dependency to an appropriate version.
-2. Run `npm install` in your project. If the version of `react` is wrong, it should tell you now.
-3. Run `react-native upgrade` to try to automatically change parts of your project.
-
-Different versions of React Native may have breaking changes, so do look at the changelogs to see if your app will be impacted before changing the version.
 
 ### Configuring exponent
 
@@ -139,12 +113,10 @@ Can't comunicate with socket pipe    | If you have two workspaces open that only
 
 [Known-Issues](https://github.com/Microsoft/vscode-react-native/issues?q=is%3Aissue+label%3Aknown-issues) provides a complete list of active and resolved issues.
 
-## Disable telemetry reporting
+## Telemetry reporting
 VS Code React Native extension collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://www.visualstudio.com/en-us/dn948229) to learn more.
 
-If you don’t wish to send usage data to Microsoft, please follow the instructions below to disable its collection.
-
-* Edit VSCodeTelemetrySettings.json file at ~/.vscode-react-native and add `optIn:false`.
+If you don’t wish to send usage data to Microsoft, edit `VSCodeTelemetrySettings.json` file at `~/.vscode-react-native` and add `optIn:false`.
 
 ## Code of conduct
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
