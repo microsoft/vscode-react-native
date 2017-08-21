@@ -9,7 +9,6 @@ import stripJsonComments = require("strip-json-comments");
 import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { RemoteExtension } from "../common/remoteExtension";
-import { IOSPlatform } from "./ios/iOSPlatform";
 import { PlatformResolver } from "./platformResolver";
 import { IRunOptions } from "../common/launchArgs";
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
@@ -80,10 +79,6 @@ export function makeSession(
         private launch(request: VSCodeDebugAdapterPackage.Request): void {
             this.requestSetup(request.arguments)
                 .then(() => {
-                    this.mobilePlatformOptions.iosRelativeProjectPath = !isNullOrUndefined(request.arguments.iosRelativeProjectPath) ?
-                    request.arguments.iosRelativeProjectPath :
-                    IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH;
-
                     // We add the parameter if it's defined (adapter crashes otherwise)
                     if (!isNullOrUndefined(request.arguments.logCatArguments)) {
                         this.mobilePlatformOptions.logCatArguments = [parseLogCatArguments(request.arguments.logCatArguments)];
@@ -159,6 +154,7 @@ export function makeSession(
             this.mobilePlatformOptions = {
                 projectRoot: this.projectRootPath,
                 platform: args.platform,
+                targetType: args.targetType || "simulator",
             };
 
             // Start to send telemetry
@@ -170,9 +166,8 @@ export function makeSession(
             if (args.target) {
                 this.mobilePlatformOptions.target = args.target;
                 return Q.resolve(void 0);
-
             } else {
-                return this.remoteExtension.getApplicationTarget(args.platform, "simulator")
+                return this.remoteExtension.getApplicationTarget(args.platform, args.targetType)
                     .then(target => {
                         this.mobilePlatformOptions.target = target;
                     });

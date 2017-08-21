@@ -97,6 +97,7 @@
             "request": "launch",
             "platform": "ios",
             "target": "iPhone 5s",
+            "targetType": "simulator",
             "sourceMaps": true,
             "outDir": "${workspaceRoot}/.vscode/.react"
           },
@@ -214,7 +215,12 @@
               },
               "target": {
                 "type": "string",
-                "description": "'simulator', 'device', or the name of the emulator to run on"
+                "description": "Name of the emulator or device to run on"
+              },
+              "targetType": {
+                "type": "string",
+                "description": "Type of target property ('simulator' or 'device')",
+                "default": "simulator"
               },
               "sourceMaps": {
                 "type": "boolean",

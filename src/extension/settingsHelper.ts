@@ -6,10 +6,9 @@ import path = require("path");
 import {ConfigurationReader} from "../common/configurationReader";
 import {Packager} from "../common/packager";
 import {LogLevel} from "../common/log/logHelper";
+import {IOSPlatform} from "../common/ios/iOSPlatform";
 
 export class SettingsHelper {
-    public static DEFAULT_IOS_SIMULATOR = "iPhone 5";
-
     /**
      * Path to the workspace settings file
      */
@@ -104,7 +103,7 @@ export class SettingsHelper {
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readString(workspaceConfiguration.get(configKey));
         } else if (platform === "ios") {
-            return targetType === "simulator" ? SettingsHelper.DEFAULT_IOS_SIMULATOR : "";
+            return targetType === "simulator" ? IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET : "";
         }
 
         return "";
