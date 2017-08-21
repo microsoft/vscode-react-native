@@ -20,6 +20,22 @@ You can debug your code, quickly run `react-native` commands from the command pa
 
 Please notice that the extension uses `.vscode/.react` directory at the project root to store intermediate files required for debugging. Though these files are usually get removed after debug session ends you still might want to add this directory to your `.gitignore`
 
+## Debugging React Native applications
+
+Click the debugging icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configure gear icon ![Configure-gear](images/configure-gear-icon.png) to choose the React Native debug environment.
+
+![Choose React Native debugger](images/choose-debugger.png)
+
+VS Code will generate a `launch.json` in your project with some default configurations such as shown below. You can safely close this file, choose appropriate configuration in Configuration dropdown and hit F5 (or click _Green Arrow_ ![Configure-gear](images/debug-icon.png) button) to start debugging your app in VSCode.
+
+![React Native launch targets](images/debug-targets.png)
+
+You can debug your app on an Android emulator, Android device or iOS simulator. This extension provides [experimental support](doc/debugging.md#debugging-on-ios-device) for iOS devices.
+
+More information about debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging).
+
+See [Setting up debug environment](doc/debugging.md) for more details
+
 ## Using React Native commands in the Command Palette
 
 In the Command Palette, type ```React Native``` and choose a command.
