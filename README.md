@@ -102,49 +102,9 @@ IntelliSense helps you discover objects, functions, and parameters in React Nati
 
 ![IntelliSense](images/intellisense.png)
 
-### Enabling IntelliSense
-* **Note:** This section relates to older versions of VS Code and React Native Tools. The latest version of VS Code (0.10.10+) natively supports IntelliSense for Salsa. These instructions apply to older versions of VS Code (<= 0.10.9).
-    * When using VS Code 0.10.10+ with a newer React Native Tools extension (> 0.1.0) the extension will update project settings to remove the workaround described below if it was applied while using an older version of this extension or VS Code.
+IntelliSense is enabled automatically once you open the project in VSCode, so no additional actions required. Notice that in order to set it up the extension might create `jsconfig.json` file (if no such file exists) in the project root with `allowJs: true` to allow TypeScript to process JavaScript files.
 
-React Native IntelliSense depends on experimental features to support JSX in VS Code.
-To enable these experimental features, you will see the following prompt immediately after opening a React Native project.
-
-![IntelliSense prompt](images/intellisense-prompt.png)
-
-This is a one-time prompt and will enable JSX support. You will need to restart VS Code once for changes to take effect.
-
-You can verify that you have Salsa enabled and you have an installed TypeScript version that supports Salsa by checking the status indicator in the Status Bar. This shows that all is OK
-
-![Salsa Enabled](https://code.visualstudio.com/images/January_salsa-status.png)
-
-Once you have enabled IntelliSense by following the above steps, you can start typing in the code editor to see the objects, functions, and parameters of your React Native libraries and your own code.
-
-Here is what happens behind the scenes to enable JSX support:
-1. If there is no tsconfig.json file in the project root, one is created with `allowJs: true` to allow TypeScript to process JavaScript files.
-2. Typings for React and React Native are copied into the .vscode directory (only if they don't already exist, we check for a `react` or `react-native` directory under `.vscode/typings`)
-
-## Using Flowtype
-
-In order to make intellisense understand Flow type annotations follow steps below:
-
-* Install Flow npm package
-
-```
-$ npm install --global flow-bin
-```
-
-* [Install Flow for VS Code](https://github.com/flowtype/flow-for-vscode).
-
-* Add the following configuration in `$workspace/.vscode/settings.json`
-
-```
-{
-    "javascript.validate.enable": false,
-    "flow.useNPMPackagedFlow": true
-}
-```
-
-* **Note:** Be sure your project have a `.flowconfig` file.
+See also [Setting up Flowtype for IntelliSense](doc/intellisense.md) for more advanced setup.
 
 ## Using Exponentjs
 
