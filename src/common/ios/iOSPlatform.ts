@@ -48,8 +48,10 @@ export class IOSPlatform extends GeneralMobilePlatform {
     constructor(runOptions: IRunOptions, { remoteExtension = undefined }: {remoteExtension?: RemoteExtension} = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
 
-        if (this.runOptions.targetType && (this.runOptions.targetType !== IOSPlatform.simulatorString && this.runOptions.targetType !== IOSPlatform.deviceString)) {
-            throw Error(`Invalid Run iOS targetType: '${this.runOptions.targetType}' in .vscode/launch.json. Please use 'simulator' or 'device' targetType instead`);
+        if (this.runOptions.targetType) {
+            if (this.runOptions.targetType !== IOSPlatform.simulatorString && this.runOptions.targetType !== IOSPlatform.deviceString) {
+                throw Error(`Invalid Run iOS targetType: '${this.runOptions.targetType}' in .vscode/launch.json. Please use 'simulator' or 'device' targetType instead`);
+            }
         }
 
         if (this.runOptions.target === IOSPlatform.simulatorString) {
@@ -59,8 +61,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
             this.targetType = this.runOptions.target;
             this.target = "";
         } else {
-            this.targetType = this.runOptions.targetType || "simulator";
-            this.target = this.runOptions.target ? this.runOptions.target : this.targetType === IOSPlatform.simulatorString ? IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET : "";
+            this.targetType = this.runOptions.targetType || IOSPlatform.simulatorString;
+            if (this.runOptions.target) {
+                this.target = this.runOptions.target;
+            } else if (this.targetType === IOSPlatform.simulatorString) {
+                this.target = IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET;
+            } else {
+                this.target = "";
+            }
         }
 
         this.iosProjectPath = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "");
@@ -130,12 +138,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     public getRunArgument(): string[] {
         let runArguments: string[] = [];
-        if (this.targetType) {
-            runArguments.push(`--${this.targetType}`);
-        }
-
-        if (this.target) {
-            runArguments.push(this.target);
+        if (this.targetType && this.target) {
+            runArguments.push(`--${this.targetType}`, this.target);
         }
 
         if (this.runOptions.iosRelativeProjectPath) {

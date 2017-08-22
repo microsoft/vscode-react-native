@@ -21,17 +21,6 @@ suite("iOSPlatform", function () {
         };
     });
     suite("#debuggerContext", function () {
-        test("IOSPlatform invalid targetType", function () {
-            runOptions.targetType = "invelid";
-            const expectedErrorMessage = `Invalid Run iOS targetType: '${runOptions.targetType}' in .vscode/launch.json. Please use 'simulator' or 'device' targetType instead`;
-            try {
-                let platform = new IOSPlatform(runOptions);
-                assert.equal(false, "should throw error");
-                platform.getRunArgument();
-            } catch (err) {
-                assert.equal(err.message, expectedErrorMessage);
-            }
-        });
         test("getRunArgument properties not defined", function () {
             const expected = ["--simulator", IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET];
             let platform = new IOSPlatform(runOptions);
@@ -45,9 +34,8 @@ suite("iOSPlatform", function () {
         });
         test("getRunArgument device device", function () {
             runOptions.target = "device";
-            const expected = ["--device"];
             let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.getRunArgument(), expected);
+            assert.deepEqual(platform.getRunArgument(), []);
         });
         test("getRunArgument simulator iPhone 6", function () {
             runOptions.target = "iPhone 6";
@@ -71,9 +59,8 @@ suite("iOSPlatform", function () {
         });
         test("getRunArgument default device", function () {
             runOptions.targetType = "device";
-            const expected = [`--${runOptions.targetType}`];
             let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.getRunArgument(), expected);
+            assert.deepEqual(platform.getRunArgument(), []);
         });
     });
 });
