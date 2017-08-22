@@ -144,8 +144,12 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     public getRunArgument(): string[] {
         let runArguments: string[] = [];
-        if (this.targetType && this.target) {
-            runArguments.push(`--${this.targetType}`, this.target);
+        if (this.targetType) {
+            runArguments.push(`--${this.targetType}`);
+        }
+
+        if (this.target) {
+            runArguments.push(this.target);
         }
 
         if (this.runOptions.iosRelativeProjectPath) {

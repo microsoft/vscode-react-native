@@ -34,8 +34,9 @@ suite("iOSPlatform", function () {
         });
         test("getRunArgument device device", function () {
             runOptions.target = "device";
+            const expected = ["--device"];
             let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.getRunArgument(), []);
+            assert.deepEqual(platform.getRunArgument(), expected);
         });
         test("getRunArgument simulator iPhone 6", function () {
             runOptions.target = "iPhone 6";
@@ -59,8 +60,9 @@ suite("iOSPlatform", function () {
         });
         test("getRunArgument default device", function () {
             runOptions.targetType = "device";
+            const expected = ["--device"];
             let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.getRunArgument(), []);
+            assert.deepEqual(platform.getRunArgument(), expected);
         });
     });
 });
