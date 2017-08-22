@@ -8,6 +8,7 @@
 export interface ILaunchArgs {
     platform: string;
     target?: string;
+    targetType?: "simulator" | "device";
     debugAdapterPort?: number;
     logCatArguments?: any;
     packagerPort?: any;

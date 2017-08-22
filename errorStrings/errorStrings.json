@@ -3,7 +3,7 @@
     "CommandFailedWithErrorCode": "Command '{0}' failed with error code {1}",
     "ExpectedIntegerValue": "Expected an integer. Couldn't read {0}",
     "PackagerStartFailed": "Error while executing React Native Packager.",
-    "IDeviceInstallerNotFound": "Unable to find ideviceinstaller. Please make sure to install Homebrew (http://brew.sh) and then 'brew install ideviceinstaller",
+    "IOSDeployNotFound": "Unable to find ios-deploy. Please make sure to install it globally('npm install -g is-deploy')",
     "DeviceNotPluggedIn": "Unable to mount developer disk image.",
     "DeveloperDiskImgNotMountable": "Unable to mount developer disk image.",
     "UnableToLaunchApplication": "Unable to launch application.",
