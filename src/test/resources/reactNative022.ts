@@ -8,6 +8,7 @@ import * as assert from "assert";
 import {PromiseUtil} from "../../common/node/promise";
 
 import * as reactNative from "../../common/reactNative";
+import {IAndroidRunOptions} from "../../common/launchArgs";
 import {ISpawnResult} from "../../common/node/childProcess";
 import {FileSystem} from "../../common/node/fileSystem";
 import {Package} from "../../common/node/package";
@@ -102,8 +103,8 @@ export class ReactNative022 implements IReactNative {
             });
     }
 
-    public runAndroid(projectRoot: string): ISpawnResult {
-        this.projectRoot = projectRoot;
+    public runAndroid(runOptions: IAndroidRunOptions): ISpawnResult {
+        this.projectRoot = runOptions.projectRoot;
         this.simulator.simulate(this.recording).done();
         return this.simulator.spawn();
     }

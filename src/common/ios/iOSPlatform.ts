@@ -8,7 +8,7 @@ import {Log} from "../../common/log/log";
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {GeneralMobilePlatform} from "../../common/generalMobilePlatform";
-import {IRunOptions} from "../../common/launchArgs";
+import {IIOSRunOptions} from "../../common/launchArgs";
 import {PlistBuddy} from "../../common/ios/plistBuddy";
 import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
@@ -28,7 +28,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private plistBuddy = new PlistBuddy();
     private target: string = "";
     private targetType: string = "simulator";
-    private iosProjectPath: string;
+    private iosProjectRoot: string;
 
     // We should add the common iOS build/run erros we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
@@ -45,7 +45,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
     // We set remoteExtension = null so that if there is an instance of iOSPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(runOptions: IRunOptions, { remoteExtension = undefined }: {remoteExtension?: RemoteExtension} = {}) {
+    constructor(protected runOptions: IIOSRunOptions, { remoteExtension = undefined }: {remoteExtension?: RemoteExtension} = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
 
         if (this.runOptions.targetType) {
@@ -56,7 +56,12 @@ export class IOSPlatform extends GeneralMobilePlatform {
             }
         }
 
-        this.iosProjectPath = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "");
+        if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
+            Log.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'native_folder' instead");
+            this.runOptions.native_folder = this.runOptions.native_folder || this.runOptions.iosRelativeProjectPath;
+        }
+
+        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.native_folder || "");
 
         if (this.runOptions.target === IOSPlatform.simulatorString) {
             this.targetType = this.runOptions.target;
@@ -100,7 +105,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             return Q.resolve<void>(void 0);
         }
 
-        const iosDebugModeManager = new IOSDebugModeManager(this.iosProjectPath);
+        const iosDebugModeManager = new IOSDebugModeManager(this.iosProjectRoot);
 
         // Wait until the configuration file exists, and check to see if debugging is enabled
         return Q.all<boolean | string>([
@@ -152,8 +157,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
             runArguments.push(this.target);
         }
 
-        if (this.runOptions.iosRelativeProjectPath) {
-            runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath);
+        if (this.runOptions.native_folder) {
+            runArguments.push("--project-path", this.runOptions.native_folder);
         }
 
         // provide any defined scheme
@@ -170,6 +175,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private getBundleId(): Q.Promise<string> {
-        return this.plistBuddy.getBundleId(this.iosProjectPath);
+        return this.plistBuddy.getBundleId(this.iosProjectRoot);
     }
 }

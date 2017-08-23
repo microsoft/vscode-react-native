@@ -148,7 +148,7 @@ export function makeSession(
             }
         }
 
-        private requestSetup(args: any): Q.Promise<void> {
+        private requestSetup(args: any): Q.Promise<void[]> {
             this.projectRootPath = getProjectRoot(args);
             this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
             this.mobilePlatformOptions = {
@@ -163,15 +163,25 @@ export function makeSession(
 
             Log.SetGlobalLogger(new NodeDebugAdapterLogger(debugAdapterPackage, this));
 
-            if (args.target) {
-                this.mobilePlatformOptions.target = args.target;
-                return Q.resolve(void 0);
-            } else {
-                return this.remoteExtension.getApplicationTarget(args.platform, args.targetType)
+            let promises = [];
+
+            if (!args.target) {
+                promises.push(this.remoteExtension.getApplicationTarget(args.platform, args.targetType)
                     .then(target => {
                         this.mobilePlatformOptions.target = target;
-                    });
+                    })
+                );
             }
+
+            if (!args.native_folder) {
+                promises.push(this.remoteExtension.getNativeFolder(args.platform)
+                    .then(nativeFolder => {
+                        this.mobilePlatformOptions.native_folder = nativeFolder;
+                    })
+                );
+            }
+
+            return Q.all(promises);
         }
 
         /**

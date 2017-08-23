@@ -244,9 +244,9 @@
                 "description": "The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
                 "default": null
               },
-              "iosRelativeProjectPath": {
+              "native_folder": {
                 "type": "string",
-                "description": "Relative path to the ios/ folder, if it is not located on the project root.",
+                "description": "Path to the ios/android(--project-root/--appFolder) native source folder, if it is not located on the project root.",
                 "default": "ios"
               },
               "variant": {
@@ -266,6 +266,16 @@
       "type": "object",
       "title": "React-Native configuration",
       "properties": {
+        "react-native.ios.native_folder": {
+          "description": "Relative path to the ios folder, if it is not located on the project root.",
+          "type": "string",
+          "default": "ios"
+        },
+        "react-native.android.native_folder": {
+          "description": "Specify a different application folder name for the android source.",
+          "type": "string",
+          "default": ""
+        },
         "react-native.ios.launchTarget": {
           "description": "Run configuration for iOS",
           "type": "object",
