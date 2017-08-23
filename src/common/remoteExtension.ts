@@ -55,4 +55,8 @@ export class RemoteExtension {
     public getApplicationTarget(platform: string, targetType: string): Q.Promise<string> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_APPLICATION_TARGET, [platform, targetType]);
     }
+
+    public getNativeFolder(platform: string): Q.Promise<string> {
+        return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_NATIVE_FOLDER, [platform]);
+    }
 }

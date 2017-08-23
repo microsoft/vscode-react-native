@@ -46,6 +46,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.START_EXPONENT_PACKAGER] = this.startExponentPackager;
         this.messageHandlerDictionary[em.ExtensionMessage.SHOW_INFORMATION_MESSAGE] = this.showInformationMessage;
         this.messageHandlerDictionary[em.ExtensionMessage.GET_APPLICATION_TARGET] = this.getApplicationTarget;
+        this.messageHandlerDictionary[em.ExtensionMessage.GET_NATIVE_FOLDER] = this.getNativeFolder;
     }
 
     /**
@@ -299,5 +300,9 @@ export class ExtensionServer implements vscode.Disposable {
     }
     private getApplicationTarget(platform: string, targetType: string): Q.Promise<string> {
         return Q.resolve(SettingsHelper.getApplicationTarget(platform, targetType));
+    }
+
+    private getNativeFolder(platform: string): Q.Promise<string> {
+        return Q.resolve(SettingsHelper.getNativeFolder(platform));
     }
 }

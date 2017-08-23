@@ -5,7 +5,7 @@ import * as Q from "q";
 
 import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import {Packager} from "../packager";
-import {IRunOptions} from "../launchArgs";
+import {IAndroidRunOptions} from "../launchArgs";
 import {Log} from "../log/log";
 import {IAdb, Adb, AndroidAPILevel, IDevice, DeviceType} from "./adb";
 import {Package} from "../node/package";
@@ -60,7 +60,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private needsToLaunchApps: boolean = false;
 
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(runOptions: IRunOptions, {
+    constructor(protected runOptions: IAndroidRunOptions, {
         remoteExtension,
         adb = <IAdb>new Adb(),
         reactNative = <IReactNative>new ReactNative(),
@@ -74,7 +74,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {
         return TelemetryHelper.generate("AndroidPlatform.runApp", () => {
-            const runAndroidSpawn = this.reactNative.runAndroid(this.runOptions.projectRoot, this.runOptions.variant, this.runOptions.target);
+            const runAndroidSpawn = this.reactNative.runAndroid(this.runOptions);
             const output = new OutputVerifier(
                 () =>
                     Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),

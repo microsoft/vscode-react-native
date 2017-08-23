@@ -21,6 +21,7 @@ export enum ExtensionMessage {
     START_EXPONENT_PACKAGER,
     SHOW_INFORMATION_MESSAGE,
     GET_APPLICATION_TARGET,
+    GET_NATIVE_FOLDER,
 }
 
 export interface MessageWithArguments {

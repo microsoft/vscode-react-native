@@ -7,6 +7,7 @@
  */
 export interface ILaunchArgs {
     platform: string;
+    projectRoot: string;
     target?: string;
     targetType?: "simulator" | "device";
     debugAdapterPort?: number;
@@ -17,9 +18,18 @@ export interface ILaunchArgs {
 /**
  * Defines the options needed to start debugging a project.
  */
-export interface IRunOptions extends ILaunchArgs {
-    projectRoot: string;
-    iosRelativeProjectPath?: string;
+
+export interface IAndroidRunOptions extends ILaunchArgs {
+    native_folder?: string;
     variant?: string;
+}
+
+export interface IIOSRunOptions extends ILaunchArgs {
+    native_folder?: string;
     scheme?: string;
+    iosRelativeProjectPath?: string; // TODO Remove deprecated
+}
+
+export interface IRunOptions extends IAndroidRunOptions, IIOSRunOptions  {
+
 }
