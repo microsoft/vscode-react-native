@@ -247,7 +247,7 @@
               "native_folder": {
                 "type": "string",
                 "description": "Path to the ios/android(--project-root/--appFolder) native source folder, if it is not located on the project root.",
-                "default": "ios"
+                "default": ""
               },
               "variant": {
                 "type": "string",
