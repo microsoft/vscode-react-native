@@ -55,8 +55,4 @@ export class RemoteExtension {
     public getRunArgs(platform: string, targetType: string): Q.Promise<string[]> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_RUN_ARGS, [platform, targetType]);
     }
-
-    public getNativeFolder(platform: string): Q.Promise<string> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_NATIVE_FOLDER, [platform]);
-    }
 }
