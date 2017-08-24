@@ -16,15 +16,17 @@ export class ReactNative implements IReactNative {
     public runAndroid(runOptions: IAndroidRunOptions): ISpawnResult {
         let cexec = new CommandExecutor(runOptions.projectRoot);
         let args: string[] = [];
-        if (runOptions.variant) {
-            args.push("--variant", runOptions.variant);
+        if (runOptions.runArgs  && runOptions.runArgs.length > 0) {
+            args = runOptions.runArgs;
+        } else {
+            if (runOptions.variant) {
+                args.push("--variant", runOptions.variant);
+            }
+            if (runOptions.target) {
+                args.push("--deviceId", runOptions.target);
+            }
         }
-        if (runOptions.target) {
-            args.push("--deviceId", runOptions.target);
-        }
-        if (runOptions.native_folder) {
-            args.push("--appFolder", runOptions.native_folder);
-        }
+
         return cexec.spawnReactCommand("run-android", args);
     }
 

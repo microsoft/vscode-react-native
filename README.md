@@ -50,7 +50,6 @@ You can modify these configurations or add new ones to the list. You can use oth
 
 For example, you can modify the `target` field to specify the simulator you want to target for iOS debugging.
 
-* **Note:** If `target` not specified we will use target from `.vscode/setting.json`.<br>
 See [Customization](#customization) for more details.
 
 ### Debugging with Typescript and Haul
@@ -149,18 +148,13 @@ $ npm install --global flow-bin
 
 There are a few customizations that are supported by this extension. They can be added to your `.vscode/settings.json` if you need them.
 
-For using another simulator device which is different to the default `iPhone 5`:
+For using custom run arguments for `react-native run-<platform>`:
+* **Note:** Override all other configuration params
 
 ```
 {
-  "react-native.ios.launchTarget": {
-    "simulator" : "iPad Pro (9.7 inch)",
-    "device": "Max's iPhone"
-  },
-  "react-native.android.launchTarget": {
-    "simulator" : "emulator-5556",
-    "device": "emulator-5556"
-  }
+  "react-native.android.simulator.runArgs": ["--appFolder, "/Users/test/AwesomeProject/android/app", "--deviceId", "emulator-5555"],
+  "react-native.ios.device.runArgs": ["--project-path", "ios", "--device", "Max's iPhone"],
 }
 ```
 

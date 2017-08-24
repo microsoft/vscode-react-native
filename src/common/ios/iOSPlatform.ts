@@ -48,40 +48,48 @@ export class IOSPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IIOSRunOptions, { remoteExtension = undefined }: {remoteExtension?: RemoteExtension} = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
 
-        if (this.runOptions.targetType) {
-            if (this.runOptions.targetType !== IOSPlatform.simulatorString &&
-                this.runOptions.targetType !== IOSPlatform.deviceString) {
-                throw Error(`Invalid Run iOS targetType: '${this.runOptions.targetType}' in .vscode/launch.json.` +
-                    "Please use 'simulator' or 'device' targetType instead");
-            }
-        }
-
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
-            Log.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'native_folder' instead");
-            this.runOptions.native_folder = this.runOptions.native_folder || this.runOptions.iosRelativeProjectPath;
+            Log.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'runArgs' instead");
         }
 
-        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.native_folder || "");
+        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "");
 
-        if (this.runOptions.target === IOSPlatform.simulatorString) {
-            this.targetType = this.runOptions.target;
-            this.target = IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET;
-            return;
-        }
-
-        if (this.runOptions.target === IOSPlatform.deviceString) {
-            this.targetType = this.runOptions.target;
-            this.target = "";
-            return;
-        }
-
-        this.targetType = this.runOptions.targetType || IOSPlatform.simulatorString;
-        if (this.runOptions.target) {
-            this.target = this.runOptions.target;
-        } else if (this.targetType === IOSPlatform.simulatorString) {
-            this.target = IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET;
+        if (this.runOptions.runArgs && this.runOptions.runArgs.length > 0) {
+            if (this.runOptions.runArgs.indexOf(`--${IOSPlatform.deviceString}`) > -1) {
+                this.targetType = IOSPlatform.deviceString;
+            } else {
+                this.targetType = IOSPlatform.simulatorString;
+            }
         } else {
-            this.target = "";
+            if (this.runOptions.targetType) {
+                if (this.runOptions.targetType !== IOSPlatform.simulatorString &&
+                    this.runOptions.targetType !== IOSPlatform.deviceString) {
+                    throw Error(`Invalid Run iOS targetType: '${this.runOptions.targetType}' in .vscode/launch.json.` +
+                        "Please use 'simulator' or 'device' targetType instead");
+                }
+            }
+
+            if (this.runOptions.target === IOSPlatform.simulatorString) {
+                this.targetType = this.runOptions.target;
+                this.target = IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET;
+                return;
+            }
+
+            if (this.runOptions.target === IOSPlatform.deviceString) {
+                this.targetType = this.runOptions.target;
+                this.target = "";
+                return;
+            }
+
+            this.targetType = this.runOptions.targetType || IOSPlatform.simulatorString;
+
+            if (this.runOptions.target) {
+                this.target = this.runOptions.target;
+            } else if (this.targetType === IOSPlatform.simulatorString) {
+                this.target = IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET;
+            } else {
+                this.target = "";
+            }
         }
     }
 
@@ -149,6 +157,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     public getRunArgument(): string[] {
         let runArguments: string[] = [];
+
+        if (this.runOptions.runArgs && this.runOptions.runArgs.length > 0) {
+            return this.runOptions.runArgs;
+        }
+
         if (this.targetType) {
             runArguments.push(`--${this.targetType}`);
         }
@@ -157,8 +170,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
             runArguments.push(this.target);
         }
 
-        if (this.runOptions.native_folder) {
-            runArguments.push("--project-path", this.runOptions.native_folder);
+        if (this.runOptions.iosRelativeProjectPath) {
+            runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath);
         }
 
         // provide any defined scheme

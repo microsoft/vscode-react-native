@@ -6,7 +6,6 @@ import path = require("path");
 import {ConfigurationReader} from "../common/configurationReader";
 import {Packager} from "../common/packager";
 import {LogLevel} from "../common/log/logHelper";
-import {IOSPlatform} from "../common/ios/iOSPlatform";
 
 export class SettingsHelper {
     /**
@@ -95,30 +94,15 @@ export class SettingsHelper {
     }
 
     /**
-     * Get application target from settings.json
+     * Get command line run arguments from settings.json
      */
-    public static getApplicationTarget(platform: string, targetType: string): string {
+    public static getRunArgs(platform: string, targetType: string): string[] {
         const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration();
-        const configKey: string = `react-native.${platform}.launchTarget.${targetType}`;
+        const configKey: string = `react-native.${platform}.${targetType}.runArgs`;
         if (workspaceConfiguration.has(configKey)) {
-            return ConfigurationReader.readString(workspaceConfiguration.get(configKey));
-        } else if (platform === "ios") {
-            return targetType === "simulator" ? IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET : "";
+            return ConfigurationReader.readArray(workspaceConfiguration.get(configKey));
         }
 
-        return "";
-    }
-
-    /**
-     * Get native source folder path for (run-ios --project-path or run-android --appFolder)
-     */
-    public static getNativeFolder(platform: string): string {
-        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration();
-        const configKey: string = `react-native.${platform}.native_folder`;
-        if (workspaceConfiguration.has(configKey)) {
-            return ConfigurationReader.readString(workspaceConfiguration.get(configKey));
-        }
-
-        return platform === "ios" ? "ios" : "";
+        return [];
     }
 }

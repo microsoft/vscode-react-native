@@ -13,6 +13,7 @@ export interface ILaunchArgs {
     debugAdapterPort?: number;
     logCatArguments?: any;
     packagerPort?: any;
+    runArgs?: string[];
 }
 
 /**
@@ -20,12 +21,10 @@ export interface ILaunchArgs {
  */
 
 export interface IAndroidRunOptions extends ILaunchArgs {
-    native_folder?: string;
     variant?: string;
 }
 
 export interface IIOSRunOptions extends ILaunchArgs {
-    native_folder?: string;
     scheme?: string;
     iosRelativeProjectPath?: string; // TODO Remove deprecated
 }
