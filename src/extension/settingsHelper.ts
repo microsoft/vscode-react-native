@@ -105,4 +105,17 @@ export class SettingsHelper {
 
         return [];
     }
+
+    /**
+     * Get native source folder path for (run-ios --project-path or run-android --appFolder)
+     */
+    public static getNativeFolder(platform: string): string {
+        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration();
+        const configKey: string = `react-native.${platform}.native_folder`;
+        if (workspaceConfiguration.has(configKey)) {
+            return ConfigurationReader.readString(workspaceConfiguration.get(configKey));
+        }
+
+        return platform === "ios" ? "ios" : "";
+    }
 }
