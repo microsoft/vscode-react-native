@@ -64,6 +64,10 @@ We support using exponentjs to run, debug and publish your applications. For mor
 
 For more details about configuring and debugging Expo applications see [Expo docs](doc/expo.md)
 
+## Contributing
+
+Please see our [contributing guide](CONTRIBUTING.md) for more information
+
 ## Known Issues
 
 Here is the list of common known issues you may experience while using the extension:
