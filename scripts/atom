@@ -1,0 +1,22 @@
+#!/bin/node
+
+/*
+ This script is called 'atom' to surpass the react-native
+ editor selection. It has nothing to do with the atom editor.
+ It can be safetly removed when the PR to support vscode in
+ react native gets accepted:
+ https://github.com/facebook/react-native/pull/7757
+
+ Usage:
+ atom filename:linenumber
+ or
+ atom path/to/workspace/root filename:linenumber
+
+*/
+
+if (process.argv.length < 3) {
+    console.error("Missing filename");
+    process.exit(1);
+}
+
+require("../out/extension/openFileAtLocation");
