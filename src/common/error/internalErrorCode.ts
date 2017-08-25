@@ -16,7 +16,7 @@ export enum InternalErrorCode {
         FailedToPublishToExpHost = 111,
 
         // Device Deployer errors
-        IDeviceInstallerNotFound = 201,
+        IOSDeployNotFound = 201,
 
         // Device Runner errors
         DeviceNotPluggedIn = 301,

@@ -77,7 +77,7 @@ export class CommandPaletteHandler {
      */
     public publishToExpHost(): Q.Promise<void> {
         return this.executeCommandInContext("publishToExpHost", () => {
-            this.executePublishToExpHost().then((didPublish) => {
+            return this.executePublishToExpHost().then((didPublish) => {
                 if (!didPublish) {
                     Log.logMessage("Publishing was unsuccessful. Please make sure you are logged in Exponent and your project is a valid Exponentjs project");
                 }
@@ -164,7 +164,7 @@ export class CommandPaletteHandler {
      * Otherwise, displays an error message banner
      * {operation} - a function that performs the expected operation
      */
-    private executeCommandInContext(rnCommand: string, operation: () => Q.Promise<void> | void): Q.Promise<void> {
+    private executeCommandInContext(rnCommand: string, operation: () => Q.Promise<void>): Q.Promise<void> {
         let reactNativeProjectHelper = new ReactNativeProjectHelper(this.workspaceRoot);
         return TelemetryHelper.generate("RNCommand", (generator) => {
             generator.add("command", rnCommand, false);
@@ -178,6 +178,7 @@ export class CommandPaletteHandler {
                     return operation();
                 } else {
                     vscode.window.showErrorMessage("Current workspace is not a React Native project.");
+                    return;
                 }
             });
         });
