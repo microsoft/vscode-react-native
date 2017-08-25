@@ -49,13 +49,13 @@ export class IOSPlatform extends GeneralMobilePlatform {
         super(runOptions, { remoteExtension: remoteExtension });
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
-            Log.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'runArgs' instead");
+            Log.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
         }
 
         this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "");
 
-        if (this.runOptions.runArgs && this.runOptions.runArgs.length > 0) {
-            if (this.runOptions.runArgs.indexOf(`--${IOSPlatform.deviceString}`) > -1) {
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
+            if (this.runOptions.runArguments.indexOf(`--${IOSPlatform.deviceString}`) > -1) {
                 this.targetType = IOSPlatform.deviceString;
             } else {
                 this.targetType = IOSPlatform.simulatorString;
@@ -158,8 +158,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
     public getRunArgument(): string[] {
         let runArguments: string[] = [];
 
-        if (this.runOptions.runArgs && this.runOptions.runArgs.length > 0) {
-            return this.runOptions.runArgs;
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
+            return this.runOptions.runArguments;
         }
 
         if (this.targetType) {

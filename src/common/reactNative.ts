@@ -16,8 +16,8 @@ export class ReactNative implements IReactNative {
     public runAndroid(runOptions: IAndroidRunOptions): ISpawnResult {
         let cexec = new CommandExecutor(runOptions.projectRoot);
         let args: string[] = [];
-        if (runOptions.runArgs  && runOptions.runArgs.length > 0) {
-            args = runOptions.runArgs;
+        if (runOptions.runArguments  && runOptions.runArguments.length > 0) {
+            args = runOptions.runArguments;
         } else {
             if (runOptions.variant) {
                 args.push("--variant", runOptions.variant);

@@ -50,6 +50,8 @@ You can modify these configurations or add new ones to the list. You can use oth
 
 For example, you can modify the `target` field to specify the simulator you want to target for iOS debugging.
 
+* **Note:** if available, arguments for running app will be read from .vscode/settings.json and the 'target' will affect on whether we will run app on device/emulator
+
 See [Customization](#customization) for more details.
 
 ### Debugging with Typescript and Haul
@@ -153,8 +155,8 @@ For using custom run arguments for `react-native run-<platform>`:
 
 ```
 {
-  "react-native.android.simulator.runArgs": ["--appFolder, "/Users/test/AwesomeProject/android/app", "--deviceId", "emulator-5555"],
-  "react-native.ios.device.runArgs": ["--project-path", "ios", "--device", "Max's iPhone"],
+  "react-native.android.runArguments.simulator": ["--appFolder, "/Users/test/AwesomeProject/android/app", "--deviceId", "emulator-5555"],
+  "react-native.ios.runArguments.device": ["--project-path", "ios", "--device", "Max's iPhone"],
 }
 ```
 

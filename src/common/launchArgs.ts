@@ -13,7 +13,7 @@ export interface ILaunchArgs {
     debugAdapterPort?: number;
     logCatArguments?: any;
     packagerPort?: any;
-    runArgs?: string[];
+    runArguments?: string[];
 }
 
 /**

@@ -98,7 +98,7 @@ export class SettingsHelper {
      */
     public static getRunArgs(platform: string, targetType: string): string[] {
         const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration();
-        const configKey: string = `react-native.${platform}.${targetType}.runArgs`;
+        const configKey: string = `react-native.${platform}.runArguments.${targetType}`;
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readArray(workspaceConfiguration.get(configKey));
         }

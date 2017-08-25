@@ -244,7 +244,7 @@
                 "description": "The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
                 "default": null
               },
-              "runArgs": {
+              "runArguments": {
                 "type": "array",
                 "description": "Run arguments to be passed to 'react-native run-<platform>' command(Override all other configuration params)",
                 "default": []
@@ -266,22 +266,22 @@
       "type": "object",
       "title": "React-Native configuration",
       "properties": {
-        "react-native.ios.simulator.runArgs": {
+        "react-native.ios.runArguments.simulator": {
           "description": "Run arguments to be passed to 'react-native run-ios' command",
           "type": "array",
           "default": []
         },
-        "react-native.ios.device.runArgs": {
+        "react-native.ios.runArguments.device": {
           "description": "Run arguments to be passed to 'react-native run-ios' command",
           "type": "array",
           "default": []
         },
-        "react-native.android.simulator.runArgs": {
+        "react-native.android.runArguments.simulator": {
           "description": "Run arguments to be passed to 'react-native run-android' command",
           "type": "array",
           "default": []
         },
-        "react-native.android.device.runArgs": {
+        "react-native.android.runArguments.device": {
           "description": "Run arguments to be passed to 'react-native run-android' command",
           "type": "array",
           "default": []
