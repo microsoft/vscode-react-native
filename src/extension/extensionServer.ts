@@ -45,7 +45,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.OPEN_FILE_AT_LOCATION] = this.openFileAtLocation;
         this.messageHandlerDictionary[em.ExtensionMessage.START_EXPONENT_PACKAGER] = this.startExponentPackager;
         this.messageHandlerDictionary[em.ExtensionMessage.SHOW_INFORMATION_MESSAGE] = this.showInformationMessage;
-        this.messageHandlerDictionary[em.ExtensionMessage.GET_APPLICATION_TARGET] = this.getApplicationTarget;
+        this.messageHandlerDictionary[em.ExtensionMessage.GET_RUN_ARGS] = this.getRunArgs;
     }
 
     /**
@@ -297,7 +297,7 @@ export class ExtensionServer implements vscode.Disposable {
     private showInformationMessage(message: string): Q.Promise<void> {
         return Q(vscode.window.showInformationMessage(message)).then(() => {});
     }
-    private getApplicationTarget(platform: string, targetType: string): Q.Promise<string> {
-        return Q.resolve(SettingsHelper.getApplicationTarget(platform, targetType));
+    private getRunArgs(platform: string, targetType: string): Q.Promise<string[]> {
+        return Q.resolve(SettingsHelper.getRunArgs(platform, targetType));
     }
 }

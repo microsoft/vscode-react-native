@@ -163,15 +163,14 @@ export function makeSession(
 
             Log.SetGlobalLogger(new NodeDebugAdapterLogger(debugAdapterPackage, this));
 
-            if (args.target) {
-                this.mobilePlatformOptions.target = args.target;
-                return Q.resolve(void 0);
-            } else {
-                return this.remoteExtension.getApplicationTarget(args.platform, args.targetType)
-                    .then(target => {
-                        this.mobilePlatformOptions.target = target;
+            if (!args.runArguments) {
+                return this.remoteExtension.getRunArgs(args.platform, args.targetType || "simulator")
+                    .then(runArgs => {
+                        this.mobilePlatformOptions.runArguments = runArgs;
                     });
             }
+
+            return Q.resolve(void 0);
         }
 
         /**

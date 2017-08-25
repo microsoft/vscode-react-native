@@ -52,7 +52,7 @@ export class RemoteExtension {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.SHOW_INFORMATION_MESSAGE, [infoMessage]);
     }
 
-    public getApplicationTarget(platform: string, targetType: string): Q.Promise<string> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_APPLICATION_TARGET, [platform, targetType]);
+    public getRunArgs(platform: string, targetType: string): Q.Promise<string[]> {
+        return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_RUN_ARGS, [platform, targetType]);
     }
 }

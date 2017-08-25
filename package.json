@@ -244,10 +244,10 @@
                 "description": "The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
                 "default": null
               },
-              "iosRelativeProjectPath": {
-                "type": "string",
-                "description": "Relative path to the ios/ folder, if it is not located on the project root.",
-                "default": "ios"
+              "runArguments": {
+                "type": "array",
+                "description": "Run arguments to be passed to 'react-native run-<platform>' command(Override all other configuration params)",
+                "default": []
               },
               "variant": {
                 "type": "string",
@@ -266,34 +266,25 @@
       "type": "object",
       "title": "React-Native configuration",
       "properties": {
-        "react-native.ios.launchTarget": {
-          "description": "Run configuration for iOS",
-          "type": "object",
-          "properties": {
-            "simulator": {
-              "type":"string",
-              "description": "iOS simulator name (e.g \"iPad Pro (9.7 inch)\"). Run \"xcrun simctl list devices\" in terminal to see all available simulators and their names",
-              "default": "iPhone 5"
-            },
-            "device": {
-              "type":"string",
-              "description": "iOS device name (e.g \"Max's iPhone\"). If you have \"ios-deploy\" installed you might want to try running \"ios-deploy --detect\" in terminal to see connected devices"
-            }
-          }
+        "react-native.ios.runArguments.simulator": {
+          "description": "Run arguments to be passed to 'react-native run-ios' command",
+          "type": "array",
+          "default": []
         },
-        "react-native.android.launchTarget": {
-          "description": "Run configuration for Android",
-          "type": "object",
-          "properties": {
-            "simulator": {
-              "type":"string",
-              "description": "Android simulator  ID (e.g \"emulator-5554\"). Run \"adb devices\" in terminal to see all available simulators and their names"
-            },
-            "device": {
-              "type":"string",
-              "description": "Android device ID. Run \"adb devices\" in terminal to see all available simulators and their names"
-            }
-          }
+        "react-native.ios.runArguments.device": {
+          "description": "Run arguments to be passed to 'react-native run-ios' command",
+          "type": "array",
+          "default": []
+        },
+        "react-native.android.runArguments.simulator": {
+          "description": "Run arguments to be passed to 'react-native run-android' command",
+          "type": "array",
+          "default": []
+        },
+        "react-native.android.runArguments.device": {
+          "description": "Run arguments to be passed to 'react-native run-android' command",
+          "type": "array",
+          "default": []
         }
       }
     }

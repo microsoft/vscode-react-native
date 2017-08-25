@@ -8,7 +8,7 @@ import {Log} from "../../common/log/log";
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {GeneralMobilePlatform} from "../../common/generalMobilePlatform";
-import {IRunOptions} from "../../common/launchArgs";
+import {IIOSRunOptions} from "../../common/launchArgs";
 import {PlistBuddy} from "../../common/ios/plistBuddy";
 import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
@@ -28,7 +28,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private plistBuddy = new PlistBuddy();
     private target: string = "";
     private targetType: string = "simulator";
-    private iosProjectPath: string;
+    private iosProjectRoot: string;
 
     // We should add the common iOS build/run erros we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
@@ -45,38 +45,51 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
     // We set remoteExtension = null so that if there is an instance of iOSPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(runOptions: IRunOptions, { remoteExtension = undefined }: {remoteExtension?: RemoteExtension} = {}) {
+    constructor(protected runOptions: IIOSRunOptions, { remoteExtension = undefined }: {remoteExtension?: RemoteExtension} = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
 
-        if (this.runOptions.targetType) {
-            if (this.runOptions.targetType !== IOSPlatform.simulatorString &&
-                this.runOptions.targetType !== IOSPlatform.deviceString) {
-                throw Error(`Invalid Run iOS targetType: '${this.runOptions.targetType}' in .vscode/launch.json.` +
-                    "Please use 'simulator' or 'device' targetType instead");
+        if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
+            Log.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
+        }
+
+        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "");
+
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
+            if (this.runOptions.runArguments.indexOf(`--${IOSPlatform.deviceString}`) > -1) {
+                this.targetType = IOSPlatform.deviceString;
+            } else {
+                this.targetType = IOSPlatform.simulatorString;
             }
-        }
-
-        this.iosProjectPath = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "");
-
-        if (this.runOptions.target === IOSPlatform.simulatorString) {
-            this.targetType = this.runOptions.target;
-            this.target = IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET;
-            return;
-        }
-
-        if (this.runOptions.target === IOSPlatform.deviceString) {
-            this.targetType = this.runOptions.target;
-            this.target = "";
-            return;
-        }
-
-        this.targetType = this.runOptions.targetType || IOSPlatform.simulatorString;
-        if (this.runOptions.target) {
-            this.target = this.runOptions.target;
-        } else if (this.targetType === IOSPlatform.simulatorString) {
-            this.target = IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET;
         } else {
-            this.target = "";
+            if (this.runOptions.targetType) {
+                if (this.runOptions.targetType !== IOSPlatform.simulatorString &&
+                    this.runOptions.targetType !== IOSPlatform.deviceString) {
+                    throw Error(`Invalid Run iOS targetType: '${this.runOptions.targetType}' in .vscode/launch.json.` +
+                        "Please use 'simulator' or 'device' targetType instead");
+                }
+            }
+
+            if (this.runOptions.target === IOSPlatform.simulatorString) {
+                this.targetType = this.runOptions.target;
+                this.target = IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET;
+                return;
+            }
+
+            if (this.runOptions.target === IOSPlatform.deviceString) {
+                this.targetType = this.runOptions.target;
+                this.target = "";
+                return;
+            }
+
+            this.targetType = this.runOptions.targetType || IOSPlatform.simulatorString;
+
+            if (this.runOptions.target) {
+                this.target = this.runOptions.target;
+            } else if (this.targetType === IOSPlatform.simulatorString) {
+                this.target = IOSPlatform.DEFAULT_IOS_SIMULATOR_TARGET;
+            } else {
+                this.target = "";
+            }
         }
     }
 
@@ -100,7 +113,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             return Q.resolve<void>(void 0);
         }
 
-        const iosDebugModeManager = new IOSDebugModeManager(this.iosProjectPath);
+        const iosDebugModeManager = new IOSDebugModeManager(this.iosProjectRoot);
 
         // Wait until the configuration file exists, and check to see if debugging is enabled
         return Q.all<boolean | string>([
@@ -144,6 +157,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     public getRunArgument(): string[] {
         let runArguments: string[] = [];
+
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
+            return this.runOptions.runArguments;
+        }
+
         if (this.targetType) {
             runArguments.push(`--${this.targetType}`);
         }
@@ -170,6 +188,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private getBundleId(): Q.Promise<string> {
-        return this.plistBuddy.getBundleId(this.iosProjectPath);
+        return this.plistBuddy.getBundleId(this.iosProjectRoot);
     }
 }

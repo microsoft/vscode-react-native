@@ -20,7 +20,7 @@ export enum ExtensionMessage {
     OPEN_FILE_AT_LOCATION,
     START_EXPONENT_PACKAGER,
     SHOW_INFORMATION_MESSAGE,
-    GET_APPLICATION_TARGET,
+    GET_RUN_ARGS,
 }
 
 export interface MessageWithArguments {
