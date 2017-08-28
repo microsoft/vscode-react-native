@@ -40,7 +40,7 @@ function codeToRun() {
         nodeDebugFolder = require("./nodeDebugLocation.json").nodeDebugPath;
         VSCodeDebugAdapter = require(path.join(nodeDebugFolder, "node_modules/vscode-debugadapter"));
         ChromeDebuggerPackage = require(path.join(nodeDebugFolder, "node_modules/vscode-chrome-debug-core"));
-        Node2DebugAdapter = require(path.join(nodeDebugFolder, "out/src/nodeDebugAdapter")).NodeDebugAdapter;
+        Node2DebugAdapter = require(path.join(nodeDebugFolder, "src/nodeDebugAdapter")).NodeDebugAdapter;
         /* tslint:enable:no-var-requires */
 
         /**

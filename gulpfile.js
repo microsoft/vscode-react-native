@@ -24,7 +24,6 @@ var executeCommand = GulpExtras.executeCommand;
 
 var srcPath = "src";
 var testPath = "test";
-var outPath = "out";
 
 var sources = [
     srcPath,
@@ -63,7 +62,9 @@ function build(callback) {
             includeContent: false,
             sourceRoot: "."
         }))
-        .pipe(gulp.dest(outPath));
+        .pipe(gulp.dest(function (file) {
+            return file.cwd;
+        }));
 }
 
 gulp.task("watch", ["build"], function (cb) {
@@ -104,7 +105,7 @@ function test() {
         console.log("\nTesting cases that don't match pattern: extensionContext");
     }
 
-    return gulp.src(["out/test/**/*.test.js", "!out/test/extension/**"])
+    return gulp.src(["test/**/*.test.js", "!test/extension/**"])
         .pipe(mocha({
             ui: "tdd",
             useColors: true,
@@ -116,7 +117,7 @@ function test() {
 gulp.task("test", ["build", "tslint"], test);
 
 gulp.task('coverage:instrument', function () {
-    return gulp.src(["out/**/*.js", "!out/test/**"])
+    return gulp.src(["src/**/*.js", "!test/**"])
         .pipe(istanbul({
             // Use the isparta instrumenter (code coverage for ES6)
             instrumenter: isparta.Instrumenter,
@@ -128,7 +129,7 @@ gulp.task('coverage:instrument', function () {
 
 gulp.task('coverage:report', function (done) {
     return gulp.src(
-        ["out/**/*.js", "!out/test/**"],
+        ["src/**/*.js", "!test/**"],
         { read: false }
     )
         .pipe(istanbul.writeReports({
@@ -167,7 +168,7 @@ gulp.task("check-copyright", function (cb) {
         "!**/*.d.ts",
         "!coverage/**",
         "!node_modules/**",
-        "!out/test/**/*.js",
+        "!test/**/*.js",
         "!SampleApplication/**",
         "!test/resources/sampleReactNative022Project/**/*.js",
     ])
@@ -181,11 +182,12 @@ gulp.task("watch-build-test", ["build", "build-test"], function () {
 gulp.task("clean", function () {
     var del = require("del");
     var pathsToDelete = [
-        outPath,
-        ".vscode-test"
-    ].map(function (folder) {
-        return folder + "/**";
-    });
+        "src/**/*.js",
+        "src/**/*.js.map",
+        "test/**/*.js",
+        "!test/resources/sampleReactNative022Project/**/*.js",
+        ".vscode-test/",
+    ]
     return del(pathsToDelete, { force: true });
 });
 

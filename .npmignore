@@ -1,8 +1,8 @@
 .DS_Store
 
 node_modules/
-src/
-test/
+src/**/*.ts
+test
 .vscode-test/
 
 tools/

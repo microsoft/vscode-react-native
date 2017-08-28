@@ -3,9 +3,8 @@
 .vscode/**/*
 .vscode-test/**
 .gitignore
-src/**
 test/**
-out/test/**
+!src/**/*.js
 **/*.js.map
 SampleApplication/**
 tools/**

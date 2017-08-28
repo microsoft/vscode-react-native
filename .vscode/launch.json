@@ -10,7 +10,6 @@
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out",
             "preLaunchTask": "build"
         },
         {
@@ -22,7 +21,6 @@
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out",
             "preLaunchTask": "quick-build"
         },
         {
@@ -38,7 +36,6 @@
                 "--server=4712"
             ], // Use "debugServer": "4712", on launch.json of the instance to debug
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out",
             "preLaunchTask": "quick-build"
         },
         {
@@ -54,7 +51,6 @@
                 "--server=4712"
             ], // Use "debugServer": "4712", on launch.json of the instance to debug
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out",
             "preLaunchTask": "build"
         },
         {
@@ -69,7 +65,9 @@
                 "--nolazy"
             ],
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/SampleApplication/.vscode/.react/"
+            "outFiles": [
+                "${workspaceRoot}/SampleApplication/.vscode/.react/**/*.js"
+            ]
         },
         {
             "name": "Sample - iOS App",
@@ -83,7 +81,9 @@
                 "--nolazy"
             ],
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/SampleApplication/.vscode/.react/"
+            "outFiles": [
+                "${workspaceRoot}/SampleApplication/.vscode/.react/**/*.js"
+            ]
         },
         {
             "name": "Sample - Android Extension",
@@ -96,8 +96,7 @@
             "runtimeArgs": [
                 "--nolazy"
             ],
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out/"
+            "sourceMaps": true
         },
         {
             "name": "Sample - iOS Extension",
@@ -110,8 +109,7 @@
             "runtimeArgs": [
                 "--nolazy"
             ],
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out/"
+            "sourceMaps": true
         },
         {
             "name": "Launch Tests",
@@ -120,16 +118,16 @@
             "runtimeExecutable": "${execPath}",
             "args": [
                 "--extensionDevelopmentPath=${workspaceRoot}",
-                "--extensionTestsPath=${workspaceRoot}/out/test"
+                "--extensionTestsPath=${workspaceRoot}/test"
             ],
             "stopOnEntry": false,
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out",
             "preLaunchTask": "build"
         },
         {
             "name": "Run mocha",
-            "type": "node2",
+            "type": "node",
+            "protocol": "inspector",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "stopOnEntry": false,
             // Command line arguments passed to the program.
@@ -137,16 +135,15 @@
                 "--ui",
                 "tdd",
                 // "--grep", "patternToFilterTestsBy",
-                "out/test/debugger/**/*.test.js",
-                "out/test/common/**/*.test.js"
+                "test/debugger/**/*.test.js",
+                "test/common/**/*.test.js"
             ],
             "cwd": "${workspaceRoot}",
             "runtimeExecutable": null,
             "env": {
                 "NODE_ENV": "development"
             },
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out"
+            "sourceMaps": true
         }
     ],
     "compounds": [
