@@ -5,6 +5,7 @@
 .gitignore
 test/**
 out/**
+src/**/nodeDebugLocation.json
 !src/**/*.js
 **/*.js.map
 SampleApplication/**

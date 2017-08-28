@@ -4,6 +4,7 @@ node_modules/
 coverage/
 .idea
 out
+src/**/nodeDebugLocation.json
 
 # Compiled files
 src/**/*.js
