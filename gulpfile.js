@@ -185,6 +185,7 @@ gulp.task("clean", function () {
         "src/**/*.js",
         "src/**/*.js.map",
         "test/**/*.js",
+        "test/**/*.js.map",
         "out/",
         "!test/resources/sampleReactNative022Project/**/*.js",
         ".vscode-test/",
