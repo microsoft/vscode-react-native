@@ -7,7 +7,7 @@ import {ErrorHelper} from "../error/errorHelper";
 import {InternalErrorCode} from "../error/internalErrorCode";
 
 // Uncomment the following lines to record all spawned processes executions
-// import {Recorder} from "../../test/resources/processExecution/recorder";
+// import {Recorder} from "../../../test/resources/processExecution/recorder";
 // Recorder.installGlobalRecorder();
 
 export interface IExecResult {

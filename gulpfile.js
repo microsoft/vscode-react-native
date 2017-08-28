@@ -23,12 +23,13 @@ var imports = GulpExtras.checkImports;
 var executeCommand = GulpExtras.executeCommand;
 
 var srcPath = "src";
+var testPath = "test";
 var outPath = "out";
 
 var sources = [
     srcPath,
-].map(function (tsFolder) { return tsFolder + "/**/*.ts"; })
-    .concat(["test/*.ts"]);
+    testPath,
+].map(function (tsFolder) { return tsFolder + "/**/*.ts"; });
 
 var knownOptions = {
     string: "env",
@@ -76,10 +77,11 @@ gulp.task("default", function (callback) {
 
 var lintSources = [
     srcPath,
+    testPath
 ].map(function (tsFolder) { return tsFolder + "/**/*.ts"; });
 lintSources = lintSources.concat([
     "!src/typings/**",
-    "!src/test/resources/sampleReactNative022Project/**",
+    "!test/resources/sampleReactNative022Project/**",
 ]);
 
 var libtslint = require("tslint");
@@ -167,7 +169,7 @@ gulp.task("check-copyright", function (cb) {
         "!node_modules/**",
         "!out/test/**/*.js",
         "!SampleApplication/**",
-        "!src/test/resources/sampleReactNative022Project/**/*.js",
+        "!test/resources/sampleReactNative022Project/**/*.js",
     ])
         .pipe(copyright());
 });

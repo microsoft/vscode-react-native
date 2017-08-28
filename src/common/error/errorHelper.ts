@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as path from "path";
 import {InternalError, NestedError, InternalErrorLevel} from "./internalError";
 import {InternalErrorCode} from "./internalErrorCode";
+import {ERROR_STRINGS} from "./errorStrings";
 
 export class ErrorHelper {
-    private static errorStringsJsonLoc = path.resolve(__dirname, "..", "..", "..", "errorStrings", "errorStrings.json");
+    public static ERROR_STRINGS = ERROR_STRINGS;
     public static getInternalError(errorCode: InternalErrorCode, ...optionalArgs: any[]): InternalError {
         let message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
         return new InternalError(<number> errorCode, message);
@@ -29,8 +29,7 @@ export class ErrorHelper {
     }
 
     private static getErrorMessage(errorCode: InternalErrorCode, ...optionalArgs: any[]): string {
-        let errorStrings = require (ErrorHelper.errorStringsJsonLoc);
-        return ErrorHelper.formatErrorMessage(errorStrings[InternalErrorCode[errorCode]], ...optionalArgs);
+        return ErrorHelper.formatErrorMessage(ErrorHelper.ERROR_STRINGS[InternalErrorCode[errorCode]], ...optionalArgs);
     }
 
     private static formatErrorMessage(errorMessage: string, ...optionalArgs: any[]): string {

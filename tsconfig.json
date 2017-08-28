@@ -7,7 +7,7 @@
             "es2015"
         ],
         "outDir": "out",
-        "rootDir": "src",
+        "rootDir": "./",
         "sourceMap": true,
         "removeComments": false,
         "preserveConstEnums": true,
@@ -30,6 +30,6 @@
         "SampleApplication/.vscode",
         "ReactTypings",
         "tools/",
-        "src/test/resources/sampleReactNative022Project/"
+        "test/resources/sampleReactNative022Project/"
     ]
 }

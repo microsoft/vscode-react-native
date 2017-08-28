@@ -13,10 +13,7 @@ import {PlistBuddy} from "../../common/ios/plistBuddy";
 import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {RemoteExtension} from "../../common/remoteExtension";
-
-/* tslint:disable:no-var-requires */
-const ErrorStrings = require("../../../errorStrings/errorStrings.json");
-/* tslint:enable:no-var-requires */
+import {ErrorHelper} from "../../common/error/errorHelper";
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
@@ -33,13 +30,13 @@ export class IOSPlatform extends GeneralMobilePlatform {
     // We should add the common iOS build/run erros we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
         pattern: "No devices are booted",
-        message: ErrorStrings.IOSSimulatorNotLaunchable,
+        message: ErrorHelper.ERROR_STRINGS.IOSSimulatorNotLaunchable,
     }, {
         pattern: "FBSOpenApplicationErrorDomain",
-        message: ErrorStrings.IOSSimulatorNotLaunchable,
+        message: ErrorHelper.ERROR_STRINGS.IOSSimulatorNotLaunchable,
     }, {
         pattern: "ios-deploy",
-        message: ErrorStrings.IOSDeployNotFound,
+        message: ErrorHelper.ERROR_STRINGS.IOSDeployNotFound,
     }];
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
