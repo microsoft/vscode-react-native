@@ -9,7 +9,8 @@
         "**/node_modules": true,
         "**/*.js": {
 			"when": "$(basename).ts"
-		},
+        },
+        "**/out": true,
 		"**/*.js.map": true
     }
 ,

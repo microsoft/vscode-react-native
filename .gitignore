@@ -3,6 +3,7 @@ node_modules/
 .vscode-test/
 coverage/
 .idea
+out
 
 # Compiled files
 src/**/*.js
