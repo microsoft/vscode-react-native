@@ -49,7 +49,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             Log.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
         }
 
-        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "");
+        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "ios");
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
             if (this.runOptions.runArguments.indexOf(`--${IOSPlatform.deviceString}`) > -1) {
