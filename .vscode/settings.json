@@ -7,7 +7,11 @@
     "editor.tabSize": 4,
     "files.exclude": {
         "**/node_modules": true,
-        "**/out": true
+        "**/*.js": {
+            "when": "$(basename).ts"
+        },
+        "**/out": true,
+        "**/*.js.map": true
     }
 ,
 "typescript.tsdk": "./node_modules/typescript/lib"

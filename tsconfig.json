@@ -6,7 +6,6 @@
         "lib": [
             "es2015"
         ],
-        "outDir": "out",
         "rootDir": "./",
         "sourceMap": true,
         "removeComments": false,

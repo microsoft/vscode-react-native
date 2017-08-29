@@ -26,7 +26,7 @@
   "activationEvents": [
     "*"
   ],
-  "main": "./out/extension/rn-extension",
+  "main": "./src/extension/rn-extension",
   "contributes": {
     "commands": [
       {
@@ -70,7 +70,7 @@
       {
         "type": "reactnative",
         "label": "React Native",
-        "program": "./out/debugger/reactNativeDebugEntryPoint.js",
+        "program": "./src/debugger/reactNativeDebugEntryPoint.js",
         "runtime": "node",
         "enableBreakpointsFor": {
           "languageIds": [
