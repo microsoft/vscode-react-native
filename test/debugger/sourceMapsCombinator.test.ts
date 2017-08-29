@@ -26,7 +26,7 @@ suite("sourceMapsCombinator", function () {
             const pathToTS = "d:/hello.ts";
             const sourcemapPath = "d:/hello.js.map";
             const codeJS = fs.readFileSync(path.resolve(__dirname, "assets/hello.js"));
-            const codeTS = fs.readFileSync(path.resolve(__dirname, "../../../test/debugger/assets/hello.ts"));
+            const codeTS = fs.readFileSync(path.resolve(__dirname, "assets/hello.ts"));
             const sourcemap: RawSourceMap = {
                 "version": 3,
                 "sources": [
