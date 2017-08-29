@@ -8,7 +8,7 @@
     "files.exclude": {
         "**/node_modules": true,
         "**/*.js": {
-			"when": "$(basename).ts"
+            "when": "$(basename).ts"
         },
         "**/out": true,
         "**/*.js.map": true
