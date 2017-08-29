@@ -180,7 +180,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private generateSuccessPatterns(): Q.Promise<string[]> {
-        return this.targetType === "device" ?
+        return this.targetType === IOSPlatform.deviceString ?
             Q(IOSPlatform.RUN_IOS_SUCCESS_PATTERNS.concat("INSTALLATION SUCCEEDED")) :
             this.getBundleId()
                 .then(bundleId => IOSPlatform.RUN_IOS_SUCCESS_PATTERNS
