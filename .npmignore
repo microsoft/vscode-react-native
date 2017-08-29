@@ -2,6 +2,7 @@
 
 node_modules/
 src/**/*.ts
+src/**/*.js.map
 test
 .vscode-test/
 
