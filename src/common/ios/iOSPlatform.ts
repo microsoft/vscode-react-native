@@ -180,8 +180,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private generateSuccessPatterns(): Q.Promise<string[]> {
-        return this.getBundleId().then(bundleId =>
-            IOSPlatform.RUN_IOS_SUCCESS_PATTERNS.concat([`Launching ${bundleId}\n${bundleId}: `]));
+        return this.targetType === "device" ?
+            Q(IOSPlatform.RUN_IOS_SUCCESS_PATTERNS.concat("INSTALLATION SUCCEEDED")) :
+            this.getBundleId()
+                .then(bundleId => IOSPlatform.RUN_IOS_SUCCESS_PATTERNS
+                    .concat([`Launching ${bundleId}\n${bundleId}: `]));
     }
 
     private getBundleId(): Q.Promise<string> {
