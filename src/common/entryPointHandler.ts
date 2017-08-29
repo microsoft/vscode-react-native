@@ -22,7 +22,7 @@ export class EntryPointHandler {
 
     constructor(processType: ProcessType, logger?: ILogger) {
         if (logger) {
-            Log.SetGlobalLogger(logger);
+            Log.SetGlobalLogger(logger, `[${ProcessType[processType]}]`);
         }
 
         this.processType = processType;

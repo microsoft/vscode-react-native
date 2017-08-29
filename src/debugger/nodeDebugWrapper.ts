@@ -161,7 +161,7 @@ export function makeSession(
             telemetryReporter.reassignTo(new ExtensionTelemetryReporter(
                 appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
 
-            Log.SetGlobalLogger(new NodeDebugAdapterLogger(debugAdapterPackage, this));
+            Log.SetGlobalLogger(new NodeDebugAdapterLogger(debugAdapterPackage, this), `[${args.platform}:${this.mobilePlatformOptions.targetType}]`);
 
             if (!args.runArguments) {
                 return this.remoteExtension.getRunArgs(args.platform, args.targetType || "simulator")

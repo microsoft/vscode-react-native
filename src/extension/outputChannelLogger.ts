@@ -54,7 +54,7 @@ export class OutputChannelLogger implements ILogger {
     }
 
     private getFormattedMessage(message: string) {
-        return `######### ${message} ##########`;
+        return `######### ${LogHelper.PREFIX} ${message} ##########`;
     }
 
     private getFormattedInternalMessage(logLevel: LogLevel, message: string) {
