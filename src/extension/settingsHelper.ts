@@ -96,9 +96,9 @@ export class SettingsHelper {
     /**
      * Get command line run arguments from settings.json
      */
-    public static getRunArgs(platform: string, targetType: string): string[] {
+    public static getRunArgs(platform: string, target: "device" | "simulator"): string[] {
         const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration();
-        const configKey: string = `react-native.${platform}.runArguments.${targetType}`;
+        const configKey: string = `react-native.${platform}.runArguments.${target}`;
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readArray(workspaceConfiguration.get(configKey));
         }

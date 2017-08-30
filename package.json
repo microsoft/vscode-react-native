@@ -96,8 +96,6 @@
             "type": "reactnative",
             "request": "launch",
             "platform": "ios",
-            "target": "iPhone 5s",
-            "targetType": "simulator",
             "sourceMaps": true,
             "outDir": "${workspaceRoot}/.vscode/.react"
           },
@@ -129,7 +127,6 @@
               "type": "reactnative",
               "request": "launch",
               "platform": "android",
-              "targetType": "simulator",
               "sourceMaps": true,
               "outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
             }
@@ -144,8 +141,6 @@
               "request": "launch",
               "platform": "ios",
               "sourceMaps": true,
-              "target": "iPhone 5s",
-              "targetType": "simulator",
               "outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
             }
           },
@@ -217,13 +212,12 @@
               },
               "target": {
                 "type": "string",
-                "description": "Name of the emulator or device to run on"
-              },
-              "targetType": {
-                "type": "string",
-                "description": "Type of target property ('simulator' or 'device')",
-                "enum": ["simulator", "device"],
-                "default": "simulator"
+                "enum": [
+                  "device",
+                  "simulator"
+                ],
+                "default": "simulator",
+                "description": "Device target to run on (either device or simulator)"
               },
               "sourceMaps": {
                 "type": "boolean",

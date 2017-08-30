@@ -80,7 +80,7 @@ More information about debugging using VS Code can be found in this [guide](http
 Debugging on iOS device would require following manual steps.
 * You need to install [ios-deploy](https://www.npmjs.com/package/ios-deploy) `npm install -g ios-deploy`
 * You need to have a valid iOS Development certificate installed.
-* In your launch.json file, set targetType to "device" and valid target name in iOS debugging configuration
+* In your launch.json file, set `"target"` to `"device"` or use '"launchArguments"' property to specify particular devcie to run on if you have multiple devices connected, e.g. `"arguments": [ "--device", "My iPhone" ]`
 * Choose **Debug iOS** configuration from the Configuration dropdown and press F5.
 * Shake the device to open development menu and select "Debug JS Remotely".
 

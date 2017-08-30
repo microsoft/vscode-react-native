@@ -154,7 +154,7 @@ export function makeSession(
             this.mobilePlatformOptions = {
                 projectRoot: this.projectRootPath,
                 platform: args.platform,
-                targetType: args.targetType || "simulator",
+                target: args.target || "simulator",
             };
 
             // Start to send telemetry
@@ -164,7 +164,7 @@ export function makeSession(
             Log.SetGlobalLogger(new NodeDebugAdapterLogger(debugAdapterPackage, this));
 
             if (!args.runArguments) {
-                return this.remoteExtension.getRunArgs(args.platform, args.targetType || "simulator")
+                return this.remoteExtension.getRunArgs(args.platform, args.target || "simulator")
                     .then(runArgs => {
                         this.mobilePlatformOptions.runArguments = runArgs;
                     });

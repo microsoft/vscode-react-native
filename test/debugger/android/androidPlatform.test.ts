@@ -189,7 +189,7 @@ suite("androidPlatform", function () {
                     .then(() => {
                         return simulatedAVDManager.createAndLaunchAll(["Nexus_5", "Nexus_6", "Nexus_10", "Nexus_11", "Nexus_12"]);
                     }).then(() => {
-                        const runOptions: IAndroidRunOptions = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: any = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
                         return adb.isAppRunning(androidPackageName, "Nexus_12");
@@ -209,7 +209,7 @@ suite("androidPlatform", function () {
                     }).then(() => {
                         return adb.notifyDevicesAreOffline(offineDevicesIds);
                     }).then(() => {
-                        const runOptions: IAndroidRunOptions = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: any = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
                         return adb.findDevicesRunningApp(androidPackageName);
