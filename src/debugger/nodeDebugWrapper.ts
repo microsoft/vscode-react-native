@@ -165,9 +165,11 @@ export function makeSession(
 
             if (!args.runArguments) {
                 return this.remoteExtension.getRunArgs(args.platform, args.target || "simulator")
-                    .then(runArgs => {
-                        this.mobilePlatformOptions.runArguments = runArgs;
-                    });
+                .then(runArgs => {
+                    this.mobilePlatformOptions.runArguments = runArgs;
+                });
+            } else {
+                this.mobilePlatformOptions.runArguments = args.runArguments;
             }
 
             return Q.resolve(void 0);
