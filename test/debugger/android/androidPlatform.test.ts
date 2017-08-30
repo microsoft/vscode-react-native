@@ -16,8 +16,10 @@ import {FakeExtensionMessageSender} from "../../resources/fakeExtensionMessageSe
 import {ExtensionMessage} from "../../../src/common/extensionMessaging";
 import {RecordingsHelper} from "../../resources/recordingsHelper";
 import {RemoteExtension} from "../../../src/common/remoteExtension";
+import {CommandExecutor} from "../../../src/common/commandExecutor";
 
 import "should";
+import * as sinon from "sinon";
 
 // TODO: Launch the extension server
 
@@ -37,12 +39,11 @@ suite("androidPlatform", function () {
         let reactNative: ReactNative022;
         let fakeExtensionMessageSender: FakeExtensionMessageSender;
         let androidPlatform: AndroidPlatform;
+        let sandbox: Sinon.SinonSandbox;
 
         function createAndroidPlatform(runOptions: IAndroidRunOptions): AndroidPlatform {
             return new AndroidPlatform(runOptions, {
                 adb: adb,
-                reactNative: reactNative,
-                fileSystem: fileSystem,
                 remoteExtension: new RemoteExtension(fakeExtensionMessageSender),
             });
         }
@@ -66,6 +67,7 @@ suite("androidPlatform", function () {
 
         setup(() => {
             mockFs();
+            sandbox = sinon.sandbox.create();
 
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
@@ -75,6 +77,10 @@ suite("androidPlatform", function () {
             fakeExtensionMessageSender = new FakeExtensionMessageSender();
             androidPlatform = createAndroidPlatform(genericRunOptions);
 
+            sandbox.stub(CommandExecutor.prototype, "spawnReactCommand", function () {
+                return reactNative.runAndroid(genericRunOptions);
+            });
+
             // Create a React-Native project we'll use in our tests
             return reactNative
                 .fromProjectFileContent(rnProjectContent)
@@ -83,6 +89,7 @@ suite("androidPlatform", function () {
 
         teardown(() => {
             mockFs.restore();
+            sandbox.restore();
         });
 
         const testWithRecordings = new RecordingsHelper(() => reactNative).test;
