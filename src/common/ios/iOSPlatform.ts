@@ -25,7 +25,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private static simulatorString: TargetType = "simulator";
 
     private plistBuddy = new PlistBuddy();
-    private target: TargetType = "simulator";
+    private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
 
     // We should add the common iOS build/run erros we find to this list
@@ -52,22 +52,20 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
         this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "ios");
 
-        if (this.runOptions.runArguments) {
-            this.target = (this.runOptions.runArguments.indexOf(`--${IOSPlatform.deviceString}`) >= 0) ?
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
+            this.targetType = (this.runOptions.runArguments.indexOf(`--${IOSPlatform.deviceString}`) >= 0) ?
                 IOSPlatform.deviceString : IOSPlatform.simulatorString;
             return;
         }
 
         if (this.runOptions.target && (this.runOptions.target !== IOSPlatform.simulatorString &&
                 this.runOptions.target !== IOSPlatform.deviceString)) {
-            Log.logMessage(`Invalid Run iOS targetType: '${this.runOptions.target}' in .vscode/launch.json.` +
-                "Please use 'simulator' or 'device' targetType instead");
 
-            this.target = IOSPlatform.simulatorString;
+            this.targetType = IOSPlatform.simulatorString;
             return;
         }
 
-        this.target = this.runOptions.target || IOSPlatform.simulatorString;
+        this.targetType = this.runOptions.target || IOSPlatform.simulatorString;
     }
 
     public runApp(): Q.Promise<void> {
@@ -84,7 +82,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     public enableJSDebuggingMode(): Q.Promise<void> {
         // Configure the app for debugging
-        if (this.target === IOSPlatform.deviceString) {
+        if (this.targetType === IOSPlatform.deviceString) {
             // Note that currently we cannot automatically switch the device into debug mode.
             Log.logMessage("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
             return Q.resolve<void>(void 0);
@@ -162,7 +160,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private generateSuccessPatterns(): Q.Promise<string[]> {
-        return this.target === IOSPlatform.deviceString ?
+        return this.targetType === IOSPlatform.deviceString ?
             Q(IOSPlatform.RUN_IOS_SUCCESS_PATTERNS.concat("INSTALLATION SUCCEEDED")) :
             this.getBundleId()
                 .then(bundleId => IOSPlatform.RUN_IOS_SUCCESS_PATTERNS
