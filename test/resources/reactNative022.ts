@@ -7,7 +7,6 @@ import * as assert from "assert";
 
 import {PromiseUtil} from "../../src/common/node/promise";
 
-import * as reactNative from "../../src/common/reactNative";
 import {IAndroidRunOptions} from "../../src/common/launchArgs";
 import {ISpawnResult} from "../../src/common/node/childProcess";
 import {FileSystem} from "../../src/common/node/fileSystem";
@@ -19,11 +18,9 @@ import {APKSerializer} from "./simulators/apkSerializer";
 const sampleRNProjectPath = path.join(__dirname, "sampleReactNative022Project");
 const processExecutionsRecordingsPath = path.join(__dirname, "processExecutionsRecordings");
 
-export type IReactNative = reactNative.IReactNative;
-
 /* This class simulates calling the React-Native CLI v0.22. It currently supports react-native init
     and react-native run-android. */
-export class ReactNative022 implements IReactNative {
+export class ReactNative022 {
 
     public static DEFAULT_PROJECT_FILE = path.join(sampleRNProjectPath, "package.json");
 

@@ -297,7 +297,7 @@ export class ExtensionServer implements vscode.Disposable {
     private showInformationMessage(message: string): Q.Promise<void> {
         return Q(vscode.window.showInformationMessage(message)).then(() => {});
     }
-    private getRunArgs(platform: string, targetType: string): Q.Promise<string[]> {
-        return Q.resolve(SettingsHelper.getRunArgs(platform, targetType));
+    private getRunArgs(platform: string, target: "device" | "simulator"): Q.Promise<string[]> {
+        return Q.resolve(SettingsHelper.getRunArgs(platform, target));
     }
 }
