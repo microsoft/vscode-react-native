@@ -16,6 +16,12 @@ import {ConfigurationReader} from "../common/configurationReader";
 import {SettingsHelper} from "./settingsHelper";
 import {Telemetry} from "../common/telemetry";
 import {ExponentHelper} from "../common/exponent/exponentHelper";
+import * as path from "path";
+import * as fs from "fs";
+import stripJsonComments = require("strip-json-comments");
+import {PlatformResolver} from "../debugger/platformResolver";
+import {TelemetryHelper} from "../common/telemetryHelper";
+import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 
 export class ExtensionServer implements vscode.Disposable {
     private serverInstance: net.Server | null = null;
@@ -45,7 +51,7 @@ export class ExtensionServer implements vscode.Disposable {
         this.messageHandlerDictionary[em.ExtensionMessage.OPEN_FILE_AT_LOCATION] = this.openFileAtLocation;
         this.messageHandlerDictionary[em.ExtensionMessage.START_EXPONENT_PACKAGER] = this.startExponentPackager;
         this.messageHandlerDictionary[em.ExtensionMessage.SHOW_INFORMATION_MESSAGE] = this.showInformationMessage;
-        this.messageHandlerDictionary[em.ExtensionMessage.GET_RUN_ARGS] = this.getRunArgs;
+        this.messageHandlerDictionary[em.ExtensionMessage.LAUNCH] = this.launch;
     }
 
     /**
@@ -297,7 +303,98 @@ export class ExtensionServer implements vscode.Disposable {
     private showInformationMessage(message: string): Q.Promise<void> {
         return Q(vscode.window.showInformationMessage(message)).then(() => {});
     }
-    private getRunArgs(platform: string, targetType: string): Q.Promise<string[]> {
-        return Q.resolve(SettingsHelper.getRunArgs(platform, targetType));
+
+    private launch(request: any): Q.Promise<any> {
+        let mobilePlatformOptions = requestSetup(request.arguments);
+
+        // We add the parameter if it's defined (adapter crashes otherwise)
+        if (!isNullOrUndefined(request.arguments.logCatArguments)) {
+            mobilePlatformOptions.logCatArguments = [parseLogCatArguments(request.arguments.logCatArguments)];
+        }
+
+        if (!isNullOrUndefined(request.arguments.variant)) {
+            mobilePlatformOptions.variant = request.arguments.variant;
+        }
+
+        if (!isNullOrUndefined(request.arguments.scheme)) {
+            mobilePlatformOptions.scheme = request.arguments.scheme;
+        }
+
+        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort();
+        const mobilePlatform = new PlatformResolver()
+            .resolveMobilePlatform(request.arguments.platform, mobilePlatformOptions);
+        return TelemetryHelper.generate("launch", (generator) => {
+            generator.step("checkPlatformCompatibility");
+            TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
+            generator.step("startPackager");
+            return this.startPackager()
+                .then(() => {
+                    // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                    // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                    generator.step("prewarmBundleCache");
+                    Log.logMessage("Prewarming bundle cache. This may take a while ...");
+                    return this.prewarmBundleCache(request.arguments.platform);
+                })
+                .then(() => {
+                    generator.step("mobilePlatform.runApp");
+                    Log.logMessage("Building and running application.");
+                    return mobilePlatform.runApp();
+                })
+                .then(() => {
+                    generator.step("mobilePlatform.enableJSDebuggingMode");
+                    if (mobilePlatform) {
+                        return mobilePlatform.enableJSDebuggingMode();
+                    } else {
+                        Log.logMessage("Debugger ready. Enable remote debugging in app.");
+                        return void 0;
+                    }
+                })
+                .catch(error => {
+                    throw error;
+            });
+        });
+    }
+}
+
+/**
+ * Parses log cat arguments to a string
+ */
+function parseLogCatArguments(userProvidedLogCatArguments: any): string {
+    return Array.isArray(userProvidedLogCatArguments)
+        ? userProvidedLogCatArguments.join(" ") // If it's an array, we join the arguments
+        : userProvidedLogCatArguments; // If not, we leave it as-is
+}
+
+function isNullOrUndefined(value: any): boolean {
+    return typeof value === "undefined" || value === null;
+}
+
+function requestSetup(args: any): any {
+    const projectRootPath = getProjectRoot(args);
+    let mobilePlatformOptions: any = {
+        projectRoot: projectRootPath,
+        platform: args.platform,
+        targetType: args.targetType || "simulator",
+    };
+
+    if (!args.runArguments) {
+        let runArgs = SettingsHelper.getRunArgs(args.platform, args.targetType || "simulator");
+        mobilePlatformOptions.runArguments = runArgs;
+    }
+
+    return mobilePlatformOptions;
+}
+
+function getProjectRoot(args: any): string {
+    try {
+        let vsCodeRoot = path.resolve(args.program, "../..");
+        let settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
+        let settingsContent = fs.readFileSync(settingsPath, "utf8");
+        settingsContent = stripJsonComments(settingsContent);
+        let parsedSettings = JSON.parse(settingsContent);
+        let projectRootPath = parsedSettings["react-native-tools"].projectRoot;
+        return path.resolve(vsCodeRoot, projectRootPath);
+    } catch (e) {
+        return path.resolve(args.program, "../..");
     }
 }

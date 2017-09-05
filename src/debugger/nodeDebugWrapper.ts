@@ -9,14 +9,10 @@ import stripJsonComments = require("strip-json-comments");
 import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { RemoteExtension } from "../common/remoteExtension";
-import { PlatformResolver } from "./platformResolver";
-import { IRunOptions } from "../common/launchArgs";
-import { TargetPlatformHelper } from "../common/targetPlatformHelper";
 import { ExtensionTelemetryReporter, ReassignableTelemetryReporter } from "../common/telemetryReporters";
 import { NodeDebugAdapterLogger } from "../common/log/loggers";
 import { Log } from "../common/log/log";
 import { LogLevel } from "../common/log/logHelper";
-import { GeneralMobilePlatform } from "../common/generalMobilePlatform";
 
 import { MultipleLifetimesAppWorker } from "./appWorker";
 
@@ -31,7 +27,6 @@ export function makeSession(
 
         private projectRootPath: string;
         private remoteExtension: RemoteExtension;
-        private mobilePlatformOptions: IRunOptions;
         private appWorker: MultipleLifetimesAppWorker | null = null;
 
         constructor(debuggerLinesAndColumnsStartAt1?: boolean, isServer?: boolean) {
@@ -77,58 +72,24 @@ export function makeSession(
         }
 
         private launch(request: VSCodeDebugAdapterPackage.Request): void {
-            this.requestSetup(request.arguments)
+            this.requestSetup(request.arguments);
+            this.remoteExtension.launch(request)
                 .then(() => {
-                    // We add the parameter if it's defined (adapter crashes otherwise)
-                    if (!isNullOrUndefined(request.arguments.logCatArguments)) {
-                        this.mobilePlatformOptions.logCatArguments = [parseLogCatArguments(request.arguments.logCatArguments)];
-                    }
-
-                    if (!isNullOrUndefined(request.arguments.variant)) {
-                        this.mobilePlatformOptions.variant = request.arguments.variant;
-                    }
-
-                    if (!isNullOrUndefined(request.arguments.scheme)) {
-                        this.mobilePlatformOptions.scheme = request.arguments.scheme;
-                    }
-
-                    TelemetryHelper.generate("launch", (generator) => {
-                        return this.remoteExtension.getPackagerPort()
-                            .then((packagerPort: number) => {
-                                this.mobilePlatformOptions.packagerPort = packagerPort;
-                                const mobilePlatform = new PlatformResolver()
-                                    .resolveMobilePlatform(request.arguments.platform, this.mobilePlatformOptions);
-
-                                generator.step("checkPlatformCompatibility");
-                                TargetPlatformHelper.checkTargetPlatformSupport(this.mobilePlatformOptions.platform);
-                                generator.step("startPackager");
-                                return mobilePlatform.startPackager()
-                                    .then(() => {
-                                        // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
-                                        // and the user needs to Reload JS manually. We prewarm it to prevent that issue
-                                        generator.step("prewarmBundleCache");
-                                        Log.logMessage("Prewarming bundle cache. This may take a while ...");
-                                        return mobilePlatform.prewarmBundleCache();
-                                    })
-                                    .then(() => {
-                                        generator.step("mobilePlatform.runApp");
-                                        Log.logMessage("Building and running application.");
-                                        return mobilePlatform.runApp();
-                                    })
-                                    .then(() => {
-                                        return this.attachRequest(request, packagerPort, mobilePlatform);
-                                    });
-                            })
-                            .catch(error => this.bailOut(error.message));
-                    });
+                    return this.remoteExtension.getPackagerPort();
+                })
+                .then((packagerPort: number) => {
+                    this.attachRequest(request, packagerPort);
+                })
+                .catch(error => {
+                    this.bailOut(error.message);
                 });
         }
 
         private attach(request: VSCodeDebugAdapterPackage.Request): void {
-            this.requestSetup(request.arguments)
-                .then(() => {
-                    this.remoteExtension.getPackagerPort()
-                        .then((packagerPort: number) => this.attachRequest(request, packagerPort));
+            this.requestSetup(request.arguments);
+            this.remoteExtension.getPackagerPort()
+                .then((packagerPort: number) => {
+                    this.attachRequest(request, packagerPort);
                 });
         }
 
@@ -139,7 +100,7 @@ export function makeSession(
             }
 
             // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
-            if (this.mobilePlatformOptions.platform === "android") {
+            if (request.arguments.platform === "android") {
                 this.remoteExtension.stopMonitoringLogcat()
                     .catch(reason => Log.logError(`WARNING: Couldn't stop monitoring logcat: ${reason.message || reason}\n`))
                     .finally(() => super.dispatchRequest(request));
@@ -148,29 +109,15 @@ export function makeSession(
             }
         }
 
-        private requestSetup(args: any): Q.Promise<void> {
+        private requestSetup(args: any): void {
             this.projectRootPath = getProjectRoot(args);
             this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
-            this.mobilePlatformOptions = {
-                projectRoot: this.projectRootPath,
-                platform: args.platform,
-                targetType: args.targetType || "simulator",
-            };
 
             // Start to send telemetry
             telemetryReporter.reassignTo(new ExtensionTelemetryReporter(
                 appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
 
             Log.SetGlobalLogger(new NodeDebugAdapterLogger(debugAdapterPackage, this));
-
-            if (!args.runArguments) {
-                return this.remoteExtension.getRunArgs(args.platform, args.targetType || "simulator")
-                    .then(runArgs => {
-                        this.mobilePlatformOptions.runArguments = runArgs;
-                    });
-            }
-
-            return Q.resolve(void 0);
         }
 
         /**
@@ -180,21 +127,10 @@ export function makeSession(
          */
         private attachRequest(
             request: VSCodeDebugAdapterPackage.Request,
-            packagerPort: number,
-            mobilePlatform?: GeneralMobilePlatform): Q.Promise<void> {
+            packagerPort: number): Q.Promise<void> {
             return TelemetryHelper.generate("attach", (generator) => {
                 return Q({})
                     .then(() => {
-                        generator.step("mobilePlatform.enableJSDebuggingMode");
-                        if (mobilePlatform) {
-                            return mobilePlatform.enableJSDebuggingMode();
-                        } else {
-                            Log.logMessage("Debugger ready. Enable remote debugging in app.");
-                            return void 0;
-                        }
-                    })
-                    .then(() => {
-
                         Log.logMessage("Starting debugger app worker.");
                         // TODO: remove dependency on args.program - "program" property is technically
                         // no more required in launch configuration and could be removed
@@ -252,22 +188,6 @@ export function makeAdapter(debugAdapterClass: typeof Node2DebugAdapterPackage.N
             });
         }
     };
-}
-
-/**
- * Parses log cat arguments to a string
- */
-function parseLogCatArguments(userProvidedLogCatArguments: any): string {
-    return Array.isArray(userProvidedLogCatArguments)
-        ? userProvidedLogCatArguments.join(" ") // If it's an array, we join the arguments
-        : userProvidedLogCatArguments; // If not, we leave it as-is
-}
-
-/**
- * Helper method to know if a value is either null or undefined
- */
-function isNullOrUndefined(value: any): boolean {
-    return typeof value === "undefined" || value === null;
 }
 
 /**
