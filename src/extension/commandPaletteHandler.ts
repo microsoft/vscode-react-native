@@ -93,7 +93,10 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
             const packagerPort = SettingsHelper.getPackagerPort();
             const runArgs = SettingsHelper.getRunArgs("android", targetType);
-            return new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, runArguments: runArgs }).runApp(/*shouldLaunchInAllDevices*/true);
+            return new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, runArguments: runArgs }, {
+                packager: this.reactNativePackager,
+                packageStatusIndicator: this.reactNativePackageStatusIndicator,
+            }).runApp(/*shouldLaunchInAllDevices*/true);
         }));
     }
 

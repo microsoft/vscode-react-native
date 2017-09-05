@@ -22,7 +22,7 @@ const DEFAULT_ANDROID_INDEX = "index.android.js";
 
 const DBL_SLASHES = /\\/g;
 
-export class ExponentHelper {
+export class    ExponentHelper {
     private workspaceRootPath: string;
     private projectRootPath: string;
     private fs: FileSystem;

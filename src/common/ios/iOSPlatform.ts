@@ -4,16 +4,15 @@
 import * as Q from "q";
 import * as path from "path";
 
-import {Log} from "../../common/log/log";
-import {ChildProcess} from "../../common/node/childProcess";
-import {CommandExecutor} from "../../common/commandExecutor";
-import {GeneralMobilePlatform} from "../../common/generalMobilePlatform";
-import {IIOSRunOptions} from "../../common/launchArgs";
-import {PlistBuddy} from "../../common/ios/plistBuddy";
-import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
-import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
-import {RemoteExtension} from "../../common/remoteExtension";
-import {ErrorHelper} from "../../common/error/errorHelper";
+import {Log} from "../log/log";
+import {ChildProcess} from "../node/childProcess";
+import {CommandExecutor} from "../commandExecutor";
+import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
+import {IIOSRunOptions} from "../launchArgs";
+import {PlistBuddy} from "./plistBuddy";
+import {IOSDebugModeManager} from "./iOSDebugModeManager";
+import {OutputVerifier, PatternToFailure} from "../outputVerifier";
+import {ErrorHelper} from "../error/errorHelper";
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
@@ -41,15 +40,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
-    // We set remoteExtension = null so that if there is an instance of iOSPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(protected runOptions: IIOSRunOptions, { remoteExtension = undefined }: {remoteExtension?: RemoteExtension} = {}) {
-        super(runOptions, { remoteExtension: remoteExtension });
+    constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
+        super(runOptions, platformDeps);
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
             Log.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
         }
 
-        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "ios");
+        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
             if (this.runOptions.runArguments.indexOf(`--${IOSPlatform.deviceString}`) > -1) {
@@ -149,7 +147,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     public prewarmBundleCache(): Q.Promise<void> {
-        return this.remoteExtension.prewarmBundleCache(this.platformName);
+        return this.packager.prewarmBundleCache("ios");
     }
 
     public getRunArgument(): string[] {

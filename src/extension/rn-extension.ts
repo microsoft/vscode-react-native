@@ -74,7 +74,7 @@ export function activate(context: vscode.ExtensionContext): void {
                         ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () =>
                             setupAndDispose(new ReactDirManager(), context)
                             .then(() =>
-                                setupAndDispose(new ExtensionServer(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper), context))
+                                setupAndDispose(new ExtensionServer(projectRootPath, globalPackager, packagerStatusIndicator), context))
                             .then(() => {}));
                     entryPointHandler.runFunction("intelliSense.setup",
                         ErrorHelper.getInternalError(InternalErrorCode.IntellisenseSetupFailed), () =>

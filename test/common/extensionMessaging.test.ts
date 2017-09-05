@@ -44,10 +44,10 @@ suite("extensionMessaging", function() {
 
             Q({})
                 .then(function() {
-                    return sender.startPackager();
+                    return sender.stopMonitoringLogcat();
                 })
                 .then(function() {
-                    assert.equal(receivedMessage, ExtensionMessage.START_PACKAGER);
+                    assert.equal(receivedMessage, ExtensionMessage.STOP_MONITORING_LOGCAT);
                 }).done(() => done(), done);
         });
 
@@ -74,10 +74,10 @@ suite("extensionMessaging", function() {
 
             Q({})
                 .then(function() {
-                    return sender.prewarmBundleCache(args[0]);
+                    return sender.launch(args[0]);
                 })
                 .then(function() {
-                    assert.equal(receivedMessage, ExtensionMessage.PREWARM_BUNDLE_CACHE);
+                    assert.equal(receivedMessage, ExtensionMessage.LAUNCH);
                     assert.deepEqual(receivedArgs, args);
                 }).done(() => done(), done);
         });
@@ -98,13 +98,13 @@ suite("extensionMessaging", function() {
 
             Q({})
                 .then(function() {
-                    return sender.prewarmBundleCache("android");
+                    return sender.stopMonitoringLogcat();
                 })
                 .then(function() {
                     assert(false, "sendMessage should reject on failed communication");
                 },
                 function(reason: any) {
-                    let expectedErrorMessage = "An error ocurred while handling message: PREWARM_BUNDLE_CACHE";
+                    let expectedErrorMessage = "An error ocurred while handling message: STOP_MONITORING_LOGCAT";
                     assert.equal(reason.message, expectedErrorMessage);
                 })
                 .done(() => done(), done);
@@ -115,7 +115,7 @@ suite("extensionMessaging", function() {
 
             Q({})
                 .then(function() {
-                    return sender.sendMessage(ExtensionMessage.PREWARM_BUNDLE_CACHE);
+                    return sender.sendMessage(ExtensionMessage.STOP_MONITORING_LOGCAT);
                 })
                 .then(function() {
                     assert(false, "sendMessage should reject on socket error");

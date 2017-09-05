@@ -14,22 +14,6 @@ export class RemoteExtension {
 
     constructor(private interProcessMessageSender: IInterProcessMessageSender) {}
 
-    public startPackager(): Q.Promise<void> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.START_PACKAGER);
-    }
-
-    public startExponentPackager(): Q.Promise<string> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.START_EXPONENT_PACKAGER);
-    }
-
-    public prewarmBundleCache(platform: string): Q.Promise<void> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.PREWARM_BUNDLE_CACHE, [platform]);
-    }
-
-    public startMonitoringLogcat(debugTarget: string, logCatArguments: string): Q.Promise<void> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.START_MONITORING_LOGCAT, [debugTarget, logCatArguments]);
-    }
-
     public stopMonitoringLogcat(): Q.Promise<void> {
         return this.interProcessMessageSender.sendMessage(ExtensionMessage.STOP_MONITORING_LOGCAT);
     }

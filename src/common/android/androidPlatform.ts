@@ -15,8 +15,9 @@ import {OutputVerifier, PatternToFailure} from "../outputVerifier";
 import {FileSystem} from "../node/fileSystem";
 import {IReactNative, ReactNative} from "../reactNative";
 import {TelemetryHelper} from "../telemetryHelper";
+import {LogCatMonitor} from "../../extension/android/logCatMonitor";
 
-export interface AndroidPlatformDeps extends MobilePlatformDeps  {
+export interface AndroidPlatformDeps extends MobilePlatformDeps {
     adb?: IAdb;
     reactNative?: IReactNative;
     fileSystem?: FileSystem;
@@ -56,20 +57,16 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private adb: IAdb;
     private reactNative: IReactNative;
     private fileSystem: FileSystem;
+    private logCatMonitor: LogCatMonitor | null = null;
 
     private needsToLaunchApps: boolean = false;
 
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(protected runOptions: IAndroidRunOptions, {
-        remoteExtension,
-        adb = <IAdb>new Adb(),
-        reactNative = <IReactNative>new ReactNative(),
-        fileSystem = new FileSystem(),
-    }: AndroidPlatformDeps = {}) {
-        super(runOptions, { remoteExtension: remoteExtension });
-        this.adb = adb;
-        this.reactNative = reactNative;
-        this.fileSystem = fileSystem;
+    constructor(protected runOptions: IAndroidRunOptions, platformDeps: AndroidPlatformDeps = {}) {
+        super(runOptions, platformDeps);
+        this.adb = platformDeps.adb || new Adb();
+        this.reactNative = platformDeps.reactNative || new ReactNative();
+        this.fileSystem = platformDeps.fileSystem || new FileSystem();
     }
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {
@@ -107,7 +104,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     public prewarmBundleCache(): Q.Promise<void> {
-        return this.remoteExtension.prewarmBundleCache(this.platformName);
+        return this.packager.prewarmBundleCache("android");
     }
 
     private initializeTargetDevicesAndPackageName(): Q.Promise<void> {
@@ -189,6 +186,22 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     private startMonitoringLogCat(device: IDevice, logCatArguments: string): Q.Promise<void> {
-        return this.remoteExtension.startMonitoringLogcat(device.id, logCatArguments);
+        this.stopMonitoringLogCat(); // Stop previous logcat monitor if it's running
+
+        // this.logCatMonitor can be mutated, so we store it locally too
+        const logCatMonitor = this.logCatMonitor = new LogCatMonitor(device.id, logCatArguments);
+        logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
+            .catch(error =>
+                Log.logWarning("Error while monitoring LogCat", error))
+            .done();
+
+        return Q.resolve<void>(void 0);
+    }
+
+    private stopMonitoringLogCat(): void {
+        if (this.logCatMonitor) {
+            this.logCatMonitor.dispose();
+            this.logCatMonitor = null;
+        }
     }
 }

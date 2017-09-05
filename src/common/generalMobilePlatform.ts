@@ -1,29 +1,35 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as vscode from "vscode";
 import * as Q from "q";
 
 import {Log} from "./log/log";
 import {IRunOptions} from "./launchArgs";
-import {RemoteExtension} from "./remoteExtension";
+import {Packager, PackagerRunAs} from "./packager";
+import {PackagerStatus, PackagerStatusIndicator} from "../extension/packagerStatusIndicator";
+import {SettingsHelper} from "../extension/settingsHelper";
 
 export interface MobilePlatformDeps {
-    remoteExtension?: RemoteExtension;
+    packager?: Packager;
+    packageStatusIndicator?: PackagerStatusIndicator;
 }
 
 export class GeneralMobilePlatform {
     protected projectPath: string;
-    protected remoteExtension: RemoteExtension;
     protected platformName: string;
+    protected packager: Packager;
+    protected packageStatusIndicator: PackagerStatusIndicator;
 
-    constructor(protected runOptions: IRunOptions, { remoteExtension }: MobilePlatformDeps = {}) {
+    constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
-        this.remoteExtension = (remoteExtension) ? remoteExtension : RemoteExtension.atProjectRootPath(runOptions.projectRoot);
+        this.packager = platformDeps.packager || new Packager(vscode.workspace.rootPath, this.projectPath, SettingsHelper.getPackagerPort());
+        this.packageStatusIndicator = platformDeps.packageStatusIndicator || new PackagerStatusIndicator();
     }
 
     public runApp(): Q.Promise<void> {
-        Log.logMessage("Conected to packager. You can now open your app in the simulator.");
+        Log.logMessage("Connected to packager. You can now open your app in the simulator.");
         return Q.resolve<void>(void 0);
     }
 
@@ -34,7 +40,23 @@ export class GeneralMobilePlatform {
 
     public startPackager(): Q.Promise<void> {
         Log.logMessage("Starting React Native Packager.");
-        return this.remoteExtension.startPackager();
+        return this.packager.isRunning().then((running) => {
+            if (running) {
+                if (this.packager.getRunningAs() !== PackagerRunAs.REACT_NATIVE) {
+                    return this.packager.stop().then(() =>
+                        this.packageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED)
+                    );
+                }
+
+                Log.logMessage("Attaching to running React Native packager");
+            }
+            return void 0;
+        })
+            .then(() => {
+                return this.packager.startAsReactNative();
+            })
+            .then(() =>
+                this.packageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
     public prewarmBundleCache(): Q.Promise<void> {

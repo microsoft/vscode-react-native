@@ -9,11 +9,6 @@ import {Crypto} from "./node/crypto";
  * Add new messages to this enum.
  */
 export enum ExtensionMessage {
-    START_PACKAGER,
-    STOP_PACKAGER,
-    RESTART_PACKAGER,
-    PREWARM_BUNDLE_CACHE,
-    START_MONITORING_LOGCAT,
     STOP_MONITORING_LOGCAT,
     GET_PACKAGER_PORT,
     SEND_TELEMETRY,

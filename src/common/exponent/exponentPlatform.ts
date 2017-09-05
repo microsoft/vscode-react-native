@@ -6,14 +6,23 @@ import {InternalErrorCode} from "../error/internalErrorCode";
 import {IRunOptions} from "../launchArgs";
 import {Log} from "../log/log";
 import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
+import {ExponentHelper} from "./exponentHelper";
 
+import * as vscode from "vscode";
 import * as Q from "q";
+import {PackagerRunAs} from "../packager";
+import {PackagerStatus} from "../../extension/packagerStatusIndicator";
+import {SettingsHelper} from "../../extension/settingsHelper";
+
+const projectRootPath = SettingsHelper.getReactNativeProjectRoot();
+const workspaceRootPath = vscode.workspace.rootPath;
 
 export class ExponentPlatform extends GeneralMobilePlatform {
     private exponentTunnelPath: string | null;
+    private exponentHelper = new ExponentHelper(workspaceRootPath, projectRootPath);
 
-    constructor(runOptions: IRunOptions, {remoteExtension}: MobilePlatformDeps = {}) {
-        super(runOptions, { remoteExtension: remoteExtension });
+    constructor(runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
+        super(runOptions, platformDeps);
         this.exponentTunnelPath = null;
     }
 
@@ -30,7 +39,41 @@ export class ExponentPlatform extends GeneralMobilePlatform {
 
     public startPackager(): Q.Promise<void> {
         Log.logMessage("Starting Exponent Packager.");
-        return this.remoteExtension.startExponentPackager()
+        return this.packager.isRunning().then((running) => {
+            if (running) {
+                if (this.packager.getRunningAs() !== PackagerRunAs.EXPONENT) {
+                    return this.packager.stop().then(() =>
+                        this.packageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
+                }
+
+                Log.logMessage("Attaching to running Exponent packager");
+            }
+            return void 0;
+        }).then(() =>
+            this.exponentHelper.configureExponentEnvironment()
+            ).then(() =>
+                this.exponentHelper.loginToExponent(
+                    (message, password) => {
+                        return Q.Promise((resolve, reject) => {
+                            vscode.window.showInputBox({ placeHolder: message, password: password })
+                                .then(resolve, reject);
+                        });
+                    },
+                    (message) => {
+                        return Q.Promise((resolve, reject) => {
+                            vscode.window.showInformationMessage(message)
+                                .then(resolve, reject);
+                        });
+                    }
+                ))
+            .then(() => {
+                return this.packager.startAsExponent();
+            })
+            .then(exponentUrl => {
+                vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
+                this.packageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
+                return exponentUrl;
+            })
             .then(exponentUrl => {
                 if (!exponentUrl) {
                     return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath,
