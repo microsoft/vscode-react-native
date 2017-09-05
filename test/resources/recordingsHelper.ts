@@ -4,7 +4,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const RECORDINGS_ROOT = path.resolve(__dirname, "../../../test/resources/", "processExecutionsRecordings");
+const RECORDINGS_ROOT = path.resolve(__dirname, "processExecutionsRecordings");
 
 interface TestUsingRecording {
     (expectation: string, recordingNames: string[], assertion?: () => void): Mocha.ITest;

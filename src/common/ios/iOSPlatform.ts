@@ -49,7 +49,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             Log.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
         }
 
-        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "");
+        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "ios");
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
             if (this.runOptions.runArguments.indexOf(`--${IOSPlatform.deviceString}`) > -1) {
@@ -180,8 +180,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private generateSuccessPatterns(): Q.Promise<string[]> {
-        return this.getBundleId().then(bundleId =>
-            IOSPlatform.RUN_IOS_SUCCESS_PATTERNS.concat([`Launching ${bundleId}\n${bundleId}: `]));
+        return this.targetType === IOSPlatform.deviceString ?
+            Q(IOSPlatform.RUN_IOS_SUCCESS_PATTERNS.concat("INSTALLATION SUCCEEDED")) :
+            this.getBundleId()
+                .then(bundleId => IOSPlatform.RUN_IOS_SUCCESS_PATTERNS
+                    .concat([`Launching ${bundleId}\n${bundleId}: `]));
     }
 
     private getBundleId(): Q.Promise<string> {

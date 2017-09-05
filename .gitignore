@@ -1,9 +1,15 @@
 .DS_Store
 node_modules/
-out/
 .vscode-test/
 coverage/
 .idea
+out
+src/**/nodeDebugLocation.json
+
+# Compiled files
+src/**/*.js
+test/**/*.js
+**/*.js.map
 
 # Sample Application auto-generated files
 SampleApplication/.vscode/.react/debuggerWorker.js
