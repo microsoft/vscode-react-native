@@ -1,11 +1,11 @@
-## Using intellisense provided by Flowtype
+## Using IntelliSense provided by Flowtype
 
-If you've got used to Flowtype to perform static types analysis you also might want to use it to provide code completions in VSCode instead of default TypeScript Salsa engine. In order to make intellisense understand Flow type annotations follow the steps below:
+If you've goten used to using Flowtype to perform static types analysis, you may also want to use it to provide code completions in VS Code instead of the default TypeScript Salsa engine. In order to make IntelliSense understand Flowtype annotations, follow these steps:
 
-* Install Flow npm package:
+* Install the Flow npm package:
 
   ```
-  $ npm install --global flow-bin
+  $ npm install -g flow-bin
   ```
 
 * [Install Flow for VS Code](https://github.com/flowtype/flow-for-vscode)
@@ -19,4 +19,4 @@ If you've got used to Flowtype to perform static types analysis you also might w
   }
   ```
 
-Please also make sure that your project has a `.flowconfig` file
+Please also make sure that your project has a `.flowconfig` file.
