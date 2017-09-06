@@ -170,7 +170,7 @@ export class Packager {
         const bundleURL = `http://${this.getHost()}/${bundleFilename}.bundle?platform=${platform}`;
         return new Node.FileSystem().exists(indexFileName)
             .then(exists => {
-                // If guessed entry point dowsn't exist - skip prewarming, since it's not possible
+                // If guessed entry point doesn't exist - skip prewarming, since it's not possible
                 // at this moment to determine _real_ bundle/ entry point name anyway
                 if (!exists) {
                     Log.logInternalMessage(LogLevel.Info, `Entry point at ${indexFileName} ` +
