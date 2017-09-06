@@ -133,17 +133,15 @@ gulp.task('coverage:report', function (done) {
         { read: false }
     )
         .pipe(istanbul.writeReports({
-            reporters: ['json', 'text-summary', 'lcov']
+            reporters: ['json', 'text-summary']
         }));
 });
 
 gulp.task('coverage:remap', function () {
     return gulp.src('coverage/coverage-final.json')
         .pipe(remapIstanbul({
-            basePath: "src",
             reports: {
                 'json': 'coverage/coverage.json',
-                'lcovonly': 'coverage/lcov.info',
                 'html': 'coverage/html-report'
             }
         }));
