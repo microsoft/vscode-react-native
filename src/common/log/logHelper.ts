@@ -18,13 +18,56 @@ export enum LogLevel {
 }
 
 export class LogHelper {
-    public static MESSAGE_TAG: string = "[vscode-react-native]";
-    public static INTERNAL_TAG: string = "[Internal]";
-    public static ERROR_TAG_FORMATSTRING: string = "[Error : %s] ";
-    public static ERROR_TAG: string = "[Error]";
-    public static WARN_TAG: string = "[Warning]";
+    public static PREFIX: string = "";
+
+    private static message_tag: string = "[vscode-react-native]";
+    private static internal_tag: string = "[Internal]";
+    private static error_tag_formatstring: string = "[Error : %s]";
+    private static error_tag: string = "[Error]";
+    private static warn_tag: string = "[Warning]";
     private static ERROR_CODE_WIDTH: string = "0000";
     private static LOG_LEVEL_NAME: string = "RN_LOG_LEVEL";
+
+    public static get MESSAGE_TAG(): string {
+        return `${LogHelper.message_tag} ${LogHelper.PREFIX}`;
+    }
+
+    public static set MESSAGE_TAG(newVal: string) {
+        LogHelper.message_tag = newVal;
+    }
+
+    public static get INTERNAL_TAG(): string {
+        return `${LogHelper.internal_tag} ${LogHelper.PREFIX}`;
+    }
+
+    public static set INTERNAL_TAG(newVal: string) {
+        LogHelper.internal_tag = newVal;
+    }
+
+    public static get ERROR_TAG_FORMATSTRING(): string {
+        return `${LogHelper.error_tag_formatstring} ${LogHelper.PREFIX}`;
+    }
+
+    public static set ERROR_TAG_FORMATSTRING(newVal: string) {
+        LogHelper.error_tag_formatstring = newVal;
+    }
+
+    public static get ERROR_TAG(): string {
+        return `${LogHelper.error_tag} ${LogHelper.PREFIX}`;
+    }
+
+    public static set ERROR_TAG(newVal: string) {
+        LogHelper.error_tag = newVal;
+    }
+
+    public static get WARN_TAG(): string {
+        return `${LogHelper.warn_tag} ${LogHelper.PREFIX}`;
+    }
+
+    public static set WARN_TAG(newVal: string) {
+        LogHelper.warn_tag = newVal;
+    }
+
 
     public static get logLevel(): LogLevel {
         let valName: string = process.env[LogHelper.LOG_LEVEL_NAME];

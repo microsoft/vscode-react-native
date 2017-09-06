@@ -14,12 +14,14 @@ export module Log {
      * The global logger defaults to the Console logger.
      */
     let globalLogger: ILogger = new ConsoleLogger();
+    LogHelper.PREFIX = "";
 
     /**
      * Sets the global logger.
      */
-    export function SetGlobalLogger(logger: ILogger) {
+    export function SetGlobalLogger(logger: ILogger, prefix: string = "") {
         globalLogger = logger;
+        LogHelper.PREFIX = prefix;
     }
 
     /**
