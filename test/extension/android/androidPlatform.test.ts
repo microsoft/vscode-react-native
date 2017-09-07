@@ -13,13 +13,15 @@ import {ReactNative022} from "../../resources/reactNative022";
 import {AdbSimulator} from "../../resources/simulators/adbSimulator";
 import {AVDManager} from "../../resources/simulators/avdManager";
 import {RecordingsHelper} from "../../resources/recordingsHelper";
+import {CommandExecutor} from "../../../src/common/commandExecutor";
 
 import "should";
+import * as sinon from "sinon";
 
 // TODO: Launch the extension server
 
 suite("androidPlatform", function () {
-    suite("debuggerContext", function () {
+    suite("extensionContext", function () {
         const projectRoot = "C:/projects/SampleApplication_21/";
         const androidProjectPath = path.join(projectRoot, "android");
         const applicationName = "SampleApplication";
@@ -33,17 +35,17 @@ suite("androidPlatform", function () {
         let simulatedAVDManager: AVDManager;
         let reactNative: ReactNative022;
         let androidPlatform: AndroidPlatform;
+        let sandbox: Sinon.SinonSandbox;
 
         function createAndroidPlatform(runOptions: IAndroidRunOptions): AndroidPlatform {
             return new AndroidPlatform(runOptions, {
                 adb: adb,
-                reactNative: reactNative,
-                fileSystem: fileSystem,
             });
         }
 
         setup(() => {
             mockFs();
+            sandbox = sinon.sandbox.create();
 
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
@@ -51,6 +53,10 @@ suite("androidPlatform", function () {
             simulatedAVDManager = new AVDManager(adb);
             reactNative = new ReactNative022(adb, fileSystem);
             androidPlatform = createAndroidPlatform(genericRunOptions);
+
+            sandbox.stub(CommandExecutor.prototype, "spawnReactCommand", function () {
+                return reactNative.runAndroid(genericRunOptions);
+            });
 
             // Create a React-Native project we'll use in our tests
             return reactNative
@@ -60,6 +66,7 @@ suite("androidPlatform", function () {
 
         teardown(() => {
             mockFs.restore();
+            sandbox.restore();
         });
 
         const testWithRecordings = new RecordingsHelper(() => reactNative).test;
@@ -156,7 +163,7 @@ suite("androidPlatform", function () {
                     .then(() => {
                         return simulatedAVDManager.createAndLaunchAll(["Nexus_5", "Nexus_6", "Nexus_10", "Nexus_11", "Nexus_12"]);
                     }).then(() => {
-                        const runOptions: IAndroidRunOptions = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: any = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
                         return adb.isAppRunning(androidPackageName, "Nexus_12");
@@ -175,7 +182,7 @@ suite("androidPlatform", function () {
                     }).then(() => {
                         return adb.notifyDevicesAreOffline(offineDevicesIds);
                     }).then(() => {
-                        const runOptions: IAndroidRunOptions = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: any = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
                         return adb.findDevicesRunningApp(androidPackageName);

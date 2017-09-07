@@ -63,4 +63,8 @@ export class GeneralMobilePlatform {
         // generalMobilePlatform should do nothing here. Method should be overriden by children for specific behavior.
         return Q.resolve<void>(void 0);
     }
+
+    public getRunArgument(): string[] {
+        throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArgument");
+    }
 }

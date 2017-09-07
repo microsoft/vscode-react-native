@@ -12,15 +12,12 @@ import {Package} from "../node/package";
 import {PromiseUtil} from "../node/promise";
 import {PackageNameResolver} from "./packageNameResolver";
 import {OutputVerifier, PatternToFailure} from "../outputVerifier";
-import {FileSystem} from "../node/fileSystem";
-import {IReactNative, ReactNative} from "../reactNative";
 import {TelemetryHelper} from "../telemetryHelper";
+import {CommandExecutor} from "../commandExecutor";
 import {LogCatMonitor} from "../../extension/android/logCatMonitor";
 
 export interface AndroidPlatformDeps extends MobilePlatformDeps {
     adb?: IAdb;
-    reactNative?: IReactNative;
-    fileSystem?: FileSystem;
 }
 /**
  * Android specific platform implementation for debugging RN applications.
@@ -55,8 +52,6 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private devices: IDevice[];
     private packageName: string;
     private adb: IAdb;
-    private reactNative: IReactNative;
-    private fileSystem: FileSystem;
     private logCatMonitor: LogCatMonitor | null = null;
 
     private needsToLaunchApps: boolean = false;
@@ -65,13 +60,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IAndroidRunOptions, platformDeps: AndroidPlatformDeps = {}) {
         super(runOptions, platformDeps);
         this.adb = platformDeps.adb || new Adb();
-        this.reactNative = platformDeps.reactNative || new ReactNative();
-        this.fileSystem = platformDeps.fileSystem || new FileSystem();
     }
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {
         return TelemetryHelper.generate("AndroidPlatform.runApp", () => {
-            const runAndroidSpawn = this.reactNative.runAndroid(this.runOptions);
+            const runArguments = this.getRunArgument();
+            const runAndroidSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-android", runArguments);
+
             const output = new OutputVerifier(
                 () =>
                     Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
@@ -105,6 +100,23 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
     public prewarmBundleCache(): Q.Promise<void> {
         return this.packager.prewarmBundleCache("android");
+    }
+
+    public getRunArgument(): string[] {
+        let runArguments: string[] = [];
+
+        if (this.runOptions.runArguments  && this.runOptions.runArguments.length > 0) {
+            runArguments = this.runOptions.runArguments;
+        } else {
+            if (this.runOptions.variant) {
+                runArguments.push("--variant", this.runOptions.variant);
+            }
+            if (this.runOptions.target) {
+                runArguments.push("--deviceId", this.runOptions.target);
+            }
+        }
+
+        return runArguments;
     }
 
     private initializeTargetDevicesAndPackageName(): Q.Promise<void> {
@@ -154,7 +166,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     private getPackageName(): Q.Promise<string> {
-        return new Package(this.runOptions.projectRoot, { fileSystem: this.fileSystem }).name().then(appName =>
+        return new Package(this.runOptions.projectRoot).name().then(appName =>
                 new PackageNameResolver(appName).resolvePackageName(this.runOptions.projectRoot));
     }
 

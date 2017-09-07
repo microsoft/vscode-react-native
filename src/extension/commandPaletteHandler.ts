@@ -88,11 +88,11 @@ export class CommandPaletteHandler {
     /**
      * Executes the 'react-native run-android' command
      */
-    public runAndroid(targetType: string = "simulator"): Q.Promise<void> {
+    public runAndroid(target: "device" | "simulator" = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("android");
         return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
             const packagerPort = SettingsHelper.getPackagerPort();
-            const runArgs = SettingsHelper.getRunArgs("android", targetType);
+            const runArgs = SettingsHelper.getRunArgs("android", target);
             return new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, runArguments: runArgs }, {
                 packager: this.reactNativePackager,
                 packageStatusIndicator: this.reactNativePackageStatusIndicator,
@@ -103,10 +103,10 @@ export class CommandPaletteHandler {
     /**
      * Executes the 'react-native run-ios' command
      */
-    public runIos(targetType: string = "simulator"): Q.Promise<void> {
+    public runIos(target: "device" | "simulator" = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("ios");
         return this.executeCommandInContext("runIos", () => {
-            const runArgs = SettingsHelper.getRunArgs("ios", targetType);
+            const runArgs = SettingsHelper.getRunArgs("ios", target);
             // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
             return new IOSDebugModeManager(this.workspaceRoot)
                 .setSimulatorRemoteDebuggingSetting(/*enable=*/ false)
