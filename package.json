@@ -141,7 +141,6 @@
               "request": "launch",
               "platform": "ios",
               "sourceMaps": true,
-              "target": "iPhone 5s",
               "outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
             }
           },
