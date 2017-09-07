@@ -117,7 +117,7 @@ export function makeSession(
             telemetryReporter.reassignTo(new ExtensionTelemetryReporter(
                 appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
 
-            Log.SetGlobalLogger(new NodeDebugAdapterLogger(debugAdapterPackage, this));
+            Log.GlobalLogger = Log.getLogger(NodeDebugAdapterLogger, debugAdapterPackage, this);
         }
 
         /**

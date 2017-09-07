@@ -4,7 +4,6 @@
 import {ErrorHelper} from "../error/errorHelper";
 import {InternalErrorCode} from "../error/internalErrorCode";
 import {IRunOptions} from "../launchArgs";
-import {Log} from "../log/log";
 import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
 import {ExponentHelper} from "./exponentHelper";
 
@@ -28,17 +27,17 @@ export class ExponentPlatform extends GeneralMobilePlatform {
 
     public runApp(): Q.Promise<void> {
         const outputMessage = `Application is running on Exponent. Open your exponent app at ${this.exponentTunnelPath} to see it.`;
-        Log.logMessage(outputMessage);
+        this.logger.logMessage(outputMessage);
         return Q.resolve<void>(void 0);
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
-        Log.logMessage("Application is running on Exponent. Please shake device and select 'Debug JS Remotely' to enable debugging.");
+        this.logger.logMessage("Application is running on Exponent. Please shake device and select 'Debug JS Remotely' to enable debugging.");
         return Q.resolve<void>(void 0);
     }
 
     public startPackager(): Q.Promise<void> {
-        Log.logMessage("Starting Exponent Packager.");
+        this.logger.logMessage("Starting Exponent Packager.");
         return this.packager.isRunning().then((running) => {
             if (running) {
                 if (this.packager.getRunningAs() !== PackagerRunAs.EXPONENT) {
@@ -46,7 +45,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                         this.packageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
                 }
 
-                Log.logMessage("Attaching to running Exponent packager");
+                this.logger.logMessage("Attaching to running Exponent packager");
             }
             return void 0;
         }).then(() =>

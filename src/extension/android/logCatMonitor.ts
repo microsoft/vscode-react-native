@@ -5,8 +5,9 @@ import * as Q from "q";
 import * as vscode from "vscode";
 
 import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
-import { OutputChannelLogger } from "../outputChannelLogger";
+import { OutputChannelLogger } from "../../common/log/outputChannelLogger";
 import { ExecutionsFilterBeforeTimestamp } from "../../common/executionsLimiter";
+import {Log} from "../../common/log/log";
 
 /* This class will print the LogCat messages to an Output Channel. The configuration for logcat can be cutomized in
    the .vscode/launch.json file by defining a setting named logCatArguments for the configuration being used. The
@@ -77,6 +78,7 @@ export class LogCatMonitor implements vscode.Disposable {
         }
 
         for (let name of Object.keys(LogCatMonitor.loggers)) {
+            Log.clearCacheByName(name);
             LogCatMonitor.loggers[name].getOutputChannel().dispose();
         }
     }
@@ -97,7 +99,7 @@ export class LogCatMonitor implements vscode.Disposable {
      */
     private static getLogger(name: string): OutputChannelLogger {
         if (!LogCatMonitor.loggers[name]) {
-            LogCatMonitor.loggers[name] = new OutputChannelLogger(vscode.window.createOutputChannel(name));
+            LogCatMonitor.loggers[name] = Log.getLogger(OutputChannelLogger, vscode.window.createOutputChannel(name));
         }
         LogCatMonitor.loggers[name].getOutputChannel().clear();
         return LogCatMonitor.loggers[name];

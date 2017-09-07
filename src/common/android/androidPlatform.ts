@@ -6,7 +6,6 @@ import * as Q from "q";
 import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import {Packager} from "../packager";
 import {IAndroidRunOptions} from "../launchArgs";
-import {Log} from "../log/log";
 import {IAdb, Adb, AndroidAPILevel, IDevice, DeviceType} from "./adb";
 import {Package} from "../node/package";
 import {PromiseUtil} from "../node/promise";
@@ -25,7 +24,7 @@ export interface AndroidPlatformDeps extends MobilePlatformDeps {
 export class AndroidPlatform extends GeneralMobilePlatform {
     private static MULTIPLE_DEVICES_ERROR = "error: more than one device/emulator";
 
-    // We should add the common Android build/run erros we find to this list
+    // We should add the common Android build/run errors we find to this list
     private static RUN_ANDROID_FAILURE_PATTERNS: PatternToFailure[] = [{
         pattern: "Failed to install on any devices",
         message: "Could not install the app on any available device. Make sure you have a correctly"
@@ -65,7 +64,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {
         return TelemetryHelper.generate("AndroidPlatform.runApp", () => {
             const runArguments = this.getRunArgument();
-            const runAndroidSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-android", runArguments);
+            const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", runArguments);
 
             const output = new OutputVerifier(
                 () =>
@@ -139,7 +138,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     : Q<void>(void 0);
             }).then(() => {
                 return this.startMonitoringLogCat(device, this.runOptions.logCatArguments).catch(error => // The LogCatMonitor failing won't stop the debugging experience
-                    Log.logWarning("Couldn't start LogCat monitor", error));
+                    this.logger.logWarning("Couldn't start LogCat monitor", error));
             });
     }
 
@@ -151,7 +150,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     if (apiVersion >= AndroidAPILevel.LOLLIPOP) { // If we support adb reverse
                         return this.adb.reverseAdd(device.id, Packager.DEFAULT_PORT.toString(), this.runOptions.packagerPort);
                     } else {
-                        Log.logWarning(`Device ${device.id} supports only API Level ${apiVersion}. `
+                        this.logger.logWarning(`Device ${device.id} supports only API Level ${apiVersion}. `
                         + `Level ${AndroidAPILevel.LOLLIPOP} is needed to support port forwarding via adb reverse. `
                         + "For debugging to work you'll need <Shake or press menu button> for the dev menu, "
                         + "go into <Dev Settings> and configure <Debug Server host & port for Device> to be "
@@ -204,7 +203,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         const logCatMonitor = this.logCatMonitor = new LogCatMonitor(device.id, logCatArguments);
         logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
             .catch(error =>
-                Log.logWarning("Error while monitoring LogCat", error))
+                this.logger.logWarning("Error while monitoring LogCat", error))
             .done();
 
         return Q.resolve<void>(void 0);

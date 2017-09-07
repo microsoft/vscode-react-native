@@ -9,6 +9,7 @@ import {ISpawnResult} from "./node/childProcess";
 import {HostPlatform, HostPlatformId} from "./hostPlatform";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
+import {ILogger} from "./log/loggers";
 
 export enum CommandVerbosity {
     OUTPUT,
@@ -36,18 +37,20 @@ export class CommandExecutor {
     private static ReactNativeCommand = "react-native";
     private static ReactNativeVersionCommand = "-v";
     private currentWorkingDirectory: string;
+    private logger: ILogger;
     private childProcess = new Node.ChildProcess();
 
-    constructor(currentWorkingDirectory?: string) {
-        this.currentWorkingDirectory = currentWorkingDirectory || process.cwd();
+    constructor(currentWorkingDirectory: string = process.cwd(), logger: ILogger = Log) {
+        this.currentWorkingDirectory = currentWorkingDirectory;
+        this.logger = logger;
     }
 
     public execute(command: string, options: Options = {}): Q.Promise<void> {
-        Log.logCommandStatus(command, CommandStatus.Start);
+        this.logger.logMessage(CommandExecutor.getCommandStatusString(command, CommandStatus.Start));
         return this.childProcess.execToString(command, { cwd: this.currentWorkingDirectory, env: options.env })
             .then(stdout => {
-                Log.logMessage(stdout);
-                Log.logCommandStatus(command, CommandStatus.End);
+                this.logger.logMessage(stdout);
+                this.logger.logMessage(CommandExecutor.getCommandStatusString(command, CommandStatus.End));
             },
             (reason: Error) =>
                 this.generateRejectionForCommand(command, reason));
@@ -109,11 +112,11 @@ export class CommandExecutor {
                     return Q.resolve(void 0);
                 }
             }).then(() => {
-                Log.logMessage("Packager stopped");
+                this.logger.logMessage("Packager stopped");
             });
 
         } else {
-            Log.logMessage("Packager not found");
+            this.logger.logMessage("Packager not found");
             return Q.resolve<void>(void 0);
         }
     }
@@ -144,19 +147,19 @@ export class CommandExecutor {
             const now = Date.now();
             if (now - lastDotTime > timeBetweenDots) {
                 lastDotTime = now;
-                Log.logString(".");
+                this.logger.logString(".");
             }
         };
 
         if (options.verbosity === CommandVerbosity.OUTPUT) {
-            Log.logCommandStatus(commandWithArgs, CommandStatus.Start);
+            this.logger.logMessage(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start));
         }
 
         const result = this.childProcess.spawn(command, args, spawnOptions);
 
         result.stdout.on("data", (data: Buffer) => {
             if (options.verbosity === CommandVerbosity.OUTPUT) {
-                Log.logStreamData(data, process.stdout);
+                this.logger.logStreamData(data, process.stdout);
             } else if (options.verbosity === CommandVerbosity.PROGRESS) {
                 printDot();
             }
@@ -164,7 +167,7 @@ export class CommandExecutor {
 
         result.stderr.on("data", (data: Buffer) => {
             if (options.verbosity === CommandVerbosity.OUTPUT) {
-                Log.logStreamData(data, process.stderr);
+                this.logger.logStreamData(data, process.stderr);
             } else if (options.verbosity === CommandVerbosity.PROGRESS) {
                 printDot();
             }
@@ -173,9 +176,9 @@ export class CommandExecutor {
         result.outcome = result.outcome.then(
             () => {
                 if (options.verbosity === CommandVerbosity.OUTPUT) {
-                    Log.logCommandStatus(commandWithArgs, CommandStatus.End);
+                    this.logger.logMessage(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End));
                 }
-                Log.logString("\n");
+                this.logger.logString("\n");
                 deferred.resolve(void 0);
             },
             reason => {
@@ -189,20 +192,20 @@ export class CommandExecutor {
         const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         const commandWithArgs = command + " " + args.join(" ");
 
-        Log.logCommandStatus(commandWithArgs, CommandStatus.Start);
+        this.logger.logMessage(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start));
         const result = this.childProcess.spawn(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
-            Log.logStreamData(data, process.stderr);
+            this.logger.logStreamData(data, process.stderr);
         });
 
         result.stdout.on("data", (data: Buffer) => {
-            Log.logStreamData(data, process.stdout);
+            this.logger.logStreamData(data, process.stdout);
         });
 
         result.outcome = result.outcome.then(
             () =>
-                Log.logCommandStatus(commandWithArgs, CommandStatus.End),
+                this.logger.logMessage(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End)),
             reason =>
                 this.generateRejectionForCommand(commandWithArgs, reason));
         return result;
@@ -210,5 +213,20 @@ export class CommandExecutor {
 
     private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {
         return Q.reject<void>(ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed, command));
+    }
+
+    private static getCommandStatusString(command: string, status: CommandStatus) {
+        console.assert(status >= CommandStatus.Start && status <= CommandStatus.End, "Unsupported Command Status");
+
+        switch (status) {
+            case CommandStatus.Start:
+                return `Executing command: ${command}`;
+
+            case CommandStatus.End:
+                return `Finished executing: ${command}`;
+
+            default:
+                throw new Error("Unsupported command status");
+        }
     }
 }

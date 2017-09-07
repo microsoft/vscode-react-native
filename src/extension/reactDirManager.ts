@@ -4,11 +4,12 @@
 import * as Q from "q";
 import * as vscode from "vscode";
 import * as path from "path";
-import {OutputChannelLogger} from "./outputChannelLogger";
+import {OutputChannelLogger} from "../common/log/outputChannelLogger";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {FileSystem} from "../common/node/fileSystem";
 import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
+import {Log} from "../common/log/log";
 
 /**
  * Manages the lifecycle of the .vscode/.react folder, which hosts the temporary source/map files we need for debugging.
@@ -17,6 +18,8 @@ import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 export class ReactDirManager implements vscode.Disposable {
     public static VscodeDirPath = path.join(vscode.workspace.rootPath || "", ".vscode");
     public static ReactDirPath = path.join(ReactDirManager.VscodeDirPath, ".react");
+
+    private static MAIN_CHANNEL_NAME = "React-native";
 
     public setup(): Q.Promise<void> {
         let fs = new FileSystem();
@@ -33,7 +36,7 @@ export class ReactDirManager implements vscode.Disposable {
     }
 
     public dispose(): void {
-        new EntryPointHandler(ProcessType.Extension, new OutputChannelLogger(vscode.window.createOutputChannel("React-Native"))).runFunction("extension.deleteTemporaryFolder",
+        new EntryPointHandler(ProcessType.Extension, Log.getLoggerWithCache(OutputChannelLogger, ReactDirManager.MAIN_CHANNEL_NAME, vscode.window.createOutputChannel(ReactDirManager.MAIN_CHANNEL_NAME))).runFunction("extension.deleteTemporaryFolder",
             ErrorHelper.getInternalError(InternalErrorCode.RNTempFolderDeletionFailed, ReactDirManager.ReactDirPath),
             () =>
                 new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath));

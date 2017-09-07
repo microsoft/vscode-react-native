@@ -21,7 +21,7 @@ suite("commandExecutor", function() {
         let childProcessStub: Sinon.SinonStub & ChildProcess;
 
         teardown(function() {
-            let mockedMethods = [Log.logMessage, Log.logCommandStatus, ...Object.keys(childProcessStubInstance)];
+            let mockedMethods = [Log.logMessage, ...Object.keys(childProcessStubInstance)];
 
             mockedMethods.forEach((method) => {
                 if (method.hasOwnProperty("restore")) {
@@ -42,14 +42,13 @@ suite("commandExecutor", function() {
             let loggedOutput: string = "";
 
             sinon.stub(Log, "logMessage", function(message: string, formatMessage: boolean = true) {
-                loggedOutput += message;
+                loggedOutput += semver.clean(message) || "";
                 console.log(message);
             });
 
             return ce.execute("node -v")
                 .then(() => {
-                    let nodeVersion = semver.clean(loggedOutput);
-                    assert(nodeVersion);
+                    assert(loggedOutput);
                 });
         });
 

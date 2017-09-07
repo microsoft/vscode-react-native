@@ -5,16 +5,17 @@
  * Formatter for the Output channel.
  */
 
-import { ILogger } from "../common/log/loggers";
-import { LogHelper, LogLevel } from "../common/log/logHelper";
-import { SettingsHelper } from "./settingsHelper";
-import { OutputChannel } from "vscode";
 import * as vscode from "vscode";
+import { Log } from "./log";
+import { ILogger } from "./loggers";
+import { LogHelper, LogLevel } from "./logHelper";
+import { SettingsHelper } from "../../extension/settingsHelper";
+import {OutputChannel} from "vscode";
 
 export class OutputChannelLogger implements ILogger {
     private outputChannel: OutputChannel;
 
-    constructor(outputChannel: OutputChannel) {
+    constructor(outputChannel: any) {
         this.outputChannel = outputChannel;
         this.outputChannel.show();
     }
@@ -53,8 +54,12 @@ export class OutputChannelLogger implements ILogger {
         this.outputChannel.show();
     }
 
-    public getOutputChannel(): OutputChannel {
+    public getOutputChannel(): any {
         return this.outputChannel;
+    }
+
+    public clear() {
+        this.outputChannel.clear();
     }
 
     private getFormattedMessage(message: string) {
@@ -67,7 +72,7 @@ export class OutputChannelLogger implements ILogger {
 }
 
 export class DelayedOutputChannelLogger implements ILogger {
-    private outputChannelLogger: OutputChannelLogger;
+    private outputChannel: OutputChannelLogger;
 
     constructor(private channelName: string) { }
 
@@ -83,6 +88,10 @@ export class DelayedOutputChannelLogger implements ILogger {
         this.logger.logError(errorMessage, error, logStack);
     }
 
+    public logWarning(error?: any, logStack = true) {
+        this.logger.logError(error, logStack);
+    }
+
     public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
         this.logger.logStreamData(data, stream);
     }
@@ -95,10 +104,16 @@ export class DelayedOutputChannelLogger implements ILogger {
         this.logger.setFocusOnLogChannel();
     }
 
-    private get logger(): OutputChannelLogger {
-        if (!this.outputChannelLogger) {
-            this.outputChannelLogger = new OutputChannelLogger(vscode.window.createOutputChannel(this.channelName));
+    public clear() {
+        if (this.outputChannel) {
+            this.outputChannel.getOutputChannel().clear();
         }
-        return this.outputChannelLogger;
+    }
+
+    private get logger(): OutputChannelLogger {
+        if (!this.outputChannel) {
+            this.outputChannel = Log.getLoggerWithCache(OutputChannelLogger, this.channelName, vscode.window.createOutputChannel(this.channelName));
+        }
+        return this.outputChannel;
     }
 }

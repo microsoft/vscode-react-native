@@ -33,7 +33,7 @@ import {IntellisenseHelper} from "./intellisenseHelper";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
-import {DelayedOutputChannelLogger} from "./outputChannelLogger";
+import {DelayedOutputChannelLogger} from "../common/log/outputChannelLogger";
 import { ExponentHelper } from "../common/exponent/exponentHelper";
 import { QRCodeContentProvider } from "./qrCodeContentProvider";
 import { ConfigurationReader } from "../common/configurationReader";
@@ -50,7 +50,7 @@ const packagerStatusIndicator = new PackagerStatusIndicator();
 const globalExponentHelper = new ExponentHelper(workspaceRootPath, projectRootPath);
 const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper);
 
-const outputChannelLogger = new DelayedOutputChannelLogger("React-Native");
+const outputChannelLogger = Log.getLoggerWithCache(DelayedOutputChannelLogger, "React-Native", "React-Native");
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
 const reactNativeProjectHelper = new ReactNativeProjectHelper(projectRootPath);
 const fsUtil = new FileSystem();

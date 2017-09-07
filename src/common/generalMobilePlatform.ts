@@ -9,6 +9,8 @@ import {IRunOptions} from "./launchArgs";
 import {Packager, PackagerRunAs} from "./packager";
 import {PackagerStatus, PackagerStatusIndicator} from "../extension/packagerStatusIndicator";
 import {SettingsHelper} from "../extension/settingsHelper";
+import {DelayedOutputChannelLogger} from "./log/outputChannelLogger";
+
 
 export interface MobilePlatformDeps {
     packager?: Packager;
@@ -20,26 +22,29 @@ export class GeneralMobilePlatform {
     protected platformName: string;
     protected packager: Packager;
     protected packageStatusIndicator: PackagerStatusIndicator;
+    protected logger: DelayedOutputChannelLogger;
 
     constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
         this.packager = platformDeps.packager || new Packager(vscode.workspace.rootPath, this.projectPath, SettingsHelper.getPackagerPort());
         this.packageStatusIndicator = platformDeps.packageStatusIndicator || new PackagerStatusIndicator();
+        this.logger = Log.getLoggerWithCache(DelayedOutputChannelLogger, this.platformName, `Run ${this.platformName}`);
+        this.logger.clear();
     }
 
     public runApp(): Q.Promise<void> {
-        Log.logMessage("Connected to packager. You can now open your app in the simulator.");
+        this.logger.logMessage("Connected to packager. You can now open your app in the simulator.");
         return Q.resolve<void>(void 0);
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
-        Log.logMessage("Debugger ready. Enable remote debugging in app.");
+        this.logger.logMessage("Debugger ready. Enable remote debugging in app.");
         return Q.resolve<void>(void 0);
     }
 
     public startPackager(): Q.Promise<void> {
-        Log.logMessage("Starting React Native Packager.");
+        this.logger.logMessage("Starting React Native Packager.");
         return this.packager.isRunning().then((running) => {
             if (running) {
                 if (this.packager.getRunningAs() !== PackagerRunAs.REACT_NATIVE) {
@@ -48,7 +53,7 @@ export class GeneralMobilePlatform {
                     );
                 }
 
-                Log.logMessage("Attaching to running React Native packager");
+                this.logger.logMessage("Attaching to running React Native packager");
             }
             return void 0;
         })

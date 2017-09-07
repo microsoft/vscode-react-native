@@ -9,6 +9,7 @@ import {LogHelper, LogLevel} from "./logHelper";
 export interface ILogger {
     logMessage: (message: string, formatMessage?: boolean) => void;
     logError: (errorMessage: string, error?: any, logStack?: boolean) => void;
+    logWarning: (error?: any, logStack?: boolean) => void;
     logStreamData: (data: Buffer, stream: NodeJS.WritableStream) => void;
     logString: (data: string) => void;
     logInternalMessage: (logLevel: LogLevel, message: string) => void;
@@ -29,6 +30,10 @@ export class ConsoleLogger implements ILogger {
         if (logStack && error && (<Error>error).stack) {
             console.error(`Stack: ${(<Error>error).stack}`);
         }
+    }
+
+    public logWarning(error?: any, logStack = true) {
+        this.logError(error, logStack);
     }
 
     public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
@@ -57,51 +62,6 @@ export class ConsoleLogger implements ILogger {
     }
 }
 
-export class StreamLogger implements ILogger {
-    private stream: NodeJS.WritableStream;
-    constructor(stream: NodeJS.WritableStream) {
-        this.stream = stream;
-    }
-    public logMessage(message: string, formatMessage: boolean = true) {
-        this.stream.write(formatMessage ?
-            this.getFormattedMessage(message) :
-            message);
-    }
-
-    public logError(errorMessage: string, error?: any, logStack: boolean = true) {
-        this.logMessage(errorMessage);
-
-        if (logStack && error && (<Error>error).stack) {
-            this.logMessage(`Stack: ${(<Error>error).stack}`, /* formatMessage */ false);
-        }
-    }
-
-    public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
-        stream.write(data.toString());
-    }
-
-    public logString(data: string) {
-        this.logMessage(data, false);
-    }
-
-    public logInternalMessage(logLevel: LogLevel, message: string) {
-        this.logMessage(this.getFormattedInternalMessage(logLevel, message), /* formatMessage */ false);
-    }
-
-    public getFormattedMessage(message: string) {
-        return `${LogHelper.MESSAGE_TAG} ${message}\n`;
-    }
-
-    public getFormattedInternalMessage(logLevel: LogLevel, message: string) {
-        return (`${LogHelper.INTERNAL_TAG} [${logLevel}] ${message}\n`);
-    }
-
-    public setFocusOnLogChannel() {
-        // Do nothing
-        return;
-    }
-}
-
 export class NodeDebugAdapterLogger implements ILogger {
     private debugSession: ChromeDebuggerCorePackage.ChromeDebugSession;
     private debugAdapterPackage: typeof VSCodeDebugAdapterPackage;
@@ -122,6 +82,10 @@ export class NodeDebugAdapterLogger implements ILogger {
         if (logStack && error && (<Error>error).stack) {
             this.logMessage(`Stack: ${(<Error>error).stack}`, false);
         }
+    }
+
+    public logWarning(error?: any, logStack = true) {
+        this.logError(error, logStack);
     }
 
     public logStreamData(data: Buffer, stream: NodeJS.WritableStream) {

@@ -4,7 +4,6 @@
 import * as Q from "q";
 import * as path from "path";
 
-import {Log} from "../log/log";
 import {ChildProcess} from "../node/childProcess";
 import {CommandExecutor} from "../commandExecutor";
 import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
@@ -44,7 +43,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         super(runOptions, platformDeps);
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
-            Log.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
+            this.logger.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
         }
 
         this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
@@ -69,7 +68,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         // Compile, deploy, and launch the app on either a simulator or a device
         const runArguments = this.getRunArgument();
 
-        const runIosSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-ios", runArguments);
+        const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", runArguments);
         return new OutputVerifier(
             () =>
                 this.generateSuccessPatterns(),
@@ -81,7 +80,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         // Configure the app for debugging
         if (this.targetType === IOSPlatform.deviceString) {
             // Note that currently we cannot automatically switch the device into debug mode.
-            Log.logMessage("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
+            this.logger.logMessage("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
             return Q.resolve<void>(void 0);
         }
 

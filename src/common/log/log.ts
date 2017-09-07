@@ -5,42 +5,62 @@
  * Logging utility class.
  */
 
-import {CommandStatus} from "../commandExecutor";
 import {LogHelper, LogLevel} from "./logHelper";
-import {ILogger, StreamLogger, ConsoleLogger} from "./loggers";
+import {ILogger, ConsoleLogger} from "./loggers";
 
-export module Log {
+export class Log {
+    // private static loggersCache = {};
     /**
      * The global logger defaults to the Console logger.
      */
-    let globalLogger: ILogger = new ConsoleLogger();
+    private static globalLogger: ILogger = new ConsoleLogger();
+    private static loggersCache = {};
 
     /**
      * Sets the global logger.
      */
-    export function SetGlobalLogger(logger: ILogger) {
-        globalLogger = logger;
+    public static set GlobalLogger(logger: ILogger) {
+        this.globalLogger = logger;
+    }
+
+    /**
+     * Sets the global logger.
+     */
+    public static get GlobalLogger(): ILogger {
+        return this.globalLogger;
+    }
+
+    public static getLogger<T extends ILogger>(loggerType: new (...args: any[]) => T, ...args: any[]): T {
+        return new loggerType(...args);
+    }
+
+    public static getLoggerWithCache<T extends ILogger>(loggerType: new (...args: any[]) => T, name: string, ...args: any[]): T {
+        return this.loggersCache[name] ? this.loggersCache[name] : this.loggersCache[name] = this.getLogger(loggerType, ...args);
+    }
+
+    public static clearCacheByName(name: string): void {
+        delete this.loggersCache[name];
     }
 
     /**
      * Logs a message.
      */
-    export function logMessage(message: string, formatMessage: boolean = true) {
-        globalLogger.logMessage(message, formatMessage);
+    public static logMessage(message: string, formatMessage: boolean = true) {
+        this.globalLogger.logMessage(message, formatMessage);
     }
 
     /**
      * Logs an error message.
      */
-    export function logError(error?: any, logStack = true) {
+    public static logError(error?: any, logStack = true) {
         let errorMessageToLog = LogHelper.getErrorString(error);
-        globalLogger.logError(errorMessageToLog, error, logStack);
+        this.globalLogger.logError(errorMessageToLog, error, logStack);
     }
 
     /**
      * Logs a warning message.
      */
-    export function logWarning(error?: any, logStack = true) {
+    public static logWarning(error?: any, logStack = true) {
         Log.logError(error, logStack);
     }
 
@@ -49,76 +69,30 @@ export module Log {
      * Customers aren't interested in these messages, so we normally shouldn't show
      * them to them.
      */
-    export function logInternalMessage(logLevel: LogLevel, message: string) {
+    public static logInternalMessage(logLevel: LogLevel, message: string) {
         if (LogHelper.logLevel >= logLevel) {
-            globalLogger.logInternalMessage(logLevel, message);
+            this.globalLogger.logInternalMessage(logLevel, message);
         }
-    }
-
-    /**
-     * Logs the status (Start/End) of a command.
-     */
-    export function logCommandStatus(command: string, status: CommandStatus) {
-        console.assert(status >= CommandStatus.Start && status <= CommandStatus.End, "Unsupported Command Status");
-
-        let statusMessage = Log.getCommandStatusString(command, status);
-        globalLogger.logMessage(statusMessage);
     }
 
     /**
      * Logs a stream data buffer.
      */
-    export function logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
-        globalLogger.logStreamData(data, stream);
+    public static logStreamData(data: Buffer, stream: NodeJS.WritableStream) {
+        this.globalLogger.logStreamData(data, stream);
     }
 
     /**
      * Logs string
      */
-    export function logString(data: string) {
-        globalLogger.logString(data);
+    public static logString(data: string) {
+        this.globalLogger.logString(data);
     }
 
     /**
      * Brings the target output window to focus.
      */
-    export function setFocusOnLogChannel() {
-        globalLogger.setFocusOnLogChannel();
-    }
-
-    /**
-     * Logs a message to the console.
-     */
-    export function logWithLogger(logger: ILogger, message: string, formatMessage: boolean) {
-        logger.logMessage(message, formatMessage);
-    }
-
-    /**
-     * Logs a message to the console.
-     */
-    export function logToStderr(message: string, formatMessage: boolean = true) {
-        new StreamLogger(process.stderr).logMessage(message, formatMessage);
-    }
-
-    /**
-     * Logs a message to the console.
-     */
-    export function logToStdout(message: string, formatMessage: boolean = true) {
-        new StreamLogger(process.stdout).logMessage(message, formatMessage);
-    }
-
-    export function getCommandStatusString(command: string, status: CommandStatus) {
-        console.assert(status >= CommandStatus.Start && status <= CommandStatus.End, "Unsupported Command Status");
-
-        switch (status) {
-            case CommandStatus.Start:
-                return `Executing command: ${command}`;
-
-            case CommandStatus.End:
-                return `Finished executing: ${command}`;
-
-            default:
-                throw new Error("Unsupported command status");
-        }
+    public static setFocusOnLogChannel() {
+        this.globalLogger.setFocusOnLogChannel();
     }
 }
