@@ -29,7 +29,7 @@ export class GeneralMobilePlatform {
         this.projectPath = this.runOptions.projectRoot;
         this.packager = platformDeps.packager || new Packager(vscode.workspace.rootPath, this.projectPath, SettingsHelper.getPackagerPort());
         this.packageStatusIndicator = platformDeps.packageStatusIndicator || new PackagerStatusIndicator();
-        this.logger = Log.getLoggerWithCache(DelayedOutputChannelLogger, this.platformName, `Run ${this.platformName}`);
+        this.logger = Log.getLoggerWithCache(DelayedOutputChannelLogger, `Run ${this.platformName}`, `Run ${this.platformName}`);
         this.logger.clear();
     }
 

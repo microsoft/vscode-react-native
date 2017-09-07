@@ -78,7 +78,7 @@ export class LogCatMonitor implements vscode.Disposable {
         }
 
         for (let name of Object.keys(LogCatMonitor.loggers)) {
-            Log.clearCacheByName(name);
+            Log.clearCacheByName(OutputChannelLogger, name);
             LogCatMonitor.loggers[name].getOutputChannel().dispose();
         }
     }

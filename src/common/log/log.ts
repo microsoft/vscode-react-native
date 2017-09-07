@@ -35,11 +35,13 @@ export class Log {
     }
 
     public static getLoggerWithCache<T extends ILogger>(loggerType: new (...args: any[]) => T, name: string, ...args: any[]): T {
-        return this.loggersCache[name] ? this.loggersCache[name] : this.loggersCache[name] = this.getLogger(loggerType, ...args);
+        const key = `${loggerType.name}:${name}`;
+        return this.loggersCache[key] ? this.loggersCache[key] : this.loggersCache[key] = this.getLogger(loggerType, ...args);
     }
 
-    public static clearCacheByName(name: string): void {
-        delete this.loggersCache[name];
+    public static clearCacheByName<T extends ILogger>(loggerType: new (...args: any[]) => T, name: string): void {
+        const key = `${loggerType.name}:${name}`;
+        delete this.loggersCache[key];
     }
 
     /**
