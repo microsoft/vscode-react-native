@@ -150,8 +150,8 @@ export class Packager {
             });
     }
 
-    public static isPackagerRunning(packagerURL: string): Q.Promise<boolean> {
-        let statusURL = `http://${packagerURL}/status`;
+    public isRunning(): Q.Promise<boolean> {
+        let statusURL = `http://${this.getHost()}/status`;
         return Request.request(statusURL)
             .then((body: string) => {
                 return body === "packager-status:running";
@@ -159,10 +159,6 @@ export class Packager {
             (error: any) => {
                 return false;
             });
-    }
-
-    public isRunning(): Q.Promise<boolean> {
-        return Packager.isPackagerRunning(this.getHost());
     }
 
     private prewarmBundleCacheWithBundleFilename(bundleFilename: string, platform: string) {

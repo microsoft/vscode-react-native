@@ -5,7 +5,7 @@ import * as Q from "q";
 import * as path from "path";
 import * as WebSocket from "ws";
 import { EventEmitter } from "events";
-import {Packager}  from "../common/packager";
+import { ensurePackagerRunning } from "../common/packagerStatus";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {Log} from "../common/log/log";
 import {LogLevel} from "../common/log/logHelper";
@@ -90,12 +90,9 @@ postMessage({workerLoaded:true});`;
     }
 
     public start(retryAttempt: boolean = false): Q.Promise<any> {
-        return Packager.isPackagerRunning(Packager.getHostForPort(this.packagerPort))
-            .then(running => {
-                if (!running) {
-                    throw new Error(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
-                }
-            })
+        const errPackagerNotRunning = new Error(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
+
+        return ensurePackagerRunning(this.packagerPort, errPackagerNotRunning)
             .then(() => {
                 // Don't fetch debugger worker on socket disconnect
                 return retryAttempt ? Q.resolve<void>(void 0) :
@@ -182,7 +179,7 @@ postMessage({workerLoaded:true});`;
     }
 
     private debuggerProxyUrl() {
-        return `ws://${Packager.getHostForPort(this.packagerPort)}/debugger-proxy?role=debugger&name=vscode`;
+        return `ws://localhost:${this.packagerPort}/debugger-proxy?role=debugger&name=vscode`;
     }
 
     private onSocketOpened() {
