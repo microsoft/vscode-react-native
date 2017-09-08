@@ -61,6 +61,10 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }: AndroidPlatformDeps = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
         this.adb = adb;
+
+        if (this.runOptions.target === AndroidPlatform.simulatorString || this.runOptions.target === AndroidPlatform.deviceString) {
+            delete this.runOptions.target;
+        }
     }
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {

@@ -11,10 +11,15 @@ export interface MobilePlatformDeps {
     remoteExtension?: RemoteExtension;
 }
 
+export type TargetType = "device" | "simulator";
+
 export class GeneralMobilePlatform {
     protected projectPath: string;
     protected remoteExtension: RemoteExtension;
     protected platformName: string;
+
+    protected static deviceString: TargetType = "device";
+    protected static simulatorString: TargetType = "simulator";
 
     constructor(protected runOptions: IRunOptions, { remoteExtension }: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
