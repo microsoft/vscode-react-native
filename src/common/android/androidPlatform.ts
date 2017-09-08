@@ -23,6 +23,7 @@ export interface AndroidPlatformDeps extends MobilePlatformDeps  {
  */
 export class AndroidPlatform extends GeneralMobilePlatform {
     private static MULTIPLE_DEVICES_ERROR = "error: more than one device/emulator";
+    private static NONE_DEVICES_ERROR = "error: can't find ";
 
     // We should add the common Android build/run erros we find to this list
     private static RUN_ANDROID_FAILURE_PATTERNS: PatternToFailure[] = [{
@@ -52,6 +53,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private packageName: string;
     private adb: IAdb;
 
+    private shouldLaunchInAllDevices: boolean = false;
     private needsToLaunchApps: boolean = false;
 
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
@@ -61,40 +63,38 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }: AndroidPlatformDeps = {}) {
         super(runOptions, { remoteExtension: remoteExtension });
         this.adb = adb;
-
-        if (this.runOptions.target === AndroidPlatform.simulatorString || this.runOptions.target === AndroidPlatform.deviceString) {
-            delete this.runOptions.target;
-        }
     }
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {
+        this.shouldLaunchInAllDevices = shouldLaunchInAllDevices;
         return TelemetryHelper.generate("AndroidPlatform.runApp", () => {
-            const runArguments = this.getRunArgument();
-            const runAndroidSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-android", runArguments);
+            return this.getRunArgument()
+                .then((runArguments) => {
+                    const runAndroidSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-android", runArguments);
+                    const output = new OutputVerifier(
+                        () =>
+                            Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
+                        () =>
+                            Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS)).process(runAndroidSpawn);
 
-            const output = new OutputVerifier(
-                () =>
-                    Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
-                () =>
-                    Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS)).process(runAndroidSpawn);
-
-            return output
-                .finally(() => {
-                    return this.initializeTargetDevicesAndPackageName();
-                }).then(() => [this.debugTarget], reason => {
-                    if (reason.message === AndroidPlatform.MULTIPLE_DEVICES_ERROR && this.devices.length > 1 && this.debugTarget) {
-                        /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
-                        this.needsToLaunchApps = true;
-                        return shouldLaunchInAllDevices
-                            ? this.adb.getOnlineDevices()
-                            : Q([this.debugTarget]);
-                    } else {
-                        return Q.reject<IDevice[]>(reason);
-                    }
-                }).then(devices => {
-                    return new PromiseUtil().forEach(devices, device => {
-                        return this.launchAppWithADBReverseAndLogCat(device);
-                    });
+                    return output
+                        .finally(() => {
+                            return this.initializeTargetDevicesAndPackageName();
+                        }).then(() => [this.debugTarget], reason => {
+                            if (reason.message === AndroidPlatform.MULTIPLE_DEVICES_ERROR && this.devices.length > 1 && this.debugTarget) {
+                                /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
+                                this.needsToLaunchApps = true;
+                                return shouldLaunchInAllDevices
+                                    ? this.adb.getOnlineDevices()
+                                    : Q([this.debugTarget]);
+                            } else {
+                                return Q.reject<IDevice[]>(reason);
+                            }
+                        }).then(devices => {
+                            return new PromiseUtil().forEach(devices, device => {
+                                return this.launchAppWithADBReverseAndLogCat(device);
+                            });
+                        });
                 });
         });
     }
@@ -107,21 +107,46 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return this.remoteExtension.prewarmBundleCache(this.platformName);
     }
 
-    public getRunArgument(): string[] {
+    public getRunArgument(): Q.Promise<string[]> {
         let runArguments: string[] = [];
 
         if (this.runOptions.runArguments  && this.runOptions.runArguments.length > 0) {
-            runArguments = this.runOptions.runArguments;
-        } else {
-            if (this.runOptions.variant) {
-                runArguments.push("--variant", this.runOptions.variant);
-            }
-            if (this.runOptions.target) {
-                runArguments.push("--deviceId", this.runOptions.target);
-            }
+            return Q.resolve(this.runOptions.runArguments);
         }
 
-        return runArguments;
+        return Q({})
+            .then(() => {
+                if (this.runOptions.variant) {
+                    runArguments.push("--variant", this.runOptions.variant);
+                }
+
+                if (this.runOptions.target) {
+                    if (this.runOptions.target !== AndroidPlatform.simulatorString &&
+                        this.runOptions.target !== AndroidPlatform.deviceString) {
+                            runArguments.push("--deviceId", this.runOptions.target);
+                    } else {
+                        return this.adb.getOnlineDevices()
+                            .then(devices => {
+                                return devices.filter(device => {
+                                    return device.type === (this.runOptions.target === AndroidPlatform.simulatorString ? DeviceType.AndroidSdkEmulator : DeviceType.Other);
+                                });
+                            })
+                            .then(devices => {
+                                if (devices.length === 0) {
+                                    throw Error(`${AndroidPlatform.NONE_DEVICES_ERROR}${this.runOptions.target}s`);
+                                } else if (devices.length === 1) {
+                                    runArguments.push("--deviceId", devices[0].id);
+                                } else if (!this.shouldLaunchInAllDevices) {
+                                    throw Error(AndroidPlatform.MULTIPLE_DEVICES_ERROR);
+                                }
+
+                                return runArguments;
+                            });
+                    }
+                }
+
+                return Q.resolve(runArguments);
+            });
     }
 
     private initializeTargetDevicesAndPackageName(): Q.Promise<void> {
