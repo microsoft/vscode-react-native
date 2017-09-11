@@ -47,7 +47,7 @@ export class GeneralMobilePlatform {
         return Q.resolve<void>(void 0);
     }
 
-    public getRunArgument(): string[] | Q.Promise<string[]> {
+    public getRunArgument(): string[] {
         throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArgument");
     }
 }
