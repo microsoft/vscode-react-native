@@ -7,7 +7,7 @@ import * as path from "path";
 import {Log} from "../../common/log/log";
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
-import {GeneralMobilePlatform} from "../../common/generalMobilePlatform";
+import {GeneralMobilePlatform, TargetType} from "../../common/generalMobilePlatform";
 import {IIOSRunOptions} from "../../common/launchArgs";
 import {PlistBuddy} from "../../common/ios/plistBuddy";
 import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
@@ -15,15 +15,9 @@ import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {RemoteExtension} from "../../common/remoteExtension";
 import { ErrorHelper } from "../../common/error/errorHelper";
 
-type TargetType = "device" | "simulator";
-
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
     public static DEFAULT_IOS_SIMULATOR_TARGET = "iPhone 5";
-
-    private static deviceString: TargetType = "device";
-    private static simulatorString: TargetType = "simulator";
-
     private plistBuddy = new PlistBuddy();
     private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
