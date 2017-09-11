@@ -16,14 +16,11 @@ import {ErrorHelper} from "../../common/error/errorHelper";
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
 
-    private static deviceString: TargetType = "device";
-    private static simulatorString: TargetType = "simulator";
-
     private plistBuddy = new PlistBuddy();
     private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
 
-    // We should add the common iOS build/run erros we find to this list
+    // We should add the common iOS build/run errors we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
         pattern: "No devices are booted",
         message: ErrorHelper.ERROR_STRINGS.IOSSimulatorNotLaunchable,
