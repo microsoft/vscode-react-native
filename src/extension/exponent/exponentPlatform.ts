@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {ErrorHelper} from "../error/errorHelper";
-import {InternalErrorCode} from "../error/internalErrorCode";
-import {IRunOptions} from "../launchArgs";
-import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
+import {ErrorHelper} from "../../common/error/errorHelper";
+import {InternalErrorCode} from "../../common/error/internalErrorCode";
+import {IRunOptions} from "../../common/launchArgs";
+import {GeneralMobilePlatform, MobilePlatformDeps} from "../../common/generalMobilePlatform";
 import {ExponentHelper} from "./exponentHelper";
 
 import * as vscode from "vscode";
 import * as Q from "q";
-import {PackagerRunAs} from "../packager";
-import {PackagerStatus} from "../../extension/packagerStatusIndicator";
-import {SettingsHelper} from "../../extension/settingsHelper";
+import {PackagerRunAs} from "../../common/packager";
+import {PackagerStatus} from "../packagerStatusIndicator";
+import {SettingsHelper} from "../settingsHelper";
 
 const projectRootPath = SettingsHelper.getReactNativeProjectRoot();
 const workspaceRootPath = vscode.workspace.rootPath;

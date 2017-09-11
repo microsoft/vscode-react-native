@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {PlistBuddy} from "../../../src/common/ios/plistBuddy";
+import {PlistBuddy} from "../../../src/extension/ios/plistBuddy";
 
-import {IXcodeProjFile} from "../../../src/common/ios/xcodeproj";
+import {IXcodeProjFile} from "../../../src/extension/ios/xcodeproj";
 
 import * as assert from "assert";
 import * as path from "path";
@@ -11,7 +11,7 @@ import * as Q from "q";
 import * as sinon from "sinon";
 
 suite("plistBuddy", function() {
-    suite("commonContext", function() {
+    suite("extensionContext", function() {
         test("setPlistProperty should attempt to modify, then add, plist properties", function() {
             const plistFileName = "testFile.plist";
             const plistProperty = ":RCTDevMenu:ExecutorClass";

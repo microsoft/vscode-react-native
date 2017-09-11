@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {Xcodeproj} from "../../../src/common/ios/xcodeproj";
+import {Xcodeproj} from "../../../src/extension/ios/xcodeproj";
 
 import * as assert from "assert";
 import * as path from "path";
 import * as Q from "q";
 
 suite("xcodeproj", function() {
-    suite("commonContext", function() {
+    suite("extensionContext", function() {
         test("should look in the correct location for xcodeproj files and return one", function() {
             const projectRoot = path.join("/", "tmp", "myProject");
             const projectName = "foo";

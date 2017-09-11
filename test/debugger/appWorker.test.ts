@@ -11,7 +11,7 @@ import * as child_process from "child_process";
 import { MultipleLifetimesAppWorker } from "../../src/debugger/appWorker";
 import { ForkedAppWorker } from "../../src/debugger/forkedAppWorker";
 import * as ForkedAppWorkerModule from "../../src/debugger/forkedAppWorker";
-import {Packager} from "../../src/common/packager";
+import * as packagerStatus from "../../src/common/packagerStatus";
 
 suite("appWorker", function() {
     suite("debuggerContext", function() {
@@ -127,7 +127,7 @@ suite("appWorker", function() {
 
                 webSocketConstructor = sinon.stub();
                 webSocketConstructor.returns(webSocket);
-                packagerIsRunning = sinon.stub(Packager, "isPackagerRunning");
+                packagerIsRunning = sinon.stub(packagerStatus, "ensurePackagerRunning");
                 packagerIsRunning.returns(Q.resolve(true));
 
                 multipleLifetimesWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, {
@@ -248,7 +248,7 @@ suite("appWorker", function() {
             });
 
             test("without packager running should not start if there is no packager running", () => {
-                packagerIsRunning.returns(Q.resolve(false));
+                packagerIsRunning.returns(Q.reject(false));
 
                 return multipleLifetimesWorker.start()
                     .done(() => {

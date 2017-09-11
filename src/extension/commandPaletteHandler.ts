@@ -3,18 +3,18 @@
 
 import * as vscode from "vscode";
 import * as Q from "q";
-import * as XDL from "../common/exponent/xdlInterface";
+import * as XDL from "./exponent/xdlInterface";
 import {CommandExecutor} from "../common/commandExecutor";
 import {SettingsHelper} from "./settingsHelper";
 import {Log} from "../common/log/log";
 import {Packager, PackagerRunAs} from "../common/packager";
-import {AndroidPlatform} from "../common/android/androidPlatform";
+import {AndroidPlatform} from "./android/androidPlatform";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
-import {IOSDebugModeManager} from "../common/ios/iOSDebugModeManager";
-import {ExponentHelper} from "../common/exponent/exponentHelper";
+import {IOSDebugModeManager} from "./ios/iOSDebugModeManager";
+import {ExponentHelper} from "./exponent/exponentHelper";
 
 export class CommandPaletteHandler {
     private reactNativePackager: Packager;

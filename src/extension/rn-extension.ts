@@ -34,7 +34,7 @@ import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
 import {DelayedOutputChannelLogger} from "../common/log/outputChannelLogger";
-import { ExponentHelper } from "../common/exponent/exponentHelper";
+import { ExponentHelper } from "./exponent/exponentHelper";
 import { QRCodeContentProvider } from "./qrCodeContentProvider";
 import { ConfigurationReader } from "../common/configurationReader";
 

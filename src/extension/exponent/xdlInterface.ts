@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {CommandExecutor, CommandVerbosity} from "../commandExecutor";
-import {HostPlatform} from "../hostPlatform";
-import {Log} from "../log/log";
+import {CommandExecutor, CommandVerbosity} from "../../common/commandExecutor";
+import {HostPlatform} from "../../common/hostPlatform";
+import {Log} from "../../common/log/log";
 
 import * as XDLPackage from "xdl";
 import * as path from "path";

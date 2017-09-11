@@ -4,14 +4,14 @@
 import * as Q from "q";
 import * as path from "path";
 
-import {ChildProcess} from "../node/childProcess";
-import {CommandExecutor} from "../commandExecutor";
-import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
-import {IIOSRunOptions} from "../launchArgs";
+import {ChildProcess} from "../../common/node/childProcess";
+import {CommandExecutor} from "../../common/commandExecutor";
+import {GeneralMobilePlatform, MobilePlatformDeps} from "../../common/generalMobilePlatform";
+import {IIOSRunOptions} from "../../common/launchArgs";
 import {PlistBuddy} from "./plistBuddy";
 import {IOSDebugModeManager} from "./iOSDebugModeManager";
-import {OutputVerifier, PatternToFailure} from "../outputVerifier";
-import {ErrorHelper} from "../error/errorHelper";
+import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
+import {ErrorHelper} from "../../common/error/errorHelper";
 
 type TargetType = "device" | "simulator";
 

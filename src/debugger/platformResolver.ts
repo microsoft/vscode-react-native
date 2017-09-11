@@ -2,10 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {IRunOptions} from "../common/launchArgs";
-import {IOSPlatform} from "../common/ios/iOSPlatform";
-import {AndroidPlatform} from "../common/android/androidPlatform";
+import {IOSPlatform} from "../extension/ios/iOSPlatform";
+import {AndroidPlatform} from "../extension/android/androidPlatform";
 import {GeneralMobilePlatform, MobilePlatformDeps} from "../common/generalMobilePlatform";
-import {ExponentPlatform} from "../common/exponent/exponentPlatform";
+import {ExponentPlatform} from "../extension/exponent/exponentPlatform";
 
 export class PlatformResolver {
 

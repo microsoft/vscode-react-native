@@ -74,7 +74,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             this.postReplyToApp(message);
         })
         .on("error", (error: Error) => {
-            printDebuggingError("React Native worker process thrown an error", error)
+            printDebuggingError("React Native worker process thrown an error", error);
         });
 
         // Resolve with port debugger server is listening on

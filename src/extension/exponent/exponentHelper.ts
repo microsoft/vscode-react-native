@@ -6,10 +6,10 @@
 import * as path from "path";
 import * as Q from "q";
 import * as XDL from "./xdlInterface";
-import { Package } from "../node/package";
-import { ReactNativeProjectHelper } from "../reactNativeProjectHelper";
-import { FileSystem } from "../node/fileSystem";
-import { Log } from "../log/log";
+import { Package } from "../../common/node/package";
+import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
+import { FileSystem } from "../../common/node/fileSystem";
+import { Log } from "../../common/log/log";
 import stripJSONComments = require("strip-json-comments");
 
 const APP_JSON = "app.json";

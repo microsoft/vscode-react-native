@@ -3,7 +3,7 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
-import {ExponentHelper} from "./exponent/exponentHelper";
+import {ExponentHelper} from "../extension/exponent/exponentHelper";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 import {Log} from "./log/log";
@@ -16,7 +16,7 @@ import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
 
 import * as Q from "q";
 import * as path from "path";
-import * as XDL from "../common/exponent/xdlInterface";
+import * as XDL from "../extension/exponent/xdlInterface";
 import * as url from "url";
 
 export enum PackagerRunAs {

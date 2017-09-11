@@ -3,17 +3,17 @@
 
 import * as Q from "q";
 
-import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
-import {Packager} from "../packager";
-import {IAndroidRunOptions} from "../launchArgs";
+import {GeneralMobilePlatform, MobilePlatformDeps } from "../../common/generalMobilePlatform";
+import {Packager} from "../../common/packager";
+import {IAndroidRunOptions} from "../../common/launchArgs";
 import {IAdb, Adb, AndroidAPILevel, IDevice, DeviceType} from "./adb";
-import {Package} from "../node/package";
-import {PromiseUtil} from "../node/promise";
+import {Package} from "../../common/node/package";
+import {PromiseUtil} from "../../common/node/promise";
 import {PackageNameResolver} from "./packageNameResolver";
-import {OutputVerifier, PatternToFailure} from "../outputVerifier";
-import {TelemetryHelper} from "../telemetryHelper";
-import {CommandExecutor} from "../commandExecutor";
-import {LogCatMonitor} from "../../extension/android/logCatMonitor";
+import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
+import {TelemetryHelper} from "../../common/telemetryHelper";
+import {CommandExecutor} from "../../common/commandExecutor";
+import {LogCatMonitor} from "./logCatMonitor";
 
 export interface AndroidPlatformDeps extends MobilePlatformDeps {
     adb?: IAdb;
@@ -137,8 +137,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     ? this.adb.launchApp(this.runOptions.projectRoot, this.packageName, device.id)
                     : Q<void>(void 0);
             }).then(() => {
-                return this.startMonitoringLogCat(device, this.runOptions.logCatArguments).catch(error => // The LogCatMonitor failing won't stop the debugging experience
-                    this.logger.logWarning("Couldn't start LogCat monitor", error));
+                return this.startMonitoringLogCat(device, this.runOptions.logCatArguments);
             });
     }
 
@@ -196,17 +195,14 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return activeDevices && activeDevices[0];
     }
 
-    private startMonitoringLogCat(device: IDevice, logCatArguments: string): Q.Promise<void> {
+    private startMonitoringLogCat(device: IDevice, logCatArguments: string): void {
         this.stopMonitoringLogCat(); // Stop previous logcat monitor if it's running
 
         // this.logCatMonitor can be mutated, so we store it locally too
-        const logCatMonitor = this.logCatMonitor = new LogCatMonitor(device.id, logCatArguments);
-        logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
-            .catch(error =>
-                this.logger.logWarning("Error while monitoring LogCat", error))
+        this.logCatMonitor = new LogCatMonitor(device.id, logCatArguments);
+        this.logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
+            .catch(error => this.logger.logWarning("Error while monitoring LogCat", error)) // The LogCatMonitor failing won't stop the debugging experience
             .done();
-
-        return Q.resolve<void>(void 0);
     }
 
     private stopMonitoringLogCat(): void {

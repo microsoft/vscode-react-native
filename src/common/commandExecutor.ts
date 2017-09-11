@@ -216,8 +216,6 @@ export class CommandExecutor {
     }
 
     private static getCommandStatusString(command: string, status: CommandStatus) {
-        console.assert(status >= CommandStatus.Start && status <= CommandStatus.End, "Unsupported Command Status");
-
         switch (status) {
             case CommandStatus.Start:
                 return `Executing command: ${command}`;
