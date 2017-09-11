@@ -10,18 +10,18 @@ import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { RemoteExtension } from "../common/remoteExtension";
 import { ExtensionTelemetryReporter, ReassignableTelemetryReporter } from "../common/telemetryReporters";
-import { NodeDebugAdapterLogger } from "../common/log/loggers";
-import { Log } from "../common/log/log";
-import { LogLevel } from "../common/log/logHelper";
+import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger } from "vscode-chrome-debug-core";
+import { ContinuedEvent, TerminatedEvent } from "vscode-debugadapter";
+import { DebugProtocol } from "vscode-debugprotocol";
 
 import { MultipleLifetimesAppWorker } from "./appWorker";
 
+
 export function makeSession(
-    debugSessionClass: typeof ChromeDebuggerCorePackage.ChromeDebugSession,
-    debugSessionOpts: ChromeDebuggerCorePackage.IChromeDebugSessionOpts,
-    debugAdapterPackage: typeof VSCodeDebugAdapterPackage,
+    debugSessionClass: typeof ChromeDebugSession,
+    debugSessionOpts: IChromeDebugSessionOpts,
     telemetryReporter: ReassignableTelemetryReporter,
-    appName: string, version: string): typeof ChromeDebuggerCorePackage.ChromeDebugSession {
+    appName: string, version: string): typeof ChromeDebugSession {
 
     return class extends debugSessionClass {
 
@@ -34,7 +34,7 @@ export function makeSession(
         }
 
         // Override ChromeDebugSession's sendEvent to control what we will send to client
-        public sendEvent(event: VSCodeDebugAdapterPackage.Event): void {
+        public sendEvent(event: DebugProtocol.Event): void {
             // Do not send "terminated" events signaling about session's restart to client as it would cause it
             // to restart adapter's process, while we want to stay alive and don't want to interrupt connection
             // to packager.
@@ -44,7 +44,7 @@ export function makeSession(
                 // Worker has been reloaded and switched to "continue" state
                 // So we have to send "continued" event to client instead of "terminated"
                 // Otherwise client might mistakenly show "stopped" state
-                let continuedEvent: VSCodeDebugAdapterPackage.ContinuedEvent = {
+                let continuedEvent: ContinuedEvent = {
                     event: "continued",
                     type: "event",
                     seq: event["seq"], // tslint:disable-line
@@ -58,7 +58,7 @@ export function makeSession(
             super.sendEvent(event);
         }
 
-        protected dispatchRequest(request: VSCodeDebugAdapterPackage.Request): void {
+        protected dispatchRequest(request: DebugProtocol.Request): void {
             if (request.command === "disconnect")
                 return this.disconnect(request);
 
@@ -71,7 +71,7 @@ export function makeSession(
             return super.dispatchRequest(request);
         }
 
-        private launch(request: VSCodeDebugAdapterPackage.Request): void {
+        private launch(request: DebugProtocol.Request): void {
             this.requestSetup(request.arguments);
             this.remoteExtension.launch(request)
                 .then(() => {
@@ -85,7 +85,7 @@ export function makeSession(
                 });
         }
 
-        private attach(request: VSCodeDebugAdapterPackage.Request): void {
+        private attach(request: DebugProtocol.Request): void {
             this.requestSetup(request.arguments);
             this.remoteExtension.getPackagerPort()
                 .then((packagerPort: number) => {
@@ -93,7 +93,7 @@ export function makeSession(
                 });
         }
 
-        private disconnect(request: VSCodeDebugAdapterPackage.Request): void {
+        private disconnect(request: DebugProtocol.Request): void {
             // The client is about to disconnect so first we need to stop app worker
             if (this.appWorker) {
                 this.appWorker.stop();
@@ -102,7 +102,7 @@ export function makeSession(
             // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
             if (request.arguments.platform === "android") {
                 this.remoteExtension.stopMonitoringLogcat()
-                    .catch(reason => Log.logError(`WARNING: Couldn't stop monitoring logcat: ${reason.message || reason}\n`))
+                    .catch(reason => logger.warn(`Couldn't stop monitoring logcat: ${reason.message || reason}`))
                     .finally(() => super.dispatchRequest(request));
             } else {
                 super.dispatchRequest(request);
@@ -116,8 +116,6 @@ export function makeSession(
             // Start to send telemetry
             telemetryReporter.reassignTo(new ExtensionTelemetryReporter(
                 appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
-
-            Log.GlobalLogger = Log.getLogger(NodeDebugAdapterLogger, debugAdapterPackage, this);
         }
 
         /**
@@ -125,13 +123,14 @@ export function makeSession(
          * Attach should:
          * - Enable js debugging
          */
-        private attachRequest(
-            request: VSCodeDebugAdapterPackage.Request,
+        // tslint:disable-next-line:member-ordering
+        protected attachRequest(
+            request: DebugProtocol.Request,
             packagerPort: number): Q.Promise<void> {
             return TelemetryHelper.generate("attach", (generator) => {
                 return Q({})
                     .then(() => {
-                        Log.logMessage("Starting debugger app worker.");
+                        logger.log("Starting debugger app worker.");
                         // TODO: remove dependency on args.program - "program" property is technically
                         // no more required in launch configuration and could be removed
                         const workspaceRootPath = path.resolve(path.dirname(request.arguments.program), "..");
@@ -140,7 +139,7 @@ export function makeSession(
                         // If launch is invoked first time, appWorker is undefined, so create it here
                         this.appWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath);
                         this.appWorker.on("connected", (port: number) => {
-                            Log.logMessage("Debugger worker loaded runtime on port " + port);
+                            logger.log("Debugger worker loaded runtime on port " + port);
                             // Don't mutate original request to avoid side effects
                             let attachArguments = Object.assign({}, request.arguments, { port, restart: true, request: "attach" });
                             let attachRequest = Object.assign({}, request, { command: "attach", arguments: attachArguments });
@@ -148,7 +147,7 @@ export function makeSession(
                             // Reinstantiate debug adapter, as the current implementation of ChromeDebugAdapter
                             // doesn't allow us to reattach to another debug target easily. As of now it's easier
                             // to throw previous instance out and create a new one.
-                            this._debugAdapter = new (<any>debugSessionOpts.adapter)(debugSessionOpts, this);
+                            (this as any)._debugAdapter = new (<any>debugSessionOpts.adapter)(debugSessionOpts, this);
                             super.dispatchRequest(attachRequest);
                         });
 
@@ -162,30 +161,19 @@ export function makeSession(
          * Logs error to user and finishes the debugging process.
          */
         private bailOut(message: string): void {
-            Log.logError(`Could not debug. ${message}`);
-            this.sendEvent(new debugAdapterPackage.TerminatedEvent());
+            logger.error(`Could not debug. ${message}`);
+            this.sendEvent(new TerminatedEvent());
         }
     };
 }
 
-export function makeAdapter(debugAdapterClass: typeof Node2DebugAdapterPackage.Node2DebugAdapter): typeof Node2DebugAdapterPackage.Node2DebugAdapter {
+export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeof ChromeDebugAdapter {
     return class extends debugAdapterClass {
         public doAttach(port: number, targetUrl?: string, address?: string, timeout?: number): Promise<void> {
             // We need to overwrite ChromeDebug's _attachMode to let Node2 adapter
             // to set up breakpoints on initial pause event
-            this._attachMode = false;
+            (this as any)._attachMode = false;
             return super.doAttach(port, targetUrl, address, timeout);
-        }
-
-        public setBreakpoints(args: any, requestSeq: number, ids?: number[]): Promise<Node2DebugAdapterPackage.ISetBreakpointsResponseBody> {
-            // We need to overwrite ChromeDebug's setBreakpoints to get rid unhandled rejections
-            // when breakpoints are being set up unsuccessfully
-            return super.setBreakpoints(args, requestSeq, ids).catch((err) => {
-                Log.logInternalMessage(LogLevel.Error, err.message);
-                return {
-                    breakpoints: [],
-                };
-            });
         }
     };
 }

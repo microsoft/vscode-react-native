@@ -2,8 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {FileSystem} from "../common/node/fileSystem";
-import {Log} from "../common/log/log";
-import {LogLevel} from "../common/log/logHelper";
+import { logger } from "vscode-chrome-debug-core";
 import { ensurePackagerRunning } from "../common/packagerStatus";
 import path = require("path");
 import Q = require("q");
@@ -55,7 +54,7 @@ export class ScriptImporter {
             return waitForSourceMapping
                 .then(() => this.writeAppScript(scriptBody, scriptUrl))
                 .then((scriptFilePath: string) => {
-                    Log.logInternalMessage(LogLevel.Info, `Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
+                    logger.verbose(`Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
                     return { contents: scriptBody, filepath: scriptFilePath };
                 });
         });
@@ -68,7 +67,7 @@ export class ScriptImporter {
             .then(() => {
                 let debuggerWorkerURL = `http://localhost:${this.packagerPort}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
                 let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
-                Log.logInternalMessage(LogLevel.Info, "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
+                logger.verbose("About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
 
                 return Request.request(debuggerWorkerURL, true)
                     .then((body: string) => {
