@@ -6,14 +6,12 @@ import * as path from "path";
 
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
-import {GeneralMobilePlatform, MobilePlatformDeps} from "../../common/generalMobilePlatform";
+import {GeneralMobilePlatform, MobilePlatformDeps, TargetType} from "../../common/generalMobilePlatform";
 import {IIOSRunOptions} from "../../common/launchArgs";
 import {PlistBuddy} from "./plistBuddy";
 import {IOSDebugModeManager} from "./iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {ErrorHelper} from "../../common/error/errorHelper";
-
-type TargetType = "device" | "simulator";
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";

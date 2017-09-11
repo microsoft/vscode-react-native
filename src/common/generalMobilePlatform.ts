@@ -17,12 +17,17 @@ export interface MobilePlatformDeps {
     packageStatusIndicator?: PackagerStatusIndicator;
 }
 
+export type TargetType = "device" | "simulator";
+
 export class GeneralMobilePlatform {
     protected projectPath: string;
     protected platformName: string;
     protected packager: Packager;
     protected packageStatusIndicator: PackagerStatusIndicator;
     protected logger: DelayedOutputChannelLogger;
+
+    protected static deviceString: TargetType = "device";
+    protected static simulatorString: TargetType = "simulator";
 
     constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;

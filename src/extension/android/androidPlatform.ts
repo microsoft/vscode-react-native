@@ -59,6 +59,17 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IAndroidRunOptions, platformDeps: AndroidPlatformDeps = {}) {
         super(runOptions, platformDeps);
         this.adb = platformDeps.adb || new Adb();
+
+        if (this.runOptions.target === AndroidPlatform.simulatorString ||
+            this.runOptions.target === AndroidPlatform.deviceString) {
+
+            const message = `Target ${this.runOptions.target} is not supported for Android ` +
+                "platform. If you want to use particular device or simulator for launching " +
+                "Android app, please specify  device id (as in 'adb devices' output) instead.";
+
+            this.logger.logMessage(message);
+            delete this.runOptions.target;
+        }
     }
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {

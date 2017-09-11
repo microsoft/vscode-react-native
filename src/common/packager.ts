@@ -161,15 +161,29 @@ export class Packager {
             });
     }
 
-    private prewarmBundleCacheWithBundleFilename(bundleFilename: string, platform: string) {
+    private prewarmBundleCacheWithBundleFilename(bundleFilename: string, platform: string): Q.Promise<void> {
+        const indexFileName = path.resolve(this.projectPath, bundleFilename + ".js");
         const bundleURL = `http://${this.getHost()}/${bundleFilename}.bundle?platform=${platform}`;
-        Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
-        return Request.request(bundleURL, true).then(() => {
-            Log.logMessage("The Bundle Cache was prewarmed.");
-        }).catch(() => {
-            // The attempt to prefetch the bundle failed.
-            // This may be because the bundle has a different name that the one we guessed so we shouldn't treat this as fatal.
-        });
+        return new Node.FileSystem().exists(indexFileName)
+            .then(exists => {
+                // If guessed entry point doesn't exist - skip prewarming, since it's not possible
+                // at this moment to determine _real_ bundle/ entry point name anyway
+                if (!exists) {
+                    Log.logInternalMessage(LogLevel.Info, `Entry point at ${indexFileName} ` +
+                        `doesn't exist. Skipping prewarming...`);
+                    return;
+                }
+
+                Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
+                return Request.request(bundleURL, true)
+                    .then(() => {
+                        Log.logMessage("The Bundle Cache was prewarmed.");
+                    });
+            })
+            .catch(() => {
+                // The attempt to prefetch the bundle failed. This may be because the bundle has
+                // a different name that the one we guessed so we shouldn't treat this as fatal.
+            });
     }
 
     private start(runAs: PackagerRunAs, resetCache: boolean = false): Q.Promise<void> {
