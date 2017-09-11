@@ -62,7 +62,14 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         super(runOptions, { remoteExtension: remoteExtension });
         this.adb = adb;
 
-        if (this.runOptions.target === AndroidPlatform.simulatorString || this.runOptions.target === AndroidPlatform.deviceString) {
+        if (this.runOptions.target === AndroidPlatform.simulatorString ||
+            this.runOptions.target === AndroidPlatform.deviceString) {
+
+            const message = `Target ${this.runOptions.target} is not supported for Android ` +
+                "platform. If you want to use particular device or simulator for launching " +
+                "Android app, please specify  device id (as in 'adb devices' output) instead.";
+
+            Log.logMessage(message);
             delete this.runOptions.target;
         }
     }
