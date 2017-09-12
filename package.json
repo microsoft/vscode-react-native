@@ -193,6 +193,18 @@
               "sourceMapPathOverrides": {
                 "type": "object",
                 "description": "A set of mappings for rewriting the locations of source files from what the sourcemap says, to their locations on disk. See README for details."
+              },
+              "trace": {
+                "type": "string",
+                "enum": [
+                  "verbose",
+                  "log",
+                  "warn",
+                  "error",
+                  "stop"
+                ],
+                "default": "log",
+                "description": "Setup logging level in debugger."
               }
             }
           },
@@ -256,6 +268,18 @@
               "scheme": {
                 "type": "string",
                 "description": "A scheme name to be passed to react-native run-ios, e.g. 'devDebug' to specify --scheme=devDebug"
+              },
+              "trace": {
+                "type": "string",
+                "enum": [
+                  "verbose",
+                  "log",
+                  "warn",
+                  "error",
+                  "stop"
+                ],
+                "default": "log",
+                "description": "Setup logging level in debugger."
               }
             }
           }

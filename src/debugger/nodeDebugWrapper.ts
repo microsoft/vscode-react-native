@@ -10,8 +10,8 @@ import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { RemoteExtension } from "../common/remoteExtension";
 import { ExtensionTelemetryReporter, ReassignableTelemetryReporter } from "../common/telemetryReporters";
-import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger } from "vscode-chrome-debug-core";
-import { ContinuedEvent, TerminatedEvent } from "vscode-debugadapter";
+import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger  } from "vscode-chrome-debug-core";
+import { ContinuedEvent, TerminatedEvent, Logger } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 
 import { MultipleLifetimesAppWorker } from "./appWorker";
@@ -110,6 +110,14 @@ export function makeSession(
         }
 
         private requestSetup(args: any): void {
+            let logLevel: string = args.trace;
+            if (logLevel) {
+                logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
+                logger.setup(Logger.LogLevel[logLevel], false);
+            } else {
+                logger.setup(Logger.LogLevel.Log, false);
+            }
+
             this.projectRootPath = getProjectRoot(args);
             this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
 
