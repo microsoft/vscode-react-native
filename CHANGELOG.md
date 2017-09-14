@@ -1,3 +1,10 @@
+## 0.4.2
+* Skip prewarming cache in case when guessed entry point doesn't exist
+* Added `runArguments` options which be passed to 'react-native run-\<platform\>' command
+* Documentation update [#515](https://github.com/Microsoft/vscode-react-native/pull/515)
+* Use `react-native run-ios --device` instead of ideviceinstaller
+* Fixed automatic enable of JS debugging on iOS simulator
+
 ## 0.4.1
 * Added notice about `.vscode/.react` directory (#505)
 * Fixed bug in typescript sourcemaps rewrite logic when project and vscode are on different drives
