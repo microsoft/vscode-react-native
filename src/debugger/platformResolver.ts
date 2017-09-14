@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {IRunOptions} from "../common/launchArgs";
+import {IRunOptions} from "../extension/launchArgs";
 import {IOSPlatform} from "../extension/ios/iOSPlatform";
 import {AndroidPlatform} from "../extension/android/androidPlatform";
-import {GeneralMobilePlatform, MobilePlatformDeps} from "../common/generalMobilePlatform";
+import {GeneralMobilePlatform, MobilePlatformDeps} from "../extension/generalMobilePlatform";
 import {ExponentPlatform} from "../extension/exponent/exponentPlatform";
 
 export class PlatformResolver {

@@ -3,13 +3,13 @@
 
 import * as Q from "q";
 import {ChildProcess} from "child_process";
-import {Log} from "./log/log";
+import {ILogger, LogHelper} from "../extension/log/LogHelper";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
 import {HostPlatform, HostPlatformId} from "./hostPlatform";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
-import {ILogger} from "./log/loggers";
+import {ConsoleLogger} from "../extension/log/ConsoleLogger";
 
 export enum CommandVerbosity {
     OUTPUT,
@@ -40,17 +40,17 @@ export class CommandExecutor {
     private logger: ILogger;
     private childProcess = new Node.ChildProcess();
 
-    constructor(currentWorkingDirectory: string = process.cwd(), logger: ILogger = Log) {
+    constructor(currentWorkingDirectory: string = process.cwd(), logger: ILogger = LogHelper.getLogger(ConsoleLogger)) {
         this.currentWorkingDirectory = currentWorkingDirectory;
         this.logger = logger;
     }
 
     public execute(command: string, options: Options = {}): Q.Promise<void> {
-        this.logger.logMessage(CommandExecutor.getCommandStatusString(command, CommandStatus.Start));
+        this.logger.log(CommandExecutor.getCommandStatusString(command, CommandStatus.Start));
         return this.childProcess.execToString(command, { cwd: this.currentWorkingDirectory, env: options.env })
             .then(stdout => {
-                this.logger.logMessage(stdout);
-                this.logger.logMessage(CommandExecutor.getCommandStatusString(command, CommandStatus.End));
+                this.logger.log(stdout);
+                this.logger.log(CommandExecutor.getCommandStatusString(command, CommandStatus.End));
             },
             (reason: Error) =>
                 this.generateRejectionForCommand(command, reason));
@@ -112,11 +112,11 @@ export class CommandExecutor {
                     return Q.resolve(void 0);
                 }
             }).then(() => {
-                this.logger.logMessage("Packager stopped");
+                this.logger.log("Packager stopped");
             });
 
         } else {
-            this.logger.logMessage("Packager not found");
+            this.logger.log("Packager not found");
             return Q.resolve<void>(void 0);
         }
     }
@@ -147,19 +147,19 @@ export class CommandExecutor {
             const now = Date.now();
             if (now - lastDotTime > timeBetweenDots) {
                 lastDotTime = now;
-                this.logger.logString(".");
+                this.logger.logStream(".", process.stdout);
             }
         };
 
         if (options.verbosity === CommandVerbosity.OUTPUT) {
-            this.logger.logMessage(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start));
+            this.logger.log(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start));
         }
 
         const result = this.childProcess.spawn(command, args, spawnOptions);
 
         result.stdout.on("data", (data: Buffer) => {
             if (options.verbosity === CommandVerbosity.OUTPUT) {
-                this.logger.logStreamData(data, process.stdout);
+                this.logger.logStream(data, process.stdout);
             } else if (options.verbosity === CommandVerbosity.PROGRESS) {
                 printDot();
             }
@@ -167,7 +167,7 @@ export class CommandExecutor {
 
         result.stderr.on("data", (data: Buffer) => {
             if (options.verbosity === CommandVerbosity.OUTPUT) {
-                this.logger.logStreamData(data, process.stderr);
+                this.logger.logStream(data, process.stderr);
             } else if (options.verbosity === CommandVerbosity.PROGRESS) {
                 printDot();
             }
@@ -176,9 +176,9 @@ export class CommandExecutor {
         result.outcome = result.outcome.then(
             () => {
                 if (options.verbosity === CommandVerbosity.OUTPUT) {
-                    this.logger.logMessage(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End));
+                    this.logger.log(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End));
                 }
-                this.logger.logString("\n");
+                this.logger.logStream("\n", process.stdout);
                 deferred.resolve(void 0);
             },
             reason => {
@@ -192,20 +192,20 @@ export class CommandExecutor {
         const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         const commandWithArgs = command + " " + args.join(" ");
 
-        this.logger.logMessage(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start));
+        this.logger.log(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start));
         const result = this.childProcess.spawn(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
-            this.logger.logStreamData(data, process.stderr);
+            this.logger.logStream(data, process.stderr);
         });
 
         result.stdout.on("data", (data: Buffer) => {
-            this.logger.logStreamData(data, process.stdout);
+            this.logger.logStream(data, process.stdout);
         });
 
         result.outcome = result.outcome.then(
             () =>
-                this.logger.logMessage(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End)),
+                this.logger.log(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End)),
             reason =>
                 this.generateRejectionForCommand(commandWithArgs, reason));
         return result;

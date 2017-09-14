@@ -12,10 +12,7 @@ import {CommandExecutor} from "../common/commandExecutor";
 import {JsConfigHelper} from "./tsconfigHelper";
 import {SettingsHelper} from "./settingsHelper";
 import {HostPlatform} from "../common/hostPlatform";
-import {Log} from "../common/log/log";
-import {LogLevel} from "../common/log/logHelper";
-
-
+import {ConsoleLogger} from "./log/ConsoleLogger";
 
 interface IInstallProps {
     installed: boolean;
@@ -23,6 +20,7 @@ interface IInstallProps {
 }
 
 export class IntellisenseHelper {
+    private static logger: ConsoleLogger = new ConsoleLogger();
 
     private static s_typeScriptVersion = "1.8.2";           // preferred version of TypeScript for legacy VSCode installs
     private static s_vsCodeVersion = "0.10.10-insider";     // preferred version of VSCode (current is 0.10.9, 0.10.10-insider+ will include native TypeScript support)
@@ -56,7 +54,7 @@ export class IntellisenseHelper {
             .then((isRestartRequired: boolean) => IntellisenseHelper.configureWorkspaceSettings(isRestartRequired))
             .then((isRestartRequired: boolean) => IntellisenseHelper.warnIfRestartIsRequired(isRestartRequired))
             .catch((err: any) => {
-                Log.logError("Error while setting up IntelliSense: " + err);
+                IntellisenseHelper.logger.error("Error while setting up IntelliSense: " + err);
                 return Q.reject<void>(err);
             });
 
@@ -135,14 +133,14 @@ export class IntellisenseHelper {
                 if (installProps.installed === true) {
 
                     if (semver.neq(IntellisenseHelper.s_typeScriptVersion, installProps.version)) {
-                        Log.logInternalMessage(LogLevel.Debug, "TypeScript is installed with the wrong version: " + installProps.version);
+                        IntellisenseHelper.logger.debug("TypeScript is installed with the wrong version: " + installProps.version);
                         return true;
                     } else {
-                        Log.logInternalMessage(LogLevel.Debug, "Installed TypeScript version is correct");
+                        IntellisenseHelper.logger.debug("Installed TypeScript version is correct");
                         return false;
                     }
                 } else {
-                    Log.logInternalMessage(LogLevel.Debug, "TypeScript is not installed");
+                    IntellisenseHelper.logger.debug("TypeScript is not installed");
                     return true;
                 }
             })
@@ -161,7 +159,7 @@ export class IntellisenseHelper {
                             return true;
                         })
                         .catch((err: any) => {
-                            Log.logError("Error attempting to install TypeScript: " + err);
+                            IntellisenseHelper.logger.error("Error attempting to install TypeScript: " + err);
                             return Q.reject<boolean>(err);
                         });
 
@@ -241,7 +239,7 @@ export class IntellisenseHelper {
                 };
 
                 if (installed === true) {
-                    Log.logInternalMessage(LogLevel.Debug, "TypeScript is installed - checking version");
+                    IntellisenseHelper.logger.debug("TypeScript is installed - checking version");
                     return IntellisenseHelper.readPackageJson()
                         .then((version: string) => {
                             installProps.version = version;
@@ -273,7 +271,7 @@ export class IntellisenseHelper {
                 return data.version;
             })
             .catch((err: any) => {
-                Log.logError("Error while processing package.json: " + err);
+                IntellisenseHelper.logger.error("Error while processing package.json: " + err);
                 return "0.0.0";
             });
     }

@@ -3,8 +3,8 @@
 
 import * as Q from "q";
 
-import {Log} from "../../common/log/log";
-import {LogLevel} from "../../common/log/logHelper";
+import {OutputChannelLogger} from "../log/OutputChannelLogger";
+import {LogHelper} from "../log/LogHelper";
 import {PromiseUtil} from "../../common/node/promise";
 import {PlistBuddy} from "./plistBuddy";
 import {SimulatorPlist} from "./simulatorPlist";
@@ -15,6 +15,7 @@ export class IOSDebugModeManager {
     private static REMOTE_DEBUGGING_SETTING_NAME = ":RCTDevMenu:isDebuggingRemotely";
     private static MAX_RETRIES = 5;
     private static DELAY_UNTIL_RETRY = 2000;
+    private logger: OutputChannelLogger = LogHelper.getLoggerWithCache(OutputChannelLogger, LogHelper.MAIN_CHANNEL_NAME, LogHelper.MAIN_CHANNEL_NAME, true);
 
     private projectRoot: string;
     private simulatorPlist: SimulatorPlist;
@@ -73,7 +74,7 @@ export class IOSDebugModeManager {
 
     private tryOneAttemptToFindPListFile(): Q.Promise<string> {
         return this.simulatorPlist.findPlistFile().catch(reason => {
-            Log.logInternalMessage(LogLevel.Info, `Failed one attempt to find plist file: ${reason}`);
+            this.logger.info(`Failed one attempt to find plist file: ${reason}`);
             return "";
         });
     }

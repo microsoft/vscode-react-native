@@ -5,9 +5,9 @@ import * as Q from "q";
 import * as vscode from "vscode";
 
 import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
-import { OutputChannelLogger } from "../../common/log/outputChannelLogger";
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ExecutionsFilterBeforeTimestamp } from "../../common/executionsLimiter";
-import {Log} from "../../common/log/log";
+import { LogHelper } from "../log/LogHelper";
 
 /* This class will print the LogCat messages to an Output Channel. The configuration for logcat can be cutomized in
    the .vscode/launch.json file by defining a setting named logCatArguments for the configuration being used. The
@@ -40,7 +40,7 @@ export class LogCatMonitor implements vscode.Disposable {
     public start(): Q.Promise<void> {
         const logCatArguments = this.getLogCatArguments();
         const adbParameters = ["-s", this._deviceId, "logcat"].concat(logCatArguments);
-        this._logger.logMessage(`Monitoring LogCat for device ${this._deviceId} with arguments: ${logCatArguments}`);
+        this._logger.log(`Monitoring LogCat for device ${this._deviceId} with arguments: ${logCatArguments}`);
 
         this._logCatSpawn = new ChildProcess().spawn("adb", adbParameters);
 
@@ -48,19 +48,19 @@ export class LogCatMonitor implements vscode.Disposable {
             we won't print messages for the first 0.5 seconds */
         const filter = new ExecutionsFilterBeforeTimestamp(/*delayInSeconds*/ 0.5);
         this._logCatSpawn.stderr.on("data", (data: Buffer) => {
-            filter.execute(() => this._logger.logMessage(data.toString(), /*formatMessage*/ false));
+            filter.execute(() => this._logger.log(data.toString()));
         });
 
         this._logCatSpawn.stdout.on("data", (data: Buffer) => {
-            filter.execute(() => this._logger.logMessage(data.toString(), /*formatMessage*/ false));
+            filter.execute(() => this._logger.log(data.toString()));
         });
 
         return this._logCatSpawn.outcome.then(
             () =>
-                this._logger.logMessage("LogCat monitoring stopped because the process exited."),
+                this._logger.log("LogCat monitoring stopped because the process exited."),
             (reason) => {
                 if (!this._logCatSpawn) { // We stopped log cat ourselves
-                    this._logger.logMessage("LogCat monitoring stopped because the debugging session finished");
+                    this._logger.log("LogCat monitoring stopped because the debugging session finished");
                     return Q.resolve(void 0);
                 } else {
                     return Q.reject<void>(reason); // Unkown error. Pass it up the promise chain
@@ -78,7 +78,7 @@ export class LogCatMonitor implements vscode.Disposable {
         }
 
         for (let name of Object.keys(LogCatMonitor.loggers)) {
-            Log.clearCacheByName(OutputChannelLogger, name);
+            LogHelper.clearCacheByName(OutputChannelLogger, name);
             LogCatMonitor.loggers[name].getOutputChannel().dispose();
         }
     }
@@ -99,7 +99,7 @@ export class LogCatMonitor implements vscode.Disposable {
      */
     private static getLogger(name: string): OutputChannelLogger {
         if (!LogCatMonitor.loggers[name]) {
-            LogCatMonitor.loggers[name] = Log.getLogger(OutputChannelLogger, vscode.window.createOutputChannel(name));
+            LogCatMonitor.loggers[name] = LogHelper.getLogger(OutputChannelLogger, name);
         }
         LogCatMonitor.loggers[name].getOutputChannel().clear();
         return LogCatMonitor.loggers[name];

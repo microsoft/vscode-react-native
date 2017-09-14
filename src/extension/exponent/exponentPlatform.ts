@@ -3,8 +3,8 @@
 
 import {ErrorHelper} from "../../common/error/errorHelper";
 import {InternalErrorCode} from "../../common/error/internalErrorCode";
-import {IRunOptions} from "../../common/launchArgs";
-import {GeneralMobilePlatform, MobilePlatformDeps} from "../../common/generalMobilePlatform";
+import {IRunOptions} from "../launchArgs";
+import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
 import {ExponentHelper} from "./exponentHelper";
 
 import * as vscode from "vscode";
@@ -27,17 +27,17 @@ export class ExponentPlatform extends GeneralMobilePlatform {
 
     public runApp(): Q.Promise<void> {
         const outputMessage = `Application is running on Exponent. Open your exponent app at ${this.exponentTunnelPath} to see it.`;
-        this.logger.logMessage(outputMessage);
+        this.logger.log(outputMessage);
         return Q.resolve<void>(void 0);
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
-        this.logger.logMessage("Application is running on Exponent. Please shake device and select 'Debug JS Remotely' to enable debugging.");
+        this.logger.log("Application is running on Exponent. Please shake device and select 'Debug JS Remotely' to enable debugging.");
         return Q.resolve<void>(void 0);
     }
 
     public startPackager(): Q.Promise<void> {
-        this.logger.logMessage("Starting Exponent Packager.");
+        this.logger.log("Starting Exponent Packager.");
         return this.packager.isRunning().then((running) => {
             if (running) {
                 if (this.packager.getRunningAs() !== PackagerRunAs.EXPONENT) {
@@ -45,7 +45,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                         this.packageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
                 }
 
-                this.logger.logMessage("Attaching to running Exponent packager");
+                this.logger.log("Attaching to running Exponent packager");
             }
             return void 0;
         }).then(() =>

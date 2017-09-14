@@ -3,9 +3,9 @@
 
 import * as Q from "q";
 
-import {GeneralMobilePlatform, MobilePlatformDeps } from "../../common/generalMobilePlatform";
+import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import {Packager} from "../../common/packager";
-import {IAndroidRunOptions} from "../../common/launchArgs";
+import {IAndroidRunOptions} from "../launchArgs";
 import {IAdb, Adb, AndroidAPILevel, IDevice, DeviceType} from "./adb";
 import {Package} from "../../common/node/package";
 import {PromiseUtil} from "../../common/node/promise";
@@ -67,7 +67,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 "platform. If you want to use particular device or simulator for launching " +
                 "Android app, please specify  device id (as in 'adb devices' output) instead.";
 
-            this.logger.logMessage(message);
+            this.logger.log(message);
             delete this.runOptions.target;
         }
     }
@@ -160,7 +160,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     if (apiVersion >= AndroidAPILevel.LOLLIPOP) { // If we support adb reverse
                         return this.adb.reverseAdd(device.id, Packager.DEFAULT_PORT.toString(), this.runOptions.packagerPort);
                     } else {
-                        this.logger.logWarning(`Device ${device.id} supports only API Level ${apiVersion}. `
+                        this.logger.warning(`Device ${device.id} supports only API Level ${apiVersion}. `
                         + `Level ${AndroidAPILevel.LOLLIPOP} is needed to support port forwarding via adb reverse. `
                         + "For debugging to work you'll need <Shake or press menu button> for the dev menu, "
                         + "go into <Dev Settings> and configure <Debug Server host & port for Device> to be "
@@ -212,7 +212,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         // this.logCatMonitor can be mutated, so we store it locally too
         this.logCatMonitor = new LogCatMonitor(device.id, logCatArguments);
         this.logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
-            .catch(error => this.logger.logWarning("Error while monitoring LogCat", error)) // The LogCatMonitor failing won't stop the debugging experience
+            .catch(error => this.logger.warning("Error while monitoring LogCat", error)) // The LogCatMonitor failing won't stop the debugging experience
             .done();
     }
 

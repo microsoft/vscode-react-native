@@ -7,7 +7,7 @@ import * as path from "path";
 import * as mockFs from "mock-fs";
 
 import {AndroidPlatform} from "../../../src/extension/android/androidPlatform";
-import {IAndroidRunOptions} from "../../../src/common/launchArgs";
+import {IAndroidRunOptions} from "../../../src/extension/launchArgs";
 import {FileSystem} from "../../../src/common/node/fileSystem";
 import {ReactNative022} from "../../resources/reactNative022";
 import {AdbSimulator} from "../../resources/simulators/adbSimulator";

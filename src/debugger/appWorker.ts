@@ -8,7 +8,6 @@ import { EventEmitter } from "events";
 import { ensurePackagerRunning } from "../common/packagerStatus";
 import {ErrorHelper} from "../common/error/errorHelper";
 import { logger } from "vscode-chrome-debug-core";
-import { LogHelper } from "../common/log/logHelper";
 import {ExecutionsLimiter} from "../common/executionsLimiter";
 import { FileSystem as NodeFileSystem} from "../common/node/fileSystem";
 import { ForkedAppWorker } from "./forkedAppWorker";
@@ -28,9 +27,8 @@ export interface IDebuggeeWorker {
 
 function printDebuggingError(message: string, reason: any) {
     const nestedError = ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`);
-    const errorMessageToLog = LogHelper.getErrorString(nestedError);
 
-    logger.error(errorMessageToLog);
+    logger.error(nestedError.message);
 }
 
     /** This class will create a SandboxedAppWorker that will run the RN App logic, and then create a socket

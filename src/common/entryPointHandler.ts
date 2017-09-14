@@ -7,8 +7,8 @@ import {InternalError} from "./error/internalError";
 import {TelemetryHelper} from "./telemetryHelper";
 import {TelemetryGenerator} from "./telemetryGenerators";
 import {Telemetry} from "./telemetry";
-import {Log} from "./log/log";
-import {ILogger} from "./log/loggers";
+import {ConsoleLogger} from "../extension/log/ConsoleLogger";
+import {ILogger} from "../extension/log/LogHelper";
 
 export enum ProcessType {
     Extension,
@@ -20,10 +20,7 @@ export enum ProcessType {
 export class EntryPointHandler {
     private processType: ProcessType;
 
-    constructor(processType: ProcessType, logger?: ILogger) {
-        if (logger) {
-            Log.GlobalLogger = logger;
-        }
+    constructor(processType: ProcessType, private logger: ILogger = new ConsoleLogger()) {
 
         this.processType = processType;
     }
@@ -45,7 +42,7 @@ export class EntryPointHandler {
             Telemetry.init(appName, appVersion, reporter);
             return this.runFunction(appName, error, codeToRun, true);
         } catch (error) {
-            Log.logError(error, false);
+            this.logger.error(error);
             throw error;
         }
     }
@@ -54,7 +51,7 @@ export class EntryPointHandler {
         resultOfCode.done(() => { }, reason => {
             const isDebugeeProcess = this.processType === ProcessType.Debugee;
             const shouldLogStack = !errorsAreFatal || isDebugeeProcess;
-            Log.logError(ErrorHelper.wrapError(error, reason), /*logStack*/ shouldLogStack);
+            this.logger.error(error.message, ErrorHelper.wrapError(error, reason), shouldLogStack);
             // For the debugee process we don't want to throw an exception because the debugger
             // will appear to the user if he turned on the VS Code uncaught exceptions feature.
             if (errorsAreFatal) {

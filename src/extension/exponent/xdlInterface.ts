@@ -3,11 +3,14 @@
 
 import {CommandExecutor, CommandVerbosity} from "../../common/commandExecutor";
 import {HostPlatform} from "../../common/hostPlatform";
-import {Log} from "../../common/log/log";
+import {LogHelper} from "../log/LogHelper";
+import {OutputChannelLogger} from "../log/OutputChannelLogger";
 
 import * as XDLPackage from "xdl";
 import * as path from "path";
 import * as Q from "q";
+
+const logger: OutputChannelLogger = LogHelper.getLoggerWithCache(OutputChannelLogger, LogHelper.MAIN_CHANNEL_NAME, LogHelper.MAIN_CHANNEL_NAME, true);
 
 const EXPO_DEPS: string[] = [
     "xdl",
@@ -22,13 +25,13 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
     }
     // Don't do the require if we don't actually need it
     try {
-        Log.logMessage("Getting exponent dependecy.", false);
+        logger.log("Getting exponent dependecy.");
         const xdl = require("xdl");
         xdlPackage = Q(xdl);
         return xdlPackage;
     } catch (e) {
         if (e.code === "MODULE_NOT_FOUND") {
-            Log.logMessage("Dependency not present. Installing it...", false);
+            logger.log("Dependency not present. Installing it...");
         } else {
             throw e;
         }

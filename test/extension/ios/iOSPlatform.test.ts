@@ -4,7 +4,6 @@
 import * as assert from "assert";
 
 import { IOSPlatform } from "../../../src/extension/ios/iOSPlatform";
-// import { IRunOptions } from "../../../src/common/launchArgs";
 
 import "should";
 

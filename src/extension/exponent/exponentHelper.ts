@@ -9,7 +9,8 @@ import * as XDL from "./xdlInterface";
 import { Package } from "../../common/node/package";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
 import { FileSystem } from "../../common/node/fileSystem";
-import { Log } from "../../common/log/log";
+import {OutputChannelLogger} from "../log/OutputChannelLogger";
+import {LogHelper} from "../log/LogHelper";
 import stripJSONComments = require("strip-json-comments");
 
 const APP_JSON = "app.json";
@@ -22,11 +23,12 @@ const DEFAULT_ANDROID_INDEX = "index.android.js";
 
 const DBL_SLASHES = /\\/g;
 
-export class    ExponentHelper {
+export class ExponentHelper {
     private workspaceRootPath: string;
     private projectRootPath: string;
     private fs: FileSystem;
     private hasInitialized: boolean;
+    private logger: OutputChannelLogger = LogHelper.getLoggerWithCache(OutputChannelLogger, LogHelper.MAIN_CHANNEL_NAME, LogHelper.MAIN_CHANNEL_NAME, true);
 
     public constructor(workspaceRootPath: string, projectRootPath: string) {
         this.workspaceRootPath = workspaceRootPath;
@@ -40,10 +42,10 @@ export class    ExponentHelper {
 
     public configureExponentEnvironment(): Q.Promise<void> {
         this.lazilyInitialize();
-        Log.logMessage("Making sure your project uses the correct dependencies for exponent. This may take a while...");
+        this.logger.log("Making sure your project uses the correct dependencies for exponent. This may take a while...");
         return this.isExpoApp(true)
             .then(isExpo => {
-                Log.logString(".\n");
+                this.logger.logStream(".\n");
 
                 return this.patchAppJson(isExpo);
             });
@@ -179,13 +181,13 @@ AppRegistry.registerRunnable('main', function(appParameters) {
      */
     private exponentSdk(showProgress: boolean = false): Q.Promise<string> {
         if (showProgress) {
-            Log.logString("...");
+            this.logger.logStream("...");
         }
 
         let reactNativeProjectHelper = new ReactNativeProjectHelper(this.projectRootPath);
         return reactNativeProjectHelper.getReactNativeVersion()
             .then(version => {
-                if (showProgress) Log.logString(".");
+                if (showProgress) this.logger.logStream(".");
                 return XDL.mapVersion(version)
                     .then(sdkVersion => {
                         if (!sdkVersion) {
@@ -259,9 +261,9 @@ AppRegistry.registerRunnable('main', function(appParameters) {
     }
 
     private isExpoApp(showProgress: boolean = false): Q.Promise<boolean> {
-        Log.logString("Checking if this is Expo app.");
+        this.logger.logStream("Checking if this is Expo app.");
         if (showProgress) {
-            Log.logString("...");
+            this.logger.logStream("...");
         }
 
         const packageJsonPath = this.pathToFileInWorkspace("package.json");
@@ -269,11 +271,11 @@ AppRegistry.registerRunnable('main', function(appParameters) {
             .then(content => {
                 const packageJson = JSON.parse(content);
                 const isExp = packageJson.dependencies && !!packageJson.dependencies.expo || false;
-                if (showProgress) Log.logString(".");
+                if (showProgress) this.logger.logStream(".");
                 return isExp;
             }).catch(() => {
                 if (showProgress) {
-                    Log.logString(".");
+                    this.logger.logStream(".");
                 }
                 // Not in a react-native project
                 return false;
@@ -293,11 +295,11 @@ AppRegistry.registerRunnable('main', function(appParameters) {
                 stream: {
                     write: (chunk: any) => {
                         if (chunk.level <= 30) {
-                            Log.logString(chunk.msg);
+                            this.logger.logStream(chunk.msg);
                         } else if (chunk.level === 40) {
-                            Log.logWarning(chunk.msg);
+                            this.logger.warning(chunk.msg);
                         } else {
-                            Log.logError(chunk.msg);
+                            this.logger.error(chunk.msg);
                         }
                     },
                 },

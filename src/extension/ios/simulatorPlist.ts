@@ -6,8 +6,8 @@ import * as Q from "q";
 
 import {ErrorHelper} from "../../common/error/errorHelper";
 import {PlistBuddy} from "./plistBuddy";
-import {Log} from "../../common/log/log";
-import {LogLevel} from "../../common/log/logHelper";
+import {OutputChannelLogger} from "../log/OutputChannelLogger";
+import {LogHelper} from "../log/LogHelper";
 import {FileSystem} from "../../common/node/fileSystem";
 import {ChildProcess} from "../../common/node/childProcess";
 
@@ -15,6 +15,7 @@ import {TelemetryHelper} from "../../common/telemetryHelper";
 
 export class SimulatorPlist {
     private projectRoot: string;
+    private logger: OutputChannelLogger = LogHelper.getLoggerWithCache(OutputChannelLogger, LogHelper.MAIN_CHANNEL_NAME, LogHelper.MAIN_CHANNEL_NAME);
 
     private nodeFileSystem: FileSystem;
     private plistBuddy: PlistBuddy;
@@ -43,14 +44,14 @@ export class SimulatorPlist {
 
                 // Look through $SIMULATOR_HOME/Containers/Data/Application/*/Library/Preferences to find $BUNDLEID.plist
                 return this.nodeFileSystem.readDir(pathBefore).then((apps: string[]) => {
-                    Log.logInternalMessage(LogLevel.Info, `About to search for plist in base folder: ${pathBefore} pathAfter: ${pathAfter} in each of the apps: ${apps}`);
+                    this.logger.info(`About to search for plist in base folder: ${pathBefore} pathAfter: ${pathAfter} in each of the apps: ${apps}`);
                     const plistCandidates = apps.map((app: string) => path.join(pathBefore, app, pathAfter)).filter(filePath =>
                         this.nodeFileSystem.existsSync(filePath));
                     if (plistCandidates.length === 0) {
                         throw new Error(`Unable to find plist file for ${bundleId}`);
                     } else if (plistCandidates.length > 1) {
                         TelemetryHelper.sendSimpleEvent("multipleDebugPlistFound");
-                        Log.logWarning(ErrorHelper.getWarning("Multiple plist candidates found. Application may not be in debug mode."));
+                        this.logger.warning(ErrorHelper.getWarning("Multiple plist candidates found. Application may not be in debug mode."));
                     }
 
                     return plistCandidates[0];
