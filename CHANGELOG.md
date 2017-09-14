@@ -1,8 +1,8 @@
 ## 0.4.2
-* Skip prewarming cache in case when guessed entry point doesn't exist
-* Added `runArguments` options which be passed to 'react-native run-\<platform\>' command
-* Documentation update [#515](https://github.com/Microsoft/vscode-react-native/pull/515)
-* Use `react-native run-ios --device` instead of ideviceinstaller
+* Fixed annoying error message when app's entry point is not `index.<platform>.js`
+* Added `runArguments` [configuration option](doc/customization.md#specifying-custom-arguments-for-react-native-run--command) to allow passing custom arguments to `react-native run-*` commands
+* Reorganized documentation structure
+* Switched to direct usage of React Native CLI instead of `ideviceinstaller` to run iOS
 * Fixed automatic enable of JS debugging on iOS simulator
 
 ## 0.4.1
