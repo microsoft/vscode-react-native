@@ -105,12 +105,12 @@ export class Adb extends AdbEnhancements {
      * Sends an intent which launches the main activity of the application.
      */
     public launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
-        let launchAppCommand = `adb -s ${debugTarget} shell am start -n ${packageName}/.MainActivity`;
+        let launchAppCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am start -n ${packageName}/.MainActivity`;
         return new CommandExecutor(projectRoot).execute(launchAppCommand);
     }
 
     public stopApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
-        let stopAppCommand = `adb -s ${debugTarget} shell am force-stop ${packageName}`;
+        let stopAppCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am force-stop ${packageName}`;
         return new CommandExecutor(projectRoot).execute(stopAppCommand);
     }
 
