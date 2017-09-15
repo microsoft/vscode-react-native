@@ -93,7 +93,11 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
             const packagerPort = SettingsHelper.getPackagerPort();
             const runArgs = SettingsHelper.getRunArgs("android", target);
-            return new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, runArguments: runArgs }).runApp(/*shouldLaunchInAllDevices*/true);
+            const platform = new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, runArguments: runArgs });
+            return  platform.runApp(/*shouldLaunchInAllDevices*/true)
+                .then(() => {
+                    return platform.disableJSDebuggingMode();
+                });
         }));
     }
 
@@ -104,6 +108,7 @@ export class CommandPaletteHandler {
         TargetPlatformHelper.checkTargetPlatformSupport("ios");
         return this.executeCommandInContext("runIos", () => {
             const runArgs = SettingsHelper.getRunArgs("ios", target);
+            runArgs.push("-no-packager");
             // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
             return new IOSDebugModeManager(this.workspaceRoot)
                 .setSimulatorRemoteDebuggingSetting(/*enable=*/ false)

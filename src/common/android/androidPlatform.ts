@@ -4,10 +4,9 @@
 import * as Q from "q";
 
 import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
-import {Packager} from "../packager";
 import {IAndroidRunOptions} from "../launchArgs";
 import {Log} from "../log/log";
-import {IAdb, Adb, AndroidAPILevel, IDevice, DeviceType} from "./adb";
+import {IAdb, Adb, AndroidAPILevel, IDevice} from "./adb";
 import {Package} from "../node/package";
 import {PromiseUtil} from "../node/promise";
 import {PackageNameResolver} from "./packageNameResolver";
@@ -107,7 +106,11 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
-        return this.adb.reloadAppInDebugMode(this.runOptions.projectRoot, this.packageName, this.debugTarget.id);
+        return this.adb.switchDebugMode(this.runOptions.projectRoot, this.packageName, true, this.debugTarget.id);
+    }
+
+    public disableJSDebuggingMode(): Q.Promise<void> {
+        return this.adb.switchDebugMode(this.runOptions.projectRoot, this.packageName, false, this.debugTarget.id);
     }
 
     public prewarmBundleCache(): Q.Promise<void> {
@@ -128,7 +131,16 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             }
         }
 
+        runArguments.push("--no-packager");
+
         return runArguments;
+    }
+
+    public restartApplication(): Q.Promise<void> {
+        return this.adb.stopApp(this.runOptions.projectRoot, this.packageName, this.debugTarget.id)
+            .then(() => {
+                return this.adb.launchApp(this.runOptions.projectRoot, this.packageName, this.debugTarget.id);
+            });
     }
 
     private initializeTargetDevicesAndPackageName(): Q.Promise<void> {
@@ -156,25 +168,21 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     private configureADBReverseWhenApplicable(device: IDevice): Q.Promise<void> {
-        if (device.type !== DeviceType.AndroidSdkEmulator) {
-            return Q({}) // For other emulators and devices we try to enable adb reverse
-                .then(() => this.adb.apiVersion(device.id))
-                .then(apiVersion => {
-                    if (apiVersion >= AndroidAPILevel.LOLLIPOP) { // If we support adb reverse
-                        return this.adb.reverseAdd(device.id, Packager.DEFAULT_PORT.toString(), this.runOptions.packagerPort);
-                    } else {
-                        Log.logWarning(`Device ${device.id} supports only API Level ${apiVersion}. `
-                        + `Level ${AndroidAPILevel.LOLLIPOP} is needed to support port forwarding via adb reverse. `
-                        + "For debugging to work you'll need <Shake or press menu button> for the dev menu, "
-                        + "go into <Dev Settings> and configure <Debug Server host & port for Device> to be "
-                        + "an IP address of your computer that the Device can reach. More info at: "
-                        + "https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps");
-                        return void 0;
-                    }
-                });
-        } else {
-            return Q<void>(void 0); // Android SDK emulators can connect directly to 10.0.0.2, so they don't need port forwarding
-        }
+        return Q({}) // For other emulators and devices we try to enable adb reverse
+            .then(() => this.adb.apiVersion(device.id))
+            .then(apiVersion => {
+                if (apiVersion >= AndroidAPILevel.LOLLIPOP) { // If we support adb reverse
+                    return this.adb.reverseAdb(device.id, Number(this.runOptions.packagerPort));
+                } else {
+                    Log.logWarning(`Device ${device.id} supports only API Level ${apiVersion}. `
+                    + `Level ${AndroidAPILevel.LOLLIPOP} is needed to support port forwarding via adb reverse. `
+                    + "For debugging to work you'll need <Shake or press menu button> for the dev menu, "
+                    + "go into <Dev Settings> and configure <Debug Server host & port for Device> to be "
+                    + "an IP address of your computer that the Device can reach. More info at: "
+                    + "https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps");
+                    return void 0;
+                }
+            });
     }
 
     private getPackageName(): Q.Promise<string> {
