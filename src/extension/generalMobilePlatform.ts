@@ -4,7 +4,6 @@
 import * as vscode from "vscode";
 import * as Q from "q";
 
-import {LogHelper} from "./log/LogHelper";
 import {IRunOptions} from "./launchArgs";
 import {Packager, PackagerRunAs} from "../common/packager";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
@@ -33,22 +32,22 @@ export class GeneralMobilePlatform {
         this.projectPath = this.runOptions.projectRoot;
         this.packager = platformDeps.packager || new Packager(vscode.workspace.rootPath, this.projectPath, SettingsHelper.getPackagerPort());
         this.packageStatusIndicator = platformDeps.packageStatusIndicator || new PackagerStatusIndicator();
-        this.logger = LogHelper.getLoggerWithCache(OutputChannelLogger, `Run ${this.platformName}`, `Run ${this.platformName}`, true);
+        this.logger = OutputChannelLogger.getChannel(`React Native: Run ${this.platformName}`, true);
         this.logger.clear();
     }
 
     public runApp(): Q.Promise<void> {
-        this.logger.log("Connected to packager. You can now open your app in the simulator.");
+        this.logger.info("Connected to packager. You can now open your app in the simulator.");
         return Q.resolve<void>(void 0);
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
-        this.logger.log("Debugger ready. Enable remote debugging in app.");
+        this.logger.info("Debugger ready. Enable remote debugging in app.");
         return Q.resolve<void>(void 0);
     }
 
     public startPackager(): Q.Promise<void> {
-        this.logger.log("Starting React Native Packager.");
+        this.logger.info("Starting React Native Packager.");
         return this.packager.isRunning().then((running) => {
             if (running) {
                 if (this.packager.getRunningAs() !== PackagerRunAs.REACT_NATIVE) {
@@ -57,7 +56,7 @@ export class GeneralMobilePlatform {
                     );
                 }
 
-                this.logger.log("Attaching to running React Native packager");
+                this.logger.info("Attaching to running React Native packager");
             }
             return void 0;
         })

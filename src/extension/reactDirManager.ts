@@ -9,7 +9,6 @@ import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {FileSystem} from "../common/node/fileSystem";
 import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
-import {LogHelper} from "./log/LogHelper";
 
 /**
  * Manages the lifecycle of the .vscode/.react folder, which hosts the temporary source/map files we need for debugging.
@@ -34,9 +33,9 @@ export class ReactDirManager implements vscode.Disposable {
     }
 
     public dispose(): void {
-        new EntryPointHandler(ProcessType.Extension, LogHelper.getLoggerWithCache(OutputChannelLogger, LogHelper.MAIN_CHANNEL_NAME, LogHelper.MAIN_CHANNEL_NAME)).runFunction("extension.deleteTemporaryFolder",
-            ErrorHelper.getInternalError(InternalErrorCode.RNTempFolderDeletionFailed, ReactDirManager.ReactDirPath),
-            () =>
-                new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath));
+        new EntryPointHandler(ProcessType.Extension, OutputChannelLogger.getMainChannel())
+            .runFunction("extension.deleteTemporaryFolder",
+                ErrorHelper.getInternalError(InternalErrorCode.RNTempFolderDeletionFailed, ReactDirManager.ReactDirPath),
+                () => new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath));
     }
 }

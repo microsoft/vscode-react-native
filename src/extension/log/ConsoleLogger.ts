@@ -4,17 +4,13 @@
 import {ILogger, LogLevel, LogHelper} from "./LogHelper";
 
 export class ConsoleLogger implements ILogger {
-    public log(message: string, level?: LogLevel): void {
+    public log(message: string, level: LogLevel): void {
         if (LogHelper.LOG_LEVEL === LogLevel.None) {
             return;
         }
 
-        if (level) {
-            if (level >= LogHelper.LOG_LEVEL) {
-                message = ConsoleLogger.getFormattedMessage(message, level);
-                console.log(message);
-            }
-        } else {
+        if (level >= LogHelper.LOG_LEVEL) {
+            message = ConsoleLogger.getFormattedMessage(message, level);
             console.log(message);
         }
     }
@@ -37,7 +33,7 @@ export class ConsoleLogger implements ILogger {
     }
 
     public debug(message: string): void {
-        this.log(ConsoleLogger.getFormattedMessage(message, LogLevel.Debug));
+        this.log(message, LogLevel.Debug);
     }
 
     public logStream(data: Buffer, stream: NodeJS.WritableStream) {

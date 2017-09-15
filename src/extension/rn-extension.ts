@@ -23,7 +23,6 @@ import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalError} from "../common/error/internalError";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
-import {LogHelper} from "./log/LogHelper";
 import {SettingsHelper} from "./settingsHelper";
 import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
@@ -49,7 +48,7 @@ const packagerStatusIndicator = new PackagerStatusIndicator();
 const globalExponentHelper = new ExponentHelper(workspaceRootPath, projectRootPath);
 const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper);
 
-const outputChannelLogger = LogHelper.getLoggerWithCache(OutputChannelLogger, LogHelper.MAIN_CHANNEL_NAME, LogHelper.MAIN_CHANNEL_NAME, true);
+const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
 const reactNativeProjectHelper = new ReactNativeProjectHelper(projectRootPath);
 const fsUtil = new FileSystem();
@@ -127,7 +126,7 @@ function warnWhenReactNativeVersionIsNotSupported(): void {
         const shortMessage = `React Native Tools need React Native version 0.19.0 or later to be installed in <PROJECT_ROOT>/node_modules/`;
         const longMessage = `${shortMessage}: ${reason}`;
         vscode.window.showWarningMessage(shortMessage);
-        outputChannelLogger.log(longMessage);
+        outputChannelLogger.warning(longMessage);
     });
 }
 

@@ -3,14 +3,13 @@
 
 import {CommandExecutor, CommandVerbosity} from "../../common/commandExecutor";
 import {HostPlatform} from "../../common/hostPlatform";
-import {LogHelper} from "../log/LogHelper";
 import {OutputChannelLogger} from "../log/OutputChannelLogger";
 
 import * as XDLPackage from "xdl";
 import * as path from "path";
 import * as Q from "q";
 
-const logger: OutputChannelLogger = LogHelper.getLoggerWithCache(OutputChannelLogger, LogHelper.MAIN_CHANNEL_NAME, LogHelper.MAIN_CHANNEL_NAME, true);
+const logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
 const EXPO_DEPS: string[] = [
     "xdl",
@@ -25,22 +24,21 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
     }
     // Don't do the require if we don't actually need it
     try {
-        logger.log("Getting exponent dependecy.");
+        logger.debug("Getting exponent dependecy.");
         const xdl = require("xdl");
         xdlPackage = Q(xdl);
         return xdlPackage;
     } catch (e) {
         if (e.code === "MODULE_NOT_FOUND") {
-            logger.log("Dependency not present. Installing it...");
+            logger.debug("Dependency not present. Installing it...");
         } else {
             throw e;
         }
     }
-    let commandExecutor = new CommandExecutor();
+    let commandExecutor = new CommandExecutor(path.dirname(require.resolve("../../../")), logger);
     xdlPackage = commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"),
         ["install", ...EXPO_DEPS, "--verbose", "--no-save"],
-        { verbosity: CommandVerbosity.PROGRESS,
-          cwd: path.dirname(require.resolve("../../../"))})
+        { verbosity: CommandVerbosity.PROGRESS })
         .then((): typeof XDLPackage => {
             return require("xdl");
         });

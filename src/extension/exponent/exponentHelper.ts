@@ -10,7 +10,6 @@ import { Package } from "../../common/node/package";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
 import { FileSystem } from "../../common/node/fileSystem";
 import {OutputChannelLogger} from "../log/OutputChannelLogger";
-import {LogHelper} from "../log/LogHelper";
 import stripJSONComments = require("strip-json-comments");
 
 const APP_JSON = "app.json";
@@ -28,7 +27,7 @@ export class ExponentHelper {
     private projectRootPath: string;
     private fs: FileSystem;
     private hasInitialized: boolean;
-    private logger: OutputChannelLogger = LogHelper.getLoggerWithCache(OutputChannelLogger, LogHelper.MAIN_CHANNEL_NAME, LogHelper.MAIN_CHANNEL_NAME, true);
+    private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     public constructor(workspaceRootPath: string, projectRootPath: string) {
         this.workspaceRootPath = workspaceRootPath;
@@ -42,7 +41,7 @@ export class ExponentHelper {
 
     public configureExponentEnvironment(): Q.Promise<void> {
         this.lazilyInitialize();
-        this.logger.log("Making sure your project uses the correct dependencies for exponent. This may take a while...");
+        this.logger.info("Making sure your project uses the correct dependencies for exponent. This may take a while...");
         return this.isExpoApp(true)
             .then(isExpo => {
                 this.logger.logStream(".\n");

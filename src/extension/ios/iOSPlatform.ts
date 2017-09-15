@@ -38,7 +38,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         super(runOptions, platformDeps);
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
-            this.logger.log("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
+            this.logger.warning("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
         }
 
         this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
@@ -75,7 +75,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         // Configure the app for debugging
         if (this.targetType === IOSPlatform.deviceString) {
             // Note that currently we cannot automatically switch the device into debug mode.
-            this.logger.log("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
+            this.logger.info("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
             return Q.resolve<void>(void 0);
         }
 

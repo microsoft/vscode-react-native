@@ -27,17 +27,17 @@ export class ExponentPlatform extends GeneralMobilePlatform {
 
     public runApp(): Q.Promise<void> {
         const outputMessage = `Application is running on Exponent. Open your exponent app at ${this.exponentTunnelPath} to see it.`;
-        this.logger.log(outputMessage);
+        this.logger.info(outputMessage);
         return Q.resolve<void>(void 0);
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
-        this.logger.log("Application is running on Exponent. Please shake device and select 'Debug JS Remotely' to enable debugging.");
+        this.logger.info("Application is running on Exponent. Please shake device and select 'Debug JS Remotely' to enable debugging.");
         return Q.resolve<void>(void 0);
     }
 
     public startPackager(): Q.Promise<void> {
-        this.logger.log("Starting Exponent Packager.");
+        this.logger.info("Starting Exponent Packager.");
         return this.packager.isRunning().then((running) => {
             if (running) {
                 if (this.packager.getRunningAs() !== PackagerRunAs.EXPONENT) {
@@ -45,7 +45,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                         this.packageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
                 }
 
-                this.logger.log("Attaching to running Exponent packager");
+                this.logger.info("Attaching to running Exponent packager");
             }
             return void 0;
         }).then(() =>

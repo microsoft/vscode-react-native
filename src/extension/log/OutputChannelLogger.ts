@@ -8,29 +8,45 @@
 import * as vscode from "vscode";
 import { ILogger, LogLevel, LogHelper } from "./LogHelper";
 
+const channels: { [channelName: string]: OutputChannelLogger } = {};
+
 export class OutputChannelLogger implements ILogger {
-    private outputChannelName: string;
+    public static MAIN_CHANNEL_NAME: string = "React Native";
     private outputChannel: vscode.OutputChannel;
 
-    constructor(outputChannelName: string, lazy: boolean = false, private preserveFocus: boolean = false) {
-        this.outputChannelName = outputChannelName;
+    public static disposeChannel(channelName: string): void {
+        if (channels[channelName]) {
+            channels[channelName].getOutputChannel().dispose();
+            delete channels[channelName];
+        }
+    }
+
+    public static getMainChannel(): OutputChannelLogger {
+        return this.getChannel(this.MAIN_CHANNEL_NAME, true);
+    }
+
+    public static getChannel(channelName: string, lazy?: boolean, preserveFocus?: boolean): OutputChannelLogger {
+        if (!channels[channelName]) {
+            channels[channelName] = new OutputChannelLogger(channelName, lazy, preserveFocus);
+        }
+
+        return channels[channelName];
+    }
+
+    constructor(public readonly channelName: string, lazy: boolean = false, private preserveFocus: boolean = false) {
         if (!lazy) {
-            this.channel = vscode.window.createOutputChannel(this.outputChannelName);
+            this.channel = vscode.window.createOutputChannel(this.channelName);
             this.channel.show(this.preserveFocus);
         }
     }
 
-    public log(message: string, level?: LogLevel): void {
+    public log(message: string, level: LogLevel): void {
         if (LogHelper.LOG_LEVEL === LogLevel.None) {
             return;
         }
 
-        if (level) {
-            if (level >= LogHelper.LOG_LEVEL) {
-                message = OutputChannelLogger.getFormattedMessage(message, level);
-                this.channel.appendLine(message);
-            }
-        } else {
+        if (level >= LogHelper.LOG_LEVEL) {
+            message = OutputChannelLogger.getFormattedMessage(message, level);
             this.channel.appendLine(message);
         }
     }
@@ -53,7 +69,7 @@ export class OutputChannelLogger implements ILogger {
     }
 
     public debug(message: string): void {
-        this.log(OutputChannelLogger.getFormattedMessage(message, LogLevel.Debug));
+        this.log(message, LogLevel.Debug);
     }
 
     public logStream(data: Buffer | string) {
@@ -80,7 +96,7 @@ export class OutputChannelLogger implements ILogger {
         if (this.outputChannel) {
             return this.outputChannel;
         } else {
-            this.outputChannel = vscode.window.createOutputChannel(this.outputChannelName);
+            this.outputChannel = vscode.window.createOutputChannel(this.channelName);
             this.outputChannel.show(this.preserveFocus);
             return this.outputChannel;
         }

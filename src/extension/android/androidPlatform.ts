@@ -67,7 +67,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 "platform. If you want to use particular device or simulator for launching " +
                 "Android app, please specify  device id (as in 'adb devices' output) instead.";
 
-            this.logger.log(message);
+            this.logger.warning(message);
             delete this.runOptions.target;
         }
     }

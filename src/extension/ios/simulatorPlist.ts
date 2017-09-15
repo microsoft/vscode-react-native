@@ -7,7 +7,6 @@ import * as Q from "q";
 import {ErrorHelper} from "../../common/error/errorHelper";
 import {PlistBuddy} from "./plistBuddy";
 import {OutputChannelLogger} from "../log/OutputChannelLogger";
-import {LogHelper} from "../log/LogHelper";
 import {FileSystem} from "../../common/node/fileSystem";
 import {ChildProcess} from "../../common/node/childProcess";
 
@@ -15,7 +14,7 @@ import {TelemetryHelper} from "../../common/telemetryHelper";
 
 export class SimulatorPlist {
     private projectRoot: string;
-    private logger: OutputChannelLogger = LogHelper.getLoggerWithCache(OutputChannelLogger, LogHelper.MAIN_CHANNEL_NAME, LogHelper.MAIN_CHANNEL_NAME);
+    private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     private nodeFileSystem: FileSystem;
     private plistBuddy: PlistBuddy;

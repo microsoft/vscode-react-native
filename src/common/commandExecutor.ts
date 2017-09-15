@@ -3,13 +3,13 @@
 
 import * as Q from "q";
 import {ChildProcess} from "child_process";
-import {ILogger, LogHelper} from "../extension/log/LogHelper";
+import {ILogger} from "../extension/log/LogHelper";
+import { NullLogger } from "../extension/log/NullLogger";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
 import {HostPlatform, HostPlatformId} from "./hostPlatform";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
-import {ConsoleLogger} from "../extension/log/ConsoleLogger";
 
 export enum CommandVerbosity {
     OUTPUT,
@@ -36,21 +36,19 @@ export class CommandExecutor {
 
     private static ReactNativeCommand = "react-native";
     private static ReactNativeVersionCommand = "-v";
-    private currentWorkingDirectory: string;
-    private logger: ILogger;
     private childProcess = new Node.ChildProcess();
 
-    constructor(currentWorkingDirectory: string = process.cwd(), logger: ILogger = LogHelper.getLogger(ConsoleLogger)) {
-        this.currentWorkingDirectory = currentWorkingDirectory;
-        this.logger = logger;
-    }
+    constructor(
+        private currentWorkingDirectory: string = process.cwd(),
+        private logger: ILogger = new NullLogger()
+    ) { }
 
     public execute(command: string, options: Options = {}): Q.Promise<void> {
-        this.logger.log(CommandExecutor.getCommandStatusString(command, CommandStatus.Start));
+        this.logger.debug(CommandExecutor.getCommandStatusString(command, CommandStatus.Start));
         return this.childProcess.execToString(command, { cwd: this.currentWorkingDirectory, env: options.env })
             .then(stdout => {
-                this.logger.log(stdout);
-                this.logger.log(CommandExecutor.getCommandStatusString(command, CommandStatus.End));
+                this.logger.info(stdout);
+                this.logger.debug(CommandExecutor.getCommandStatusString(command, CommandStatus.End));
             },
             (reason: Error) =>
                 this.generateRejectionForCommand(command, reason));
@@ -112,11 +110,11 @@ export class CommandExecutor {
                     return Q.resolve(void 0);
                 }
             }).then(() => {
-                this.logger.log("Packager stopped");
+                this.logger.info("Packager stopped");
             });
 
         } else {
-            this.logger.log("Packager not found");
+            this.logger.warning("Packager not found");
             return Q.resolve<void>(void 0);
         }
     }
@@ -152,7 +150,7 @@ export class CommandExecutor {
         };
 
         if (options.verbosity === CommandVerbosity.OUTPUT) {
-            this.logger.log(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start));
+            this.logger.debug(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start));
         }
 
         const result = this.childProcess.spawn(command, args, spawnOptions);
@@ -176,7 +174,7 @@ export class CommandExecutor {
         result.outcome = result.outcome.then(
             () => {
                 if (options.verbosity === CommandVerbosity.OUTPUT) {
-                    this.logger.log(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End));
+                    this.logger.debug(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End));
                 }
                 this.logger.logStream("\n", process.stdout);
                 deferred.resolve(void 0);
@@ -192,7 +190,7 @@ export class CommandExecutor {
         const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         const commandWithArgs = command + " " + args.join(" ");
 
-        this.logger.log(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start));
+        this.logger.debug(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start));
         const result = this.childProcess.spawn(command, args, spawnOptions);
 
         result.stderr.on("data", (data: Buffer) => {
@@ -205,7 +203,7 @@ export class CommandExecutor {
 
         result.outcome = result.outcome.then(
             () =>
-                this.logger.log(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End)),
+                this.logger.debug(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End)),
             reason =>
                 this.generateRejectionForCommand(commandWithArgs, reason));
         return result;

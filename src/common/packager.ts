@@ -7,7 +7,6 @@ import {ExponentHelper} from "../extension/exponent/exponentHelper";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 import {OutputChannelLogger} from "../extension/log/OutputChannelLogger";
-import {LogHelper}  from "../extension/log/LogHelper";
 import {Node} from "./node/node";
 import {Package} from "./node/package";
 import {PromiseUtil} from "./node/promise";
@@ -29,7 +28,7 @@ export class Packager {
     public static DEFAULT_PORT = 8081;
     private packagerProcess: ChildProcess | undefined;
     private packagerRunningAs: PackagerRunAs;
-    private logger: OutputChannelLogger = LogHelper.getLoggerWithCache(OutputChannelLogger, LogHelper.MAIN_CHANNEL_NAME, LogHelper.MAIN_CHANNEL_NAME, true);
+    private logger: OutputChannelLogger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
 
     private static JS_INJECTOR_FILENAME = "opn-main.js";
     private static JS_INJECTOR_FILEPATH = path.resolve(path.dirname(path.dirname(__dirname)), "js-patched", Packager.JS_INJECTOR_FILENAME);
@@ -239,7 +238,7 @@ export class Packager {
                                     REACT_EDITOR: failedRNVersions.indexOf(version) < 0 ? "code" : this.openFileAtLocationCommand(),
                                 });
 
-                                this.logger.log("Starting Packager");
+                                this.logger.info("Starting Packager");
                                 // The packager will continue running while we debug the application, so we can"t
                                 // wait for this command to finish
 
@@ -259,10 +258,10 @@ export class Packager {
                 this.awaitStart())
             .then(() => {
                 if (executedStartPackagerCmd) {
-                    this.logger.log("Packager started.");
+                    this.logger.info("Packager started.");
                     this.packagerRunningAs = runAs;
                 } else {
-                    this.logger.log("Packager is already running.");
+                    this.logger.info("Packager is already running.");
                     if (!this.packagerProcess) {
                         this.logger.warning(ErrorHelper.getWarning("React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option"));
                     }
@@ -323,14 +322,14 @@ export class Packager {
     }
 
     private killPackagerProcess(): Q.Promise<void> {
-        this.logger.log("Stopping Packager");
+        this.logger.info("Stopping Packager");
         return new CommandExecutor(this.projectPath, this.logger).killReactPackager(this.packagerProcess).then(() => {
             this.packagerProcess = undefined;
             if (this.packagerRunningAs === PackagerRunAs.EXPONENT) {
-                this.logger.log("Stopping Exponent");
+                this.logger.info("Stopping Exponent");
                 return XDL.stopAll(this.projectPath)
                     .then(() =>
-                        this.logger.log("Exponent Stopped")
+                        this.logger.info("Exponent Stopped")
                     );
             }
             return Q.resolve<void>(void 0);

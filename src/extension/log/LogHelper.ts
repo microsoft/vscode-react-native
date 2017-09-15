@@ -15,7 +15,7 @@ export enum LogLevel {
 }
 
 export interface ILogger {
-    log: (message: string, level?: LogLevel) => void;
+    log: (message: string, level: LogLevel) => void;
     info: (message: string) => void;
     warning: (message: string) => void;
     error: (errorMessage: string, error?: Error, stack?: boolean) => void;
@@ -24,30 +24,14 @@ export interface ILogger {
 }
 
 export class LogHelper {
-    public static MAIN_CHANNEL_NAME: string = "React-native";
-    private static loggersCache = {};
-
     public static get LOG_LEVEL(): LogLevel {
         return getLogLevel();
-    }
-    public static getLogger<T extends ILogger>(loggerType: new (...args: any[]) => T, ...args: any[]): T {
-        return new loggerType(...args);
-    }
-
-    public static getLoggerWithCache<T extends ILogger>(loggerType: new (...args: any[]) => T, name: string, ...args: any[]): T {
-        const key = `${loggerType.name}:${name}`;
-        return this.loggersCache[key] ? this.loggersCache[key] : this.loggersCache[key] = this.getLogger(loggerType, ...args);
-    }
-
-    public static clearCacheByName<T extends ILogger>(loggerType: new (...args: any[]) => T, name: string): void {
-        const key = `${loggerType.name}:${name}`;
-        delete this.loggersCache[key];
     }
 }
 
 function getLogLevel() {
     try {
-        const SettingsHelper = require("../settingsHelper");
+        const SettingsHelper = require("../settingsHelper").SettingsHelper;
         return SettingsHelper.getLogLevel();
     } catch (err) { // Debugger context
         return LogLevel.Info; // Default

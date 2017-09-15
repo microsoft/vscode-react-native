@@ -7,7 +7,6 @@ import * as vscode from "vscode";
 
 import * as em from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
-import {LogHelper} from "./log/LogHelper";
 import {Packager} from "../common/packager";
 import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {LogCatMonitor} from "./android/logCatMonitor";
@@ -17,7 +16,7 @@ import {Telemetry} from "../common/telemetry";
 import * as path from "path";
 import * as fs from "fs";
 import stripJsonComments = require("strip-json-comments");
-import {PlatformResolver} from "../debugger/platformResolver";
+import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
@@ -29,7 +28,7 @@ export class ExtensionServer implements vscode.Disposable {
     private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private pipePath: string;
     private logCatMonitor: LogCatMonitor | null = null;
-    private logger: OutputChannelLogger = LogHelper.getLoggerWithCache(OutputChannelLogger, LogHelper.MAIN_CHANNEL_NAME, LogHelper.MAIN_CHANNEL_NAME, true);
+    private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
 
@@ -54,7 +53,7 @@ export class ExtensionServer implements vscode.Disposable {
         let deferred = Q.defer<void>();
 
         let launchCallback = (error: any) => {
-            this.logger.info(`Extension messaging server started at ${this.pipePath}.`);
+            this.logger.debug(`Extension messaging server started at ${this.pipePath}.`);
             if (error) {
                 deferred.reject(error);
             } else {
@@ -223,12 +222,12 @@ export class ExtensionServer implements vscode.Disposable {
                     // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
                     // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                     generator.step("prewarmBundleCache");
-                    this.logger.log("Prewarming bundle cache. This may take a while ...");
+                    this.logger.info("Prewarming bundle cache. This may take a while ...");
                     return mobilePlatform.prewarmBundleCache();
                 })
                 .then(() => {
                     generator.step("mobilePlatform.runApp");
-                    this.logger.log("Building and running application.");
+                    this.logger.info("Building and running application.");
                     return mobilePlatform.runApp();
                 })
                 .then(() => {
