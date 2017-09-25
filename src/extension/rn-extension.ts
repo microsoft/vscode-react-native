@@ -41,7 +41,7 @@ const projectRootPath = SettingsHelper.getReactNativeProjectRoot();
 const workspaceRootPath = vscode.workspace.rootPath;
 
 const packagerPort = ConfigurationReader.readIntWithDefaultSync(
-    Packager.DEFAULT_PORT, SettingsHelper.getPackagerPort());
+    SettingsHelper.getPackagerPort(), Packager.DEFAULT_PORT);
 
 const globalPackager = new Packager(workspaceRootPath, projectRootPath, packagerPort);
 const packagerStatusIndicator = new PackagerStatusIndicator();

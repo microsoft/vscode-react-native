@@ -35,18 +35,20 @@ export interface IDevice {
 export interface IAdb {
     getConnectedDevices(): Q.Promise<IDevice[]>;
     launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
+    stopApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
     getOnlineDevices(): Q.Promise<IDevice[]>;
-    reloadAppInDebugMode(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
+    switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Q.Promise<void>;
     apiVersion(deviceId: string): Q.Promise<AndroidAPILevel>;
-    reverseAdd(deviceId: string, devicePort: string, computerPort: string): Q.Promise<void>;
+    reverseAdb(deviceId: string, packagerPort: number): Q.Promise<void>;
 }
 
 export abstract class AdbEnhancements implements IAdb {
     public abstract getConnectedDevices(): Q.Promise<IDevice[]>;
     public abstract launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
-    public abstract reloadAppInDebugMode(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
+    public abstract stopApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
+    public abstract switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Q.Promise<void>;
     public abstract apiVersion(deviceId: string): Q.Promise<AndroidAPILevel>;
-    public abstract reverseAdd(deviceId: string, devicePort: string, computerPort: string): Q.Promise<void>;
+    public abstract reverseAdb(deviceId: string, packagerPort: number): Q.Promise<void>;
 
     public getOnlineDevices(): Q.Promise<IDevice[]> {
         return this.getConnectedDevices().then(devices => {
@@ -80,17 +82,36 @@ export class Adb extends AdbEnhancements {
     /**
      * Broadcasts an intent to reload the application in debug mode.
      */
-    public reloadAppInDebugMode(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
-        let enableDebugCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy true`;
-        return new CommandExecutor(projectRoot).execute(enableDebugCommand);
+    public switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Q.Promise<void> {
+        let enableDebugCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
+        return new CommandExecutor(projectRoot).execute(enableDebugCommand)
+            .then(() => { // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
+                let deferred = Q.defer();
+                setTimeout(() => {
+                    this.stopApp(projectRoot, packageName, debugTarget)
+                        .then(() => {
+                            return deferred.resolve({});
+                        });
+                }, 200); // We need a little delay after broadcast command
+
+                return deferred.promise;
+            })
+            .then(() => {
+                return this.launchApp(projectRoot, packageName, debugTarget);
+            });
     }
 
     /**
      * Sends an intent which launches the main activity of the application.
      */
     public launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
-        let launchAppCommand = `adb -s ${debugTarget} shell am start -n ${packageName}/.MainActivity`;
+        let launchAppCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am start -n ${packageName}/.MainActivity`;
         return new CommandExecutor(projectRoot).execute(launchAppCommand);
+    }
+
+    public stopApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
+        let stopAppCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am force-stop ${packageName}`;
+        return new CommandExecutor(projectRoot).execute(stopAppCommand);
     }
 
     public apiVersion(deviceId: string): Q.Promise<AndroidAPILevel> {
@@ -98,8 +119,8 @@ export class Adb extends AdbEnhancements {
             parseInt(output, 10));
     }
 
-    public reverseAdd(deviceId: string, devicePort: string, computerPort: string): Q.Promise<void> {
-        return this.execute(deviceId, `reverse tcp:${devicePort} tcp:${computerPort}`);
+    public reverseAdb(deviceId: string, packagerPort: number): Q.Promise<void> {
+        return this.execute(deviceId, `reverse tcp:${packagerPort} tcp:${packagerPort}`);
     }
 
     private parseConnectedDevices(input: string): IDevice[] {

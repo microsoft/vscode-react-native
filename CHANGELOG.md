@@ -1,3 +1,10 @@
+## 0.4.2
+* Fixed annoying error message when app's entry point is not `index.<platform>.js`
+* Added `runArguments` [configuration option](doc/customization.md#specifying-custom-arguments-for-react-native-run--command) to allow passing custom arguments to `react-native run-*` commands
+* Reorganized documentation structure
+* Switched to direct usage of React Native CLI instead of `ideviceinstaller` to run iOS
+* Fixed automatic enable of JS debugging on iOS simulator
+
 ## 0.4.1
 * Added notice about `.vscode/.react` directory (#505)
 * Fixed bug in typescript sourcemaps rewrite logic when project and vscode are on different drives

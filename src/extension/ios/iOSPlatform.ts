@@ -125,27 +125,29 @@ export class IOSPlatform extends GeneralMobilePlatform {
         let runArguments: string[] = [];
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
-            return this.runOptions.runArguments;
-        }
+            runArguments = this.runOptions.runArguments;
+        } else {
+            if (this.runOptions.target) {
+                if (this.runOptions.target === IOSPlatform.deviceString ||
+                    this.runOptions.target === IOSPlatform.simulatorString) {
 
-        if (this.runOptions.target) {
-            if (this.runOptions.target === IOSPlatform.deviceString ||
-                this.runOptions.target === IOSPlatform.simulatorString) {
+                    runArguments.push(`--${this.runOptions.target}`);
+                } else {
+                    runArguments.push("--simulator", `${this.runOptions.target}`);
+                }
+            }
 
-                runArguments.push(`--${this.runOptions.target}`);
-            } else {
-                runArguments.push("--simulator", `${this.runOptions.target}`);
+            if (this.runOptions.iosRelativeProjectPath) {
+                runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath);
+            }
+
+            // provide any defined scheme
+            if (this.runOptions.scheme) {
+                runArguments.push("--scheme", this.runOptions.scheme);
             }
         }
 
-        if (this.runOptions.iosRelativeProjectPath) {
-            runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath);
-        }
-
-        // provide any defined scheme
-        if (this.runOptions.scheme) {
-            runArguments.push("--scheme", this.runOptions.scheme);
-        }
+        runArguments.push("--no-packager");
 
         return runArguments;
     }

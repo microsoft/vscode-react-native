@@ -56,7 +56,7 @@ export class AdbSimulator extends adb.AdbEnhancements {
 
     // Intends to simulate: the react-native application running
     // TODO: We should move the react-native specific part of this method to another class
-    public reloadAppInDebugMode(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
+    public switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Q.Promise<void> {
         const runningApplicationState = this.getRunningAppOrNull(packageName, debugTarget);
         if (runningApplicationState) {
             runningApplicationState.isInDebugMode = true;
@@ -68,6 +68,17 @@ export class AdbSimulator extends adb.AdbEnhancements {
 
     // Intends to simulate: adb shell am start
     public launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
+        const deviceState = this.getOnlineDeviceById(debugTarget);
+        const installedApplicationState = deviceState.installedApplications[packageName];
+        if (installedApplicationState) {
+            deviceState.runningApplications[packageName] = { isInDebugMode: false };
+            return Q.resolve<void>(void 0);
+        } else {
+            throw new Error("Implement proper adb response: Application doesn't exist");
+        }
+    }
+
+    public stopApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
         const deviceState = this.getOnlineDeviceById(debugTarget);
         const installedApplicationState = deviceState.installedApplications[packageName];
         if (installedApplicationState) {
@@ -119,11 +130,11 @@ export class AdbSimulator extends adb.AdbEnhancements {
     }
 
     public apiVersion(deviceId: string): Q.Promise<adb.AndroidAPILevel> {
-        throw new Error("Not yet implemented: Implement if we need to use these methods in a test");
+        return Q.resolve(adb.AndroidAPILevel.LOLLIPOP);
     }
 
-    public reverseAdd(deviceId: string, devicePort: string, computerPort: string): Q.Promise<void> {
-        throw new Error("Not yet implemented: Implement if we need to use these methods in a test");
+    public reverseAdb(deviceId: string, packagerPort: number): Q.Promise<void> {
+        return Q.resolve(void 0);
     }
 
     private isAppRunningSync(packageName: string, debugTarget?: string): boolean {

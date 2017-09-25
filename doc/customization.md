@@ -46,8 +46,14 @@ To use a custom port for the `react-native` packager:
 }
 ```
 
-If you change this port, then for iOS device and simulator scenarios you will have to modify the native code entry point in `AppDelegate.m` to reflect the new port number.
-For Android, the extension uses `adb reverse` to tunnel the default port `8081` on the device to the specified port on the local machine, so no further configuration should be necessary. Note that some aspects of React Native hard-code the port to the default as specified in [this issue](https://github.com/facebook/react-native/issues/9145).
+If you change this port, then for iOS device and simulator scenarios you will have to modify the native code files. Instruction [here](https://blog.binoy.io/running-react-native-on-a-different-port-7deb43887cd4).<br>
+If you use android, you need to change debug server by:
+1. CTRL+M(CMD+M) in the emulator
+2. Go to Dev Settings
+3. Debug server host for device => enter ‘localhost:\<yourPortNumber\>’.
+4. Reload application (double R)
+
+* Note that some aspects of React Native hard-code the port to the default as specified in [this issue](https://github.com/facebook/react-native/issues/9145).
 
 ## Logging
 

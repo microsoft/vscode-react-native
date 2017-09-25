@@ -94,10 +94,14 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
             const packagerPort = SettingsHelper.getPackagerPort();
             const runArgs = SettingsHelper.getRunArgs("android", target);
-            return new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, runArguments: runArgs }, {
+            const platform = new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, runArguments: runArgs }, {
                 packager: this.reactNativePackager,
                 packageStatusIndicator: this.reactNativePackageStatusIndicator,
-            }).runApp(/*shouldLaunchInAllDevices*/true);
+            });
+            return  platform.runApp(/*shouldLaunchInAllDevices*/true)
+                .then(() => {
+                    return platform.disableJSDebuggingMode();
+                });
         }));
     }
 
@@ -109,9 +113,9 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("runIos", () => {
 
             const packagerPort = SettingsHelper.getPackagerPort();
-            const runArguments = SettingsHelper.getRunArgs("ios", target);
+            const runArgs = SettingsHelper.getRunArgs("ios", target);
 
-            const platform = new IOSPlatform({ platform: "ios", projectRoot: this.workspaceRoot, packagerPort, runArguments }, { packager: this.reactNativePackager, packageStatusIndicator: this.reactNativePackageStatusIndicator });
+            const platform = new IOSPlatform({ platform: "ios", projectRoot: this.workspaceRoot, packagerPort, runArgs }, { packager: this.reactNativePackager, packageStatusIndicator: this.reactNativePackageStatusIndicator });
 
             // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
             return new IOSDebugModeManager(this.workspaceRoot)
