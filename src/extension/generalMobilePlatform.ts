@@ -46,6 +46,11 @@ export class GeneralMobilePlatform {
         return Q.resolve<void>(void 0);
     }
 
+    public disableJSDebuggingMode(): Q.Promise<void> {
+        this.logger.info("Debugger ready. Disable remote debugging in app.");
+        return Q.resolve<void>(void 0);
+    }
+
     public startPackager(): Q.Promise<void> {
         this.logger.info("Starting React Native Packager.");
         return this.packager.isRunning().then((running) => {

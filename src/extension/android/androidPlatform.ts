@@ -134,13 +134,6 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return runArguments;
     }
 
-    public restartApplication(): Q.Promise<void> {
-        return this.adb.stopApp(this.runOptions.projectRoot, this.packageName, this.debugTarget.id)
-            .then(() => {
-                return this.adb.launchApp(this.runOptions.projectRoot, this.packageName, this.debugTarget.id);
-            });
-    }
-
     private initializeTargetDevicesAndPackageName(): Q.Promise<void> {
         return this.adb.getConnectedDevices().then(devices => {
             this.devices = devices;

@@ -13,7 +13,6 @@ import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
-import {IOSDebugModeManager} from "./ios/iOSDebugModeManager";
 import {ExponentHelper} from "./exponent/exponentHelper";
 
 export class CommandPaletteHandler {
@@ -98,7 +97,7 @@ export class CommandPaletteHandler {
                 packager: this.reactNativePackager,
                 packageStatusIndicator: this.reactNativePackageStatusIndicator,
             });
-            return  platform.runApp(/*shouldLaunchInAllDevices*/true)
+            return platform.runApp(/*shouldLaunchInAllDevices*/true)
                 .then(() => {
                     return platform.disableJSDebuggingMode();
                 });
@@ -110,23 +109,18 @@ export class CommandPaletteHandler {
      */
     public runIos(target: "device" | "simulator" = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("ios");
-        return this.executeCommandInContext("runIos", () => {
-
+        return this.executeCommandInContext("runIos", () => this.executeWithPackagerRunning(() => {
             const packagerPort = SettingsHelper.getPackagerPort();
             const runArgs = SettingsHelper.getRunArgs("ios", target);
-
-            const platform = new IOSPlatform({ platform: "ios", projectRoot: this.workspaceRoot, packagerPort, runArgs }, { packager: this.reactNativePackager, packageStatusIndicator: this.reactNativePackageStatusIndicator });
+            const platform = new IOSPlatform({ platform: "ios", projectRoot: this.workspaceRoot, packagerPort, runArguments: runArgs }, { packager: this.reactNativePackager, packageStatusIndicator: this.reactNativePackageStatusIndicator });
 
             // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
-            return new IOSDebugModeManager(this.workspaceRoot)
-                .setSimulatorRemoteDebuggingSetting(/*enable=*/ false)
-                .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+            return platform.disableJSDebuggingMode()
+                .catch(() => {}) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
                 .then(() => {
-                    return this.executeWithPackagerRunning(() => {
-                        return platform.runApp();
-                    });
+                    return platform.runApp();
                 });
-        });
+        }));
     }
 
     private runRestartPackagerCommandAndUpdateStatus(): Q.Promise<void> {

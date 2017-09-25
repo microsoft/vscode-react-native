@@ -19,6 +19,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private plistBuddy = new PlistBuddy();
     private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
+    private iosDebugModeManager: IOSDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot);
 
     // We should add the common iOS build/run errors we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
@@ -79,11 +80,9 @@ export class IOSPlatform extends GeneralMobilePlatform {
             return Q.resolve<void>(void 0);
         }
 
-        const iosDebugModeManager = new IOSDebugModeManager(this.iosProjectRoot);
-
         // Wait until the configuration file exists, and check to see if debugging is enabled
         return Q.all<boolean | string>([
-            iosDebugModeManager.getSimulatorRemoteDebuggingSetting(),
+            this.iosDebugModeManager.getSimulatorRemoteDebuggingSetting(),
             this.getBundleId(),
         ])
             .spread((debugModeEnabled: boolean, bundleId: string) => {
@@ -108,13 +107,17 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     })
                     .then(() => {
                         // Write to the settings file while the app is not running to avoid races
-                        return iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ true);
+                        return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ true);
                     })
                     .then(() => {
                         // Relaunch the app
                         return this.runApp();
                     });
             });
+    }
+
+    public disableJSDebuggingMode(): Q.Promise<void> {
+        return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ false);
     }
 
     public prewarmBundleCache(): Q.Promise<void> {
