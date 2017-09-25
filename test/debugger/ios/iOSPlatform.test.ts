@@ -24,23 +24,23 @@ suite("iOSPlatform", function () {
     suite("#debuggerContext", function () {
         test("getRunArgument properties not defined", function () {
             let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.getRunArgument(), []);
+            assert.deepEqual(platform.getRunArgument(), ["--no-packager"]);
         });
         test("getRunArgument simulator simulator", function () {
             runOptions.target = "simulator";
-            const expected = ["--simulator"];
+            const expected = ["--simulator", "--no-packager"];
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.getRunArgument(), expected);
         });
         test("getRunArgument device device", function () {
             runOptions.target = "device";
-            const expected = ["--device"];
+            const expected = ["--device", "--no-packager"];
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.getRunArgument(), expected);
         });
         test("getRunArgument simulator iPhone 6", function () {
             runOptions.target = "iPhone 6";
-            const expected = ["--simulator", runOptions.target];
+            const expected = ["--simulator", runOptions.target, "--no-packager"];
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.getRunArgument(), expected);
         });
