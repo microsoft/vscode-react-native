@@ -6,16 +6,20 @@ import * as Q from "q";
 import * as vscode from "vscode";
 
 import * as em from "../common/extensionMessaging";
-import {Log} from "../common/log/log";
-import {LogLevel} from "../common/log/logHelper";
-import {Packager, PackagerRunAs} from "../common/packager";
-import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
+import {OutputChannelLogger} from "./log/OutputChannelLogger";
+import {Packager} from "../common/packager";
+import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
-import {ConfigurationReader} from "../common/configurationReader";
 import {SettingsHelper} from "./settingsHelper";
 import {Telemetry} from "../common/telemetry";
-import {ExponentHelper} from "../common/exponent/exponentHelper";
+import * as path from "path";
+import * as fs from "fs";
+import stripJsonComments = require("strip-json-comments");
+import {PlatformResolver} from "./platformResolver";
+import {TelemetryHelper} from "../common/telemetryHelper";
+import {TargetPlatformHelper} from "../common/targetPlatformHelper";
+import {MobilePlatformDeps} from "./generalMobilePlatform";
 
 export class ExtensionServer implements vscode.Disposable {
     private serverInstance: net.Server | null = null;
@@ -24,28 +28,21 @@ export class ExtensionServer implements vscode.Disposable {
     private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private pipePath: string;
     private logCatMonitor: LogCatMonitor | null = null;
-    private exponentHelper: ExponentHelper;
+    private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
-    public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator, exponentHelper: ExponentHelper) {
+    public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
 
         this.pipePath = new em.MessagingChannel(projectRootPath).getPath();
         this.reactNativePackager = reactNativePackager;
         this.reactNativePackageStatusIndicator = packagerStatusIndicator;
-        this.exponentHelper = exponentHelper;
 
         /* register handlers for all messages */
-        this.messageHandlerDictionary[em.ExtensionMessage.START_PACKAGER] = this.startPackager;
-        this.messageHandlerDictionary[em.ExtensionMessage.STOP_PACKAGER] = this.stopPackager;
-        this.messageHandlerDictionary[em.ExtensionMessage.RESTART_PACKAGER] = this.restartPackager;
-        this.messageHandlerDictionary[em.ExtensionMessage.PREWARM_BUNDLE_CACHE] = this.prewarmBundleCache;
-        this.messageHandlerDictionary[em.ExtensionMessage.START_MONITORING_LOGCAT] = this.startMonitoringLogCat;
         this.messageHandlerDictionary[em.ExtensionMessage.STOP_MONITORING_LOGCAT] = this.stopMonitoringLogCat;
         this.messageHandlerDictionary[em.ExtensionMessage.GET_PACKAGER_PORT] = this.getPackagerPort;
         this.messageHandlerDictionary[em.ExtensionMessage.SEND_TELEMETRY] = this.sendTelemetry;
         this.messageHandlerDictionary[em.ExtensionMessage.OPEN_FILE_AT_LOCATION] = this.openFileAtLocation;
-        this.messageHandlerDictionary[em.ExtensionMessage.START_EXPONENT_PACKAGER] = this.startExponentPackager;
         this.messageHandlerDictionary[em.ExtensionMessage.SHOW_INFORMATION_MESSAGE] = this.showInformationMessage;
-        this.messageHandlerDictionary[em.ExtensionMessage.GET_RUN_ARGS] = this.getRunArgs;
+        this.messageHandlerDictionary[em.ExtensionMessage.LAUNCH] = this.launch;
     }
 
     /**
@@ -56,7 +53,7 @@ export class ExtensionServer implements vscode.Disposable {
         let deferred = Q.defer<void>();
 
         let launchCallback = (error: any) => {
-            Log.logInternalMessage(LogLevel.Info, `Extension messaging server started at ${this.pipePath}.`);
+            this.logger.debug(`Extension messaging server started at ${this.pipePath}.`);
             if (error) {
                 deferred.reject(error);
             } else {
@@ -88,111 +85,6 @@ export class ExtensionServer implements vscode.Disposable {
      */
     private getPackagerPort(): Q.Promise<number> {
         return Q(SettingsHelper.getPackagerPort());
-    }
-
-    /**
-     * Message handler for START_PACKAGER.
-     */
-    private startPackager(): Q.Promise<any> {
-        return this.reactNativePackager.isRunning().then((running) => {
-            if (running) {
-                if (this.reactNativePackager.getRunningAs() !== PackagerRunAs.REACT_NATIVE) {
-                    return this.reactNativePackager.stop().then(() =>
-                        this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED)
-                    );
-                }
-
-                Log.logMessage("Attaching to running React Native packager");
-            }
-            return void 0;
-        })
-        .then(() => {
-            return this.reactNativePackager.startAsReactNative();
-        })
-        .then(() =>
-                this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
-    }
-
-    /**
-     * Message handler for START_EXPONENT_PACKAGER.
-     */
-    private startExponentPackager(): Q.Promise<any> {
-        return this.reactNativePackager.isRunning().then((running) => {
-            if (running) {
-                if (this.reactNativePackager.getRunningAs() !== PackagerRunAs.EXPONENT) {
-                    return this.reactNativePackager.stop().then(() =>
-                        this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
-                }
-
-                Log.logMessage("Attaching to running Exponent packager");
-            }
-            return void 0;
-        }).then(() =>
-            this.exponentHelper.configureExponentEnvironment()
-            ).then(() =>
-                this.exponentHelper.loginToExponent(
-                    (message, password) => {
-                        return Q.Promise((resolve, reject) => {
-                            vscode.window.showInputBox({ placeHolder: message, password: password })
-                                .then(resolve, reject);
-                        });
-                    },
-                    (message) => {
-                        return Q.Promise((resolve, reject) => {
-                            vscode.window.showInformationMessage(message)
-                                .then(resolve, reject);
-                        });
-                    }
-                ))
-            .then(() => {
-                return this.reactNativePackager.startAsExponent();
-            })
-            .then(exponentUrl => {
-                vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
-                this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
-                return exponentUrl;
-            });
-    }
-
-    /**
-     * Message handler for STOP_PACKAGER.
-     */
-    private stopPackager(): Q.Promise<any> {
-        return this.reactNativePackager.stop()
-            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
-    }
-
-    /**
-     * Message handler for RESTART_PACKAGER.
-     */
-    private restartPackager(port?: any): Q.Promise<any> {
-        const portToUse = ConfigurationReader.readIntWithDefaultSync(port, SettingsHelper.getPackagerPort());
-        return this.reactNativePackager.restart(portToUse)
-            .then(() =>
-                this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
-    }
-
-    /**
-     * Message handler for PREWARM_BUNDLE_CACHE.
-     */
-    private prewarmBundleCache(platform: string): Q.Promise<any> {
-        return this.reactNativePackager.prewarmBundleCache(platform);
-    }
-
-    /**
-     * Message handler for START_MONITORING_LOGCAT.
-     */
-    private startMonitoringLogCat(deviceId: string, logCatArguments: string): Q.Promise<any> {
-        this.stopMonitoringLogCat(); // Stop previous logcat monitor if it's running
-
-        // this.logCatMonitor can be mutated, so we store it locally too
-        const logCatMonitor = this.logCatMonitor = new LogCatMonitor(deviceId, logCatArguments);
-        logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
-            .catch(error =>
-                Log.logWarning("Error while monitoring LogCat", error))
-            .done();
-
-        return Q.resolve<void>(void 0);
     }
 
     /**
@@ -231,7 +123,7 @@ export class ExtensionServer implements vscode.Disposable {
     private handleExtensionMessage(messageWithArgs: em.MessageWithArguments): Q.Promise<any> {
         let handler = this.messageHandlerDictionary[messageWithArgs.message];
         if (handler) {
-            Log.logInternalMessage(LogLevel.Info, "Handling message: " + em.ExtensionMessage[messageWithArgs.message]);
+            this.logger.info("Handling message: " + em.ExtensionMessage[messageWithArgs.message]);
             return handler.apply(this, messageWithArgs.args);
         } else {
             return Q.reject("Invalid message: " + messageWithArgs.message);
@@ -243,7 +135,7 @@ export class ExtensionServer implements vscode.Disposable {
      */
     private handleSocket(socket: net.Socket): void {
         let handleError = (e: any) => {
-            Log.logError(e);
+            this.logger.error(e);
             socket.end(em.ErrorMarker);
         };
 
@@ -297,7 +189,97 @@ export class ExtensionServer implements vscode.Disposable {
     private showInformationMessage(message: string): Q.Promise<void> {
         return Q(vscode.window.showInformationMessage(message)).then(() => {});
     }
-    private getRunArgs(platform: string, target: "device" | "simulator"): Q.Promise<string[]> {
-        return Q.resolve(SettingsHelper.getRunArgs(platform, target));
+
+    private launch(request: any): Q.Promise<any> {
+        let mobilePlatformOptions = requestSetup(request.arguments);
+
+        // We add the parameter if it's defined (adapter crashes otherwise)
+        if (!isNullOrUndefined(request.arguments.logCatArguments)) {
+            mobilePlatformOptions.logCatArguments = [parseLogCatArguments(request.arguments.logCatArguments)];
+        }
+
+        if (!isNullOrUndefined(request.arguments.variant)) {
+            mobilePlatformOptions.variant = request.arguments.variant;
+        }
+
+        if (!isNullOrUndefined(request.arguments.scheme)) {
+            mobilePlatformOptions.scheme = request.arguments.scheme;
+        }
+
+        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort();
+        const platformDeps: MobilePlatformDeps = {
+            packager: this.reactNativePackager,
+            packageStatusIndicator: this.reactNativePackageStatusIndicator,
+        };
+        const mobilePlatform = new PlatformResolver()
+            .resolveMobilePlatform(request.arguments.platform, mobilePlatformOptions, platformDeps);
+        return TelemetryHelper.generate("launch", (generator) => {
+            generator.step("checkPlatformCompatibility");
+            TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
+            generator.step("startPackager");
+            return mobilePlatform.startPackager()
+                .then(() => {
+                    // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                    // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                    generator.step("prewarmBundleCache");
+                    this.logger.info("Prewarming bundle cache. This may take a while ...");
+                    return mobilePlatform.prewarmBundleCache();
+                })
+                .then(() => {
+                    generator.step("mobilePlatform.runApp");
+                    this.logger.info("Building and running application.");
+                    return mobilePlatform.runApp();
+                })
+                .then(() => {
+                    generator.step("mobilePlatform.enableJSDebuggingMode");
+                    return mobilePlatform.enableJSDebuggingMode();
+                })
+                .catch(error => {
+                    throw error;
+                });
+        });
+    }
+}
+
+/**
+ * Parses log cat arguments to a string
+ */
+function parseLogCatArguments(userProvidedLogCatArguments: any): string {
+    return Array.isArray(userProvidedLogCatArguments)
+        ? userProvidedLogCatArguments.join(" ") // If it's an array, we join the arguments
+        : userProvidedLogCatArguments; // If not, we leave it as-is
+}
+
+function isNullOrUndefined(value: any): boolean {
+    return typeof value === "undefined" || value === null;
+}
+
+function requestSetup(args: any): any {
+    const projectRootPath = getProjectRoot(args);
+    let mobilePlatformOptions: any = {
+        projectRoot: projectRootPath,
+        platform: args.platform,
+        targetType: args.targetType || "simulator",
+    };
+
+    if (!args.runArguments) {
+        let runArgs = SettingsHelper.getRunArgs(args.platform, args.targetType || "simulator");
+        mobilePlatformOptions.runArguments = runArgs;
+    }
+
+    return mobilePlatformOptions;
+}
+
+function getProjectRoot(args: any): string {
+    try {
+        let vsCodeRoot = path.resolve(args.program, "../..");
+        let settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
+        let settingsContent = fs.readFileSync(settingsPath, "utf8");
+        settingsContent = stripJsonComments(settingsContent);
+        let parsedSettings = JSON.parse(settingsContent);
+        let projectRootPath = parsedSettings["react-native-tools"].projectRoot;
+        return path.resolve(vsCodeRoot, projectRootPath);
+    } catch (e) {
+        return path.resolve(args.program, "../..");
     }
 }

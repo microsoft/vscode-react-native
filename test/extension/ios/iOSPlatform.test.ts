@@ -3,8 +3,7 @@
 
 import * as assert from "assert";
 
-import { IOSPlatform } from "../../../src/common/ios/iOSPlatform";
-// import { IRunOptions } from "../../../src/common/launchArgs";
+import { IOSPlatform } from "../../../src/extension/ios/iOSPlatform";
 
 import "should";
 
@@ -21,7 +20,7 @@ suite("iOSPlatform", function () {
         };
     });
 
-    suite("#debuggerContext", function () {
+    suite("extensionContext", function () {
         test("getRunArgument properties not defined", function () {
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.getRunArgument(), ["--no-packager"]);

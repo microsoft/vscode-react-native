@@ -2,9 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {FileSystem} from "../common/node/fileSystem";
-import {Log} from "../common/log/log";
-import {LogLevel} from "../common/log/logHelper";
-import {Packager} from "../common/packager";
+import { logger } from "vscode-chrome-debug-core";
+import { ensurePackagerRunning } from "../common/packagerStatus";
 import path = require("path");
 import Q = require("q");
 import {Request} from "../common/node/request";
@@ -55,24 +54,25 @@ export class ScriptImporter {
             return waitForSourceMapping
                 .then(() => this.writeAppScript(scriptBody, scriptUrl))
                 .then((scriptFilePath: string) => {
-                    Log.logInternalMessage(LogLevel.Info, `Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
+                    logger.verbose(`Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
                     return { contents: scriptBody, filepath: scriptFilePath };
                 });
         });
     }
 
     public downloadDebuggerWorker(sourcesStoragePath: string): Q.Promise<void> {
-        return Packager.isPackagerRunning(Packager.getHostForPort(this.packagerPort))
-            .then(running => {
-                if (running) {
-                    let debuggerWorkerURL = `http://${Packager.getHostForPort(this.packagerPort)}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
-                    let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
-                    Log.logInternalMessage(LogLevel.Info, "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
-                    return Request.request(debuggerWorkerURL, true).then((body: string) => {
+        const errPackagerNotRunning = new RangeError(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
+
+        return ensurePackagerRunning(this.packagerPort, errPackagerNotRunning)
+            .then(() => {
+                let debuggerWorkerURL = `http://localhost:${this.packagerPort}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
+                let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
+                logger.verbose("About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
+
+                return Request.request(debuggerWorkerURL, true)
+                    .then((body: string) => {
                         return new FileSystem().writeFile(debuggerWorkerLocalPath, body);
                     });
-                }
-                throw new RangeError(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
             });
     }
 

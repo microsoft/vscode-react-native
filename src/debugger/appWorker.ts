@@ -5,10 +5,9 @@ import * as Q from "q";
 import * as path from "path";
 import * as WebSocket from "ws";
 import { EventEmitter } from "events";
-import {Packager}  from "../common/packager";
+import { ensurePackagerRunning } from "../common/packagerStatus";
 import {ErrorHelper} from "../common/error/errorHelper";
-import {Log} from "../common/log/log";
-import {LogLevel} from "../common/log/logHelper";
+import { logger } from "vscode-chrome-debug-core";
 import {ExecutionsLimiter} from "../common/executionsLimiter";
 import { FileSystem as NodeFileSystem} from "../common/node/fileSystem";
 import { ForkedAppWorker } from "./forkedAppWorker";
@@ -27,7 +26,9 @@ export interface IDebuggeeWorker {
 }
 
 function printDebuggingError(message: string, reason: any) {
-    Log.logWarning(ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`));
+    const nestedError = ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`);
+
+    logger.error(nestedError.message);
 }
 
     /** This class will create a SandboxedAppWorker that will run the RN App logic, and then create a socket
@@ -90,12 +91,9 @@ postMessage({workerLoaded:true});`;
     }
 
     public start(retryAttempt: boolean = false): Q.Promise<any> {
-        return Packager.isPackagerRunning(Packager.getHostForPort(this.packagerPort))
-            .then(running => {
-                if (!running) {
-                    throw new Error(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
-                }
-            })
+        const errPackagerNotRunning = new Error(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
+
+        return ensurePackagerRunning(this.packagerPort, errPackagerNotRunning)
             .then(() => {
                 // Don't fetch debugger worker on socket disconnect
                 return retryAttempt ? Q.resolve<void>(void 0) :
@@ -132,7 +130,7 @@ postMessage({workerLoaded:true});`;
         this.singleLifetimeWorker = new ForkedAppWorker(this.packagerPort, this.sourcesStoragePath, (message) => {
             this.sendMessageToApp(message);
         });
-        Log.logInternalMessage(LogLevel.Info, "A new app worker lifetime was created.");
+        logger.verbose("A new app worker lifetime was created.");
         return this.singleLifetimeWorker.start()
             .then(startedEvent => {
                 this.emit("connected", startedEvent);
@@ -157,7 +155,7 @@ postMessage({workerLoaded:true});`;
                     if (this.socketToApp[msgKey] === "Another debugger is already connected") {
                         deferred.reject(new RangeError("Another debugger is already connected to packager. Please close it before trying to debug with VSCode."));
                     }
-                    Log.logMessage("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon...");
+                    logger.log("Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon...");
                 });
                 setTimeout(() => {
                   this.start(true /* retryAttempt */);
@@ -168,8 +166,7 @@ postMessage({workerLoaded:true});`;
         this.socketToApp.on("error",
             (error: Error) => {
                 if (retryAttempt) {
-                    Log.logWarning(ErrorHelper.getNestedWarning(error,
-                        "Reconnection to the proxy (Packager) failed. Please check the output window for Packager errors, if any. If failure persists, please restart the React Native debugger."));
+                    printDebuggingError("Reconnection to the proxy (Packager) failed. Please check the output window for Packager errors, if any. If failure persists, please restart the React Native debugger.", error);
                 }
 
                 deferred.reject(error);
@@ -182,12 +179,12 @@ postMessage({workerLoaded:true});`;
     }
 
     private debuggerProxyUrl() {
-        return `ws://${Packager.getHostForPort(this.packagerPort)}/debugger-proxy?role=debugger&name=vscode`;
+        return `ws://localhost:${this.packagerPort}/debugger-proxy?role=debugger&name=vscode`;
     }
 
     private onSocketOpened() {
         this.executionLimiter.execute("onSocketOpened.msg", /*limitInSeconds*/ 10, () =>
-            Log.logMessage("Established a connection with the Proxy (Packager) to the React Native application"));
+            logger.log("Established a connection with the Proxy (Packager) to the React Native application"));
     }
 
     private killWorker() {
@@ -198,7 +195,7 @@ postMessage({workerLoaded:true});`;
 
     private onMessage(message: string) {
         try {
-            Log.logInternalMessage(LogLevel.Trace, "From RN APP: " + message);
+            logger.verbose("From RN APP: " + message);
             let object = <RNAppMessage>JSON.parse(message);
             if (object.method === "prepareJSRuntime") {
                 // In RN 0.40 Android runtime doesn't seem to be sending "$disconnected" event
@@ -216,7 +213,7 @@ postMessage({workerLoaded:true});`;
                 }
             } else {
                 // Message doesn't have a method. Ignore it. This is an info message instead of warn because it's normal and expected
-                Log.logInternalMessage(LogLevel.Info, "The react-native app sent a message without specifying a method: " + message);
+                logger.verbose("The react-native app sent a message without specifying a method: " + message);
             }
         } catch (exception) {
             printDebuggingError(`Failed to process message from the React Native app. Message:\n${message}`, exception);
@@ -234,7 +231,7 @@ postMessage({workerLoaded:true});`;
         let stringified: string = "";
         try {
             stringified = JSON.stringify(message);
-            Log.logInternalMessage(LogLevel.Trace, "To RN APP: " + stringified);
+            logger.verbose("To RN APP: " + stringified);
             this.socketToApp.send(stringified);
         } catch (exception) {
             let messageToShow = stringified || ("" + message); // Try to show the stringified version, but show the toString if unavailable

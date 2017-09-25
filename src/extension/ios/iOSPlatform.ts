@@ -4,25 +4,24 @@
 import * as Q from "q";
 import * as path from "path";
 
-import {Log} from "../../common/log/log";
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
-import {GeneralMobilePlatform, TargetType} from "../../common/generalMobilePlatform";
-import {IIOSRunOptions} from "../../common/launchArgs";
-import {PlistBuddy} from "../../common/ios/plistBuddy";
-import {IOSDebugModeManager} from "../../common/ios/iOSDebugModeManager";
+import {GeneralMobilePlatform, MobilePlatformDeps, TargetType} from "../generalMobilePlatform";
+import {IIOSRunOptions} from "../launchArgs";
+import {PlistBuddy} from "./plistBuddy";
+import {IOSDebugModeManager} from "./iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
-import {RemoteExtension} from "../../common/remoteExtension";
-import { ErrorHelper } from "../../common/error/errorHelper";
+import {ErrorHelper} from "../../common/error/errorHelper";
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
-    public static DEFAULT_IOS_SIMULATOR_TARGET = "iPhone 5";
+
     private plistBuddy = new PlistBuddy();
     private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
+    private iosDebugModeManager: IOSDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot);
 
-    // We should add the common iOS build/run erros we find to this list
+    // We should add the common iOS build/run errors we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
         pattern: "No devices are booted",
         message: ErrorHelper.ERROR_STRINGS.IOSSimulatorNotLaunchable,
@@ -36,15 +35,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
-    // We set remoteExtension = null so that if there is an instance of iOSPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(protected runOptions: IIOSRunOptions, { remoteExtension = undefined }: { remoteExtension?: RemoteExtension } = {}) {
-        super(runOptions, { remoteExtension: remoteExtension });
+    constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
+        super(runOptions, platformDeps);
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
-            Log.logMessage("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
+            this.logger.warning("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
         }
 
-        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || "ios");
+        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
             this.targetType = (this.runOptions.runArguments.indexOf(`--${IOSPlatform.deviceString}`) >= 0) ?
@@ -66,7 +64,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         // Compile, deploy, and launch the app on either a simulator or a device
         const runArguments = this.getRunArgument();
 
-        const runIosSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-ios", runArguments);
+        const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", runArguments);
         return new OutputVerifier(
             () =>
                 this.generateSuccessPatterns(),
@@ -78,15 +76,13 @@ export class IOSPlatform extends GeneralMobilePlatform {
         // Configure the app for debugging
         if (this.targetType === IOSPlatform.deviceString) {
             // Note that currently we cannot automatically switch the device into debug mode.
-            Log.logMessage("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
+            this.logger.info("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
             return Q.resolve<void>(void 0);
         }
 
-        const iosDebugModeManager = new IOSDebugModeManager(this.iosProjectRoot);
-
         // Wait until the configuration file exists, and check to see if debugging is enabled
         return Q.all<boolean | string>([
-            iosDebugModeManager.getSimulatorRemoteDebuggingSetting(),
+            this.iosDebugModeManager.getSimulatorRemoteDebuggingSetting(),
             this.getBundleId(),
         ])
             .spread((debugModeEnabled: boolean, bundleId: string) => {
@@ -111,7 +107,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     })
                     .then(() => {
                         // Write to the settings file while the app is not running to avoid races
-                        return iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ true);
+                        return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ true);
                     })
                     .then(() => {
                         // Relaunch the app
@@ -120,8 +116,12 @@ export class IOSPlatform extends GeneralMobilePlatform {
             });
     }
 
+    public disableJSDebuggingMode(): Q.Promise<void> {
+        return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ false);
+    }
+
     public prewarmBundleCache(): Q.Promise<void> {
-        return this.remoteExtension.prewarmBundleCache(this.platformName);
+        return this.packager.prewarmBundleCache("ios");
     }
 
     public getRunArgument(): string[] {

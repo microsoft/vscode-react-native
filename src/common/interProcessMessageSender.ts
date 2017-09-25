@@ -5,8 +5,7 @@ import * as assert from "assert";
 
 import * as net from "net";
 import * as Q from "q";
-import {Log} from "./log/log";
-import {LogLevel} from "./log/logHelper";
+import {ConsoleLogger} from "../extension/log/ConsoleLogger";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 
@@ -22,6 +21,7 @@ export interface IInterProcessMessageSender {
  * Sends messages to the extension.
  */
 export class InterProcessMessageSender implements InterProcessMessageSender {
+    private logger: ConsoleLogger = new ConsoleLogger();
     constructor(private serverPath: string) {
         assert(this.serverPath, "serverPath shouldn't be null");
     }
@@ -32,7 +32,7 @@ export class InterProcessMessageSender implements InterProcessMessageSender {
         let body = "";
 
         let socket = net.connect(this.serverPath, () => {
-            Log.logInternalMessage(LogLevel.Info, `Connected to socket at ${this.serverPath}`);
+            this.logger.info(`Connected to socket at ${this.serverPath}`);
             let messageJson = JSON.stringify(messageWithArguments);
             socket.write(messageJson);
         });

@@ -5,7 +5,7 @@ import * as Q from "q";
 import * as vscode from "vscode";
 
 import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
-import { OutputChannelLogger } from "../outputChannelLogger";
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ExecutionsFilterBeforeTimestamp } from "../../common/executionsLimiter";
 
 /* This class will print the LogCat messages to an Output Channel. The configuration for logcat can be cutomized in
@@ -26,20 +26,18 @@ export class LogCatMonitor implements vscode.Disposable {
 
     private _logCatSpawn: ISpawnResult | null;
 
-    private static loggers: { [loggerName: string]: OutputChannelLogger } = {};
-
     constructor(deviceId: string, userProvidedLogCatArguments: string, { childProcess = new ChildProcess() } = {}) {
         this._deviceId = deviceId;
         this._userProvidedLogCatArguments = userProvidedLogCatArguments;
         this._childProcess = childProcess;
 
-        this._logger = LogCatMonitor.getLogger(`LogCat - ${deviceId}`);
+        this._logger = OutputChannelLogger.getChannel(`LogCat - ${deviceId}`);
     }
 
     public start(): Q.Promise<void> {
         const logCatArguments = this.getLogCatArguments();
         const adbParameters = ["-s", this._deviceId, "logcat"].concat(logCatArguments);
-        this._logger.logMessage(`Monitoring LogCat for device ${this._deviceId} with arguments: ${logCatArguments}`);
+        this._logger.debug(`Monitoring LogCat for device ${this._deviceId} with arguments: ${logCatArguments}`);
 
         this._logCatSpawn = new ChildProcess().spawn("adb", adbParameters);
 
@@ -47,19 +45,19 @@ export class LogCatMonitor implements vscode.Disposable {
             we won't print messages for the first 0.5 seconds */
         const filter = new ExecutionsFilterBeforeTimestamp(/*delayInSeconds*/ 0.5);
         this._logCatSpawn.stderr.on("data", (data: Buffer) => {
-            filter.execute(() => this._logger.logMessage(data.toString(), /*formatMessage*/ false));
+            filter.execute(() => this._logger.info(data.toString()));
         });
 
         this._logCatSpawn.stdout.on("data", (data: Buffer) => {
-            filter.execute(() => this._logger.logMessage(data.toString(), /*formatMessage*/ false));
+            filter.execute(() => this._logger.info(data.toString()));
         });
 
         return this._logCatSpawn.outcome.then(
             () =>
-                this._logger.logMessage("LogCat monitoring stopped because the process exited."),
+                this._logger.info("LogCat monitoring stopped because the process exited."),
             (reason) => {
                 if (!this._logCatSpawn) { // We stopped log cat ourselves
-                    this._logger.logMessage("LogCat monitoring stopped because the debugging session finished");
+                    this._logger.info("LogCat monitoring stopped because the debugging session finished");
                     return Q.resolve(void 0);
                 } else {
                     return Q.reject<void>(reason); // Unkown error. Pass it up the promise chain
@@ -76,9 +74,7 @@ export class LogCatMonitor implements vscode.Disposable {
             logCatSpawn.spawnedProcess.kill();
         }
 
-        for (let name of Object.keys(LogCatMonitor.loggers)) {
-            LogCatMonitor.loggers[name].getOutputChannel().dispose();
-        }
+        OutputChannelLogger.disposeChannel(this._logger.channelName);
     }
 
     private getLogCatArguments(): string[] {
@@ -90,16 +86,5 @@ export class LogCatMonitor implements vscode.Disposable {
 
     private isNullOrUndefined(value: any): boolean {
         return typeof value === "undefined" || value === null;
-    }
-
-    /**
-     * Fabric method to create new output channels and reuse old
-     */
-    private static getLogger(name: string): OutputChannelLogger {
-        if (!LogCatMonitor.loggers[name]) {
-            LogCatMonitor.loggers[name] = new OutputChannelLogger(vscode.window.createOutputChannel(name));
-        }
-        LogCatMonitor.loggers[name].getOutputChannel().clear();
-        return LogCatMonitor.loggers[name];
     }
 }

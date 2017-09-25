@@ -62,7 +62,6 @@ To expose internal logs to the output, set the following properties:
 ```
 {
   "react-native-tools": {
-    "showInternalLogs": true,
     "logLevel": "Trace"
   }
 }

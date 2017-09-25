@@ -7,7 +7,7 @@ import * as assert from "assert";
 
 import {PromiseUtil} from "../../src/common/node/promise";
 
-import {IAndroidRunOptions} from "../../src/common/launchArgs";
+import {IAndroidRunOptions} from "../../src/extension/launchArgs";
 import {ISpawnResult} from "../../src/common/node/childProcess";
 import {FileSystem} from "../../src/common/node/fileSystem";
 import {Package} from "../../src/common/node/package";

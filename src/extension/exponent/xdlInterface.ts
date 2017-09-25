@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {CommandExecutor, CommandVerbosity} from "../commandExecutor";
-import {HostPlatform} from "../hostPlatform";
-import {Log} from "../log/log";
+import {CommandExecutor, CommandVerbosity} from "../../common/commandExecutor";
+import {HostPlatform} from "../../common/hostPlatform";
+import {OutputChannelLogger} from "../log/OutputChannelLogger";
 
 import * as XDLPackage from "xdl";
 import * as path from "path";
 import * as Q from "q";
+
+const logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
 const EXPO_DEPS: string[] = [
     "xdl",
@@ -22,22 +24,21 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
     }
     // Don't do the require if we don't actually need it
     try {
-        Log.logMessage("Getting exponent dependecy.", false);
+        logger.debug("Getting exponent dependecy.");
         const xdl = require("xdl");
         xdlPackage = Q(xdl);
         return xdlPackage;
     } catch (e) {
         if (e.code === "MODULE_NOT_FOUND") {
-            Log.logMessage("Dependency not present. Installing it...", false);
+            logger.debug("Dependency not present. Installing it...");
         } else {
             throw e;
         }
     }
-    let commandExecutor = new CommandExecutor();
+    let commandExecutor = new CommandExecutor(path.dirname(require.resolve("../../../")), logger);
     xdlPackage = commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"),
         ["install", ...EXPO_DEPS, "--verbose", "--no-save"],
-        { verbosity: CommandVerbosity.PROGRESS,
-          cwd: path.dirname(require.resolve("../../../"))})
+        { verbosity: CommandVerbosity.PROGRESS })
         .then((): typeof XDLPackage => {
             return require("xdl");
         });

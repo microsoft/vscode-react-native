@@ -3,11 +3,10 @@
 
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
-import {ExponentHelper} from "./exponent/exponentHelper";
+import {ExponentHelper} from "../extension/exponent/exponentHelper";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
-import {Log} from "./log/log";
-import {LogLevel} from "./log/logHelper";
+import {OutputChannelLogger} from "../extension/log/OutputChannelLogger";
 import {Node} from "./node/node";
 import {Package} from "./node/package";
 import {PromiseUtil} from "./node/promise";
@@ -16,7 +15,7 @@ import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
 
 import * as Q from "q";
 import * as path from "path";
-import * as XDL from "../common/exponent/xdlInterface";
+import * as XDL from "../extension/exponent/xdlInterface";
 import * as url from "url";
 
 export enum PackagerRunAs {
@@ -29,6 +28,7 @@ export class Packager {
     public static DEFAULT_PORT = 8081;
     private packagerProcess: ChildProcess | undefined;
     private packagerRunningAs: PackagerRunAs;
+    private logger: OutputChannelLogger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
 
     private static JS_INJECTOR_FILENAME = "opn-main.js";
     private static JS_INJECTOR_FILEPATH = path.resolve(path.dirname(path.dirname(__dirname)), "js-patched", Packager.JS_INJECTOR_FILENAME);
@@ -65,7 +65,7 @@ export class Packager {
                         .then(() =>
                             this.start(PackagerRunAs.EXPONENT));
                 } else if (running && this.packagerRunningAs === PackagerRunAs.NOT_RUNNING) {
-                    Log.logWarning(ErrorHelper.getWarning("Packager running outside of VS Code. To avoid issues with exponent make sure it is running with .vscode/ as a root."));
+                    this.logger.warning(ErrorHelper.getWarning("Packager running outside of VS Code. To avoid issues with exponent make sure it is running with .vscode/ as a root."));
                     return Q.resolve<void>(void 0);
                 } else if (this.packagerRunningAs !== PackagerRunAs.EXPONENT) {
                     return this.start(PackagerRunAs.EXPONENT);
@@ -97,12 +97,12 @@ export class Packager {
             .then(running => {
                 if (running) {
                     if (!this.packagerProcess) {
-                        Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
+                        this.logger.warning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
                         return Q.resolve<void>(void 0);
                     }
                     return this.killPackagerProcess();
                 } else {
-                    Log.logWarning(ErrorHelper.getWarning("Packager is not running"));
+                    this.logger.warning(ErrorHelper.getWarning("Packager is not running"));
                     return Q.resolve<void>(void 0);
                 }
             }).then(() => {
@@ -121,13 +121,13 @@ export class Packager {
             .then(running => {
                 if (running) {
                     if (!this.packagerProcess) {
-                        Log.logWarning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager. Then try the restart packager again."));
+                        this.logger.warning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager. Then try the restart packager again."));
                         return Q.resolve<boolean>(false);
                     }
 
                     return this.killPackagerProcess().then(() => Q.resolve<boolean>(true));
                 } else {
-                    Log.logWarning(ErrorHelper.getWarning("Packager is not running"));
+                    this.logger.warning(ErrorHelper.getWarning("Packager is not running"));
                     return Q.resolve<boolean>(true);
                 }
             })
@@ -150,8 +150,8 @@ export class Packager {
             });
     }
 
-    public static isPackagerRunning(packagerURL: string): Q.Promise<boolean> {
-        let statusURL = `http://${packagerURL}/status`;
+    public isRunning(): Q.Promise<boolean> {
+        let statusURL = `http://${this.getHost()}/status`;
         return Request.request(statusURL)
             .then((body: string) => {
                 return body === "packager-status:running";
@@ -159,10 +159,6 @@ export class Packager {
             (error: any) => {
                 return false;
             });
-    }
-
-    public isRunning(): Q.Promise<boolean> {
-        return Packager.isPackagerRunning(this.getHost());
     }
 
     private prewarmBundleCacheWithBundleFilename(bundleFilename: string, platform: string): Q.Promise<void> {
@@ -173,15 +169,15 @@ export class Packager {
                 // If guessed entry point doesn't exist - skip prewarming, since it's not possible
                 // at this moment to determine _real_ bundle/ entry point name anyway
                 if (!exists) {
-                    Log.logInternalMessage(LogLevel.Info, `Entry point at ${indexFileName} ` +
-                        `doesn't exist. Skipping prewarming...`);
+                    this.logger.info(`Entry point at ${indexFileName} ` +
+                        `doesn'tLog. exist. Skipping prewarming...`);
                     return;
                 }
 
-                Log.logInternalMessage(LogLevel.Info, "About to get: " + bundleURL);
+                this.logger.info("About to get: " + bundleURL);
                 return Request.request(bundleURL, true)
                     .then(() => {
-                        Log.logMessage("The Bundle Cache was prewarmed.");
+                        this.logger.warning("The Bundle Cache was prewarmed.");
                     });
             })
             .catch(() => {
@@ -224,7 +220,7 @@ export class Packager {
                                     return args;
                                 })
                                 .catch(() => {
-                                    Log.logWarning("Couldn't read packager's options from exp.json, continue...");
+                                    this.logger.warning("Couldn't read packager's options from exp.json, continue...");
                                     return args;
                                 });
                         })
@@ -242,13 +238,13 @@ export class Packager {
                                     REACT_EDITOR: failedRNVersions.indexOf(version) < 0 ? "code" : this.openFileAtLocationCommand(),
                                 });
 
-                                Log.logMessage("Starting Packager");
+                                this.logger.info("Starting Packager");
                                 // The packager will continue running while we debug the application, so we can"t
                                 // wait for this command to finish
 
                                 let spawnOptions = { env: reactEnv };
 
-                                const packagerSpawnResult = new CommandExecutor(this.projectPath).spawnReactPackager(args, spawnOptions);
+                                const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
                                 this.packagerProcess = packagerSpawnResult.spawnedProcess;
                                 packagerSpawnResult.outcome.done(() => { }, () => { }); /* Q prints a warning if we don't call .done().
                                                                                         We ignore all outcome errors */
@@ -262,12 +258,12 @@ export class Packager {
                 this.awaitStart())
             .then(() => {
                 if (executedStartPackagerCmd) {
-                    Log.logMessage("Packager started.");
+                    this.logger.info("Packager started.");
                     this.packagerRunningAs = runAs;
                 } else {
-                    Log.logMessage("Packager is already running.");
+                    this.logger.info("Packager is already running.");
                     if (!this.packagerProcess) {
-                        Log.logWarning(ErrorHelper.getWarning("React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option"));
+                        this.logger.warning(ErrorHelper.getWarning("React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option"));
                     }
                 }
             });
@@ -326,14 +322,14 @@ export class Packager {
     }
 
     private killPackagerProcess(): Q.Promise<void> {
-        Log.logMessage("Stopping Packager");
-        return new CommandExecutor(this.projectPath).killReactPackager(this.packagerProcess).then(() => {
+        this.logger.info("Stopping Packager");
+        return new CommandExecutor(this.projectPath, this.logger).killReactPackager(this.packagerProcess).then(() => {
             this.packagerProcess = undefined;
             if (this.packagerRunningAs === PackagerRunAs.EXPONENT) {
-                Log.logMessage("Stopping Exponent");
+                this.logger.info("Stopping Exponent");
                 return XDL.stopAll(this.projectPath)
                     .then(() =>
-                        Log.logMessage("Exponent Stopped")
+                        this.logger.info("Exponent Stopped")
                     );
             }
             return Q.resolve<void>(void 0);

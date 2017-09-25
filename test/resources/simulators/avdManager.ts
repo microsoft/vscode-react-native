@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
-import {DeviceType} from "../../../src/common/android/adb";
+import {DeviceType} from "../../../src/extension/android/adb";
 import {AdbSimulator} from "./adbSimulator";
 
 export interface IAVDManager {

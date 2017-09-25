@@ -6,16 +6,13 @@ import * as fs from "fs";
 import * as path from "path";
 import * as mockFs from "mock-fs";
 
-import {AndroidPlatform} from "../../../src/common/android/androidPlatform";
-import {IAndroidRunOptions} from "../../../src/common/launchArgs";
+import {AndroidPlatform} from "../../../src/extension/android/androidPlatform";
+import {IAndroidRunOptions} from "../../../src/extension/launchArgs";
 import {FileSystem} from "../../../src/common/node/fileSystem";
 import {ReactNative022} from "../../resources/reactNative022";
 import {AdbSimulator} from "../../resources/simulators/adbSimulator";
 import {AVDManager} from "../../resources/simulators/avdManager";
-import {FakeExtensionMessageSender} from "../../resources/fakeExtensionMessageSender";
-import {ExtensionMessage} from "../../../src/common/extensionMessaging";
 import {RecordingsHelper} from "../../resources/recordingsHelper";
-import {RemoteExtension} from "../../../src/common/remoteExtension";
 import {CommandExecutor} from "../../../src/common/commandExecutor";
 
 import "should";
@@ -24,7 +21,7 @@ import * as sinon from "sinon";
 // TODO: Launch the extension server
 
 suite("androidPlatform", function () {
-    suite("debuggerContext", function () {
+    suite("extensionContext", function () {
         const projectRoot = "C:/projects/SampleApplication_21/";
         const androidProjectPath = path.join(projectRoot, "android");
         const applicationName = "SampleApplication";
@@ -37,32 +34,13 @@ suite("androidPlatform", function () {
         let adb: AdbSimulator;
         let simulatedAVDManager: AVDManager;
         let reactNative: ReactNative022;
-        let fakeExtensionMessageSender: FakeExtensionMessageSender;
         let androidPlatform: AndroidPlatform;
         let sandbox: Sinon.SinonSandbox;
 
         function createAndroidPlatform(runOptions: IAndroidRunOptions): AndroidPlatform {
             return new AndroidPlatform(runOptions, {
                 adb: adb,
-                remoteExtension: new RemoteExtension(fakeExtensionMessageSender),
             });
-        }
-
-        function shouldHaveReceivedSingleLogCatMessage(deviceId: string): void {
-            const expectedMessage = { message: ExtensionMessage.START_MONITORING_LOGCAT, args: [deviceId] };
-
-            const messagesSent = fakeExtensionMessageSender.getAllMessagesSent();
-            const messagesWithoutUndefineds = messagesSent.map(message => {
-                return {
-                    message: message.message,
-                    args: message.args && message.args.filter(value => value) || [],
-                };
-            });
-            messagesWithoutUndefineds.should.eql([expectedMessage]);
-        }
-
-        function shouldHaveReceivedNoLogCatMessages(): void {
-            fakeExtensionMessageSender.getAllMessagesSent().should.eql([]);
         }
 
         setup(() => {
@@ -74,7 +52,6 @@ suite("androidPlatform", function () {
             adb = new AdbSimulator(fileSystem);
             simulatedAVDManager = new AVDManager(adb);
             reactNative = new ReactNative022(adb, fileSystem);
-            fakeExtensionMessageSender = new FakeExtensionMessageSender();
             androidPlatform = createAndroidPlatform(genericRunOptions);
 
             sandbox.stub(CommandExecutor.prototype, "spawnReactCommand", function () {
@@ -109,7 +86,6 @@ suite("androidPlatform", function () {
                         return adb.isAppRunning(androidPackageName);
                     }).then(isRunning => {
                         isRunning.should.be.true();
-                        shouldHaveReceivedSingleLogCatMessage("Nexus_5");
                     });
             });
 
@@ -128,8 +104,6 @@ suite("androidPlatform", function () {
                     }).spread((isRunningOnNexus5, isRunningOnNexus6) => {
                         // It should be running in exactly one of these two devices
                         isRunningOnNexus5.should.not.eql(isRunningOnNexus6);
-                        const emulatorWithAppRunningId = isRunningOnNexus5 ? "Nexus_5" : "Nexus_6";
-                        shouldHaveReceivedSingleLogCatMessage(emulatorWithAppRunningId);
                     });
             });
 
@@ -150,11 +124,6 @@ suite("androidPlatform", function () {
                     }).then(isRunningList => {
                         // It should be running in exactly one of these three devices
                         isRunningList.filter(v => v).should.eql([true]);
-
-                        // Get index of running emulator
-                        const index = isRunningList.indexOf(true);
-                        const emulatorWithAppRunningId = devicesIds[index];
-                        shouldHaveReceivedSingleLogCatMessage(emulatorWithAppRunningId);
                     });
             });
 
@@ -167,7 +136,6 @@ suite("androidPlatform", function () {
                         should.assert(false, "runApp should've exited with an error");
                     }, reason => {
                         reason.message.should.eql("Unknown error");
-                        shouldHaveReceivedNoLogCatMessages();
                     });
             });
 
@@ -186,7 +154,6 @@ suite("androidPlatform", function () {
                         return adb.isAppRunning(androidPackageName, "Nexus_11");
                     }).then((isRunningOnNexus11) => {
                         isRunningOnNexus11.should.be.true();
-                        shouldHaveReceivedSingleLogCatMessage("Nexus_11");
                     });
             });
 
@@ -202,7 +169,6 @@ suite("androidPlatform", function () {
                         return adb.isAppRunning(androidPackageName, "Nexus_12");
                     }).then((isRunningOnNexus12) => {
                         isRunningOnNexus12.should.be.true();
-                        shouldHaveReceivedSingleLogCatMessage("Nexus_12");
                     });
             });
 
@@ -223,7 +189,6 @@ suite("androidPlatform", function () {
                     }).then((devicesRunningAppId) => {
                         devicesRunningAppId.length.should.eql(1);
                         onlineDevicesIds.should.containEql(devicesRunningAppId[0]);
-                        shouldHaveReceivedSingleLogCatMessage(devicesRunningAppId[0]);
                     });
             });
 
@@ -233,8 +198,6 @@ suite("androidPlatform", function () {
                 "react-native/run-android/win10-rn0.22.2/succeedsWithOneVSEmulator",
                 "react-native/run-android/osx10.10-rn0.21.0/succeedsWithOneVSEmulator",
             ], () => {
-                fakeExtensionMessageSender.setMessageResponse(Q.reject<void>("Unknown error"));
-
                 return Q({})
                     .then(() => {
                         return simulatedAVDManager.createAndLaunch("Nexus_5");
@@ -244,7 +207,6 @@ suite("androidPlatform", function () {
                         return adb.isAppRunning(androidPackageName);
                     }).then(isRunning => {
                         isRunning.should.be.true();
-                        shouldHaveReceivedSingleLogCatMessage("Nexus_5");
                     });
             });
 
@@ -268,7 +230,6 @@ suite("androidPlatform", function () {
                         return adb.isAppRunning(androidPackageName);
                     }).then(isRunning => {
                         isRunning.should.be.false();
-                        shouldHaveReceivedNoLogCatMessages();
                     });
             });
 
@@ -287,7 +248,6 @@ suite("androidPlatform", function () {
                         return adb.isAppRunning(androidPackageName);
                     }).then(isRunning => {
                         isRunning.should.be.false();
-                        shouldHaveReceivedNoLogCatMessages();
                     });
             });
     });

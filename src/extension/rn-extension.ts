@@ -23,8 +23,6 @@ import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalError} from "../common/error/internalError";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
-import {Log} from "../common/log/log";
-import {LogHelper} from "../common/log/logHelper";
 import {SettingsHelper} from "./settingsHelper";
 import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
@@ -33,8 +31,8 @@ import {IntellisenseHelper} from "./intellisenseHelper";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
-import {DelayedOutputChannelLogger} from "./outputChannelLogger";
-import { ExponentHelper } from "../common/exponent/exponentHelper";
+import {OutputChannelLogger} from "./log/OutputChannelLogger";
+import { ExponentHelper } from "./exponent/exponentHelper";
 import { QRCodeContentProvider } from "./qrCodeContentProvider";
 import { ConfigurationReader } from "../common/configurationReader";
 
@@ -50,7 +48,7 @@ const packagerStatusIndicator = new PackagerStatusIndicator();
 const globalExponentHelper = new ExponentHelper(workspaceRootPath, projectRootPath);
 const commandPaletteHandler = new CommandPaletteHandler(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper);
 
-const outputChannelLogger = new DelayedOutputChannelLogger("React-Native");
+const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
 const reactNativeProjectHelper = new ReactNativeProjectHelper(projectRootPath);
 const fsUtil = new FileSystem();
@@ -60,7 +58,6 @@ interface ISetupableDisposable extends vscode.Disposable {
 }
 
 export function activate(context: vscode.ExtensionContext): void {
-    configureLogLevel();
     entryPointHandler.runApp("react-native", () => <string>require("../../package.json").version,
         ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), projectRootPath, () => {
         return reactNativeProjectHelper.isReactNativeProject()
@@ -74,7 +71,7 @@ export function activate(context: vscode.ExtensionContext): void {
                         ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () =>
                             setupAndDispose(new ReactDirManager(), context)
                             .then(() =>
-                                setupAndDispose(new ExtensionServer(projectRootPath, globalPackager, packagerStatusIndicator, globalExponentHelper), context))
+                                setupAndDispose(new ExtensionServer(projectRootPath, globalPackager, packagerStatusIndicator), context))
                             .then(() => {}));
                     entryPointHandler.runFunction("intelliSense.setup",
                         ErrorHelper.getInternalError(InternalErrorCode.IntellisenseSetupFailed), () =>
@@ -106,10 +103,6 @@ export function deactivate(): Q.Promise<void> {
     });
 }
 
-function configureLogLevel(): void {
-    LogHelper.logLevel = SettingsHelper.getLogLevel();
-}
-
 function configureNodeDebuggerLocation(): Q.Promise<void> {
     const nodeDebugExtension = vscode.extensions.getExtension("ms-vscode.node-debug2");
     if (!nodeDebugExtension) {
@@ -133,7 +126,7 @@ function warnWhenReactNativeVersionIsNotSupported(): void {
         const shortMessage = `React Native Tools need React Native version 0.19.0 or later to be installed in <PROJECT_ROOT>/node_modules/`;
         const longMessage = `${shortMessage}: ${reason}`;
         vscode.window.showWarningMessage(shortMessage);
-        Log.logMessage(longMessage);
+        outputChannelLogger.warning(longMessage);
     });
 }
 

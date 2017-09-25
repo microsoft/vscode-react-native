@@ -9,29 +9,24 @@ import stripJsonComments = require("strip-json-comments");
 import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { RemoteExtension } from "../common/remoteExtension";
-import { PlatformResolver } from "./platformResolver";
-import { IRunOptions } from "../common/launchArgs";
-import { TargetPlatformHelper } from "../common/targetPlatformHelper";
 import { ExtensionTelemetryReporter, ReassignableTelemetryReporter } from "../common/telemetryReporters";
-import { NodeDebugAdapterLogger } from "../common/log/loggers";
-import { Log } from "../common/log/log";
-import { LogLevel } from "../common/log/logHelper";
-import { GeneralMobilePlatform } from "../common/generalMobilePlatform";
+import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger  } from "vscode-chrome-debug-core";
+import { ContinuedEvent, TerminatedEvent, Logger } from "vscode-debugadapter";
+import { DebugProtocol } from "vscode-debugprotocol";
 
 import { MultipleLifetimesAppWorker } from "./appWorker";
 
+
 export function makeSession(
-    debugSessionClass: typeof ChromeDebuggerCorePackage.ChromeDebugSession,
-    debugSessionOpts: ChromeDebuggerCorePackage.IChromeDebugSessionOpts,
-    debugAdapterPackage: typeof VSCodeDebugAdapterPackage,
+    debugSessionClass: typeof ChromeDebugSession,
+    debugSessionOpts: IChromeDebugSessionOpts,
     telemetryReporter: ReassignableTelemetryReporter,
-    appName: string, version: string): typeof ChromeDebuggerCorePackage.ChromeDebugSession {
+    appName: string, version: string): typeof ChromeDebugSession {
 
     return class extends debugSessionClass {
 
         private projectRootPath: string;
         private remoteExtension: RemoteExtension;
-        private mobilePlatformOptions: IRunOptions;
         private appWorker: MultipleLifetimesAppWorker | null = null;
 
         constructor(debuggerLinesAndColumnsStartAt1?: boolean, isServer?: boolean) {
@@ -39,7 +34,7 @@ export function makeSession(
         }
 
         // Override ChromeDebugSession's sendEvent to control what we will send to client
-        public sendEvent(event: VSCodeDebugAdapterPackage.Event): void {
+        public sendEvent(event: DebugProtocol.Event): void {
             // Do not send "terminated" events signaling about session's restart to client as it would cause it
             // to restart adapter's process, while we want to stay alive and don't want to interrupt connection
             // to packager.
@@ -49,7 +44,7 @@ export function makeSession(
                 // Worker has been reloaded and switched to "continue" state
                 // So we have to send "continued" event to client instead of "terminated"
                 // Otherwise client might mistakenly show "stopped" state
-                let continuedEvent: VSCodeDebugAdapterPackage.ContinuedEvent = {
+                let continuedEvent: ContinuedEvent = {
                     event: "continued",
                     type: "event",
                     seq: event["seq"], // tslint:disable-line
@@ -63,7 +58,7 @@ export function makeSession(
             super.sendEvent(event);
         }
 
-        protected dispatchRequest(request: VSCodeDebugAdapterPackage.Request): void {
+        protected dispatchRequest(request: DebugProtocol.Request): void {
             if (request.command === "disconnect")
                 return this.disconnect(request);
 
@@ -76,103 +71,59 @@ export function makeSession(
             return super.dispatchRequest(request);
         }
 
-        private launch(request: VSCodeDebugAdapterPackage.Request): void {
-            this.requestSetup(request.arguments)
+        private launch(request: DebugProtocol.Request): void {
+            this.requestSetup(request.arguments);
+            this.remoteExtension.launch(request)
                 .then(() => {
-                    // We add the parameter if it's defined (adapter crashes otherwise)
-                    if (!isNullOrUndefined(request.arguments.logCatArguments)) {
-                        this.mobilePlatformOptions.logCatArguments = [parseLogCatArguments(request.arguments.logCatArguments)];
-                    }
-
-                    if (!isNullOrUndefined(request.arguments.variant)) {
-                        this.mobilePlatformOptions.variant = request.arguments.variant;
-                    }
-
-                    if (!isNullOrUndefined(request.arguments.scheme)) {
-                        this.mobilePlatformOptions.scheme = request.arguments.scheme;
-                    }
-
-                    TelemetryHelper.generate("launch", (generator) => {
-                        return this.remoteExtension.getPackagerPort()
-                            .then((packagerPort: number) => {
-                                this.mobilePlatformOptions.packagerPort = packagerPort;
-                                const mobilePlatform = new PlatformResolver()
-                                    .resolveMobilePlatform(request.arguments.platform, this.mobilePlatformOptions);
-
-                                generator.step("checkPlatformCompatibility");
-                                TargetPlatformHelper.checkTargetPlatformSupport(this.mobilePlatformOptions.platform);
-                                generator.step("startPackager");
-                                return mobilePlatform.startPackager()
-                                    .then(() => {
-                                        // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
-                                        // and the user needs to Reload JS manually. We prewarm it to prevent that issue
-                                        generator.step("prewarmBundleCache");
-                                        Log.logMessage("Prewarming bundle cache. This may take a while ...");
-                                        return mobilePlatform.prewarmBundleCache();
-                                    })
-                                    .then(() => {
-                                        generator.step("mobilePlatform.runApp");
-                                        Log.logMessage("Building and running application.");
-                                        return mobilePlatform.runApp();
-                                    })
-                                    .then(() => {
-                                        return this.attachRequest(request, packagerPort, mobilePlatform);
-                                    });
-                            })
-                            .catch(error => this.bailOut(error.message));
-                    });
+                    return this.remoteExtension.getPackagerPort();
+                })
+                .then((packagerPort: number) => {
+                    this.attachRequest(request, packagerPort);
+                })
+                .catch(error => {
+                    this.bailOut(error.message);
                 });
         }
 
-        private attach(request: VSCodeDebugAdapterPackage.Request): void {
-            this.requestSetup(request.arguments)
-                .then(() => {
-                    this.remoteExtension.getPackagerPort()
-                        .then((packagerPort: number) => this.attachRequest(request, packagerPort));
+        private attach(request: DebugProtocol.Request): void {
+            this.requestSetup(request.arguments);
+            this.remoteExtension.getPackagerPort()
+                .then((packagerPort: number) => {
+                    this.attachRequest(request, packagerPort);
                 });
         }
 
-        private disconnect(request: VSCodeDebugAdapterPackage.Request): void {
+        private disconnect(request: DebugProtocol.Request): void {
             // The client is about to disconnect so first we need to stop app worker
             if (this.appWorker) {
                 this.appWorker.stop();
             }
 
             // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
-            if (this.mobilePlatformOptions.platform === "android") {
+            if (request.arguments.platform === "android") {
                 this.remoteExtension.stopMonitoringLogcat()
-                    .catch(reason => Log.logError(`WARNING: Couldn't stop monitoring logcat: ${reason.message || reason}\n`))
+                    .catch(reason => logger.warn(`Couldn't stop monitoring logcat: ${reason.message || reason}`))
                     .finally(() => super.dispatchRequest(request));
             } else {
                 super.dispatchRequest(request);
             }
         }
 
-        private requestSetup(args: any): Q.Promise<void> {
+        private requestSetup(args: any): void {
+            let logLevel: string = args.trace;
+            if (logLevel) {
+                logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
+                logger.setup(Logger.LogLevel[logLevel], false);
+            } else {
+                logger.setup(Logger.LogLevel.Log, false);
+            }
+
             this.projectRootPath = getProjectRoot(args);
             this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
-            this.mobilePlatformOptions = {
-                projectRoot: this.projectRootPath,
-                platform: args.platform,
-                target: args.target || "simulator",
-            };
 
             // Start to send telemetry
             telemetryReporter.reassignTo(new ExtensionTelemetryReporter(
                 appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
-
-            Log.SetGlobalLogger(new NodeDebugAdapterLogger(debugAdapterPackage, this));
-
-            if (!args.runArguments) {
-                return this.remoteExtension.getRunArgs(args.platform, args.target || "simulator")
-                .then(runArgs => {
-                    this.mobilePlatformOptions.runArguments = runArgs;
-                });
-            } else {
-                this.mobilePlatformOptions.runArguments = args.runArguments;
-            }
-
-            return Q.resolve(void 0);
         }
 
         /**
@@ -180,24 +131,14 @@ export function makeSession(
          * Attach should:
          * - Enable js debugging
          */
-        private attachRequest(
-            request: VSCodeDebugAdapterPackage.Request,
-            packagerPort: number,
-            mobilePlatform?: GeneralMobilePlatform): Q.Promise<void> {
+        // tslint:disable-next-line:member-ordering
+        protected attachRequest(
+            request: DebugProtocol.Request,
+            packagerPort: number): Q.Promise<void> {
             return TelemetryHelper.generate("attach", (generator) => {
                 return Q({})
                     .then(() => {
-                        generator.step("mobilePlatform.enableJSDebuggingMode");
-                        if (mobilePlatform) {
-                            return mobilePlatform.enableJSDebuggingMode();
-                        } else {
-                            Log.logMessage("Debugger ready. Enable remote debugging in app.");
-                            return void 0;
-                        }
-                    })
-                    .then(() => {
-
-                        Log.logMessage("Starting debugger app worker.");
+                        logger.log("Starting debugger app worker.");
                         // TODO: remove dependency on args.program - "program" property is technically
                         // no more required in launch configuration and could be removed
                         const workspaceRootPath = path.resolve(path.dirname(request.arguments.program), "..");
@@ -206,7 +147,7 @@ export function makeSession(
                         // If launch is invoked first time, appWorker is undefined, so create it here
                         this.appWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath);
                         this.appWorker.on("connected", (port: number) => {
-                            Log.logMessage("Debugger worker loaded runtime on port " + port);
+                            logger.log("Debugger worker loaded runtime on port " + port);
                             // Don't mutate original request to avoid side effects
                             let attachArguments = Object.assign({}, request.arguments, { port, restart: true, request: "attach" });
                             let attachRequest = Object.assign({}, request, { command: "attach", arguments: attachArguments });
@@ -214,7 +155,7 @@ export function makeSession(
                             // Reinstantiate debug adapter, as the current implementation of ChromeDebugAdapter
                             // doesn't allow us to reattach to another debug target easily. As of now it's easier
                             // to throw previous instance out and create a new one.
-                            this._debugAdapter = new (<any>debugSessionOpts.adapter)(debugSessionOpts, this);
+                            (this as any)._debugAdapter = new (<any>debugSessionOpts.adapter)(debugSessionOpts, this);
                             super.dispatchRequest(attachRequest);
                         });
 
@@ -228,48 +169,21 @@ export function makeSession(
          * Logs error to user and finishes the debugging process.
          */
         private bailOut(message: string): void {
-            Log.logError(`Could not debug. ${message}`);
-            this.sendEvent(new debugAdapterPackage.TerminatedEvent());
+            logger.error(`Could not debug. ${message}`);
+            this.sendEvent(new TerminatedEvent());
         }
     };
 }
 
-export function makeAdapter(debugAdapterClass: typeof Node2DebugAdapterPackage.Node2DebugAdapter): typeof Node2DebugAdapterPackage.Node2DebugAdapter {
+export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeof ChromeDebugAdapter {
     return class extends debugAdapterClass {
         public doAttach(port: number, targetUrl?: string, address?: string, timeout?: number): Promise<void> {
             // We need to overwrite ChromeDebug's _attachMode to let Node2 adapter
             // to set up breakpoints on initial pause event
-            this._attachMode = false;
+            (this as any)._attachMode = false;
             return super.doAttach(port, targetUrl, address, timeout);
         }
-
-        public setBreakpoints(args: any, requestSeq: number, ids?: number[]): Promise<Node2DebugAdapterPackage.ISetBreakpointsResponseBody> {
-            // We need to overwrite ChromeDebug's setBreakpoints to get rid unhandled rejections
-            // when breakpoints are being set up unsuccessfully
-            return super.setBreakpoints(args, requestSeq, ids).catch((err) => {
-                Log.logInternalMessage(LogLevel.Error, err.message);
-                return {
-                    breakpoints: [],
-                };
-            });
-        }
     };
-}
-
-/**
- * Parses log cat arguments to a string
- */
-function parseLogCatArguments(userProvidedLogCatArguments: any): string {
-    return Array.isArray(userProvidedLogCatArguments)
-        ? userProvidedLogCatArguments.join(" ") // If it's an array, we join the arguments
-        : userProvidedLogCatArguments; // If not, we leave it as-is
-}
-
-/**
- * Helper method to know if a value is either null or undefined
- */
-function isNullOrUndefined(value: any): boolean {
-    return typeof value === "undefined" || value === null;
 }
 
 /**

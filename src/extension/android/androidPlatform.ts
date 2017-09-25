@@ -5,16 +5,16 @@ import * as Q from "q";
 
 import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import {IAndroidRunOptions} from "../launchArgs";
-import {Log} from "../log/log";
 import {IAdb, Adb, AndroidAPILevel, IDevice} from "./adb";
-import {Package} from "../node/package";
-import {PromiseUtil} from "../node/promise";
+import {Package} from "../../common/node/package";
+import {PromiseUtil} from "../../common/node/promise";
 import {PackageNameResolver} from "./packageNameResolver";
-import {OutputVerifier, PatternToFailure} from "../outputVerifier";
-import {TelemetryHelper} from "../telemetryHelper";
+import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
+import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
+import {LogCatMonitor} from "./logCatMonitor";
 
-export interface AndroidPlatformDeps extends MobilePlatformDeps  {
+export interface AndroidPlatformDeps extends MobilePlatformDeps {
     adb?: IAdb;
 }
 /**
@@ -23,7 +23,7 @@ export interface AndroidPlatformDeps extends MobilePlatformDeps  {
 export class AndroidPlatform extends GeneralMobilePlatform {
     private static MULTIPLE_DEVICES_ERROR = "error: more than one device/emulator";
 
-    // We should add the common Android build/run erros we find to this list
+    // We should add the common Android build/run errors we find to this list
     private static RUN_ANDROID_FAILURE_PATTERNS: PatternToFailure[] = [{
         pattern: "Failed to install on any devices",
         message: "Could not install the app on any available device. Make sure you have a correctly"
@@ -50,16 +50,14 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private devices: IDevice[];
     private packageName: string;
     private adb: IAdb;
+    private logCatMonitor: LogCatMonitor | null = null;
 
     private needsToLaunchApps: boolean = false;
 
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(protected runOptions: IAndroidRunOptions, {
-        remoteExtension,
-        adb = <IAdb>new Adb(),
-    }: AndroidPlatformDeps = {}) {
-        super(runOptions, { remoteExtension: remoteExtension });
-        this.adb = adb;
+    constructor(protected runOptions: IAndroidRunOptions, platformDeps: AndroidPlatformDeps = {}) {
+        super(runOptions, platformDeps);
+        this.adb = platformDeps.adb || new Adb();
 
         if (this.runOptions.target === AndroidPlatform.simulatorString ||
             this.runOptions.target === AndroidPlatform.deviceString) {
@@ -68,7 +66,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 "platform. If you want to use particular device or simulator for launching " +
                 "Android app, please specify  device id (as in 'adb devices' output) instead.";
 
-            Log.logMessage(message);
+            this.logger.warning(message);
             delete this.runOptions.target;
         }
     }
@@ -76,7 +74,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {
         return TelemetryHelper.generate("AndroidPlatform.runApp", () => {
             const runArguments = this.getRunArgument();
-            const runAndroidSpawn = new CommandExecutor(this.projectPath).spawnReactCommand("run-android", runArguments);
+            const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", runArguments);
 
             const output = new OutputVerifier(
                 () =>
@@ -114,7 +112,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     public prewarmBundleCache(): Q.Promise<void> {
-        return this.remoteExtension.prewarmBundleCache(this.platformName);
+        return this.packager.prewarmBundleCache("android");
     }
 
     public getRunArgument(): string[] {
@@ -136,13 +134,6 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return runArguments;
     }
 
-    public restartApplication(): Q.Promise<void> {
-        return this.adb.stopApp(this.runOptions.projectRoot, this.packageName, this.debugTarget.id)
-            .then(() => {
-                return this.adb.launchApp(this.runOptions.projectRoot, this.packageName, this.debugTarget.id);
-            });
-    }
-
     private initializeTargetDevicesAndPackageName(): Q.Promise<void> {
         return this.adb.getConnectedDevices().then(devices => {
             this.devices = devices;
@@ -162,8 +153,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     ? this.adb.launchApp(this.runOptions.projectRoot, this.packageName, device.id)
                     : Q<void>(void 0);
             }).then(() => {
-                return this.startMonitoringLogCat(device, this.runOptions.logCatArguments).catch(error => // The LogCatMonitor failing won't stop the debugging experience
-                    Log.logWarning("Couldn't start LogCat monitor", error));
+                return this.startMonitoringLogCat(device, this.runOptions.logCatArguments);
             });
     }
 
@@ -172,9 +162,9 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             .then(() => this.adb.apiVersion(device.id))
             .then(apiVersion => {
                 if (apiVersion >= AndroidAPILevel.LOLLIPOP) { // If we support adb reverse
-                    return this.adb.reverseAdb(device.id, Number(this.runOptions.packagerPort));
+                    return this.adb.reverseAdb(device.id, Number( this.runOptions.packagerPort));
                 } else {
-                    Log.logWarning(`Device ${device.id} supports only API Level ${apiVersion}. `
+                    this.logger.warning(`Device ${device.id} supports only API Level ${apiVersion}. `
                     + `Level ${AndroidAPILevel.LOLLIPOP} is needed to support port forwarding via adb reverse. `
                     + "For debugging to work you'll need <Shake or press menu button> for the dev menu, "
                     + "go into <Dev Settings> and configure <Debug Server host & port for Device> to be "
@@ -217,7 +207,20 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return activeDevices && activeDevices[0];
     }
 
-    private startMonitoringLogCat(device: IDevice, logCatArguments: string): Q.Promise<void> {
-        return this.remoteExtension.startMonitoringLogcat(device.id, logCatArguments);
+    private startMonitoringLogCat(device: IDevice, logCatArguments: string): void {
+        this.stopMonitoringLogCat(); // Stop previous logcat monitor if it's running
+
+        // this.logCatMonitor can be mutated, so we store it locally too
+        this.logCatMonitor = new LogCatMonitor(device.id, logCatArguments);
+        this.logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
+            .catch(error => this.logger.warning("Error while monitoring LogCat", error)) // The LogCatMonitor failing won't stop the debugging experience
+            .done();
+    }
+
+    private stopMonitoringLogCat(): void {
+        if (this.logCatMonitor) {
+            this.logCatMonitor.dispose();
+            this.logCatMonitor = null;
+        }
     }
 }

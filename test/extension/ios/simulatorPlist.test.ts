@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {SimulatorPlist} from "../../../src/common/ios/simulatorPlist";
+import {SimulatorPlist} from "../../../src/extension/ios/simulatorPlist";
 
 import * as assert from "assert";
 import * as path from "path";
@@ -9,7 +9,7 @@ import * as Q from "q";
 import * as sinon from "sinon";
 
 suite("plistBuddy", function() {
-    suite("commonContext", function() {
+    suite("extensionContext", function() {
         test("findPlistFile should correctly find the NSUserDefaults plist file for the simulator", function() {
             const projectRoot = path.join("/", "tmp", "myProject");
 

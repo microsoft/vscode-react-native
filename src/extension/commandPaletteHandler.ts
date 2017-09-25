@@ -3,24 +3,24 @@
 
 import * as vscode from "vscode";
 import * as Q from "q";
-import * as XDL from "../common/exponent/xdlInterface";
-import {CommandExecutor} from "../common/commandExecutor";
+import * as XDL from "./exponent/xdlInterface";
 import {SettingsHelper} from "./settingsHelper";
-import {Log} from "../common/log/log";
+import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager, PackagerRunAs} from "../common/packager";
-import {AndroidPlatform} from "../common/android/androidPlatform";
+import {AndroidPlatform} from "./android/androidPlatform";
+import {IOSPlatform} from "./ios/iOSPlatform";
 import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
-import {IOSDebugModeManager} from "../common/ios/iOSDebugModeManager";
-import {ExponentHelper} from "../common/exponent/exponentHelper";
+import {ExponentHelper} from "./exponent/exponentHelper";
 
 export class CommandPaletteHandler {
     private reactNativePackager: Packager;
     private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private workspaceRoot: string;
     private exponentHelper: ExponentHelper;
+    private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     constructor(workspaceRoot: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator, exponentHelper: ExponentHelper) {
         this.workspaceRoot = workspaceRoot;
@@ -79,7 +79,7 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("publishToExpHost", () => {
             return this.executePublishToExpHost().then((didPublish) => {
                 if (!didPublish) {
-                    Log.logMessage("Publishing was unsuccessful. Please make sure you are logged in Exponent and your project is a valid Exponentjs project");
+                    this.logger.warning("Publishing was unsuccessful. Please make sure you are logged in Exponent and your project is a valid Exponentjs project");
                 }
             });
         });
@@ -93,8 +93,11 @@ export class CommandPaletteHandler {
         return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
             const packagerPort = SettingsHelper.getPackagerPort();
             const runArgs = SettingsHelper.getRunArgs("android", target);
-            const platform = new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, runArguments: runArgs });
-            return  platform.runApp(/*shouldLaunchInAllDevices*/true)
+            const platform = new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, runArguments: runArgs }, {
+                packager: this.reactNativePackager,
+                packageStatusIndicator: this.reactNativePackageStatusIndicator,
+            });
+            return platform.runApp(/*shouldLaunchInAllDevices*/true)
                 .then(() => {
                     return platform.disableJSDebuggingMode();
                 });
@@ -106,15 +109,18 @@ export class CommandPaletteHandler {
      */
     public runIos(target: "device" | "simulator" = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("ios");
-        return this.executeCommandInContext("runIos", () => {
+        return this.executeCommandInContext("runIos", () => this.executeWithPackagerRunning(() => {
+            const packagerPort = SettingsHelper.getPackagerPort();
             const runArgs = SettingsHelper.getRunArgs("ios", target);
-            runArgs.push("-no-packager");
+            const platform = new IOSPlatform({ platform: "ios", projectRoot: this.workspaceRoot, packagerPort, runArguments: runArgs }, { packager: this.reactNativePackager, packageStatusIndicator: this.reactNativePackageStatusIndicator });
+
             // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
-            return new IOSDebugModeManager(this.workspaceRoot)
-                .setSimulatorRemoteDebuggingSetting(/*enable=*/ false)
-                .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
-                .then(() => this.executeReactNativeRunCommand("run-ios", runArgs));
-        });
+            return platform.disableJSDebuggingMode()
+                .catch(() => {}) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+                .then(() => {
+                    return platform.runApp();
+                });
+        }));
     }
 
     private runRestartPackagerCommandAndUpdateStatus(): Q.Promise<void> {
@@ -132,9 +138,9 @@ export class CommandPaletteHandler {
                     this.reactNativePackager.startAsExponent()
                 ).then(exponentUrl => {
                     this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
-                    Log.logMessage("Application is running on Exponent.");
+                    this.logger.info("Application is running on Exponent.");
                     const exponentOutput = `Open your exponent app at ${exponentUrl}`;
-                    Log.logMessage(exponentOutput);
+                    this.logger.info(exponentOutput);
                     vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
                 });
         }
@@ -143,24 +149,12 @@ export class CommandPaletteHandler {
     }
 
     /**
-     * Executes a react-native command passed after starting the packager
-     * {command} The command to be executed
-     * {args} The arguments to be passed to the command
-     */
-    private executeReactNativeRunCommand(command: string, args: string[] = []): Q.Promise<void> {
-        return this.executeWithPackagerRunning(() => {
-            return new CommandExecutor(this.workspaceRoot)
-                .spawnReactCommand(command, args).outcome;
-        });
-    }
-
-    /**
      * Executes a lambda function after starting the packager
      * {lambda} The lambda function to be executed
      */
     private executeWithPackagerRunning(lambda: () => Q.Promise<void>): Q.Promise<void> {
         // Start the packager before executing the React-Native command
-        Log.logMessage("Attempting to start the React Native packager");
+        this.logger.info("Attempting to start the React Native packager");
         return this.runStartPackagerCommandAndUpdateStatus().then(lambda);
     }
 
@@ -177,7 +171,7 @@ export class CommandPaletteHandler {
                 generator.add("isRNProject", isRNProject, false);
                 if (isRNProject) {
                     // Bring the log channel to focus
-                    Log.setFocusOnLogChannel();
+                    this.logger.setFocusOnLogChannel();
 
                     // Execute the operation
                     return operation();
@@ -193,10 +187,10 @@ export class CommandPaletteHandler {
      * Publish project to exponent server. In order to do this we need to make sure the user is logged in exponent and the packager is running.
      */
     private executePublishToExpHost(): Q.Promise<boolean> {
-        Log.logMessage("Publishing app to Exponent server. This might take a moment.");
+        this.logger.info("Publishing app to Exponent server. This might take a moment.");
         return this.loginToExponent()
             .then(user => {
-                Log.logMessage(`Publishing as ${user.username}...`);
+                this.logger.debug(`Publishing as ${user.username}...`);
                 return this.startExponentPackager()
                     .then(() =>
                         XDL.publish(this.workspaceRoot))
@@ -205,12 +199,12 @@ export class CommandPaletteHandler {
                             return false;
                         }
                         const publishedOutput = `App successfully published to ${response.url}`;
-                        Log.logMessage(publishedOutput);
+                        this.logger.info(publishedOutput);
                         vscode.window.showInformationMessage(publishedOutput);
                         return true;
                     });
             }).catch(() => {
-                Log.logWarning("An error has occured. Please make sure you are logged in to exponent, your project is setup correctly for publishing and your packager is running as exponent.");
+                this.logger.warning("An error has occured. Please make sure you are logged in to exponent, your project is setup correctly for publishing and your packager is running as exponent.");
                 return false;
             });
     }

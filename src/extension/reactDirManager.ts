@@ -4,7 +4,7 @@
 import * as Q from "q";
 import * as vscode from "vscode";
 import * as path from "path";
-import {OutputChannelLogger} from "./outputChannelLogger";
+import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {FileSystem} from "../common/node/fileSystem";
@@ -33,9 +33,9 @@ export class ReactDirManager implements vscode.Disposable {
     }
 
     public dispose(): void {
-        new EntryPointHandler(ProcessType.Extension, new OutputChannelLogger(vscode.window.createOutputChannel("React-Native"))).runFunction("extension.deleteTemporaryFolder",
-            ErrorHelper.getInternalError(InternalErrorCode.RNTempFolderDeletionFailed, ReactDirManager.ReactDirPath),
-            () =>
-                new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath));
+        new EntryPointHandler(ProcessType.Extension, OutputChannelLogger.getMainChannel())
+            .runFunction("extension.deleteTemporaryFolder",
+                ErrorHelper.getInternalError(InternalErrorCode.RNTempFolderDeletionFailed, ReactDirManager.ReactDirPath),
+                () => new FileSystem().removePathRecursivelySync(ReactDirManager.ReactDirPath));
     }
 }

@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {CommandExecutor} from "../../src/common/commandExecutor";
-import { Log } from "../../src/common/log/log";
+import { ConsoleLogger } from "../../src/extension/log/ConsoleLogger";
 
 import { Node } from "../../src/common/node/node";
 import { ChildProcess } from "../../src/common/node/childProcess";
@@ -15,13 +15,14 @@ import * as sinon from "sinon";
 import * as Q from "q";
 
 suite("commandExecutor", function() {
-    suite("commonContext", function () {
+    suite("extensionContext", function () {
 
         let childProcessStubInstance = new ChildProcess();
         let childProcessStub: Sinon.SinonStub & ChildProcess;
+        let Log = new ConsoleLogger();
 
         teardown(function() {
-            let mockedMethods = [Log.logMessage, Log.logCommandStatus, ...Object.keys(childProcessStubInstance)];
+            let mockedMethods = [Log.log, ...Object.keys(childProcessStubInstance)];
 
             mockedMethods.forEach((method) => {
                 if (method.hasOwnProperty("restore")) {
@@ -38,18 +39,17 @@ suite("commandExecutor", function() {
         });
 
         test("should execute a command", function() {
-            let ce = new CommandExecutor();
+            let ce = new CommandExecutor(process.cwd(), Log);
             let loggedOutput: string = "";
 
-            sinon.stub(Log, "logMessage", function(message: string, formatMessage: boolean = true) {
-                loggedOutput += message;
+            sinon.stub(Log, "log", function(message: string, formatMessage: boolean = true) {
+                loggedOutput += semver.clean(message) || "";
                 console.log(message);
             });
 
             return ce.execute("node -v")
                 .then(() => {
-                    let nodeVersion = semver.clean(loggedOutput);
-                    assert(nodeVersion);
+                    assert(loggedOutput);
                 });
         });
 
@@ -85,7 +85,7 @@ suite("commandExecutor", function() {
             let ce = new CommandExecutor();
             let loggedOutput: string = "";
 
-            sinon.stub(Log, "logMessage", function(message: string, formatMessage: boolean = true) {
+            sinon.stub(Log, "log", function(message: string, formatMessage: boolean = true) {
                 loggedOutput += message;
                 console.log(message);
             });
@@ -100,7 +100,7 @@ suite("commandExecutor", function() {
             let ce = new CommandExecutor();
             let loggedOutput: string = "";
 
-            sinon.stub(Log, "logMessage", function(message: string, formatMessage: boolean = true) {
+            sinon.stub(Log, "log", function(message: string, formatMessage: boolean = true) {
                 loggedOutput += message;
                 console.log(message);
             });

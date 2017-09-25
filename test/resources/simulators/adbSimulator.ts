@@ -3,7 +3,7 @@
 
 import * as Q from "q";
 
-import * as adb from "../../../src/common/android/adb";
+import * as adb from "../../../src/extension/android/adb";
 
 import {FileSystem} from "../../../src/common/node/fileSystem";
 import {APKSerializer} from "./apkSerializer";
