@@ -1,42 +1,44 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {ExtensionMessage, MessagingChannel} from "./extensionMessaging";
-import {IInterProcessMessageSender, InterProcessMessageSender} from "./interProcessMessageSender";
+import {MessagingChannel} from "./extensionMessaging";
+import * as WebSocket from "ws";
+import * as rpc from "noice-json-rpc";
 import {Telemetry} from "./telemetry";
 
 export class RemoteExtension {
     public static atProjectRootPath(projectRootPath: string) {
-        const remoteExtensionServerPath = new MessagingChannel(projectRootPath).getPath();
-        const interProcessMessageSender = new InterProcessMessageSender(remoteExtensionServerPath);
-        return new RemoteExtension(interProcessMessageSender);
+        const pipePath = new MessagingChannel(projectRootPath).getPath();
+
+        const api = new rpc.Client(new WebSocket("ws+unix://" + pipePath), {logConsole: true}).api();
+
+        return new RemoteExtension(api);
     }
 
-    constructor(private interProcessMessageSender: IInterProcessMessageSender) {}
+    constructor(private api: any) {}
 
     public stopMonitoringLogcat(): Q.Promise<void> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.STOP_MONITORING_LOGCAT);
+        return this.api.Extension.stopMonitoringLogcat();
     }
 
     public sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string,
                          properties?: Telemetry.ITelemetryEventProperties, measures?: Telemetry.ITelemetryEventMeasures): Q.Promise<any> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.SEND_TELEMETRY,
-            [extensionId, extensionVersion, appInsightsKey, eventName, properties, measures]);
+        return this.api.Extension.sendTelemetry(extensionId, extensionVersion, appInsightsKey, eventName, properties, measures);
     }
 
     public openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.OPEN_FILE_AT_LOCATION, [filename, lineNumber]);
+        return this.api.Extension.openFileAtLocation(filename, lineNumber);
     }
 
     public getPackagerPort(): Q.Promise<number> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.GET_PACKAGER_PORT);
+        return this.api.Extension.getPackagerPort();
     }
 
     public showInformationMessage(infoMessage: string): Q.Promise<void> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.SHOW_INFORMATION_MESSAGE, [infoMessage]);
+        return this.api.Extension.showInformationMessage(infoMessage);
     }
 
     public launch(request: any): Q.Promise<any> {
-        return this.interProcessMessageSender.sendMessage(ExtensionMessage.LAUNCH, [request]);
+        return this.api.Extension.launch(request);
     }
 }

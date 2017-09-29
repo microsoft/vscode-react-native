@@ -64,6 +64,18 @@
       {
         "command": "reactNative.publishToExpHost",
         "title": "React Native: Publish to Exponent"
+      },
+      {
+        "command": "reactNative.openDevMenuAndroid",
+        "title": "React Native: Open Dev Menu on Android"
+      },
+      {
+        "command": "reactNative.closeDevMenuAndroid",
+        "title": "React Native: Close Dev Menu on Android"
+      },
+      {
+        "command": "reactNative.reloadAppAndroid",
+        "title": "React Native: Reload App on Android"
       }
     ],
     "debuggers": [
@@ -323,6 +335,7 @@
   "dependencies": {
     "extract-opts": "2.2.0",
     "flatten-source-map": "0.0.2",
+    "noice-json-rpc": "^1.0.2",
     "options": "0.0.6",
     "q": "1.4.1",
     "qr-image": "^3.2.0",
@@ -335,7 +348,7 @@
     "vscode-debugadapter": "^1.23.0",
     "vscode-debugprotocol": "^1.23.0",
     "vscode-extension-telemetry": "0.0.5",
-    "ws": "1.0.1"
+    "ws": "^3.2.0"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.40",

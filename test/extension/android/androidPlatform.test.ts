@@ -38,9 +38,7 @@ suite("androidPlatform", function () {
         let sandbox: Sinon.SinonSandbox;
 
         function createAndroidPlatform(runOptions: IAndroidRunOptions): AndroidPlatform {
-            return new AndroidPlatform(runOptions, {
-                adb: adb,
-            });
+            return new AndroidPlatform(runOptions);
         }
 
         setup(() => {

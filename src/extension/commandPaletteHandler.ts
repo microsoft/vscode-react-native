@@ -123,6 +123,30 @@ export class CommandPaletteHandler {
         }));
     }
 
+    public openDevMenu(platform: string): Q.Promise<void> {
+        if (platform === "android") {
+            return AndroidPlatform.openDevMenu();
+        } else {
+            throw Error("Not implemented yet");
+        }
+    }
+
+    public closeDevMenu(platform: string): Q.Promise<void> {
+        if (platform === "android") {
+            return AndroidPlatform.closeDevMenu();
+        } else {
+            throw Error("Not implemented yet");
+        }
+    }
+
+    public reloadApp(platform: string) {
+        if (platform === "android") {
+            return AndroidPlatform.reloadApp();
+        } else {
+            throw Error("Not implemented yet");
+        }
+    }
+
     private runRestartPackagerCommandAndUpdateStatus(): Q.Promise<void> {
         return this.reactNativePackager.restart(SettingsHelper.getPackagerPort())
             .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));

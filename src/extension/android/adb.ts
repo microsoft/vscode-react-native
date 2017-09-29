@@ -19,12 +19,18 @@ export enum AndroidAPILevel {
     GINGERBREAD_MR1 = 10,
 }
 
+enum KeyEvents {
+    KEYCODE_BACK = 4,
+    KEYCODE_DPAD_UP = 19,
+    KEYCODE_DPAD_DOWN = 20,
+    KEYCODE_DPAD_CENTER = 23,
+    KEYCODE_MENU = 82,
+}
+
 export enum DeviceType {
     AndroidSdkEmulator, // These seem to have emulator-<port> ids
     Other,
 }
-
-const AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
 
 export interface IDevice {
     id: string;
@@ -32,48 +38,17 @@ export interface IDevice {
     type: DeviceType;
 }
 
-export interface IAdb {
-    getConnectedDevices(): Q.Promise<IDevice[]>;
-    launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
-    stopApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
-    getOnlineDevices(): Q.Promise<IDevice[]>;
-    switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Q.Promise<void>;
-    apiVersion(deviceId: string): Q.Promise<AndroidAPILevel>;
-    reverseAdb(deviceId: string, packagerPort: number): Q.Promise<void>;
-}
+const AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
 
-export abstract class AdbEnhancements implements IAdb {
-    public abstract getConnectedDevices(): Q.Promise<IDevice[]>;
-    public abstract launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
-    public abstract stopApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void>;
-    public abstract switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Q.Promise<void>;
-    public abstract apiVersion(deviceId: string): Q.Promise<AndroidAPILevel>;
-    public abstract reverseAdb(deviceId: string, packagerPort: number): Q.Promise<void>;
-
-    public getOnlineDevices(): Q.Promise<IDevice[]> {
-        return this.getConnectedDevices().then(devices => {
-            return devices.filter(device =>
-                device.isOnline);
-        });
-    }
-}
-
-export class Adb extends AdbEnhancements {
-    private childProcess: ChildProcess;
-    private commandExecutor: CommandExecutor;
-
-    constructor({childProcess = new ChildProcess(), commandExecutor = new CommandExecutor()} = {}) {
-        super();
-        this.childProcess = childProcess;
-        this.commandExecutor = commandExecutor;
-    }
+export class AdbHelper {
+    private static childProcess: ChildProcess = new ChildProcess();
+    private static commandExecutor: CommandExecutor = new CommandExecutor();
 
     /**
      * Gets the list of Android connected devices and emulators.
      */
-    public getConnectedDevices(): Q.Promise<IDevice[]> {
-        let childProcess = new ChildProcess();
-        return childProcess.execToString("adb devices")
+    public static getConnectedDevices(): Q.Promise<IDevice[]> {
+        return this.childProcess.execToString("adb devices")
             .then(output => {
                 return this.parseConnectedDevices(output);
             });
@@ -82,7 +57,7 @@ export class Adb extends AdbEnhancements {
     /**
      * Broadcasts an intent to reload the application in debug mode.
      */
-    public switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Q.Promise<void> {
+    public static switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Q.Promise<void> {
         let enableDebugCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
         return new CommandExecutor(projectRoot).execute(enableDebugCommand)
             .then(() => { // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
@@ -104,26 +79,58 @@ export class Adb extends AdbEnhancements {
     /**
      * Sends an intent which launches the main activity of the application.
      */
-    public launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
+    public static launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
         let launchAppCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am start -n ${packageName}/.MainActivity`;
         return new CommandExecutor(projectRoot).execute(launchAppCommand);
     }
 
-    public stopApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
+    public static stopApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
         let stopAppCommand = `adb ${debugTarget ? "-s " + debugTarget : ""} shell am force-stop ${packageName}`;
         return new CommandExecutor(projectRoot).execute(stopAppCommand);
     }
 
-    public apiVersion(deviceId: string): Q.Promise<AndroidAPILevel> {
+    public static apiVersion(deviceId: string): Q.Promise<AndroidAPILevel> {
         return this.executeQuery(deviceId, "shell getprop ro.build.version.sdk").then(output =>
             parseInt(output, 10));
     }
 
-    public reverseAdb(deviceId: string, packagerPort: number): Q.Promise<void> {
+    public static reverseAdb(deviceId: string, packagerPort: number): Q.Promise<void> {
         return this.execute(deviceId, `reverse tcp:${packagerPort} tcp:${packagerPort}`);
     }
 
-    private parseConnectedDevices(input: string): IDevice[] {
+    public static openDevMenu(deviceId?: string): Q.Promise<void> {
+        let command = `adb ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_MENU}`;
+        return this.commandExecutor.execute(command);
+    }
+
+    public static closeDevMenu(deviceId?: string): Q.Promise<void> {
+        let command = `adb ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_BACK}`;
+        return this.commandExecutor.execute(command);
+    }
+
+    public static reloadApp(deviceId?: string): Q.Promise<void> {
+        let commands = [
+            `adb ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_MENU}`,
+            `adb ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_DPAD_UP}`,
+            `adb ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_DPAD_CENTER}`,
+        ];
+        return this.commandExecutor.execute(commands[0])
+            .then(() => {
+                return this.commandExecutor.execute(commands[1]);
+            })
+            .then(() => {
+                return this.commandExecutor.execute(commands[2]);
+            });
+    }
+
+    public static getOnlineDevices(): Q.Promise<IDevice[]> {
+        return this.getConnectedDevices().then(devices => {
+            return devices.filter(device =>
+                device.isOnline);
+        });
+    }
+
+    private static parseConnectedDevices(input: string): IDevice[] {
         let result: IDevice[] = [];
         let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
         let match = regex.exec(input);
@@ -134,21 +141,21 @@ export class Adb extends AdbEnhancements {
         return result;
     }
 
-    private extractDeviceType(id: string): DeviceType {
+    private static extractDeviceType(id: string): DeviceType {
         return id.match(AndroidSDKEmulatorPattern)
             ? DeviceType.AndroidSdkEmulator
             : DeviceType.Other;
     }
 
-    private executeQuery(deviceId: string, command: string): Q.Promise<string> {
+    private static executeQuery(deviceId: string, command: string): Q.Promise<string> {
         return this.childProcess.execToString(this.generateCommandForDevice(deviceId, command));
     }
 
-    private execute(deviceId: string, command: string): Q.Promise<void> {
+    private static execute(deviceId: string, command: string): Q.Promise<void> {
         return this.commandExecutor.execute(this.generateCommandForDevice(deviceId, command));
     }
 
-    private generateCommandForDevice(deviceId: string, adbCommand: string): string {
+    private static generateCommandForDevice(deviceId: string, adbCommand: string): string {
         return `adb -s "${deviceId}" ${adbCommand}`;
     }
 }

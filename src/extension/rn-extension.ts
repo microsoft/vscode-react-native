@@ -141,6 +141,10 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     registerVSCodeCommand(context, "stopPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager), () => commandPaletteHandler.stopPackager());
     registerVSCodeCommand(context, "restartPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToRestartPackager), () => commandPaletteHandler.restartPackager());
     registerVSCodeCommand(context, "publishToExpHost", ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost), () => commandPaletteHandler.publishToExpHost());
+    registerVSCodeCommand(context, "openDevMenuAndroid", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed), () => commandPaletteHandler.openDevMenu("android"));
+    registerVSCodeCommand(context, "closeDevMenuAndroid", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed), () => commandPaletteHandler.closeDevMenu("android"));
+    registerVSCodeCommand(context, "reloadAppAndroid", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed), () => commandPaletteHandler.reloadApp("android"));
+    // registerVSCodeCommand(context, "Realod iOS", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed), () => commandPaletteHandler.reloadApp("ios"));
 }
 
 function registerVSCodeCommand(

@@ -5,7 +5,7 @@ import * as Q from "q";
 
 import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import {IAndroidRunOptions} from "../launchArgs";
-import {IAdb, Adb, AndroidAPILevel, IDevice} from "./adb";
+import {AdbHelper, AndroidAPILevel, IDevice} from "./adb";
 import {Package} from "../../common/node/package";
 import {PromiseUtil} from "../../common/node/promise";
 import {PackageNameResolver} from "./packageNameResolver";
@@ -14,9 +14,6 @@ import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {LogCatMonitor} from "./logCatMonitor";
 
-export interface AndroidPlatformDeps extends MobilePlatformDeps {
-    adb?: IAdb;
-}
 /**
  * Android specific platform implementation for debugging RN applications.
  */
@@ -49,15 +46,24 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private debugTarget: IDevice;
     private devices: IDevice[];
     private packageName: string;
-    private adb: IAdb;
     private logCatMonitor: LogCatMonitor | null = null;
 
     private needsToLaunchApps: boolean = false;
 
+    public static openDevMenu(deviceId?: string): Q.Promise<void> {
+        return AdbHelper.openDevMenu(deviceId);
+    }
+
+    public static closeDevMenu(deviceId?: string): Q.Promise<void> {
+        return AdbHelper.closeDevMenu(deviceId);
+    }
+
+    public static reloadApp(deviceId?: string): Q.Promise<void> {
+        return AdbHelper.reloadApp(deviceId);
+    }
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(protected runOptions: IAndroidRunOptions, platformDeps: AndroidPlatformDeps = {}) {
+    constructor(protected runOptions: IAndroidRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
-        this.adb = platformDeps.adb || new Adb();
 
         if (this.runOptions.target === AndroidPlatform.simulatorString ||
             this.runOptions.target === AndroidPlatform.deviceString) {
@@ -90,7 +96,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
                         this.needsToLaunchApps = true;
                         return shouldLaunchInAllDevices
-                            ? this.adb.getOnlineDevices()
+                            ? AdbHelper.getOnlineDevices()
                             : Q([this.debugTarget]);
                     } else {
                         return Q.reject<IDevice[]>(reason);
@@ -104,11 +110,11 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
-        return this.adb.switchDebugMode(this.runOptions.projectRoot, this.packageName, true, this.debugTarget.id);
+        return AdbHelper.switchDebugMode(this.runOptions.projectRoot, this.packageName, true, this.debugTarget.id);
     }
 
     public disableJSDebuggingMode(): Q.Promise<void> {
-        return this.adb.switchDebugMode(this.runOptions.projectRoot, this.packageName, false, this.debugTarget.id);
+        return AdbHelper.switchDebugMode(this.runOptions.projectRoot, this.packageName, false, this.debugTarget.id);
     }
 
     public prewarmBundleCache(): Q.Promise<void> {
@@ -135,7 +141,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     private initializeTargetDevicesAndPackageName(): Q.Promise<void> {
-        return this.adb.getConnectedDevices().then(devices => {
+        return AdbHelper.getConnectedDevices().then(devices => {
             this.devices = devices;
             this.debugTarget = this.getTargetEmulator(devices);
             return this.getPackageName().then(packageName => {
@@ -150,7 +156,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 return this.configureADBReverseWhenApplicable(device);
             }).then(() => {
                 return this.needsToLaunchApps
-                    ? this.adb.launchApp(this.runOptions.projectRoot, this.packageName, device.id)
+                    ? AdbHelper.launchApp(this.runOptions.projectRoot, this.packageName, device.id)
                     : Q<void>(void 0);
             }).then(() => {
                 return this.startMonitoringLogCat(device, this.runOptions.logCatArguments);
@@ -159,10 +165,10 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
     private configureADBReverseWhenApplicable(device: IDevice): Q.Promise<void> {
         return Q({}) // For other emulators and devices we try to enable adb reverse
-            .then(() => this.adb.apiVersion(device.id))
+            .then(() => AdbHelper.apiVersion(device.id))
             .then(apiVersion => {
                 if (apiVersion >= AndroidAPILevel.LOLLIPOP) { // If we support adb reverse
-                    return this.adb.reverseAdb(device.id, Number( this.runOptions.packagerPort));
+                    return AdbHelper.reverseAdb(device.id, Number( this.runOptions.packagerPort));
                 } else {
                     this.logger.warning(`Device ${device.id} supports only API Level ${apiVersion}. `
                     + `Level ${AndroidAPILevel.LOLLIPOP} is needed to support port forwarding via adb reverse. `

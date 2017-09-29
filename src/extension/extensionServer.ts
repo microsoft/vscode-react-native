@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as net from "net";
 import * as Q from "q";
 import * as vscode from "vscode";
 
@@ -20,10 +19,13 @@ import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
+import * as rpc from "noice-json-rpc";
+import * as WebSocket from "ws";
+import WebSocketServer = WebSocket.Server;
 
 export class ExtensionServer implements vscode.Disposable {
-    private serverInstance: net.Server | null = null;
-    private messageHandlerDictionary: { [id: number]: ((...argArray: any[]) => Q.Promise<any>) } = {};
+    public api: any;
+    private serverInstance: WebSocketServer | null;
     private reactNativePackager: Packager;
     private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private pipePath: string;
@@ -31,18 +33,9 @@ export class ExtensionServer implements vscode.Disposable {
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
-
         this.pipePath = new em.MessagingChannel(projectRootPath).getPath();
         this.reactNativePackager = reactNativePackager;
         this.reactNativePackageStatusIndicator = packagerStatusIndicator;
-
-        /* register handlers for all messages */
-        this.messageHandlerDictionary[em.ExtensionMessage.STOP_MONITORING_LOGCAT] = this.stopMonitoringLogCat;
-        this.messageHandlerDictionary[em.ExtensionMessage.GET_PACKAGER_PORT] = this.getPackagerPort;
-        this.messageHandlerDictionary[em.ExtensionMessage.SEND_TELEMETRY] = this.sendTelemetry;
-        this.messageHandlerDictionary[em.ExtensionMessage.OPEN_FILE_AT_LOCATION] = this.openFileAtLocation;
-        this.messageHandlerDictionary[em.ExtensionMessage.SHOW_INFORMATION_MESSAGE] = this.showInformationMessage;
-        this.messageHandlerDictionary[em.ExtensionMessage.LAUNCH] = this.launch;
     }
 
     /**
@@ -54,16 +47,15 @@ export class ExtensionServer implements vscode.Disposable {
 
         let launchCallback = (error: any) => {
             this.logger.debug(`Extension messaging server started at ${this.pipePath}.`);
-            if (error) {
-                deferred.reject(error);
-            } else {
-                deferred.resolve(void 0);
-            }
+            deferred.resolve(void 0);
         };
 
-        this.serverInstance = net.createServer(this.handleSocket.bind(this));
+        this.serverInstance = new WebSocketServer({port: <any>this.pipePath});
+        this.api = new rpc.Server(this.serverInstance).api();
+        this.serverInstance.on("open", launchCallback.bind(this));
         this.serverInstance.on("error", this.recoverServer.bind(this));
-        this.serverInstance.listen(this.pipePath, launchCallback);
+
+        this.setupApiHandlers();
 
         return deferred.promise;
     }
@@ -80,80 +72,16 @@ export class ExtensionServer implements vscode.Disposable {
         this.stopMonitoringLogCat();
     }
 
-    /**
-     * Message handler for GET_PACKAGER_PORT.
-     */
-    private getPackagerPort(): Q.Promise<number> {
-        return Q(SettingsHelper.getPackagerPort());
-    }
+    private setupApiHandlers(): void {
+        let methods: any = {};
+        methods.stopMonitoringLogCat = this.stopMonitoringLogCat.bind(this);
+        methods.getPackagerPort = this.getPackagerPort.bind(this);
+        methods.sendTelemetry = this.sendTelemetry.bind(this);
+        methods.openFileAtLocation = this.openFileAtLocation.bind(this);
+        methods.showInformationMessage = this.showInformationMessage.bind(this);
+        methods.launch = this.launch.bind(this);
 
-    /**
-     * Message handler for OPEN_FILE_AT_LOCATION
-     */
-    private openFileAtLocation(filename: string, lineNumber: number): Q.Promise<PromiseLike<void>> {
-        return Q(vscode.workspace.openTextDocument(vscode.Uri.file(filename)).then((document: vscode.TextDocument) => {
-            return vscode.window.showTextDocument(document).then((editor: vscode.TextEditor) => {
-                let range = editor.document.lineAt(lineNumber - 1).range;
-                editor.selection = new vscode.Selection(range.start, range.end);
-                editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
-            });
-        }));
-    }
-
-    private stopMonitoringLogCat(): Q.Promise<void> {
-        if (this.logCatMonitor) {
-            this.logCatMonitor.dispose();
-            this.logCatMonitor = null;
-        }
-
-        return Q.resolve<void>(void 0);
-    }
-
-    /**
-     * Sends telemetry
-     */
-    private sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string, properties: {[key: string]: string}, measures: {[key: string]: number}): Q.Promise<any> {
-        Telemetry.sendExtensionTelemetry(extensionId, extensionVersion, appInsightsKey, eventName, properties, measures);
-        return Q.resolve({});
-    }
-
-    /**
-     * Extension message handler.
-     */
-    private handleExtensionMessage(messageWithArgs: em.MessageWithArguments): Q.Promise<any> {
-        let handler = this.messageHandlerDictionary[messageWithArgs.message];
-        if (handler) {
-            this.logger.info("Handling message: " + em.ExtensionMessage[messageWithArgs.message]);
-            return handler.apply(this, messageWithArgs.args);
-        } else {
-            return Q.reject("Invalid message: " + messageWithArgs.message);
-        }
-    }
-
-    /**
-     * Handles connections to the server.
-     */
-    private handleSocket(socket: net.Socket): void {
-        let handleError = (e: any) => {
-            this.logger.error(e);
-            socket.end(em.ErrorMarker);
-        };
-
-        let dataCallback = (data: any) => {
-            try {
-                let messageWithArgs: em.MessageWithArguments = JSON.parse(data);
-                this.handleExtensionMessage(messageWithArgs)
-                    .then(result => {
-                        socket.end(JSON.stringify(result));
-                    })
-                    .catch((e) => { handleError(e); })
-                    .done();
-            } catch (e) {
-                handleError(e);
-            }
-        };
-
-        socket.on("data", dataCallback);
+        this.api.Extension.expose(methods);
     }
 
     /**
@@ -165,9 +93,7 @@ export class ExtensionServer implements vscode.Disposable {
             if (e.code === "ECONNREFUSED") {
                 new FileSystem().removePathRecursivelyAsync(this.pipePath)
                     .then(() => {
-                        if (this.serverInstance) {
-                            this.serverInstance.listen(this.pipePath);
-                        }
+                        return this.setup();
                     })
                     .done();
             }
@@ -175,22 +101,61 @@ export class ExtensionServer implements vscode.Disposable {
 
         /* The named socket already exists. */
         if (error.code === "EADDRINUSE") {
-            let clientSocket = new net.Socket();
+            let clientSocket = new WebSocket(`ws+unix://${this.pipePath}`);
             clientSocket.on("error", errorHandler);
-            clientSocket.connect(this.pipePath, function() {
-                clientSocket.end();
+            clientSocket.on("open", function() {
+                clientSocket.close();
             });
         }
     }
 
     /**
-     * Message handler for SHOW_INFORMATION_MESSAGE
+     * Message handler for GET_PACKAGER_PORT.
      */
-    private showInformationMessage(message: string): Q.Promise<void> {
-        return Q(vscode.window.showInformationMessage(message)).then(() => {});
+    private getPackagerPort(): number {
+        return SettingsHelper.getPackagerPort();
     }
 
-    private launch(request: any): Q.Promise<any> {
+    /**
+     * Message handler for OPEN_FILE_AT_LOCATION
+     */
+    private openFileAtLocation(filename: string, lineNumber: number): Promise<void> {
+        return new Promise((resolve) => {
+            vscode.workspace.openTextDocument(vscode.Uri.file(filename))
+                .then((document: vscode.TextDocument) => {
+                    vscode.window.showTextDocument(document)
+                        .then((editor: vscode.TextEditor) => {
+                            let range = editor.document.lineAt(lineNumber - 1).range;
+                            editor.selection = new vscode.Selection(range.start, range.end);
+                            editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+                            resolve();
+                        });
+                });
+        });
+    }
+
+    private stopMonitoringLogCat(): void {
+        if (this.logCatMonitor) {
+            this.logCatMonitor.dispose();
+            this.logCatMonitor = null;
+        }
+    }
+
+    /**
+     * Sends telemetry
+     */
+    private sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string, properties: {[key: string]: string}, measures: {[key: string]: number}): void {
+        Telemetry.sendExtensionTelemetry(extensionId, extensionVersion, appInsightsKey, eventName, properties, measures);
+    }
+
+    /**
+     * Message handler for SHOW_INFORMATION_MESSAGE
+     */
+    private showInformationMessage(message: string): void {
+        vscode.window.showInformationMessage(message);
+    }
+
+    private launch(request: any): Promise<any> {
         let mobilePlatformOptions = requestSetup(request.arguments);
 
         // We add the parameter if it's defined (adapter crashes otherwise)
@@ -213,30 +178,36 @@ export class ExtensionServer implements vscode.Disposable {
         };
         const mobilePlatform = new PlatformResolver()
             .resolveMobilePlatform(request.arguments.platform, mobilePlatformOptions, platformDeps);
-        return TelemetryHelper.generate("launch", (generator) => {
-            generator.step("checkPlatformCompatibility");
-            TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
-            generator.step("startPackager");
-            return mobilePlatform.startPackager()
-                .then(() => {
-                    // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
-                    // and the user needs to Reload JS manually. We prewarm it to prevent that issue
-                    generator.step("prewarmBundleCache");
-                    this.logger.info("Prewarming bundle cache. This may take a while ...");
-                    return mobilePlatform.prewarmBundleCache();
-                })
-                .then(() => {
-                    generator.step("mobilePlatform.runApp");
-                    this.logger.info("Building and running application.");
-                    return mobilePlatform.runApp();
-                })
-                .then(() => {
-                    generator.step("mobilePlatform.enableJSDebuggingMode");
-                    return mobilePlatform.enableJSDebuggingMode();
-                })
-                .catch(error => {
-                    throw error;
-                });
+        return new Promise((resolve, reject) => {
+            TelemetryHelper.generate("launch", (generator) => {
+                generator.step("checkPlatformCompatibility");
+                TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
+                generator.step("startPackager");
+                return mobilePlatform.startPackager()
+                    .then(() => {
+                        // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                        // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                        generator.step("prewarmBundleCache");
+                        this.logger.info("Prewarming bundle cache. This may take a while ...");
+                        return mobilePlatform.prewarmBundleCache();
+                    })
+                    .then(() => {
+                        generator.step("mobilePlatform.runApp");
+                        this.logger.info("Building and running application.");
+                        return mobilePlatform.runApp();
+                    })
+                    .then(() => {
+                        generator.step("mobilePlatform.enableJSDebuggingMode");
+                        return mobilePlatform.enableJSDebuggingMode();
+                    })
+                    .then(() => {
+                        resolve();
+                    })
+                    .catch(error => {
+                        reject(error);
+                        throw error;
+                    });
+            });
         });
     }
 }

@@ -37,12 +37,11 @@ interface IRunningApplicationState {
 }
 
 /* Simulation of adb/ADB */
-export class AdbSimulator extends adb.AdbEnhancements {
+export class AdbSimulator {
     private connectedDevices: IDeviceStateMapping = {};
     private fileSystem: FileSystem;
 
     constructor(fileSystem: FileSystem) {
-        super();
         this.fileSystem = fileSystem;
     }
 
@@ -134,6 +133,14 @@ export class AdbSimulator extends adb.AdbEnhancements {
     }
 
     public reverseAdb(deviceId: string, packagerPort: number): Q.Promise<void> {
+        return Q.resolve(void 0);
+    }
+
+    public openDevMenu(deviceId: string): Q.Promise<void> {
+        return Q.resolve(void 0);
+    }
+
+    public closeDevMenu(deviceId: string): Q.Promise<void> {
         return Q.resolve(void 0);
     }
 

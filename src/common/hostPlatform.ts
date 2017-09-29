@@ -50,7 +50,7 @@ class WindowsHostPlatform implements IHostPlatform {
     }
 
     public getPipePath(pipeName: string): string {
-        return `\\\\?\\pipe\\${pipeName}`;
+        return `//?/pipe/${pipeName}`;
     }
 
     public getPlatformId(): HostPlatformId {
