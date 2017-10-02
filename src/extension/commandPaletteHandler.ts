@@ -123,28 +123,20 @@ export class CommandPaletteHandler {
         }));
     }
 
-    public openDevMenu(platform: string): Q.Promise<void> {
-        if (platform === "android") {
-            return AndroidPlatform.openDevMenu();
-        } else {
-            throw Error("Not implemented yet");
-        }
+    public showDevMenu(): Q.Promise<void> {
+        AndroidPlatform.showDevMenu()
+                .catch(() => {}); // Ignore any errors
+        IOSPlatform.showDevMenu()
+            .catch(() => {}); // Ignore any errors
+        return Q.resolve(void 0);
     }
 
-    public closeDevMenu(platform: string): Q.Promise<void> {
-        if (platform === "android") {
-            return AndroidPlatform.closeDevMenu();
-        } else {
-            throw Error("Not implemented yet");
-        }
-    }
-
-    public reloadApp(platform: string) {
-        if (platform === "android") {
-            return AndroidPlatform.reloadApp();
-        } else {
-            throw Error("Not implemented yet");
-        }
+    public reloadApp(): Q.Promise<void> {
+        AndroidPlatform.reloadApp()
+            .catch(() => {}); // Ignore any errors
+        IOSPlatform.reloadApp()
+            .catch(() => {}); // Ignore any errors
+        return Q.resolve(void 0);
     }
 
     private runRestartPackagerCommandAndUpdateStatus(): Q.Promise<void> {

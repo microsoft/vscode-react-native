@@ -12,14 +12,18 @@ import {PlistBuddy} from "./plistBuddy";
 import {IOSDebugModeManager} from "./iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {ErrorHelper} from "../../common/error/errorHelper";
+import {SettingsHelper} from "../settingsHelper";
+import {RemoteExtension} from "../../common/remoteExtension";
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
+    private static remoteExtension: RemoteExtension;
 
     private plistBuddy = new PlistBuddy();
     private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
-    private iosDebugModeManager: IOSDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot);
+    private iosDebugModeManager: IOSDebugModeManager;
+
 
     // We should add the common iOS build/run errors we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
@@ -35,6 +39,20 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
+    public static showDevMenu(deviceId?: string): Q.Promise<void> {
+        if (!this.remoteExtension) {
+            this.remoteExtension = RemoteExtension.atProjectRootPath(SettingsHelper.getReactNativeProjectRoot());
+        }
+        return this.remoteExtension.showDevMenu(deviceId);
+    }
+
+    public static reloadApp(deviceId?: string): Q.Promise<void> {
+        if (!this.remoteExtension) {
+            this.remoteExtension = RemoteExtension.atProjectRootPath(SettingsHelper.getReactNativeProjectRoot());
+        }
+        return this.remoteExtension.reloadApp(deviceId);
+    }
+
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
 
@@ -43,6 +61,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         }
 
         this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
+        this.iosDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot);
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
             this.targetType = (this.runOptions.runArguments.indexOf(`--${IOSPlatform.deviceString}`) >= 0) ?
@@ -76,7 +95,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         // Configure the app for debugging
         if (this.targetType === IOSPlatform.deviceString) {
             // Note that currently we cannot automatically switch the device into debug mode.
-            this.logger.info("Application is running on a device, please shake device and select 'Debug in Chrome' to enable debugging.");
+            this.logger.info("Application is running on a device, please shake device and select 'Debug JS Remotely' to enable debugging.");
             return Q.resolve<void>(void 0);
         }
 

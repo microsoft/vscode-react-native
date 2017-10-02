@@ -66,16 +66,12 @@
         "title": "React Native: Publish to Exponent"
       },
       {
-        "command": "reactNative.openDevMenuAndroid",
-        "title": "React Native: Open Dev Menu on Android"
+        "command": "reactNative.showDevMenu",
+        "title": "React Native: Show Dev Menu"
       },
       {
-        "command": "reactNative.closeDevMenuAndroid",
-        "title": "React Native: Close Dev Menu on Android"
-      },
-      {
-        "command": "reactNative.reloadAppAndroid",
-        "title": "React Native: Reload App on Android"
+        "command": "reactNative.reloadApp",
+        "title": "React Native: Reload App"
       }
     ],
     "debuggers": [

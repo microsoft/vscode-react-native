@@ -49,18 +49,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private logCatMonitor: LogCatMonitor | null = null;
 
     private needsToLaunchApps: boolean = false;
-
-    public static openDevMenu(deviceId?: string): Q.Promise<void> {
-        return AdbHelper.openDevMenu(deviceId);
+    public static showDevMenu(deviceId?: string): Q.Promise<void> {
+        return AdbHelper.showDevMenu(deviceId);
     }
-
-    public static closeDevMenu(deviceId?: string): Q.Promise<void> {
-        return AdbHelper.closeDevMenu(deviceId);
-    }
-
     public static reloadApp(deviceId?: string): Q.Promise<void> {
         return AdbHelper.reloadApp(deviceId);
     }
+
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
     constructor(protected runOptions: IAndroidRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);

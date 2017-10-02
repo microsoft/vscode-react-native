@@ -50,9 +50,36 @@ Object.defineProperty(global, "GLOBAL", {
     enumerable: true,
     value: global
 });
-process.on("message", function(message){
-    if (onmessage) onmessage(message);
+
+var vscodeHandlers = {
+    'vscode_reloadApp': function() {
+      try {
+        var DevMenu = global.require('NativeModules').DevMenu;
+        DevMenu.reload();
+      } catch (err) {
+        // ignore
+      }
+    },
+    'vscode_showDevMenu': function() {
+      try {
+        var DevMenu = global.require('NativeModules').DevMenu;
+        DevMenu.show();
+      } catch (err) {
+        // ignore
+      }
+    }
+  };
+
+process.on("message", function (message) {
+    if (onmessage) {
+        if (message.data && vscodeHandlers[message.data.method]) {
+        vscodeHandlers[message.data.method]();
+        } else {
+            onmessage(message);
+        }
+    }
 });
+
 var postMessage = function(message){
     process.send(message);
 };
@@ -70,6 +97,7 @@ postMessage({workerLoaded:true});`;
 
     private packagerPort: number;
     private sourcesStoragePath: string;
+    private projectRootPath: string;
     private socketToApp: WebSocket;
     private singleLifetimeWorker: IDebuggeeWorker | null;
     private webSocketConstructor: (url: string) => WebSocket;
@@ -78,12 +106,13 @@ postMessage({workerLoaded:true});`;
     private nodeFileSystem = new NodeFileSystem();
     private scriptImporter: ScriptImporter;
 
-    constructor(packagerPort: number, sourcesStoragePath: string, {
+    constructor(packagerPort: number, sourcesStoragePath: string, projectRootPath: string, {
         webSocketConstructor = (url: string) => new WebSocket(url),
     } = {}) {
         super();
         this.packagerPort = packagerPort;
         this.sourcesStoragePath = sourcesStoragePath;
+        this.projectRootPath = projectRootPath;
         console.assert(!!this.sourcesStoragePath, "The sourcesStoragePath argument was null or empty");
 
         this.webSocketConstructor = webSocketConstructor;
@@ -127,7 +156,7 @@ postMessage({workerLoaded:true});`;
     }
 
     private startNewWorkerLifetime(): Q.Promise<void> {
-        this.singleLifetimeWorker = new ForkedAppWorker(this.packagerPort, this.sourcesStoragePath, (message) => {
+        this.singleLifetimeWorker = new ForkedAppWorker(this.packagerPort, this.sourcesStoragePath, this.projectRootPath,  (message) => {
             this.sendMessageToApp(message);
         });
         logger.verbose("A new app worker lifetime was created.");

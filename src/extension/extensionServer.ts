@@ -12,9 +12,6 @@ import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
 import {Telemetry} from "../common/telemetry";
-import * as path from "path";
-import * as fs from "fs";
-import stripJsonComments = require("strip-json-comments");
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
@@ -80,8 +77,18 @@ export class ExtensionServer implements vscode.Disposable {
         methods.openFileAtLocation = this.openFileAtLocation.bind(this);
         methods.showInformationMessage = this.showInformationMessage.bind(this);
         methods.launch = this.launch.bind(this);
+        methods.showDevMenu = this.showDevMenu.bind(this);
+        methods.reloadApp = this.reloadApp.bind(this);
 
         this.api.Extension.expose(methods);
+    }
+
+    private showDevMenu(deviceId?: string) {
+        this.api.Debugger.emitShowDevMenu(deviceId);
+    }
+
+    private reloadApp(deviceId?: string) {
+        this.api.Debugger.emitReloadApp(deviceId);
     }
 
     /**
@@ -242,15 +249,5 @@ function requestSetup(args: any): any {
 }
 
 function getProjectRoot(args: any): string {
-    try {
-        let vsCodeRoot = path.resolve(args.program, "../..");
-        let settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
-        let settingsContent = fs.readFileSync(settingsPath, "utf8");
-        settingsContent = stripJsonComments(settingsContent);
-        let parsedSettings = JSON.parse(settingsContent);
-        let projectRootPath = parsedSettings["react-native-tools"].projectRoot;
-        return path.resolve(vsCodeRoot, projectRootPath);
-    } catch (e) {
-        return path.resolve(args.program, "../..");
-    }
+    return SettingsHelper.getReactNativeProjectRoot();
 }

@@ -9,36 +9,51 @@ import {Telemetry} from "./telemetry";
 export class RemoteExtension {
     public static atProjectRootPath(projectRootPath: string) {
         const pipePath = new MessagingChannel(projectRootPath).getPath();
+        let ws = new WebSocket("ws+unix://" + pipePath);
+        ws.on("error", (err) => {
+            console.error(err);
+        });
+        const _api = new rpc.Client(ws).api();
 
-        const api = new rpc.Client(new WebSocket("ws+unix://" + pipePath), {logConsole: true}).api();
-
-        return new RemoteExtension(api);
+        return new RemoteExtension(_api);
     }
 
-    constructor(private api: any) {}
+    constructor(private _api: any) {}
+
+    public get api() {
+        return this._api;
+    }
 
     public stopMonitoringLogcat(): Q.Promise<void> {
-        return this.api.Extension.stopMonitoringLogcat();
+        return this._api.Extension.stopMonitoringLogcat();
     }
 
     public sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string,
                          properties?: Telemetry.ITelemetryEventProperties, measures?: Telemetry.ITelemetryEventMeasures): Q.Promise<any> {
-        return this.api.Extension.sendTelemetry(extensionId, extensionVersion, appInsightsKey, eventName, properties, measures);
+        return this._api.Extension.sendTelemetry(extensionId, extensionVersion, appInsightsKey, eventName, properties, measures);
     }
 
     public openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void> {
-        return this.api.Extension.openFileAtLocation(filename, lineNumber);
+        return this._api.Extension.openFileAtLocation(filename, lineNumber);
     }
 
     public getPackagerPort(): Q.Promise<number> {
-        return this.api.Extension.getPackagerPort();
+        return this._api.Extension.getPackagerPort();
     }
 
     public showInformationMessage(infoMessage: string): Q.Promise<void> {
-        return this.api.Extension.showInformationMessage(infoMessage);
+        return this._api.Extension.showInformationMessage(infoMessage);
     }
 
     public launch(request: any): Q.Promise<any> {
-        return this.api.Extension.launch(request);
+        return this._api.Extension.launch(request);
+    }
+
+    public showDevMenu(deviceId?: string): Q.Promise<any> {
+        return this._api.Extension.showDevMenu(deviceId);
+    }
+
+    public reloadApp(deviceId?: string): Q.Promise<any> {
+        return this._api.Extension.reloadApp(deviceId);
     }
 }

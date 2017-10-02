@@ -136,7 +136,7 @@ export class AdbSimulator {
         return Q.resolve(void 0);
     }
 
-    public openDevMenu(deviceId: string): Q.Promise<void> {
+    public showDevMenu(deviceId: string): Q.Promise<void> {
         return Q.resolve(void 0);
     }
 

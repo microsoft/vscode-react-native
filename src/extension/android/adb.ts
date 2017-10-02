@@ -98,13 +98,8 @@ export class AdbHelper {
         return this.execute(deviceId, `reverse tcp:${packagerPort} tcp:${packagerPort}`);
     }
 
-    public static openDevMenu(deviceId?: string): Q.Promise<void> {
+    public static showDevMenu(deviceId?: string): Q.Promise<void> {
         let command = `adb ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_MENU}`;
-        return this.commandExecutor.execute(command);
-    }
-
-    public static closeDevMenu(deviceId?: string): Q.Promise<void> {
-        let command = `adb ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_BACK}`;
         return this.commandExecutor.execute(command);
     }
 
@@ -114,13 +109,8 @@ export class AdbHelper {
             `adb ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_DPAD_UP}`,
             `adb ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_DPAD_CENTER}`,
         ];
-        return this.commandExecutor.execute(commands[0])
-            .then(() => {
-                return this.commandExecutor.execute(commands[1]);
-            })
-            .then(() => {
-                return this.commandExecutor.execute(commands[2]);
-            });
+
+        return this.executeChain(commands);
     }
 
     public static getOnlineDevices(): Q.Promise<IDevice[]> {
@@ -153,6 +143,25 @@ export class AdbHelper {
 
     private static execute(deviceId: string, command: string): Q.Promise<void> {
         return this.commandExecutor.execute(this.generateCommandForDevice(deviceId, command));
+    }
+
+    private static executeChain(commands: string[], chain?: Q.Promise<any>): Q.Promise<any> {
+        let command = commands.shift();
+
+        if (command) {
+            if (chain) {
+                return chain.then(() => {
+                    return this.executeChain(commands, this.commandExecutor.execute(<string>command));
+                });
+            } else {
+                return this.executeChain(commands, this.commandExecutor.execute(<string>command));
+            }
+        }
+
+        if (chain) {
+            return chain;
+        }
+        return Q.resolve(void 0);
     }
 
     private static generateCommandForDevice(deviceId: string, adbCommand: string): string {

@@ -9,6 +9,7 @@ import {ScriptImporter, DownloadedScript}  from "./scriptImporter";
 import { logger } from "vscode-chrome-debug-core";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
+import { RemoteExtension } from "../common/remoteExtension";
 
 function printDebuggingError(message: string, reason: any) {
     const nestedError = ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`);
@@ -30,13 +31,29 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
     private workerLoaded = Q.defer<void>();
     private bundleLoaded: Q.Deferred<void>;
+    private remoteExtension: RemoteExtension;
 
     constructor(
         private packagerPort: number,
         private sourcesStoragePath: string,
+        private projectRootPath: string,
         private postReplyToApp: (message: any) => void
     ) {
         this.scriptImporter = new ScriptImporter(this.packagerPort, this.sourcesStoragePath);
+
+        this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
+
+        this.remoteExtension.api.Debugger.onShowDevMenu(() => {
+            this.postMessage({
+                method: "vscode_showDevMenu",
+            });
+        });
+
+        this.remoteExtension.api.Debugger.onReloadApp(() => {
+            this.postMessage({
+                method: "vscode_reloadApp",
+            });
+        });
     }
 
     public stop() {
