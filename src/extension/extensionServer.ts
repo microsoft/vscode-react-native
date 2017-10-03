@@ -4,7 +4,7 @@
 import * as Q from "q";
 import * as vscode from "vscode";
 
-import * as em from "../common/extensionMessaging";
+import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
 import {PackagerStatusIndicator} from "./packagerStatusIndicator";
@@ -30,7 +30,7 @@ export class ExtensionServer implements vscode.Disposable {
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
-        this.pipePath = new em.MessagingChannel(projectRootPath).getPath();
+        this.pipePath = MessagingHelper.getPath(projectRootPath);
         this.reactNativePackager = reactNativePackager;
         this.reactNativePackageStatusIndicator = packagerStatusIndicator;
     }

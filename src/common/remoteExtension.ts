@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {MessagingChannel} from "./extensionMessaging";
+import {MessagingHelper} from "./extensionMessaging";
 import * as WebSocket from "ws";
 import * as rpc from "noice-json-rpc";
 import {Telemetry} from "./telemetry";
 
 export class RemoteExtension {
     public static atProjectRootPath(projectRootPath: string) {
-        const pipePath = new MessagingChannel(projectRootPath).getPath();
+        const pipePath = MessagingHelper.getPath(projectRootPath);
         let ws = new WebSocket("ws+unix://" + pipePath);
         ws.on("error", (err) => {
             console.error(err);
