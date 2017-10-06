@@ -16,12 +16,13 @@ import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
+import {IRemoteExtension} from "../common/remoteExtension";
 import * as rpc from "noice-json-rpc";
 import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
 
 export class ExtensionServer implements vscode.Disposable {
-    public api: any;
+    public api: IRemoteExtension;
     private serverInstance: WebSocketServer | null;
     private reactNativePackager: Packager;
     private reactNativePackageStatusIndicator: PackagerStatusIndicator;

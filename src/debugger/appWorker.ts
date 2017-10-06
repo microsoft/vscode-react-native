@@ -52,31 +52,27 @@ Object.defineProperty(global, "GLOBAL", {
 });
 
 var vscodeHandlers = {
-    'vscode_reloadApp': function() {
-      try {
-        var DevMenu = global.require('NativeModules').DevMenu;
-        DevMenu.reload();
-      } catch (err) {
-        // ignore
-      }
+    'vscode_reloadApp': function () {
+        try {
+            global.require('NativeModules').DevMenu.reload();
+        } catch (err) {
+            // ignore
+        }
     },
-    'vscode_showDevMenu': function() {
-      try {
-        var DevMenu = global.require('NativeModules').DevMenu;
-        DevMenu.show();
-      } catch (err) {
-        // ignore
-      }
+    'vscode_showDevMenu': function () {
+        try {
+            var DevMenu = global.require('NativeModules').DevMenu.show();
+        } catch (err) {
+            // ignore
+        }
     }
-  };
+};
 
 process.on("message", function (message) {
-    if (onmessage) {
-        if (message.data && vscodeHandlers[message.data.method]) {
+    if (message.data && vscodeHandlers[message.data.method]) {
         vscodeHandlers[message.data.method]();
-        } else {
-            onmessage(message);
-        }
+    } else if(onmessage) {
+        onmessage(message);
     }
 });
 

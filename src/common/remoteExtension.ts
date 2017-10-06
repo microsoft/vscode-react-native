@@ -6,6 +6,32 @@ import * as WebSocket from "ws";
 import * as rpc from "noice-json-rpc";
 import {Telemetry} from "./telemetry";
 
+export interface ICommonApi {
+    expose(methods: any): void;
+}
+export interface IExtensionApi extends ICommonApi {
+    stopMonitoringLogcat(): Q.Promise<void>;
+    sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string,
+                  properties?: Telemetry.ITelemetryEventProperties, measures?: Telemetry.ITelemetryEventMeasures): Q.Promise<any>;
+    openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void>;
+    getPackagerPort(): Q.Promise<number>;
+    showInformationMessage(infoMessage: string): Q.Promise<void>;
+    launch(request: any): Q.Promise<any>;
+    showDevMenu(deviceId?: string): Q.Promise<any>;
+    reloadApp(deviceId?: string): Q.Promise<any>;
+}
+
+export interface IDebuggerApi extends ICommonApi {
+    onShowDevMenu(handler: () => void): Q.Promise<any>;
+    onReloadApp(handler: () => void): Q.Promise<any>;
+    emitShowDevMenu(deviceId?: string): Q.Promise<any>;
+    emitReloadApp(deviceId?: string): Q.Promise<any>;
+}
+export interface IRemoteExtension {
+    Extension: IExtensionApi;
+    Debugger: IDebuggerApi;
+}
+
 export class RemoteExtension {
     public static atProjectRootPath(projectRootPath: string) {
         const pipePath = MessagingHelper.getPath(projectRootPath);
@@ -13,14 +39,14 @@ export class RemoteExtension {
         ws.on("error", (err) => {
             console.error(err);
         });
-        const _api = new rpc.Client(ws).api();
+        const _api: IRemoteExtension = new rpc.Client(ws).api();
 
         return new RemoteExtension(_api);
     }
 
-    constructor(private _api: any) {}
+    constructor(private _api: IRemoteExtension) {}
 
-    public get api() {
+    public get api(): IRemoteExtension {
         return this._api;
     }
 

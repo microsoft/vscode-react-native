@@ -145,23 +145,10 @@ export class AdbHelper {
         return this.commandExecutor.execute(this.generateCommandForDevice(deviceId, command));
     }
 
-    private static executeChain(commands: string[], chain?: Q.Promise<any>): Q.Promise<any> {
-        let command = commands.shift();
-
-        if (command) {
-            if (chain) {
-                return chain.then(() => {
-                    return this.executeChain(commands, this.commandExecutor.execute(<string>command));
-                });
-            } else {
-                return this.executeChain(commands, this.commandExecutor.execute(<string>command));
-            }
-        }
-
-        if (chain) {
-            return chain;
-        }
-        return Q.resolve(void 0);
+    private static executeChain(commands: string[]): Q.Promise<any> {
+        return commands.reduce((promise, command) => {
+            return promise.then(() => this.commandExecutor.execute(command));
+        }, Q(void 0));
     }
 
     private static generateCommandForDevice(deviceId: string, adbCommand: string): string {
