@@ -212,8 +212,8 @@ export class ExtensionServer implements vscode.Disposable {
                         resolve();
                     })
                     .catch(error => {
+                        this.logger.error(error);
                         reject(error);
-                        throw error;
                     });
             });
         });
