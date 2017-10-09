@@ -123,6 +123,22 @@ export class CommandPaletteHandler {
         }));
     }
 
+    public showDevMenu(): Q.Promise<void> {
+        AndroidPlatform.showDevMenu()
+                .catch(() => {}); // Ignore any errors
+        IOSPlatform.showDevMenu()
+            .catch(() => {}); // Ignore any errors
+        return Q.resolve(void 0);
+    }
+
+    public reloadApp(): Q.Promise<void> {
+        AndroidPlatform.reloadApp()
+            .catch(() => {}); // Ignore any errors
+        IOSPlatform.reloadApp()
+            .catch(() => {}); // Ignore any errors
+        return Q.resolve(void 0);
+    }
+
     private runRestartPackagerCommandAndUpdateStatus(): Q.Promise<void> {
         return this.reactNativePackager.restart(SettingsHelper.getPackagerPort())
             .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));

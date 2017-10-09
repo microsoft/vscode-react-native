@@ -12,7 +12,7 @@ import {ISpawnResult} from "../../src/common/node/childProcess";
 import {FileSystem} from "../../src/common/node/fileSystem";
 import {Package} from "../../src/common/node/package";
 import {Recording, Simulator} from "./processExecution/simulator";
-import {AdbSimulator} from "./simulators/adbSimulator";
+import {AdbHelper} from "../../src/extension/android/adb";
 import {APKSerializer} from "./simulators/apkSerializer";
 
 const sampleRNProjectPath = path.join(__dirname, "sampleReactNative022Project");
@@ -50,8 +50,7 @@ export class ReactNative022 {
     private projectRoot: string;
     private androidAPKPath: string;
 
-    constructor(private adb: AdbSimulator, private fileSystem: FileSystem) {
-        assert(this.adb, "adb shouldn't be null");
+    constructor(private fileSystem: FileSystem) {
         assert(this.fileSystem, "fileSystem shouldn't be null");
     }
 
@@ -134,18 +133,12 @@ export class ReactNative022 {
     }
 
     private installAppInAllDevices(): Q.Promise<void> {
-        return new PromiseUtil().reduce(this.adb.getConnectedDevices(), device => this.installAppInDevice(device.id));
+        let devices = AdbHelper.getConnectedDevices();
+        return new PromiseUtil().reduce(devices, device => this.installAppInDevice(device.id));
     }
 
     private installAppInDevice(deviceId: string): Q.Promise<void> {
-        return this.adb.isDeviceOnline(deviceId).then(isOnline => {
-            if (isOnline) {
-                return this.adb.installApp(this.androidAPKPath, deviceId);
-            } else {
-                // TODO: Figure out what's the right thing to do here, if we ever need this for the tests
-                return void 0;
-            }
-        });
+        throw Error("Mock not implemented");
     }
 
     private launchApp(stdout: string, stderr: string): Q.Promise<void> {
@@ -171,7 +164,7 @@ export class ReactNative022 {
         const matches = stdout.match(new RegExp(succesfulOutputEnd));
         if (matches) {
             if (matches.length === 3 && matches[1] === this.androidPackageName && matches[2] === this.androidPackageName) {
-                return this.adb.launchApp(this.projectRoot, this.androidPackageName);
+                return AdbHelper.launchApp(this.projectRoot, this.androidPackageName);
             } else {
                 return Q.reject<void>(new Error("There was an error while trying to match the Starting the app messages."
                     + "Expected to match the pattern and recognize the expected android package name, but it failed."

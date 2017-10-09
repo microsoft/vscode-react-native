@@ -145,7 +145,7 @@ export function makeSession(
                         const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
 
                         // If launch is invoked first time, appWorker is undefined, so create it here
-                        this.appWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath);
+                        this.appWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, this.projectRootPath);
                         this.appWorker.on("connected", (port: number) => {
                             logger.log("Debugger worker loaded runtime on port " + port);
                             // Don't mutate original request to avoid side effects

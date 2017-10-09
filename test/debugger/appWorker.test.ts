@@ -35,7 +35,7 @@ suite("appWorker", function() {
                 spawnStub = sinon.stub(child_process, "spawn", () =>
                     originalSpawn("node", ["-e", wrappedBody], {stdio: ["pipe", "pipe", "pipe", "ipc"]}));
 
-                testWorker = new ForkedAppWorker(packagerPort, sourcesStoragePath, postReplyFunction);
+                testWorker = new ForkedAppWorker(packagerPort, sourcesStoragePath, "", postReplyFunction);
                 return testWorker;
             }
 
@@ -130,7 +130,7 @@ suite("appWorker", function() {
                 packagerIsRunning = sinon.stub(packagerStatus, "ensurePackagerRunning");
                 packagerIsRunning.returns(Q.resolve(true));
 
-                multipleLifetimesWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, {
+                multipleLifetimesWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, "", {
                     webSocketConstructor: webSocketConstructor,
                 });
 

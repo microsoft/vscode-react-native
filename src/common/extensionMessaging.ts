@@ -4,37 +4,13 @@
 import {HostPlatform} from "./hostPlatform";
 import {Crypto} from "./node/crypto";
 
-/**
- * Defines the messages sent to the extension.
- * Add new messages to this enum.
- */
-export enum ExtensionMessage {
-    STOP_MONITORING_LOGCAT,
-    GET_PACKAGER_PORT,
-    SEND_TELEMETRY,
-    OPEN_FILE_AT_LOCATION,
-    SHOW_INFORMATION_MESSAGE,
-    LAUNCH,
-}
-
-export interface MessageWithArguments {
-    message: ExtensionMessage;
-    args?: any[];
-}
-
-export let ErrorMarker = "vscodereactnative-error-marker";
-
-export class MessagingChannel {
-    constructor(private projectRootPath: string) {
-        // Nothing needed here
-    }
-
-    public getPath(): string {
+export class MessagingHelper {
+    public static getPath(projectRootPath: string): string {
         /* We need to use a different value for each VS Code window so the pipe names won't clash.
            We create the pipe path hashing the user id + project root path so both client and server
            will generate the same path, yet it's unique for each vs code instance */
         const userID = HostPlatform.getUserID();
-        const normalizedRootPath = this.projectRootPath.toLowerCase();
+        const normalizedRootPath = projectRootPath.toLowerCase();
         const uniqueSeed = `${userID}:${normalizedRootPath}`;
         const hash = new Crypto().hash(uniqueSeed);
         return HostPlatform.getPipePath(`vscode-reactnative-${hash}`);
