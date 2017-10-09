@@ -81,7 +81,7 @@ export function makeSession(
                     this.attachRequest(request, packagerPort);
                 })
                 .catch(error => {
-                    this.bailOut(error.message);
+                    this.bailOut(error.data || error.message);
                 });
         }
 
