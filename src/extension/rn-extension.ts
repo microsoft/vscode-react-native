@@ -53,7 +53,7 @@ export function activate(context: vscode.ExtensionContext): void {
         const workspaceFolders: vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
         if (workspaceFolders) {
             workspaceFolders.forEach((workspace: vscode.WorkspaceFolder) => {
-                let rootPath = workspace.uri.path;
+                let rootPath = workspace.uri.fsPath;
 
                 ReactNativeProjectHelper.getReactNativeVersion(rootPath)
                     .then(version => {
@@ -73,11 +73,13 @@ export function activate(context: vscode.ExtensionContext): void {
                                     ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () => {
                                         return setupAndDispose(new ReactDirManager(rootPath), context)
                                             .then(() => {
-                                                const packagerPort = ConfigurationReader.readIntWithDefaultSync(SettingsHelper.getPackagerPort(workspace.uri.path), Packager.DEFAULT_PORT);
-                                                const projectRootPath = SettingsHelper.getReactNativeProjectRoot(workspace.uri);
-                                                const exponentHelper = new ExponentHelper(rootPath, projectRootPath);
-                                                const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
-                                                const packager: Packager = new Packager(rootPath, projectRootPath, packagerPort, packagerStatusIndicator);
+                                                let packagerPort = ConfigurationReader.readIntWithDefaultSync(SettingsHelper.getPackagerPort(workspace.uri.fsPath), Packager.DEFAULT_PORT);
+                                                let projectRootPath = SettingsHelper.getReactNativeProjectRoot(workspace.uri);
+                                                let exponentHelper = new ExponentHelper(rootPath, projectRootPath);
+                                                let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
+                                                let packager: Packager = new Packager(rootPath, projectRootPath, packagerPort, packagerStatusIndicator);
+
+                                                console.log(packager.startAsReactNative);
 
                                                 CommandPaletteHandler.addProject(packager, exponentHelper, workspace);
                                                 setupAndDispose(new ExtensionServer(rootPath, packager), context);

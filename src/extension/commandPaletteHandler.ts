@@ -27,8 +27,8 @@ export class CommandPaletteHandler {
 
     public static addProject(reactNativePackager: Packager, exponentHelper: ExponentHelper, workspaceFolder: vscode.WorkspaceFolder): void {
         this.projectsCache[workspaceFolder.name] = {
-            reactNativePackager: Packager,
-            exponentHelper: ExponentHelper,
+            reactNativePackager,
+            exponentHelper,
             workspaceFolder,
         };
     }
@@ -120,9 +120,9 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => this.executeWithPackagerRunning(project, () => {
-                    const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.path);
+                    const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath);
                     const runArgs = SettingsHelper.getRunArgs("android", target);
-                    const platform = new AndroidPlatform({ platform: "android", workspaceRoot: project.workspaceFolder.uri.path, projectRoot: project.workspaceFolder.uri.path, packagerPort: packagerPort, runArguments: runArgs }, {
+                    const platform = new AndroidPlatform({ platform: "android", workspaceRoot: project.workspaceFolder.uri.fsPath, projectRoot: project.workspaceFolder.uri.fsPath, packagerPort: packagerPort, runArguments: runArgs }, {
                         packager: project.reactNativePackager,
                     });
                     return platform.runApp(/*shouldLaunchInAllDevices*/true)
@@ -141,9 +141,9 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 return this.executeCommandInContext("runIos", project.workspaceFolder, () => this.executeWithPackagerRunning(project, () => {
-                    const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.path);
+                    const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath);
                     const runArgs = SettingsHelper.getRunArgs("ios", target);
-                    const platform = new IOSPlatform({ platform: "ios", workspaceRoot: project.workspaceFolder.uri.path, projectRoot: project.workspaceFolder.uri.path, packagerPort, runArguments: runArgs }, { packager: project.reactNativePackager });
+                    const platform = new IOSPlatform({ platform: "ios", workspaceRoot: project.workspaceFolder.uri.fsPath, projectRoot: project.workspaceFolder.uri.fsPath, packagerPort, runArguments: runArgs }, { packager: project.reactNativePackager });
 
                     // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
                     return platform.disableJSDebuggingMode()
@@ -156,23 +156,29 @@ export class CommandPaletteHandler {
     }
 
     public static showDevMenu(): Q.Promise<void> {
-        AndroidPlatform.showDevMenu()
-                .catch(() => {}); // Ignore any errors
-        // IOSPlatform.showDevMenu()
-        //     .catch(() => {}); // Ignore any errors
-        return Q.resolve(void 0);
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                AndroidPlatform.showDevMenu()
+                    .catch(() => { }); // Ignore any errors
+                IOSPlatform.showDevMenu(project.workspaceFolder.uri)
+                    .catch(() => { }); // Ignore any errors
+                return Q.resolve(void 0);
+            });
     }
 
     public static reloadApp(): Q.Promise<void> {
-        AndroidPlatform.reloadApp()
-            .catch(() => {}); // Ignore any errors
-        // IOSPlatform.reloadApp()
-        //     .catch(() => {}); // Ignore any errors
-        return Q.resolve(void 0);
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                AndroidPlatform.reloadApp()
+                    .catch(() => { }); // Ignore any errors
+                IOSPlatform.reloadApp(project.workspaceFolder.uri)
+                    .catch(() => { }); // Ignore any errors
+                return Q.resolve(void 0);
+            });
     }
 
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {
-        return project.reactNativePackager.restart(SettingsHelper.getPackagerPort(project.workspaceFolder.uri.path))
+        return project.reactNativePackager.restart(SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath))
             .then(() => project.reactNativePackager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
@@ -214,7 +220,7 @@ export class CommandPaletteHandler {
     private static executeCommandInContext(rnCommand: string, workspaceFolder: vscode.WorkspaceFolder, operation: () => Q.Promise<void>): Q.Promise<void> {
         return TelemetryHelper.generate("RNCommand", (generator) => {
             generator.add("command", rnCommand, false);
-            return ReactNativeProjectHelper.isReactNativeProject(workspaceFolder.uri.path).then(isRNProject => {
+            return ReactNativeProjectHelper.isReactNativeProject(workspaceFolder.uri.fsPath).then(isRNProject => {
                 generator.add("isRNProject", isRNProject, false);
                 if (isRNProject) {
                     // Bring the log channel to focus
@@ -240,7 +246,7 @@ export class CommandPaletteHandler {
                 CommandPaletteHandler.logger.debug(`Publishing as ${user.username}...`);
                 return this.startExponentPackager()
                     .then(() =>
-                        XDL.publish(project.workspaceFolder.uri.path))
+                        XDL.publish(project.workspaceFolder.uri.fsPath))
                     .then(response => {
                         if (response.err || !response.url) {
                             return false;

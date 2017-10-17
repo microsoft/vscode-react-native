@@ -233,7 +233,7 @@ function requestSetup(args: any): any {
     const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.program));
     const projectRootPath = getProjectRoot(args);
     let mobilePlatformOptions: any = {
-        workspaceRoot: workspaceFolder.uri.path,
+        workspaceRoot: workspaceFolder.uri.fsPath,
         projectRoot: projectRootPath,
         platform: args.platform,
         targetType: args.targetType || "simulator",

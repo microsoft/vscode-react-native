@@ -3,6 +3,7 @@
 
 import * as Q from "q";
 import * as path from "path";
+import * as vscode from "vscode";
 
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
@@ -12,7 +13,7 @@ import {PlistBuddy} from "./plistBuddy";
 import {IOSDebugModeManager} from "./iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {ErrorHelper} from "../../common/error/errorHelper";
-// import {SettingsHelper} from "../settingsHelper";
+import {SettingsHelper} from "../settingsHelper";
 import {RemoteExtension} from "../../common/remoteExtension";
 
 export class IOSPlatform extends GeneralMobilePlatform {
@@ -39,12 +40,12 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
-    public static showDevMenu(deviceId?: string): Q.Promise<void> {
-        return this.remote.showDevMenu(deviceId);
+    public static showDevMenu(uri: vscode.Uri, deviceId?: string): Q.Promise<void> {
+        return this.remote(uri).showDevMenu(deviceId);
     }
 
-    public static reloadApp(deviceId?: string): Q.Promise<void> {
-        return this.remote.reloadApp(deviceId);
+    public static reloadApp(uri: vscode.Uri, deviceId?: string): Q.Promise<void> {
+        return this.remote(uri).reloadApp(deviceId);
     }
 
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
@@ -180,11 +181,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
         return this.plistBuddy.getBundleId(this.iosProjectRoot);
     }
 
-    private static get remote(): RemoteExtension {
+    private static remote(uri: vscode.Uri): RemoteExtension {
         if (this.remoteExtension) {
             return this.remoteExtension;
         } else {
-            return this.remoteExtension = RemoteExtension.atProjectRootPath("");
+            return this.remoteExtension = RemoteExtension.atProjectRootPath(SettingsHelper.getReactNativeProjectRoot(uri));
         }
     }
 }

@@ -14,7 +14,7 @@ export interface IExtensionApi extends ICommonApi {
     sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string,
                   properties?: Telemetry.ITelemetryEventProperties, measures?: Telemetry.ITelemetryEventMeasures): Q.Promise<any>;
     openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void>;
-    getPackagerPort(): Q.Promise<number>;
+    getPackagerPort(program: string): Q.Promise<number>;
     showInformationMessage(infoMessage: string): Q.Promise<void>;
     launch(request: any): Q.Promise<any>;
     showDevMenu(deviceId?: string): Q.Promise<any>;
@@ -64,7 +64,7 @@ export class RemoteExtension {
     }
 
     public getPackagerPort(program: string): Q.Promise<number> {
-        return this._api.Extension.getPackagerPort();
+        return this._api.Extension.getPackagerPort(program);
     }
 
     public showInformationMessage(infoMessage: string): Q.Promise<void> {
