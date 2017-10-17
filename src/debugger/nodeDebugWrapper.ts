@@ -78,7 +78,13 @@ export function makeSession(
                     return this.remoteExtension.getPackagerPort();
                 })
                 .then((packagerPort: number) => {
-                    this.attachRequest(request, packagerPort);
+                    this.attachRequest({
+                        ...request,
+                        arguments: {
+                            ...request.arguments,
+                            port: packagerPort,
+                        },
+                    });
                 })
                 .catch(error => {
                     this.bailOut(error.data || error.message);
@@ -89,7 +95,13 @@ export function makeSession(
             this.requestSetup(request.arguments);
             this.remoteExtension.getPackagerPort()
                 .then((packagerPort: number) => {
-                    this.attachRequest(request, packagerPort);
+                    this.attachRequest({
+                        ...request,
+                        arguments: {
+                            ...request.arguments,
+                            port: packagerPort,
+                        },
+                    });
                 });
         }
 
@@ -133,8 +145,7 @@ export function makeSession(
          */
         // tslint:disable-next-line:member-ordering
         protected attachRequest(
-            request: DebugProtocol.Request,
-            packagerPort: number): Q.Promise<void> {
+            request: DebugProtocol.Request): Q.Promise<void> {
             return TelemetryHelper.generate("attach", (generator) => {
                 return Q({})
                     .then(() => {
@@ -145,11 +156,22 @@ export function makeSession(
                         const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
 
                         // If launch is invoked first time, appWorker is undefined, so create it here
-                        this.appWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, this.projectRootPath);
+                        this.appWorker = new MultipleLifetimesAppWorker(
+                            request.arguments,
+                            sourcesStoragePath,
+                            this.projectRootPath,
+                            undefined);
                         this.appWorker.on("connected", (port: number) => {
                             logger.log("Debugger worker loaded runtime on port " + port);
                             // Don't mutate original request to avoid side effects
-                            let attachArguments = Object.assign({}, request.arguments, { port, restart: true, request: "attach" });
+                            let attachArguments = Object.assign({}, request.arguments, {
+                                address: "localhost",
+                                port,
+                                restart: true,
+                                request: "attach",
+                                remoteRoot: undefined,
+                                localRoot: undefined,
+                            });
                             let attachRequest = Object.assign({}, request, { command: "attach", arguments: attachArguments });
 
                             // Reinstantiate debug adapter, as the current implementation of ChromeDebugAdapter
