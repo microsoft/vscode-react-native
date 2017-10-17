@@ -75,7 +75,7 @@ export function makeSession(
             this.requestSetup(request.arguments);
             this.remoteExtension.launch(request)
                 .then(() => {
-                    return this.remoteExtension.getPackagerPort();
+                    return this.remoteExtension.getPackagerPort(request.arguments.program);
                 })
                 .then((packagerPort: number) => {
                     this.attachRequest(request, packagerPort);
@@ -87,7 +87,7 @@ export function makeSession(
 
         private attach(request: DebugProtocol.Request): void {
             this.requestSetup(request.arguments);
-            this.remoteExtension.getPackagerPort()
+            this.remoteExtension.getPackagerPort(request.arguments.program)
                 .then((packagerPort: number) => {
                     this.attachRequest(request, packagerPort);
                 });

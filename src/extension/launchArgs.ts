@@ -7,6 +7,7 @@
  */
 export interface ILaunchArgs {
     platform: string;
+    workspaceRoot: string;
     projectRoot: string;
     target?: "simulator" | "device";
     debugAdapterPort?: number;

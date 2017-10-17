@@ -12,7 +12,7 @@ import {PlistBuddy} from "./plistBuddy";
 import {IOSDebugModeManager} from "./iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {ErrorHelper} from "../../common/error/errorHelper";
-import {SettingsHelper} from "../settingsHelper";
+// import {SettingsHelper} from "../settingsHelper";
 import {RemoteExtension} from "../../common/remoteExtension";
 
 export class IOSPlatform extends GeneralMobilePlatform {
@@ -184,7 +184,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         if (this.remoteExtension) {
             return this.remoteExtension;
         } else {
-            return this.remoteExtension = RemoteExtension.atProjectRootPath(SettingsHelper.getReactNativeProjectRoot());
+            return this.remoteExtension = RemoteExtension.atProjectRootPath("");
         }
     }
 }

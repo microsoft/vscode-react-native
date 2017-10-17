@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {ErrorHelper} from "./error/errorHelper";
-import {ExtensionTelemetryReporter} from "./telemetryReporters";
 import {InternalError} from "./error/internalError";
 import {TelemetryHelper} from "./telemetryHelper";
 import {TelemetryGenerator} from "./telemetryGenerators";
@@ -31,14 +30,8 @@ export class EntryPointHandler {
     }
 
     // This method should wrap the entry point of the whole app, so we handle telemetry and error reporting properly
-    public runApp(appName: string, getAppVersion: () => string, error: InternalError, projectRootPathOrReporterToUse: string | Telemetry.ITelemetryReporter,
-                  codeToRun: () => Q.Promise<void> | void): void {
+    public runApp(appName: string, appVersion: string, error: InternalError, reporter: Telemetry.ITelemetryReporter, codeToRun: () => Q.Promise<void> | void): void {
         try {
-            const appVersion = getAppVersion();
-            const reporterToUse = typeof projectRootPathOrReporterToUse !== "string" ? <Telemetry.ITelemetryReporter>projectRootPathOrReporterToUse : null;
-            const reporter = reporterToUse || (this.processType === ProcessType.Extension
-                ? Telemetry.defaultTelemetryReporter(appVersion)
-                : new ExtensionTelemetryReporter(Telemetry.appName, appVersion, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, <string>projectRootPathOrReporterToUse));
             Telemetry.init(appName, appVersion, reporter);
             return this.runFunction(appName, error, codeToRun, true);
         } catch (error) {

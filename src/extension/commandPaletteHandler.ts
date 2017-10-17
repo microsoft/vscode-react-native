@@ -9,169 +9,201 @@ import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager, PackagerRunAs} from "../common/packager";
 import {AndroidPlatform} from "./android/androidPlatform";
 import {IOSPlatform} from "./ios/iOSPlatform";
-import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
+import {PackagerStatus} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExponentHelper} from "./exponent/exponentHelper";
 
-export class CommandPaletteHandler {
-    private reactNativePackager: Packager;
-    private reactNativePackageStatusIndicator: PackagerStatusIndicator;
-    private workspaceRoot: string;
-    private exponentHelper: ExponentHelper;
-    private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
+interface IReactNativeProject {
+    reactNativePackager: Packager;
+    exponentHelper: ExponentHelper;
+    workspaceFolder: vscode.WorkspaceFolder;
+}
 
-    constructor(workspaceRoot: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator, exponentHelper: ExponentHelper) {
-        this.workspaceRoot = workspaceRoot;
-        this.reactNativePackager = reactNativePackager;
-        this.reactNativePackageStatusIndicator = packagerStatusIndicator;
-        this.exponentHelper = exponentHelper;
+export class CommandPaletteHandler {
+    private static projectsCache: any = {};
+    private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
+
+    public static addProject(reactNativePackager: Packager, exponentHelper: ExponentHelper, workspaceFolder: vscode.WorkspaceFolder): void {
+        this.projectsCache[workspaceFolder.name] = {
+            reactNativePackager: Packager,
+            exponentHelper: ExponentHelper,
+            workspaceFolder,
+        };
+    }
+
+    public static getProject(workspaceFolder: vscode.WorkspaceFolder): any {
+        return this.projectsCache[workspaceFolder.name];
+    }
+
+    public static delProject(workspaceFolder: vscode.WorkspaceFolder): void {
+        delete this.projectsCache[workspaceFolder.name];
     }
 
     /**
      * Starts the React Native packager
      */
-    public startPackager(): Q.Promise<void> {
-        return this.executeCommandInContext("startPackager", () =>
-            this.reactNativePackager.isRunning()
-            .then((running) => {
-                return running ? this.reactNativePackager.stop() : Q.resolve(void 0);
-            })
-        )
-        .then(() => this.runStartPackagerCommandAndUpdateStatus());
+    public static startPackager(): Q.Promise<void> {
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                return this.executeCommandInContext("startPackager", project.workspaceFolder, () =>
+                    project.reactNativePackager.isRunning()
+                        .then((running) => {
+                            return running ? project.reactNativePackager.stop() : Q.resolve(void 0);
+                        })
+                )
+                    .then(() => this.runStartPackagerCommandAndUpdateStatus(project));
+            });
     }
 
     /**
      * Starts the Exponent packager
      */
-    public startExponentPackager(): Q.Promise<void> {
-        return this.executeCommandInContext("startExponentPackager", () =>
-            this.reactNativePackager.isRunning()
-            .then((running) => {
-                return running ? this.reactNativePackager.stop() : Q.resolve(void 0);
-            })
-        ).then(() =>
-            this.exponentHelper.configureExponentEnvironment()
-        ).then(() => this.runStartPackagerCommandAndUpdateStatus(PackagerRunAs.EXPONENT));
+    public static startExponentPackager(): Q.Promise<void> {
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                return this.executeCommandInContext("startExponentPackager", project.workspaceFolder, () =>
+                    project.reactNativePackager.isRunning()
+                        .then((running) => {
+                            return running ? project.reactNativePackager.stop() : Q.resolve(void 0);
+                        })
+                ).then(() =>
+                    project.exponentHelper.configureExponentEnvironment()
+                    ).then(() => this.runStartPackagerCommandAndUpdateStatus(project, PackagerRunAs.EXPONENT));
+            });
     }
 
     /**
      * Kills the React Native packager invoked by the extension's packager
      */
-    public stopPackager(): Q.Promise<void> {
-        return this.executeCommandInContext("stopPackager", () => this.reactNativePackager.stop())
-            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
+    public static stopPackager(): Q.Promise<void> {
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                return this.executeCommandInContext("stopPackager", project.workspaceFolder, () => project.reactNativePackager.stop())
+                    .then(() => project.reactNativePackager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
+            });
     }
 
     /**
      * Restarts the React Native packager
      */
-    public restartPackager(): Q.Promise<void> {
-        return this.executeCommandInContext("restartPackager", () =>
-            this.runRestartPackagerCommandAndUpdateStatus());
+    public static restartPackager(): Q.Promise<void> {
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                return this.executeCommandInContext("restartPackager", project.workspaceFolder, () =>
+                    this.runRestartPackagerCommandAndUpdateStatus(project));
+            });
     }
 
     /**
      * Execute command to publish to exponent host.
      */
-    public publishToExpHost(): Q.Promise<void> {
-        return this.executeCommandInContext("publishToExpHost", () => {
-            return this.executePublishToExpHost().then((didPublish) => {
-                if (!didPublish) {
-                    this.logger.warning("Publishing was unsuccessful. Please make sure you are logged in Exponent and your project is a valid Exponentjs project");
-                }
+    public static publishToExpHost(): Q.Promise<void> {
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                return this.executeCommandInContext("publishToExpHost", project.workspaceFolder, () => {
+                    return this.executePublishToExpHost(project).then((didPublish) => {
+                        if (!didPublish) {
+                            CommandPaletteHandler.logger.warning("Publishing was unsuccessful. Please make sure you are logged in Exponent and your project is a valid Exponentjs project");
+                        }
+                    });
+                });
             });
-        });
     }
 
     /**
      * Executes the 'react-native run-android' command
      */
-    public runAndroid(target: "device" | "simulator" = "simulator"): Q.Promise<void> {
+    public static runAndroid(target: "device" | "simulator" = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("android");
-        return this.executeCommandInContext("runAndroid", () => this.executeWithPackagerRunning(() => {
-            const packagerPort = SettingsHelper.getPackagerPort();
-            const runArgs = SettingsHelper.getRunArgs("android", target);
-            const platform = new AndroidPlatform({ platform: "android", projectRoot: this.workspaceRoot, packagerPort: packagerPort, runArguments: runArgs }, {
-                packager: this.reactNativePackager,
-                packageStatusIndicator: this.reactNativePackageStatusIndicator,
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => this.executeWithPackagerRunning(project, () => {
+                    const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.path);
+                    const runArgs = SettingsHelper.getRunArgs("android", target);
+                    const platform = new AndroidPlatform({ platform: "android", workspaceRoot: project.workspaceFolder.uri.path, projectRoot: project.workspaceFolder.uri.path, packagerPort: packagerPort, runArguments: runArgs }, {
+                        packager: project.reactNativePackager,
+                    });
+                    return platform.runApp(/*shouldLaunchInAllDevices*/true)
+                        .then(() => {
+                            return platform.disableJSDebuggingMode();
+                        });
+                }));
             });
-            return platform.runApp(/*shouldLaunchInAllDevices*/true)
-                .then(() => {
-                    return platform.disableJSDebuggingMode();
-                });
-        }));
     }
 
     /**
      * Executes the 'react-native run-ios' command
      */
-    public runIos(target: "device" | "simulator" = "simulator"): Q.Promise<void> {
+    public static runIos(target: "device" | "simulator" = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("ios");
-        return this.executeCommandInContext("runIos", () => this.executeWithPackagerRunning(() => {
-            const packagerPort = SettingsHelper.getPackagerPort();
-            const runArgs = SettingsHelper.getRunArgs("ios", target);
-            const platform = new IOSPlatform({ platform: "ios", projectRoot: this.workspaceRoot, packagerPort, runArguments: runArgs }, { packager: this.reactNativePackager, packageStatusIndicator: this.reactNativePackageStatusIndicator });
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                return this.executeCommandInContext("runIos", project.workspaceFolder, () => this.executeWithPackagerRunning(project, () => {
+                    const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.path);
+                    const runArgs = SettingsHelper.getRunArgs("ios", target);
+                    const platform = new IOSPlatform({ platform: "ios", workspaceRoot: project.workspaceFolder.uri.path, projectRoot: project.workspaceFolder.uri.path, packagerPort, runArguments: runArgs }, { packager: project.reactNativePackager });
 
-            // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
-            return platform.disableJSDebuggingMode()
-                .catch(() => {}) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
-                .then(() => {
-                    return platform.runApp();
-                });
-        }));
+                    // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
+                    return platform.disableJSDebuggingMode()
+                        .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+                        .then(() => {
+                            return platform.runApp();
+                        });
+                }));
+            });
     }
 
-    public showDevMenu(): Q.Promise<void> {
+    public static showDevMenu(): Q.Promise<void> {
         AndroidPlatform.showDevMenu()
                 .catch(() => {}); // Ignore any errors
-        IOSPlatform.showDevMenu()
-            .catch(() => {}); // Ignore any errors
+        // IOSPlatform.showDevMenu()
+        //     .catch(() => {}); // Ignore any errors
         return Q.resolve(void 0);
     }
 
-    public reloadApp(): Q.Promise<void> {
+    public static reloadApp(): Q.Promise<void> {
         AndroidPlatform.reloadApp()
             .catch(() => {}); // Ignore any errors
-        IOSPlatform.reloadApp()
-            .catch(() => {}); // Ignore any errors
+        // IOSPlatform.reloadApp()
+        //     .catch(() => {}); // Ignore any errors
         return Q.resolve(void 0);
     }
 
-    private runRestartPackagerCommandAndUpdateStatus(): Q.Promise<void> {
-        return this.reactNativePackager.restart(SettingsHelper.getPackagerPort())
-            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+    private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {
+        return project.reactNativePackager.restart(SettingsHelper.getPackagerPort(project.workspaceFolder.uri.path))
+            .then(() => project.reactNativePackager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
     /**
      * Helper method to run packager and update appropriate configurations
      */
-    private runStartPackagerCommandAndUpdateStatus(startAs: PackagerRunAs = PackagerRunAs.REACT_NATIVE): Q.Promise<any> {
+    private static runStartPackagerCommandAndUpdateStatus(project: IReactNativeProject, startAs: PackagerRunAs = PackagerRunAs.REACT_NATIVE): Q.Promise<any> {
         if (startAs === PackagerRunAs.EXPONENT) {
-            return this.loginToExponent()
+            return this.loginToExponent(project)
                 .then(() =>
-                    this.reactNativePackager.startAsExponent()
+                    project.reactNativePackager.startAsExponent()
                 ).then(exponentUrl => {
-                    this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
-                    this.logger.info("Application is running on Exponent.");
+                    project.reactNativePackager.statusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
+                    CommandPaletteHandler.logger.info("Application is running on Exponent.");
                     const exponentOutput = `Open your exponent app at ${exponentUrl}`;
-                    this.logger.info(exponentOutput);
+                    CommandPaletteHandler.logger.info(exponentOutput);
                     vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
                 });
         }
-        return this.reactNativePackager.startAsReactNative()
-            .then(() => this.reactNativePackageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+        return project.reactNativePackager.startAsReactNative()
+            .then(() => project.reactNativePackager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
     /**
      * Executes a lambda function after starting the packager
      * {lambda} The lambda function to be executed
      */
-    private executeWithPackagerRunning(lambda: () => Q.Promise<void>): Q.Promise<void> {
+    private static executeWithPackagerRunning(project: IReactNativeProject, lambda: () => Q.Promise<void>): Q.Promise<void> {
         // Start the packager before executing the React-Native command
-        this.logger.info("Attempting to start the React Native packager");
-        return this.runStartPackagerCommandAndUpdateStatus().then(lambda);
+        CommandPaletteHandler.logger.info("Attempting to start the React Native packager");
+        return this.runStartPackagerCommandAndUpdateStatus(project).then(lambda);
     }
 
     /**
@@ -179,15 +211,14 @@ export class CommandPaletteHandler {
      * Otherwise, displays an error message banner
      * {operation} - a function that performs the expected operation
      */
-    private executeCommandInContext(rnCommand: string, operation: () => Q.Promise<void>): Q.Promise<void> {
-        let reactNativeProjectHelper = new ReactNativeProjectHelper(this.workspaceRoot);
+    private static executeCommandInContext(rnCommand: string, workspaceFolder: vscode.WorkspaceFolder, operation: () => Q.Promise<void>): Q.Promise<void> {
         return TelemetryHelper.generate("RNCommand", (generator) => {
             generator.add("command", rnCommand, false);
-            return reactNativeProjectHelper.isReactNativeProject().then(isRNProject => {
+            return ReactNativeProjectHelper.isReactNativeProject(workspaceFolder.uri.path).then(isRNProject => {
                 generator.add("isRNProject", isRNProject, false);
                 if (isRNProject) {
                     // Bring the log channel to focus
-                    this.logger.setFocusOnLogChannel();
+                    CommandPaletteHandler.logger.setFocusOnLogChannel();
 
                     // Execute the operation
                     return operation();
@@ -202,43 +233,67 @@ export class CommandPaletteHandler {
     /**
      * Publish project to exponent server. In order to do this we need to make sure the user is logged in exponent and the packager is running.
      */
-    private executePublishToExpHost(): Q.Promise<boolean> {
-        this.logger.info("Publishing app to Exponent server. This might take a moment.");
-        return this.loginToExponent()
+    private static executePublishToExpHost(project: IReactNativeProject): Q.Promise<boolean> {
+        CommandPaletteHandler.logger.info("Publishing app to Exponent server. This might take a moment.");
+        return this.loginToExponent(project)
             .then(user => {
-                this.logger.debug(`Publishing as ${user.username}...`);
+                CommandPaletteHandler.logger.debug(`Publishing as ${user.username}...`);
                 return this.startExponentPackager()
                     .then(() =>
-                        XDL.publish(this.workspaceRoot))
+                        XDL.publish(project.workspaceFolder.uri.path))
                     .then(response => {
                         if (response.err || !response.url) {
                             return false;
                         }
                         const publishedOutput = `App successfully published to ${response.url}`;
-                        this.logger.info(publishedOutput);
+                        CommandPaletteHandler.logger.info(publishedOutput);
                         vscode.window.showInformationMessage(publishedOutput);
                         return true;
                     });
             }).catch(() => {
-                this.logger.warning("An error has occured. Please make sure you are logged in to exponent, your project is setup correctly for publishing and your packager is running as exponent.");
+                CommandPaletteHandler.logger.warning("An error has occured. Please make sure you are logged in to exponent, your project is setup correctly for publishing and your packager is running as exponent.");
                 return false;
             });
     }
 
-    private loginToExponent(): Q.Promise<XDL.IUser> {
-        return this.exponentHelper.loginToExponent(
+    private static loginToExponent(project: IReactNativeProject): Q.Promise<XDL.IUser> {
+        return project.exponentHelper.loginToExponent(
             (message, password) => {
                 return Q.Promise((resolve, reject) => {
                     vscode.window.showInputBox({ placeHolder: message, password: password })
-                    .then(resolve, reject);
+                        .then(login => {
+                            resolve(login || "");
+                        }, reject);
                 });
             },
             (message) => {
                 return Q.Promise((resolve, reject) => {
                     vscode.window.showInformationMessage(message)
-                        .then(resolve, reject);
+                        .then(password => {
+                            resolve(password || "");
+                        }, reject);
                 });
             }
         );
+    }
+
+    private static selectProject(): Q.Promise<IReactNativeProject> {
+        let keys = Object.keys(this.projectsCache);
+        if (keys.length > 1) {
+            return Q.Promise((resolve, reject) => {
+                vscode.window.showQuickPick(keys)
+                    .then((selected) => {
+                        if (selected) {
+                            resolve(this.projectsCache[selected]);
+                        } else {
+                            reject("Cancel");
+                        }
+                    }, reject);
+            });
+        } else if (keys.length === 1) {
+            return Q.resolve(this.projectsCache[keys[0]]);
+        } else {
+            return Q.reject();
+        }
     }
 }

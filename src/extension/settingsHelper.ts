@@ -9,13 +9,6 @@ import {LogLevel} from "./log/LogHelper";
 
 export class SettingsHelper {
     /**
-     * Path to the workspace settings file
-     */
-    public static get settingsJsonPath(): string {
-        return path.join(vscode.workspace.rootPath, ".vscode", "settings.json");
-    }
-
-    /**
      * Enable javascript intellisense via typescript.
      */
     public static notifyUserToAddTSDKInSettingsJson(tsdkPath: string): void {
@@ -46,10 +39,11 @@ export class SettingsHelper {
     /**
      * We get the packager port configured by the user
      */
-    public static getPackagerPort(): number {
-        const workspaceConfiguration = vscode.workspace.getConfiguration();
-        if (workspaceConfiguration.has("react-native.packager.port")) {
-            return ConfigurationReader.readInt(workspaceConfiguration.get("react-native.packager.port"));
+    public static getPackagerPort(filePath: string): number {
+        let uri = vscode.Uri.file(filePath);
+        const workspaceConfiguration = vscode.workspace.getConfiguration("react-native.packager", uri);
+        if (workspaceConfiguration.has("port")) {
+            return ConfigurationReader.readInt(workspaceConfiguration.get("port"));
         }
         return Packager.DEFAULT_PORT;
     }
@@ -69,17 +63,17 @@ export class SettingsHelper {
     /**
      * Get the React Native project root path
      */
-    public static getReactNativeProjectRoot(): string {
-        const workspaceConfiguration = vscode.workspace.getConfiguration();
-        if (workspaceConfiguration.has("react-native-tools.projectRoot")) {
+    public static getReactNativeProjectRoot(uri: vscode.Uri): string {
+        const workspaceConfiguration = vscode.workspace.getConfiguration("react-native-tools", uri);
+        if (workspaceConfiguration.has("projectRoot")) {
             let projectRoot: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.projectRoot"));
             if (path.isAbsolute(projectRoot)) {
                 return projectRoot;
             } else {
-                return path.resolve(vscode.workspace.rootPath, projectRoot);
+                return path.resolve(uri.path, projectRoot);
             }
         }
-        return vscode.workspace.rootPath;
+        return uri.path;
     }
 
     /**

@@ -63,7 +63,7 @@ export class RemoteExtension {
         return this._api.Extension.openFileAtLocation(filename, lineNumber);
     }
 
-    public getPackagerPort(): Q.Promise<number> {
+    public getPackagerPort(program: string): Q.Promise<number> {
         return this._api.Extension.getPackagerPort();
     }
 

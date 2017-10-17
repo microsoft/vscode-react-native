@@ -11,17 +11,14 @@ import * as vscode from "vscode";
 import * as Q from "q";
 import {PackagerRunAs} from "../../common/packager";
 import {PackagerStatus} from "../packagerStatusIndicator";
-import {SettingsHelper} from "../settingsHelper";
-
-const projectRootPath = SettingsHelper.getReactNativeProjectRoot();
-const workspaceRootPath = vscode.workspace.rootPath;
 
 export class ExponentPlatform extends GeneralMobilePlatform {
     private exponentTunnelPath: string | null;
-    private exponentHelper = new ExponentHelper(workspaceRootPath, projectRootPath);
+    private exponentHelper: ExponentHelper;
 
     constructor(runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
+        this.exponentHelper = new ExponentHelper(runOptions.workspaceRoot, runOptions.projectRoot);
         this.exponentTunnelPath = null;
     }
 
@@ -42,7 +39,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
             if (running) {
                 if (this.packager.getRunningAs() !== PackagerRunAs.EXPONENT) {
                     return this.packager.stop().then(() =>
-                        this.packageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
+                        this.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
                 }
 
                 this.logger.info("Attaching to running Exponent packager");
@@ -55,13 +52,17 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     (message, password) => {
                         return Q.Promise((resolve, reject) => {
                             vscode.window.showInputBox({ placeHolder: message, password: password })
-                                .then(resolve, reject);
+                                .then(login => {
+                                    resolve(login || "");
+                                }, reject);
                         });
                     },
                     (message) => {
                         return Q.Promise((resolve, reject) => {
                             vscode.window.showInformationMessage(message)
-                                .then(resolve, reject);
+                                .then(password => {
+                                    resolve(password || "");
+                                }, reject);
                         });
                     }
                 ))
@@ -70,7 +71,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
             })
             .then(exponentUrl => {
                 vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
-                this.packageStatusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
+                this.packager.statusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
                 return exponentUrl;
             })
             .then(exponentUrl => {

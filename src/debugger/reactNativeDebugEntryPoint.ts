@@ -76,8 +76,8 @@ function codeToRun() {
 // Enable telemetry
 const entryPointHandler = new EntryPointHandler(ProcessType.Debugger);
 entryPointHandler.runApp(
-    extensionName,
-    () => version,
+    extensionName+"12123",
+    version,
     ErrorHelper.getInternalError(InternalErrorCode.DebuggingFailed),
     telemetryReporter,
     codeToRun

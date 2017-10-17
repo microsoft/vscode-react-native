@@ -7,7 +7,6 @@ import * as vscode from "vscode";
 import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
-import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
@@ -25,15 +24,13 @@ export class ExtensionServer implements vscode.Disposable {
     public api: IRemoteExtension;
     private serverInstance: WebSocketServer | null;
     private reactNativePackager: Packager;
-    private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private pipePath: string;
     private logCatMonitor: LogCatMonitor | null = null;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
-    public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
+    public constructor(projectRootPath: string, reactNativePackager: Packager) {
         this.pipePath = MessagingHelper.getPath(projectRootPath);
         this.reactNativePackager = reactNativePackager;
-        this.reactNativePackageStatusIndicator = packagerStatusIndicator;
     }
 
     /**
@@ -120,8 +117,8 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Message handler for GET_PACKAGER_PORT.
      */
-    private getPackagerPort(): number {
-        return SettingsHelper.getPackagerPort();
+    private getPackagerPort(program: string): number {
+        return SettingsHelper.getPackagerPort(program);
     }
 
     /**
@@ -179,10 +176,9 @@ export class ExtensionServer implements vscode.Disposable {
             mobilePlatformOptions.scheme = request.arguments.scheme;
         }
 
-        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort();
+        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(request.arguments.program);
         const platformDeps: MobilePlatformDeps = {
             packager: this.reactNativePackager,
-            packageStatusIndicator: this.reactNativePackageStatusIndicator,
         };
         const mobilePlatform = new PlatformResolver()
             .resolveMobilePlatform(request.arguments.platform, mobilePlatformOptions, platformDeps);
@@ -234,8 +230,10 @@ function isNullOrUndefined(value: any): boolean {
 }
 
 function requestSetup(args: any): any {
+    const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.program));
     const projectRootPath = getProjectRoot(args);
     let mobilePlatformOptions: any = {
+        workspaceRoot: workspaceFolder.uri.path,
         projectRoot: projectRootPath,
         platform: args.platform,
         targetType: args.targetType || "simulator",
@@ -250,5 +248,5 @@ function requestSetup(args: any): any {
 }
 
 function getProjectRoot(args: any): string {
-    return SettingsHelper.getReactNativeProjectRoot();
+    return SettingsHelper.getReactNativeProjectRoot(vscode.Uri.file(args.program));
 }
