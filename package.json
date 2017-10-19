@@ -213,6 +213,26 @@
                 ],
                 "default": "log",
                 "description": "Setup logging level in debugger."
+              },
+              "address": {
+                "type": "string",
+                "description": "TCP/IP address of debug port. Default is 'localhost'.",
+                "default": "localhost"
+              },
+              "port": {
+                "type": "string",
+                "description": "Debug port to attach to. Default is 8081.",
+                "default": "8081"
+              },
+              "remoteRoot": {
+                "type": "string",
+                "description": "The source root of the remote host.",
+                "default": null
+              },
+              "localRoot": {
+                "type": "string",
+                "description": "The local source root that corresponds to the 'remoteRoot'.",
+                "default": "${workspaceRoot}"
               }
             }
           },
