@@ -317,6 +317,11 @@
           "description": "Run arguments to be passed to 'react-native run-android' command",
           "type": "array",
           "default": []
+        },
+        "react-native.packager.port": {
+          "description": "React-native packager port",
+          "type": "number",
+          "default": 8081
         }
       }
     }

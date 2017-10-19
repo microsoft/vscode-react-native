@@ -64,6 +64,8 @@ export class ExtensionServer implements vscode.Disposable {
             this.serverInstance = null;
         }
 
+        this.reactNativePackager.statusIndicator.dispose();
+        this.reactNativePackager.stop();
         this.stopMonitoringLogCat();
     }
 
@@ -240,7 +242,7 @@ function requestSetup(args: any): any {
     };
 
     if (!args.runArguments) {
-        let runArgs = SettingsHelper.getRunArgs(args.platform, args.targetType || "simulator");
+        let runArgs = SettingsHelper.getRunArgs(args.platform, args.targetType || "simulator", workspaceFolder.uri);
         mobilePlatformOptions.runArguments = runArgs;
     }
 
@@ -248,5 +250,5 @@ function requestSetup(args: any): any {
 }
 
 function getProjectRoot(args: any): string {
-    return SettingsHelper.getReactNativeProjectRoot(vscode.Uri.file(args.program));
+    return SettingsHelper.getReactNativeProjectRoot(args.program);
 }

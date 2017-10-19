@@ -32,9 +32,8 @@ import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
-import { ExponentHelper } from "./exponent/exponentHelper";
-import { QRCodeContentProvider } from "./qrCodeContentProvider";
-import { ConfigurationReader } from "../common/configurationReader";
+import {ExponentHelper} from "./exponent/exponentHelper";
+import {QRCodeContentProvider} from "./qrCodeContentProvider";
 
 /* all components use the same packager instance */
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
@@ -49,50 +48,17 @@ export function activate(context: vscode.ExtensionContext): void {
     const appVersion = <string>require("../../package.json").version;
     const reporter = Telemetry.defaultTelemetryReporter(appVersion);
     entryPointHandler.runApp("react-native", appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, () => {
-        let isLaunched: boolean = false;
+        context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
+        context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
+        registerReactNativeCommands(context);
+
+        let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
+        Telemetry.send(activateExtensionEvent);
+
         const workspaceFolders: vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
         if (workspaceFolders) {
-            workspaceFolders.forEach((workspace: vscode.WorkspaceFolder) => {
-                let rootPath = workspace.uri.fsPath;
-
-                ReactNativeProjectHelper.getReactNativeVersion(rootPath)
-                    .then(version => {
-                        let isRNProject = !!version;
-                        if (isRNProject) {
-                            if (!isLaunched) {
-                                registerReactNativeCommands(context);
-                                context.subscriptions.push(vscode.workspace
-                                    .registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
-                                let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
-                                Telemetry.send(activateExtensionEvent);
-                                isLaunched = true;
-                            }
-
-                            if (isSupportedVersion(version)) {
-                                entryPointHandler.runFunction("debugger.setupLauncherStub",
-                                    ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () => {
-                                        return setupAndDispose(new ReactDirManager(rootPath), context)
-                                            .then(() => {
-                                                let packagerPort = ConfigurationReader.readIntWithDefaultSync(SettingsHelper.getPackagerPort(workspace.uri.fsPath), Packager.DEFAULT_PORT);
-                                                let projectRootPath = SettingsHelper.getReactNativeProjectRoot(workspace.uri);
-                                                let exponentHelper = new ExponentHelper(rootPath, projectRootPath);
-                                                let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
-                                                let packager: Packager = new Packager(rootPath, projectRootPath, packagerPort, packagerStatusIndicator);
-
-                                                console.log(packager.startAsReactNative);
-
-                                                CommandPaletteHandler.addProject(packager, exponentHelper, workspace);
-                                                setupAndDispose(new ExtensionServer(rootPath, packager), context);
-                                            });
-                                    });
-
-                                entryPointHandler.runFunction("debugger.setupNodeDebuggerLocation",
-                                    ErrorHelper.getInternalError(InternalErrorCode.NodeDebuggerConfigurationFailed), () => {
-                                        configureNodeDebuggerLocation();
-                                    });
-                            }
-                        }
-                    });
+            workspaceFolders.forEach((folder: vscode.WorkspaceFolder) => {
+                onFolderAdded(context, folder);
             });
         }
     });
@@ -104,12 +70,70 @@ export function deactivate(): Q.Promise<void> {
         entryPointHandler.runFunction("extension.deactivate",
             ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
             () => {
-                CommandPaletteHandler.stopPackager().done(() => {
+                CommandPaletteHandler.stopAllPackagers().done(() => {
                     // Tell vscode that we are done with deactivation
                     resolve(void 0);
                 });
             }, /*errorsAreFatal*/ true);
     });
+}
+
+function onChangeWorkspaceFolders(context: vscode.ExtensionContext, event: vscode.WorkspaceFoldersChangeEvent) {
+    if (event.removed.length) {
+        event.removed.forEach((folder) => {
+            onFolderRemoved(context, folder);
+        });
+    }
+
+    if (event.added.length) {
+        event.added.forEach((folder) => {
+            onFolderAdded(context, folder);
+        });
+    }
+}
+
+function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder): void {
+    let rootPath = folder.uri.fsPath;
+
+    ReactNativeProjectHelper.getReactNativeVersion(rootPath)
+        .then(version => {
+                if (version && isSupportedVersion(version)) {
+                    entryPointHandler.runFunction("debugger.setupLauncherStub", ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () => {
+                            let reactDirManager = new ReactDirManager(rootPath);
+                            return setupAndDispose(reactDirManager, context)
+                                .then(() => {
+                                    let projectRootPath = SettingsHelper.getReactNativeProjectRoot(folder.uri.fsPath);
+                                    let exponentHelper: ExponentHelper = new ExponentHelper(rootPath, projectRootPath);
+                                    let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
+                                    let packager: Packager = new Packager(rootPath, projectRootPath, undefined, packagerStatusIndicator);
+                                    let extensionServer: ExtensionServer = new ExtensionServer(rootPath, packager);
+
+                                    setupAndDispose(extensionServer, context);
+                                    CommandPaletteHandler.addFolder(folder, {
+                                        packager,
+                                        exponentHelper,
+                                        reactDirManager,
+                                        extensionServer,
+                                    });
+                                });
+                        });
+
+                    entryPointHandler.runFunction("debugger.setupNodeDebuggerLocation",
+                        ErrorHelper.getInternalError(InternalErrorCode.NodeDebuggerConfigurationFailed), () => {
+                            configureNodeDebuggerLocation();
+                        });
+                }
+        });
+}
+
+function onFolderRemoved(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder): void {
+    let project = CommandPaletteHandler.getFolder(folder);
+    Object.keys(project).forEach((key) => {
+        if (project[key].dispose) {
+            project[key].dispose();
+        }
+    });
+    CommandPaletteHandler.delFolder(folder);
 }
 
 function configureNodeDebuggerLocation(): Q.Promise<void> {
@@ -157,13 +181,8 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     registerVSCodeCommand(context, "reloadApp", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed), () => CommandPaletteHandler.reloadApp());
 }
 
-function registerVSCodeCommand(
-    context: vscode.ExtensionContext, commandName: string,
-    error: InternalError, commandHandler: () => Q.Promise<void>): void {
-    context.subscriptions.push(vscode.commands.registerCommand(
-        `reactNative.${commandName}`,
-        () =>
-            entryPointHandler.runFunction(
-                `commandPalette.${commandName}`, error,
-                commandHandler)));
+function registerVSCodeCommand(context: vscode.ExtensionContext, commandName: string, error: InternalError, commandHandler: () => Q.Promise<void>): void {
+    context.subscriptions.push(vscode.commands.registerCommand(`reactNative.${commandName}`, () => {
+        return entryPointHandler.runFunction(`commandPalette.${commandName}`, error, commandHandler);
+    }));
 }

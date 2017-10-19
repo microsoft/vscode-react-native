@@ -14,31 +14,36 @@ import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExponentHelper} from "./exponent/exponentHelper";
+import {ReactDirManager} from "./reactDirManager";
+import {ExtensionServer} from "./extensionServer";
 
-interface IReactNativeProject {
-    reactNativePackager: Packager;
+interface IReactNativeStuff {
+    packager: Packager;
     exponentHelper: ExponentHelper;
+    reactDirManager: ReactDirManager;
+    extensionServer: ExtensionServer;
+}
+interface IReactNativeProject extends IReactNativeStuff {
     workspaceFolder: vscode.WorkspaceFolder;
 }
 
 export class CommandPaletteHandler {
-    private static projectsCache: any = {};
+    private static projectsCache: {[key: string]: IReactNativeProject} = {};
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
-    public static addProject(reactNativePackager: Packager, exponentHelper: ExponentHelper, workspaceFolder: vscode.WorkspaceFolder): void {
-        this.projectsCache[workspaceFolder.name] = {
-            reactNativePackager,
-            exponentHelper,
+    public static addFolder(workspaceFolder: vscode.WorkspaceFolder, stuff: IReactNativeStuff): void {
+        this.projectsCache[workspaceFolder.uri.fsPath] = {
+            ...stuff,
             workspaceFolder,
         };
     }
 
-    public static getProject(workspaceFolder: vscode.WorkspaceFolder): any {
-        return this.projectsCache[workspaceFolder.name];
+    public static getFolder(workspaceFolder: vscode.WorkspaceFolder): IReactNativeProject {
+        return this.projectsCache[workspaceFolder.uri.fsPath];
     }
 
-    public static delProject(workspaceFolder: vscode.WorkspaceFolder): void {
-        delete this.projectsCache[workspaceFolder.name];
+    public static delFolder(workspaceFolder: vscode.WorkspaceFolder): void {
+        delete this.projectsCache[workspaceFolder.uri.fsPath];
     }
 
     /**
@@ -48,9 +53,9 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 return this.executeCommandInContext("startPackager", project.workspaceFolder, () =>
-                    project.reactNativePackager.isRunning()
+                    project.packager.isRunning()
                         .then((running) => {
-                            return running ? project.reactNativePackager.stop() : Q.resolve(void 0);
+                            return running ? project.packager.stop() : Q.resolve(void 0);
                         })
                 )
                     .then(() => this.runStartPackagerCommandAndUpdateStatus(project));
@@ -64,9 +69,9 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 return this.executeCommandInContext("startExponentPackager", project.workspaceFolder, () =>
-                    project.reactNativePackager.isRunning()
+                    project.packager.isRunning()
                         .then((running) => {
-                            return running ? project.reactNativePackager.stop() : Q.resolve(void 0);
+                            return running ? project.packager.stop() : Q.resolve(void 0);
                         })
                 ).then(() =>
                     project.exponentHelper.configureExponentEnvironment()
@@ -80,9 +85,21 @@ export class CommandPaletteHandler {
     public static stopPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return this.executeCommandInContext("stopPackager", project.workspaceFolder, () => project.reactNativePackager.stop())
-                    .then(() => project.reactNativePackager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
+                return this.executeCommandInContext("stopPackager", project.workspaceFolder, () => project.packager.stop())
+                    .then(() => project.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED));
             });
+    }
+
+    public static stopAllPackagers(): Q.Promise<void> {
+        let keys = Object.keys(this.projectsCache);
+        let promises: Q.Promise<void>[] = [];
+        keys.forEach((key) => {
+            let project = this.projectsCache[key];
+            promises.push(this.executeCommandInContext("stopPackager", project.workspaceFolder, () => project.packager.stop())
+                .then(() => project.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED)));
+        });
+
+        return Q.all(promises).then(() => {});
     }
 
     /**
@@ -121,9 +138,9 @@ export class CommandPaletteHandler {
             .then((project: IReactNativeProject) => {
                 return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => this.executeWithPackagerRunning(project, () => {
                     const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath);
-                    const runArgs = SettingsHelper.getRunArgs("android", target);
+                    const runArgs = SettingsHelper.getRunArgs("android", target, project.workspaceFolder.uri);
                     const platform = new AndroidPlatform({ platform: "android", workspaceRoot: project.workspaceFolder.uri.fsPath, projectRoot: project.workspaceFolder.uri.fsPath, packagerPort: packagerPort, runArguments: runArgs }, {
-                        packager: project.reactNativePackager,
+                        packager: project.packager,
                     });
                     return platform.runApp(/*shouldLaunchInAllDevices*/true)
                         .then(() => {
@@ -142,8 +159,8 @@ export class CommandPaletteHandler {
             .then((project: IReactNativeProject) => {
                 return this.executeCommandInContext("runIos", project.workspaceFolder, () => this.executeWithPackagerRunning(project, () => {
                     const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath);
-                    const runArgs = SettingsHelper.getRunArgs("ios", target);
-                    const platform = new IOSPlatform({ platform: "ios", workspaceRoot: project.workspaceFolder.uri.fsPath, projectRoot: project.workspaceFolder.uri.fsPath, packagerPort, runArguments: runArgs }, { packager: project.reactNativePackager });
+                    const runArgs = SettingsHelper.getRunArgs("ios", target, project.workspaceFolder.uri);
+                    const platform = new IOSPlatform({ platform: "ios", workspaceRoot: project.workspaceFolder.uri.fsPath, projectRoot: project.workspaceFolder.uri.fsPath, packagerPort, runArguments: runArgs }, { packager: project.packager });
 
                     // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
                     return platform.disableJSDebuggingMode()
@@ -160,7 +177,7 @@ export class CommandPaletteHandler {
             .then((project: IReactNativeProject) => {
                 AndroidPlatform.showDevMenu()
                     .catch(() => { }); // Ignore any errors
-                IOSPlatform.showDevMenu(project.workspaceFolder.uri)
+                IOSPlatform.showDevMenu(project.workspaceFolder.uri.fsPath)
                     .catch(() => { }); // Ignore any errors
                 return Q.resolve(void 0);
             });
@@ -171,15 +188,15 @@ export class CommandPaletteHandler {
             .then((project: IReactNativeProject) => {
                 AndroidPlatform.reloadApp()
                     .catch(() => { }); // Ignore any errors
-                IOSPlatform.reloadApp(project.workspaceFolder.uri)
+                IOSPlatform.reloadApp(project.workspaceFolder.uri.fsPath)
                     .catch(() => { }); // Ignore any errors
                 return Q.resolve(void 0);
             });
     }
 
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {
-        return project.reactNativePackager.restart(SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath))
-            .then(() => project.reactNativePackager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+        return project.packager.restart(SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath))
+            .then(() => project.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
     /**
@@ -189,17 +206,17 @@ export class CommandPaletteHandler {
         if (startAs === PackagerRunAs.EXPONENT) {
             return this.loginToExponent(project)
                 .then(() =>
-                    project.reactNativePackager.startAsExponent()
+                    project.packager.startAsExponent()
                 ).then(exponentUrl => {
-                    project.reactNativePackager.statusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
+                    project.packager.statusIndicator.updatePackagerStatus(PackagerStatus.EXPONENT_PACKAGER_STARTED);
                     CommandPaletteHandler.logger.info("Application is running on Exponent.");
                     const exponentOutput = `Open your exponent app at ${exponentUrl}`;
                     CommandPaletteHandler.logger.info(exponentOutput);
                     vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
                 });
         }
-        return project.reactNativePackager.startAsReactNative()
-            .then(() => project.reactNativePackager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+        return project.packager.startAsReactNative()
+            .then(() => project.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
     /**
@@ -291,8 +308,6 @@ export class CommandPaletteHandler {
                     .then((selected) => {
                         if (selected) {
                             resolve(this.projectsCache[selected]);
-                        } else {
-                            reject("Cancel");
                         }
                     }, reject);
             });

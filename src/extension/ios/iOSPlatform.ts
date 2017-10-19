@@ -3,7 +3,6 @@
 
 import * as Q from "q";
 import * as path from "path";
-import * as vscode from "vscode";
 
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
@@ -40,12 +39,12 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
-    public static showDevMenu(uri: vscode.Uri, deviceId?: string): Q.Promise<void> {
-        return this.remote(uri).showDevMenu(deviceId);
+    public static showDevMenu(fsPath: string, deviceId?: string): Q.Promise<void> {
+        return this.remote(fsPath).showDevMenu(deviceId);
     }
 
-    public static reloadApp(uri: vscode.Uri, deviceId?: string): Q.Promise<void> {
-        return this.remote(uri).reloadApp(deviceId);
+    public static reloadApp(fsPath: string, deviceId?: string): Q.Promise<void> {
+        return this.remote(fsPath).reloadApp(deviceId);
     }
 
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
@@ -181,11 +180,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
         return this.plistBuddy.getBundleId(this.iosProjectRoot);
     }
 
-    private static remote(uri: vscode.Uri): RemoteExtension {
+    private static remote(fsPath: string): RemoteExtension {
         if (this.remoteExtension) {
             return this.remoteExtension;
         } else {
-            return this.remoteExtension = RemoteExtension.atProjectRootPath(SettingsHelper.getReactNativeProjectRoot(uri));
+            return this.remoteExtension = RemoteExtension.atProjectRootPath(SettingsHelper.getReactNativeProjectRoot(fsPath));
         }
     }
 }

@@ -13,6 +13,7 @@ import {PromiseUtil} from "./node/promise";
 import {Request} from "./node/request";
 import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
 import {PackagerStatusIndicator} from "../extension/packagerStatusIndicator";
+import {SettingsHelper} from "../extension/settingsHelper";
 
 import * as Q from "q";
 import * as path from "path";
@@ -39,9 +40,13 @@ export class Packager {
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
 
-    constructor(private workspacePath: string, private projectPath: string, private port: number, packagerStatusIndicator?: PackagerStatusIndicator) {
+    constructor(private workspacePath: string, private projectPath: string, private packagerPort?: number, packagerStatusIndicator?: PackagerStatusIndicator) {
         this.packagerRunningAs = PackagerRunAs.NOT_RUNNING;
         this.packagerStatusIndicator = packagerStatusIndicator || new PackagerStatusIndicator();
+    }
+
+    private get port(): number {
+        return this.packagerPort || SettingsHelper.getPackagerPort(this.workspacePath);
     }
 
     public static getHostForPort(port: number): string {
