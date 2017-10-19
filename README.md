@@ -66,7 +66,7 @@ For more details about configuring and debugging Expo applications see [Expo doc
 
 ## Build APK and Generate Bundle
 
-You can add VSCode tasks for build apk and generate iOS/Android bundle. See [here](tasks.md) for more info.
+You can add VSCode tasks to build an .apk file and generate iOS/Android bundles. See [here](tasks.md) for more info.
 
 ## Contributing
 
