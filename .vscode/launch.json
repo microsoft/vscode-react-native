@@ -168,7 +168,8 @@
             "outFiles": [
                 "${workspaceRoot}/src/**/*.js"
             ],
-            "sourceMaps": true
+            "sourceMaps": true,
+            "preLaunchTask": "quick-build"
         }
     ],
     "compounds": [
