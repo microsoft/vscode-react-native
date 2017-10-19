@@ -1,3 +1,9 @@
+## 0.4.3
+* Added custom packager port support
+* Added separate channels for logs output
+* Added Reload App and Open Dev Menu commands
+* Added launch options to attach to remote packager
+
 ## 0.4.2
 * Fixed annoying error message when app's entry point is not `index.<platform>.js`
 * Added `runArguments` [configuration option](doc/customization.md#specifying-custom-arguments-for-react-native-run--command) to allow passing custom arguments to `react-native run-*` commands
