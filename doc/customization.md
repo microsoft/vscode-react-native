@@ -67,7 +67,7 @@ To expose internal logs to the output, set the following properties:
 }
 ```
 
-`logLevel` can be `None` (no logs), `Error`, `Warning`, `Info`, `Debug`, `Trace` (all logs). Default is `None`.
+`logLevel` can be `None` (no logs), `Error`, `Warning`, `Info`, `Debug`, `Trace` (all logs). Default is `Info`.
 
 ## Project structure
 
@@ -77,18 +77,6 @@ To specify a subfolder in which the react-native project is located, set `react-
 {
   "react-native-tools": {
     "projectRoot": "./your/react-native/project"
-  }
-}
-```
-
-## TypeScript
-
-To use a different `TypeScript TSDK` version than the one that comes with VS Code, set the following:
-
-```
-{
-  "typescript": {
-    "tsdk": "path/to/tsdk"
   }
 }
 ```

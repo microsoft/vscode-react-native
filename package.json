@@ -301,27 +301,51 @@
         "react-native.ios.runArguments.simulator": {
           "description": "Run arguments to be passed to 'react-native run-ios' command",
           "type": "array",
-          "default": []
+          "default": [],
+          "scope": "resource"
         },
         "react-native.ios.runArguments.device": {
           "description": "Run arguments to be passed to 'react-native run-ios' command",
           "type": "array",
-          "default": []
+          "default": [],
+          "scope": "resource"
         },
         "react-native.android.runArguments.simulator": {
           "description": "Run arguments to be passed to 'react-native run-android' command",
           "type": "array",
-          "default": []
+          "default": [],
+          "scope": "resource"
         },
         "react-native.android.runArguments.device": {
           "description": "Run arguments to be passed to 'react-native run-android' command",
           "type": "array",
-          "default": []
+          "default": [],
+          "scope": "resource"
         },
         "react-native.packager.port": {
           "description": "React-native packager port",
           "type": "number",
-          "default": 8081
+          "default": 8081,
+          "scope": "resource"
+        },
+        "react-native-tools.projectRoot": {
+          "description": "Subfolder in which the react-native project is located",
+          "type": "string",
+          "scope": "resource"
+        },
+        "react-native-tools.logLevel": {
+          "description": "Logging level in extension",
+          "type": "enum",
+          "enum": [
+            "Trace",
+            "Debug",
+            "Info",
+            "Warning",
+            "Error",
+            "None"
+          ],
+          "default": "Info",
+          "scope": "resource"
         }
       }
     }

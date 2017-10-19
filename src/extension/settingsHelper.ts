@@ -9,20 +9,6 @@ import {LogLevel} from "./log/LogHelper";
 
 export class SettingsHelper {
     /**
-     * Enable javascript intellisense via typescript.
-     */
-    public static notifyUserToAddTSDKInSettingsJson(tsdkPath: string): void {
-        vscode.window.showInformationMessage(`Please make sure you have \"typescript.tsdk\": \"${tsdkPath}\" in .vscode/settings.json and restart VSCode afterwards.`);
-    }
-
-    /**
-     * Removes javascript intellisense via typescript.
-     */
-    public static notifyUserToRemoveTSDKFromSettingsJson(tsdkPath: string): void {
-        vscode.window.showInformationMessage(`Please remove \"typescript.tsdk\": \"${tsdkPath}\" from .vscode/settings.json and restart VSCode afterwards.`);
-    }
-
-    /**
      * We get the packager port configured by the user
      */
     public static getPackagerPort(fsPath: string): number {
@@ -68,8 +54,8 @@ export class SettingsHelper {
      * Get command line run arguments from settings.json
      */
     public static getRunArgs(platform: string, target: "device" | "simulator", uri: vscode.Uri): string[] {
-        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("", uri);
-        const configKey: string = `react-native.${platform}.runArguments.${target}`;
+        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("react-native", uri);
+        const configKey: string = `${platform}.runArguments.${target}`;
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readArray(workspaceConfiguration.get(configKey));
         }
