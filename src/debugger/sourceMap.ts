@@ -55,7 +55,7 @@ export class SourceMapUtil {
      * @parameter sourcesRootPath - root path of sources
      *
      */
-    public updateSourceMapFile(sourceMapBody: string, scriptPath: string, sourcesRootPath: string): string {
+    public updateSourceMapFile(sourceMapBody: string, scriptPath: string, sourcesRootPath: string, packagerRemoteRoot?: string, packagerLocalRoot?: string): string {
         try {
             let sourceMap = <ISourceMap>JSON.parse(sourceMapBody);
 
@@ -74,7 +74,7 @@ export class SourceMapUtil {
 
             if (sourceMap.sources) {
                 sourceMap.sources = sourceMap.sources.map(sourcePath => {
-                    return IS_REMOTE.test(sourcePath) ? sourcePath : this.updateSourceMapPath(sourcePath, sourcesRootPath);
+                    return IS_REMOTE.test(sourcePath) ? sourcePath : this.updateSourceMapPath(sourcePath, sourcesRootPath, packagerRemoteRoot, packagerLocalRoot);
                 });
             }
 
@@ -101,7 +101,12 @@ export class SourceMapUtil {
      * 1. It changes the path from absolute to be relative to the sourcesRootPath parameter.
      * 2. It changes the path separators to Unix style.
      */
-    private updateSourceMapPath(sourcePath: string, sourcesRootPath: string) {
+    private updateSourceMapPath(sourcePath: string, sourcesRootPath: string, packagerRemoteRoot?: string, packagerLocalRoot?: string) {
+        if (packagerRemoteRoot && packagerLocalRoot) {
+            packagerRemoteRoot = this.makeUnixStylePath(packagerRemoteRoot);
+            packagerLocalRoot = this.makeUnixStylePath(packagerLocalRoot);
+            sourcePath = sourcePath.replace(packagerRemoteRoot, packagerLocalRoot);
+        }
         let relativeSourcePath = path.relative(sourcesRootPath, sourcePath);
         return this.makeUnixStylePath(relativeSourcePath);
     }

@@ -68,6 +68,19 @@ suite("sourceMap", function() {
             assert.equal(expectedSourceMapBody, result);
         });
 
+        test("should update source map file path for remote packager", function () {
+            const localRoot = "/home/local";
+            const remoteRoot = "/home/remote";
+            const sourceMapBody: string = JSON.stringify({ "version": 3, "sources": [`${remoteRoot}/test/index.ts`], "names": [], "mappings": "", "file": "test/index.js", "sourceRoot": "../../src" });
+            const scriptPath: string = "test/newIndex.ts";
+            const sourcesRootPath: string = `${localRoot}/new/src`;
+            const expectedSourceMapBody: string = JSON.stringify({ "version": 3, "sources": [`../../test/index.ts`], "names": [], "mappings": "", "file": scriptPath, "sourceRoot": "" });
+            const sourceMap = new SourceMapUtil();
+
+            const result: string = sourceMap.updateSourceMapFile(sourceMapBody, scriptPath, sourcesRootPath, remoteRoot, localRoot);
+            assert.equal(expectedSourceMapBody, result);
+        });
+
         test("should update scripts with source mapping urls", function() {
             const scriptBody: string = "//# sourceMappingURL=/index.ios.map?platform=ios&dev=true";
             const sourceMappingUrl: IStrictUrl = <IStrictUrl>url.parse("/index.android.map");

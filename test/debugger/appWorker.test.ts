@@ -12,6 +12,7 @@ import { MultipleLifetimesAppWorker } from "../../src/debugger/appWorker";
 import { ForkedAppWorker } from "../../src/debugger/forkedAppWorker";
 import * as ForkedAppWorkerModule from "../../src/debugger/forkedAppWorker";
 import * as packagerStatus from "../../src/common/packagerStatus";
+import { ScriptImporter, DownloadedScript } from "../../src/debugger/scriptImporter";
 
 suite("appWorker", function() {
     suite("debuggerContext", function() {
@@ -35,7 +36,7 @@ suite("appWorker", function() {
                 spawnStub = sinon.stub(child_process, "spawn", () =>
                     originalSpawn("node", ["-e", wrappedBody], {stdio: ["pipe", "pipe", "pipe", "ipc"]}));
 
-                testWorker = new ForkedAppWorker(packagerPort, sourcesStoragePath, "", postReplyFunction);
+                testWorker = new ForkedAppWorker("localhost", packagerPort, sourcesStoragePath, "", postReplyFunction);
                 return testWorker;
             }
 
@@ -100,6 +101,40 @@ suite("appWorker", function() {
                 .then(() =>
                     assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
             });
+
+            test("should download script from remote packager", async () => {
+                class MockAppWorker extends ForkedAppWorker {
+                    public workerLoaded = Q.defer<void>();
+                    public scriptImporter: ScriptImporter;
+                    public debuggeeProcess: any = {
+                        send: () => void 0,
+                    };
+                }
+                const remotePackagerAddress = "1.2.3.4";
+                const remotePackagerPort = 1337;
+                const worker = new MockAppWorker(remotePackagerAddress, remotePackagerPort, sourcesStoragePath, "", postReplyFunction);
+                const downloadAppScriptStub = sinon.stub(worker.scriptImporter, "downloadAppScript");
+                const fakeDownloadedScript = <DownloadedScript>{ filepath: "/home/test/file" };
+                downloadAppScriptStub.returns(Q.resolve(fakeDownloadedScript));
+                const debuggeeProcessSendStub = sinon.stub(worker.debuggeeProcess, "send");
+                worker.workerLoaded.resolve(void 0);
+                const fakeMessage = {
+                    method: "executeApplicationScript",
+                    url: "http://localhost:8081/test-url",
+                };
+
+                await worker.postMessage(fakeMessage);
+
+                assert.equal(downloadAppScriptStub.calledOnce, true);
+                assert.equal(downloadAppScriptStub.firstCall.args[0], `http://${remotePackagerAddress}:${remotePackagerPort}/test-url`);
+                assert.equal(debuggeeProcessSendStub.calledOnce, true);
+                assert.deepEqual(debuggeeProcessSendStub.firstCall.args[0], {
+                    data: {
+                        ...fakeMessage,
+                        url: fakeDownloadedScript.filepath,
+                    },
+                });
+            });
         });
 
         suite("MultipleLifetimesAppWorker", function() {
@@ -129,8 +164,12 @@ suite("appWorker", function() {
                 webSocketConstructor.returns(webSocket);
                 packagerIsRunning = sinon.stub(packagerStatus, "ensurePackagerRunning");
                 packagerIsRunning.returns(Q.resolve(true));
+                const attachRequestArguments = {
+                    address: "localhost",
+                    port: packagerPort,
+                };
 
-                multipleLifetimesWorker = new MultipleLifetimesAppWorker(packagerPort, sourcesStoragePath, "", {
+                multipleLifetimesWorker = new MultipleLifetimesAppWorker(attachRequestArguments, sourcesStoragePath, "", {
                     webSocketConstructor: webSocketConstructor,
                 });
 
