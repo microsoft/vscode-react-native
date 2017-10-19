@@ -10,12 +10,14 @@ import "should";
 suite("iOSPlatform", function () {
     let runOptions: any = {
         platform: "ios",
+        workspaceRoot: "/User/test/react-native/AwesomeProject",
         projectRoot: "/User/test/react-native/AwesomeProject",
     };
 
     teardown(() => {
         runOptions = {
             platform: "ios",
+            workspaceRoot: "/User/test/react-native/AwesomeProject",
             projectRoot: "/User/test/react-native/AwesomeProject",
         };
     });
