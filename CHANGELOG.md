@@ -1,3 +1,5 @@
+## 0.4.4
+* Fixed issue with Run iOS on device
 ## 0.4.3
 * Added custom packager port support
 * Added separate channels for logs output
