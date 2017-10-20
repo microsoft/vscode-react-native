@@ -40,7 +40,7 @@ export class SettingsHelper {
         const workspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(uri);
         const workspaceConfiguration = vscode.workspace.getConfiguration("react-native-tools", uri);
         if (workspaceConfiguration.has("projectRoot")) {
-            let projectRoot: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.projectRoot"));
+            let projectRoot: string = ConfigurationReader.readString(workspaceConfiguration.get("projectRoot"));
             if (path.isAbsolute(projectRoot)) {
                 return projectRoot;
             } else {

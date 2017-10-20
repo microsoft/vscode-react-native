@@ -103,17 +103,21 @@ export class Packager {
             });
     }
 
-    public stop(): Q.Promise<void> {
+    public stop(silent: boolean = false): Q.Promise<void> {
         return this.isRunning()
             .then(running => {
                 if (running) {
                     if (!this.packagerProcess) {
-                        this.logger.warning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
+                        if (!silent) {
+                            this.logger.warning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
+                        }
                         return Q.resolve<void>(void 0);
                     }
                     return this.killPackagerProcess();
                 } else {
-                    this.logger.warning(ErrorHelper.getWarning("Packager is not running"));
+                    if (!silent) {
+                        this.logger.warning(ErrorHelper.getWarning("Packager is not running"));
+                    }
                     return Q.resolve<void>(void 0);
                 }
             }).then(() => {

@@ -331,7 +331,8 @@
         "react-native-tools.projectRoot": {
           "description": "Subfolder in which the react-native project is located",
           "type": "string",
-          "scope": "resource"
+          "scope": "resource",
+          "default": ""
         },
         "react-native-tools.logLevel": {
           "description": "Logging level in extension",

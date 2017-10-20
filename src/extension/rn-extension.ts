@@ -140,6 +140,16 @@ function onFolderRemoved(context: vscode.ExtensionContext, folder: vscode.Worksp
         }
     });
     CommandPaletteHandler.delFolder(folder);
+
+    try { // Preventing memory leaks
+        context.subscriptions.forEach((element: any, index: number) => {
+            if (element.isDisposed) {
+                context.subscriptions.splice(index, 1); // Array.prototype.filter doesn't work, "context.subscriptions" is read only
+            }
+        });
+    } catch (err) {
+        // Ignore
+    }
 }
 
 function configureNodeDebuggerLocation(): Q.Promise<void> {

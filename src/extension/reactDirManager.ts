@@ -17,6 +17,7 @@ import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 export class ReactDirManager implements vscode.Disposable {
     public vscodeDirPath: string;
     public reactDirPath: string;
+    public isDisposed: boolean = false;
 
     constructor(rootPath: string) {
         this.vscodeDirPath = path.join(rootPath || "", ".vscode");
@@ -24,6 +25,7 @@ export class ReactDirManager implements vscode.Disposable {
     }
 
     public setup(): Q.Promise<void> {
+        this.isDisposed = false;
         let fs = new FileSystem();
         /* if the folder exists, remove it, then recreate it */
         return fs.removePathRecursivelyAsync(this.reactDirPath)
@@ -38,6 +40,7 @@ export class ReactDirManager implements vscode.Disposable {
     }
 
     public dispose(): void {
+        this.isDisposed = true;
         new EntryPointHandler(ProcessType.Extension, OutputChannelLogger.getMainChannel())
             .runFunction("extension.deleteTemporaryFolder",
                 ErrorHelper.getInternalError(InternalErrorCode.RNTempFolderDeletionFailed, this.reactDirPath),

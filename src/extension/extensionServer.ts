@@ -22,6 +22,7 @@ import WebSocketServer = WebSocket.Server;
 
 export class ExtensionServer implements vscode.Disposable {
     public api: IRemoteExtension;
+    public isDisposed: boolean = false;
     private serverInstance: WebSocketServer | null;
     private reactNativePackager: Packager;
     private pipePath: string;
@@ -37,7 +38,7 @@ export class ExtensionServer implements vscode.Disposable {
      * Starts the server.
      */
     public setup(): Q.Promise<void> {
-
+        this.isDisposed = false;
         let deferred = Q.defer<void>();
 
         let launchCallback = (error: any) => {
@@ -47,7 +48,7 @@ export class ExtensionServer implements vscode.Disposable {
 
         this.serverInstance = new WebSocketServer({port: <any>this.pipePath});
         this.api = new rpc.Server(this.serverInstance).api();
-        this.serverInstance.on("open", launchCallback.bind(this));
+        this.serverInstance.on("listening", launchCallback.bind(this));
         this.serverInstance.on("error", this.recoverServer.bind(this));
 
         this.setupApiHandlers();
@@ -59,13 +60,14 @@ export class ExtensionServer implements vscode.Disposable {
      * Stops the server.
      */
     public dispose(): void {
+        this.isDisposed = true;
         if (this.serverInstance) {
             this.serverInstance.close();
             this.serverInstance = null;
         }
 
         this.reactNativePackager.statusIndicator.dispose();
-        this.reactNativePackager.stop();
+        this.reactNativePackager.stop(true);
         this.stopMonitoringLogCat();
     }
 
