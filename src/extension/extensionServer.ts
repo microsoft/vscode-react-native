@@ -244,7 +244,7 @@ function requestSetup(args: any): any {
     };
 
     if (!args.runArguments) {
-        let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", , workspaceFolder.uri);
+        let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", workspaceFolder.uri);
         mobilePlatformOptions.runArguments = runArgs;
     }
 
