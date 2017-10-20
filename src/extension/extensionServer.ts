@@ -238,11 +238,11 @@ function requestSetup(args: any): any {
     let mobilePlatformOptions: any = {
         projectRoot: projectRootPath,
         platform: args.platform,
-        targetType: args.targetType || "simulator",
+        target: args.target || "simulator",
     };
 
     if (!args.runArguments) {
-        let runArgs = SettingsHelper.getRunArgs(args.platform, args.targetType || "simulator");
+        let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator");
         mobilePlatformOptions.runArguments = runArgs;
     }
 
