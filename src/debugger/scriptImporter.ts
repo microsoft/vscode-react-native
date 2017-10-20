@@ -23,13 +23,19 @@ interface IStrictUrl extends url.Url {
 export class ScriptImporter {
     public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
     public static DEBUGGER_WORKER_FILENAME = ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME + ".js";
+    private packagerAddress: string;
     private packagerPort: number;
     private sourcesStoragePath: string;
+    private packagerRemoteRoot?: string;
+    private packagerLocalRoot?: string;
     private sourceMapUtil: SourceMapUtil;
 
-    constructor(packagerPort: number, sourcesStoragePath: string) {
+    constructor(packagerAddress: string, packagerPort: number, sourcesStoragePath: string, packagerRemoteRoot?: string, packagerLocalRoot?: string) {
+        this.packagerAddress = packagerAddress;
         this.packagerPort = packagerPort;
         this.sourcesStoragePath = sourcesStoragePath;
+        this.packagerRemoteRoot = packagerRemoteRoot;
+        this.packagerLocalRoot = packagerLocalRoot;
         this.sourceMapUtil = new SourceMapUtil();
     }
 
@@ -63,9 +69,9 @@ export class ScriptImporter {
     public downloadDebuggerWorker(sourcesStoragePath: string): Q.Promise<void> {
         const errPackagerNotRunning = new RangeError(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
 
-        return ensurePackagerRunning(this.packagerPort, errPackagerNotRunning)
+        return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
             .then(() => {
-                let debuggerWorkerURL = `http://localhost:${this.packagerPort}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
+                let debuggerWorkerURL = `http://${this.packagerAddress}:${this.packagerPort}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
                 let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
                 logger.verbose("About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
 
@@ -93,7 +99,7 @@ export class ScriptImporter {
             .then((sourceMapBody: string) => {
                 let sourceMappingLocalPath = path.join(this.sourcesStoragePath, path.basename(sourceMapUrl.pathname)); // sourceMappingLocalPath = "$TMPDIR/index.ios.map"
                 let scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
-                let updatedContent = this.sourceMapUtil.updateSourceMapFile(sourceMapBody, scriptFileRelativePath, this.sourcesStoragePath);
+                let updatedContent = this.sourceMapUtil.updateSourceMapFile(sourceMapBody, scriptFileRelativePath, this.sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
                 return new FileSystem().writeFile(sourceMappingLocalPath, updatedContent);
             });
     }

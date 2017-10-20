@@ -3,6 +3,7 @@
 
 import * as Q from "q";
 import * as path from "path";
+import * as url from "url";
 import * as child_process from "child_process";
 import {ScriptImporter, DownloadedScript}  from "./scriptImporter";
 
@@ -26,20 +27,23 @@ function printDebuggingError(message: string, reason: any) {
  */
 export class ForkedAppWorker implements IDebuggeeWorker {
 
-    private scriptImporter: ScriptImporter;
-    private debuggeeProcess: child_process.ChildProcess | null = null;
+    protected scriptImporter: ScriptImporter;
+    protected debuggeeProcess: child_process.ChildProcess | null = null;
     /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
-    private workerLoaded = Q.defer<void>();
+    protected workerLoaded = Q.defer<void>();
     private bundleLoaded: Q.Deferred<void>;
     private remoteExtension: RemoteExtension;
 
     constructor(
+        private packagerAddress: string,
         private packagerPort: number,
         private sourcesStoragePath: string,
         private projectRootPath: string,
-        private postReplyToApp: (message: any) => void
+        private postReplyToApp: (message: any) => void,
+        private packagerRemoteRoot?: string,
+        private packagerLocalRoot?: string
     ) {
-        this.scriptImporter = new ScriptImporter(this.packagerPort, this.sourcesStoragePath);
+        this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, this.sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
 
         this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
 
@@ -79,7 +83,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         .on("message", (message: any) => {
             // 'workerLoaded' is a special message that indicates that worker is done with loading.
             // We need to wait for it before doing any IPC because process.send doesn't seems to care
-            // about whether the messahe has been received or not and the first messages are often get
+            // about whether the message has been received or not and the first messages are often get
             // discarded by spawned process
             if (message && message.workerLoaded) {
                 this.workerLoaded.resolve(void 0);
@@ -99,9 +103,9 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         return Q.resolve(port);
     }
 
-    public postMessage(rnMessage: RNAppMessage): void {
+    public postMessage(rnMessage: RNAppMessage): Q.Promise<RNAppMessage> {
         // Before sending messages, make sure that the worker is loaded
-        this.workerLoaded.promise
+        const promise = this.workerLoaded.promise
             .then(() => {
                 if (rnMessage.method !== "executeApplicationScript") {
                     // Before sending messages, make sure that the app script executed
@@ -118,8 +122,14 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                     // then set url field to point to that downloaded bundle, so the worker
                     // will take our modified bundle
                     if (rnMessage.url) {
+                        const packagerUrl = url.parse(rnMessage.url);
+                        packagerUrl.host = `${this.packagerAddress}:${this.packagerPort}`;
+                        rnMessage = {
+                            ...rnMessage,
+                            url: url.format(packagerUrl),
+                        };
                         logger.verbose("Packager requested runtime to load script from " + rnMessage.url);
-                        return this.scriptImporter.downloadAppScript(rnMessage.url)
+                        return this.scriptImporter.downloadAppScript(<string>rnMessage.url)
                             .then((downloadedScript: DownloadedScript) => {
                                 this.bundleLoaded.resolve(void 0);
                                 return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
@@ -128,13 +138,15 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                         throw Error("RNMessage with method 'executeApplicationScript' doesn't have 'url' property");
                     }
                 }
-            })
-            .done(
+            });
+        promise.done(
             (message: RNAppMessage) => {
                 if (this.debuggeeProcess) {
                     this.debuggeeProcess.send({ data: message });
                 }
             },
             (reason) => printDebuggingError(`Couldn't import script at <${rnMessage.url}>`, reason));
+
+        return promise;
     }
 }

@@ -64,6 +64,10 @@ We support using exponentjs to run, debug and publish applications. For more inf
 
 For more details about configuring and debugging Expo applications see [Expo docs](doc/expo.md)
 
+## Build APK and Generate Bundle
+
+You can add VSCode tasks to build an .apk file and generate iOS/Android bundles. See [here](tasks.md) for more info.
+
 ## Contributing
 
 Please see our [contributing guide](CONTRIBUTING.md) for more information
@@ -77,7 +81,7 @@ Issue                                | Description
 Debugger doesn't stop at breakpoints | Breakpoints require sourcemaps to be correctly configured. If you are using TypeScript, then make sure to follow the `Getting started` section for how to ensure sourcemaps are correctly set up.
 'adb: command not found'             | If you receive an error `adb: command not found`, you need to update your system Path to include the location of your *ADB* executable.The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
 Targeting iPhone 6 doesn't work      | There was a known issue with React Native ([#5850](https://github.com/facebook/react-native/issues/5850)) but it was fixed. Please upgrade your version of React Native.
-Can't comunicate with socket pipe    | (Linux only) If you have two workspaces open that only differ in casing, the extension will fail to comunicate effectively. 
+Can't comunicate with socket pipe    | (Linux only) If you have two workspaces open that only differ in casing, the extension will fail to comunicate effectively.
 
 [Known-Issues](https://github.com/Microsoft/vscode-react-native/issues?q=is%3Aissue+label%3Aknown-issues) provides a complete list of active and resolved issues.
 

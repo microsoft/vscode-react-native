@@ -91,9 +91,12 @@ var importScripts = (function(){
 // and started listening for IPC messages
 postMessage({workerLoaded:true});`;
 
+    private packagerAddress: string;
     private packagerPort: number;
     private sourcesStoragePath: string;
     private projectRootPath: string;
+    private packagerRemoteRoot?: string;
+    private packagerLocalRoot?: string;
     private socketToApp: WebSocket;
     private singleLifetimeWorker: IDebuggeeWorker | null;
     private webSocketConstructor: (url: string) => WebSocket;
@@ -102,23 +105,30 @@ postMessage({workerLoaded:true});`;
     private nodeFileSystem = new NodeFileSystem();
     private scriptImporter: ScriptImporter;
 
-    constructor(packagerPort: number, sourcesStoragePath: string, projectRootPath: string, {
-        webSocketConstructor = (url: string) => new WebSocket(url),
-    } = {}) {
+    constructor(
+        attachRequestArguments: any,
+        sourcesStoragePath: string,
+        projectRootPath: string,
+        {
+            webSocketConstructor = (url: string) => new WebSocket(url),
+        } = {}) {
         super();
-        this.packagerPort = packagerPort;
+        this.packagerAddress = attachRequestArguments.address || "localhost";
+        this.packagerPort = attachRequestArguments.port;
+        this.packagerRemoteRoot = attachRequestArguments.remoteRoot;
+        this.packagerLocalRoot = attachRequestArguments.localRoot;
         this.sourcesStoragePath = sourcesStoragePath;
         this.projectRootPath = projectRootPath;
         console.assert(!!this.sourcesStoragePath, "The sourcesStoragePath argument was null or empty");
 
         this.webSocketConstructor = webSocketConstructor;
-        this.scriptImporter = new ScriptImporter(packagerPort, sourcesStoragePath);
+        this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
     }
 
     public start(retryAttempt: boolean = false): Q.Promise<any> {
         const errPackagerNotRunning = new Error(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
 
-        return ensurePackagerRunning(this.packagerPort, errPackagerNotRunning)
+        return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
             .then(() => {
                 // Don't fetch debugger worker on socket disconnect
                 return retryAttempt ? Q.resolve<void>(void 0) :
@@ -152,9 +162,11 @@ postMessage({workerLoaded:true});`;
     }
 
     private startNewWorkerLifetime(): Q.Promise<void> {
-        this.singleLifetimeWorker = new ForkedAppWorker(this.packagerPort, this.sourcesStoragePath, this.projectRootPath,  (message) => {
-            this.sendMessageToApp(message);
-        });
+        this.singleLifetimeWorker = new ForkedAppWorker(this.packagerAddress, this.packagerPort, this.sourcesStoragePath, this.projectRootPath,
+            (message) => {
+                this.sendMessageToApp(message);
+            },
+            this.packagerRemoteRoot, this.packagerLocalRoot);
         logger.verbose("A new app worker lifetime was created.");
         return this.singleLifetimeWorker.start()
             .then(startedEvent => {
@@ -204,7 +216,7 @@ postMessage({workerLoaded:true});`;
     }
 
     private debuggerProxyUrl() {
-        return `ws://localhost:${this.packagerPort}/debugger-proxy?role=debugger&name=vscode`;
+        return `ws://${this.packagerAddress}:${this.packagerPort}/debugger-proxy?role=debugger&name=vscode`;
     }
 
     private onSocketOpened() {

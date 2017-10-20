@@ -240,11 +240,11 @@ function requestSetup(args: any): any {
         workspaceRoot: workspaceFolder.uri.fsPath,
         projectRoot: projectRootPath,
         platform: args.platform,
-        targetType: args.targetType || "simulator",
+        target: args.target || "simulator",
     };
 
     if (!args.runArguments) {
-        let runArgs = SettingsHelper.getRunArgs(args.platform, args.targetType || "simulator", workspaceFolder.uri);
+        let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", , workspaceFolder.uri);
         mobilePlatformOptions.runArguments = runArgs;
     }
 
