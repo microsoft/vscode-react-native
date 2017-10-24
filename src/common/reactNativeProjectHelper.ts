@@ -4,12 +4,9 @@
 import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
-import { CommandExecutor } from "./commandExecutor";
+import {CommandExecutor} from "./commandExecutor";
 
 export class ReactNativeProjectHelper {
-    constructor(projectRoot: string) {
-    }
-
     public static getReactNativeVersion(projectRoot: string) {
         return new CommandExecutor(projectRoot).getReactNativeVersion();
     }

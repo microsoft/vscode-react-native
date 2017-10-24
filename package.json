@@ -383,7 +383,6 @@
     "flatten-source-map": "0.0.2",
     "noice-json-rpc": "^1.0.2",
     "options": "0.0.6",
-    "performance-now": "^2.1.0",
     "q": "1.4.1",
     "qr-image": "^3.2.0",
     "semver": "5.1.0",
