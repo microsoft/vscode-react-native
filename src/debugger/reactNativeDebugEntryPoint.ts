@@ -77,7 +77,7 @@ function codeToRun() {
 const entryPointHandler = new EntryPointHandler(ProcessType.Debugger);
 entryPointHandler.runApp(
     extensionName,
-    () => version,
+    version,
     ErrorHelper.getInternalError(InternalErrorCode.DebuggingFailed),
     telemetryReporter,
     codeToRun

@@ -25,7 +25,7 @@ suite("androidPlatform", function () {
         const androidProjectPath = path.join(projectRoot, "android");
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
-        const genericRunOptions: IAndroidRunOptions = { platform: "android", projectRoot: projectRoot };
+        const genericRunOptions: IAndroidRunOptions = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot };
 
         const rnProjectContent = fs.readFileSync(ReactNative022.DEFAULT_PROJECT_FILE, "utf8");
 
@@ -194,7 +194,7 @@ suite("androidPlatform", function () {
 
                 return Q({})
                     .then(() => {
-                        const runOptions: any = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
                         return devices[4].installedApplications[androidPackageName].isInDebugMode === false;
@@ -215,7 +215,7 @@ suite("androidPlatform", function () {
 
                 return Q({})
                     .then(() => {
-                        const runOptions: any = { platform: "android", projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
                         return createAndroidPlatform(runOptions).runApp();
                     }).then(() => {
                         return devices.filter((device: any) => device.installedApplications[androidPackageName].isInDebugMode === false);

@@ -183,8 +183,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
             this.logger.logStream("...");
         }
 
-        let reactNativeProjectHelper = new ReactNativeProjectHelper(this.projectRootPath);
-        return reactNativeProjectHelper.getReactNativeVersion()
+        return ReactNativeProjectHelper.getReactNativeVersion(this.projectRootPath)
             .then(version => {
                 if (showProgress) this.logger.logStream(".");
                 return XDL.mapVersion(version)

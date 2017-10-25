@@ -39,12 +39,12 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
-    public static showDevMenu(deviceId?: string): Q.Promise<void> {
-        return this.remote.showDevMenu(deviceId);
+    public static showDevMenu(fsPath: string, deviceId?: string): Q.Promise<void> {
+        return this.remote(fsPath).showDevMenu(deviceId);
     }
 
-    public static reloadApp(deviceId?: string): Q.Promise<void> {
-        return this.remote.reloadApp(deviceId);
+    public static reloadApp(fsPath: string, deviceId?: string): Q.Promise<void> {
+        return this.remote(fsPath).reloadApp(deviceId);
     }
 
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
@@ -180,11 +180,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
         return this.plistBuddy.getBundleId(this.iosProjectRoot);
     }
 
-    private static get remote(): RemoteExtension {
+    private static remote(fsPath: string): RemoteExtension {
         if (this.remoteExtension) {
             return this.remoteExtension;
         } else {
-            return this.remoteExtension = RemoteExtension.atProjectRootPath(SettingsHelper.getReactNativeProjectRoot());
+            return this.remoteExtension = RemoteExtension.atProjectRootPath(SettingsHelper.getReactNativeProjectRoot(fsPath));
         }
     }
 }

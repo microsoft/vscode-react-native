@@ -7,7 +7,6 @@ import * as vscode from "vscode";
 import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
-import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
@@ -23,24 +22,23 @@ import WebSocketServer = WebSocket.Server;
 
 export class ExtensionServer implements vscode.Disposable {
     public api: IRemoteExtension;
+    public isDisposed: boolean = false;
     private serverInstance: WebSocketServer | null;
     private reactNativePackager: Packager;
-    private reactNativePackageStatusIndicator: PackagerStatusIndicator;
     private pipePath: string;
     private logCatMonitor: LogCatMonitor | null = null;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
-    public constructor(projectRootPath: string, reactNativePackager: Packager, packagerStatusIndicator: PackagerStatusIndicator) {
+    public constructor(projectRootPath: string, reactNativePackager: Packager) {
         this.pipePath = MessagingHelper.getPath(projectRootPath);
         this.reactNativePackager = reactNativePackager;
-        this.reactNativePackageStatusIndicator = packagerStatusIndicator;
     }
 
     /**
      * Starts the server.
      */
     public setup(): Q.Promise<void> {
-
+        this.isDisposed = false;
         let deferred = Q.defer<void>();
 
         let launchCallback = (error: any) => {
@@ -50,7 +48,7 @@ export class ExtensionServer implements vscode.Disposable {
 
         this.serverInstance = new WebSocketServer({port: <any>this.pipePath});
         this.api = new rpc.Server(this.serverInstance).api();
-        this.serverInstance.on("open", launchCallback.bind(this));
+        this.serverInstance.on("listening", launchCallback.bind(this));
         this.serverInstance.on("error", this.recoverServer.bind(this));
 
         this.setupApiHandlers();
@@ -62,11 +60,14 @@ export class ExtensionServer implements vscode.Disposable {
      * Stops the server.
      */
     public dispose(): void {
+        this.isDisposed = true;
         if (this.serverInstance) {
             this.serverInstance.close();
             this.serverInstance = null;
         }
 
+        this.reactNativePackager.statusIndicator.dispose();
+        this.reactNativePackager.stop(true);
         this.stopMonitoringLogCat();
     }
 
@@ -120,8 +121,8 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Message handler for GET_PACKAGER_PORT.
      */
-    private getPackagerPort(): number {
-        return SettingsHelper.getPackagerPort();
+    private getPackagerPort(program: string): number {
+        return SettingsHelper.getPackagerPort(program);
     }
 
     /**
@@ -179,10 +180,9 @@ export class ExtensionServer implements vscode.Disposable {
             mobilePlatformOptions.scheme = request.arguments.scheme;
         }
 
-        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort();
+        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(request.arguments.program);
         const platformDeps: MobilePlatformDeps = {
             packager: this.reactNativePackager,
-            packageStatusIndicator: this.reactNativePackageStatusIndicator,
         };
         const mobilePlatform = new PlatformResolver()
             .resolveMobilePlatform(request.arguments.platform, mobilePlatformOptions, platformDeps);
@@ -234,15 +234,17 @@ function isNullOrUndefined(value: any): boolean {
 }
 
 function requestSetup(args: any): any {
+    const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.program));
     const projectRootPath = getProjectRoot(args);
     let mobilePlatformOptions: any = {
+        workspaceRoot: workspaceFolder.uri.fsPath,
         projectRoot: projectRootPath,
         platform: args.platform,
         target: args.target || "simulator",
     };
 
     if (!args.runArguments) {
-        let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator");
+        let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", workspaceFolder.uri);
         mobilePlatformOptions.runArguments = runArgs;
     }
 
@@ -250,5 +252,5 @@ function requestSetup(args: any): any {
 }
 
 function getProjectRoot(args: any): string {
-    return SettingsHelper.getReactNativeProjectRoot();
+    return SettingsHelper.getReactNativeProjectRoot(args.program);
 }

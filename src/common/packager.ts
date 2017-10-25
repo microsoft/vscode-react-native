@@ -12,6 +12,8 @@ import {Package} from "./node/package";
 import {PromiseUtil} from "./node/promise";
 import {Request} from "./node/request";
 import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
+import {PackagerStatusIndicator} from "../extension/packagerStatusIndicator";
+import {SettingsHelper} from "../extension/settingsHelper";
 
 import * as Q from "q";
 import * as path from "path";
@@ -28,6 +30,7 @@ export class Packager {
     public static DEFAULT_PORT = 8081;
     private packagerProcess: ChildProcess | undefined;
     private packagerRunningAs: PackagerRunAs;
+    private packagerStatusIndicator: PackagerStatusIndicator;
     private logger: OutputChannelLogger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
 
     private static JS_INJECTOR_FILENAME = "opn-main.js";
@@ -37,14 +40,22 @@ export class Packager {
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
 
-    constructor(private workspacePath: string, private projectPath: string, private port: number) {
+    constructor(private workspacePath: string, private projectPath: string, private packagerPort?: number, packagerStatusIndicator?: PackagerStatusIndicator) {
         this.packagerRunningAs = PackagerRunAs.NOT_RUNNING;
+        this.packagerStatusIndicator = packagerStatusIndicator || new PackagerStatusIndicator();
+    }
+
+    private get port(): number {
+        return this.packagerPort || SettingsHelper.getPackagerPort(this.workspacePath);
     }
 
     public static getHostForPort(port: number): string {
         return `localhost:${port}`;
     }
 
+    public get statusIndicator(): PackagerStatusIndicator {
+        return this.packagerStatusIndicator;
+    }
     public getHost(): string {
         return Packager.getHostForPort(this.port);
     }
@@ -92,17 +103,21 @@ export class Packager {
             });
     }
 
-    public stop(): Q.Promise<void> {
+    public stop(silent: boolean = false): Q.Promise<void> {
         return this.isRunning()
             .then(running => {
                 if (running) {
                     if (!this.packagerProcess) {
-                        this.logger.warning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
+                        if (!silent) {
+                            this.logger.warning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
+                        }
                         return Q.resolve<void>(void 0);
                     }
                     return this.killPackagerProcess();
                 } else {
-                    this.logger.warning(ErrorHelper.getWarning("Packager is not running"));
+                    if (!silent) {
+                        this.logger.warning(ErrorHelper.getWarning("Packager is not running"));
+                    }
                     return Q.resolve<void>(void 0);
                 }
             }).then(() => {
@@ -225,8 +240,7 @@ export class Packager {
                                 });
                         })
                         .then((args) => {
-                            let reactNativeProjectHelper = new ReactNativeProjectHelper(this.projectPath);
-                            reactNativeProjectHelper.getReactNativeVersion().then(version => {
+                            ReactNativeProjectHelper.getReactNativeVersion(this.workspacePath).then(version => {
 
                                 //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
                                 //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210

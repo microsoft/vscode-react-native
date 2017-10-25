@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as vscode from "vscode";
 import * as Q from "q";
 
 import {IRunOptions} from "./launchArgs";
@@ -12,7 +11,6 @@ import {OutputChannelLogger} from "./log/OutputChannelLogger";
 
 export interface MobilePlatformDeps {
     packager?: Packager;
-    packageStatusIndicator?: PackagerStatusIndicator;
 }
 
 export type TargetType = "device" | "simulator";
@@ -21,7 +19,6 @@ export class GeneralMobilePlatform {
     protected projectPath: string;
     protected platformName: string;
     protected packager: Packager;
-    protected packageStatusIndicator: PackagerStatusIndicator;
     protected logger: OutputChannelLogger;
 
     protected static deviceString: TargetType = "device";
@@ -30,8 +27,7 @@ export class GeneralMobilePlatform {
     constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
-        this.packager = platformDeps.packager || new Packager(vscode.workspace.rootPath, this.projectPath, SettingsHelper.getPackagerPort());
-        this.packageStatusIndicator = platformDeps.packageStatusIndicator || new PackagerStatusIndicator();
+        this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator());
         this.logger = OutputChannelLogger.getChannel(`React Native: Run ${this.platformName}`, true);
         this.logger.clear();
     }
@@ -57,7 +53,7 @@ export class GeneralMobilePlatform {
             if (running) {
                 if (this.packager.getRunningAs() !== PackagerRunAs.REACT_NATIVE) {
                     return this.packager.stop().then(() =>
-                        this.packageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED)
+                        this.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED)
                     );
                 }
 
@@ -69,7 +65,7 @@ export class GeneralMobilePlatform {
                 return this.packager.startAsReactNative();
             })
             .then(() =>
-                this.packageStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+                this.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
     }
 
     public prewarmBundleCache(): Q.Promise<void> {

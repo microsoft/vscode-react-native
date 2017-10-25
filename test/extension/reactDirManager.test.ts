@@ -5,13 +5,13 @@
 import * as assert from "assert";
 import * as path from "path";
 
-import * as reactDirManager from "../../src/extension/reactDirManager";
+import { ReactDirManager } from "../../src/extension/reactDirManager";
 
 suite("reactDirManager.ts", () => {
     suite("extensionContext", function() {
         suite("ReactDirPath", function() {
             test("Should end with the correct path to the react folder", () => {
-                let reactPath = reactDirManager.ReactDirManager.ReactDirPath;
+                let reactPath = new ReactDirManager("").reactDirPath;
 
                 assert.strictEqual(".react", path.basename(reactPath));
                 reactPath = path.dirname(reactPath);

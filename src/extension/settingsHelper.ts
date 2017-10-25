@@ -9,47 +9,13 @@ import {LogLevel} from "./log/LogHelper";
 
 export class SettingsHelper {
     /**
-     * Path to the workspace settings file
-     */
-    public static get settingsJsonPath(): string {
-        return path.join(vscode.workspace.rootPath, ".vscode", "settings.json");
-    }
-
-    /**
-     * Enable javascript intellisense via typescript.
-     */
-    public static notifyUserToAddTSDKInSettingsJson(tsdkPath: string): void {
-        vscode.window.showInformationMessage(`Please make sure you have \"typescript.tsdk\": \"${tsdkPath}\" in .vscode/settings.json and restart VSCode afterwards.`);
-    }
-
-    /**
-     * Removes javascript intellisense via typescript.
-     */
-    public static notifyUserToRemoveTSDKFromSettingsJson(tsdkPath: string): void {
-        vscode.window.showInformationMessage(`Please remove \"typescript.tsdk\": \"${tsdkPath}\" from .vscode/settings.json and restart VSCode afterwards.`);
-    }
-
-    /**
-     * Get the path of the Typescript TSDK as it is in the workspace configuration
-     */
-    public static getTypeScriptTsdk(): string | null {
-        const workspaceConfiguration = vscode.workspace.getConfiguration();
-        if (workspaceConfiguration.has("typescript.tsdk")) {
-            const tsdk = workspaceConfiguration.get("typescript.tsdk");
-            if (tsdk) {
-                return ConfigurationReader.readString(tsdk);
-            }
-        }
-        return null;
-    }
-
-    /**
      * We get the packager port configured by the user
      */
-    public static getPackagerPort(): number {
-        const workspaceConfiguration = vscode.workspace.getConfiguration();
-        if (workspaceConfiguration.has("react-native.packager.port")) {
-            return ConfigurationReader.readInt(workspaceConfiguration.get("react-native.packager.port"));
+    public static getPackagerPort(fsPath: string): number {
+        let uri = vscode.Uri.file(fsPath);
+        const workspaceConfiguration = vscode.workspace.getConfiguration("react-native.packager", uri);
+        if (workspaceConfiguration.has("port")) {
+            return ConfigurationReader.readInt(workspaceConfiguration.get("port"));
         }
         return Packager.DEFAULT_PORT;
     }
@@ -69,25 +35,27 @@ export class SettingsHelper {
     /**
      * Get the React Native project root path
      */
-    public static getReactNativeProjectRoot(): string {
-        const workspaceConfiguration = vscode.workspace.getConfiguration();
-        if (workspaceConfiguration.has("react-native-tools.projectRoot")) {
-            let projectRoot: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.projectRoot"));
+    public static getReactNativeProjectRoot(fsPath: string): string {
+        const uri = vscode.Uri.file(fsPath);
+        const workspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(uri);
+        const workspaceConfiguration = vscode.workspace.getConfiguration("react-native-tools", uri);
+        if (workspaceConfiguration.has("projectRoot")) {
+            let projectRoot: string = ConfigurationReader.readString(workspaceConfiguration.get("projectRoot"));
             if (path.isAbsolute(projectRoot)) {
                 return projectRoot;
             } else {
-                return path.resolve(vscode.workspace.rootPath, projectRoot);
+                return path.resolve(workspaceFolder.uri.fsPath, projectRoot);
             }
         }
-        return vscode.workspace.rootPath;
+        return workspaceFolder.uri.fsPath;
     }
 
     /**
      * Get command line run arguments from settings.json
      */
-    public static getRunArgs(platform: string, target: "device" | "simulator"): string[] {
-        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration();
-        const configKey: string = `react-native.${platform}.runArguments.${target}`;
+    public static getRunArgs(platform: string, target: "device" | "simulator", uri: vscode.Uri): string[] {
+        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("react-native", uri);
+        const configKey: string = `${platform}.runArguments.${target}`;
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readArray(workspaceConfiguration.get(configKey));
         }

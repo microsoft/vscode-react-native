@@ -65,8 +65,7 @@ function getReactNativeWorkspaceForFile(file: string, workspace: string): Q.Prom
 }
 
 function getPathForRNParentWorkspace(dir: string): Q.Promise<string> {
-    const reactNativeProjectHelper = new ReactNativeProjectHelper(dir);
-    return reactNativeProjectHelper.isReactNativeProject().then(isRNProject => {
+    return ReactNativeProjectHelper.isReactNativeProject(dir).then(isRNProject => {
         if (isRNProject) {
             return dir;
         }
