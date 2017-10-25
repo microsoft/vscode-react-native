@@ -3,6 +3,7 @@
 
 import * as Q from "q";
 import * as path from "path";
+import * as semver from "semver";
 
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
@@ -14,6 +15,7 @@ import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {ErrorHelper} from "../../common/error/errorHelper";
 import {SettingsHelper} from "../settingsHelper";
 import {RemoteExtension} from "../../common/remoteExtension";
+import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
@@ -77,12 +79,18 @@ export class IOSPlatform extends GeneralMobilePlatform {
         // Compile, deploy, and launch the app on either a simulator or a device
         const runArguments = this.getRunArgument();
 
-        const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", runArguments);
-        return new OutputVerifier(
-            () =>
-                this.generateSuccessPatterns(),
-            () =>
-                Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS)).process(runIosSpawn);
+        return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
+            .then(version => {
+                if (semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
+                    runArguments.push("--no-packager");
+                }
+                const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", runArguments);
+                return new OutputVerifier(
+                    () =>
+                        this.generateSuccessPatterns(),
+                    () =>
+                        Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS)).process(runIosSpawn);
+            });
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
@@ -162,8 +170,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 runArguments.push("--scheme", this.runOptions.scheme);
             }
         }
-
-        runArguments.push("--no-packager");
 
         return runArguments;
     }

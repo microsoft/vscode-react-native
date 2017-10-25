@@ -23,6 +23,7 @@ export class GeneralMobilePlatform {
 
     protected static deviceString: TargetType = "device";
     protected static simulatorString: TargetType = "simulator";
+    protected static NO_PACKAGER_VERSION = "0.42.0";
 
     constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
