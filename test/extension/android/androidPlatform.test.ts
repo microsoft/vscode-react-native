@@ -13,6 +13,7 @@ import {ReactNative022} from "../../resources/reactNative022";
 import * as adb from "../../../src/extension/android/adb";
 import {RecordingsHelper} from "../../resources/recordingsHelper";
 import {CommandExecutor} from "../../../src/common/commandExecutor";
+import * as rnHelper from "../../../src/common/reactNativeProjectHelper";
 
 import "should";
 import * as sinon from "sinon";
@@ -50,6 +51,10 @@ suite("androidPlatform", function () {
 
             sandbox.stub(CommandExecutor.prototype, "spawnReactCommand", function () {
                 return reactNative.runAndroid(genericRunOptions);
+            });
+
+            sandbox.stub(rnHelper.ReactNativeProjectHelper, "getReactNativeVersion", function () {
+                return Q.resolve("0.0.1");
             });
 
             sandbox.stub(adb.AdbHelper, "launchApp", function (projectRoot_: string, packageName: string, debugTarget?: string) {
