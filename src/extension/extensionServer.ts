@@ -247,7 +247,7 @@ function requestSetup(args: any): any {
         let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", workspaceFolder.uri);
         mobilePlatformOptions.runArguments = runArgs;
     } else {
-        mobilePlatformOptions.mobilePlatformOptions.runArguments = args.runArguments;
+        mobilePlatformOptions.runArguments = args.runArguments;
     }
 
     return mobilePlatformOptions;
