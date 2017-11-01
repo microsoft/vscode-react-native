@@ -1,3 +1,8 @@
+## 0.5.0
+* Multi-root workspaces support
+* Debugging for Haxe project
+* Some bugs fixed
+
 ## 0.4.4
 * Fixed issue with Run iOS on device
 
