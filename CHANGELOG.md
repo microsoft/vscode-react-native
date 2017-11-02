@@ -1,3 +1,6 @@
+## 0.5.1
+* Bug fixes
+
 ## 0.5.0
 * Multi-root workspaces support
 * Debugging for Haxe project
