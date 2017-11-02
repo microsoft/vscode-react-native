@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext): void {
     const reporter = Telemetry.defaultTelemetryReporter(appVersion);
     entryPointHandler.runApp("react-native", appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, () => {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
-        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context, event)));
+        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
         registerReactNativeCommands(context);
 
