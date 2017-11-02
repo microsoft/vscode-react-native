@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext): void {
     const reporter = Telemetry.defaultTelemetryReporter(appVersion);
     entryPointHandler.runApp("react-native", appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, () => {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
-        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context, event)));
+        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
         registerReactNativeCommands(context);
 
@@ -93,9 +93,8 @@ function onChangeWorkspaceFolders(context: vscode.ExtensionContext, event: vscod
     }
 }
 
-function onChangeConfiguration(context: vscode.ExtensionContext, event: any) {
+function onChangeConfiguration(context: vscode.ExtensionContext) {
     // TODO implements
-    vscode.window.showWarningMessage("React-Native Tools: Settings were changed, Please restart VSCode to apply their");
 }
 
 function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder): void {
