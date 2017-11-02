@@ -99,19 +99,18 @@ function onChangeConfiguration(context: vscode.ExtensionContext) {
 
 function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder): void {
     let rootPath = folder.uri.fsPath;
-
-    ReactNativeProjectHelper.getReactNativeVersion(rootPath)
+    let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
+    ReactNativeProjectHelper.getReactNativeVersion(projectRootPath)
         .then(version => {
                 if (version && isSupportedVersion(version)) {
                     entryPointHandler.runFunction("debugger.setupLauncherStub", ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () => {
                             let reactDirManager = new ReactDirManager(rootPath);
                             return setupAndDispose(reactDirManager, context)
                                 .then(() => {
-                                    let projectRootPath = SettingsHelper.getReactNativeProjectRoot(folder.uri.fsPath);
                                     let exponentHelper: ExponentHelper = new ExponentHelper(rootPath, projectRootPath);
                                     let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
                                     let packager: Packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(folder.uri.fsPath), packagerStatusIndicator);
-                                    let extensionServer: ExtensionServer = new ExtensionServer(rootPath, packager);
+                                    let extensionServer: ExtensionServer = new ExtensionServer(projectRootPath, packager);
 
                                     setupAndDispose(extensionServer, context);
                                     CommandPaletteHandler.addFolder(folder, {
