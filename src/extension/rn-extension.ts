@@ -93,9 +93,8 @@ function onChangeWorkspaceFolders(context: vscode.ExtensionContext, event: vscod
     }
 }
 
-function onChangeConfiguration(context: vscode.ExtensionContext, event: any) {
+function onChangeConfiguration(context: vscode.ExtensionContext) {
     // TODO implements
-    vscode.window.showWarningMessage("React-Native Tools: Settings were changed, Please restart VSCode to apply their");
 }
 
 function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder): void {
