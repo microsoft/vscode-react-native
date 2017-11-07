@@ -9,6 +9,8 @@ import Q = require("q");
 import {Request} from "../common/node/request";
 import {SourceMapUtil} from "./sourceMap";
 import url = require("url");
+import * as semver from "semver";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 
 export interface DownloadedScript {
     contents: string;
@@ -66,12 +68,19 @@ export class ScriptImporter {
         });
     }
 
-    public downloadDebuggerWorker(sourcesStoragePath: string): Q.Promise<void> {
+    public downloadDebuggerWorker(sourcesStoragePath: string, projectRootPath: string): Q.Promise<void> {
         const errPackagerNotRunning = new RangeError(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
 
         return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
             .then(() => {
-                let debuggerWorkerURL = `http://${this.packagerAddress}:${this.packagerPort}/${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
+                return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath);
+            })
+            .then((rnVersion: string) => {
+                let newPackager = "";
+                if (semver.gte(rnVersion, "0.50.0")) {
+                    newPackager = "debugger-ui/";
+                }
+                let debuggerWorkerURL = `http://${this.packagerAddress}:${this.packagerPort}/${newPackager}${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
                 let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
                 logger.verbose("About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
 
