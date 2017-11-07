@@ -1,3 +1,6 @@
+## 0.5.2
+* Added support React-Native 0.50 and greater
+
 ## 0.5.1
 * Bug fixes
 
