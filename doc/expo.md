@@ -10,7 +10,7 @@ Your environment must meet the following prerequisites:
 To start debugging in Expo follow these steps:
 
 1. Open your project in VS Code with this extension installed.
-2. Create a debug configuration (as described in [Debugging React Native applications](../readme.md#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
+2. Create a debug configuration (as described in [Debugging React Native applications](../README.md#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
 4. Wait while some dependencies are configured - the extension will install `xde` and `@expo/ngrok` when this feature is used for the first time.
 5. If you have not used exponent on this system before, you will be prompted for an exponent username and password.
    If you have not created an exponent account, then specifying a new username and password will create one.
