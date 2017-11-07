@@ -150,7 +150,7 @@ postMessage({workerLoaded:true});`;
 
     public downloadAndPatchDebuggerWorker(): Q.Promise<void> {
         let scriptToRunPath = path.resolve(this.sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
-        return this.scriptImporter.downloadDebuggerWorker(this.sourcesStoragePath)
+        return this.scriptImporter.downloadDebuggerWorker(this.sourcesStoragePath, this.projectRootPath)
             .then(() => this.nodeFileSystem.readFile(scriptToRunPath, "utf8"))
             .then((workerContent: string) => {
                 // Add our customizations to debugger worker to get it working smoothly
