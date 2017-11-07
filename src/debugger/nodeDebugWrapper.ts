@@ -218,7 +218,7 @@ function getProjectRoot(args: any): string {
         let settingsContent = fs.readFileSync(settingsPath, "utf8");
         settingsContent = stripJsonComments(settingsContent);
         let parsedSettings = JSON.parse(settingsContent);
-        let projectRootPath = parsedSettings["react-native-tools"].projectRoot;
+        let projectRootPath = parsedSettings["react-native-tools.projectRoot"] || parsedSettings["react-native-tools"].projectRoot;
         return path.resolve(vsCodeRoot, projectRootPath);
     } catch (e) {
         return path.resolve(args.program, "../..");
