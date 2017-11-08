@@ -139,7 +139,8 @@ export class CommandPaletteHandler {
                 return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => this.executeWithPackagerRunning(project, () => {
                     const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath);
                     const runArgs = SettingsHelper.getRunArgs("android", target, project.workspaceFolder.uri);
-                    const platform = new AndroidPlatform({ platform: "android", workspaceRoot: project.workspaceFolder.uri.fsPath, projectRoot: project.workspaceFolder.uri.fsPath, packagerPort: packagerPort, runArguments: runArgs }, {
+                    const projectRoot = SettingsHelper.getReactNativeProjectRoot(project.workspaceFolder.uri.fsPath);
+                    const platform = new AndroidPlatform({ platform: "android", workspaceRoot: project.workspaceFolder.uri.fsPath, projectRoot: projectRoot, packagerPort: packagerPort, runArguments: runArgs }, {
                         packager: project.packager,
                     });
                     return platform.runApp(/*shouldLaunchInAllDevices*/true)
@@ -237,7 +238,8 @@ export class CommandPaletteHandler {
     private static executeCommandInContext(rnCommand: string, workspaceFolder: vscode.WorkspaceFolder, operation: () => Q.Promise<void>): Q.Promise<void> {
         return TelemetryHelper.generate("RNCommand", (generator) => {
             generator.add("command", rnCommand, false);
-            return ReactNativeProjectHelper.isReactNativeProject(workspaceFolder.uri.fsPath).then(isRNProject => {
+            const projectRoot = SettingsHelper.getReactNativeProjectRoot(workspaceFolder.uri.fsPath);
+            return ReactNativeProjectHelper.isReactNativeProject(projectRoot).then(isRNProject => {
                 generator.add("isRNProject", isRNProject, false);
                 if (isRNProject) {
                     // Bring the log channel to focus
