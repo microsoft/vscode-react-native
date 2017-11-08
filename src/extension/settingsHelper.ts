@@ -12,7 +12,8 @@ export class SettingsHelper {
      * We get the packager port configured by the user
      */
     public static getPackagerPort(fsPath: string): number {
-        let uri = vscode.Uri.file(fsPath);
+        const projectRoot = SettingsHelper.getReactNativeProjectRoot(fsPath);
+        let uri = vscode.Uri.file(projectRoot);
         const workspaceConfiguration = vscode.workspace.getConfiguration("react-native.packager", uri);
         if (workspaceConfiguration.has("port")) {
             return ConfigurationReader.readInt(workspaceConfiguration.get("port"));

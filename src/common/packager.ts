@@ -240,7 +240,8 @@ export class Packager {
                                 });
                         })
                         .then((args) => {
-                            ReactNativeProjectHelper.getReactNativeVersion(this.workspacePath).then(version => {
+                            const projectRoot = SettingsHelper.getReactNativeProjectRoot(this.workspacePath);
+                            ReactNativeProjectHelper.getReactNativeVersion(projectRoot).then(version => {
 
                                 //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
                                 //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210

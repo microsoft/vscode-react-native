@@ -17,6 +17,7 @@ import * as rnHelper from "../../../src/common/reactNativeProjectHelper";
 
 import "should";
 import * as sinon from "sinon";
+import { SettingsHelper } from "../../../src/extension/settingsHelper";
 
 // TODO: Launch the extension server
 
@@ -47,6 +48,9 @@ suite("androidPlatform", function () {
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
             reactNative = new ReactNative022(fileSystem);
+
+            sandbox.stub(SettingsHelper, "getReactNativeProjectRoot", () => projectRoot);
+
             androidPlatform = createAndroidPlatform(genericRunOptions);
 
             sandbox.stub(CommandExecutor.prototype, "spawnReactCommand", function () {
