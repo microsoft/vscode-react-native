@@ -2,17 +2,26 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
+import * as sinon from "sinon";
 
 import { IOSPlatform } from "../../../src/extension/ios/iOSPlatform";
 
 import "should";
+import { SettingsHelper } from "../../../src/extension/settingsHelper";
 
 suite("iOSPlatform", function () {
+    const projectRoot = "/User/test/react-native/AwesomeProject";
     let runOptions: any = {
         platform: "ios",
         workspaceRoot: "/User/test/react-native/AwesomeProject",
-        projectRoot: "/User/test/react-native/AwesomeProject",
+        projectRoot: projectRoot,
     };
+
+    const sandbox = sinon.sandbox.create();
+
+    setup(() => {
+        sandbox.stub(SettingsHelper, "getReactNativeProjectRoot", () => projectRoot);
+    });
 
     teardown(() => {
         runOptions = {
@@ -20,6 +29,7 @@ suite("iOSPlatform", function () {
             workspaceRoot: "/User/test/react-native/AwesomeProject",
             projectRoot: "/User/test/react-native/AwesomeProject",
         };
+        sandbox.restore();
     });
 
     suite("extensionContext", function () {

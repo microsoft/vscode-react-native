@@ -16,6 +16,7 @@ import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExponentHelper} from "./exponent/exponentHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {ExtensionServer} from "./extensionServer";
+import { IAndroidRunOptions } from "./launchArgs";
 
 interface IReactNativeStuff {
     packager: Packager;
@@ -140,7 +141,14 @@ export class CommandPaletteHandler {
                     const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath);
                     const runArgs = SettingsHelper.getRunArgs("android", target, project.workspaceFolder.uri);
                     const projectRoot = SettingsHelper.getReactNativeProjectRoot(project.workspaceFolder.uri.fsPath);
-                    const platform = new AndroidPlatform({ platform: "android", workspaceRoot: project.workspaceFolder.uri.fsPath, projectRoot: projectRoot, packagerPort: packagerPort, runArguments: runArgs }, {
+                    const runOptions: IAndroidRunOptions = {
+                        platform: "android",
+                        workspaceRoot: project.workspaceFolder.uri.fsPath,
+                        projectRoot: projectRoot,
+                        packagerPort: packagerPort,
+                        runArguments: runArgs,
+                    };
+                    const platform = new AndroidPlatform(runOptions, {
                         packager: project.packager,
                     });
                     return platform.runApp(/*shouldLaunchInAllDevices*/true)
