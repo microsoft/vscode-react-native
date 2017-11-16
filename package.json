@@ -359,7 +359,6 @@
           "default": [],
           "scope": "resource"
         },
-
         "react-native.android.env.simulator": {
           "type": "object",
           "additionalProperties": {
@@ -384,14 +383,12 @@
           "default": {},
           "scope": "resource"
         },
-        "react-native.ios.EnvFile.device": {
+        "react-native.ios.envFile.device": {
           "type": "string",
           "description": "Absolute path to a file containing environment variable definitions.",
           "default": "${workspaceFolder}/.env",
           "scope": "resource"
         },
-
-
         "react-native.packager.port": {
           "description": "React-native packager port",
           "type": "number",
