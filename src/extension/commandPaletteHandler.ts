@@ -140,6 +140,8 @@ export class CommandPaletteHandler {
                 return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => this.executeWithPackagerRunning(project, () => {
                     const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath);
                     const runArgs = SettingsHelper.getRunArgs("android", target, project.workspaceFolder.uri);
+                    const envArgs = SettingsHelper.getEnvArgs("android", target, project.workspaceFolder.uri);
+                    const envFile = SettingsHelper.getEnvFile("android", target, project.workspaceFolder.uri);
                     const projectRoot = SettingsHelper.getReactNativeProjectRoot(project.workspaceFolder.uri.fsPath);
                     const runOptions: IAndroidRunOptions = {
                         platform: "android",
@@ -147,6 +149,8 @@ export class CommandPaletteHandler {
                         projectRoot: projectRoot,
                         packagerPort: packagerPort,
                         runArguments: runArgs,
+                        env: envArgs,
+                        envFile: envFile,
                     };
                     const platform = new AndroidPlatform(runOptions, {
                         packager: project.packager,
@@ -169,7 +173,17 @@ export class CommandPaletteHandler {
                 return this.executeCommandInContext("runIos", project.workspaceFolder, () => this.executeWithPackagerRunning(project, () => {
                     const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath);
                     const runArgs = SettingsHelper.getRunArgs("ios", target, project.workspaceFolder.uri);
-                    const platform = new IOSPlatform({ platform: "ios", workspaceRoot: project.workspaceFolder.uri.fsPath, projectRoot: project.workspaceFolder.uri.fsPath, packagerPort, runArguments: runArgs }, { packager: project.packager });
+                    const envArgs = SettingsHelper.getEnvArgs("ios", target, project.workspaceFolder.uri);
+                    const envFile = SettingsHelper.getEnvFile("ios", target, project.workspaceFolder.uri);
+                    const platform = new IOSPlatform({
+                        platform: "ios",
+                        workspaceRoot: project.workspaceFolder.uri.fsPath,
+                        projectRoot: project.workspaceFolder.uri.fsPath,
+                        packagerPort: packagerPort,
+                        runArguments: runArgs,
+                        env: envArgs,
+                        envFile: envFile,
+                    }, { packager: project.packager });
 
                     // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
                     return platform.disableJSDebuggingMode()

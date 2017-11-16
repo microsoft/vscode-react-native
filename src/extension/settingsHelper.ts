@@ -63,4 +63,24 @@ export class SettingsHelper {
 
         return [];
     }
+
+    public static getEnvArgs(platform: string, target: "device" | "simulator", uri: vscode.Uri): any {
+        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("react-native", uri);
+        const configKey: string = `${platform}.env.${target}`;
+        if (workspaceConfiguration.has(configKey)) {
+            return ConfigurationReader.readObject(workspaceConfiguration.get(configKey));
+        }
+
+        return {};
+    }
+
+    public static getEnvFile(platform: string, target: "device" | "simulator", uri: vscode.Uri): string {
+        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("react-native", uri);
+        const configKey: string = `${platform}.envFile.${target}`;
+        if (workspaceConfiguration.has(configKey)) {
+            return ConfigurationReader.readString(workspaceConfiguration.get(configKey));
+        }
+
+        return "";
+    }
 }

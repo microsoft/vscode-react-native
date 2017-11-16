@@ -293,6 +293,19 @@
                 "type": "array",
                 "description": "Run arguments to be passed to 'react-native run-<platform>' command(Override all other configuration params)"
               },
+              "env": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Environment variables passed to the program.",
+                "default": {}
+              },
+              "envFile": {
+                "type": "string",
+                "description": "Absolute path to a file containing environment variable definitions.",
+                "default": "${workspaceFolder}/.env"
+              },
               "variant": {
                 "type": "string",
                 "description": "A variant to be passed to react-native run-android, e.g. 'devDebug' to specify --variant=devDebug"
@@ -346,6 +359,39 @@
           "default": [],
           "scope": "resource"
         },
+
+        "react-native.android.env.simulator": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Environment variables passed to the program.",
+          "default": {},
+          "scope": "resource"
+        },
+        "react-native.android.envFile.device": {
+          "type": "string",
+          "description": "Absolute path to a file containing environment variable definitions.",
+          "default": "${workspaceFolder}/.env",
+          "scope": "resource"
+        },
+        "react-native.ios.env.simulator": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Environment variables passed to the program.",
+          "default": {},
+          "scope": "resource"
+        },
+        "react-native.ios.EnvFile.device": {
+          "type": "string",
+          "description": "Absolute path to a file containing environment variable definitions.",
+          "default": "${workspaceFolder}/.env",
+          "scope": "resource"
+        },
+
+
         "react-native.packager.port": {
           "description": "React-native packager port",
           "type": "number",
