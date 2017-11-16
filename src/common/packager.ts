@@ -224,7 +224,7 @@ export class Packager {
                             return helper.getExpPackagerOptions()
                                 .then((options: ExpConfigPackager) => {
                                     Object.keys(options).forEach(key => {
-                                        args.concat([`--${key}`, options[key]]);
+                                        args = args.concat([`--${key}`, options[key]]);
                                     });
 
                                     // Patch for CRNA
