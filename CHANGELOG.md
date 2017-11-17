@@ -1,3 +1,8 @@
+## 0.5.3
+* Environment Variable setting for debug configurations
+* Improved multi-root workspaces support
+* Bug fixes
+
 ## 0.5.2
 * Added support React-Native 0.50 and greater
 
