@@ -178,7 +178,7 @@ suite("androidPlatform", function () {
                     }).then(() => {
                         should.assert(false, "runApp should've exited with an error");
                     }, reason => {
-                        reason.message.should.eql("Unknown error");
+                        reason.message.should.eql("Unknown error: not all success patterns were matched");
                     });
             });
 
