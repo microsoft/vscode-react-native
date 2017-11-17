@@ -24,4 +24,14 @@ export class ReactNativeProjectHelper {
                 return !!(version);
             });
     }
+
+    public static isHaulProject(projectRoot: string): boolean {
+        if (!projectRoot || !fs.existsSync(path.join(projectRoot, "package.json"))) {
+            return false;
+        }
+
+        const packageJson = require(path.join(projectRoot, "package.json"));
+        const haulVersion = packageJson.devDependencies.haul;
+        return !!haulVersion;
+    }
 }
