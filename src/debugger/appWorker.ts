@@ -12,6 +12,7 @@ import {ExecutionsLimiter} from "../common/executionsLimiter";
 import { FileSystem as NodeFileSystem} from "../common/node/fileSystem";
 import { ForkedAppWorker } from "./forkedAppWorker";
 import { ScriptImporter } from "./scriptImporter";
+import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 
 export interface RNAppMessage {
     method: string;
@@ -79,6 +80,11 @@ process.on("message", function (message) {
 var postMessage = function(message){
     process.send(message);
 };
+
+if (!self.postMessage) {
+    self.postMessage = postMessage;
+}
+
 var importScripts = (function(){
     var fs=require('fs'), vm=require('vm');
     return function(scriptUrl){
@@ -90,6 +96,28 @@ var importScripts = (function(){
     public static WORKER_DONE = `// Notify debugger that we're done with loading
 // and started listening for IPC messages
 postMessage({workerLoaded:true});`;
+
+    public static FETCH_STUB = `(function(self) {
+        'use strict';
+
+        if (self.fetch) {
+          return
+        }
+
+        self.fetch = fetch;
+
+        function fetch(url) {
+            return new Promise((resolve, reject) => {
+                var data = require("fs").readFileSync(url, 'utf8');
+                resolve(
+                    {
+                        text: function () {
+                            return data;
+                        }
+                    });
+            });
+        }
+      })(global);`;
 
     private packagerAddress: string;
     private packagerPort: number;
@@ -153,10 +181,15 @@ postMessage({workerLoaded:true});`;
         return this.scriptImporter.downloadDebuggerWorker(this.sourcesStoragePath, this.projectRootPath)
             .then(() => this.nodeFileSystem.readFile(scriptToRunPath, "utf8"))
             .then((workerContent: string) => {
+                const isHaulProject = ReactNativeProjectHelper.isHaulProject(this.projectRootPath);
                 // Add our customizations to debugger worker to get it working smoothly
                 // in Node env and polyfill WebWorkers API over Node's IPC.
-                const modifiedDebuggeeContent = [MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
-                    workerContent, MultipleLifetimesAppWorker.WORKER_DONE].join("\n");
+                const modifiedDebuggeeContent = [
+                    MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
+                    isHaulProject ? MultipleLifetimesAppWorker.FETCH_STUB : null,
+                    workerContent,
+                    MultipleLifetimesAppWorker.WORKER_DONE,
+                ].join("\n");
                 return this.nodeFileSystem.writeFile(scriptToRunPath, modifiedDebuggeeContent);
             });
     }
