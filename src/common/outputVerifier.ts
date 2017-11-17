@@ -41,7 +41,7 @@ export class OutputVerifier {
                 }
             }).then(successPatterns => {
                 if (!this.areAllSuccessPatternsPresent(successPatterns)) { // If we don't find all the success patterns, we also fail
-                    return Q.reject<void>(new Error("Unknown error"));
+                    return Q.reject<void>(new Error("Unknown error: not all success patterns were matched"));
                 } // else we found all the success patterns, so we succeed
                 return Q.resolve(void 0);
             });
@@ -67,7 +67,9 @@ export class OutputVerifier {
 
     // We check that all the patterns appeared on the output
     private areAllSuccessPatternsPresent(successPatterns: string[]): boolean {
-        return successPatterns.every(pattern =>
-            this.output.indexOf(pattern) !== -1);
+        return successPatterns.every(pattern => {
+            let patternRe = new RegExp(pattern, "i");
+            return patternRe.test(this.output);
+        });
     }
 }
