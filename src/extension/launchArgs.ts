@@ -14,6 +14,8 @@ export interface ILaunchArgs {
     logCatArguments?: any;
     packagerPort?: any;
     runArguments?: string[];
+    env?: any;
+    envFile?: string;
 }
 
 /**

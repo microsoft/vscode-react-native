@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
+import * as fs from "fs";
 
 import {IRunOptions} from "./launchArgs";
 import {Packager, PackagerRunAs} from "../common/packager";
@@ -76,5 +77,44 @@ export class GeneralMobilePlatform {
 
     public getRunArgument(): string[] {
         throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArgument");
+    }
+
+    public getEnvArgument(): any {
+        let args = this.runOptions;
+
+        if (args.envFile) {
+            const env = {};
+            let buffer = fs.readFileSync(args.envFile, "utf8");
+
+            // Strip BOM
+            if (buffer && buffer[0] === "\uFEFF") {
+                buffer = buffer.substr(1);
+            }
+
+            buffer.split("\n").forEach((line: string) => {
+                const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
+                if (r !== null) {
+                    const key = r[1];
+                    if (!process.env[key]) {	// .env variables never overwrite existing variables
+                        let value = r[2] || "";
+                        if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
+                            value = value.replace(/\\n/gm, "\n");
+                        }
+                        env[key] = value.replace(/(^['"]|['"]$)/g, "");
+                    }
+                }
+            });
+
+            // launch config env vars overwrite .env vars
+            for (let key in args.env) {
+                if (args.env.hasOwnProperty(key)) {
+                    env[key] = args.env[key];
+                }
+            }
+
+            return env;
+        }
+
+        return args.env || {};
     }
 }
