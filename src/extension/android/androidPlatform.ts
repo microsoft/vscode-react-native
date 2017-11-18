@@ -77,7 +77,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {
         return TelemetryHelper.generate("AndroidPlatform.runApp", () => {
             const runArguments = this.getRunArgument();
-            const envArguments = this.getEnvArgument();
+            const env = this.getEnvArgument();
 
             return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
                 .then(version => {
@@ -85,7 +85,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         runArguments.push("--no-packager");
                     }
 
-                    const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", runArguments, envArguments);
+                    const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", runArguments, {env});
                     const output = new OutputVerifier(
                         () =>
                             Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),

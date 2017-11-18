@@ -78,14 +78,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
     public runApp(): Q.Promise<void> {
         // Compile, deploy, and launch the app on either a simulator or a device
         const runArguments = this.getRunArgument();
-        const envArguments = this.getEnvArgument();
+        const env = this.getEnvArgument();
 
         return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
             .then(version => {
                 if (semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
                     runArguments.push("--no-packager");
                 }
-                const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", runArguments, envArguments);
+                const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", runArguments, {env});
                 return new OutputVerifier(
                     () =>
                         this.generateSuccessPatterns(),

@@ -241,6 +241,8 @@ function requestSetup(args: any): any {
         workspaceRoot: workspaceFolder.uri.fsPath,
         projectRoot: projectRootPath,
         platform: args.platform,
+        env: args.env,
+        envFile: args.envFile,
         target: args.target || "simulator",
     };
 

@@ -1,3 +1,6 @@
+## 0.5.4
+* Bug fixes
+
 ## 0.5.3
 * Environment Variable setting for debug configurations
 * Improved multi-root workspaces support
