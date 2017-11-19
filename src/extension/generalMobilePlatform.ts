@@ -81,9 +81,9 @@ export class GeneralMobilePlatform {
 
     public getEnvArgument(): any {
         let args = this.runOptions;
+        let env = process.env;
 
         if (args.envFile) {
-            const env = {};
             let buffer = fs.readFileSync(args.envFile, "utf8");
 
             // Strip BOM
@@ -95,7 +95,7 @@ export class GeneralMobilePlatform {
                 const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
                 if (r !== null) {
                     const key = r[1];
-                    if (!process.env[key]) {	// .env variables never overwrite existing variables
+                    if (!env[key]) {	// .env variables never overwrite existing variables
                         let value = r[2] || "";
                         if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
                             value = value.replace(/\\n/gm, "\n");
@@ -104,17 +104,17 @@ export class GeneralMobilePlatform {
                     }
                 }
             });
+        }
 
+        if (args.env) {
             // launch config env vars overwrite .env vars
             for (let key in args.env) {
                 if (args.env.hasOwnProperty(key)) {
                     env[key] = args.env[key];
                 }
             }
-
-            return env;
         }
 
-        return args.env || {};
+        return env;
     }
 }
