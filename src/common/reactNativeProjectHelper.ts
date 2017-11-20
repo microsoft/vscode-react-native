@@ -31,7 +31,7 @@ export class ReactNativeProjectHelper {
         }
 
         const packageJson = require(path.join(projectRoot, "package.json"));
-        const haulVersion = packageJson.devDependencies.haul;
+        const haulVersion = packageJson.devDependencies && packageJson.devDependencies.haul;
         return !!haulVersion;
     }
 }
