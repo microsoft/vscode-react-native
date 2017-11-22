@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "private": true,
   "publisher": "vsmobile",
   "icon": "images/icon.png",
@@ -303,8 +303,7 @@
               },
               "envFile": {
                 "type": "string",
-                "description": "Absolute path to a file containing environment variable definitions.",
-                "default": "${workspaceFolder}/.env"
+                "description": "Absolute path to a file containing environment variable definitions."
               },
               "variant": {
                 "type": "string",
