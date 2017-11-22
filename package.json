@@ -303,8 +303,7 @@
               },
               "envFile": {
                 "type": "string",
-                "description": "Absolute path to a file containing environment variable definitions.",
-                "default": "${workspaceFolder}/.env"
+                "description": "Absolute path to a file containing environment variable definitions."
               },
               "variant": {
                 "type": "string",
