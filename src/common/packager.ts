@@ -184,8 +184,7 @@ export class Packager {
                 // If guessed entry point doesn't exist - skip prewarming, since it's not possible
                 // at this moment to determine _real_ bundle/ entry point name anyway
                 if (!exists) {
-                    this.logger.info(`Entry point at ${indexFileName} ` +
-                        `doesn'tLog. exist. Skipping prewarming...`);
+                    this.logger.info(`Entry point at ${indexFileName} doesn't exist. Skipping prewarming...`);
                     return;
                 }
 
