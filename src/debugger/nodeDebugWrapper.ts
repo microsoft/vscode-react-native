@@ -99,7 +99,7 @@ export function makeSession(
                         ...request,
                         arguments: {
                             ...request.arguments,
-                            port: packagerPort,
+                            port: request.arguments.port || packagerPort,
                         },
                     });
                 });
