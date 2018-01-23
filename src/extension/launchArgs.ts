@@ -11,7 +11,6 @@ export interface ILaunchArgs {
     projectRoot: string;
     target?: "simulator" | "device";
     debugAdapterPort?: number;
-    logCatArguments?: any;
     packagerPort?: any;
     runArguments?: string[];
     env?: any;
@@ -24,6 +23,7 @@ export interface ILaunchArgs {
 
 export interface IAndroidRunOptions extends ILaunchArgs {
     variant?: string;
+    logCatArguments?: any;
 }
 
 export interface IIOSRunOptions extends ILaunchArgs {
@@ -31,6 +31,9 @@ export interface IIOSRunOptions extends ILaunchArgs {
     iosRelativeProjectPath?: string; // TODO Remove deprecated
 }
 
-export interface IRunOptions extends IAndroidRunOptions, IIOSRunOptions  {
+export interface IWindowsRunOptions extends ILaunchArgs {
+}
+
+export interface IRunOptions extends IAndroidRunOptions, IIOSRunOptions, IWindowsRunOptions  {
 
 }
