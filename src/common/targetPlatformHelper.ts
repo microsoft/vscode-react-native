@@ -13,6 +13,7 @@ export enum TargetPlatformId {
     ANDROID,
     IOS,
     EXPONENT,
+    WINDOWS,
 }
 
 export class TargetPlatformHelper {
@@ -27,6 +28,8 @@ export class TargetPlatformHelper {
                 return TargetPlatformId.IOS;
             case "exponent":
                 return TargetPlatformId.EXPONENT;
+            case "windows":
+                return TargetPlatformId.WINDOWS;
             default:
                 throw new Error(`The target platform ${platformName} is not supported.`);
         }

@@ -248,7 +248,13 @@
             "properties": {
               "platform": {
                 "type": "string",
-                "description": "The platform ('ios' or 'android') to target"
+                "enum": [
+                      "ios",
+                      "android",
+                      "exponent",
+                      "windows"
+                    ],
+                "description": "The platform to target"
               },
               "program": {
                 "type": "string",
