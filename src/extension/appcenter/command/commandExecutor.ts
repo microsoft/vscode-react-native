@@ -34,45 +34,38 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     }
 
     public login(): Q.Promise<void> {
-        return Auth.isAuthenticated().then((isAuthenticated: boolean) => {
-            if (isAuthenticated) {
-                vscode.window.showInformationMessage("You are already logged in to AppCenter, please logout first if needed");
-                return Q.resolve(void 0);
-            } else {
-                const appCenterLoginOptions: string[] = Object.keys(AppCenterLoginType).filter(k => typeof AppCenterLoginType[k as any] === "number");
-                vscode.window.showQuickPick(appCenterLoginOptions, { placeHolder: "Please select the way you would like to login to AppCenter" })
-                        .then((loginType) => {
-                            switch (loginType) {
-                                case (AppCenterLoginType[AppCenterLoginType.Interactive]):
-                                    const loginUrl = SettingsHelper.getAppCenterLoginEndpoint() + "?" + qs.stringify({ hostname: os.hostname()});
-                                    vscode.window.showInformationMessage("Please login to AppCenter in the browser window we will open, then enter your token from the browser to vscode", ...["OK"])
-                                    .then(() => {
-                                        opener(loginUrl);
-                                        vscode.window.showInputBox({ prompt: "Please provide token to authenticate", ignoreFocusOut: true }).then(token => {
-                                            if (token) {
-                                                return Auth.doTokenLogin(token).then((profile: Profile) => {
-                                                    vscode.window.showInformationMessage(`Successfully logged in as ${profile.displayName}`);
-                                                });
-                                            } else { return Q.resolve(void 0); }
-                                        });
+        const appCenterLoginOptions: string[] = Object.keys(AppCenterLoginType).filter(k => typeof AppCenterLoginType[k as any] === "number");
+        vscode.window.showQuickPick(appCenterLoginOptions, { placeHolder: "Please select the way you would like to login to AppCenter" })
+            .then((loginType) => {
+                switch (loginType) {
+                    case (AppCenterLoginType[AppCenterLoginType.Interactive]):
+                        const loginUrl = SettingsHelper.getAppCenterLoginEndpoint() + "?" + qs.stringify({ hostname: os.hostname()});
+                        vscode.window.showInformationMessage("Please login to AppCenter in the browser window we will open, then enter your token from the browser to vscode", ...["OK"])
+                        .then(() => {
+                            opener(loginUrl);
+                            vscode.window.showInputBox({ prompt: "Please provide token to authenticate", ignoreFocusOut: true }).then(token => {
+                                if (token) {
+                                    return Auth.doTokenLogin(token).then((profile: Profile) => {
+                                        vscode.window.showInformationMessage(`Successfully logged in as ${profile.displayName}`);
                                     });
-                                    break;
-                                case (AppCenterLoginType[AppCenterLoginType.Token]):
-                                    vscode.window.showInputBox({ prompt: "Please provide token to authenticate" , ignoreFocusOut: true}).then(token => {
-                                        if (token) {
-                                            return Auth.doTokenLogin(token).then((profile: Profile) => {
-                                                vscode.window.showInformationMessage(`Successfully logged in as ${profile.displayName}`);
-                                            });
-                                        } else { return Q.resolve(void 0); }
-                                    });
-                                    break;
-                                default:
-                                    throw new Error("Unsupported login parameter!");
-                            }
+                                } else { return Q.resolve(void 0); }
+                            });
                         });
+                        break;
+                    case (AppCenterLoginType[AppCenterLoginType.Token]):
+                        vscode.window.showInputBox({ prompt: "Please provide token to authenticate" , ignoreFocusOut: true}).then(token => {
+                            if (token) {
+                                return Auth.doTokenLogin(token).then((profile: Profile) => {
+                                    vscode.window.showInformationMessage(`Successfully logged in as ${profile.displayName}`);
+                                });
+                            } else { return Q.resolve(void 0); }
+                        });
+                        break;
+                    default:
+                        throw new Error("Unsupported login parameter!");
                 }
-            return Q.resolve(void 0);
         });
+        return Q.resolve(void 0);
     }
 
     public logout(client: AppCenterClient): Q.Promise<void> {
@@ -101,6 +94,6 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         params.app.ownerName = "max-mironov";
         params.app.identifier = "max-mironov/UpdatedViaClI";
 
-        return CodePushDeploymentList.exec(<AppCenterClient>client, params, this.logger);
+        return CodePushDeploymentList.exec(client, params, this.logger);
     }
 }

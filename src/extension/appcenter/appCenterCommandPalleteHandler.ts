@@ -12,10 +12,12 @@ import { AppCenterClientFactory, createAppCenterClient } from "./api/createClien
 import { SettingsHelper } from "../settingsHelper";
 
 export enum AppCenterCommandType {
+    // Auth commands
     Login,
     Logout,
     Whoami,
 
+    // CodePush commands
     CodePushDeploymentList,
 }
 
