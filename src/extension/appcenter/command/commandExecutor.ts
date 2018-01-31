@@ -15,6 +15,7 @@ import { Profile } from "../../appcenter/auth/profile/profile";
 import { SettingsHelper } from "../../settingsHelper";
 import { AppCenterClient } from "../api/index";
 import { CodePushDeploymentList } from "../codepush/index";
+import { IDefaultCommandParams } from "./commandParams";
 
 interface IAppCenterAuth {
     login(): Q.Promise<void>;
@@ -94,6 +95,10 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         params.app.ownerName = "max-mironov";
         params.app.identifier = "max-mironov/UpdatedViaClI";
 
-        return CodePushDeploymentList.exec(client, params, this.logger);
+        return CodePushDeploymentList.exec(client, <IDefaultCommandParams>params, this.logger).then((result) => {
+            if (result.succeeded) {
+                vscode.window.showInformationMessage(`Got deployments!`);
+            }
+        });
     }
 }

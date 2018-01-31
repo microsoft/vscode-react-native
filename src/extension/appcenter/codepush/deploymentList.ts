@@ -6,14 +6,16 @@ import { ILogger, LogLevel } from "../../log/LogHelper";
 import { IDefaultCommandParams } from "../command/commandParams";
 import { getQPromisifiedClientResult } from "../api/createClient";
 import * as Q from "q";
+import { CommandResult, success, failure, ErrorCodes } from "../command/commandResult";
 
 export default class CodePushDeploymentList {
-    public static exec(client: AppCenterClient, params: IDefaultCommandParams, logger: ILogger): Q.Promise<void> {
+    public static exec(client: AppCenterClient, params: IDefaultCommandParams, logger: ILogger): Q.Promise<CommandResult> {
         const app = params.app;
         return getQPromisifiedClientResult(client.codepush.codePushDeployments.list(app.appName, app.ownerName)).then((result: models.Deployment[]) => {
-            return Q.resolve(null);
+            return success(result);
         }).catch((e) => {
-            return logger.log("An error occured on getting deployments", LogLevel.Error);
+            logger.log("An error occured on getting deployments", LogLevel.Error);
+            return failure(ErrorCodes.Exception, "An error occured on getting deployments");
         });
     }
 }

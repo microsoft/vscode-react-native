@@ -62,7 +62,7 @@ export class AppCenterCommandPalleteHandler {
                             throw new Error("Unknown App Center command!");
                     }
                 } else {
-                    this.logger.log("Failed to get AppCenter client", LogLevel.Error);
+                    this.logger.log("Failed to get App Center client", LogLevel.Error);
                     throw new Error("Failed to get App Center client!");
                 }
              }
@@ -75,7 +75,7 @@ export class AppCenterCommandPalleteHandler {
             if (user) {
                 return this.clientFactory.fromProfile(user, SettingsHelper.getAppCenterAPIEndpoint());
             } else {
-                throw new Error("No user specified");
+                throw new Error("No App Center user specified");
             }
         }
         return this.client;
