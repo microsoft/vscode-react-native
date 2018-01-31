@@ -3,7 +3,7 @@
 
 import * as Q from "q";
 import { SettingsHelper } from "../../../extension/settingsHelper";
-import { createAppCenterClient, getQPromisifiedResult } from "../api/index";
+import { createAppCenterClient, getQPromisifiedClientResult } from "../api/index";
 import { Profile, saveUser, deleteUser, getUser } from "../auth/profile/profile";
 import * as models from "app-center-node-client/models";
 
@@ -25,22 +25,6 @@ export default class Auth {
             return Q.resolve("");
         }
     }
-
-    // public static doInteractiveLogin(): Q.Promise<void> {
-    //     return this.removeLoggedInUser().then(() => {
-    //         const loginUrl = SettingsHelper.getAppCenterLoginEndpoint() + "?" + qs.stringify({ hostname: os.hostname()});
-    //         vscode.window.showInformationMessage("Please login to AppCenter in the browser window we will open, then enter your token from the browser to vscode", ...["OK"]).then(() => {
-    //             opener(loginUrl);
-    //             vscode.window.showInputBox({ prompt: "Please provide token to authenticate", ignoreFocusOut: true }).then(token => {
-    //                 if (token) {
-    //                     Auth.fetchUserInfoByTokenAndSave(token).then((profile: Profile) => {
-    //                         vscode.window.showInformationMessage(`Successfully logged in as ${profile.displayName}`);
-    //                     });
-    //                 }
-    //             });
-    //         });
-    //     });
-    // }
 
     public static doTokenLogin(token: string): Q.Promise<Profile | null> {
         if (!token) {
@@ -70,7 +54,7 @@ export default class Auth {
 
     private static getUserInfo(token: string): Q.Promise<models.UserProfileResponse> {
         const client = createAppCenterClient().fromToken(token, SettingsHelper.getAppCenterAPIEndpoint());
-        return getQPromisifiedResult(client.account.users.get());
+        return getQPromisifiedClientResult(client.account.users.get());
     }
 
     private static removeLoggedInUser(): Q.Promise<void> {

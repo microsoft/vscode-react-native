@@ -5,4 +5,4 @@ import AppCenterClient from "app-center-node-client";
 import * as models from "app-center-node-client/models";
 
 export { AppCenterClient, models };
-export { AppCenterClientFactory, createAppCenterClient, getQPromisifiedResult } from "./createClient";
+export { AppCenterClientFactory, createAppCenterClient, getQPromisifiedClientResult } from "./createClient";

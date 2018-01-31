@@ -34,7 +34,7 @@ export function createAppCenterClient(): AppCenterClientFactory {
     };
 }
 
-export function getQPromisifiedResult<T>(action: Promise<T>): Q.Promise<T> {
+export function getQPromisifiedClientResult<T>(action: Promise<T>): Q.Promise<T> {
   return Q.Promise((resolve, reject) => {
       action.then((result: T) => {
         resolve(result);

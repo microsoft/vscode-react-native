@@ -3,8 +3,6 @@
 
 import * as vscode from "vscode";
 import * as Q from "q";
-import * as qs from "qs";
-import * as os from "os";
 import * as XDL from "./exponent/xdlInterface";
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
@@ -19,12 +17,7 @@ import {ExponentHelper} from "./exponent/exponentHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {ExtensionServer} from "./extensionServer";
 import { IAndroidRunOptions } from "./launchArgs";
-
-// tslint:disable-next-line:no-var-requires
-const opener = require("opener");
-import Auth from "../extension/appcenter/auth/auth";
-import { AppCenterLoginType } from "../extension/appcenter/auth/appCenterLoginType";
-import { Profile } from "./appcenter/auth/profile/profile";
+import { AppCenterCommandPalleteHandler, AppCenterCommandType } from "./appcenter/appCenterCommandPalleteHandler";
 
 interface IReactNativeStuff {
     packager: Packager;
@@ -39,6 +32,7 @@ interface IReactNativeProject extends IReactNativeStuff {
 export class CommandPaletteHandler {
     private static projectsCache: {[key: string]: IReactNativeProject} = {};
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
+    private static appCenterCommandPalleteHandler: AppCenterCommandPalleteHandler;
 
     public static addFolder(workspaceFolder: vscode.WorkspaceFolder, stuff: IReactNativeStuff): void {
         this.projectsCache[workspaceFolder.uri.fsPath] = {
@@ -226,67 +220,19 @@ export class CommandPaletteHandler {
     }
 
     public static appCenterLogin(): Q.Promise<void> {
-        return Auth.isAuthenticated().then((isAuthenticated: boolean) => {
-            if (isAuthenticated) {
-                vscode.window.showInformationMessage("You are already logged in to AppCenter, please logout first if needed");
-                return Q.resolve(void 0);
-            } else {
-                const appCenterLoginOptions: string[] = Object.keys(AppCenterLoginType).filter(k => typeof AppCenterLoginType[k as any] === "number");
-                vscode.window.showQuickPick(appCenterLoginOptions, { placeHolder: "Please select the way you would like to login to AppCenter" })
-                        .then((loginType) => {
-                            switch (loginType) {
-                                case (AppCenterLoginType[AppCenterLoginType.Interactive]):
-                                    const loginUrl = SettingsHelper.getAppCenterLoginEndpoint() + "?" + qs.stringify({ hostname: os.hostname()});
-                                    vscode.window.showInformationMessage("Please login to AppCenter in the browser window we will open, then enter your token from the browser to vscode", ...["OK"])
-                                    .then(() => {
-                                        opener(loginUrl);
-                                        vscode.window.showInputBox({ prompt: "Please provide token to authenticate", ignoreFocusOut: true }).then(token => {
-                                            if (token) {
-                                                return Auth.doTokenLogin(token).then((profile: Profile) => {
-                                                    vscode.window.showInformationMessage(`Successfully logged in as ${profile.displayName}`);
-                                                });
-                                            } else { return Q.resolve(void 0); }
-                                        });
-                                    });
-                                    break;
-                                case (AppCenterLoginType[AppCenterLoginType.Token]):
-                                    vscode.window.showInputBox({ prompt: "Please provide token to authenticate" , ignoreFocusOut: true}).then(token => {
-                                        if (token) {
-                                            return Auth.doTokenLogin(token).then((profile: Profile) => {
-                                                vscode.window.showInformationMessage(`Successfully logged in as ${profile.displayName}`);
-                                            });
-                                        } else { return Q.resolve(void 0); }
-                                    });
-                                    break;
-                                default:
-                                    throw new Error("Unsupported login parameter!");
-                            }
-                        });
-                }
-            return Q.resolve(void 0);
-        });
+        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Login);
     }
 
     public static appCenterLogout(): Q.Promise<void> {
-        return Auth.isAuthenticated().then(((isAuthenticated: boolean) => {
-            if (isAuthenticated) {
-                Auth.doLogout().then(() => {
-                    vscode.window.showInformationMessage("Successfully logged out from AppCenter");
-                });
-            } else {
-                vscode.window.showInformationMessage("You are not logged in to AppCenter");
-            }
-        })).catch(() => { }); // Ignore any errors
+        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Logout);
     }
 
     public static appCenterWhoAmI(): Q.Promise<void> {
-        return Auth.whoAmI().then((displayName: string) => {
-            if (displayName) {
-                vscode.window.showInformationMessage(`You are logged in as ${displayName}`);
-            } else {
-                vscode.window.showInformationMessage(`You are not logged in to AppCenter`);
-            }
-        });
+        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Whoami);
+    }
+
+    public static appCenterCodePushDeploymentList(): Q.Promise<void> {
+        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.CodePushDeploymentList);
     }
 
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {
@@ -394,6 +340,13 @@ export class CommandPaletteHandler {
                 });
             }
         );
+    }
+
+    private static getAppCenterCommandPalleteHandler(): AppCenterCommandPalleteHandler {
+        if (!CommandPaletteHandler.appCenterCommandPalleteHandler) {
+            CommandPaletteHandler.appCenterCommandPalleteHandler = new AppCenterCommandPalleteHandler(CommandPaletteHandler.logger);
+        }
+        return CommandPaletteHandler.appCenterCommandPalleteHandler;
     }
 
     private static selectProject(): Q.Promise<IReactNativeProject> {
