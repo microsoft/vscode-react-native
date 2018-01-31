@@ -52,6 +52,7 @@ export function activate(context: vscode.ExtensionContext): void {
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
         registerReactNativeCommands(context);
+        registerAppCenterCommands(context);
 
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
@@ -178,6 +179,12 @@ function isSupportedVersion(version: string): boolean {
     } else {
         return true;
     }
+}
+
+function registerAppCenterCommands(context: vscode.ExtensionContext): void {
+    registerVSCodeCommand(context, "appcenter.login", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogin), () => CommandPaletteHandler.appCenterLogin());
+    registerVSCodeCommand(context, "appcenter.logout", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogout), () => CommandPaletteHandler.appCenterLogout());
+    registerVSCodeCommand(context, "appcenter.whoami", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterWhoAmI), () => CommandPaletteHandler.appCenterWhoAmI());
 }
 
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {
