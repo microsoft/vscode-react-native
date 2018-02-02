@@ -34,6 +34,8 @@ import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ExponentHelper} from "./exponent/exponentHelper";
 import {QRCodeContentProvider} from "./qrCodeContentProvider";
+import {ACCommandNames} from "./appcenter/appCenterConstants";
+import {AppCenterExtensionManager} from "./appcenter/appCenterExtensionManager";
 
 /* all components use the same packager instance */
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
@@ -112,13 +114,16 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                                     let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
                                     let packager: Packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(folder.uri.fsPath), packagerStatusIndicator);
                                     let extensionServer: ExtensionServer = new ExtensionServer(projectRootPath, packager);
+                                    let appCenterManager: AppCenterExtensionManager = new AppCenterExtensionManager();
 
+                                    setupAndDispose(appCenterManager, context);
                                     setupAndDispose(extensionServer, context);
                                     CommandPaletteHandler.addFolder(folder, {
                                         packager,
                                         exponentHelper,
                                         reactDirManager,
                                         extensionServer,
+                                        appCenterManager,
                                     });
                                 });
                         });
@@ -182,9 +187,10 @@ function isSupportedVersion(version: string): boolean {
 }
 
 function registerAppCenterCommands(context: vscode.ExtensionContext): void {
-    registerVSCodeCommand(context, "appcenter.login", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogin), () => CommandPaletteHandler.appCenterLogin());
-    registerVSCodeCommand(context, "appcenter.logout", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogout), () => CommandPaletteHandler.appCenterLogout());
-    registerVSCodeCommand(context, "appcenter.whoami", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterWhoAmI), () => CommandPaletteHandler.appCenterWhoAmI());
+    registerVSCodeCommand(context, ACCommandNames.Login, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogin), () => CommandPaletteHandler.appCenterLogin());
+    registerVSCodeCommand(context, ACCommandNames.Logout, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogout), () => CommandPaletteHandler.appCenterLogout());
+    registerVSCodeCommand(context, ACCommandNames.WhoAmI, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterWhoAmI), () => CommandPaletteHandler.appCenterWhoAmI());
+    registerVSCodeCommand(context, ACCommandNames.SetCurrentApp, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterSetCurrentApp), () => CommandPaletteHandler.appCenterSetCurrentApp());
 }
 
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {

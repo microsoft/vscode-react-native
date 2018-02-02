@@ -10,16 +10,8 @@ import { AppCenterClient } from "./api/index";
 import { getUser } from "./auth/profile/profile";
 import { AppCenterClientFactory, createAppCenterClient } from "./api/createClient";
 import { SettingsHelper } from "../settingsHelper";
-
-export enum AppCenterCommandType {
-    // Auth commands
-    Login,
-    Logout,
-    Whoami,
-
-    // CodePush commands
-    CodePushDeploymentList,
-}
+import { AppCenterCommandType } from "./appCenterConstants";
+import { AppCenterExtensionManager } from "./appCenterExtensionManager";
 
 export class AppCenterCommandPalleteHandler {
     private commandExecutor: AppCenterCommandExecutor;
@@ -33,10 +25,10 @@ export class AppCenterCommandPalleteHandler {
         this.logger = logger;
     }
 
-    public run(command: AppCenterCommandType): Q.Promise<void>  {
+    public run(command: AppCenterCommandType, appCenterManager: AppCenterExtensionManager): Q.Promise<void>  {
         // Login is special case
         if (command === AppCenterCommandType.Login) {
-            return this.commandExecutor.login();
+            return this.commandExecutor.login(appCenterManager);
         }
 
         return Auth.isAuthenticated().then((isAuthenticated: boolean) => {
@@ -50,13 +42,16 @@ export class AppCenterCommandPalleteHandler {
 
                     switch (command) {
                         case (AppCenterCommandType.Logout):
-                            return this.commandExecutor.logout(this.client);
+                            return this.commandExecutor.logout(this.client, appCenterManager);
 
                         case (AppCenterCommandType.Whoami):
                             return this.commandExecutor.whoAmI(this.client);
 
                         case (AppCenterCommandType.CodePushDeploymentList):
                             return this.commandExecutor.codePushDeploymentList(this.client);
+
+                        case (AppCenterCommandType.SetCurrentApp):
+                            return this.commandExecutor.setCurrentApp();
 
                         default:
                             throw new Error("Unknown App Center command!");

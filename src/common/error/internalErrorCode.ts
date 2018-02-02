@@ -18,6 +18,7 @@ export enum InternalErrorCode {
         FailedToExecAppCenterLogin = 112,
         FailedToExecAppCenterLogout = 113,
         FailedToExecAppCenterWhoAmI = 114,
+        FailedToExecAppCenterSetCurrentApp = 115,
 
         FailedToExecAppCenterCodePushDeploymentList = 115,
 

@@ -91,6 +91,11 @@
 				"command": "reactNative.appcenter.whoami",
 				"title": "WhoAmI",
 				"category": "React Native Code Push"
+			},
+			{
+				"command": "reactNative.appcenter.setcurrentapp",
+				"title": "Set Current App",
+				"category": "React Native Code Push"
 			}
 		],
 		"debuggers": [

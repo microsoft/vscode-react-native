@@ -16,10 +16,11 @@ import { SettingsHelper } from "../../settingsHelper";
 import { AppCenterClient } from "../api/index";
 import { CodePushDeploymentList } from "../codepush/index";
 import { IDefaultCommandParams } from "./commandParams";
+import { AppCenterExtensionManager } from "../appCenterExtensionManager";
 
 interface IAppCenterAuth {
-    login(): Q.Promise<void>;
-    logout(client: AppCenterClient): Q.Promise<void>;
+    login(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
+    logout(client: AppCenterClient, appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
     whoAmI(client: AppCenterClient): Q.Promise<void>;
 }
 
@@ -34,7 +35,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         this.logger = logger;
     }
 
-    public login(): Q.Promise<void> {
+    public login(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
         const appCenterLoginOptions: string[] = Object.keys(AppCenterLoginType).filter(k => typeof AppCenterLoginType[k as any] === "number");
         vscode.window.showQuickPick(appCenterLoginOptions, { placeHolder: "Please select the way you would like to login to AppCenter" })
             .then((loginType) => {
@@ -48,6 +49,8 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                                 if (token) {
                                     return Auth.doTokenLogin(token).then((profile: Profile) => {
                                         vscode.window.showInformationMessage(`Successfully logged in as ${profile.displayName}`);
+                                        appCenterManager.setuAuthenticatedStatusBar();
+                                        return Q.resolve(void 0);
                                     });
                                 } else { return Q.resolve(void 0); }
                             });
@@ -58,6 +61,8 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                             if (token) {
                                 return Auth.doTokenLogin(token).then((profile: Profile) => {
                                     vscode.window.showInformationMessage(`Successfully logged in as ${profile.displayName}`);
+                                    appCenterManager.setuAuthenticatedStatusBar();
+                                    return Q.resolve(void 0);
                                 });
                             } else { return Q.resolve(void 0); }
                         });
@@ -69,9 +74,10 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         return Q.resolve(void 0);
     }
 
-    public logout(client: AppCenterClient): Q.Promise<void> {
+    public logout(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
         return Auth.doLogout().then(() => {
             vscode.window.showInformationMessage("Successfully logged out from AppCenter");
+            appCenterManager.setupNotAuthenticatedStatusBar();
         }).catch(() => {
             this.logger.log("An errro occured on logout", LogLevel.Error);
         });
@@ -100,5 +106,10 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                 vscode.window.showInformationMessage(`Got deployments!`);
             }
         });
+    }
+
+    public setCurrentApp(): Q.Promise<void> {
+        vscode.window.showInformationMessage(`Current App was saved!`);
+        return Q.resolve(void 0);
     }
 }

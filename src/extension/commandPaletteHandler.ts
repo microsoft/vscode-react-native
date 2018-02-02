@@ -17,14 +17,18 @@ import {ExponentHelper} from "./exponent/exponentHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {ExtensionServer} from "./extensionServer";
 import { IAndroidRunOptions } from "./launchArgs";
-import { AppCenterCommandPalleteHandler, AppCenterCommandType } from "./appcenter/appCenterCommandPalleteHandler";
+import { AppCenterCommandPalleteHandler } from "./appcenter/appCenterCommandPalleteHandler";
+import { AppCenterCommandType } from "./appcenter/appCenterConstants";
+import { AppCenterExtensionManager } from "./appcenter/appCenterExtensionManager";
 
 interface IReactNativeStuff {
     packager: Packager;
     exponentHelper: ExponentHelper;
     reactDirManager: ReactDirManager;
     extensionServer: ExtensionServer;
+    appCenterManager: AppCenterExtensionManager;
 }
+
 interface IReactNativeProject extends IReactNativeStuff {
     workspaceFolder: vscode.WorkspaceFolder;
 }
@@ -220,15 +224,31 @@ export class CommandPaletteHandler {
     }
 
     public static appCenterLogin(): Q.Promise<void> {
-        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Login);
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Login, project.appCenterManager);
+        });
     }
 
     public static appCenterLogout(): Q.Promise<void> {
-        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Logout);
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Logout, project.appCenterManager);
+    });
     }
 
     public static appCenterWhoAmI(): Q.Promise<void> {
-        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Whoami);
+        return this.selectProject()
+             .then((project: IReactNativeProject) => {
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Whoami, project.appCenterManager);
+    });
+    }
+
+    public static appCenterSetCurrentApp(): Q.Promise<void> {
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.SetCurrentApp, project.appCenterManager);
+    });
     }
 
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {

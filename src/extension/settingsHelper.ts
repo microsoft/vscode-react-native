@@ -6,6 +6,7 @@ import path = require("path");
 import {ConfigurationReader} from "../common/configurationReader";
 import {Packager} from "../common/packager";
 import {LogLevel} from "./log/LogHelper";
+import { ACConstants } from "./appcenter/appCenterConstants";
 
 export class SettingsHelper {
     /**
@@ -69,12 +70,11 @@ export class SettingsHelper {
      */
     public static getAppCenterLoginEndpoint(): string {
         const workspaceConfiguration = vscode.workspace.getConfiguration();
-        const defaultLoginEndPoint = "https://appcenter.ms/cli-login";
         if (workspaceConfiguration.has("react-native-tools.appcenter.loginendpoint")) {
             let loginEndpoint: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.appcenter.loginendpoint"));
             return loginEndpoint;
         }
-        return defaultLoginEndPoint;
+        return ACConstants.DefaultLoginEndPoint;
     }
 
     /**
@@ -82,12 +82,11 @@ export class SettingsHelper {
      */
    public static getAppCenterAPIEndpoint(): string {
        const workspaceConfiguration = vscode.workspace.getConfiguration();
-       const defaulAPIEndPoint = "https://api.appcenter.ms";
        if (workspaceConfiguration.has("react-native-tools.appcenter.api.endpoint")) {
            let apiEndpoint: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.appcenter.api.endpoint"));
            return apiEndpoint;
        }
-       return defaulAPIEndPoint;
+       return ACConstants.DefaulAPIEndPoint;
    }
 
     public static getEnvArgs(platform: string, target: "device" | "simulator", uri: vscode.Uri): any {
