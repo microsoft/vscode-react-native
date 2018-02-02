@@ -8,13 +8,6 @@ import { ServiceClientOptions } from 'ms-rest';
 
 import Account = require('./account/accountClient');
 import Codepush = require('./codepush/codepushClient');
-import Analytics = require('./analytics/analyticsClient');
-import Distribute = require('./distribute/distributeClient');
-import Build = require('./build/buildClient');
-import Crash = require('./crash/crashClient');
-import Test = require('./test/testClient');
-import Export = require('./export/exportClient');
-import Push = require('./push/pushClient');
 
 
 declare class AppCenterClient {
@@ -36,25 +29,11 @@ declare class AppCenterClient {
    *
    */
   constructor(credentials: any, baseUri?: string, options?: ServiceClientOptions);
-  
+
   account: Account;
-  
+
   codepush: Codepush;
-  
-  analytics: Analytics;
-  
-  distribute: Distribute;
-  
-  build: Build;
-  
-  crash: Crash;
-  
-  test: Test;
-  
-  export: Export;
-  
-  push: Push;
-  
+
 }
 
 export = AppCenterClient;
