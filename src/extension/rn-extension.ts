@@ -185,8 +185,6 @@ function registerAppCenterCommands(context: vscode.ExtensionContext): void {
     registerVSCodeCommand(context, "appcenter.login", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogin), () => CommandPaletteHandler.appCenterLogin());
     registerVSCodeCommand(context, "appcenter.logout", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogout), () => CommandPaletteHandler.appCenterLogout());
     registerVSCodeCommand(context, "appcenter.whoami", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterWhoAmI), () => CommandPaletteHandler.appCenterWhoAmI());
-    registerVSCodeCommand(context, "appcenter.codepush.deployment.list", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterCodePushDeploymentList),
-        () => CommandPaletteHandler.appCenterCodePushDeploymentList());
 }
 
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {

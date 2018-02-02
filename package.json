@@ -91,11 +91,6 @@
 				"command": "reactNative.appcenter.whoami",
 				"title": "WhoAmI",
 				"category": "React Native Code Push"
-			},
-			{
-				"command": "reactNative.appcenter.codepush.deployment.list",
-				"title": "Deployment List",
-				"category": "React Native Code Push"
 			}
 		],
 		"debuggers": [

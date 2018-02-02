@@ -231,10 +231,6 @@ export class CommandPaletteHandler {
         return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Whoami);
     }
 
-    public static appCenterCodePushDeploymentList(): Q.Promise<void> {
-        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.CodePushDeploymentList);
-    }
-
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {
         return project.packager.restart(SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath))
             .then(() => project.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
