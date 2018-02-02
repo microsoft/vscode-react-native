@@ -52,6 +52,7 @@ export function activate(context: vscode.ExtensionContext): void {
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
         registerReactNativeCommands(context);
+        registerAppCenterCommands(context);
 
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
@@ -180,8 +181,15 @@ function isSupportedVersion(version: string): boolean {
     }
 }
 
+function registerAppCenterCommands(context: vscode.ExtensionContext): void {
+    registerVSCodeCommand(context, "appcenter.login", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogin), () => CommandPaletteHandler.appCenterLogin());
+    registerVSCodeCommand(context, "appcenter.logout", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogout), () => CommandPaletteHandler.appCenterLogout());
+    registerVSCodeCommand(context, "appcenter.whoami", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterWhoAmI), () => CommandPaletteHandler.appCenterWhoAmI());
+    registerVSCodeCommand(context, "appcenter.codepush.deployment.list", ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterCodePushDeploymentList),
+        () => CommandPaletteHandler.appCenterCodePushDeploymentList());
+}
+
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {
-    // Register React Native commands
     registerVSCodeCommand(context, "runAndroidSimulator", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => CommandPaletteHandler.runAndroid("simulator"));
     registerVSCodeCommand(context, "runAndroidDevice", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => CommandPaletteHandler.runAndroid("device"));
     registerVSCodeCommand(context, "runIosSimulator", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => CommandPaletteHandler.runIos("simulator"));

@@ -17,6 +17,7 @@ import {ExponentHelper} from "./exponent/exponentHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {ExtensionServer} from "./extensionServer";
 import { IAndroidRunOptions } from "./launchArgs";
+import { AppCenterCommandPalleteHandler, AppCenterCommandType } from "./appcenter/appCenterCommandPalleteHandler";
 
 interface IReactNativeStuff {
     packager: Packager;
@@ -31,6 +32,7 @@ interface IReactNativeProject extends IReactNativeStuff {
 export class CommandPaletteHandler {
     private static projectsCache: {[key: string]: IReactNativeProject} = {};
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
+    private static appCenterCommandPalleteHandler: AppCenterCommandPalleteHandler;
 
     public static addFolder(workspaceFolder: vscode.WorkspaceFolder, stuff: IReactNativeStuff): void {
         this.projectsCache[workspaceFolder.uri.fsPath] = {
@@ -217,6 +219,22 @@ export class CommandPaletteHandler {
             });
     }
 
+    public static appCenterLogin(): Q.Promise<void> {
+        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Login);
+    }
+
+    public static appCenterLogout(): Q.Promise<void> {
+        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Logout);
+    }
+
+    public static appCenterWhoAmI(): Q.Promise<void> {
+        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Whoami);
+    }
+
+    public static appCenterCodePushDeploymentList(): Q.Promise<void> {
+        return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.CodePushDeploymentList);
+    }
+
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {
         return project.packager.restart(SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath))
             .then(() => project.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
@@ -322,6 +340,13 @@ export class CommandPaletteHandler {
                 });
             }
         );
+    }
+
+    private static getAppCenterCommandPalleteHandler(): AppCenterCommandPalleteHandler {
+        if (!CommandPaletteHandler.appCenterCommandPalleteHandler) {
+            CommandPaletteHandler.appCenterCommandPalleteHandler = new AppCenterCommandPalleteHandler(CommandPaletteHandler.logger);
+        }
+        return CommandPaletteHandler.appCenterCommandPalleteHandler;
     }
 
     private static selectProject(): Q.Promise<IReactNativeProject> {
