@@ -7,16 +7,16 @@ import * as qs from "qs";
 import * as os from "os";
 
 import { ILogger, LogLevel } from "../../log/LogHelper";
-// tslint:disable-next-line:no-var-requires
-const opener = require("opener");
 import Auth from "../../appcenter/auth/auth";
 import { AppCenterLoginType } from "../appCenterConstants";
 import { Profile } from "../../appcenter/auth/profile/profile";
 import { SettingsHelper } from "../../settingsHelper";
 import { AppCenterClient } from "../api/index";
-import { DefaultApp } from "./commandParams";
+import { DefaultApp, ICodePushReleaseParams } from "./commandParams";
 import { AppCenterExtensionManager } from "../appCenterExtensionManager";
 import { ACStrings } from "../appCenterStrings";
+import CodePushReleaseReact from "../codepush/releaseReact";
+import { ACUtils } from "../appCenterUtils";
 
 interface IAppCenterAuth {
     login(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
@@ -46,24 +46,22 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
             .then((loginType) => {
                 switch (loginType) {
                     case (AppCenterLoginType[AppCenterLoginType.Interactive]):
-                        const loginUrl = `${SettingsHelper.getAppCenterLoginEndpoint()}?${qs.stringify({ hostname: os.hostname()})}`;
                         vscode.window.showInformationMessage(ACStrings.PleaseLoginViaBrowser, "OK")
                         .then((selection: string) => {
                             if (selection.toLowerCase() === "ok") {
-                                opener(loginUrl);
-                                return vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideToken, ignoreFocusOut: true }).then(token => {
-                                    if (token) {
-                                        this.loginWithToken(token, appCenterManager);
-                                    }
+                                const loginUrl = `${SettingsHelper.getAppCenterLoginEndpoint()}?${qs.stringify({ hostname: os.hostname()})}`;
+                                ACUtils.OpenUrl(loginUrl);
+                                return vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideToken, ignoreFocusOut: true })
+                                .then(token => {
+                                    this.loginWithToken(token, appCenterManager);
                                 });
                             } else return Q.resolve(void 0);
                         });
                         break;
                     case (AppCenterLoginType[AppCenterLoginType.Token]):
-                        vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideToken , ignoreFocusOut: true}).then(token => {
-                            if (token) {
-                                this.loginWithToken(token, appCenterManager);
-                            }
+                        vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideToken , ignoreFocusOut: true})
+                        .then(token => {
+                            this.loginWithToken(token, appCenterManager);
                         });
                         break;
                     default:
@@ -74,22 +72,23 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     }
 
     public logout(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
-        const logoutChoices: string[] = ["Logout"];
+        const logoutOption = "Logout";
+        const logoutChoices: string[] = [logoutOption];
         vscode.window.showQuickPick(logoutChoices, { placeHolder: ACStrings.LogoutPrompt })
-            .then((logoutType) => {
-                switch (logoutType) {
-                    case ("Logout"):
-                        return Auth.doLogout().then(() => {
-                            vscode.window.showInformationMessage(ACStrings.UserLoggedOutMsg);
-                            appCenterManager.setupNotAuthenticatedStatusBar();
-                            return Q.resolve(void 0);
-                        }).catch(() => {
-                            this.logger.log("An errro occured on logout", LogLevel.Error);
-                        });
-                    default:
+        .then((logoutType) => {
+            switch (logoutType) {
+                case (logoutOption):
+                    return Auth.doLogout().then(() => {
+                        vscode.window.showInformationMessage(ACStrings.UserLoggedOutMsg);
+                        appCenterManager.setupNotAuthenticatedStatusBar();
                         return Q.resolve(void 0);
-                    }
-                });
+                    }).catch(() => {
+                        this.logger.log("An errro occured on logout", LogLevel.Error);
+                    });
+                default:
+                    return Q.resolve(void 0);
+                }
+            });
         return Q.resolve(void 0);
     }
 
@@ -116,7 +115,19 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     }
 
     public releaseReact(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
-        return Q.resolve(void 0);
+        const targetBinaryVersion = "1.0.0";
+        const deploymentName = "Staging";
+        const bundleZipPath = appCenterManager.projectRootPath; // TODO: create a bundle based on project root path
+
+        return this.getCurrentAppForUser().then((currentApp: DefaultApp) => {
+            let codePushRelaseParams: ICodePushReleaseParams = {
+                app: currentApp,
+                appVersion: targetBinaryVersion,
+                deploymentName: deploymentName,
+                updatedContentZipPath: bundleZipPath,
+            };
+            CodePushReleaseReact.exec(client, codePushRelaseParams, this.logger);
+        });
     }
 
     private getCurrentAppForUser(): Q.Promise<DefaultApp> {
@@ -129,7 +140,10 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         return Q.resolve(app);
     }
 
-    private loginWithToken(token: string, appCenterManager: AppCenterExtensionManager) {
+    private loginWithToken(token: string | undefined, appCenterManager: AppCenterExtensionManager) {
+        if (!token) {
+            return;
+        }
         return Auth.doTokenLogin(token).then((profile: Profile) => {
             vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
             appCenterManager.setuAuthenticatedStatusBar(profile.displayName);

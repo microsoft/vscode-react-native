@@ -9,4 +9,16 @@ export interface DefaultApp {
     ownerName: string;
     appName: string;
     identifier: string;
-  }
+}
+
+export interface ICodePushReleaseParams extends IDefaultCommandParams {
+  deploymentName: string;
+  updatedContentZipPath: string;
+  appVersion?: string;
+  description?: string;
+  isDisabled?: boolean;
+  isMandatory?: boolean;
+  label?: string;
+  packageHash?: string;
+  rollout?: number;
+}
