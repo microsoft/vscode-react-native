@@ -9,6 +9,7 @@ export class ACStrings {
     public static UserLoggedOutMsg: string = "Successfully logged out from App Center";
     public static UserIsNotLoggedInMsg: string = "You are not logged in to App Center";
     public static LogoutPrompt: string = "Please execute logout to signoff from App Center";
+    public static NoCodePushDetectedMsg: string = "Please install React Native Code Push package to run this command!";
 
     public static YouAreLoggedInMsg: (name: string) => string = (name: string) => {
          return `You are logged in to App Center as ${name}`;

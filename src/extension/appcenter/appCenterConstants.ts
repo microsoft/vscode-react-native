@@ -7,6 +7,7 @@ export class ACConstants {
     public static AppCenterExtensionName: string = "appcenter";
     public static DefaulAPIEndPoint: string = "https://api.appcenter.ms";
     public static DefaultLoginEndPoint: string = "https://appcenter.ms/cli-login";
+    public static CodePushNpmPackageName: string = "react-native-code-push";
 }
 
 export class ACCommandNames {

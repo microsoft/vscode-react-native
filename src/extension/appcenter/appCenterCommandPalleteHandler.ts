@@ -13,12 +13,14 @@ import { SettingsHelper } from "../settingsHelper";
 import { AppCenterCommandType } from "./appCenterConstants";
 import { AppCenterExtensionManager } from "./appCenterExtensionManager";
 import { ACStrings } from "./appCenterStrings";
+import { ACUtils } from "./appCenterUtils";
 
 export class AppCenterCommandPalleteHandler {
     private commandExecutor: AppCenterCommandExecutor;
     private client: AppCenterClient;
     private logger: ILogger;
     private clientFactory: AppCenterClientFactory;
+    private appCenterManager: AppCenterExtensionManager;
 
     constructor(logger: ILogger) {
         this.commandExecutor = new AppCenterCommandExecutor(logger);
@@ -26,10 +28,19 @@ export class AppCenterCommandPalleteHandler {
         this.logger = logger;
     }
 
-    public run(command: AppCenterCommandType, appCenterManager: AppCenterExtensionManager): Q.Promise<void>  {
+    public set AppCenterManager(manager: AppCenterExtensionManager) {
+        this.appCenterManager = manager;
+    }
+
+    public run(command: AppCenterCommandType): Q.Promise<void>  {
+        if (!ACUtils.isCodePushProject(this.appCenterManager.projectRootPath)) {
+            vscode.window.showInformationMessage(ACStrings.NoCodePushDetectedMsg);
+            return Q.resolve(void 0);
+        }
+
         // Login is special case
         if (command === AppCenterCommandType.Login) {
-            return this.commandExecutor.login(appCenterManager);
+            return this.commandExecutor.login(this.appCenterManager);
         }
 
         return Auth.isAuthenticated().then((isAuthenticated: boolean) => {
@@ -43,7 +54,7 @@ export class AppCenterCommandPalleteHandler {
 
                     switch (command) {
                         case (AppCenterCommandType.Logout):
-                            return this.commandExecutor.logout(appCenterManager);
+                            return this.commandExecutor.logout(this.appCenterManager);
 
                         case (AppCenterCommandType.Whoami):
                             return this.commandExecutor.whoAmI();
@@ -55,7 +66,7 @@ export class AppCenterCommandPalleteHandler {
                             return this.commandExecutor.getCurrentApp();
 
                         case (AppCenterCommandType.CodePushReleaseReact):
-                            return this.commandExecutor.releaseReact(this.client, appCenterManager);
+                            return this.commandExecutor.releaseReact(this.client, this.appCenterManager);
 
                         default:
                             throw new Error("Unknown App Center command!");

@@ -228,42 +228,42 @@ export class CommandPaletteHandler {
     public static appCenterLogin(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Login, project.appCenterManager);
+                return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.Login);
         });
     }
 
     public static appCenterLogout(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Logout, project.appCenterManager);
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.Logout);
         });
     }
 
     public static appCenterWhoAmI(): Q.Promise<void> {
         return this.selectProject()
              .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Whoami, project.appCenterManager);
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.Whoami);
         });
     }
 
     public static appCenterSetCurrentApp(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.SetCurrentApp, project.appCenterManager);
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.SetCurrentApp);
         });
     }
 
     public static appCenterGetCurrentApp(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.GetCurrentApp, project.appCenterManager);
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.GetCurrentApp);
         });
     }
 
     public static appCenterCodePushReleaseReact(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.CodePushReleaseReact, project.appCenterManager);
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.CodePushReleaseReact);
         });
     }
 
@@ -374,10 +374,11 @@ export class CommandPaletteHandler {
         );
     }
 
-    private static getAppCenterCommandPalleteHandler(): AppCenterCommandPalleteHandler {
+    private static getAppCenterCommandPalleteHandler(project: IReactNativeProject): AppCenterCommandPalleteHandler {
         if (!CommandPaletteHandler.appCenterCommandPalleteHandler) {
             CommandPaletteHandler.appCenterCommandPalleteHandler = new AppCenterCommandPalleteHandler(CommandPaletteHandler.logger);
         }
+        CommandPaletteHandler.appCenterCommandPalleteHandler.AppCenterManager = project.appCenterManager;
         return CommandPaletteHandler.appCenterCommandPalleteHandler;
     }
 

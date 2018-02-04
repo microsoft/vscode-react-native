@@ -10,6 +10,15 @@ import { ACCommandNames, ACConstants } from "./appCenterConstants";
 export class AppCenterExtensionManager implements Disposable {
     private loginStatusBarItem: StatusBarItem;
     private currentAppStatusBarItem: StatusBarItem;
+    private _projectRootPath: string;
+
+    public constructor(projectRootPath: string) {
+        this._projectRootPath = projectRootPath;
+    }
+
+    public get projectRootPath(): string {
+        return this._projectRootPath;
+    }
 
     public setup(): Q.Promise<void>  {
         this.loginStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
