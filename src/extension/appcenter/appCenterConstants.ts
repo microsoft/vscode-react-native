@@ -15,6 +15,13 @@ export class ACCommandNames {
     public static Logout: string = ACCommandNames.CommandPrefix + "logout";
     public static WhoAmI: string = ACCommandNames.CommandPrefix + "whoami";
     public static SetCurrentApp: string = ACCommandNames.CommandPrefix + "setcurrentapp";
+    public static GetCurrentApp: string = ACCommandNames.CommandPrefix + "getcurrentapp";
+    public static CodePushReleaseReact: string = ACCommandNames.CommandPrefix + "releasereact";
+}
+
+export enum AppCenterLoginType {
+    Interactive,
+    Token,
 }
 
 export enum AppCenterCommandType {
@@ -23,8 +30,10 @@ export enum AppCenterCommandType {
     Logout,
     Whoami,
 
+    // App commands
     SetCurrentApp,
+    GetCurrentApp,
 
     // CodePush commands
-    CodePushDeploymentList,
+    CodePushReleaseReact,
 }

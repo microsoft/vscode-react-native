@@ -187,10 +187,18 @@ function isSupportedVersion(version: string): boolean {
 }
 
 function registerAppCenterCommands(context: vscode.ExtensionContext): void {
-    registerVSCodeCommand(context, ACCommandNames.Login, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogin), () => CommandPaletteHandler.appCenterLogin());
-    registerVSCodeCommand(context, ACCommandNames.Logout, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogout), () => CommandPaletteHandler.appCenterLogout());
-    registerVSCodeCommand(context, ACCommandNames.WhoAmI, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterWhoAmI), () => CommandPaletteHandler.appCenterWhoAmI());
-    registerVSCodeCommand(context, ACCommandNames.SetCurrentApp, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterSetCurrentApp), () => CommandPaletteHandler.appCenterSetCurrentApp());
+    registerVSCodeCommand(context, ACCommandNames.Login, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogin),
+        () => CommandPaletteHandler.appCenterLogin());
+    registerVSCodeCommand(context, ACCommandNames.Logout, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogout),
+        () => CommandPaletteHandler.appCenterLogout());
+    registerVSCodeCommand(context, ACCommandNames.WhoAmI, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterWhoAmI),
+        () => CommandPaletteHandler.appCenterWhoAmI());
+    registerVSCodeCommand(context, ACCommandNames.SetCurrentApp, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterSetCurrentApp),
+        () => CommandPaletteHandler.appCenterSetCurrentApp());
+    registerVSCodeCommand(context, ACCommandNames.GetCurrentApp, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterGetCurrentApp),
+        () => CommandPaletteHandler.appCenterGetCurrentApp());
+    registerVSCodeCommand(context, ACCommandNames.CodePushReleaseReact, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterReleaseReact),
+        () => CommandPaletteHandler.appCenterCodePushReleaseReact());
 }
 
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {

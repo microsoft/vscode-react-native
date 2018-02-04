@@ -73,6 +73,12 @@
       "resolved": "https://registry.npmjs.org/@types/node/-/node-6.0.92.tgz",
       "integrity": "sha512-awEYSSTn7dauwVCYSx2CJaPTu0Z1Ht2oR1b2AD3CYao6ZRb+opb6EL43fzmD7eMFgMHzTBWSUzlWSD+S8xN0Nw=="
     },
+    "@types/open": {
+      "version": "0.0.29",
+      "resolved": "https://registry.npmjs.org/@types/open/-/open-0.0.29.tgz",
+      "integrity": "sha1-PekQASZ0kJ2xTWCNH95E/6ep7Oo=",
+      "dev": true
+    },
     "@types/opener": {
       "version": "1.4.0",
       "resolved": "https://registry.npmjs.org/@types/opener/-/opener-1.4.0.tgz",
@@ -4530,6 +4536,11 @@
       "requires": {
         "wrappy": "1.0.2"
       }
+    },
+    "open": {
+      "version": "0.0.5",
+      "resolved": "https://registry.npmjs.org/open/-/open-0.0.5.tgz",
+      "integrity": "sha1-QsPhjslUZra/DcQvOilFw/DK2Pw="
     },
     "opener": {
       "version": "1.4.3",

@@ -6,7 +6,6 @@ import Auth from "../appcenter/auth/auth";
 import { ACStrings } from "./appCenterStrings";
 import * as Q from "q";
 import { ACCommandNames, ACConstants } from "./appCenterConstants";
-import { DefaultApp } from "./command/commandParams";
 
 export class AppCenterExtensionManager implements Disposable {
     private loginStatusBarItem: StatusBarItem;
@@ -20,7 +19,9 @@ export class AppCenterExtensionManager implements Disposable {
             if (!isAuthenticated) {
                 return this.setupNotAuthenticatedStatusBar();
             } else {
-                return this.setuAuthenticatedStatusBar();
+                return Auth.whoAmI().then(userName => {
+                    return this.setuAuthenticatedStatusBar(userName);
+                });
             }
         });
     }
@@ -35,29 +36,29 @@ export class AppCenterExtensionManager implements Disposable {
     }
 
     public setupNotAuthenticatedStatusBar() {
-        this.setStatusBar(this.loginStatusBarItem, `Login to App Center`, ACStrings.UserMustSignIn, `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Login}`);
+        this.setStatusBar(this.loginStatusBarItem,
+            `$(icon octicon-person) Login to App Center`,
+            ACStrings.UserMustSignIn,
+            `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Login}`
+        );
         if (this.currentAppStatusBarItem) {
             this.currentAppStatusBarItem.hide();
         }
     }
 
-    public setuAuthenticatedStatusBar() {
-        return Auth.whoAmI().then((userName: string) => {
-            this.setStatusBar(this.loginStatusBarItem, userName, userName, `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Logout}`);
-            return this.getCurrentApp().then((currentApp: DefaultApp) => {
-                return this.setStatusBar(this.currentAppStatusBarItem, currentApp.identifier, currentApp.identifier, `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentApp}`);
-            });
-        });
+    public setuAuthenticatedStatusBar(userName: string) {
+        this.setStatusBar(this.loginStatusBarItem,
+            `$(icon octicon-person) ${userName}`,
+            ACStrings.YouAreLoggedInMsg(userName),
+            `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Logout}`
+        );
     }
 
-    private getCurrentApp(): Q.Promise<DefaultApp> {
-        // TODO: get from e.g. setting so on
-        let app = {
-            ownerName: "max-mironov",
-            appName: "test",
-            identifier: "max-mironov/test",
-        };
-        return Q.resolve(app);
+    public setCurrentAppStatusBar(appName: string) {
+        return this.setStatusBar(this.currentAppStatusBarItem,
+            appName,
+            ACStrings.YourCurrentAppMsg(appName),
+            `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentApp}`);
     }
 
     private setStatusBar(statusBar: StatusBarItem, text: string, tooltip: string, commandOnClick?: string): void {

@@ -8,7 +8,7 @@ import { getQPromisifiedClientResult } from "../api/createClient";
 import * as Q from "q";
 import { CommandResult, success, failure, ErrorCodes } from "../command/commandResult";
 
-export default class CodePushDeploymentList {
+export default class CodePushReleaseReact {
     public static exec(client: AppCenterClient, params: IDefaultCommandParams, logger: ILogger): Q.Promise<CommandResult> {
         const app = params.app;
         return getQPromisifiedClientResult(client.codepush.codePushDeployments.list(app.appName, app.ownerName)).then((result: models.Deployment[]) => {

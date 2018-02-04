@@ -96,6 +96,16 @@
 				"command": "reactNative.appcenter.setcurrentapp",
 				"title": "Set Current App",
 				"category": "React Native Code Push"
+			},
+			{
+				"command": "reactNative.appcenter.getcurrentapp",
+				"title": "Get Current App",
+				"category": "React Native Code Push"
+			},
+			{
+				"command": "reactNative.appcenter.releasereact",
+				"title": "Release React",
+				"category": "React Native Code Push"
 			}
 		],
 		"debuggers": [
@@ -513,6 +523,7 @@
 		"mkdirp": "^0.5.1",
 		"ms-rest": "^1.15.0",
 		"noice-json-rpc": "^1.0.2",
+		"open": "0.0.5",
 		"opener": "^1.4.3",
 		"options": "0.0.6",
 		"rx-lite": "^4.0.8",
@@ -559,6 +570,7 @@
 		"mocha-teamcity-reporter": "^1.0.0",
 		"mock-fs": "^4.4.1",
 		"@types/opener": "^1.4.0",
+		"@types/open": "^0.0.29",
 		"remap-istanbul": "^0.9.5",
 		"run-sequence": "^1.2.2",
 		"should": "^8.3.0",

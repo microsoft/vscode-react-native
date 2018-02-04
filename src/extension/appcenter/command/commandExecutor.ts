@@ -10,25 +10,30 @@ import { ILogger, LogLevel } from "../../log/LogHelper";
 // tslint:disable-next-line:no-var-requires
 const opener = require("opener");
 import Auth from "../../appcenter/auth/auth";
-import { AppCenterLoginType } from "../../appcenter/auth/appCenterLoginType";
+import { AppCenterLoginType } from "../appCenterConstants";
 import { Profile } from "../../appcenter/auth/profile/profile";
 import { SettingsHelper } from "../../settingsHelper";
 import { AppCenterClient } from "../api/index";
-import { CodePushDeploymentList } from "../codepush/index";
-import { IDefaultCommandParams } from "./commandParams";
+import { DefaultApp } from "./commandParams";
 import { AppCenterExtensionManager } from "../appCenterExtensionManager";
+import { ACStrings } from "../appCenterStrings";
 
 interface IAppCenterAuth {
     login(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
-    logout(client: AppCenterClient, appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
-    whoAmI(client: AppCenterClient): Q.Promise<void>;
+    logout(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
+    whoAmI(): Q.Promise<void>;
+}
+
+interface IAppCenterApps {
+    getCurrentApp(): Q.Promise<void>;
+    setCurrentApp(): Q.Promise<void>;
 }
 
 interface IAppCenterCodePush {
-    codePushDeploymentList(client: AppCenterClient): Q.Promise<void>;
+    releaseReact(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
 }
 
-export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodePush {
+export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodePush, IAppCenterApps {
     private logger: ILogger;
 
     constructor(logger: ILogger) {
@@ -37,34 +42,28 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
 
     public login(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
         const appCenterLoginOptions: string[] = Object.keys(AppCenterLoginType).filter(k => typeof AppCenterLoginType[k as any] === "number");
-        vscode.window.showQuickPick(appCenterLoginOptions, { placeHolder: "Please select the way you would like to login to AppCenter" })
+        vscode.window.showQuickPick(appCenterLoginOptions, { placeHolder: ACStrings.SelectLoginTypeMsg })
             .then((loginType) => {
                 switch (loginType) {
                     case (AppCenterLoginType[AppCenterLoginType.Interactive]):
-                        const loginUrl = SettingsHelper.getAppCenterLoginEndpoint() + "?" + qs.stringify({ hostname: os.hostname()});
-                        vscode.window.showInformationMessage("Please login to AppCenter in the browser window we will open, then enter your token from the browser to vscode", ...["OK"])
-                        .then(() => {
-                            opener(loginUrl);
-                            vscode.window.showInputBox({ prompt: "Please provide token to authenticate", ignoreFocusOut: true }).then(token => {
-                                if (token) {
-                                    return Auth.doTokenLogin(token).then((profile: Profile) => {
-                                        vscode.window.showInformationMessage(`Successfully logged in as ${profile.displayName}`);
-                                        appCenterManager.setuAuthenticatedStatusBar();
-                                        return Q.resolve(void 0);
-                                    });
-                                } else { return Q.resolve(void 0); }
-                            });
+                        const loginUrl = `${SettingsHelper.getAppCenterLoginEndpoint()}?${qs.stringify({ hostname: os.hostname()})}`;
+                        vscode.window.showInformationMessage(ACStrings.PleaseLoginViaBrowser, "OK")
+                        .then((selection: string) => {
+                            if (selection.toLowerCase() === "ok") {
+                                opener(loginUrl);
+                                return vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideToken, ignoreFocusOut: true }).then(token => {
+                                    if (token) {
+                                        this.loginWithToken(token, appCenterManager);
+                                    }
+                                });
+                            } else return Q.resolve(void 0);
                         });
                         break;
                     case (AppCenterLoginType[AppCenterLoginType.Token]):
-                        vscode.window.showInputBox({ prompt: "Please provide token to authenticate" , ignoreFocusOut: true}).then(token => {
+                        vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideToken , ignoreFocusOut: true}).then(token => {
                             if (token) {
-                                return Auth.doTokenLogin(token).then((profile: Profile) => {
-                                    vscode.window.showInformationMessage(`Successfully logged in as ${profile.displayName}`);
-                                    appCenterManager.setuAuthenticatedStatusBar();
-                                    return Q.resolve(void 0);
-                                });
-                            } else { return Q.resolve(void 0); }
+                                this.loginWithToken(token, appCenterManager);
+                            }
                         });
                         break;
                     default:
@@ -74,42 +73,69 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         return Q.resolve(void 0);
     }
 
-    public logout(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
-        return Auth.doLogout().then(() => {
-            vscode.window.showInformationMessage("Successfully logged out from AppCenter");
-            appCenterManager.setupNotAuthenticatedStatusBar();
-        }).catch(() => {
-            this.logger.log("An errro occured on logout", LogLevel.Error);
-        });
+    public logout(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
+        const logoutChoices: string[] = ["Logout"];
+        vscode.window.showQuickPick(logoutChoices, { placeHolder: ACStrings.LogoutPrompt })
+            .then((logoutType) => {
+                switch (logoutType) {
+                    case ("Logout"):
+                        return Auth.doLogout().then(() => {
+                            vscode.window.showInformationMessage(ACStrings.UserLoggedOutMsg);
+                            appCenterManager.setupNotAuthenticatedStatusBar();
+                            return Q.resolve(void 0);
+                        }).catch(() => {
+                            this.logger.log("An errro occured on logout", LogLevel.Error);
+                        });
+                    default:
+                        return Q.resolve(void 0);
+                    }
+                });
+        return Q.resolve(void 0);
     }
 
-    public whoAmI(client: AppCenterClient): Q.Promise<void> {
+    public whoAmI(): Q.Promise<void> {
         return Auth.whoAmI().then((displayName: string) => {
             if (displayName) {
-                vscode.window.showInformationMessage(`You are logged in as ${displayName}`);
+                vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(displayName));
             } else {
-                vscode.window.showInformationMessage(`You are not logged in to AppCenter`);
+                vscode.window.showInformationMessage(ACStrings.UserIsNotLoggedInMsg);
             }
         });
     }
 
-    public codePushDeploymentList(client: AppCenterClient): Q.Promise<void> {
-        let params: any = {};
-        params.app = {};
-        // TODO: get it for real!
-        params.app.appName = "UpdatedViaCLI";
-        params.app.ownerName = "max-mironov";
-        params.app.identifier = "max-mironov/UpdatedViaClI";
-
-        return CodePushDeploymentList.exec(client, <IDefaultCommandParams>params, this.logger).then((result) => {
-            if (result.succeeded) {
-                vscode.window.showInformationMessage(`Got deployments!`);
-            }
+    public getCurrentApp(): Q.Promise<void> {
+        this.getCurrentAppForUser().then((app: DefaultApp) => {
+            vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(app.identifier));
         });
+        return Q.resolve(void 0);
     }
 
     public setCurrentApp(): Q.Promise<void> {
         vscode.window.showInformationMessage(`Current App was saved!`);
         return Q.resolve(void 0);
+    }
+
+    public releaseReact(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
+        return Q.resolve(void 0);
+    }
+
+    private getCurrentAppForUser(): Q.Promise<DefaultApp> {
+        // TODO: get it for real!
+        let app: DefaultApp = {
+            appName: "UpdatedViaCLI",
+            ownerName: "max-mironov",
+            identifier: "max-mironov/UpdatedViaClI",
+        };
+        return Q.resolve(app);
+    }
+
+    private loginWithToken(token: string, appCenterManager: AppCenterExtensionManager) {
+        return Auth.doTokenLogin(token).then((profile: Profile) => {
+            vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
+            appCenterManager.setuAuthenticatedStatusBar(profile.displayName);
+            return this.getCurrentAppForUser().then((currentApp: DefaultApp) => {
+                appCenterManager.setCurrentAppStatusBar(currentApp.identifier);
+            });
+        });
     }
 }

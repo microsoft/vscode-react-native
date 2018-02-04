@@ -26,7 +26,7 @@ interface IReactNativeStuff {
     exponentHelper: ExponentHelper;
     reactDirManager: ReactDirManager;
     extensionServer: ExtensionServer;
-    appCenterManager: AppCenterExtensionManager;
+    appCenterManager: AppCenterExtensionManager; // Actually not an RN Stuff, but this is RN only extension so no other than RN stuff could exist at all, yeah?
 }
 
 interface IReactNativeProject extends IReactNativeStuff {
@@ -36,6 +36,8 @@ interface IReactNativeProject extends IReactNativeStuff {
 export class CommandPaletteHandler {
     private static projectsCache: {[key: string]: IReactNativeProject} = {};
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
+
+    // Use this class to further cmd exec delegation and not to pollute this class with AppCenter logic
     private static appCenterCommandPalleteHandler: AppCenterCommandPalleteHandler;
 
     public static addFolder(workspaceFolder: vscode.WorkspaceFolder, stuff: IReactNativeStuff): void {
@@ -234,21 +236,35 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                  return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Logout, project.appCenterManager);
-    });
+        });
     }
 
     public static appCenterWhoAmI(): Q.Promise<void> {
         return this.selectProject()
              .then((project: IReactNativeProject) => {
                  return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.Whoami, project.appCenterManager);
-    });
+        });
     }
 
     public static appCenterSetCurrentApp(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                  return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.SetCurrentApp, project.appCenterManager);
-    });
+        });
+    }
+
+    public static appCenterGetCurrentApp(): Q.Promise<void> {
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.GetCurrentApp, project.appCenterManager);
+        });
+    }
+
+    public static appCenterCodePushReleaseReact(): Q.Promise<void> {
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler().run(AppCenterCommandType.CodePushReleaseReact, project.appCenterManager);
+        });
     }
 
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {

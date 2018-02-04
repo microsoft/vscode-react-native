@@ -19,8 +19,8 @@ export enum InternalErrorCode {
         FailedToExecAppCenterLogout = 113,
         FailedToExecAppCenterWhoAmI = 114,
         FailedToExecAppCenterSetCurrentApp = 115,
-
-        FailedToExecAppCenterCodePushDeploymentList = 115,
+        FailedToExecAppCenterGetCurrentApp = 116,
+        FailedToExecAppCenterReleaseReact = 117,
 
         // Device Deployer errors
         IOSDeployNotFound = 201,

@@ -12,6 +12,7 @@ import { AppCenterClientFactory, createAppCenterClient } from "./api/createClien
 import { SettingsHelper } from "../settingsHelper";
 import { AppCenterCommandType } from "./appCenterConstants";
 import { AppCenterExtensionManager } from "./appCenterExtensionManager";
+import { ACStrings } from "./appCenterStrings";
 
 export class AppCenterCommandPalleteHandler {
     private commandExecutor: AppCenterCommandExecutor;
@@ -33,7 +34,7 @@ export class AppCenterCommandPalleteHandler {
 
         return Auth.isAuthenticated().then((isAuthenticated: boolean) => {
             if (!isAuthenticated) {
-                vscode.window.showInformationMessage("You are not logged in to AppCenter");
+                vscode.window.showInformationMessage(ACStrings.UserIsNotLoggedInMsg);
                 return Q.resolve(void 0);
              } else {
                 const clientOrNull: AppCenterClient | null  = this.resolveAppCenterClient();
@@ -42,16 +43,19 @@ export class AppCenterCommandPalleteHandler {
 
                     switch (command) {
                         case (AppCenterCommandType.Logout):
-                            return this.commandExecutor.logout(this.client, appCenterManager);
+                            return this.commandExecutor.logout(appCenterManager);
 
                         case (AppCenterCommandType.Whoami):
-                            return this.commandExecutor.whoAmI(this.client);
-
-                        case (AppCenterCommandType.CodePushDeploymentList):
-                            return this.commandExecutor.codePushDeploymentList(this.client);
+                            return this.commandExecutor.whoAmI();
 
                         case (AppCenterCommandType.SetCurrentApp):
                             return this.commandExecutor.setCurrentApp();
+
+                        case (AppCenterCommandType.GetCurrentApp):
+                            return this.commandExecutor.getCurrentApp();
+
+                        case (AppCenterCommandType.CodePushReleaseReact):
+                            return this.commandExecutor.releaseReact(this.client, appCenterManager);
 
                         default:
                             throw new Error("Unknown App Center command!");
