@@ -17,6 +17,8 @@ import { AppCenterExtensionManager } from "../appCenterExtensionManager";
 import { ACStrings } from "../appCenterStrings";
 import CodePushReleaseReact from "../codepush/releaseReact";
 import { ACUtils } from "../appCenterUtils";
+import { updateContents, reactNative } from "codepush-node-sdk";
+import BundleInfo = reactNative.BundleInfo;
 
 interface IAppCenterAuth {
     login(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
@@ -128,23 +130,34 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     }
 
     public releaseReact(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
-        const targetBinaryVersion = "1.0.0";
-        const deploymentName = "Staging";
-        const bundleZipPath = appCenterManager.projectRootPath; // TODO: create a bundle based on project root path
+        let codePushRelaseParams: ICodePushReleaseParams;
 
-        return this.restoreCurrentApp().then((currentApp: DefaultApp) => {
-            if (!currentApp) {
-                vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
-                return;
-            }
-            let codePushRelaseParams: ICodePushReleaseParams = {
-                app: currentApp,
-                appVersion: targetBinaryVersion,
-                deploymentName: deploymentName,
-                updatedContentZipPath: bundleZipPath,
-            };
-            CodePushReleaseReact.exec(client, codePushRelaseParams, this.logger);
+        return Q.Promise<void>((resolve, reject) => {
+            reactNative.getAndroidAppVersion()
+                .then((appVersion: string) => {
+                    codePushRelaseParams.appVersion = appVersion;
+                    return reactNative.makeUpdateContents(<BundleInfo>{ os: "android" });
+                }).then((pathToUpdateContents: string) => {
+                    return updateContents.zip(pathToUpdateContents);
+                }).then((pathToZippedBundle: string) => {
+                    codePushRelaseParams.updatedContentZipPath = pathToZippedBundle;
+                    return new Promise<DefaultApp>((appResolve, appReject) => {
+                        this.restoreCurrentApp()
+                            .then(currentApp => appResolve(<DefaultApp>currentApp))
+                            .catch(err => appReject(err));
+                    });
+                }).then((currentApp: DefaultApp) => {
+                    if (!currentApp) {
+                        vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
+                        return;
+                    }
+                    codePushRelaseParams.app = currentApp;
+                    codePushRelaseParams.deploymentName = "Staging";
+                    CodePushReleaseReact.exec(client, codePushRelaseParams, this.logger);
+                }).then(value => resolve(value))
+                .catch(error => reject(error));
         });
+
     }
 
     private saveCurrentApp(currentApp: string): Q.Promise<boolean> {
