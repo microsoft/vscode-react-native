@@ -17,12 +17,12 @@ export default class Auth {
         }
     }
 
-    public static whoAmI(): Q.Promise<string> {
+    public static whoAmI(): Q.Promise<Profile> {
         const currentUser = getUser();
         if (currentUser) {
-            return Q.resolve(currentUser.displayName);
+            return Q.resolve(currentUser);
         } else {
-            return Q.resolve("");
+            throw new Error("Failed to get current user");
         }
     }
 

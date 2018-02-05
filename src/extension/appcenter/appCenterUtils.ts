@@ -10,8 +10,11 @@ import * as fs from "fs";
 import * as path from "path";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ACConstants } from "./appCenterConstants";
+import { DefaultApp } from "./command/commandParams";
 
 export class ACUtils {
+    private static validApp = /^([a-zA-Z0-9-_.]{1,100})\/([a-zA-Z0-9-_.]{1,100})$/;
+
     // Use open for Windows and Mac, opener for Linux
     public static OpenUrl(url: string): void {
         switch (process.platform) {
@@ -37,4 +40,16 @@ export class ACUtils {
             }
         });
     }
+
+    public static toDefaultApp(app: string): DefaultApp | null {
+        const matches = app.match(this.validApp);
+        if (matches !== null) {
+          return {
+            ownerName: matches[1],
+            appName: matches[2],
+            identifier: `${matches[1]}/${matches[2]}`,
+          };
+        }
+        return null;
+      }
 }

@@ -7,6 +7,7 @@ import * as mkdirp from "mkdirp";
 import * as Q from "q";
 import { TokenValueType, tokenStore } from "../tokenStore/index";
 import { getProfileDir, profileFile } from "./getProfileDir";
+import { DefaultApp } from "../../command/commandParams";
 
 export interface Profile {
     userId: string;
@@ -14,6 +15,7 @@ export interface Profile {
     displayName: string;
     email: string;
     readonly accessToken: Q.Promise<string>;
+    defaultApp?: DefaultApp;
     save(): Profile;
     logout(): Q.Promise<void>;
   }
@@ -23,12 +25,14 @@ class ProfileImpl implements Profile {
     public userName: string;
     public displayName: string;
     public email: string;
+    public defaultApp?: DefaultApp;
 
     constructor(fileContents: any) {
         this.userId = fileContents.userId || fileContents.id;
         this.userName = fileContents.userName || fileContents.name;
         this.displayName = fileContents.displayName;
         this.email = fileContents.email;
+        this.defaultApp = fileContents.defaultApp;
     }
 
     get accessToken(): Q.Promise<string> {
@@ -54,6 +58,7 @@ class ProfileImpl implements Profile {
             userName: this.userName,
             displayName: this.displayName,
             email: this.email,
+            defaultApp: this.defaultApp,
           };
 
         mkdirp.sync(getProfileDir());

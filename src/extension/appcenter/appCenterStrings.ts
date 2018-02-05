@@ -10,6 +10,10 @@ export class ACStrings {
     public static UserIsNotLoggedInMsg: string = "You are not logged in to App Center";
     public static LogoutPrompt: string = "Please execute logout to signoff from App Center";
     public static NoCodePushDetectedMsg: string = "Please install React Native Code Push package to run this command!";
+    public static NoCurrentAppSetMsg: string = "No current app specified";
+    public static PleaseProvideCurrentAppMsg: string = "Please click here to specify current app";
+    public static ProvideCurrentAppPromptMsg: string = "Please specify existant current app";
+    public static InvalidCurrentAppNameMsg: string = "Sorry, provided app name is invalid";
 
     public static YouAreLoggedInMsg: (name: string) => string = (name: string) => {
          return `You are logged in to App Center as ${name}`;

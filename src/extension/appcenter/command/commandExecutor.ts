@@ -9,7 +9,7 @@ import * as os from "os";
 import { ILogger, LogLevel } from "../../log/LogHelper";
 import Auth from "../../appcenter/auth/auth";
 import { AppCenterLoginType } from "../appCenterConstants";
-import { Profile } from "../../appcenter/auth/profile/profile";
+import { Profile, getUser } from "../../appcenter/auth/profile/profile";
 import { SettingsHelper } from "../../settingsHelper";
 import { AppCenterClient } from "../api/index";
 import { DefaultApp, ICodePushReleaseParams } from "./commandParams";
@@ -26,7 +26,7 @@ interface IAppCenterAuth {
 
 interface IAppCenterApps {
     getCurrentApp(): Q.Promise<void>;
-    setCurrentApp(): Q.Promise<void>;
+    setCurrentApp(appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
 }
 
 interface IAppCenterCodePush {
@@ -93,24 +93,37 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     }
 
     public whoAmI(): Q.Promise<void> {
-        return Auth.whoAmI().then((displayName: string) => {
-            if (displayName) {
-                vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(displayName));
-            } else {
-                vscode.window.showInformationMessage(ACStrings.UserIsNotLoggedInMsg);
+        return Auth.whoAmI().then((profile: Profile) => {
+            if (profile.displayName) {
+                vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
+                return;
             }
+        }).catch(() => {
+            vscode.window.showInformationMessage(ACStrings.UserIsNotLoggedInMsg);
+            return;
         });
     }
 
     public getCurrentApp(): Q.Promise<void> {
-        this.getCurrentAppForUser().then((app: DefaultApp) => {
+        this.restoreCurrentApp().then((app: DefaultApp) => {
             vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(app.identifier));
+        }).catch(e => {
+            vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
         });
         return Q.resolve(void 0);
     }
 
-    public setCurrentApp(): Q.Promise<void> {
-        vscode.window.showInformationMessage(`Current App was saved!`);
+    public setCurrentApp(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
+        vscode.window.showInputBox({ prompt: ACStrings.ProvideCurrentAppPromptMsg, ignoreFocusOut: true })
+        .then((currentApp: string) => {
+            // TODO: I believe we should validate app here for existance! before we save anything
+            this.saveCurrentApp(<string>currentApp).then((saved: boolean) => {
+                if (saved) {
+                    vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(currentApp));
+                    appCenterManager.setCurrentAppStatusBar(currentApp);
+                }
+            });
+        });
         return Q.resolve(void 0);
     }
 
@@ -119,7 +132,11 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         const deploymentName = "Staging";
         const bundleZipPath = appCenterManager.projectRootPath; // TODO: create a bundle based on project root path
 
-        return this.getCurrentAppForUser().then((currentApp: DefaultApp) => {
+        return this.restoreCurrentApp().then((currentApp: DefaultApp) => {
+            if (!currentApp) {
+                vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
+                return;
+            }
             let codePushRelaseParams: ICodePushReleaseParams = {
                 app: currentApp,
                 appVersion: targetBinaryVersion,
@@ -130,14 +147,36 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         });
     }
 
-    private getCurrentAppForUser(): Q.Promise<DefaultApp> {
-        // TODO: get it for real!
-        let app: DefaultApp = {
-            appName: "UpdatedViaCLI",
-            ownerName: "max-mironov",
-            identifier: "max-mironov/UpdatedViaClI",
-        };
-        return Q.resolve(app);
+    private saveCurrentApp(currentApp: string): Q.Promise<boolean> {
+        const defaultApp = ACUtils.toDefaultApp(currentApp);
+        if (!defaultApp) {
+            vscode.window.showInformationMessage(ACStrings.InvalidCurrentAppNameMsg);
+            return Q<boolean>(false);
+        }
+        let profile = getUser();
+        if (profile) {
+            profile.defaultApp = defaultApp;
+            profile.save();
+            return Q<boolean>(true);
+        } else {
+            // No profile - not logged in?
+            vscode.window.showInformationMessage(ACStrings.UserIsNotLoggedInMsg);
+            return Q<boolean>(false);
+        }
+    }
+
+    private restoreCurrentApp(): Q.Promise<DefaultApp | null> {
+        const user = getUser();
+        if (user) {
+            const currentApp = user.defaultApp
+                ? `${user.defaultApp.ownerName}/${user.defaultApp.appName}`
+                : "";
+            const defaultApp: DefaultApp | null = ACUtils.toDefaultApp(currentApp);
+            if (defaultApp) {
+                return Q.resolve(defaultApp);
+            }
+        }
+        return Q.resolve(null);
     }
 
     private loginWithToken(token: string | undefined, appCenterManager: AppCenterExtensionManager) {
@@ -147,8 +186,12 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         return Auth.doTokenLogin(token).then((profile: Profile) => {
             vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
             appCenterManager.setuAuthenticatedStatusBar(profile.displayName);
-            return this.getCurrentAppForUser().then((currentApp: DefaultApp) => {
-                appCenterManager.setCurrentAppStatusBar(currentApp.identifier);
+            this.restoreCurrentApp().then((currentApp: DefaultApp) => {
+                if (currentApp) {
+                    appCenterManager.setCurrentAppStatusBar(currentApp.identifier);
+                } else {
+                    appCenterManager.setCurrentAppStatusBar(null);
+                }
             });
         });
     }

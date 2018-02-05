@@ -6,6 +6,7 @@ import Auth from "../appcenter/auth/auth";
 import { ACStrings } from "./appCenterStrings";
 import * as Q from "q";
 import { ACCommandNames, ACConstants } from "./appCenterConstants";
+import { Profile } from "./auth/profile/profile";
 
 export class AppCenterExtensionManager implements Disposable {
     private loginStatusBarItem: StatusBarItem;
@@ -21,15 +22,21 @@ export class AppCenterExtensionManager implements Disposable {
     }
 
     public setup(): Q.Promise<void>  {
-        this.loginStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
-        this.currentAppStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 99);
+        this.loginStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 2);
+        this.currentAppStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 1);
 
         return Auth.isAuthenticated().then((isAuthenticated: boolean) => {
             if (!isAuthenticated) {
                 return this.setupNotAuthenticatedStatusBar();
             } else {
-                return Auth.whoAmI().then(userName => {
-                    return this.setuAuthenticatedStatusBar(userName);
+                return Auth.whoAmI().then((profile: Profile) => {
+                    if (profile.defaultApp) {
+                        this.setCurrentAppStatusBar(profile.defaultApp.identifier);
+                    } else {
+                        this.setCurrentAppStatusBar(null);
+                    }
+
+                    return this.setuAuthenticatedStatusBar(profile.userName);
                 });
             }
         });
@@ -63,11 +70,18 @@ export class AppCenterExtensionManager implements Disposable {
         );
     }
 
-    public setCurrentAppStatusBar(appName: string) {
-        return this.setStatusBar(this.currentAppStatusBarItem,
-            appName,
-            ACStrings.YourCurrentAppMsg(appName),
-            `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentApp}`);
+    public setCurrentAppStatusBar(appName: string | null) {
+        if (appName) {
+            return this.setStatusBar(this.currentAppStatusBarItem,
+                `$(icon octicon-browser) ${appName}`,
+                ACStrings.YourCurrentAppMsg(appName),
+                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentApp}`);
+        } else {
+            return this.setStatusBar(this.currentAppStatusBarItem,
+                `$(icon octicon-alert) ${ACStrings.NoCurrentAppSetMsg}`,
+                ACStrings.PleaseProvideCurrentAppMsg,
+                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentApp}`);
+        }
     }
 
     private setStatusBar(statusBar: StatusBarItem, text: string, tooltip: string, commandOnClick?: string): void {
