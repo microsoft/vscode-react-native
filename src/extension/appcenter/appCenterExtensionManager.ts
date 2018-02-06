@@ -7,10 +7,12 @@ import { ACStrings } from "./appCenterStrings";
 import * as Q from "q";
 import { ACCommandNames, ACConstants } from "./appCenterConstants";
 import { Profile } from "./auth/profile/profile";
+import { ACUtils } from "./appCenterUtils";
 
 export class AppCenterExtensionManager implements Disposable {
     private loginStatusBarItem: StatusBarItem;
     private currentAppStatusBarItem: StatusBarItem;
+    private currentDeploymentStatusBarItem: StatusBarItem;
     private _projectRootPath: string;
 
     public constructor(projectRootPath: string) {
@@ -22,22 +24,22 @@ export class AppCenterExtensionManager implements Disposable {
     }
 
     public setup(): Q.Promise<void>  {
-        this.loginStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 2);
-        this.currentAppStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 1);
+        this.loginStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 12);
+        this.currentAppStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 11);
+        this.currentDeploymentStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
 
-        return Auth.isAuthenticated().then((isAuthenticated: boolean) => {
-            if (!isAuthenticated) {
+        return Auth.whoAmI().then((profile: Profile) => {
+            if (!profile) {
                 return this.setupNotAuthenticatedStatusBar();
             } else {
-                return Auth.whoAmI().then((profile: Profile) => {
-                    if (profile.defaultApp) {
-                        this.setCurrentAppStatusBar(profile.defaultApp.identifier);
-                    } else {
-                        this.setCurrentAppStatusBar(null);
-                    }
-
-                    return this.setuAuthenticatedStatusBar(profile.userName);
-                });
+                if (profile && profile.defaultApp) {
+                    this.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(profile.defaultApp));
+                    this.setCurrentDeploymentStatusBar(profile.defaultApp.currentAppDeployment.currentDeploymentName);
+                } else {
+                    this.setCurrentAppStatusBar(null);
+                    this.setCurrentDeploymentStatusBar(null);
+                }
+                return this.setuAuthenticatedStatusBar(profile.userName);
             }
         });
     }
@@ -60,6 +62,9 @@ export class AppCenterExtensionManager implements Disposable {
         if (this.currentAppStatusBarItem) {
             this.currentAppStatusBarItem.hide();
         }
+        if (this.currentDeploymentStatusBarItem) {
+            this.currentDeploymentStatusBarItem.hide();
+        }
     }
 
     public setuAuthenticatedStatusBar(userName: string) {
@@ -68,6 +73,20 @@ export class AppCenterExtensionManager implements Disposable {
             ACStrings.YouAreLoggedInMsg(userName),
             `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Logout}`
         );
+    }
+
+    public setCurrentDeploymentStatusBar(deploymentName: string | null) {
+        if (deploymentName) {
+            return this.setStatusBar(this.currentDeploymentStatusBarItem,
+                `$(icon octicon-cloud-upload) ${deploymentName}`,
+                ACStrings.YourCurrentDeploymentMsg(deploymentName),
+                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentDeployment}`);
+        } else {
+            return this.setStatusBar(this.currentDeploymentStatusBarItem,
+                `$(icon octicon-alert) ${ACStrings.NoCurrentDeploymentSetMsg}`,
+                ACStrings.PleaseProvideCurrentDeploymentMsg,
+                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentDeployment}`);
+        }
     }
 
     public setCurrentAppStatusBar(appName: string | null) {

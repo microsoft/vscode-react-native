@@ -103,6 +103,11 @@
 				"category": "React Native Code Push"
 			},
 			{
+				"command": "reactNative.appcenter.setcurrentdeployment",
+				"title": "Set Current Deployment",
+				"category": "React Native Code Push"
+			},
+			{
 				"command": "reactNative.appcenter.releasereact",
 				"title": "Release React",
 				"category": "React Native Code Push"

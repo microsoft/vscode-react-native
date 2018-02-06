@@ -8,21 +8,12 @@ import { Profile, saveUser, deleteUser, getUser } from "../auth/profile/profile"
 import * as models from "app-center-node-client/models";
 
 export default class Auth {
-    public static isAuthenticated(): Q.Promise<boolean> {
-        const currentUser = getUser();
-        if (currentUser) {
-            return Q<boolean>(true);
-        } else {
-            return Q<boolean>(false);
-        }
-    }
-
-    public static whoAmI(): Q.Promise<Profile> {
+    public static whoAmI(): Q.Promise<Profile | null> {
         const currentUser = getUser();
         if (currentUser) {
             return Q.resolve(currentUser);
         } else {
-            throw new Error("Failed to get current user");
+            return Q.resolve(null);
         }
     }
 
@@ -33,6 +24,8 @@ export default class Auth {
         return this.removeLoggedInUser().then(() => {
             return Auth.fetchUserInfoByTokenAndSave(token).then((profile: Profile) => {
                 return Q.resolve(profile);
+            }).catch((e: Error) => {
+                return Q.resolve(null);
             });
         });
     }

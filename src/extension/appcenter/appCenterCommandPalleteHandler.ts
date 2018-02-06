@@ -7,7 +7,7 @@ import { AppCenterCommandExecutor } from "./command/commandExecutor";
 import Auth from "../appcenter/auth/auth";
 import * as vscode from "vscode";
 import { AppCenterClient } from "./api/index";
-import { getUser } from "./auth/profile/profile";
+import { getUser, Profile } from "./auth/profile/profile";
 import { AppCenterClientFactory, createAppCenterClient } from "./api/createClient";
 import { SettingsHelper } from "../settingsHelper";
 import { AppCenterCommandType } from "./appCenterConstants";
@@ -43,8 +43,8 @@ export class AppCenterCommandPalleteHandler {
             return this.commandExecutor.login(this.appCenterManager);
         }
 
-        return Auth.isAuthenticated().then((isAuthenticated: boolean) => {
-            if (!isAuthenticated) {
+        return Auth.whoAmI().then((profile: Profile) => {
+            if (!profile) {
                 vscode.window.showInformationMessage(ACStrings.UserIsNotLoggedInMsg);
                 return Q.resolve(void 0);
              } else {
@@ -57,13 +57,16 @@ export class AppCenterCommandPalleteHandler {
                             return this.commandExecutor.logout(this.appCenterManager);
 
                         case (AppCenterCommandType.Whoami):
-                            return this.commandExecutor.whoAmI();
+                            return this.commandExecutor.whoAmI(profile);
 
                         case (AppCenterCommandType.SetCurrentApp):
-                            return this.commandExecutor.setCurrentApp(this.appCenterManager);
+                            return this.commandExecutor.setCurrentApp(this.client, this.appCenterManager);
 
                         case (AppCenterCommandType.GetCurrentApp):
                             return this.commandExecutor.getCurrentApp();
+
+                        case (AppCenterCommandType.SetCurrentDeployment):
+                            return this.commandExecutor.setCurrentDeployment(this.appCenterManager);
 
                         case (AppCenterCommandType.CodePushReleaseReact):
                             return this.commandExecutor.releaseReact(this.client, this.appCenterManager);

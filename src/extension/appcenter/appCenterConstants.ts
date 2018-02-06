@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { models } from "./api/index";
 
 export class ACConstants {
     public static ExtensionPrefixName: string = "reactNative";
@@ -8,6 +9,7 @@ export class ACConstants {
     public static DefaulAPIEndPoint: string = "https://api.appcenter.ms";
     public static DefaultLoginEndPoint: string = "https://appcenter.ms/cli-login";
     public static CodePushNpmPackageName: string = "react-native-code-push";
+    public static AppCenterReactNativePlatformName: string = "React-Native";
 }
 
 export class ACCommandNames {
@@ -17,7 +19,18 @@ export class ACCommandNames {
     public static WhoAmI: string = ACCommandNames.CommandPrefix + "whoami";
     public static SetCurrentApp: string = ACCommandNames.CommandPrefix + "setcurrentapp";
     public static GetCurrentApp: string = ACCommandNames.CommandPrefix + "getcurrentapp";
+    public static SetCurrentDeployment: string = ACCommandNames.CommandPrefix + "setcurrentdeployment";
     public static CodePushReleaseReact: string = ACCommandNames.CommandPrefix + "releasereact";
+}
+
+export interface CurrentAppDeployment {
+    currentDeploymentName: string;
+    codePushDeployments: models.Deployment[];
+}
+
+export enum AppCenterOS {
+    iOS = "iOS",
+    Android = "Android",
 }
 
 export enum AppCenterLoginType {
@@ -34,6 +47,9 @@ export enum AppCenterCommandType {
     // App commands
     SetCurrentApp,
     GetCurrentApp,
+
+    // Deployment commands
+    SetCurrentDeployment,
 
     // CodePush commands
     CodePushReleaseReact,

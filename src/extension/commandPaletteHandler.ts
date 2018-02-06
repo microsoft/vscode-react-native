@@ -260,6 +260,13 @@ export class CommandPaletteHandler {
         });
     }
 
+    public static appCenterSetCurrentDeployment(): Q.Promise<void> {
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.SetCurrentDeployment);
+        });
+    }
+
     public static appCenterCodePushReleaseReact(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
