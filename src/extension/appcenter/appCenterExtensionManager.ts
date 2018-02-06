@@ -25,19 +25,16 @@ export class AppCenterExtensionManager implements Disposable {
         this.loginStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 2);
         this.currentAppStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 1);
 
-        return Auth.isAuthenticated().then((isAuthenticated: boolean) => {
-            if (!isAuthenticated) {
+        return Auth.whoAmI().then((profile: Profile) => {
+            if (!profile) {
                 return this.setupNotAuthenticatedStatusBar();
             } else {
-                return Auth.whoAmI().then((profile: Profile) => {
-                    if (profile.defaultApp) {
-                        this.setCurrentAppStatusBar(profile.defaultApp.identifier);
-                    } else {
-                        this.setCurrentAppStatusBar(null);
-                    }
-
-                    return this.setuAuthenticatedStatusBar(profile.userName);
-                });
+                if (profile.defaultApp) {
+                    this.setCurrentAppStatusBar(profile.defaultApp.identifier);
+                } else {
+                    this.setCurrentAppStatusBar(null);
+                }
+                return this.setuAuthenticatedStatusBar(profile.userName);
             }
         });
     }

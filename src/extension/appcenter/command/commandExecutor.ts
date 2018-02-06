@@ -21,7 +21,7 @@ import { ACUtils } from "../appCenterUtils";
 interface IAppCenterAuth {
     login(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
     logout(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
-    whoAmI(): Q.Promise<void>;
+    whoAmI(profile: Profile): Q.Promise<void>;
 }
 
 interface IAppCenterApps {
@@ -92,16 +92,13 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         return Q.resolve(void 0);
     }
 
-    public whoAmI(): Q.Promise<void> {
-        return Auth.whoAmI().then((profile: Profile) => {
-            if (profile.displayName) {
-                vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
-                return;
-            }
-        }).catch(() => {
+    public whoAmI(profile: Profile): Q.Promise<void> {
+        if (profile && profile.displayName) {
+            vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
+        } else {
             vscode.window.showInformationMessage(ACStrings.UserIsNotLoggedInMsg);
-            return;
-        });
+        }
+        return Q.resolve(void 0);
     }
 
     public getCurrentApp(): Q.Promise<void> {
@@ -153,6 +150,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
             vscode.window.showInformationMessage(ACStrings.InvalidCurrentAppNameMsg);
             return Q<boolean>(false);
         }
+
         let profile = getUser();
         if (profile) {
             profile.defaultApp = defaultApp;
