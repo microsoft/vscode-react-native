@@ -197,6 +197,8 @@ function registerAppCenterCommands(context: vscode.ExtensionContext): void {
         () => CommandPaletteHandler.appCenterSetCurrentApp());
     registerVSCodeCommand(context, ACCommandNames.GetCurrentApp, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterGetCurrentApp),
         () => CommandPaletteHandler.appCenterGetCurrentApp());
+    registerVSCodeCommand(context, ACCommandNames.SetCurrentDeployment, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterSetCurrentDeployment),
+        () => CommandPaletteHandler.appCenterSetCurrentDeployment());
     registerVSCodeCommand(context, ACCommandNames.CodePushReleaseReact, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterReleaseReact),
         () => CommandPaletteHandler.appCenterCodePushReleaseReact());
 }

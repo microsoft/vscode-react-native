@@ -65,6 +65,9 @@ export class AppCenterCommandPalleteHandler {
                         case (AppCenterCommandType.GetCurrentApp):
                             return this.commandExecutor.getCurrentApp();
 
+                        case (AppCenterCommandType.SetCurrentDeployment):
+                            return this.commandExecutor.setCurrentDeployment(this.appCenterManager);
+
                         case (AppCenterCommandType.CodePushReleaseReact):
                             return this.commandExecutor.releaseReact(this.client, this.appCenterManager);
 

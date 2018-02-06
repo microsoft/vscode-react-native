@@ -9,7 +9,7 @@ import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
 import { Package, IPackageInformation } from "../../common/node/package";
-import { ACConstants, AppCenterOS } from "./appCenterConstants";
+import { ACConstants, AppCenterOS, CurrentAppDeployment } from "./appCenterConstants";
 import { DefaultApp } from "./command/commandParams";
 
 export class ACUtils {
@@ -48,7 +48,7 @@ export class ACUtils {
         return null;
     }
 
-    public static toDefaultApp(app: string, appOS: AppCenterOS): DefaultApp | null {
+    public static toDefaultApp(app: string, appOS: AppCenterOS, appDeployment: CurrentAppDeployment | null): DefaultApp | null {
         const matches = app.match(this.validApp);
         if (matches !== null) {
           return {
@@ -56,6 +56,10 @@ export class ACUtils {
             appName: matches[2],
             identifier: `${matches[1]}/${matches[2]}`,
             os: appOS,
+            currentAppDeployment: appDeployment ? appDeployment : {
+                codePushDeployments: new Array(),
+                currentDeploymentName: "",
+            },
           };
         }
         return null;

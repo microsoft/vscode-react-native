@@ -11,15 +11,21 @@ export class ACStrings {
     public static LogoutPrompt: string = "Please execute logout to signoff from App Center";
     public static NoCodePushDetectedMsg: string = "Please install React Native Code Push package to run this command!";
     public static NoCurrentAppSetMsg: string = "No current app";
+    public static NoCurrentDeploymentSetMsg: string = "No current deployment";
     public static PleaseProvideCurrentAppMsg: string = "Please click here to specify current app";
+    public static PleaseProvideCurrentDeploymentMsg: string = "Please click here to specify current deployment";
     public static ProvideCurrentAppPromptMsg: string = "Please specify existant current app";
     public static InvalidCurrentAppNameMsg: string = "Sorry, provided app name is invalid";
     public static FailedToExecuteLoginMsg: string = "Failed to execute login to App Center";
+    public static SelectCurrentDeploymentMsg: string = "Please select current deployment";
 
     public static YouAreLoggedInMsg: (name: string) => string = (name: string) => {
          return `You are logged in to App Center as ${name}`;
     }
     public static YourCurrentAppMsg: (appName: string) => string = (appName: string) => {
         return `Your current app is ${appName}`;
-   }
+    }
+    public static YourCurrentDeploymentMsg: (deploymentName: string) => string = (deploymentName: string) => {
+        return `Your current deployment is ${deploymentName}`;
+    }
 }

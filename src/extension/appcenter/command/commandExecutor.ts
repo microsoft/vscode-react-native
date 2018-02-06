@@ -8,7 +8,7 @@ import * as os from "os";
 
 import { ILogger, LogLevel } from "../../log/LogHelper";
 import Auth from "../../appcenter/auth/auth";
-import { AppCenterLoginType, ACConstants, AppCenterOS } from "../appCenterConstants";
+import { AppCenterLoginType, ACConstants, AppCenterOS, CurrentAppDeployment } from "../appCenterConstants";
 import { Profile, getUser } from "../../appcenter/auth/profile/profile";
 import { SettingsHelper } from "../../settingsHelper";
 import { AppCenterClient, models } from "../api/index";
@@ -28,6 +28,8 @@ interface IAppCenterAuth {
 interface IAppCenterApps {
     getCurrentApp(): Q.Promise<void>;
     setCurrentApp(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
+
+    setCurrentDeployment(appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
 }
 
 interface IAppCenterCodePush {
@@ -102,6 +104,32 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         return Q.resolve(void 0);
     }
 
+    public setCurrentDeployment(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
+        this.restoreCurrentApp().then((currentApp: DefaultApp) => {
+            if (currentApp && currentApp.currentAppDeployment && currentApp.currentAppDeployment.codePushDeployments) {
+                const deploymentOptions: string[] = currentApp.currentAppDeployment.codePushDeployments.map((deployment) => {
+                    return deployment.name;
+                });
+                vscode.window.showQuickPick(deploymentOptions, { placeHolder: ACStrings.SelectCurrentDeploymentMsg })
+                .then((deploymentName) => {
+                    if (deploymentName) {
+                        this.saveCurrentApp(currentApp.identifier, AppCenterOS[currentApp.os], {
+                            currentDeploymentName: deploymentName,
+                            codePushDeployments: currentApp.currentAppDeployment.codePushDeployments,
+                        }).then((app: DefaultApp | null) => {
+                            if (app) {
+                                appCenterManager.setCurrentDeploymentStatusBar(deploymentName);
+                            }
+                        });
+                    }
+                });
+            } else {
+                appCenterManager.setCurrentDeploymentStatusBar(null);
+            }
+        });
+        return Q.resolve(void 0);
+    }
+
     public getCurrentApp(): Q.Promise<void> {
         this.restoreCurrentApp().then((app: DefaultApp) => {
             if (app) {
@@ -132,11 +160,20 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                         const selectedApp: models.AppResponse = selectedApps[0];
                         const selectedAppName: string = `${selectedApp.owner.name}/${selectedApp.name}`;
                         const OS: AppCenterOS = AppCenterOS[selectedApp.os];
-                        this.saveCurrentApp(selectedAppName, OS).then((app: DefaultApp | null) => {
-                            if (app) {
-                                vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(selected.target));
-                                appCenterManager.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(app));
+                        getQPromisifiedClientResult(client.codepush.codePushDeployments.list(selectedApp.name, selectedApp.owner.name)).then((deployments: models.Deployment[]) => {
+                            let currentDeployment: CurrentAppDeployment | null = null;
+                            if (deployments.length > 0) {
+                                currentDeployment = {
+                                    codePushDeployments: deployments,
+                                    currentDeploymentName: deployments[0].name, // Select 1st one by default
+                                };
                             }
+                            this.saveCurrentApp(selectedAppName, OS, currentDeployment).then((app: DefaultApp | null) => {
+                                if (app) {
+                                    vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(selected.target));
+                                    appCenterManager.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(app));
+                                }
+                            });
                         });
                     }
                 }
@@ -166,8 +203,8 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         });
     }
 
-    private saveCurrentApp(currentAppName: string, appOS: AppCenterOS): Q.Promise<DefaultApp | null> {
-        const defaultApp = ACUtils.toDefaultApp(currentAppName, appOS);
+    private saveCurrentApp(currentAppName: string, appOS: AppCenterOS, currentAppDeployment: CurrentAppDeployment | null): Q.Promise<DefaultApp | null> {
+        const defaultApp = ACUtils.toDefaultApp(currentAppName, appOS, currentAppDeployment);
         if (!defaultApp) {
             vscode.window.showWarningMessage(ACStrings.InvalidCurrentAppNameMsg);
             return Q.resolve(null);
@@ -190,7 +227,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         if (user) {
             if (user.defaultApp) {
                 const currentApp = `${user.defaultApp.ownerName}/${user.defaultApp.appName}`;
-                const defaultApp: DefaultApp | null = ACUtils.toDefaultApp(currentApp, AppCenterOS[user.defaultApp.os]);
+                const defaultApp: DefaultApp | null = ACUtils.toDefaultApp(currentApp, AppCenterOS[user.defaultApp.os], user.defaultApp.currentAppDeployment);
                 if (defaultApp) {
                     return Q.resolve(defaultApp);
                 }
@@ -214,8 +251,10 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
             this.restoreCurrentApp().then((currentApp: DefaultApp) => {
                 if (currentApp) {
                     appCenterManager.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(currentApp));
+                    appCenterManager.setCurrentDeploymentStatusBar(currentApp.currentAppDeployment.currentDeploymentName);
                 } else {
                     appCenterManager.setCurrentAppStatusBar(null);
+                    appCenterManager.setCurrentDeploymentStatusBar(null);
                 }
             });
         });
