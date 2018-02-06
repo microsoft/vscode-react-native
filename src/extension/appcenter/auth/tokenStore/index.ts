@@ -15,6 +15,9 @@ let store: TokenStore;
 // Currently only support file-base token store
 const tokenFilePath = path.join(getProfileDir(), tokenFile);
 if (!fs.existsSync(tokenFilePath)) {
+    if (!fs.existsSync(getProfileDir())) {
+        fs.mkdirSync(getProfileDir());
+    }
     fs.writeFileSync(tokenFilePath, /* create empty */ "");
 }
 store = createFileTokenStore(tokenFilePath);
