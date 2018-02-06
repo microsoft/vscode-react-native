@@ -5,9 +5,9 @@
  */
 
 declare class AppCenterClientCredentials {
-  constructor(getToken: Promise<any>);
+  constructor(getToken: Function);
 
-  signRequest(request: any, callback: any);
+  signRequest(request: any, callback: any): any;
 }
 
 export = AppCenterClientCredentials;

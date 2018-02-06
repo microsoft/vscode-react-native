@@ -130,10 +130,10 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     }
 
     public releaseReact(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
-        let codePushRelaseParams: ICodePushReleaseParams;
-
+        let codePushRelaseParams = <ICodePushReleaseParams>{};
+        const projectRootPath: string = appCenterManager.projectRootPath;
         return Q.Promise<void>((resolve, reject) => {
-            reactNative.getAndroidAppVersion()
+            reactNative.getAndroidAppVersion(projectRootPath)
                 .then((appVersion: string) => {
                     codePushRelaseParams.appVersion = appVersion;
                     return reactNative.makeUpdateContents(<BundleInfo>{ os: "android" });
@@ -153,11 +153,11 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                     }
                     codePushRelaseParams.app = currentApp;
                     codePushRelaseParams.deploymentName = "Staging";
-                    CodePushReleaseReact.exec(client, codePushRelaseParams, this.logger);
-                }).then(value => resolve(value))
-                .catch(error => reject(error));
+                    CodePushReleaseReact.exec(client, codePushRelaseParams, this.logger)
+                        .then((value: any) => resolve(value))
+                        .catch((error: any) => reject(error));
+                });
         });
-
     }
 
     private saveCurrentApp(currentApp: string): Q.Promise<boolean> {
