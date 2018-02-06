@@ -10,6 +10,7 @@ export class ACConstants {
     public static DefaultLoginEndPoint: string = "https://appcenter.ms/cli-login";
     public static CodePushNpmPackageName: string = "react-native-code-push";
     public static AppCenterReactNativePlatformName: string = "React-Native";
+    public static AppCenterCodePushStatusBarColor: string = "#F3F3B2";
 }
 
 export class ACCommandNames {

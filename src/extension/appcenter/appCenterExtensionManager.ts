@@ -109,6 +109,7 @@ export class AppCenterExtensionManager implements Disposable {
             statusBar.text = text;
             statusBar.tooltip = tooltip;
             statusBar.show();
+            statusBar.color = ACConstants.AppCenterCodePushStatusBarColor;
         }
     }
 }
