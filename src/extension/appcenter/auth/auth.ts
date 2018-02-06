@@ -24,6 +24,8 @@ export default class Auth {
         return this.removeLoggedInUser().then(() => {
             return Auth.fetchUserInfoByTokenAndSave(token).then((profile: Profile) => {
                 return Q.resolve(profile);
+            }).catch((e: Error) => {
+                return Q.resolve(null);
             });
         });
     }

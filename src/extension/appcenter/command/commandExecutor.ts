@@ -103,9 +103,11 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
 
     public getCurrentApp(): Q.Promise<void> {
         this.restoreCurrentApp().then((app: DefaultApp) => {
-            vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(app.identifier));
-        }).catch(e => {
-            vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
+            if (app) {
+                vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(app.identifier));
+            } else {
+                vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
+            }
         });
         return Q.resolve(void 0);
     }
@@ -131,7 +133,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
 
         return this.restoreCurrentApp().then((currentApp: DefaultApp) => {
             if (!currentApp) {
-                vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
+                vscode.window.showWarningMessage(ACStrings.NoCurrentAppSetMsg);
                 return;
             }
             let codePushRelaseParams: ICodePushReleaseParams = {
@@ -147,7 +149,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     private saveCurrentApp(currentApp: string): Q.Promise<boolean> {
         const defaultApp = ACUtils.toDefaultApp(currentApp);
         if (!defaultApp) {
-            vscode.window.showInformationMessage(ACStrings.InvalidCurrentAppNameMsg);
+            vscode.window.showWarningMessage(ACStrings.InvalidCurrentAppNameMsg);
             return Q<boolean>(false);
         }
 
@@ -158,7 +160,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
             return Q<boolean>(true);
         } else {
             // No profile - not logged in?
-            vscode.window.showInformationMessage(ACStrings.UserIsNotLoggedInMsg);
+            vscode.window.showWarningMessage(ACStrings.UserIsNotLoggedInMsg);
             return Q<boolean>(false);
         }
     }
@@ -182,6 +184,11 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
             return;
         }
         return Auth.doTokenLogin(token).then((profile: Profile) => {
+            if (!profile) {
+                this.logger.log("Failed to fetch user info from server", LogLevel.Error);
+                vscode.window.showWarningMessage(ACStrings.FailedToExecuteLoginMsg);
+                return;
+            }
             vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
             appCenterManager.setuAuthenticatedStatusBar(profile.displayName);
             this.restoreCurrentApp().then((currentApp: DefaultApp) => {
