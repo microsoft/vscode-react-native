@@ -18,7 +18,7 @@ import { ACStrings } from "../appCenterStrings";
 import CodePushReleaseReact from "../codepush/releaseReact";
 import { ACUtils } from "../appCenterUtils";
 import { updateContents, reactNative } from "codepush-node-sdk";
-import BundleInfo = reactNative.BundleInfo;
+import BundleConfig = reactNative.BundleConfig;
 
 interface IAppCenterAuth {
     login(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
@@ -136,9 +136,12 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
             reactNative.getAndroidAppVersion(projectRootPath)
                 .then((appVersion: string) => {
                     codePushRelaseParams.appVersion = appVersion;
-                    return reactNative.makeUpdateContents(<BundleInfo>{ os: "android" });
+                    return reactNative.makeUpdateContents(<BundleConfig>{
+                        os: "android",
+                        projectRootPath: projectRootPath,
+                    });
                 }).then((pathToUpdateContents: string) => {
-                    return updateContents.zip(pathToUpdateContents);
+                    return updateContents.zip(pathToUpdateContents, projectRootPath);
                 }).then((pathToZippedBundle: string) => {
                     codePushRelaseParams.updatedContentZipPath = pathToZippedBundle;
                     return new Promise<DefaultApp>((appResolve, appReject) => {
@@ -156,7 +159,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                     CodePushReleaseReact.exec(client, codePushRelaseParams, this.logger)
                         .then((value: any) => resolve(value))
                         .catch((error: any) => reject(error));
-                });
+                }).catch((error: any) => reject(error));
         });
     }
 
