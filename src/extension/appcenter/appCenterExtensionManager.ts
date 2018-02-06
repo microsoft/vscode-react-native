@@ -7,6 +7,7 @@ import { ACStrings } from "./appCenterStrings";
 import * as Q from "q";
 import { ACCommandNames, ACConstants } from "./appCenterConstants";
 import { Profile } from "./auth/profile/profile";
+import { ACUtils } from "./appCenterUtils";
 
 export class AppCenterExtensionManager implements Disposable {
     private loginStatusBarItem: StatusBarItem;
@@ -29,8 +30,8 @@ export class AppCenterExtensionManager implements Disposable {
             if (!profile) {
                 return this.setupNotAuthenticatedStatusBar();
             } else {
-                if (profile.defaultApp) {
-                    this.setCurrentAppStatusBar(profile.defaultApp.identifier);
+                if (profile && profile.defaultApp) {
+                    this.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(profile.defaultApp));
                 } else {
                     this.setCurrentAppStatusBar(null);
                 }

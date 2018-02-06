@@ -8,15 +8,16 @@ import * as os from "os";
 
 import { ILogger, LogLevel } from "../../log/LogHelper";
 import Auth from "../../appcenter/auth/auth";
-import { AppCenterLoginType } from "../appCenterConstants";
+import { AppCenterLoginType, ACConstants, AppCenterOS } from "../appCenterConstants";
 import { Profile, getUser } from "../../appcenter/auth/profile/profile";
 import { SettingsHelper } from "../../settingsHelper";
-import { AppCenterClient } from "../api/index";
+import { AppCenterClient, models } from "../api/index";
 import { DefaultApp, ICodePushReleaseParams } from "./commandParams";
 import { AppCenterExtensionManager } from "../appCenterExtensionManager";
 import { ACStrings } from "../appCenterStrings";
 import CodePushReleaseReact from "../codepush/releaseReact";
 import { ACUtils } from "../appCenterUtils";
+import { getQPromisifiedClientResult } from "../api/createClient";
 
 interface IAppCenterAuth {
     login(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
@@ -26,7 +27,7 @@ interface IAppCenterAuth {
 
 interface IAppCenterApps {
     getCurrentApp(): Q.Promise<void>;
-    setCurrentApp(appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
+    setCurrentApp(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
 }
 
 interface IAppCenterCodePush {
@@ -112,18 +113,37 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         return Q.resolve(void 0);
     }
 
-    public setCurrentApp(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
-        vscode.window.showInputBox({ prompt: ACStrings.ProvideCurrentAppPromptMsg, ignoreFocusOut: true })
-        .then((currentApp: string) => {
-            // TODO: I believe we should validate app here for existance! before we save anything
-            this.saveCurrentApp(<string>currentApp).then((saved: boolean) => {
-                if (saved) {
-                    vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(currentApp));
-                    appCenterManager.setCurrentAppStatusBar(currentApp);
-                }
+    public setCurrentApp(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
+        return getQPromisifiedClientResult(client.account.apps.list()).then((apps: models.AppResponse[]) => {
+            const appsList: models.AppResponse[] = apps;
+            const reactNativeApps = appsList.filter(app => app.platform === ACConstants.AppCenterReactNativePlatformName);
+            let options = reactNativeApps.map(app => {
+                return {
+                    label: `${app.name} (${app.os})`,
+                    description: app.displayName,
+                    target: app.name,
+                };
             });
+            vscode.window.showQuickPick(options, { placeHolder: ACStrings.ProvideCurrentAppPromptMsg })
+            .then((selected: {label: string, description: string, target: string}) => {
+                if (selected) {
+                    const selectedApps: models.AppResponse[] = appsList.filter(app => app.name === selected.target);
+                    if (selectedApps && selectedApps.length === 1) {
+                        const selectedApp: models.AppResponse = selectedApps[0];
+                        const selectedAppName: string = `${selectedApp.owner.name}/${selectedApp.name}`;
+                        const OS: AppCenterOS = AppCenterOS[selectedApp.os];
+                        this.saveCurrentApp(selectedAppName, OS).then((app: DefaultApp | null) => {
+                            if (app) {
+                                vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(selected.target));
+                                appCenterManager.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(app));
+                            }
+                        });
+                    }
+                }
+                return Q.resolve(void 0);
+            });
+            return Q.resolve(void 0);
         });
-        return Q.resolve(void 0);
     }
 
     public releaseReact(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
@@ -146,34 +166,34 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         });
     }
 
-    private saveCurrentApp(currentApp: string): Q.Promise<boolean> {
-        const defaultApp = ACUtils.toDefaultApp(currentApp);
+    private saveCurrentApp(currentAppName: string, appOS: AppCenterOS): Q.Promise<DefaultApp | null> {
+        const defaultApp = ACUtils.toDefaultApp(currentAppName, appOS);
         if (!defaultApp) {
             vscode.window.showWarningMessage(ACStrings.InvalidCurrentAppNameMsg);
-            return Q<boolean>(false);
+            return Q.resolve(null);
         }
 
         let profile = getUser();
         if (profile) {
             profile.defaultApp = defaultApp;
             profile.save();
-            return Q<boolean>(true);
+            return Q.resolve(defaultApp);
         } else {
             // No profile - not logged in?
             vscode.window.showWarningMessage(ACStrings.UserIsNotLoggedInMsg);
-            return Q<boolean>(false);
+            return Q.resolve(null);
         }
     }
 
     private restoreCurrentApp(): Q.Promise<DefaultApp | null> {
         const user = getUser();
         if (user) {
-            const currentApp = user.defaultApp
-                ? `${user.defaultApp.ownerName}/${user.defaultApp.appName}`
-                : "";
-            const defaultApp: DefaultApp | null = ACUtils.toDefaultApp(currentApp);
-            if (defaultApp) {
-                return Q.resolve(defaultApp);
+            if (user.defaultApp) {
+                const currentApp = `${user.defaultApp.ownerName}/${user.defaultApp.appName}`;
+                const defaultApp: DefaultApp | null = ACUtils.toDefaultApp(currentApp, AppCenterOS[user.defaultApp.os]);
+                if (defaultApp) {
+                    return Q.resolve(defaultApp);
+                }
             }
         }
         return Q.resolve(null);
@@ -193,7 +213,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
             appCenterManager.setuAuthenticatedStatusBar(profile.displayName);
             this.restoreCurrentApp().then((currentApp: DefaultApp) => {
                 if (currentApp) {
-                    appCenterManager.setCurrentAppStatusBar(currentApp.identifier);
+                    appCenterManager.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(currentApp));
                 } else {
                     appCenterManager.setCurrentAppStatusBar(null);
                 }

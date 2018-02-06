@@ -9,6 +9,7 @@ export interface DefaultApp {
     ownerName: string;
     appName: string;
     identifier: string;
+    os: string;
 }
 
 export interface ICodePushReleaseParams extends IDefaultCommandParams {

@@ -8,6 +8,7 @@ export class ACConstants {
     public static DefaulAPIEndPoint: string = "https://api.appcenter.ms";
     public static DefaultLoginEndPoint: string = "https://appcenter.ms/cli-login";
     public static CodePushNpmPackageName: string = "react-native-code-push";
+    public static AppCenterReactNativePlatformName: string = "React-Native";
 }
 
 export class ACCommandNames {
@@ -18,6 +19,11 @@ export class ACCommandNames {
     public static SetCurrentApp: string = ACCommandNames.CommandPrefix + "setcurrentapp";
     public static GetCurrentApp: string = ACCommandNames.CommandPrefix + "getcurrentapp";
     public static CodePushReleaseReact: string = ACCommandNames.CommandPrefix + "releasereact";
+}
+
+export enum AppCenterOS {
+    iOS = "iOS",
+    Android = "Android",
 }
 
 export enum AppCenterLoginType {

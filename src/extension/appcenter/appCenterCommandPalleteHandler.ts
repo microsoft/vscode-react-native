@@ -60,7 +60,7 @@ export class AppCenterCommandPalleteHandler {
                             return this.commandExecutor.whoAmI(profile);
 
                         case (AppCenterCommandType.SetCurrentApp):
-                            return this.commandExecutor.setCurrentApp(this.appCenterManager);
+                            return this.commandExecutor.setCurrentApp(this.client, this.appCenterManager);
 
                         case (AppCenterCommandType.GetCurrentApp):
                             return this.commandExecutor.getCurrentApp();

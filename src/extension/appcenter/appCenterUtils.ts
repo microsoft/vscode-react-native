@@ -9,7 +9,7 @@ import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
 import { Package, IPackageInformation } from "../../common/node/package";
-import { ACConstants } from "./appCenterConstants";
+import { ACConstants, AppCenterOS } from "./appCenterConstants";
 import { DefaultApp } from "./command/commandParams";
 
 export class ACUtils {
@@ -41,13 +41,21 @@ export class ACUtils {
         });
     }
 
-    public static toDefaultApp(app: string): DefaultApp | null {
+    public static formatAppNameForStatusBar(app: DefaultApp): string | null {
+        if (app) {
+            return `${app.appName} (${app.os})`;
+        }
+        return null;
+    }
+
+    public static toDefaultApp(app: string, appOS: AppCenterOS): DefaultApp | null {
         const matches = app.match(this.validApp);
         if (matches !== null) {
           return {
             ownerName: matches[1],
             appName: matches[2],
             identifier: `${matches[1]}/${matches[2]}`,
+            os: appOS,
           };
         }
         return null;
