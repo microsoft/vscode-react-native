@@ -7,6 +7,7 @@ import { ICodePushReleaseParams } from "../command/commandParams";
 import { getQPromisifiedClientResult } from "../api/createClient";
 import * as Q from "q";
 import { CommandResult, success, failure, ErrorCodes } from "../command/commandResult";
+import * as fs from "fs";
 
 export default class CodePushReleaseReact {
     public static exec(client: AppCenterClient, params: ICodePushReleaseParams, logger: ILogger): Q.Promise<CommandResult> {
@@ -17,12 +18,13 @@ export default class CodePushReleaseReact {
                 app.ownerName,
                 <string>params.appVersion,
                 {
-                  deploymentName: params.deploymentName,
-                  description: params.description,
-                  disabled: params.isDisabled,
-                  mandatory: params.isMandatory,
-                  noDuplicateReleaseError: false, // TODO: remove it, not needed to send to server
-                  rollout: params.rollout,
+                    packageProperty: fs.createReadStream(params.updatedContentZipPath),
+                    deploymentName: params.deploymentName,
+                    description: params.description,
+                    disabled: params.isDisabled,
+                    mandatory: params.isMandatory,
+                    noDuplicateReleaseError: false, // TODO: remove it, not needed to send to server
+                    rollout: params.rollout,
                 })
         ).then((result: models.CodePushRelease) => {
             return success(result);
