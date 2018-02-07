@@ -173,7 +173,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                             this.saveCurrentApp(selectedAppName, OS, currentDeployment).then((app: DefaultApp | null) => {
                                 if (app) {
                                     vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(selected.target));
-                                    appCenterManager.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(app));
+                                    appCenterManager.setupAppCenterStatusBarsWithCurrentApp(app);
                                 }
                             });
                         });

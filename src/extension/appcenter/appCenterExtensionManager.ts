@@ -67,7 +67,7 @@ export class AppCenterExtensionManager implements Disposable {
 
     public setupAuthenticatedStatusBar(userName: string) {
         this.setStatusBar(this.loginStatusBarItem,
-            `$(icon octicon-person) ${userName}`,
+            `$(icon octicon-person) ${userName} $(icon octicon-arrow-right)`,
             ACStrings.YouAreLoggedInMsg(userName),
             `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Logout}`
         );
@@ -100,12 +100,12 @@ export class AppCenterExtensionManager implements Disposable {
     public setCurrentAppStatusBar(appName: string | null) {
         if (appName) {
             return this.setStatusBar(this.currentAppStatusBarItem,
-                `$(icon octicon-browser) ${appName}`,
+                `$(icon octicon-browser) ${appName} $(icon octicon-arrow-right)`,
                 ACStrings.YourCurrentAppMsg(appName),
                 `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentApp}`);
         } else {
             return this.setStatusBar(this.currentAppStatusBarItem,
-                `$(icon octicon-alert) ${ACStrings.NoCurrentAppSetMsg}`,
+                `$(icon octicon-alert) ${ACStrings.NoCurrentAppSetMsg} $(icon octicon-arrow-right)`,
                 ACStrings.PleaseProvideCurrentAppMsg,
                 `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentApp}`);
         }
