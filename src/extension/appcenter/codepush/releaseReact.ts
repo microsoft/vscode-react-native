@@ -28,7 +28,11 @@ export default class CodePushReleaseReact {
                 })
         ).then((result: models.CodePushRelease) => {
             return success(result);
-        }).catch((e) => {
+        }).catch((error) => {
+            if (error.response.statusCode === 409) {
+                logger.log(error.response.body, LogLevel.Error);
+                return failure(ErrorCodes.Exception, error.response.body);
+            }
             logger.log("An error occured on doing Code Push release", LogLevel.Error);
             return failure(ErrorCodes.Exception, "An error occured on doing Code Push release");
         });

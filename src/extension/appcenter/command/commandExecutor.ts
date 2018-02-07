@@ -17,7 +17,7 @@ import { AppCenterExtensionManager } from "../appCenterExtensionManager";
 import { ACStrings } from "../appCenterStrings";
 import CodePushReleaseReact from "../codepush/releaseReact";
 import { ACUtils } from "../appCenterUtils";
-import { updateContents, reactNative } from "codepush-node-sdk";
+import { updateContents, reactNative, fileUtils } from "codepush-node-sdk";
 import BundleConfig = reactNative.BundleConfig;
 import { getQPromisifiedClientResult } from "../api/createClient";
 
@@ -204,49 +204,65 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     public releaseReact(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
         let codePushRelaseParams = <ICodePushReleaseParams>{};
         const projectRootPath: string = appCenterManager.projectRootPath;
-        return Q.Promise<void>((resolve, reject) => {
-            new Promise<DefaultApp>((appResolve, appReject) => {
-                this.restoreCurrentApp()
-                    .then((currentApp: DefaultApp) => appResolve(<DefaultApp>currentApp))
-                    .catch(err => appReject(err));
-            }).then((currentApp: DefaultApp): any => {
-                if (!currentApp) {
-                    vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
-                    reject(new Error());
-                }
-                codePushRelaseParams.app = currentApp;
-                codePushRelaseParams.deploymentName = currentApp.currentAppDeployment.currentDeploymentName;
-
-                currentApp.os = currentApp.os.toLowerCase();
-
-                if (!reactNative.isValidOS(currentApp.os)) {
-                    reject(new Error());
-                }
-
-                switch (currentApp.os) {
-                    case "android":
-                        return reactNative.getAndroidAppVersion(projectRootPath);
-                    case "ios":
-                        return reactNative.getiOSAppVersion(projectRootPath);
-                    case "windows":
-                        return reactNative.getWindowsAppVersion(projectRootPath);
-                    default:
-                        reject(new Error());
-                }
-            }).then((appVersion: string) => {
-                codePushRelaseParams.appVersion = appVersion;
-                return reactNative.makeUpdateContents(<BundleConfig>{
-                    os: codePushRelaseParams.app.os,
-                    projectRootPath: projectRootPath,
+        let updateContentsDirectory: string;
+        return Q.Promise<any>((resolve, reject) => {
+            vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: "Get Apps" }, p => {
+                return new Promise<DefaultApp>((appResolve, appReject) => {
+                    p.report({ message: ACStrings.GettingAppInfoMessage });
+                    this.restoreCurrentApp()
+                        .then((currentApp: DefaultApp) => appResolve(<DefaultApp>currentApp))
+                        .catch(err => appReject(err));
+                }).then((currentApp: DefaultApp): any => {
+                    p.report({ message: ACStrings.DetectingAppVersionMessage });
+                    if (!currentApp) {
+                        vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
+                        reject(new Error(`No current app has been specified.`));
+                    }
+                    if (!reactNative.isValidOS(currentApp.os)) {
+                        reject(new Error(`OS must be "android", "ios", or "windows".`));
+                    }
+                    codePushRelaseParams.app = currentApp;
+                    codePushRelaseParams.deploymentName = currentApp.currentAppDeployment.currentDeploymentName;
+                    currentApp.os = currentApp.os.toLowerCase();
+                    switch (currentApp.os) {
+                        case "android": return reactNative.getAndroidAppVersion(projectRootPath);
+                        case "ios": return reactNative.getiOSAppVersion(projectRootPath);
+                        case "windows": return reactNative.getWindowsAppVersion(projectRootPath);
+                        default: reject(new Error(`OS must be "android", "ios", or "windows".`));
+                    }
+                }).then((appVersion: string) => {
+                    p.report({ message: ACStrings.RunningReactNativeBundleCommandMessage });
+                    codePushRelaseParams.appVersion = appVersion;
+                    return reactNative.makeUpdateContents(<BundleConfig>{
+                        os: codePushRelaseParams.app.os,
+                        projectRootPath: projectRootPath,
+                    });
+                }).then((pathToUpdateContents: string) => {
+                    p.report({ message: ACStrings.ArchivingUpdateContentsMessage });
+                    updateContentsDirectory = pathToUpdateContents;
+                    return updateContents.zip(pathToUpdateContents, projectRootPath);
+                }).then((pathToZippedBundle: string) => {
+                    p.report({ message: ACStrings.ReleasingUpdateContentsMessage });
+                    codePushRelaseParams.updatedContentZipPath = pathToZippedBundle;
+                    return new Promise<any>((publishResolve, publishReject) => {
+                        CodePushReleaseReact.exec(client, codePushRelaseParams, this.logger)
+                            .then((response: any) => publishResolve(response))
+                            .catch((error: any) => publishReject(error));
+                    });
+                }).then((response: any) => {
+                    if (response.succeeded && response.result) {
+                        vscode.window.showInformationMessage(`Successfully released an update containing the "${updateContentsDirectory}" ` +
+                            `directory to the "${codePushRelaseParams.deploymentName}" deployment of the "${codePushRelaseParams.app.appName}" app`);
+                        resolve(response.result);
+                    } else {
+                        vscode.window.showErrorMessage(response.errorMessage);
+                    }
+                    fileUtils.rmDir(codePushRelaseParams.updatedContentZipPath);
+                }).catch((error: Error) => {
+                    vscode.window.showErrorMessage("An error occured on doing Code Push release");
+                    fileUtils.rmDir(codePushRelaseParams.updatedContentZipPath);
                 });
-            }).then((pathToUpdateContents: string) => {
-                return updateContents.zip(pathToUpdateContents, projectRootPath);
-            }).then((pathToZippedBundle: string) => {
-                codePushRelaseParams.updatedContentZipPath = pathToZippedBundle;
-                CodePushReleaseReact.exec(client, codePushRelaseParams, this.logger)
-                    .then((value: any) => resolve(value))
-                    .catch((error: any) => reject(error));
-            }).catch((error: any) => reject(error));
+            });
         });
     }
 

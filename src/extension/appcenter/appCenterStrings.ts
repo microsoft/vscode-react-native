@@ -20,6 +20,11 @@ export class ACStrings {
     public static SelectCurrentDeploymentMsg: string = "Please select current deployment";
     public static FetchAppsStatusBarMessage: string = "Fetching current apps for you...";
     public static FetchDeploymentsStatusBarMessage: string = "Fetching app deployments for you...";
+    public static GettingAppInfoMessage: string = "Getting app info...";
+    public static DetectingAppVersionMessage: string = "Detecting app version...";
+    public static RunningReactNativeBundleCommandMessage: string = "Running \"react-native bundle\" command...";
+    public static ArchivingUpdateContentsMessage: string = "Archiving update contents...";
+    public static ReleasingUpdateContentsMessage: string = "Releasing update contents to CodePush...";
 
     public static YouAreLoggedInMsg: (name: string) => string = (name: string) => {
          return `You are logged in to App Center as ${name}`;
