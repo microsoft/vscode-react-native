@@ -247,15 +247,9 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                 return;
             }
             vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
-            appCenterManager.setuAuthenticatedStatusBar(profile.displayName);
+            appCenterManager.setupAuthenticatedStatusBar(profile.displayName);
             this.restoreCurrentApp().then((currentApp: DefaultApp) => {
-                if (currentApp) {
-                    appCenterManager.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(currentApp));
-                    appCenterManager.setCurrentDeploymentStatusBar(currentApp.currentAppDeployment.currentDeploymentName);
-                } else {
-                    appCenterManager.setCurrentAppStatusBar(null);
-                    appCenterManager.setCurrentDeploymentStatusBar(null);
-                }
+                appCenterManager.setupAppCenterStatusBarsWithCurrentApp(currentApp);
             });
         });
     }

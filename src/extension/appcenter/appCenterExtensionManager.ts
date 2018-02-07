@@ -8,6 +8,7 @@ import * as Q from "q";
 import { ACCommandNames, ACConstants } from "./appCenterConstants";
 import { Profile } from "./auth/profile/profile";
 import { ACUtils } from "./appCenterUtils";
+import { DefaultApp } from "./command/commandParams";
 
 export class AppCenterExtensionManager implements Disposable {
     private loginStatusBarItem: StatusBarItem;
@@ -32,14 +33,8 @@ export class AppCenterExtensionManager implements Disposable {
             if (!profile) {
                 return this.setupNotAuthenticatedStatusBar();
             } else {
-                if (profile && profile.defaultApp) {
-                    this.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(profile.defaultApp));
-                    this.setCurrentDeploymentStatusBar(profile.defaultApp.currentAppDeployment.currentDeploymentName);
-                } else {
-                    this.setCurrentAppStatusBar(null);
-                    this.setCurrentDeploymentStatusBar(null);
-                }
-                return this.setuAuthenticatedStatusBar(profile.userName);
+                this.setupAppCenterStatusBarsWithCurrentApp(<DefaultApp>profile.defaultApp);
+                return this.setupAuthenticatedStatusBar(profile.userName);
             }
         });
     }
@@ -50,6 +45,9 @@ export class AppCenterExtensionManager implements Disposable {
         }
         if (this.currentAppStatusBarItem) {
             this.currentAppStatusBarItem.dispose();
+        }
+        if (this.currentDeploymentStatusBarItem) {
+            this.currentDeploymentStatusBarItem.dispose();
         }
     }
 
@@ -67,12 +65,22 @@ export class AppCenterExtensionManager implements Disposable {
         }
     }
 
-    public setuAuthenticatedStatusBar(userName: string) {
+    public setupAuthenticatedStatusBar(userName: string) {
         this.setStatusBar(this.loginStatusBarItem,
             `$(icon octicon-person) ${userName}`,
             ACStrings.YouAreLoggedInMsg(userName),
             `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Logout}`
         );
+    }
+
+    public setupAppCenterStatusBarsWithCurrentApp(currentApp: DefaultApp) {
+        if (currentApp) {
+            this.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(currentApp));
+            this.setCurrentDeploymentStatusBar(ACUtils.formatDeploymentNameForStatusBar(currentApp.currentAppDeployment));
+        } else {
+            this.setCurrentAppStatusBar(null);
+            this.setCurrentDeploymentStatusBar(null);
+        }
     }
 
     public setCurrentDeploymentStatusBar(deploymentName: string | null) {

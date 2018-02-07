@@ -41,6 +41,10 @@ export class ACUtils {
         });
     }
 
+    public static formatDeploymentNameForStatusBar(deployment: CurrentAppDeployment): string {
+        return deployment.currentDeploymentName;
+    }
+
     public static formatAppNameForStatusBar(app: DefaultApp): string | null {
         if (app) {
             return `${app.appName} (${app.os})`;
