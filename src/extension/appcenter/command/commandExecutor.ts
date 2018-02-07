@@ -144,10 +144,17 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     }
 
     public setCurrentApp(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
-        return getQPromisifiedClientResult(client.account.apps.list()).then((apps: models.AppResponse[]) => {
-            const appsList: models.AppResponse[] = apps;
-            const reactNativeApps = appsList.filter(app => app.platform === ACConstants.AppCenterReactNativePlatformName);
-            let options = reactNativeApps.map(app => {
+        vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: "Get Apps"}, p => {
+            return new Promise((resolve, reject) => {
+                p.report({message: ACStrings.FetchAppsStatusBarMessage });
+                getQPromisifiedClientResult(client.account.apps.list()).then((apps: models.AppResponse[]) => {
+                    const appsList: models.AppResponse[] = apps;
+                    const reactNativeApps = appsList.filter(app => app.platform === ACConstants.AppCenterReactNativePlatformName);
+                    resolve(reactNativeApps);
+                });
+            });
+        }).then((rnApps: models.AppResponse[]) => {
+            let options = rnApps.map(app => {
                 return {
                     label: `${app.name} (${app.os})`,
                     description: app.displayName,
@@ -157,32 +164,41 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
             vscode.window.showQuickPick(options, { placeHolder: ACStrings.ProvideCurrentAppPromptMsg })
             .then((selected: {label: string, description: string, target: string}) => {
                 if (selected) {
-                    const selectedApps: models.AppResponse[] = appsList.filter(app => app.name === selected.target);
+                    const selectedApps: models.AppResponse[] = rnApps.filter(app => app.name === selected.target);
                     if (selectedApps && selectedApps.length === 1) {
                         const selectedApp: models.AppResponse = selectedApps[0];
                         const selectedAppName: string = `${selectedApp.owner.name}/${selectedApp.name}`;
                         const OS: AppCenterOS = AppCenterOS[selectedApp.os];
-                        getQPromisifiedClientResult(client.codepush.codePushDeployments.list(selectedApp.name, selectedApp.owner.name)).then((deployments: models.Deployment[]) => {
+
+                        vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: "Get Deployments"}, p => {
+                            return new Promise((resolve, reject) => {
+                                p.report({message: ACStrings.FetchDeploymentsStatusBarMessage });
+                                getQPromisifiedClientResult(client.codepush.codePushDeployments.list(selectedApp.name, selectedApp.owner.name))
+                                .then((deployments: models.Deployment[]) => {
+                                    resolve(deployments);
+                                });
+                            });
+                        }).then((appDeployments: models.Deployment[]) => {
                             let currentDeployment: CurrentAppDeployment | null = null;
-                            if (deployments.length > 0) {
+                            if (appDeployments.length > 0) {
                                 currentDeployment = {
-                                    codePushDeployments: deployments,
-                                    currentDeploymentName: deployments[0].name, // Select 1st one by default
+                                    codePushDeployments: appDeployments,
+                                    currentDeploymentName: appDeployments[0].name, // Select 1st one by default
                                 };
                             }
                             this.saveCurrentApp(selectedAppName, OS, currentDeployment).then((app: DefaultApp | null) => {
                                 if (app) {
-                                    vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(selected.target));
+                                    vscode.window.showInformationMessage(ACStrings.YourCurrentAppAndDeployemntMsg(selected.target
+                                        , app.currentAppDeployment.currentDeploymentName));
                                     appCenterManager.setupAppCenterStatusBarsWithCurrentApp(app);
                                 }
                             });
                         });
                     }
                 }
-                return Q.resolve(void 0);
             });
-            return Q.resolve(void 0);
         });
+        return Q.resolve(void 0);
     }
 
     public releaseReact(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {

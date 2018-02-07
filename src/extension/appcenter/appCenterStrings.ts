@@ -18,12 +18,21 @@ export class ACStrings {
     public static InvalidCurrentAppNameMsg: string = "Sorry, provided app name is invalid";
     public static FailedToExecuteLoginMsg: string = "Failed to execute login to App Center";
     public static SelectCurrentDeploymentMsg: string = "Please select current deployment";
+    public static FetchAppsStatusBarMessage: string = "Fetching current apps for you...";
+    public static FetchDeploymentsStatusBarMessage: string = "Fetching app deployments for you...";
 
     public static YouAreLoggedInMsg: (name: string) => string = (name: string) => {
          return `You are logged in to App Center as ${name}`;
     }
     public static YourCurrentAppMsg: (appName: string) => string = (appName: string) => {
         return `Your current app is ${appName}`;
+    }
+    public static YourCurrentAppAndDeployemntMsg: (appName: string, deploymentName: string) => string = (appName: string, deploymentName: string) => {
+        if (deploymentName) {
+            return `Your current app is ${appName}, current deployment is ${deploymentName}`;
+        } else {
+            return `Your current app is ${appName}`;
+        }
     }
     public static YourCurrentDeploymentMsg: (deploymentName: string) => string = (deploymentName: string) => {
         return `Your current deployment is ${deploymentName}`;
