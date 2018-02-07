@@ -1,4 +1,9 @@
 {
+    "linterOptions": {
+        "exclude": [
+            "lib"
+        ]
+    },
     "rules": {
         "align": [
             true,

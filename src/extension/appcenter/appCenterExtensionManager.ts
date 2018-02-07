@@ -86,7 +86,7 @@ export class AppCenterExtensionManager implements Disposable {
     public setCurrentDeploymentStatusBar(deploymentName: string | null) {
         if (deploymentName) {
             return this.setStatusBar(this.currentDeploymentStatusBarItem,
-                `$(icon octicon-repo-forked) ${deploymentName}`,
+                `$(icon octicon-cloud-upload) ${deploymentName}`,
                 ACStrings.YourCurrentDeploymentMsg(deploymentName),
                 `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentDeployment}`);
         } else {

@@ -17,6 +17,8 @@ import { AppCenterExtensionManager } from "../appCenterExtensionManager";
 import { ACStrings } from "../appCenterStrings";
 import CodePushReleaseReact from "../codepush/releaseReact";
 import { ACUtils } from "../appCenterUtils";
+import { updateContents, reactNative } from "codepush-node-sdk";
+import BundleConfig = reactNative.BundleConfig;
 import { getQPromisifiedClientResult } from "../api/createClient";
 
 interface IAppCenterAuth {
@@ -184,22 +186,51 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     }
 
     public releaseReact(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
-        const targetBinaryVersion = "1.0.0";
-        const deploymentName = "Staging";
-        const bundleZipPath = appCenterManager.projectRootPath; // TODO: create a bundle based on project root path
+        let codePushRelaseParams = <ICodePushReleaseParams>{};
+        const projectRootPath: string = appCenterManager.projectRootPath;
+        return Q.Promise<void>((resolve, reject) => {
+            new Promise<DefaultApp>((appResolve, appReject) => {
+                this.restoreCurrentApp()
+                    .then((currentApp: DefaultApp) => appResolve(<DefaultApp>currentApp))
+                    .catch(err => appReject(err));
+            }).then((currentApp: DefaultApp): any => {
+                if (!currentApp) {
+                    vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
+                    reject(new Error());
+                }
+                codePushRelaseParams.app = currentApp;
+                codePushRelaseParams.deploymentName = currentApp.currentAppDeployment.currentDeploymentName;
 
-        return this.restoreCurrentApp().then((currentApp: DefaultApp) => {
-            if (!currentApp) {
-                vscode.window.showWarningMessage(ACStrings.NoCurrentAppSetMsg);
-                return;
-            }
-            let codePushRelaseParams: ICodePushReleaseParams = {
-                app: currentApp,
-                appVersion: targetBinaryVersion,
-                deploymentName: deploymentName,
-                updatedContentZipPath: bundleZipPath,
-            };
-            CodePushReleaseReact.exec(client, codePushRelaseParams, this.logger);
+                currentApp.os = currentApp.os.toLowerCase();
+
+                if (!reactNative.isValidOS(currentApp.os)) {
+                    reject(new Error());
+                }
+
+                switch (currentApp.os) {
+                    case "android":
+                        return reactNative.getAndroidAppVersion(projectRootPath);
+                    case "ios":
+                        return reactNative.getiOSAppVersion(projectRootPath);
+                    case "windows":
+                        return reactNative.getWindowsAppVersion(projectRootPath);
+                    default:
+                        reject(new Error());
+                }
+            }).then((appVersion: string) => {
+                codePushRelaseParams.appVersion = appVersion;
+                return reactNative.makeUpdateContents(<BundleConfig>{
+                    os: codePushRelaseParams.app.os,
+                    projectRootPath: projectRootPath,
+                });
+            }).then((pathToUpdateContents: string) => {
+                return updateContents.zip(pathToUpdateContents, projectRootPath);
+            }).then((pathToZippedBundle: string) => {
+                codePushRelaseParams.updatedContentZipPath = pathToZippedBundle;
+                CodePushReleaseReact.exec(client, codePushRelaseParams, this.logger)
+                    .then((value: any) => resolve(value))
+                    .catch((error: any) => reject(error));
+            }).catch((error: any) => reject(error));
         });
     }
 
