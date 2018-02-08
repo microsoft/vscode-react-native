@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "main": "index.d.ts",
+    "name": "yazl",
+    "type": "typings"
+  }
+}

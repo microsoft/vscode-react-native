@@ -83,6 +83,7 @@ var lintSources = [
 lintSources = lintSources.concat([
     "!src/typings/**",
     "!test/resources/sampleReactNative022Project/**",
+    "!lib/**"
 ]);
 
 var libtslint = require("tslint");

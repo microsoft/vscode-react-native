@@ -523,7 +523,7 @@
 	},
 	"dependencies": {
 		"app-center-node-client": "file:lib/app-center-node-client",
-		"codepush-node-sdk": "github:sergey-akhalkov/codepush-node-sdk",
+		"codepush-node-sdk": "file:lib/codepush-node-sdk/dist",
 		"extract-opts": "2.2.0",
 		"flatten-source-map": "0.0.2",
 		"lodash": "^4.16.4",
