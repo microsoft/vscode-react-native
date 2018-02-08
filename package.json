@@ -518,6 +518,7 @@
 		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
 		"vscode:prepublish": "gulp",
 		"test": "node ./node_modules/vscode/bin/test",
+		"preinstall": "npm install --prefix ./lib/app-center-node-client",
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"dependencies": {
