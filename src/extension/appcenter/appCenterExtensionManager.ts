@@ -8,12 +8,9 @@ import * as Q from "q";
 import { ACCommandNames, ACConstants } from "./appCenterConstants";
 import { Profile } from "./auth/profile/profile";
 import { ACUtils } from "./appCenterUtils";
-import { DefaultApp } from "./command/commandParams";
 
 export class AppCenterExtensionManager implements Disposable {
-    private loginStatusBarItem: StatusBarItem;
-    private currentAppStatusBarItem: StatusBarItem;
-    private currentDeploymentStatusBarItem: StatusBarItem;
+    private appCenterStatusBarItem: StatusBarItem;
     private _projectRootPath: string;
 
     public constructor(projectRootPath: string) {
@@ -25,99 +22,46 @@ export class AppCenterExtensionManager implements Disposable {
     }
 
     public setup(): Q.Promise<void>  {
-        this.loginStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 12);
-        this.currentAppStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 11);
-        this.currentDeploymentStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
+        if (!ACUtils.isCodePushProject(this._projectRootPath)) {
+            return Q.resolve(void 0);
+        }
 
-        return Auth.whoAmI().then((profile: Profile) => {
-            if (!profile) {
-                return this.setupNotAuthenticatedStatusBar();
-            } else {
-                this.setupAppCenterStatusBarsWithCurrentApp(<DefaultApp>profile.defaultApp);
-                return this.setupAuthenticatedStatusBar(profile.userName);
-            }
+        this.appCenterStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 12);
+        return Auth.getProfile().then((profile: Profile) => {
+            return this.setupAppCenterStatusBar(profile);
         });
     }
 
     public dispose() {
-        if (this.loginStatusBarItem) {
-            this.loginStatusBarItem.dispose();
-        }
-        if (this.currentAppStatusBarItem) {
-            this.currentAppStatusBarItem.dispose();
-        }
-        if (this.currentDeploymentStatusBarItem) {
-            this.currentDeploymentStatusBarItem.dispose();
+        if (this.appCenterStatusBarItem) {
+            this.appCenterStatusBarItem.dispose();
         }
     }
 
-    public setupNotAuthenticatedStatusBar() {
-        this.setStatusBar(this.loginStatusBarItem,
-            `$(icon octicon-person) Login to App Center`,
-            ACStrings.UserMustSignIn,
-            `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Login}`
-        );
-        if (this.currentAppStatusBarItem) {
-            this.currentAppStatusBarItem.hide();
-        }
-        if (this.currentDeploymentStatusBarItem) {
-            this.currentDeploymentStatusBarItem.hide();
-        }
-    }
-
-    public setupAuthenticatedStatusBar(userName: string) {
-        this.setStatusBar(this.loginStatusBarItem,
-            `$(icon octicon-person) ${userName} $(icon octicon-arrow-right)`,
-            ACStrings.YouAreLoggedInMsg(userName),
-            `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Logout}`
-        );
-    }
-
-    public setupAppCenterStatusBarsWithCurrentApp(currentApp: DefaultApp) {
-        if (currentApp) {
-            this.setCurrentAppStatusBar(ACUtils.formatAppNameForStatusBar(currentApp));
-            this.setCurrentDeploymentStatusBar(ACUtils.formatDeploymentNameForStatusBar(currentApp.currentAppDeployment));
+    public setupAppCenterStatusBar(profile: Profile | null): Q.Promise<void> {
+        if (!profile) {
+            return this.setStatusBar(this.appCenterStatusBarItem,
+                `$(icon octicon-sign-in) ${ACStrings.LoginToAppCenterButton}`,
+                ACStrings.UserMustSignIn,
+                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Login}`
+            );
         } else {
-            this.setCurrentAppStatusBar(null);
-            this.setCurrentDeploymentStatusBar(null);
+            return this.setStatusBar(this.appCenterStatusBarItem,
+                `$(icon octicon-person) ${profile.userName}`,
+                ACStrings.YouAreLoggedInMsg(profile.userName),
+                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.AppCenterShowMenu}`
+            );
         }
     }
 
-    public setCurrentDeploymentStatusBar(deploymentName: string | null) {
-        if (deploymentName) {
-            return this.setStatusBar(this.currentDeploymentStatusBarItem,
-                `$(icon octicon-cloud-upload) ${deploymentName}`,
-                ACStrings.YourCurrentDeploymentMsg(deploymentName),
-                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentDeployment}`);
-        } else {
-            return this.setStatusBar(this.currentDeploymentStatusBarItem,
-                `$(icon octicon-alert) ${ACStrings.NoCurrentDeploymentSetMsg}`,
-                ACStrings.PleaseProvideCurrentDeploymentMsg,
-                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentDeployment}`);
-        }
-    }
-
-    public setCurrentAppStatusBar(appName: string | null) {
-        if (appName) {
-            return this.setStatusBar(this.currentAppStatusBarItem,
-                `$(icon octicon-browser) ${appName} $(icon octicon-arrow-right)`,
-                ACStrings.YourCurrentAppMsg(appName),
-                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentApp}`);
-        } else {
-            return this.setStatusBar(this.currentAppStatusBarItem,
-                `$(icon octicon-alert) ${ACStrings.NoCurrentAppSetMsg} $(icon octicon-arrow-right)`,
-                ACStrings.PleaseProvideCurrentAppMsg,
-                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.SetCurrentApp}`);
-        }
-    }
-
-    private setStatusBar(statusBar: StatusBarItem, text: string, tooltip: string, commandOnClick?: string): void {
+    private setStatusBar(statusBar: StatusBarItem, text: string, tooltip: string, commandOnClick?: string): Q.Promise<void>  {
         if (statusBar !== undefined) {
             statusBar.command = commandOnClick; // undefined clears the command
             statusBar.text = text;
             statusBar.tooltip = tooltip;
-            statusBar.show();
             statusBar.color = ACConstants.AppCenterCodePushStatusBarColor;
+            statusBar.show();
         }
+        return Q.resolve(void 0);
     }
 }

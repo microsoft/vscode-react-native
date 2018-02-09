@@ -8,10 +8,10 @@ import { Profile, saveUser, deleteUser, getUser } from "../auth/profile/profile"
 import * as models from "app-center-node-client/models";
 
 export default class Auth {
-    public static whoAmI(): Q.Promise<Profile | null> {
-        const currentUser = getUser();
-        if (currentUser) {
-            return Q.resolve(currentUser);
+    public static getProfile(): Q.Promise<Profile | null> {
+        const profile: Profile | null = getUser();
+        if (profile) {
+            return Q.resolve(profile);
         } else {
             return Q.resolve(null);
         }

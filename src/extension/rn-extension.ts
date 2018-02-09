@@ -201,6 +201,8 @@ function registerAppCenterCommands(context: vscode.ExtensionContext): void {
         () => CommandPaletteHandler.appCenterSetCurrentDeployment());
     registerVSCodeCommand(context, ACCommandNames.CodePushReleaseReact, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterReleaseReact),
         () => CommandPaletteHandler.appCenterCodePushReleaseReact());
+    registerVSCodeCommand(context, ACCommandNames.AppCenterShowMenu, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterShowMenu),
+        () => CommandPaletteHandler.appCenterShowMenu());
 }
 
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {

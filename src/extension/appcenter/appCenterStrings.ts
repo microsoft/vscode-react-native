@@ -10,7 +10,7 @@ export class ACStrings {
     public static UserIsNotLoggedInMsg: string = "You are not logged in to App Center";
     public static LogoutPrompt: string = "Please execute logout to signoff from App Center";
     public static NoCodePushDetectedMsg: string = "Please install React Native Code Push package to run this command!";
-    public static NoCurrentAppSetMsg: string = "No current app";
+    public static NoCurrentAppSetMsg: string = "No current app specified";
     public static NoCurrentDeploymentSetMsg: string = "No current deployment";
     public static PleaseProvideCurrentAppMsg: string = "Please click here to specify current app";
     public static PleaseProvideCurrentDeploymentMsg: string = "Please click here to specify current deployment";
@@ -25,6 +25,16 @@ export class ACStrings {
     public static RunningReactNativeBundleCommandMessage: string = "Running \"react-native bundle\" command...";
     public static ArchivingUpdateContentsMessage: string = "Archiving update contents...";
     public static ReleasingUpdateContentsMessage: string = "Releasing update contents to CodePush...";
+    public static LoginToAppCenterButton: string = "Login to App Center";
+
+    public static ReleaseReactMenuLabel: string = "Release React";
+    public static ReleaseReactMenuDescription: string = "Realese current application with current deployment";
+    public static SetCurrentAppMenuLabel: string = "Set Current App";
+    public static SetCurrentAppMenuDescription: string = "Specify new application from App Center";
+    public static LogoutMenuLabel: string = "Logout";
+    public static LogoutMenuDescription: string = "Logout from App Center";
+    public static SetCurrentDeploymentMenuLabel: string = "Set Current Deployment";
+    public static SetCurrentDeploymentMenuDescription: string = "Specify deployment for current app";
 
     public static YouAreLoggedInMsg: (name: string) => string = (name: string) => {
          return `You are logged in to App Center as ${name}`;
@@ -36,7 +46,7 @@ export class ACStrings {
         if (deploymentName) {
             return `Your current app is ${appName}, current deployment is ${deploymentName}`;
         } else {
-            return `Your current app is ${appName}`;
+            return `Your current app is ${appName}, you have no deployments specified`;
         }
     }
     public static YourCurrentDeploymentMsg: (deploymentName: string) => string = (deploymentName: string) => {

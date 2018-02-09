@@ -8,8 +8,8 @@ import * as os from "os";
 
 import { ILogger, LogLevel } from "../../log/LogHelper";
 import Auth from "../../appcenter/auth/auth";
-import { AppCenterLoginType, ACConstants, AppCenterOS, CurrentAppDeployment } from "../appCenterConstants";
-import { Profile, getUser } from "../../appcenter/auth/profile/profile";
+import { AppCenterLoginType, ACConstants, AppCenterOS, CurrentAppDeployments, ACCommandNames } from "../appCenterConstants";
+import { Profile } from "../../appcenter/auth/profile/profile";
 import { SettingsHelper } from "../../settingsHelper";
 import { AppCenterClient, models } from "../api/index";
 import { DefaultApp, ICodePushReleaseParams } from "./commandParams";
@@ -35,6 +35,7 @@ interface IAppCenterApps {
 }
 
 interface IAppCenterCodePush {
+    showMenu(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
     releaseReact(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
 }
 
@@ -48,53 +49,40 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     public login(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
         const appCenterLoginOptions: string[] = Object.keys(AppCenterLoginType).filter(k => typeof AppCenterLoginType[k as any] === "number");
         vscode.window.showQuickPick(appCenterLoginOptions, { placeHolder: ACStrings.SelectLoginTypeMsg })
-            .then((loginType) => {
-                switch (loginType) {
-                    case (AppCenterLoginType[AppCenterLoginType.Interactive]):
-                        vscode.window.showInformationMessage(ACStrings.PleaseLoginViaBrowser, "OK")
-                        .then((selection: string) => {
-                            if (selection.toLowerCase() === "ok") {
-                                const loginUrl = `${SettingsHelper.getAppCenterLoginEndpoint()}?${qs.stringify({ hostname: os.hostname()})}`;
-                                ACUtils.OpenUrl(loginUrl);
-                                return vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideToken, ignoreFocusOut: true })
-                                .then(token => {
-                                    this.loginWithToken(token, appCenterManager);
-                                });
-                            } else return Q.resolve(void 0);
-                        });
-                        break;
-                    case (AppCenterLoginType[AppCenterLoginType.Token]):
-                        vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideToken , ignoreFocusOut: true})
-                        .then(token => {
-                            this.loginWithToken(token, appCenterManager);
-                        });
-                        break;
-                    default:
-                        throw new Error("Unsupported login parameter!");
-                }
+        .then((loginType) => {
+            switch (loginType) {
+                case (AppCenterLoginType[AppCenterLoginType.Interactive]):
+                    return vscode.window.showInformationMessage(ACStrings.PleaseLoginViaBrowser, "OK")
+                    .then((selection: string) => {
+                        if (selection.toLowerCase() === "ok") {
+                            const loginUrl = `${SettingsHelper.getAppCenterLoginEndpoint()}?${qs.stringify({ hostname: os.hostname()})}`;
+                            ACUtils.OpenUrl(loginUrl);
+                            return vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideToken, ignoreFocusOut: true })
+                            .then(token => {
+                                this.loginWithToken(token, appCenterManager);
+                            });
+                        } else return Q.resolve(void 0);
+                    });
+                case (AppCenterLoginType[AppCenterLoginType.Token]):
+                    return vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideToken , ignoreFocusOut: true})
+                    .then(token => {
+                        return this.loginWithToken(token, appCenterManager);
+                    });
+                default:
+                    // User canel login otherwise
+                    return Q.resolve(void 0);
+            }
         });
         return Q.resolve(void 0);
     }
 
     public logout(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
-        const logoutOption = "Logout";
-        const logoutChoices: string[] = [logoutOption];
-        vscode.window.showQuickPick(logoutChoices, { placeHolder: ACStrings.LogoutPrompt })
-        .then((logoutType) => {
-            switch (logoutType) {
-                case (logoutOption):
-                    return Auth.doLogout().then(() => {
-                        vscode.window.showInformationMessage(ACStrings.UserLoggedOutMsg);
-                        appCenterManager.setupNotAuthenticatedStatusBar();
-                        return Q.resolve(void 0);
-                    }).catch(() => {
-                        this.logger.log("An errro occured on logout", LogLevel.Error);
-                    });
-                default:
-                    return Q.resolve(void 0);
-                }
-            });
-        return Q.resolve(void 0);
+        return Auth.doLogout().then(() => {
+            vscode.window.showInformationMessage(ACStrings.UserLoggedOutMsg);
+            return appCenterManager.setupAppCenterStatusBar(null);
+        }).catch(() => {
+            this.logger.log("An errro occured on logout", LogLevel.Error);
+        });
     }
 
     public whoAmI(profile: Profile): Q.Promise<void> {
@@ -107,9 +95,10 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     }
 
     public setCurrentDeployment(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
-        this.restoreCurrentApp().then((currentApp: DefaultApp) => {
-            if (currentApp && currentApp.currentAppDeployment && currentApp.currentAppDeployment.codePushDeployments) {
-                const deploymentOptions: string[] = currentApp.currentAppDeployment.codePushDeployments.map((deployment) => {
+        this.restoreCurrentApp()
+        .then((currentApp: DefaultApp) => {
+            if (currentApp && currentApp.currentAppDeployments && currentApp.currentAppDeployments.codePushDeployments) {
+                const deploymentOptions: string[] = currentApp.currentAppDeployments.codePushDeployments.map((deployment) => {
                     return deployment.name;
                 });
                 vscode.window.showQuickPick(deploymentOptions, { placeHolder: ACStrings.SelectCurrentDeploymentMsg })
@@ -117,16 +106,10 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                     if (deploymentName) {
                         this.saveCurrentApp(currentApp.identifier, AppCenterOS[currentApp.os], {
                             currentDeploymentName: deploymentName,
-                            codePushDeployments: currentApp.currentAppDeployment.codePushDeployments,
-                        }).then((app: DefaultApp | null) => {
-                            if (app) {
-                                appCenterManager.setCurrentDeploymentStatusBar(deploymentName);
-                            }
+                            codePushDeployments: currentApp.currentAppDeployments.codePushDeployments,
                         });
                     }
                 });
-            } else {
-                appCenterManager.setCurrentDeploymentStatusBar(null);
             }
         });
         return Q.resolve(void 0);
@@ -175,22 +158,28 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                                 p.report({message: ACStrings.FetchDeploymentsStatusBarMessage });
                                 getQPromisifiedClientResult(client.codepush.codePushDeployments.list(selectedApp.name, selectedApp.owner.name))
                                 .then((deployments: models.Deployment[]) => {
-                                    resolve(deployments);
+                                    resolve(deployments.sort((a, b): any => {
+                                        return a.name < b.name; // sort alphabetically
+                                    }));
                                 });
                             });
-                        }).then((appDeployments: models.Deployment[]) => {
-                            let currentDeployment: CurrentAppDeployment | null = null;
+                        })
+                        .then((appDeployments: models.Deployment[]) => {
+                            let currentDeployments: CurrentAppDeployments | null = null;
                             if (appDeployments.length > 0) {
-                                currentDeployment = {
+                                currentDeployments = {
                                     codePushDeployments: appDeployments,
                                     currentDeploymentName: appDeployments[0].name, // Select 1st one by default
                                 };
                             }
-                            this.saveCurrentApp(selectedAppName, OS, currentDeployment).then((app: DefaultApp | null) => {
+                            this.saveCurrentApp(selectedAppName, OS, currentDeployments)
+                            .then((app: DefaultApp | null) => {
                                 if (app) {
-                                    vscode.window.showInformationMessage(ACStrings.YourCurrentAppAndDeployemntMsg(selected.target
-                                        , app.currentAppDeployment.currentDeploymentName));
-                                    appCenterManager.setupAppCenterStatusBarsWithCurrentApp(app);
+                                    return vscode.window.showInformationMessage(ACStrings.YourCurrentAppAndDeployemntMsg(selected.target
+                                        , app.currentAppDeployments.currentDeploymentName));
+                                } else {
+                                    this.logger.error("Failed to save current app");
+                                    return Q.resolve(void 0);
                                 }
                             });
                         });
@@ -215,20 +204,19 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                 }).then((currentApp: DefaultApp): any => {
                     p.report({ message: ACStrings.DetectingAppVersionMessage });
                     if (!currentApp) {
-                        vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
-                        reject(new Error(`No current app has been specified.`));
+                        throw new Error(`No current app has been specified.`);
                     }
                     if (!reactNative.isValidOS(currentApp.os)) {
-                        reject(new Error(`OS must be "android", "ios", or "windows".`));
+                        throw new Error(`OS must be "android", "ios", or "windows".`);
                     }
                     codePushRelaseParams.app = currentApp;
-                    codePushRelaseParams.deploymentName = currentApp.currentAppDeployment.currentDeploymentName;
+                    codePushRelaseParams.deploymentName = currentApp.currentAppDeployments.currentDeploymentName;
                     currentApp.os = currentApp.os.toLowerCase();
                     switch (currentApp.os) {
                         case "android": return reactNative.getAndroidAppVersion(projectRootPath);
                         case "ios": return reactNative.getiOSAppVersion(projectRootPath);
                         case "windows": return reactNative.getWindowsAppVersion(projectRootPath);
-                        default: reject(new Error(`OS must be "android", "ios", or "windows".`));
+                        default: throw new Error(`OS must be "android", "ios", or "windows".`);
                     }
                 }).then((appVersion: string) => {
                     p.report({ message: ACStrings.RunningReactNativeBundleCommandMessage });
@@ -259,44 +247,110 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                     }
                     fileUtils.rmDir(codePushRelaseParams.updatedContentZipPath);
                 }).catch((error: Error) => {
-                    vscode.window.showErrorMessage("An error occured on doing Code Push release");
+                    if (error && error.message) {
+                        vscode.window.showErrorMessage(`An error occured on doing Code Push release. ${error.message}`);
+                    } else {
+                        vscode.window.showErrorMessage("An error occured on doing Code Push release");
+                    }
+
                     fileUtils.rmDir(codePushRelaseParams.updatedContentZipPath);
                 });
             });
         });
     }
 
-    private saveCurrentApp(currentAppName: string, appOS: AppCenterOS, currentAppDeployment: CurrentAppDeployment | null): Q.Promise<DefaultApp | null> {
-        const defaultApp = ACUtils.toDefaultApp(currentAppName, appOS, currentAppDeployment);
+    public showMenu(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void>  {
+        return Auth.getProfile().then((profile: Profile | null) => {
+            let defaultApp: DefaultApp | null = null;
+            if (profile && profile.defaultApp) {
+                defaultApp = profile.defaultApp;
+            }
+            let menuPlaceHolederTitle = ACUtils.formatPlaceholderForShowMenuCommand(defaultApp);
+            let appCenterMenuOptions = [
+                    {
+                        label: ACStrings.ReleaseReactMenuLabel,
+                        description: ACStrings.ReleaseReactMenuDescription,
+                        target: ACCommandNames.CodePushReleaseReact,
+                    },
+                    {
+                        label: ACStrings.SetCurrentAppMenuLabel,
+                        description: ACStrings.SetCurrentAppMenuDescription,
+                        target: ACCommandNames.SetCurrentApp,
+                    },
+                    {
+                        label: ACStrings.LogoutMenuLabel,
+                        description: ACStrings.LogoutMenuDescription,
+                        target: ACCommandNames.Logout,
+                    },
+            ];
+
+            // This item is avaliable only if we have specified app already
+            if (profile && profile.defaultApp && profile.defaultApp.currentAppDeployments) {
+                // Let logout command be always the last one in the list
+                appCenterMenuOptions.splice(appCenterMenuOptions.length - 1, 0,
+                    {
+                        label: ACStrings.SetCurrentDeploymentMenuLabel,
+                        description: ACStrings.SetCurrentDeploymentMenuDescription,
+                        target: ACCommandNames.SetCurrentDeployment,
+                    }
+                );
+            }
+
+            return vscode.window.showQuickPick(appCenterMenuOptions, { placeHolder: menuPlaceHolederTitle })
+            .then((selected: {label: string, description: string, target: string}) => {
+                if (!selected) {
+                    // user cancel selection
+                    return Q.resolve(void 0);
+                }
+                switch (selected.target) {
+                    case (ACCommandNames.SetCurrentApp):
+                        return this.setCurrentApp(client, appCenterManager);
+
+                    case (ACCommandNames.SetCurrentDeployment):
+                        return this.setCurrentDeployment(appCenterManager);
+
+                    case (ACCommandNames.CodePushReleaseReact):
+                        return this.releaseReact(client, appCenterManager);
+
+                    case (ACCommandNames.Logout):
+                        return this.logout(appCenterManager);
+
+                    default:
+                        // Ideally shouldn't be there :)
+                        this.logger.error("Unknown appcenter show menu command");
+                        return Q.resolve(void 0);
+                }
+            });
+        });
+    }
+
+    private saveCurrentApp(currentAppName: string, appOS: AppCenterOS, currentAppDeployments: CurrentAppDeployments | null): Q.Promise<DefaultApp | null> {
+        const defaultApp = ACUtils.toDefaultApp(currentAppName, appOS, currentAppDeployments);
         if (!defaultApp) {
             vscode.window.showWarningMessage(ACStrings.InvalidCurrentAppNameMsg);
             return Q.resolve(null);
         }
 
-        let profile = getUser();
-        if (profile) {
-            profile.defaultApp = defaultApp;
-            profile.save();
-            return Q.resolve(defaultApp);
-        } else {
-            // No profile - not logged in?
-            vscode.window.showWarningMessage(ACStrings.UserIsNotLoggedInMsg);
-            return Q.resolve(null);
-        }
+        return Auth.getProfile().then((profile: Profile | null) => {
+            if (profile) {
+                profile.defaultApp = defaultApp;
+                profile.save();
+                return Q.resolve(defaultApp);
+            } else {
+                // No profile - not logged in?
+                vscode.window.showWarningMessage(ACStrings.UserIsNotLoggedInMsg);
+                return Q.resolve(null);
+            }
+        });
     }
 
     private restoreCurrentApp(): Q.Promise<DefaultApp | null> {
-        const user = getUser();
-        if (user) {
-            if (user.defaultApp) {
-                const currentApp = `${user.defaultApp.ownerName}/${user.defaultApp.appName}`;
-                const defaultApp: DefaultApp | null = ACUtils.toDefaultApp(currentApp, AppCenterOS[user.defaultApp.os], user.defaultApp.currentAppDeployment);
-                if (defaultApp) {
-                    return Q.resolve(defaultApp);
-                }
+        return Auth.getProfile().then((profile: Profile | null) => {
+            if (profile && profile.defaultApp) {
+                return Q.resolve(profile.defaultApp);
             }
-        }
-        return Q.resolve(null);
+            return Q.resolve(null);
+        });
     }
 
     private loginWithToken(token: string | undefined, appCenterManager: AppCenterExtensionManager) {
@@ -310,10 +364,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                 return;
             }
             vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
-            appCenterManager.setupAuthenticatedStatusBar(profile.displayName);
-            this.restoreCurrentApp().then((currentApp: DefaultApp) => {
-                appCenterManager.setupAppCenterStatusBarsWithCurrentApp(currentApp);
-            });
+            return appCenterManager.setupAppCenterStatusBar(profile);
         });
     }
 }

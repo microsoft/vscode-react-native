@@ -111,6 +111,11 @@
 				"command": "reactNative.appcenter.releasereact",
 				"title": "Release React",
 				"category": "React Native Code Push"
+			},
+			{
+				"command": "reactNative.appcenter.showmenu",
+				"title": "Show Menu",
+				"category": "React Native Code Push"
 			}
 		],
 		"debuggers": [

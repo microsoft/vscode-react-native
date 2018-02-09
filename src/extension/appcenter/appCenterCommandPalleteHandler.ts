@@ -34,7 +34,7 @@ export class AppCenterCommandPalleteHandler {
 
     public run(command: AppCenterCommandType): Q.Promise<void>  {
         if (!ACUtils.isCodePushProject(this.appCenterManager.projectRootPath)) {
-            vscode.window.showInformationMessage(ACStrings.NoCodePushDetectedMsg);
+            vscode.window.showWarningMessage(ACStrings.NoCodePushDetectedMsg);
             return Q.resolve(void 0);
         }
 
@@ -43,9 +43,9 @@ export class AppCenterCommandPalleteHandler {
             return this.commandExecutor.login(this.appCenterManager);
         }
 
-        return Auth.whoAmI().then((profile: Profile) => {
+        return Auth.getProfile().then((profile: Profile) => {
             if (!profile) {
-                vscode.window.showInformationMessage(ACStrings.UserIsNotLoggedInMsg);
+                vscode.window.showWarningMessage(ACStrings.UserIsNotLoggedInMsg);
                 return Q.resolve(void 0);
              } else {
                 const clientOrNull: AppCenterClient | null  = this.resolveAppCenterClient();
@@ -70,6 +70,9 @@ export class AppCenterCommandPalleteHandler {
 
                         case (AppCenterCommandType.CodePushReleaseReact):
                             return this.commandExecutor.releaseReact(this.client, this.appCenterManager);
+
+                        case (AppCenterCommandType.ShowMenu):
+                            return this.commandExecutor.showMenu(this.client, this.appCenterManager);
 
                         default:
                             throw new Error("Unknown App Center command!");

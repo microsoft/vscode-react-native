@@ -22,9 +22,10 @@ export class ACCommandNames {
     public static GetCurrentApp: string = ACCommandNames.CommandPrefix + "getcurrentapp";
     public static SetCurrentDeployment: string = ACCommandNames.CommandPrefix + "setcurrentdeployment";
     public static CodePushReleaseReact: string = ACCommandNames.CommandPrefix + "releasereact";
+    public static AppCenterShowMenu: string = ACCommandNames.CommandPrefix + "showmenu";
 }
 
-export interface CurrentAppDeployment {
+export interface CurrentAppDeployments {
     currentDeploymentName: string;
     codePushDeployments: models.Deployment[];
 }
@@ -41,7 +42,7 @@ export enum AppCenterLoginType {
 
 export enum AppCenterCommandType {
     // Auth commands
-    Login,
+    Login = 1,
     Logout,
     Whoami,
 
@@ -54,4 +55,7 @@ export enum AppCenterCommandType {
 
     // CodePush commands
     CodePushReleaseReact,
+
+    // Common commands
+    ShowMenu,
 }
