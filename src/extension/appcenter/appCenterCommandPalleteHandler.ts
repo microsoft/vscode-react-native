@@ -43,7 +43,7 @@ export class AppCenterCommandPalleteHandler {
             return this.commandExecutor.login(this.appCenterManager);
         }
 
-        return Auth.getProfile().then((profile: Profile) => {
+        return Auth.getProfile(this.appCenterManager.projectRootPath).then((profile: Profile) => {
             if (!profile) {
                 vscode.window.showWarningMessage(ACStrings.UserIsNotLoggedInMsg);
                 return Q.resolve(void 0);
@@ -63,7 +63,7 @@ export class AppCenterCommandPalleteHandler {
                             return this.commandExecutor.setCurrentApp(this.client, this.appCenterManager);
 
                         case (AppCenterCommandType.GetCurrentApp):
-                            return this.commandExecutor.getCurrentApp();
+                            return this.commandExecutor.getCurrentApp(this.appCenterManager);
 
                         case (AppCenterCommandType.SetCurrentDeployment):
                             return this.commandExecutor.setCurrentDeployment(this.appCenterManager);
@@ -73,6 +73,12 @@ export class AppCenterCommandPalleteHandler {
 
                         case (AppCenterCommandType.ShowMenu):
                             return this.commandExecutor.showMenu(this.client, this.appCenterManager);
+
+                        case (AppCenterCommandType.SwitchMandatoryPropForRelease):
+                            return this.commandExecutor.switchIsMandatoryForRelease(this.appCenterManager);
+
+                        case (AppCenterCommandType.SetTargetBinaryVersionForRelease):
+                            return this.commandExecutor.setTargetBinaryVersionForRelease(this.appCenterManager);
 
                         default:
                             throw new Error("Unknown App Center command!");
@@ -87,7 +93,7 @@ export class AppCenterCommandPalleteHandler {
 
     private resolveAppCenterClient(): AppCenterClient | null {
         if (!this.client) {
-            const user = getUser();
+            const user = getUser(this.appCenterManager.projectRootPath);
             if (user) {
                 return this.clientFactory.fromProfile(user, SettingsHelper.getAppCenterAPIEndpoint());
             } else {

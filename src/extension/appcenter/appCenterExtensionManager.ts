@@ -27,7 +27,7 @@ export class AppCenterExtensionManager implements Disposable {
         }
 
         this.appCenterStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 12);
-        return Auth.getProfile().then((profile: Profile) => {
+        return Auth.getProfile(this._projectRootPath).then((profile: Profile) => {
             return this.setupAppCenterStatusBar(profile);
         });
     }
@@ -49,7 +49,7 @@ export class AppCenterExtensionManager implements Disposable {
             return this.setStatusBar(this.appCenterStatusBarItem,
                 `$(icon octicon-person) ${profile.userName}`,
                 ACStrings.YouAreLoggedInMsg(profile.userName),
-                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.AppCenterShowMenu}`
+                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.ShowMenu}`
             );
         }
     }

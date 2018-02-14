@@ -11,7 +11,6 @@ import * as path from "path";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ACConstants, AppCenterOS, CurrentAppDeployments } from "./appCenterConstants";
 import { DefaultApp } from "./command/commandParams";
-import { ACStrings } from "./appCenterStrings";
 
 export class ACUtils {
     private static validApp = /^([a-zA-Z0-9-_.]{1,100})\/([a-zA-Z0-9-_.]{1,100})$/;
@@ -42,18 +41,6 @@ export class ACUtils {
         });
     }
 
-    public static formatPlaceholderForShowMenuCommand(defaultApp: DefaultApp | null): string {
-        if (defaultApp) {
-            if (!defaultApp.currentAppDeployments) {
-                return ACStrings.YourCurrentAppAndDeployemntMsg(`${ACUtils.formatAppName(defaultApp)})`, "");
-            } else {
-                return ACStrings.YourCurrentAppAndDeployemntMsg(`${defaultApp.appName} (${defaultApp.os})`, defaultApp.currentAppDeployments.currentDeploymentName);
-            }
-        } else {
-            return ACStrings.NoCurrentAppSetMsg;
-        }
-    }
-
     public static formatDeploymentNameForStatusBar(deployment: CurrentAppDeployments): string {
         return deployment.currentDeploymentName;
     }
@@ -65,7 +52,11 @@ export class ACUtils {
         return null;
     }
 
-    public static toDefaultApp(app: string, appOS: AppCenterOS, appDeployment: CurrentAppDeployments | null): DefaultApp | null {
+    public static toDefaultApp(app: string,
+                               appOS: AppCenterOS,
+                               appDeployment: CurrentAppDeployments | null,
+                               targetBinaryVersion: string,
+                               isMandatory: boolean): DefaultApp | null {
         const matches = app.match(this.validApp);
         if (matches !== null) {
           return {
@@ -73,6 +64,8 @@ export class ACUtils {
             appName: matches[2],
             identifier: `${matches[1]}/${matches[2]}`,
             os: appOS,
+            targetBinaryVersion: targetBinaryVersion,
+            isMandatory: isMandatory,
             currentAppDeployments: appDeployment ? appDeployment : {
                 codePushDeployments: new Array(),
                 currentDeploymentName: "",

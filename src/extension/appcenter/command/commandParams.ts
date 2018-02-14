@@ -11,6 +11,8 @@ export interface DefaultApp {
     ownerName: string;
     appName: string;
     identifier: string;
+    targetBinaryVersion: string;
+    isMandatory: boolean;
     os: string;
     currentAppDeployments: CurrentAppDeployments;
 }

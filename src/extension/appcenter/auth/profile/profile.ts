@@ -16,8 +16,8 @@ export interface Profile {
     email: string;
     readonly accessToken: Q.Promise<string>;
     defaultApp?: DefaultApp;
-    save(): Profile;
-    logout(): Q.Promise<void>;
+    save(projectRootPath: string): Profile;
+    logout(projectRootPath: string): Q.Promise<void>;
   }
 
 class ProfileImpl implements Profile {
@@ -52,7 +52,7 @@ class ProfileImpl implements Profile {
         });
     }
 
-    public save(): Profile {
+    public save(projectRootPath: string): Profile {
         let profile: any = {
             userId: this.userId,
             userName: this.userName,
@@ -61,15 +61,15 @@ class ProfileImpl implements Profile {
             defaultApp: this.defaultApp,
           };
 
-        mkdirp.sync(getProfileDir());
-        fs.writeFileSync(getProfileFilename(), JSON.stringify(profile), { encoding: "utf8" });
+        mkdirp.sync(getProfileDir(projectRootPath));
+        fs.writeFileSync(getProfileFilename(projectRootPath), JSON.stringify(profile), { encoding: "utf8" });
         return this;
     }
 
-    public logout(): Q.Promise<void> {
+    public logout(projectRootPath: string): Q.Promise<void> {
         return tokenStore.remove(this.userName).then(() => {
             try {
-                fs.unlinkSync(getProfileFilename());
+                fs.unlinkSync(getProfileFilename(projectRootPath));
             } catch (err) {
                 // File not found is ok, probably doesn't exist
             }
@@ -79,13 +79,13 @@ class ProfileImpl implements Profile {
 
 let currentProfile: Profile | null;
 
-function getProfileFilename(): string {
-    const profileDir = getProfileDir();
+function getProfileFilename(projectRootPath: string): string {
+    const profileDir = getProfileDir(projectRootPath);
     return path.join(profileDir, profileFile);
 }
 
-function loadProfile(): Profile | null {
-    const profilePath = getProfileFilename();
+function loadProfile(projectRootPath: string): Profile | null {
+    const profilePath = getProfileFilename(projectRootPath);
     if (!fs.existsSync(profilePath)) {
         return null;
     }
@@ -95,26 +95,26 @@ function loadProfile(): Profile | null {
     return new ProfileImpl(profile);
 }
 
-export function getUser(): Profile | null {
+export function getUser(projectRootPath: string): Profile | null {
     if (!currentProfile) {
-      currentProfile = loadProfile();
+      currentProfile = loadProfile(projectRootPath);
     }
     return currentProfile;
 }
 
-export function saveUser(user: any, token: TokenValueType): Q.Promise<Profile> {
+export function saveUser(user: any, token: TokenValueType, projectRootPath: string): Q.Promise<Profile> {
     return tokenStore.set(user.name, token).then(() => {
         let profile = new ProfileImpl(user);
-        profile.save();
+        profile.save(projectRootPath);
         return profile;
     });
 }
 
-export function deleteUser(): Q.Promise<void> {
-    let profile = getUser();
+export function deleteUser(projectRootPath: string): Q.Promise<void> {
+    let profile = getUser(projectRootPath);
     if (profile) {
       currentProfile = null;
-      return profile.logout();
+      return profile.logout(projectRootPath);
     }
     return Q.resolve(void 0);
 }

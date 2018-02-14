@@ -201,8 +201,12 @@ function registerAppCenterCommands(context: vscode.ExtensionContext): void {
         () => CommandPaletteHandler.appCenterSetCurrentDeployment());
     registerVSCodeCommand(context, ACCommandNames.CodePushReleaseReact, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterReleaseReact),
         () => CommandPaletteHandler.appCenterCodePushReleaseReact());
-    registerVSCodeCommand(context, ACCommandNames.AppCenterShowMenu, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterShowMenu),
+    registerVSCodeCommand(context, ACCommandNames.ShowMenu, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterShowMenu),
         () => CommandPaletteHandler.appCenterShowMenu());
+    registerVSCodeCommand(context, ACCommandNames.SwitchMandatoryPropertyForRelease, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterSwitchMandatoryPropForRelease),
+        () => CommandPaletteHandler.appCenterSwitchMandatoryPropForRelease());
+    registerVSCodeCommand(context, ACCommandNames.SetTargetBinaryVersionForRelease, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterSetTargetBinaryVersionForRelease),
+        () => CommandPaletteHandler.appCenterSetTargetBinaryVersionForRelease());
 }
 
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {

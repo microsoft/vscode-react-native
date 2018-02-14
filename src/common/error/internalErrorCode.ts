@@ -23,6 +23,8 @@ export enum InternalErrorCode {
         FailedToExecAppCenterReleaseReact = 117,
         FailedToExecAppCenterSetCurrentDeployment = 118,
         FailedToExecAppCenterShowMenu = 119,
+        FailedToExecAppCenterSwitchMandatoryPropForRelease = 120,
+        FailedToExecAppCenterSetTargetBinaryVersionForRelease = 121,
 
         // Device Deployer errors
         IOSDeployNotFound = 201,

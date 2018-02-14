@@ -113,6 +113,16 @@
 				"category": "React Native Code Push"
 			},
 			{
+				"command": "reactNative.appcenter.switchMandatoryPropForRelease",
+				"title": "Switch Code Push release mandatory property",
+				"category": "React Native Code Push"
+			},
+			{
+				"command": "reactNative.appcenter.setTargetBinaryVersion",
+				"title": "Set Code Push release target binary verison",
+				"category": "React Native Code Push"
+			},
+			{
 				"command": "reactNative.appcenter.showmenu",
 				"title": "Show Menu",
 				"category": "React Native Code Push"

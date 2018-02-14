@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { DefaultApp } from "./command/commandParams";
+
 export class ACStrings {
     public static UserMustSignIn: string = "You are signed out. Please login to App Center";
     public static SelectLoginTypeMsg: string = "Please select the way you would like to login to AppCenter";
@@ -16,6 +18,7 @@ export class ACStrings {
     public static PleaseProvideCurrentDeploymentMsg: string = "Please click here to specify current deployment";
     public static ProvideCurrentAppPromptMsg: string = "Please specify existant current app";
     public static InvalidCurrentAppNameMsg: string = "Sorry, provided app name is invalid";
+    public static InvalidAppVersionParamMsg: string = "Sorry, provided app version is invalid";
     public static FailedToExecuteLoginMsg: string = "Failed to execute login to App Center";
     public static SelectCurrentDeploymentMsg: string = "Please select current deployment";
     public static FetchAppsStatusBarMessage: string = "Fetching current apps for you...";
@@ -26,15 +29,16 @@ export class ACStrings {
     public static ArchivingUpdateContentsMessage: string = "Archiving update contents...";
     public static ReleasingUpdateContentsMessage: string = "Releasing update contents to CodePush...";
     public static LoginToAppCenterButton: string = "Login to App Center";
+    public static PleaseProvideTargetBinaryVersion: string = "Please provide semver compliant version";
 
-    public static ReleaseReactMenuLabel: string = "Release React";
-    public static ReleaseReactMenuDescription: string = "Realese current application with current deployment";
-    public static SetCurrentAppMenuLabel: string = "Set Current App";
-    public static SetCurrentAppMenuDescription: string = "Specify new application from App Center";
+    public static ReleaseReactMenuDescription: string = "Realese react";
+    public static SetCurrentAppMenuDescription: string = "Change Current App";
+    public static SetTargetBinaryVersionMenuDescription: string = "Specify new target binary version";
+    public static SetIsMandatoryMenuDescription: string = "Change if release is mandatory or not";
     public static LogoutMenuLabel: string = "Logout";
     public static LogoutMenuDescription: string = "Logout from App Center";
-    public static SetCurrentDeploymentMenuLabel: string = "Set Current Deployment";
     public static SetCurrentDeploymentMenuDescription: string = "Specify deployment for current app";
+    public static MenuTitlePlaceholder: string = "Please select action";
 
     public static YouAreLoggedInMsg: (name: string) => string = (name: string) => {
          return `You are logged in to App Center as ${name}`;
@@ -51,5 +55,35 @@ export class ACStrings {
     }
     public static YourCurrentDeploymentMsg: (deploymentName: string) => string = (deploymentName: string) => {
         return `Your current deployment is ${deploymentName}`;
+    }
+
+    public static ReleaseReactMenuText: (app: DefaultApp | null) => string = (app: DefaultApp | null) => {
+        if (app) {
+            return `Release '${app.appName}' to '${app.currentAppDeployments.currentDeploymentName}' deployment`;
+        } else {
+            return `Release react (please specify current app first)`;
+        }
+    }
+
+    public static SetCurrentAppMenuText: (app: DefaultApp | null) => string = (app: DefaultApp | null) => {
+        if (app) {
+            return `Change '${app.appName}' for something else`;
+        } else {
+            return `Set current app`;
+        }
+    }
+
+    public static SetCurrentAppDeploymentText: (app: DefaultApp) => string = (app: DefaultApp) => {
+        return `Change '${app.currentAppDeployments.currentDeploymentName}' deployment for something else`;
+    }
+
+    public static SetCurrentAppTargetBinaryVersionText: (app: DefaultApp) => string = (app: DefaultApp) => {
+        const targetBinaryVersion = app.targetBinaryVersion !== undefined && app.targetBinaryVersion;
+        return `Change '${targetBinaryVersion ? app.targetBinaryVersion : "automatically fetched"}' target binary version`;
+    }
+
+    public static SetCurrentAppIsMandatoryText: (app: DefaultApp) => string = (app: DefaultApp) => {
+        const isMandatory = app.isMandatory !== undefined && app.isMandatory;
+        return `Change relase from ${isMandatory ? "Mandatory" : "NOT Mandatory"}`;
     }
 }

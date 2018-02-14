@@ -281,6 +281,20 @@ export class CommandPaletteHandler {
         });
     }
 
+    public static appCenterSwitchMandatoryPropForRelease(): Q.Promise<void> {
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.SwitchMandatoryPropForRelease);
+        });
+    }
+
+    public static appCenterSetTargetBinaryVersionForRelease(): Q.Promise<void> {
+        return this.selectProject()
+            .then((project: IReactNativeProject) => {
+                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.SetTargetBinaryVersionForRelease);
+        });
+    }
+
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {
         return project.packager.restart(SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath))
             .then(() => project.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));

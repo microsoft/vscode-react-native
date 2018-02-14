@@ -8,8 +8,8 @@ import { Profile, saveUser, deleteUser, getUser } from "../auth/profile/profile"
 import * as models from "app-center-node-client/models";
 
 export default class Auth {
-    public static getProfile(): Q.Promise<Profile | null> {
-        const profile: Profile | null = getUser();
+    public static getProfile(projectRootPath: string): Q.Promise<Profile | null> {
+        const profile: Profile | null = getUser(projectRootPath);
         if (profile) {
             return Q.resolve(profile);
         } else {
@@ -17,12 +17,12 @@ export default class Auth {
         }
     }
 
-    public static doTokenLogin(token: string): Q.Promise<Profile | null> {
+    public static doTokenLogin(token: string, projectRootPath: string): Q.Promise<Profile | null> {
         if (!token) {
             return Q.resolve(null);
         }
-        return this.removeLoggedInUser().then(() => {
-            return Auth.fetchUserInfoByTokenAndSave(token).then((profile: Profile) => {
+        return this.removeLoggedInUser(projectRootPath).then(() => {
+            return Auth.fetchUserInfoByTokenAndSave(token, projectRootPath).then((profile: Profile) => {
                 return Q.resolve(profile);
             }).catch((e: Error) => {
                 return Q.resolve(null);
@@ -30,14 +30,14 @@ export default class Auth {
         });
     }
 
-    public static doLogout(): Q.Promise<void> {
+    public static doLogout(projectRootPath: string): Q.Promise<void> {
         // TODO: Probably we need to delete token from server also?
-        return this.removeLoggedInUser();
+        return this.removeLoggedInUser(projectRootPath);
     }
 
-    private static fetchUserInfoByTokenAndSave(token: string): Q.Promise<Profile>  {
+    private static fetchUserInfoByTokenAndSave(token: string, projectRootPath: string): Q.Promise<Profile>  {
         return Auth.getUserInfo(token).then(userResponse => {
-            return saveUser(userResponse, { token: token }).then((profile: Profile) => {
+            return saveUser(userResponse, { token: token }, projectRootPath).then((profile: Profile) => {
                 return Q.resolve(profile);
             });
         }).catch((e: any) => {
@@ -50,11 +50,11 @@ export default class Auth {
         return getQPromisifiedClientResult(client.account.users.get());
     }
 
-    private static removeLoggedInUser(): Q.Promise<void> {
-        const currentUser = getUser();
+    private static removeLoggedInUser(projectRootPath: string): Q.Promise<void> {
+        const currentUser = getUser(projectRootPath);
         if (currentUser) {
             // Deleting user token from token store
-            return deleteUser().then(() => {
+            return deleteUser(projectRootPath).then(() => {
                 return Q.resolve(void 0);
             }).catch(() => { }); // Noop, it's ok if deletion fails
         }
