@@ -30,6 +30,6 @@
         "ReactTypings",
         "tools/",
         "test/resources/sampleReactNative022Project/",
-        "lib"
+        "src/extension/appcenter/lib"
     ]
 }

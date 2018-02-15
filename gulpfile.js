@@ -83,7 +83,7 @@ var lintSources = [
 lintSources = lintSources.concat([
     "!src/typings/**",
     "!test/resources/sampleReactNative022Project/**",
-    "!lib/**"
+    "!src/extension/appcenter/lib/**"
 ]);
 
 var libtslint = require("tslint");
@@ -171,6 +171,7 @@ gulp.task("check-copyright", function (cb) {
         "!test/**/*.js",
         "!SampleApplication/**",
         "!test/resources/sampleReactNative022Project/**/*.js",
+        "!src/extension/appcenter/lib/**",
     ])
         .pipe(copyright());
 });
@@ -189,6 +190,7 @@ gulp.task("clean", function () {
         "out/",
         "!test/resources/sampleReactNative022Project/**/*.js",
         ".vscode-test/",
+        "!src/extension/appcenter/lib/**/*.js",
     ]
     return del(pathsToDelete, { force: true });
 });

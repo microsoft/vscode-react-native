@@ -1,7 +1,7 @@
 {
     "linterOptions": {
         "exclude": [
-            "lib"
+            "src/extension/appcenter/lib"
         ]
     },
     "rules": {

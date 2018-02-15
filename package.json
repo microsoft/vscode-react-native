@@ -533,12 +533,12 @@
 		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
 		"vscode:prepublish": "gulp",
 		"test": "node ./node_modules/vscode/bin/test",
-		"preinstall": "npm install --prefix ./lib/app-center-node-client",
+		"preinstall": "npm install --prefix ./src/extension/appcenter/lib/app-center-node-client",
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"dependencies": {
-		"app-center-node-client": "file:lib/app-center-node-client",
-		"codepush-node-sdk": "file:lib/codepush-node-sdk/dist",
+		"app-center-node-client": "file:src/extension/appcenter/lib/app-center-node-client",
+		"codepush-node-sdk": "file:src/extension/appcenter/lib/codepush-node-sdk/dist",
 		"extract-opts": "2.2.0",
 		"flatten-source-map": "0.0.2",
 		"lodash": "^4.16.4",
