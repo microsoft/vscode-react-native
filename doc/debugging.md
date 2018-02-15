@@ -23,6 +23,6 @@ See more about source map overrides [here](https://github.com/Microsoft/vscode-n
 Debugging on an iOS device require following manual steps:
 * Install [ios-deploy](https://www.npmjs.com/package/ios-deploy) `npm install -g ios-deploy`.
 * Have a valid iOS Development certificate installed.
-* In your project's `launch.json` file set `target` to `device` or use 'launchArguments' property to specify particular device to run on in case of multiple devices connected, e.g. `"arguments": [ "--device", "My iPhone" ]`
+* In your project's `launch.json` file set `target` to `device` or use 'launchArguments' property to specify particular device to run on in case of multiple devices connected, e.g. `"runArguments": [ "--device", "My iPhone" ]`
 * Choose **Debug iOS** configuration from the Configuration dropdown and press F5.
 * Shake the device to open the development menu and select "Debug JS Remotely".
