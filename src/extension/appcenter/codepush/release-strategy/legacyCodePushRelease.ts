@@ -15,7 +15,7 @@ export default class LegacyCodePushRelease {
             isDisabled?: boolean;
             isMandatory?: boolean;
             rollout?: number;
-        },         token: string, serverUrl?: string): Q.Promise<models.CodePushRelease> {
+        },         token: string, serverUrl: string): Q.Promise<models.CodePushRelease> {
 
         const releaseData: PackageInfo = {
             description: updateMetadata.description,
@@ -25,7 +25,7 @@ export default class LegacyCodePushRelease {
             appVersion: updateMetadata.appVersion,
         };
 
-        return new LegacyCodePushServiceClient(token, app)
+        return new LegacyCodePushServiceClient(token, app, serverUrl)
             .release(deploymentName, updateContentsZipPath, releaseData);
     }
 }

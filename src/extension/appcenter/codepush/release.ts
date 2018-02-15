@@ -22,7 +22,7 @@ export default class CodePushRelease {
                     isDisabled: params.isDisabled,
                     isMandatory: params.isMandatory,
                     rollout: params.rollout,
-                }, <string>params.token);
+                }, <string>params.token, "https://codepush-management.azurewebsites.net/");
             } else {
                 return appcenterCodePushRelease(client, params);
             }

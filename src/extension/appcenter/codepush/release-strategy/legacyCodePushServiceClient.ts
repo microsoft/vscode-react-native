@@ -42,7 +42,7 @@ export type Headers = { [headerName: string]: string };
 export default class LegacyCodePushServiceClient {
     private static API_VERSION: number = 2;
 
-    constructor(private accessKey: string, private app: DefaultApp, private serverUrl?: string) {
+    constructor(private accessKey: string, private app: DefaultApp, private serverUrl: string) {
         if (!accessKey) throw new Error("A token must be specified to execute server calls.");
         if (!serverUrl) throw new Error("A server url must be specified to execute server calls.");
     }

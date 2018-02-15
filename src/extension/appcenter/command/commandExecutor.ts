@@ -263,6 +263,9 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                     return new Promise<any>((publishResolve, publishReject) => {
                         Auth.getProfile(projectRootPath)
                             .then((profile: Profile) => {
+                                return profile.accessToken;
+                            }).then((token: string) => {
+                                codePushRelaseParams.token = token;
                                 return CodePushRelease.exec(client, codePushRelaseParams, this.logger);
                             }).then((response: any) => publishResolve(response))
                             .catch((error: any) => publishReject(error));
