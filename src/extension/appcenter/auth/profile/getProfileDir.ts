@@ -6,7 +6,7 @@ import * as os from "os";
 
 export const profileDirName = ".vscode";
 export const tokenDirName = ".vscode-react-native";
-export const profileFile = "codePushRNProfile.json";
+export const profileFile = "codepush.json";
 
 export function getProfileDir(projectRootPath: string): string {
   const profileDir = path.join(projectRootPath, profileDirName);
