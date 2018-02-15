@@ -27,4 +27,5 @@ export interface ICodePushReleaseParams extends IDefaultCommandParams {
   label?: string;
   packageHash?: string;
   rollout?: number;
+  token?: string;
 }

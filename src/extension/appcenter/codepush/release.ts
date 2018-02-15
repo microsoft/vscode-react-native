@@ -4,29 +4,29 @@
 import { AppCenterClient, models } from "../api/index";
 import { ILogger, LogLevel } from "../../log/LogHelper";
 import { ICodePushReleaseParams } from "../command/commandParams";
-import { getQPromisifiedClientResult } from "../api/createClient";
 import * as Q from "q";
 import { CommandResult, success, failure, ErrorCodes } from "../command/commandResult";
-import * as fs from "fs";
+import { appcenterCodePushRelease } from "./release-strategy/appcenterCodePushRelease";
+import LegacyCodePushRelease from "./release-strategy/legacyCodePushRelease";
 
-export default class CodePushReleaseReact {
+const useLegacyCodePushServer: boolean = true;
+
+export default class CodePushRelease {
     public static exec(client: AppCenterClient, params: ICodePushReleaseParams, logger: ILogger): Q.Promise<CommandResult> {
         const app = params.app;
-        return getQPromisifiedClientResult(client.codepush.codePushDeploymentReleases.create(
-                app.appName,
-                params.deploymentName,
-                app.ownerName,
-                <string>params.appVersion,
-                {
-                    packageProperty: fs.createReadStream(params.updatedContentZipPath),
-                    deploymentName: params.deploymentName,
+        return ((): Q.Promise<CodePushRelease> => {
+            if (useLegacyCodePushServer) {
+                return new LegacyCodePushRelease().release(client, app, params.deploymentName, params.updatedContentZipPath, {
+                    appVersion: params.appVersion,
                     description: params.description,
-                    disabled: params.isDisabled,
-                    mandatory: params.isMandatory,
-                    noDuplicateReleaseError: false, // TODO: remove it, not needed to send to server
+                    isDisabled: params.isDisabled,
+                    isMandatory: params.isMandatory,
                     rollout: params.rollout,
-                })
-        ).then((result: models.CodePushRelease) => {
+                }, <string>params.token);
+            } else {
+                return appcenterCodePushRelease(client, params);
+            }
+        })().then((result: models.CodePushRelease) => {
             return success(result);
         }).catch((error) => {
             if (error.response.statusCode === 409) {

@@ -15,7 +15,7 @@ import { AppCenterClient, models } from "../api/index";
 import { DefaultApp, ICodePushReleaseParams } from "./commandParams";
 import { AppCenterExtensionManager } from "../appCenterExtensionManager";
 import { ACStrings } from "../appCenterStrings";
-import CodePushReleaseReact from "../codepush/releaseReact";
+import CodePushRelease from "../codepush/release";
 import { ACUtils } from "../appCenterUtils";
 import { updateContents, reactNative, fileUtils } from "codepush-node-sdk";
 import BundleConfig = reactNative.BundleConfig;
@@ -261,8 +261,10 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                     codePushRelaseParams.updatedContentZipPath = pathToZippedBundle;
                     codePushRelaseParams.isMandatory = isMandatory;
                     return new Promise<any>((publishResolve, publishReject) => {
-                        CodePushReleaseReact.exec(client, codePushRelaseParams, this.logger)
-                            .then((response: any) => publishResolve(response))
+                        Auth.getProfile(projectRootPath)
+                            .then((profile: Profile) => {
+                                return CodePushRelease.exec(client, codePushRelaseParams, this.logger);
+                            }).then((response: any) => publishResolve(response))
                             .catch((error: any) => publishReject(error));
                     });
                 }).then((response: any) => {
