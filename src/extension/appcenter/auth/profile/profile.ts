@@ -62,7 +62,7 @@ class ProfileImpl implements Profile {
           };
 
         mkdirp.sync(getProfileDir(projectRootPath));
-        fs.writeFileSync(getProfileFilename(projectRootPath), JSON.stringify(profile), { encoding: "utf8" });
+        fs.writeFileSync(getProfileFilename(projectRootPath), JSON.stringify(profile, null, "\t"), { encoding: "utf8" });
         return this;
     }
 
