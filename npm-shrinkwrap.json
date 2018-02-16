@@ -53,9 +53,9 @@
 			}
 		},
 		"@types/lodash": {
-			"version": "4.14.102",
-			"resolved": "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.102.tgz",
-			"integrity": "sha512-k/SxycYmVc6sYo6kzm8cABHcbMs9MXn6jYsja1hLvZ/x9e31VHRRn+1UzWdpv6doVchphvKaOsZ0VTqbF7zvNg==",
+			"version": "4.14.103",
+			"resolved": "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.103.tgz",
+			"integrity": "sha512-j0pwz3L/3SCuovHaTxQ2B0fpLYKGsk8uooMxmkEmIw/62E3moCBEHh6KsWvTjxs8NdyfTdkLERslc/fDdLChlg==",
 			"dev": true
 		},
 		"@types/minimatch": {
@@ -5849,9 +5849,9 @@
 			"integrity": "sha1-u+Z0BseaqFxc/sdm/lc0VV36EnQ="
 		},
 		"osenv": {
-			"version": "0.1.4",
-			"resolved": "https://registry.npmjs.org/osenv/-/osenv-0.1.4.tgz",
-			"integrity": "sha1-Qv5tWVPfBsgGS+bxdsPQWqqjRkQ=",
+			"version": "0.1.5",
+			"resolved": "https://registry.npmjs.org/osenv/-/osenv-0.1.5.tgz",
+			"integrity": "sha512-0CWcCECdMVc2Rw3U5w9ZjqX6ga6ubk1xDVKxtBQPK7wis/0F2r9T6k4ydGYhecl7YUBxBVxhL5oisPsNxAPe2g==",
 			"dev": true,
 			"requires": {
 				"os-homedir": "1.0.2",
@@ -7995,7 +7995,7 @@
 				"markdown-it": "8.4.1",
 				"mime": "1.6.0",
 				"minimatch": "3.0.4",
-				"osenv": "0.1.4",
+				"osenv": "0.1.5",
 				"parse-semver": "1.1.1",
 				"read": "1.0.7",
 				"semver": "5.1.0",
