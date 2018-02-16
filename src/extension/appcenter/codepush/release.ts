@@ -24,12 +24,17 @@ export default class CodePushRelease {
         })().then((result: models.CodePushRelease) => {
             return success(result);
         }).catch((error) => {
-            if (error.response.statusCode === 409) {
+            if (error && error.reposnse && error.response.statusCode === 409) {
                 logger.log(error.response.body, LogLevel.Error);
                 return failure(ErrorCodes.Exception, error.response.body);
             }
+
             logger.log("An error occured on doing Code Push release", LogLevel.Error);
-            return failure(ErrorCodes.Exception, "An error occured on doing Code Push release");
+            if (typeof error === "string") {
+                return failure(ErrorCodes.Exception, error);
+            } else {
+                return failure(ErrorCodes.Exception, "An error occured on doing Code Push release");
+            }
         });
     }
 }
