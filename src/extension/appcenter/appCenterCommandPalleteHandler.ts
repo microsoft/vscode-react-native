@@ -5,15 +5,15 @@ import { ILogger, LogLevel } from "../log/LogHelper";
 import * as Q from "q";
 import { AppCenterCommandExecutor } from "./command/commandExecutor";
 import Auth from "../appcenter/auth/auth";
-import * as vscode from "vscode";
 import { AppCenterClient } from "./api/index";
-import { getUser, Profile } from "./auth/profile/profile";
+import { Profile } from "./auth/profile/profile";
 import { AppCenterClientFactory, createAppCenterClient } from "./api/createClient";
 import { SettingsHelper } from "../settingsHelper";
 import { AppCenterCommandType } from "./appCenterConstants";
 import { AppCenterExtensionManager } from "./appCenterExtensionManager";
 import { ACStrings } from "./appCenterStrings";
-import { ACUtils } from "./appCenterUtils";
+import { ACUtils } from "./helpers/utils";
+import { VsCodeUtils } from "./helpers/vscodeUtils";
 
 export class AppCenterCommandPalleteHandler {
     private commandExecutor: AppCenterCommandExecutor;
@@ -34,8 +34,7 @@ export class AppCenterCommandPalleteHandler {
 
     public run(command: AppCenterCommandType): Q.Promise<void>  {
         if (!ACUtils.isCodePushProject(this.appCenterManager.projectRootPath)) {
-            vscode.window.showWarningMessage(ACStrings.NoCodePushDetectedMsg);
-            return Q.resolve(void 0);
+            return VsCodeUtils.ShowWarningMessage(ACStrings.NoCodePushDetectedMsg);
         }
 
         // Login is special case
@@ -45,10 +44,9 @@ export class AppCenterCommandPalleteHandler {
 
         return Auth.getProfile(this.appCenterManager.projectRootPath).then((profile: Profile) => {
             if (!profile) {
-                vscode.window.showWarningMessage(ACStrings.UserIsNotLoggedInMsg);
-                return Q.resolve(void 0);
+                return VsCodeUtils.ShowWarningMessage(ACStrings.UserIsNotLoggedInMsg);
              } else {
-                const clientOrNull: AppCenterClient | null  = this.resolveAppCenterClient();
+                const clientOrNull: AppCenterClient | null  = this.resolveAppCenterClient(profile);
                 if (clientOrNull) {
                     this.client = clientOrNull;
 
@@ -57,7 +55,7 @@ export class AppCenterCommandPalleteHandler {
                             return this.commandExecutor.logout(this.appCenterManager);
 
                         case (AppCenterCommandType.Whoami):
-                            return this.commandExecutor.whoAmI(profile);
+                            return this.commandExecutor.whoAmI(this.appCenterManager);
 
                         case (AppCenterCommandType.SetCurrentApp):
                             return this.commandExecutor.setCurrentApp(this.client, this.appCenterManager);
@@ -91,13 +89,12 @@ export class AppCenterCommandPalleteHandler {
         });
     }
 
-    private resolveAppCenterClient(): AppCenterClient | null {
+    private resolveAppCenterClient(profile: Profile): AppCenterClient | null {
         if (!this.client) {
-            const user = getUser(this.appCenterManager.projectRootPath);
-            if (user) {
-                return this.clientFactory.fromProfile(user, SettingsHelper.getAppCenterAPIEndpoint());
+            if (profile) {
+                return this.clientFactory.fromProfile(profile, SettingsHelper.getAppCenterAPIEndpoint());
             } else {
-                throw new Error("No App Center user specified");
+                throw new Error("No App Center user specified!");
             }
         }
         return this.client;

@@ -89,6 +89,27 @@ export class SettingsHelper {
        return ACConstants.DefaulAPIEndPoint;
    }
 
+    /**
+     * Get old codepush endpoint setting
+     */
+    public static getLegacyCodePushEndpoint(): string {
+        const workspaceConfiguration = vscode.workspace.getConfiguration();
+        if (workspaceConfiguration.has("react-native-tools.appcenter.legacycodepushservice")) {
+            let apiEndpoint: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.appcenter.legacycodepushservice"));
+            return apiEndpoint;
+        }
+        return ACConstants.DefaultLegacyCodePushService;
+    }
+
+    public static getLegacyCodePushServiceEnabled(): boolean {
+        const workspaceConfiguration = vscode.workspace.getConfiguration();
+        if (workspaceConfiguration.has("react-native-tools.appcenter.legacycodepushserviceenabled")) {
+            let enabled: boolean = ConfigurationReader.readBoolean(workspaceConfiguration.get("react-native-tools.appcenter.legacycodepushserviceenabled"));
+            return enabled;
+        }
+        return true;
+    }
+
     public static getEnvArgs(platform: string, target: "device" | "simulator", uri: vscode.Uri): any {
         const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("react-native", uri);
         const configKey: string = `${platform}.env.${target}`;

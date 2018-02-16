@@ -51,13 +51,8 @@ export default class Auth {
     }
 
     private static removeLoggedInUser(projectRootPath: string): Q.Promise<void> {
-        const currentUser = getUser(projectRootPath);
-        if (currentUser) {
-            // Deleting user token from token store
-            return deleteUser(projectRootPath).then(() => {
-                return Q.resolve(void 0);
-            }).catch(() => { }); // Noop, it's ok if deletion fails
-        }
-        return Q.resolve(void 0);
+        return deleteUser(projectRootPath).then(() => {
+            return Q.resolve(void 0);
+        }).catch(() => { }); // Noop, it's ok if deletion fails
     }
 }

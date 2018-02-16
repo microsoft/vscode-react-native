@@ -3,10 +3,6 @@
 
 import { CurrentAppDeployments } from "../appCenterConstants";
 
-export interface IDefaultCommandParams {
-    app: DefaultApp;
-}
-
 export interface DefaultApp {
     ownerName: string;
     appName: string;
@@ -17,6 +13,9 @@ export interface DefaultApp {
     currentAppDeployments: CurrentAppDeployments;
 }
 
+export interface IDefaultCommandParams {
+    app: DefaultApp;
+}
 export interface ICodePushReleaseParams extends IDefaultCommandParams {
   deploymentName: string;
   updatedContentZipPath: string;

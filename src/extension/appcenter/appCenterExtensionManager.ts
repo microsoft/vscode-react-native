@@ -7,7 +7,8 @@ import { ACStrings } from "./appCenterStrings";
 import * as Q from "q";
 import { ACCommandNames, ACConstants } from "./appCenterConstants";
 import { Profile } from "./auth/profile/profile";
-import { ACUtils } from "./appCenterUtils";
+import { ACUtils } from "./helpers/utils";
+import { VsCodeUtils } from "./helpers/vscodeUtils";
 
 export class AppCenterExtensionManager implements Disposable {
     private appCenterStatusBarItem: StatusBarItem;
@@ -27,7 +28,7 @@ export class AppCenterExtensionManager implements Disposable {
         }
 
         this.appCenterStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 12);
-        return Auth.getProfile(this._projectRootPath).then((profile: Profile) => {
+        return Auth.getProfile(this._projectRootPath).then((profile: Profile | null) => {
             return this.setupAppCenterStatusBar(profile);
         });
     }
@@ -39,29 +40,17 @@ export class AppCenterExtensionManager implements Disposable {
     }
 
     public setupAppCenterStatusBar(profile: Profile | null): Q.Promise<void> {
-        if (!profile) {
-            return this.setStatusBar(this.appCenterStatusBarItem,
-                `$(icon octicon-sign-in) ${ACStrings.LoginToAppCenterButton}`,
-                ACStrings.UserMustSignIn,
-                `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Login}`
-            );
-        } else {
-            return this.setStatusBar(this.appCenterStatusBarItem,
+        if (profile && profile.userName) {
+            return VsCodeUtils.setStatusBar(this.appCenterStatusBarItem,
                 `$(icon octicon-person) ${profile.userName}`,
                 ACStrings.YouAreLoggedInMsg(profile.userName),
                 `${ACConstants.ExtensionPrefixName}.${ACCommandNames.ShowMenu}`
             );
         }
-    }
-
-    private setStatusBar(statusBar: StatusBarItem, text: string, tooltip: string, commandOnClick?: string): Q.Promise<void>  {
-        if (statusBar !== undefined) {
-            statusBar.command = commandOnClick; // undefined clears the command
-            statusBar.text = text;
-            statusBar.tooltip = tooltip;
-            statusBar.color = ACConstants.AppCenterCodePushStatusBarColor;
-            statusBar.show();
-        }
-        return Q.resolve(void 0);
+        return VsCodeUtils.setStatusBar(this.appCenterStatusBarItem,
+            `$(icon octicon-sign-in) ${ACStrings.LoginToAppCenterButton}`,
+            ACStrings.UserMustSignIn,
+            `${ACConstants.ExtensionPrefixName}.${ACCommandNames.Login}`
+        );
     }
 }

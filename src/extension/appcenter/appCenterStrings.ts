@@ -30,31 +30,27 @@ export class ACStrings {
     public static ReleasingUpdateContentsMessage: string = "Releasing update contents to CodePush...";
     public static LoginToAppCenterButton: string = "Login to App Center";
     public static PleaseProvideTargetBinaryVersion: string = "Please provide semver compliant version";
-
-    public static ReleaseReactMenuDescription: string = "Realese react";
-    public static SetCurrentAppMenuDescription: string = "Change Current App";
-    public static SetTargetBinaryVersionMenuDescription: string = "Specify new target binary version";
-    public static SetIsMandatoryMenuDescription: string = "Change if release is mandatory or not";
     public static LogoutMenuLabel: string = "Logout";
-    public static LogoutMenuDescription: string = "Logout from App Center";
-    public static SetCurrentDeploymentMenuDescription: string = "Specify deployment for current app";
     public static MenuTitlePlaceholder: string = "Please select action";
 
     public static YouAreLoggedInMsg: (name: string) => string = (name: string) => {
-         return `You are logged in to App Center as ${name}`;
+         return `You are logged in to App Center as '${name}'`;
     }
+
     public static YourCurrentAppMsg: (appName: string) => string = (appName: string) => {
-        return `Your current app is ${appName}`;
+        return `Your current app is '${appName}'`;
     }
+
     public static YourCurrentAppAndDeployemntMsg: (appName: string, deploymentName: string) => string = (appName: string, deploymentName: string) => {
         if (deploymentName) {
-            return `Your current app is ${appName}, current deployment is ${deploymentName}`;
+            return `Your current app is '${appName}', current deployment is '${deploymentName}'`;
         } else {
-            return `Your current app is ${appName}, you have no deployments specified`;
+            return `Your current app is '${appName}', you have no deployments specified`;
         }
     }
+
     public static YourCurrentDeploymentMsg: (deploymentName: string) => string = (deploymentName: string) => {
-        return `Your current deployment is ${deploymentName}`;
+        return `Your current deployment is '${deploymentName}'`;
     }
 
     public static ReleaseReactMenuText: (app: DefaultApp | null) => string = (app: DefaultApp | null) => {
@@ -78,8 +74,8 @@ export class ACStrings {
     }
 
     public static SetCurrentAppTargetBinaryVersionText: (app: DefaultApp) => string = (app: DefaultApp) => {
-        const targetBinaryVersion = app.targetBinaryVersion !== undefined && app.targetBinaryVersion;
-        return `Change '${targetBinaryVersion ? app.targetBinaryVersion : "automatically fetched"}' target binary version`;
+        const targetBinaryVersionProvided = app.targetBinaryVersion !== undefined && app.targetBinaryVersion;
+        return `Change ${targetBinaryVersionProvided ? `'${app.targetBinaryVersion}'` : "automatically fetched"} target binary version`;
     }
 
     public static SetCurrentAppIsMandatoryText: (app: DefaultApp) => string = (app: DefaultApp) => {

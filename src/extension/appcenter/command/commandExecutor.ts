@@ -16,22 +16,22 @@ import { DefaultApp, ICodePushReleaseParams } from "./commandParams";
 import { AppCenterExtensionManager } from "../appCenterExtensionManager";
 import { ACStrings } from "../appCenterStrings";
 import CodePushRelease from "../codepush/release";
-import { ACUtils } from "../appCenterUtils";
+import { ACUtils } from "../helpers/utils";
 import { updateContents, reactNative, fileUtils } from "codepush-node-sdk";
 import BundleConfig = reactNative.BundleConfig;
 import { getQPromisifiedClientResult } from "../api/createClient";
 import { validRange } from "semver";
+import { VsCodeUtils } from "../helpers/vscodeUtils";
 
 interface IAppCenterAuth {
     login(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
     logout(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
-    whoAmI(profile: Profile): Q.Promise<void>;
+    whoAmI(appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
 }
 
 interface IAppCenterApps {
     getCurrentApp(appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
     setCurrentApp(client: AppCenterClient, appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
-
     setCurrentDeployment(appCenterManager: AppCenterExtensionManager): Q.Promise<void>;
 }
 
@@ -88,13 +88,14 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         });
     }
 
-    public whoAmI(profile: Profile): Q.Promise<void> {
-        if (profile && profile.displayName) {
-            vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
-        } else {
-            vscode.window.showInformationMessage(ACStrings.UserIsNotLoggedInMsg);
-        }
-        return Q.resolve(void 0);
+    public whoAmI(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
+        return Auth.getProfile(appCenterManager.projectRootPath).then((profile: Profile | null) => {
+            if (profile && profile.displayName) {
+                return VsCodeUtils.ShowInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
+            } else {
+                return VsCodeUtils.ShowInformationMessage(ACStrings.UserIsNotLoggedInMsg);
+            }
+        });
     }
 
     public setCurrentDeployment(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {

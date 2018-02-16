@@ -8,9 +8,9 @@ const open = require("open");
 import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
-import { Package, IPackageInformation } from "../../common/node/package";
-import { ACConstants, AppCenterOS, CurrentAppDeployments } from "./appCenterConstants";
-import { DefaultApp } from "./command/commandParams";
+import { Package, IPackageInformation } from "../../../common/node/package";
+import { ACConstants, AppCenterOS, CurrentAppDeployments } from "../appCenterConstants";
+import { DefaultApp } from "../command/commandParams";
 
 export class ACUtils {
     private static validApp = /^([a-zA-Z0-9-_.]{1,100})\/([a-zA-Z0-9-_.]{1,100})$/;

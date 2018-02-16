@@ -7,22 +7,17 @@ import { ICodePushReleaseParams } from "../command/commandParams";
 import * as Q from "q";
 import { CommandResult, success, failure, ErrorCodes } from "../command/commandResult";
 import { appcenterCodePushRelease } from "./release-strategy/appcenterCodePushRelease";
-import LegacyCodePushRelease from "./release-strategy/legacyCodePushRelease";
+import { legacyCodePushRelease } from "./release-strategy/legacyCodePushRelease";
+import { SettingsHelper } from "../../settingsHelper";
 
-const useLegacyCodePushServer: boolean = true;
+// Use old service endpoint unless we will fix issue with 1MB payload limitation for new one
+const useLegacyCodePushServer: boolean = SettingsHelper.getLegacyCodePushServiceEnabled();
 
 export default class CodePushRelease {
     public static exec(client: AppCenterClient, params: ICodePushReleaseParams, logger: ILogger): Q.Promise<CommandResult> {
-        const app = params.app;
         return ((): Q.Promise<CodePushRelease> => {
             if (useLegacyCodePushServer) {
-                return new LegacyCodePushRelease().release(client, app, params.deploymentName, params.updatedContentZipPath, {
-                    appVersion: params.appVersion,
-                    description: params.description,
-                    isDisabled: params.isDisabled,
-                    isMandatory: params.isMandatory,
-                    rollout: params.rollout,
-                }, <string>params.token, "https://codepush-management.azurewebsites.net/");
+                return legacyCodePushRelease(params, <string>params.token, SettingsHelper.getLegacyCodePushEndpoint());
             } else {
                 return appcenterCodePushRelease(client, params);
             }

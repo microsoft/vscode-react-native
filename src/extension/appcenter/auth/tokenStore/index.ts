@@ -3,14 +3,29 @@
 
 import { TokenStore } from "./tokenStore";
 import { createFileTokenStore } from "./fileTokenStore";
-import { getTokenDir } from "../profile//getProfileDir";
 import * as path from "path";
 import * as fs from "fs";
+import * as os from "os";
 
 export * from "./tokenStore";
 export const tokenFile = "VSCodeAppCenterTokens.json";
 
 let store: TokenStore;
+
+const tokenDirName: string = ".vscode-react-native";
+
+function getTokenDir(): string {
+  const tokenDir = path.join(getTokenDirParent(), tokenDirName);
+  return tokenDir;
+}
+
+function getTokenDirParent(): string {
+  if (os.platform() === "win32") {
+    return process.env.AppData;
+  } else {
+    return os.homedir();
+  }
+}
 
 // Currently only support file-base token store
 const tokenFilePath = path.join(getTokenDir(), tokenFile);

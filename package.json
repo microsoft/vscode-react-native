@@ -524,6 +524,18 @@
 					"type": "string",
 					"default": "https://api.appcenter.ms",
 					"scope": "resource"
+				},
+				"react-native-tools.appcenter.legacycodepushservice": {
+					"description": "Legacy codepush service endpoint",
+					"type": "string",
+					"default": "https://codepush-management.azurewebsites.net/",
+					"scope": "resource"
+				},
+				"react-native-tools.appcenter.legacycodepushserviceenabled": {
+					"description": "Select if legacy service is used for CodePush release",
+					"type": "boolean",
+					"default": true,
+					"scope": "resource"
 				}
 			}
 		}

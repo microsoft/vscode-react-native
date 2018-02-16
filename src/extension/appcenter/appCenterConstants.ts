@@ -6,6 +6,7 @@ export class ACConstants {
     public static AppCenterExtensionName: string = "appcenter";
     public static DefaulAPIEndPoint: string = "https://api.appcenter.ms";
     public static DefaultLoginEndPoint: string = "https://appcenter.ms/cli-login";
+    public static DefaultLegacyCodePushService: string = "https://codepush-management.azurewebsites.net/";
     public static CodePushNpmPackageName: string = "react-native-code-push";
     public static AppCenterReactNativePlatformName: string = "React-Native";
     public static AppCenterCodePushStatusBarColor: string = "#F3F3B2";
@@ -66,4 +67,10 @@ export enum AppCenterCommandType {
 
     // Common commands
     ShowMenu,
+}
+
+export enum MessageTypes {
+    Error = 0,
+    Warn = 1,
+    Info = 2,
 }
