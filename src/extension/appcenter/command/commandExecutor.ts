@@ -21,7 +21,7 @@ import { updateContents, reactNative, fileUtils } from "codepush-node-sdk";
 import BundleConfig = reactNative.BundleConfig;
 import { getQPromisifiedClientResult } from "../api/createClient";
 import { validRange } from "semver";
-import { VsCodeUtils } from "../helpers/vscodeUtils";
+import { VsCodeUtils, IButtonMessageItem } from "../helpers/vscodeUtils";
 
 interface IAppCenterAuth {
     login(appcenterManager: AppCenterExtensionManager): Q.Promise<void>;
@@ -55,11 +55,14 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         .then((loginType) => {
             switch (loginType) {
                 case (AppCenterLoginType[AppCenterLoginType.Interactive]):
-                    return vscode.window.showInformationMessage(ACStrings.PleaseLoginViaBrowser, "OK")
-                    .then((selection: string) => {
-                        if (selection.toLowerCase() === "ok") {
-                            const loginUrl = `${SettingsHelper.getAppCenterLoginEndpoint()}?${qs.stringify({ hostname: os.hostname()})}`;
-                            ACUtils.OpenUrl(loginUrl);
+                    const messageItems: IButtonMessageItem[] = [];
+                    const loginUrl = `${SettingsHelper.getAppCenterLoginEndpoint()}?${qs.stringify({ hostname: os.hostname()})}`;
+                    messageItems.push({ title : ACStrings.OkBtnLabel,
+                                        url : loginUrl });
+
+                    return VsCodeUtils.ShowInformationMessage(ACStrings.PleaseLoginViaBrowser, ...messageItems)
+                    .then((selection: IButtonMessageItem | undefined) => {
+                        if (selection) {
                             return vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideToken, ignoreFocusOut: true })
                             .then(token => {
                                 this.loginWithToken(token, appCenterManager);
@@ -81,7 +84,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
 
     public logout(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
         return Auth.doLogout(appCenterManager.projectRootPath).then(() => {
-            vscode.window.showInformationMessage(ACStrings.UserLoggedOutMsg);
+            VsCodeUtils.ShowInformationMessage(ACStrings.UserLoggedOutMsg);
             return appCenterManager.setupAppCenterStatusBar(null);
         }).catch(() => {
             this.logger.log("An errro occured on logout", LogLevel.Error);
@@ -91,10 +94,11 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     public whoAmI(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
         return Auth.getProfile(appCenterManager.projectRootPath).then((profile: Profile | null) => {
             if (profile && profile.displayName) {
-                return VsCodeUtils.ShowInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
+                VsCodeUtils.ShowInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
             } else {
-                return VsCodeUtils.ShowInformationMessage(ACStrings.UserIsNotLoggedInMsg);
+                VsCodeUtils.ShowInformationMessage(ACStrings.UserIsNotLoggedInMsg);
             }
+            return Q.resolve(void 0);
         });
     }
 
@@ -128,9 +132,9 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     public getCurrentApp(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
         this.restoreCurrentApp(appCenterManager.projectRootPath).then((app: DefaultApp) => {
             if (app) {
-                vscode.window.showInformationMessage(ACStrings.YourCurrentAppMsg(app.identifier));
+                VsCodeUtils.ShowInformationMessage(ACStrings.YourCurrentAppMsg(app.identifier));
             } else {
-                vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
+                VsCodeUtils.ShowInformationMessage(ACStrings.NoCurrentAppSetMsg);
             }
         });
         return Q.resolve(void 0);
@@ -196,7 +200,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                                 ACConstants.AppCenterDefaultIsMandatoryParam)
                             .then((app: DefaultApp | null) => {
                                 if (app) {
-                                    return vscode.window.showInformationMessage(ACStrings.YourCurrentAppAndDeployemntMsg(selected.target
+                                    return VsCodeUtils.ShowInformationMessage(ACStrings.YourCurrentAppAndDeployemntMsg(selected.target
                                         , app.currentAppDeployments.currentDeploymentName));
                                 } else {
                                     this.logger.error("Failed to save current app");
@@ -273,17 +277,17 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                     });
                 }).then((response: any) => {
                     if (response.succeeded && response.result) {
-                        vscode.window.showInformationMessage(`Successfully released an update to the "${codePushRelaseParams.deploymentName}" deployment of the "${codePushRelaseParams.app.appName}" app`);
+                        VsCodeUtils.ShowInformationMessage(`Successfully released an update to the "${codePushRelaseParams.deploymentName}" deployment of the "${codePushRelaseParams.app.appName}" app`);
                         resolve(response.result);
                     } else {
-                        vscode.window.showErrorMessage(response.errorMessage);
+                        VsCodeUtils.ShowErrorMessage(response.errorMessage);
                     }
                     fileUtils.rmDir(codePushRelaseParams.updatedContentZipPath);
                 }).catch((error: Error) => {
                     if (error && error.message) {
-                        vscode.window.showErrorMessage(`An error occured on doing Code Push release. ${error.message}`);
+                        VsCodeUtils.ShowErrorMessage(`An error occured on doing Code Push release. ${error.message}`);
                     } else {
-                        vscode.window.showErrorMessage("An error occured on doing Code Push release");
+                        VsCodeUtils.ShowErrorMessage("An error occured on doing Code Push release");
                     }
 
                     fileUtils.rmDir(codePushRelaseParams.updatedContentZipPath);
@@ -392,10 +396,10 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                     app.targetBinaryVersion,
                     newMandatoryValue
                 ).then(() => {
-                    vscode.window.showInformationMessage(`Changed release to ${newMandatoryValue ? "Mandotory" : "NOT Mandatory"}`);
+                    VsCodeUtils.ShowInformationMessage(`Changed release to ${newMandatoryValue ? "Mandotory" : "NOT Mandatory"}`);
                 });
             } else {
-                vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
+                VsCodeUtils.ShowInformationMessage(ACStrings.NoCurrentAppSetMsg);
             }
         });
         return Q.resolve(void 0);
@@ -404,7 +408,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
     public setTargetBinaryVersionForRelease(appCenterManager: AppCenterExtensionManager): Q.Promise<void> {
         vscode.window.showInputBox({ prompt: ACStrings.PleaseProvideTargetBinaryVersion, ignoreFocusOut: true })
         .then(appVersion => {
-            if (appVersion && !!validRange(appVersion)) {
+            if (appVersion === ACConstants.AppCenterDefaultTargetBinaryVersion || (appVersion && !!validRange(appVersion))) {
                 return this.restoreCurrentApp(appCenterManager.projectRootPath).then((app: DefaultApp) => {
                     if (app) {
                         return this.saveCurrentApp(
@@ -417,15 +421,19 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                             appVersion,
                             app.isMandatory
                         ).then(() => {
-                            vscode.window.showInformationMessage(`Changed target binary version to ${appVersion}`);
+                            if (appVersion) {
+                                VsCodeUtils.ShowInformationMessage(`Changed target binary version to '${appVersion}'`);
+                            } else {
+                                VsCodeUtils.ShowInformationMessage(`Changed target binary version to automatically fetched`);
+                            }
                         });
                     } else {
-                        vscode.window.showInformationMessage(ACStrings.NoCurrentAppSetMsg);
+                        VsCodeUtils.ShowInformationMessage(ACStrings.NoCurrentAppSetMsg);
                         return Q.resolve(void 0);
                     }
                 });
             } else {
-                vscode.window.showWarningMessage(ACStrings.InvalidAppVersionParamMsg);
+                VsCodeUtils.ShowWarningMessage(ACStrings.InvalidAppVersionParamMsg);
                 return Q.resolve(void 0);
             }
         });
@@ -440,7 +448,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                            isMandatory: boolean): Q.Promise<DefaultApp | null> {
         const defaultApp = ACUtils.toDefaultApp(currentAppName, appOS, currentAppDeployments, targetBinaryVersion, isMandatory);
         if (!defaultApp) {
-            vscode.window.showWarningMessage(ACStrings.InvalidCurrentAppNameMsg);
+            VsCodeUtils.ShowWarningMessage(ACStrings.InvalidCurrentAppNameMsg);
             return Q.resolve(null);
         }
 
@@ -451,7 +459,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                 return Q.resolve(defaultApp);
             } else {
                 // No profile - not logged in?
-                vscode.window.showWarningMessage(ACStrings.UserIsNotLoggedInMsg);
+                VsCodeUtils.ShowWarningMessage(ACStrings.UserIsNotLoggedInMsg);
                 return Q.resolve(null);
             }
         });
@@ -473,10 +481,10 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
         return Auth.doTokenLogin(token, appCenterManager.projectRootPath).then((profile: Profile) => {
             if (!profile) {
                 this.logger.log("Failed to fetch user info from server", LogLevel.Error);
-                vscode.window.showWarningMessage(ACStrings.FailedToExecuteLoginMsg);
+                VsCodeUtils.ShowWarningMessage(ACStrings.FailedToExecuteLoginMsg);
                 return;
             }
-            vscode.window.showInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
+            VsCodeUtils.ShowInformationMessage(ACStrings.YouAreLoggedInMsg(profile.displayName));
             return appCenterManager.setupAppCenterStatusBar(profile);
         });
     }

@@ -34,7 +34,8 @@ export class AppCenterCommandPalleteHandler {
 
     public run(command: AppCenterCommandType): Q.Promise<void>  {
         if (!ACUtils.isCodePushProject(this.appCenterManager.projectRootPath)) {
-            return VsCodeUtils.ShowWarningMessage(ACStrings.NoCodePushDetectedMsg);
+            VsCodeUtils.ShowWarningMessage(ACStrings.NoCodePushDetectedMsg);
+            return Q.resolve(void 0);
         }
 
         // Login is special case
@@ -44,7 +45,8 @@ export class AppCenterCommandPalleteHandler {
 
         return Auth.getProfile(this.appCenterManager.projectRootPath).then((profile: Profile) => {
             if (!profile) {
-                return VsCodeUtils.ShowWarningMessage(ACStrings.UserIsNotLoggedInMsg);
+                VsCodeUtils.ShowWarningMessage(ACStrings.UserIsNotLoggedInMsg);
+                return Q.resolve(void 0);
              } else {
                 const clientOrNull: AppCenterClient | null  = this.resolveAppCenterClient(profile);
                 if (clientOrNull) {

@@ -2,29 +2,23 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { MessageTypes, ACConstants } from "../appCenterConstants";
-import { StatusBarItem, window } from "vscode";
+import { commands, StatusBarItem, window, MessageItem } from "vscode";
+import { ACUtils } from "./utils";
+import * as Q from "q";
 
 export interface IButtonMessageItem {
     title: string;
     url?: string;
     command?: string;
-    telemetryId?: string;
 }
 
+export class ButtonMessageItem implements MessageItem, IButtonMessageItem {
+    public title: string;
+    public url?: string;
+    public command?: string;
+}
 
 export class VsCodeUtils {
-    public static ShowInformationMessage(message: string): Q.Promise<void> {
-        return this.showMessage(message, MessageTypes.Info);
-    }
-
-    public static ShowWarningMessage(message: string): Q.Promise<void> {
-        return this.showMessage(message, MessageTypes.Warn);
-    }
-
-    public static ShowErrorMessage(message: string): Q.Promise<void> {
-        return this.showMessage(message, MessageTypes.Error);
-    }
-
     public static setStatusBar(statusBar: StatusBarItem, text: string, tooltip: string, commandOnClick?: string): Q.Promise<void>  {
         if (statusBar !== undefined) {
             statusBar.command = commandOnClick; // undefined clears the command
@@ -36,20 +30,61 @@ export class VsCodeUtils {
         return Q.resolve(void 0);
     }
 
-    private static showMessage(messageToDisplay: string, type: MessageTypes): Q.Promise<void> {
+    public static ShowInformationMessage(message: string, ...urlMessageItem: IButtonMessageItem[]): Q.Promise<IButtonMessageItem | undefined> {
+        return Q.Promise<IButtonMessageItem | undefined>((resolve, reject) => {
+            return this.showMessage(message, MessageTypes.Info, ...urlMessageItem).then((res: IButtonMessageItem | undefined) => {
+                resolve(res);
+                return;
+            });
+        });
+    }
+
+    public static ShowWarningMessage(message: string, ...urlMessageItem: IButtonMessageItem[]): Q.Promise<IButtonMessageItem | undefined> {
+        return Q.Promise<IButtonMessageItem | undefined>((resolve, reject) => {
+            return this.showMessage(message, MessageTypes.Warn, ...urlMessageItem).then((res: IButtonMessageItem | undefined) => {
+                resolve(res);
+                return;
+            });
+        });
+    }
+
+    public static ShowErrorMessage(message: string, ...urlMessageItem: IButtonMessageItem[]): Q.Promise<IButtonMessageItem | undefined> {
+        return Q.Promise<IButtonMessageItem | undefined>((resolve, reject) => {
+            return this.showMessage(message, MessageTypes.Error, ...urlMessageItem).then((res: IButtonMessageItem | undefined) => {
+                resolve(res);
+                return;
+            });
+        });
+    }
+
+    private static async showMessage(messageToDisplay: string, type: MessageTypes, ...urlMessageItem: IButtonMessageItem[]): Promise<IButtonMessageItem | undefined> {
+        // The following "cast" allows us to pass our own type around (and not reference "vscode" via an import)
+        const messageItems: ButtonMessageItem[] = <ButtonMessageItem[]>urlMessageItem;
+
+        let chosenItem: IButtonMessageItem | undefined;
         switch (type) {
             case MessageTypes.Error:
-                window.showErrorMessage(messageToDisplay);
+                chosenItem = await window.showErrorMessage(messageToDisplay, ...messageItems);
                 break;
             case MessageTypes.Info:
-                window.showWarningMessage(messageToDisplay);
+                chosenItem = await window.showInformationMessage(messageToDisplay, ...messageItems);
                 break;
-            case MessageTypes.Error:
-                window.showErrorMessage(messageToDisplay);
+            case MessageTypes.Warn:
+                chosenItem = await window.showWarningMessage(messageToDisplay, ...messageItems);
                 break;
             default:
                 break;
         }
-        return Q.resolve(void 0);
+
+        if (chosenItem) {
+            if (chosenItem.url) {
+                ACUtils.OpenUrl(chosenItem.url);
+            }
+            if (chosenItem.command) {
+                commands.executeCommand<void>(chosenItem.command);
+            }
+        }
+
+        return chosenItem;
     }
 }

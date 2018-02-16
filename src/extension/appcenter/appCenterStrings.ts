@@ -4,6 +4,7 @@
 import { DefaultApp } from "./command/commandParams";
 
 export class ACStrings {
+    public static OkBtnLabel: string = "Ok";
     public static UserMustSignIn: string = "You are signed out. Please login to App Center";
     public static SelectLoginTypeMsg: string = "Please select the way you would like to login to AppCenter";
     public static PleaseProvideToken: string = "Please provide token to authenticate";
