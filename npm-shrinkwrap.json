@@ -1611,6 +1611,12 @@
 				"array-find-index": "1.0.2"
 			}
 		},
+		"dargs": {
+			"version": "5.1.0",
+			"resolved": "https://registry.npmjs.org/dargs/-/dargs-5.1.0.tgz",
+			"integrity": "sha1-7H6lDHhWTNNsnV7Bj2Yyn63ieCk=",
+			"dev": true
+		},
 		"dashdash": {
 			"version": "1.14.1",
 			"resolved": "https://registry.npmjs.org/dashdash/-/dashdash-1.14.1.tgz",
@@ -2853,6 +2859,20 @@
 						"clone-stats": "0.0.1"
 					}
 				}
+			}
+		},
+		"gulp-install": {
+			"version": "1.1.0",
+			"resolved": "https://registry.npmjs.org/gulp-install/-/gulp-install-1.1.0.tgz",
+			"integrity": "sha1-k4a0bLRmm0cle2rfTj6i6DySiho=",
+			"dev": true,
+			"requires": {
+				"dargs": "5.1.0",
+				"gulp-util": "3.0.8",
+				"lodash.groupby": "4.6.0",
+				"p-queue": "1.2.0",
+				"through2": "2.0.3",
+				"which": "1.3.0"
 			}
 		},
 		"gulp-istanbul": {
@@ -4990,6 +5010,12 @@
 				"lodash._root": "3.0.1"
 			}
 		},
+		"lodash.groupby": {
+			"version": "4.6.0",
+			"resolved": "https://registry.npmjs.org/lodash.groupby/-/lodash.groupby-4.6.0.tgz",
+			"integrity": "sha1-Cwih3PaDl8OXhVwyOXg4Mt90A9E=",
+			"dev": true
+		},
 		"lodash.includes": {
 			"version": "4.3.0",
 			"resolved": "https://registry.npmjs.org/lodash.includes/-/lodash.includes-4.3.0.tgz",
@@ -5857,6 +5883,12 @@
 				"os-homedir": "1.0.2",
 				"os-tmpdir": "1.0.2"
 			}
+		},
+		"p-queue": {
+			"version": "1.2.0",
+			"resolved": "https://registry.npmjs.org/p-queue/-/p-queue-1.2.0.tgz",
+			"integrity": "sha1-Y5y4sHJwwVtx16ZEao4wQU88ltE=",
+			"dev": true
 		},
 		"pako": {
 			"version": "1.0.6",

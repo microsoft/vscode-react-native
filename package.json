@@ -545,8 +545,8 @@
 		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
 		"vscode:prepublish": "gulp",
 		"test": "node ./node_modules/vscode/bin/test",
-		"preinstall": "npm install --prefix ./src/extension/appcenter/lib/app-center-node-client",
-		"postinstall": "node ./node_modules/vscode/bin/install"
+		"preinstall": "npm install --prefix src/extension/appcenter/lib/app-center-node-client",
+		"postinstall": "gulp postinstall"
 	},
 	"dependencies": {
 		"app-center-node-client": "file:src/extension/appcenter/lib/app-center-node-client",
@@ -596,6 +596,7 @@
 		"@types/ws": "^0.0.39",
 		"del": "^2.2.0",
 		"gulp": "^3.9.1",
+		"gulp-install": "^1.1.0",
 		"gulp-istanbul": "^1.1.2",
 		"gulp-mocha": "^3.0.1",
 		"gulp-preprocess": "^2.0.0",

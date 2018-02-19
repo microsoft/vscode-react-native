@@ -8,6 +8,7 @@ var isparta = require('isparta');
 var sourcemaps = require("gulp-sourcemaps");
 var path = require("path");
 var preprocess = require("gulp-preprocess");
+var install = require("gulp-install");
 var runSequence = require("run-sequence");
 var ts = require("gulp-typescript");
 var mocha = require("gulp-mocha");
@@ -17,6 +18,7 @@ var os = require("os");
 var fs = require("fs");
 var Q = require("q");
 var remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
+var execSync = require('child_process').execSync;
 
 var copyright = GulpExtras.checkCopyright;
 var imports = GulpExtras.checkImports;
@@ -234,4 +236,14 @@ gulp.task("release", ["build"], function () {
                 fs.writeFileSync(path.join(__dirname, fileName), fs.readFileSync(path.join(backupFolder, fileName)));
             });
         });
-})
+});
+
+gulp.task("postinstall", function (done) {
+    execSync('node ./node_modules/vscode/bin/install');
+
+    const packages = [
+        path.join(__dirname, "src", "extension", "appcenter", "lib", "codepush-node-sdk", "dist", "package.json"),
+    ];
+    return gulp.src(packages)
+        .pipe(install());
+});
