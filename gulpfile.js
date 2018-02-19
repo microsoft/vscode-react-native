@@ -22,6 +22,7 @@ var copyright = GulpExtras.checkCopyright;
 var imports = GulpExtras.checkImports;
 var executeCommand = GulpExtras.executeCommand;
 
+
 var srcPath = "src";
 var testPath = "test";
 
@@ -118,7 +119,7 @@ function test() {
 gulp.task("test", ["build", "tslint"], test);
 
 gulp.task('coverage:instrument', function () {
-    return gulp.src(["src/**/*.js", "!test/**"])
+    return gulp.src(["src/**/*.js", "!test/**", "!src/extension/appcenter/lib/**"])
         .pipe(istanbul({
             // Use the isparta instrumenter (code coverage for ES6)
             instrumenter: isparta.Instrumenter,
@@ -130,7 +131,7 @@ gulp.task('coverage:instrument', function () {
 
 gulp.task('coverage:report', function (done) {
     return gulp.src(
-        ["src/**/*.js", "!test/**"],
+        ["src/**/*.js", "!test/**", "!src/extension/appcenter/lib/**"],
         { read: false }
     )
         .pipe(istanbul.writeReports({
