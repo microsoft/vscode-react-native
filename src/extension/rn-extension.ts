@@ -34,6 +34,8 @@ import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ExponentHelper} from "./exponent/exponentHelper";
 import {QRCodeContentProvider} from "./qrCodeContentProvider";
+import {ACCommandNames} from "./appcenter/appCenterConstants";
+import {AppCenterExtensionManager} from "./appcenter/appCenterExtensionManager";
 
 /* all components use the same packager instance */
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
@@ -52,6 +54,7 @@ export function activate(context: vscode.ExtensionContext): void {
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
         registerReactNativeCommands(context);
+        registerAppCenterCommands(context);
 
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
@@ -111,13 +114,16 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                                     let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
                                     let packager: Packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(folder.uri.fsPath), packagerStatusIndicator);
                                     let extensionServer: ExtensionServer = new ExtensionServer(projectRootPath, packager);
+                                    let appCenterManager: AppCenterExtensionManager = new AppCenterExtensionManager(projectRootPath);
 
+                                    setupAndDispose(appCenterManager, context);
                                     setupAndDispose(extensionServer, context);
                                     CommandPaletteHandler.addFolder(folder, {
                                         packager,
                                         exponentHelper,
                                         reactDirManager,
                                         extensionServer,
+                                        appCenterManager,
                                     });
                                 });
                         });
@@ -180,8 +186,30 @@ function isSupportedVersion(version: string): boolean {
     }
 }
 
+function registerAppCenterCommands(context: vscode.ExtensionContext): void {
+    registerVSCodeCommand(context, ACCommandNames.Login, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogin),
+        () => CommandPaletteHandler.appCenterLogin());
+    registerVSCodeCommand(context, ACCommandNames.Logout, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterLogout),
+        () => CommandPaletteHandler.appCenterLogout());
+    registerVSCodeCommand(context, ACCommandNames.WhoAmI, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterWhoAmI),
+        () => CommandPaletteHandler.appCenterWhoAmI());
+    registerVSCodeCommand(context, ACCommandNames.SetCurrentApp, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterSetCurrentApp),
+        () => CommandPaletteHandler.appCenterSetCurrentApp());
+    registerVSCodeCommand(context, ACCommandNames.GetCurrentApp, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterGetCurrentApp),
+        () => CommandPaletteHandler.appCenterGetCurrentApp());
+    registerVSCodeCommand(context, ACCommandNames.SetCurrentDeployment, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterSetCurrentDeployment),
+        () => CommandPaletteHandler.appCenterSetCurrentDeployment());
+    registerVSCodeCommand(context, ACCommandNames.CodePushReleaseReact, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterReleaseReact),
+        () => CommandPaletteHandler.appCenterCodePushReleaseReact());
+    registerVSCodeCommand(context, ACCommandNames.ShowMenu, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterShowMenu),
+        () => CommandPaletteHandler.appCenterShowMenu());
+    registerVSCodeCommand(context, ACCommandNames.SwitchMandatoryPropertyForRelease, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterSwitchMandatoryPropForRelease),
+        () => CommandPaletteHandler.appCenterSwitchMandatoryPropForRelease());
+    registerVSCodeCommand(context, ACCommandNames.SetTargetBinaryVersionForRelease, ErrorHelper.getInternalError(InternalErrorCode.FailedToExecAppCenterSetTargetBinaryVersionForRelease),
+        () => CommandPaletteHandler.appCenterSetTargetBinaryVersionForRelease());
+}
+
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {
-    // Register React Native commands
     registerVSCodeCommand(context, "runAndroidSimulator", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => CommandPaletteHandler.runAndroid("simulator"));
     registerVSCodeCommand(context, "runAndroidDevice", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => CommandPaletteHandler.runAndroid("device"));
     registerVSCodeCommand(context, "runIosSimulator", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => CommandPaletteHandler.runIos("simulator"));

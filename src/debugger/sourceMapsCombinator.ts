@@ -65,7 +65,7 @@ export class SourceMapsCombinator {
                 // (this depends on whether "sourceRoot" option is specified in tsconfig.json)
                 if (!tsPosition.source.match(DISK_LETTER_RE)) { // This check for Windows tests which were run on MacOs
                     tsPosition.source = path.resolve(
-                        rawBundleSourcemap.sourceRoot,
+                        <string>rawBundleSourcemap.sourceRoot,
                         path.dirname(item.source),
                         tsPosition.source
                     );

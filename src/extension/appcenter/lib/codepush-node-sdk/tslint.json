@@ -1,0 +1,101 @@
+{
+  "defaultSeverity": "error",
+  "rulesDirectory": [
+    "node_modules/tslint-microsoft-contrib"
+  ],
+  "rules": {
+    "quotemark": [true, "single"],
+    "ban": [
+      true,
+      [
+        "_",
+        "isNil",
+        "Use native `item == null`, instead of using the library"
+      ],
+      [
+        "_",
+        "isNull",
+        "Use native `item === null`, instead of using the library"
+      ],
+      [
+        "_",
+        "isUndefined",
+        "Use native `item === undefined`, instead of using the library"
+      ]
+    ],
+    "comment-format": [
+      true,
+      "check-space"
+    ],
+    "class-name": true,
+    "curly": true,
+    "prefer-const": true,
+    "new-parens": true,
+    "indent": [
+      true,
+      "spaces",
+      2
+    ],
+    "label-position": true,
+    "no-magic-numbers": false,
+    "no-arg": true,
+    "no-construct": true,
+    "no-debugger": true,
+    "no-duplicate-variable": true,
+    "no-empty": true,
+    "no-eval": true,
+    "no-unused-variable": true,
+    "no-unused-expression": true,
+    "no-use-before-declare": true,
+    "one-line": [
+      true,
+      "check-open-brace",
+      "check-catch",
+      "check-else",
+      "check-whitespace"
+    ],
+    "radix": true,
+    "react-a11y-anchors": true,
+    "react-a11y-aria-unsupported-elements": true,
+    "react-a11y-event-has-role": true,
+    "react-a11y-image-button-has-alt": true,
+    "react-a11y-img-has-alt": false,
+    "react-a11y-lang": true,
+    "react-a11y-meta": true,
+    "react-a11y-props": true,
+    "react-a11y-proptypes": true,
+    "react-a11y-role": true,
+    "react-a11y-role-supports-aria-props": true,
+    "react-a11y-tabindex-no-positive": true,
+    "react-a11y-titles": true,
+    "semicolon": [
+      true,
+      "always"
+    ],
+    "triple-equals": [
+      true,
+      "allow-null-check"
+    ],
+    "typedef-whitespace": [
+      true,
+      {
+        "call-signature": "nospace",
+        "index-signature": "nospace",
+        "parameter": "nospace",
+        "property-declaration": "nospace",
+        "variable-declaration": "nospace"
+      },
+      {
+        "call-signature": "onespace",
+        "index-signature": "onespace",
+        "parameter": "onespace",
+        "property-declaration": "onespace",
+        "variable-declaration": "onespace"
+      }
+    ],
+    "variable-name": [
+      false,
+      "allow-leading-underscore"
+    ]
+  }
+}

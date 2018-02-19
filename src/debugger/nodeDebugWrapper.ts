@@ -199,7 +199,7 @@ export function makeSession(
 
 export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeof ChromeDebugAdapter {
     return class extends debugAdapterClass {
-        public doAttach(port: number, targetUrl?: string, address?: string, timeout?: number): Promise<void> {
+        public doAttach(port: number, targetUrl?: string, address?: string, timeout?: number): Promise<void | DebugProtocol.Capabilities> {
             // We need to overwrite ChromeDebug's _attachMode to let Node2 adapter
             // to set up breakpoints on initial pause event
             (this as any)._attachMode = false;
