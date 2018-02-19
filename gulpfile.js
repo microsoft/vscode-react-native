@@ -8,6 +8,7 @@ var isparta = require('isparta');
 var sourcemaps = require("gulp-sourcemaps");
 var path = require("path");
 var preprocess = require("gulp-preprocess");
+var install = require("gulp-install");
 var runSequence = require("run-sequence");
 var ts = require("gulp-typescript");
 var mocha = require("gulp-mocha");
@@ -234,4 +235,13 @@ gulp.task("release", ["build"], function () {
                 fs.writeFileSync(path.join(__dirname, fileName), fs.readFileSync(path.join(backupFolder, fileName)));
             });
         });
-})
+});
+
+gulp.task("preinstall", function (done) {
+    var packages = [
+        path.join(__dirname, "src", "extension", "appcenter", "lib", "app-center-node-client", "package.json"),
+        path.join(__dirname, "src", "extension", "appcenter", "lib", "codepush-node-sdk", "dist", "package.json"),
+    ];
+    return gulp.src(packages)
+        .pipe(install());
+});
