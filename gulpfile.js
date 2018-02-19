@@ -18,6 +18,7 @@ var os = require("os");
 var fs = require("fs");
 var Q = require("q");
 var remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
+var execSync = require('child_process').execSync;
 
 var copyright = GulpExtras.checkCopyright;
 var imports = GulpExtras.checkImports;
@@ -237,9 +238,10 @@ gulp.task("release", ["build"], function () {
         });
 });
 
-gulp.task("preinstall", function (done) {
-    var packages = [
-        path.join(__dirname, "src", "extension", "appcenter", "lib", "app-center-node-client", "package.json"),
+gulp.task("postinstall", function (done) {
+    execSync('node ./node_modules/vscode/bin/install');
+
+    const packages = [
         path.join(__dirname, "src", "extension", "appcenter", "lib", "codepush-node-sdk", "dist", "package.json"),
     ];
     return gulp.src(packages)

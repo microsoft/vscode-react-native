@@ -545,8 +545,8 @@
 		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
 		"vscode:prepublish": "gulp",
 		"test": "node ./node_modules/vscode/bin/test",
-		"preinstall": "gulp preinstall",
-		"postinstall": "node ./node_modules/vscode/bin/install"
+		"preinstall": "npm install --prefix src/extension/appcenter/lib/app-center-node-client",
+		"postinstall": "gulp postinstall"
 	},
 	"dependencies": {
 		"app-center-node-client": "file:src/extension/appcenter/lib/app-center-node-client",
