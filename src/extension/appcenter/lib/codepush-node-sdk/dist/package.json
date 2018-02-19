@@ -7,8 +7,7 @@
   "scripts": {
     "build": "gulp build",
     "clean": "gulp clean",
-    "test": "./node_modules/jest-cli/bin/jest.js --config ./test/config/jest.config.js --silent",
-    "prepublish": "gulp prepublish"
+    "test": "./node_modules/jest-cli/bin/jest.js --config ./test/config/jest.config.js --silent"
   },
   "repository": {
     "type": "git",
