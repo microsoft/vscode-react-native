@@ -1,3 +1,7 @@
+## 0.6.1
+* Fixed issue with detecting react-native-code-push
+* Minor fixes
+
 ## 0.6.0
 * Added support for react-native-code-push commands
 
