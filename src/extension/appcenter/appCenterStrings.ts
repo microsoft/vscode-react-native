@@ -64,14 +64,14 @@ export class ACStrings {
 
     public static SetCurrentAppMenuText: (app: DefaultApp | null) => string = (app: DefaultApp | null) => {
         if (app) {
-            return `Change '${app.appName}' for something else`;
+            return `Change '${app.appName}' to a different app`;
         } else {
             return `Set current app`;
         }
     }
 
     public static SetCurrentAppDeploymentText: (app: DefaultApp) => string = (app: DefaultApp) => {
-        return `Change '${app.currentAppDeployments.currentDeploymentName}' deployment for something else`;
+        return `Change '${app.currentAppDeployments.currentDeploymentName}' to a different deployment`;
     }
 
     public static SetCurrentAppTargetBinaryVersionText: (app: DefaultApp) => string = (app: DefaultApp) => {
@@ -81,6 +81,6 @@ export class ACStrings {
 
     public static SetCurrentAppIsMandatoryText: (app: DefaultApp) => string = (app: DefaultApp) => {
         const isMandatory = app.isMandatory !== undefined && app.isMandatory;
-        return `Change relase from ${isMandatory ? "Mandatory" : "NOT Mandatory"}`;
+        return `Change release to ${isMandatory ? "be not Mandatory" : "be Mandatory"}`;
     }
 }
