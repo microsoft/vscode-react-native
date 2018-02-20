@@ -12,7 +12,9 @@
 	"description": "Code-hinting, debugging and integrated commands for React Native",
 	"keywords": [
 		"react-native",
-		"multi-root ready"
+		"multi-root ready",
+		"app-center",
+		"code-push"
 	],
 	"bugs": "https://github.com/Microsoft/vscode-react-native/issues",
 	"license": "SEE LICENSE IN LICENSE.txt",
@@ -545,8 +547,8 @@
 		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
 		"vscode:prepublish": "gulp",
 		"test": "node ./node_modules/vscode/bin/test",
-		"preinstall": "npm install --prefix src/extension/appcenter/lib/app-center-node-client",
-		"postinstall": "gulp postinstall"
+		"preinstall": "npm install ./src/extension/appcenter/lib/app-center-node-client",
+		"postinstall": "node ./node_modules/gulp/bin/gulp.js postinstall"
 	},
 	"dependencies": {
 		"app-center-node-client": "file:src/extension/appcenter/lib/app-center-node-client",
