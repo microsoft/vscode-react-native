@@ -23,13 +23,15 @@ export class AppCenterExtensionManager implements Disposable {
     }
 
     public setup(): Q.Promise<void>  {
-        if (!ACUtils.isCodePushProject(this._projectRootPath)) {
-            return Q.resolve(void 0);
-        }
-
-        this.appCenterStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 12);
-        return Auth.getProfile(this._projectRootPath).then((profile: Profile | null) => {
-            return this.setupAppCenterStatusBar(profile);
+        return ACUtils.isCodePushProject(this._projectRootPath).then((isCodePush: boolean) => {
+            if (!isCodePush) {
+                return Q.resolve(void 0);
+            } else {
+                this.appCenterStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 12);
+                return Auth.getProfile(this._projectRootPath).then((profile: Profile | null) => {
+                    return this.setupAppCenterStatusBar(profile);
+                });
+            }
         });
     }
 

@@ -33,61 +33,63 @@ export class AppCenterCommandPalleteHandler {
     }
 
     public run(command: AppCenterCommandType): Q.Promise<void>  {
-        if (!ACUtils.isCodePushProject(this.appCenterManager.projectRootPath)) {
-            VsCodeUtils.ShowWarningMessage(ACStrings.NoCodePushDetectedMsg);
-            return Q.resolve(void 0);
-        }
-
-        // Login is special case
-        if (command === AppCenterCommandType.Login) {
-            return this.commandExecutor.login(this.appCenterManager);
-        }
-
-        return Auth.getProfile(this.appCenterManager.projectRootPath).then((profile: Profile) => {
-            if (!profile) {
-                VsCodeUtils.ShowWarningMessage(ACStrings.UserIsNotLoggedInMsg);
+        return ACUtils.isCodePushProject(this.appCenterManager.projectRootPath).then((isCodePush: boolean) => {
+            if (!isCodePush) {
+                VsCodeUtils.ShowWarningMessage(ACStrings.NoCodePushDetectedMsg);
                 return Q.resolve(void 0);
-             } else {
-                const clientOrNull: AppCenterClient | null  = this.resolveAppCenterClient(profile);
-                if (clientOrNull) {
-                    this.client = clientOrNull;
-
-                    switch (command) {
-                        case (AppCenterCommandType.Logout):
-                            return this.commandExecutor.logout(this.appCenterManager);
-
-                        case (AppCenterCommandType.Whoami):
-                            return this.commandExecutor.whoAmI(this.appCenterManager);
-
-                        case (AppCenterCommandType.SetCurrentApp):
-                            return this.commandExecutor.setCurrentApp(this.client, this.appCenterManager);
-
-                        case (AppCenterCommandType.GetCurrentApp):
-                            return this.commandExecutor.getCurrentApp(this.appCenterManager);
-
-                        case (AppCenterCommandType.SetCurrentDeployment):
-                            return this.commandExecutor.setCurrentDeployment(this.appCenterManager);
-
-                        case (AppCenterCommandType.CodePushReleaseReact):
-                            return this.commandExecutor.releaseReact(this.client, this.appCenterManager);
-
-                        case (AppCenterCommandType.ShowMenu):
-                            return this.commandExecutor.showMenu(this.client, this.appCenterManager);
-
-                        case (AppCenterCommandType.SwitchMandatoryPropForRelease):
-                            return this.commandExecutor.switchIsMandatoryForRelease(this.appCenterManager);
-
-                        case (AppCenterCommandType.SetTargetBinaryVersionForRelease):
-                            return this.commandExecutor.setTargetBinaryVersionForRelease(this.appCenterManager);
-
-                        default:
-                            throw new Error("Unknown App Center command!");
-                    }
-                } else {
-                    this.logger.log("Failed to get App Center client", LogLevel.Error);
-                    throw new Error("Failed to get App Center client!");
+            } else {
+                // Login is special case
+                if (command === AppCenterCommandType.Login) {
+                    return this.commandExecutor.login(this.appCenterManager);
                 }
-             }
+
+                return Auth.getProfile(this.appCenterManager.projectRootPath).then((profile: Profile) => {
+                    if (!profile) {
+                        VsCodeUtils.ShowWarningMessage(ACStrings.UserIsNotLoggedInMsg);
+                        return Q.resolve(void 0);
+                    } else {
+                        const clientOrNull: AppCenterClient | null  = this.resolveAppCenterClient(profile);
+                        if (clientOrNull) {
+                            this.client = clientOrNull;
+
+                            switch (command) {
+                                case (AppCenterCommandType.Logout):
+                                    return this.commandExecutor.logout(this.appCenterManager);
+
+                                case (AppCenterCommandType.Whoami):
+                                    return this.commandExecutor.whoAmI(this.appCenterManager);
+
+                                case (AppCenterCommandType.SetCurrentApp):
+                                    return this.commandExecutor.setCurrentApp(this.client, this.appCenterManager);
+
+                                case (AppCenterCommandType.GetCurrentApp):
+                                    return this.commandExecutor.getCurrentApp(this.appCenterManager);
+
+                                case (AppCenterCommandType.SetCurrentDeployment):
+                                    return this.commandExecutor.setCurrentDeployment(this.appCenterManager);
+
+                                case (AppCenterCommandType.CodePushReleaseReact):
+                                    return this.commandExecutor.releaseReact(this.client, this.appCenterManager);
+
+                                case (AppCenterCommandType.ShowMenu):
+                                    return this.commandExecutor.showMenu(this.client, this.appCenterManager);
+
+                                case (AppCenterCommandType.SwitchMandatoryPropForRelease):
+                                    return this.commandExecutor.switchIsMandatoryForRelease(this.appCenterManager);
+
+                                case (AppCenterCommandType.SetTargetBinaryVersionForRelease):
+                                    return this.commandExecutor.setTargetBinaryVersionForRelease(this.appCenterManager);
+
+                                default:
+                                    throw new Error("Unknown App Center command!");
+                            }
+                        } else {
+                            this.logger.log("Failed to get App Center client", LogLevel.Error);
+                            throw new Error("Failed to get App Center client!");
+                        }
+                    }
+                });
+            }
         });
     }
 
