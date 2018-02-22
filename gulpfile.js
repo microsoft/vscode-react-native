@@ -237,13 +237,3 @@ gulp.task("release", ["build"], function () {
             });
         });
 });
-
-gulp.task("postinstall", function (done) {
-    execSync('node ./node_modules/vscode/bin/install');
-
-    const packages = [
-        path.join(__dirname, "src", "extension", "appcenter", "lib", "codepush-node-sdk", "dist", "package.json"),
-    ];
-    return gulp.src(packages)
-        .pipe(install());
-});
