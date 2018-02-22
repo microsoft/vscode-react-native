@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+
 import * as which from 'which';
 import * as xml2js from 'xml2js';
 import * as fs from 'fs';
@@ -65,7 +68,7 @@ export function makeUpdateContents(os: string): string {
   if (os === 'ios') {
     outputFolder = path.join(platformFolder, 'www');
   } else if (os === 'android') {
-    // Since cordova-android 7 assets directory moved to android/app/src/main/assets instead of android/assets                
+    // Since cordova-android 7 assets directory moved to android/app/src/main/assets instead of android/assets
     const outputFolderVer7 = path.join(platformFolder, 'app', 'src', 'main', 'assets', 'www');
     if (fs.existsSync(outputFolderVer7)) {
       outputFolder = outputFolderVer7;

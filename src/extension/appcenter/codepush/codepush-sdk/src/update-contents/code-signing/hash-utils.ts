@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+
 /**
  * NOTE!!! This utility file is duplicated for use by the CodePush service (for server-driven hashing/
  * integrity checks) and Management SDK (for end-to-end code signing), please keep them in sync.

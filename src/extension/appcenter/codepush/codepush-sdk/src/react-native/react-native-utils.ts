@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+
 import * as fs from 'fs';
 import * as path from 'path';
 import chalk from 'chalk';
@@ -123,7 +126,7 @@ export async function getiOSAppVersion(projectRoot?: string, plistFilePrefix?: s
   const projectName: string = projectPackageJson.name;
 
   console.log(chalk.cyan(`Detecting "iOS" app version:\n`));
-  
+
   let resolvedPlistFile: string = plistFile;
   if (resolvedPlistFile) {
     // If a plist file path is explicitly provided, then we don't
@@ -335,7 +338,7 @@ export async function makeUpdateContents(bundleConfig: BundleConfig): Promise<st
   let updateContentsPath: string;
   updateContentsPath = bundleConfig.outputDir || await fileUtils.mkTempDir('code-push');
 
-  // we have to add "CodePush" root folder to make update contents file structure 
+  // we have to add "CodePush" root folder to make update contents file structure
   // to be compatible with React Native client SDK
   updateContentsPath = path.join(updateContentsPath, 'CodePush');
   mkdirp.sync(updateContentsPath);
