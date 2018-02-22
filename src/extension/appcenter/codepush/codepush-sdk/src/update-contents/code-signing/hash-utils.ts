@@ -115,7 +115,7 @@ export function generatePackageManifestFromDirectory(directoryPath: string, base
           }
           return undefined;
         });
-    }, Promise.resolve());
+    }, Promise.resolve(void 0));
 
     generateManifestPromise
       .then(() => {

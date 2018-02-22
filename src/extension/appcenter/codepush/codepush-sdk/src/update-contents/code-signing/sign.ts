@@ -17,7 +17,7 @@ interface CodeSigningClaims {
 
 export default async function sign(privateKeyPath: string, updateContentsPath: string): Promise<void> {
   if (!privateKeyPath) {
-    return Promise.resolve();
+    return Promise.resolve<void>(void 0);
   }
 
   let privateKey: Buffer;
@@ -69,7 +69,7 @@ export default async function sign(privateKeyPath: string, updateContentsPath: s
       try {
         fs.writeFileSync(signatureFilePath, signedJwt);
         console.log(`Generated a release signature and wrote it to ${signatureFilePath}`);
-        resolve();
+        resolve(void 0);
       } catch (error) {
         reject(error);
       }

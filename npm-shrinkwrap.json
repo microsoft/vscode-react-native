@@ -1,6 +1,6 @@
 {
 	"name": "vscode-react-native",
-	"version": "0.6.1",
+	"version": "0.6.2",
 	"lockfileVersion": 1,
 	"requires": true,
 	"dependencies": {
@@ -308,7 +308,6 @@
 			"version": "3.2.0",
 			"resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-3.2.0.tgz",
 			"integrity": "sha512-NnSOmMEYtVR2JVMIGTzynRkkaxtiq1xnFBcdQD/DnNCYPoEPsVJhM98BDyaoNOQIi7p4okdi3E27eN7GQbsUug==",
-			"dev": true,
 			"requires": {
 				"color-convert": "1.9.1"
 			}
@@ -813,8 +812,7 @@
 		"buffer-crc32": {
 			"version": "0.2.13",
 			"resolved": "https://registry.npmjs.org/buffer-crc32/-/buffer-crc32-0.2.13.tgz",
-			"integrity": "sha1-DTM+PwDqxQqhRUq9MO+MKl2ackI=",
-			"dev": true
+			"integrity": "sha1-DTM+PwDqxQqhRUq9MO+MKl2ackI="
 		},
 		"buffer-equal-constant-time": {
 			"version": "1.0.1",
@@ -898,7 +896,6 @@
 			"version": "2.3.1",
 			"resolved": "https://registry.npmjs.org/chalk/-/chalk-2.3.1.tgz",
 			"integrity": "sha512-QUU4ofkDoMIVO7hcx1iPTISs88wsO8jA92RQIm4JAwZvFGGAV2hSAA1NX7oVj2Ej2Q6NDTcRDjPTFrMCRZoJ6g==",
-			"dev": true,
 			"requires": {
 				"ansi-styles": "3.2.0",
 				"escape-string-regexp": "1.0.5",
@@ -1068,7 +1065,6 @@
 			"version": "1.9.1",
 			"resolved": "https://registry.npmjs.org/color-convert/-/color-convert-1.9.1.tgz",
 			"integrity": "sha512-mjGanIiwQJskCC18rPR6OmrZ6fm2Lc7PeGFYwCmy5J34wC6F1PzdGL6xeMfmgicfYcNLGuVFA3WzXtIDCQSZxQ==",
-			"dev": true,
 			"requires": {
 				"color-name": "1.1.3"
 			}
@@ -1076,8 +1072,7 @@
 		"color-name": {
 			"version": "1.1.3",
 			"resolved": "https://registry.npmjs.org/color-name/-/color-name-1.1.3.tgz",
-			"integrity": "sha1-p9BVi9icQveV3UIyj3QIMcpTvCU=",
-			"dev": true
+			"integrity": "sha1-p9BVi9icQveV3UIyj3QIMcpTvCU="
 		},
 		"color-support": {
 			"version": "1.1.3",
@@ -3728,8 +3723,7 @@
 		"has-flag": {
 			"version": "3.0.0",
 			"resolved": "https://registry.npmjs.org/has-flag/-/has-flag-3.0.0.tgz",
-			"integrity": "sha1-tdRU3CGZriJWmfNGfloH87lVuv0=",
-			"dev": true
+			"integrity": "sha1-tdRU3CGZriJWmfNGfloH87lVuv0="
 		},
 		"has-gulplog": {
 			"version": "0.1.0",
@@ -4163,8 +4157,7 @@
 		"isexe": {
 			"version": "2.0.0",
 			"resolved": "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz",
-			"integrity": "sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=",
-			"dev": true
+			"integrity": "sha1-6PvzdNxVb/iUehDcsFctYz8s+hA="
 		},
 		"isobject": {
 			"version": "3.0.1",
@@ -5479,8 +5472,7 @@
 		"os-tmpdir": {
 			"version": "1.0.2",
 			"resolved": "https://registry.npmjs.org/os-tmpdir/-/os-tmpdir-1.0.2.tgz",
-			"integrity": "sha1-u+Z0BseaqFxc/sdm/lc0VV36EnQ=",
-			"dev": true
+			"integrity": "sha1-u+Z0BseaqFxc/sdm/lc0VV36EnQ="
 		},
 		"osenv": {
 			"version": "0.1.5",
@@ -6282,7 +6274,6 @@
 			"version": "2.6.2",
 			"resolved": "https://registry.npmjs.org/rimraf/-/rimraf-2.6.2.tgz",
 			"integrity": "sha512-lreewLK/BlghmxtfH36YYVg1i8IAce4TI7oao75I1g245+6BctqTVQiBP3YUJ9C6DQOXJmkYR9X9fCLtCOJc5w==",
-			"dev": true,
 			"requires": {
 				"glob": "7.1.2"
 			}
@@ -6864,7 +6855,6 @@
 			"version": "5.2.0",
 			"resolved": "https://registry.npmjs.org/supports-color/-/supports-color-5.2.0.tgz",
 			"integrity": "sha512-F39vS48la4YvTZUPVeTqsjsFNrvcMwrV3RLZINsmHo+7djCvuUzSIeXOnZ5hmjef4bajL1dNccN+tg5XAliO5Q==",
-			"dev": true,
 			"requires": {
 				"has-flag": "3.0.0"
 			}
@@ -6884,7 +6874,6 @@
 			"version": "0.8.3",
 			"resolved": "https://registry.npmjs.org/temp/-/temp-0.8.3.tgz",
 			"integrity": "sha1-4Ma8TSa5AxJEEOT+2BEDAU38H1k=",
-			"dev": true,
 			"requires": {
 				"os-tmpdir": "1.0.2",
 				"rimraf": "2.2.8"
@@ -6893,8 +6882,7 @@
 				"rimraf": {
 					"version": "2.2.8",
 					"resolved": "https://registry.npmjs.org/rimraf/-/rimraf-2.2.8.tgz",
-					"integrity": "sha1-5Dm+Kq7jJzIZUnMPmaiSnk/FBYI=",
-					"dev": true
+					"integrity": "sha1-5Dm+Kq7jJzIZUnMPmaiSnk/FBYI="
 				}
 			}
 		},
@@ -7850,7 +7838,6 @@
 			"version": "1.3.0",
 			"resolved": "https://registry.npmjs.org/which/-/which-1.3.0.tgz",
 			"integrity": "sha512-xcJpopdamTuY5duC/KnTTNBraPK54YwpenP4lzxU8H91GudWpFv38u0CKjclE1Wi2EH2EDz5LRcHcKbCIzqGyg==",
-			"dev": true,
 			"requires": {
 				"isexe": "2.0.0"
 			}
@@ -7959,7 +7946,6 @@
 			"version": "2.4.3",
 			"resolved": "https://registry.npmjs.org/yazl/-/yazl-2.4.3.tgz",
 			"integrity": "sha1-7CblzIfVYBud+EMtvdPNLlFzoHE=",
-			"dev": true,
 			"requires": {
 				"buffer-crc32": "0.2.13"
 			}
