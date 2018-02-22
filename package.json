@@ -550,6 +550,7 @@
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"dependencies": {
+		"app-center-node-client": "file:src/extension/appcenter/lib/app-center-node-client",
 		"extract-opts": "2.2.0",
 		"flatten-source-map": "0.0.2",
 		"mkdirp": "^0.5.1",
@@ -641,14 +642,14 @@
 		"@types/xml2js": "^0.4.2",
 		"gulp-install": "^1.1.0",
 		"gulp-sequence": "1.0.0",
-		"gulp-typescript": "^3.2.4",
+		"gulp-typescript": "^3.1.5",
 		"jest": "^22.1.4",
 		"jest-cli": "^22.1.4",
 		"rmdir": "^1.2.0",
 		"testdouble": "^3.3.3",
 		"ts-jest": "^22.0.3",
 		"ts-node": "^4.1.0",
-		"tslint": "^5.9.1",
+		"tslint": "^5.6.0",
 		"tslint-microsoft-contrib": "^5.0.2"
 	},
 	"extensionDependencies": [
