@@ -21,7 +21,7 @@ declare module "yazl" {
   export function dateToDosDateTime(date: Date): IDosDateTime;
 
   export class ZipFile extends events.EventEmitter {
-      outputStream: stream.Readable;
+      public outputStream: stream.Readable;
 
       public addBuffer(buffer: Buffer, metadataPath: string, options?: IOptions): void;
       public addEmptyDirectory(metadataPath: string, options?: IOptions): void;

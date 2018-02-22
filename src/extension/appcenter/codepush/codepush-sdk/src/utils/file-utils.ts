@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
-import * as rimraf from 'rimraf';
-import * as temp from 'temp';
-import * as _ from 'lodash';
-const noop = require('node-noop').noop;
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
+import * as rimraf from "rimraf";
+import * as temp from "temp";
+import * as _ from "lodash";
+const noop = require("node-noop").noop;
 
 
 export function fileExists(file: string): boolean {
@@ -28,7 +28,7 @@ export function isDirectory(path: string): boolean {
 
 export function copyFileToTmpDir(filePath: string): string {
   if (!isDirectory(filePath)) {
-    const outputFolderPath: string = temp.mkdirSync('code-push');
+    const outputFolderPath: string = temp.mkdirSync("code-push");
     rimraf.sync(outputFolderPath);
     fs.mkdirSync(outputFolderPath);
 
@@ -37,11 +37,12 @@ export function copyFileToTmpDir(filePath: string): string {
 
     return outputFolderPath;
   }
+  return "";
 }
 
 export function generateRandomFilename(length: number): string {
-  let filename: string = '';
-  const validChar: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let filename: string = "";
+  const validChar: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   for (let i = 0; i < length; i++) {
     filename += validChar.charAt(Math.floor(Math.random() * validChar.length));
@@ -69,13 +70,13 @@ export function removeReactTmpDir(): void {
 
 export function normalizePath(filePath: string): string {
   // replace all backslashes coming from cli running on windows machines by slashes
-  return filePath.replace(/\\/g, '/');
+  return filePath.replace(/\\/g, "/");
 }
 
 export async function walk(dir: string): Promise<string[]> {
   const stats = await stat(dir);
   if (stats.isDirectory()) {
-    var files: string[] = [];
+    let files: string[] = [];
     for (const file of await readdir(dir)) {
       files = files.concat(await walk(path.join(dir, file)));
     }
@@ -134,7 +135,7 @@ function callTemp<TResult>(func: (...args: any[]) => void, ...args: any[]): Prom
         } else {
           resolve(result);
         }
-      }
+      },
     ]));
   });
 }
@@ -148,7 +149,7 @@ function callFs(func: (...args: any[]) => void, ...args: any[]): Promise<any[]> 
         } else {
           resolve(args);
         }
-      }
+      },
     ]));
   });
 }

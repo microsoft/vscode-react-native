@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as fs from 'fs';
-import * as hashUtils from './hash-utils';
-import * as jwt from 'jsonwebtoken';
-import * as path from 'path';
-import * as fileUtils from '../../utils/file-utils';
+import * as fs from "fs";
+import * as hashUtils from "./hash-utils";
+import * as jwt from "jsonwebtoken";
+import * as path from "path";
+import * as fileUtils from "../../utils/file-utils";
 
-const CURRENT_CLAIM_VERSION: string = '1.0.0';
-const METADATA_FILE_NAME: string = '.codepushrelease';
+const CURRENT_CLAIM_VERSION: string = "1.0.0";
+const METADATA_FILE_NAME: string = ".codepushrelease";
 
 interface CodeSigningClaims {
   claimVersion: string;
@@ -17,7 +17,7 @@ interface CodeSigningClaims {
 
 export default async function sign(privateKeyPath: string, updateContentsPath: string): Promise<void> {
   if (!privateKeyPath) {
-    return Promise.resolve<void>(null);
+    return Promise.resolve();
   }
 
   let privateKey: Buffer;
@@ -29,7 +29,7 @@ export default async function sign(privateKeyPath: string, updateContentsPath: s
     return Promise.reject(new Error(`The path specified for the signing key ("${privateKeyPath}") was not valid.`));
   }
 
-  // If releasing a single file, copy the file to a temporary 'CodePush' directory in which to publish the release
+  // If releasing a single file, copy the file to a temporary "CodePush" directory in which to publish the release
   if (!fileUtils.isDirectory(updateContentsPath)) {
     updateContentsPath = fileUtils.copyFileToTmpDir(updateContentsPath);
   }
@@ -39,7 +39,7 @@ export default async function sign(privateKeyPath: string, updateContentsPath: s
   try {
     await fileUtils.access(signatureFilePath, fs.constants.F_OK);
   } catch (err) {
-    if (err.code === 'ENOENT') {
+    if (err.code === "ENOENT") {
       prevSignatureExists = false;
     } else {
       return Promise.reject<void>(new Error(
@@ -54,22 +54,22 @@ export default async function sign(privateKeyPath: string, updateContentsPath: s
     await fileUtils.rmDir(signatureFilePath);
   }
 
-  const hash: string = await hashUtils.generatePackageHashFromDirectory(updateContentsPath, path.join(updateContentsPath, '..'));
+  const hash: string = await hashUtils.generatePackageHashFromDirectory(updateContentsPath, path.join(updateContentsPath, ".."));
   const claims: CodeSigningClaims = {
     claimVersion: CURRENT_CLAIM_VERSION,
-    contentHash: hash
+    contentHash: hash,
   };
 
   return new Promise<void>((resolve, reject) => {
-    jwt.sign(claims, privateKey, { algorithm: 'RS256' }, async (err: Error, signedJwt: string) => {
+    jwt.sign(claims, privateKey, { algorithm: "RS256" }, async (err: Error, signedJwt: string) => {
       if (err) {
-        reject(new Error('The specified signing key file was not valid'));
+        reject(new Error("The specified signing key file was not valid"));
       }
 
       try {
         fs.writeFileSync(signatureFilePath, signedJwt);
         console.log(`Generated a release signature and wrote it to ${signatureFilePath}`);
-        resolve(null);
+        resolve();
       } catch (error) {
         reject(error);
       }

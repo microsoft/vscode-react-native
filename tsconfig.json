@@ -19,11 +19,19 @@
         "noEmitOnError": true,
         "noUnusedLocals": true,
         "noFallthroughCasesInSwitch": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "skipDefaultLibCheck": true
     },
     "exclude": [
         ".vscode-test",
         "node_modules",
+        "node_modules/@types",
+        "node_modules/@types*",
+        "/node_modules",
+        "../node_modules",
+        "*node_modules*",
+        "/node_modules*",
         "SampleApplication/",
         "SampleApplication/node_modules",
         "SampleApplication/.vscode",
@@ -31,5 +39,7 @@
         "tools/",
         "test/resources/sampleReactNative022Project/",
         "src/extension/appcenter/lib"
-    ]
+    ],
+    "compileOnSave": false,
+    "buildOnSave":false
 }

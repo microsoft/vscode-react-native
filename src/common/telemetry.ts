@@ -88,7 +88,7 @@ export module Telemetry {
                 if (process.env[TelemetryUtils.INTERNAL_USER_ENV_VAR]) {
                     userType = TelemetryUtils.USERTYPE_INTERNAL;
                 } else {
-                    let domain: string = process.env.USERDNSDOMAIN;
+                    let domain: string = process.env.USERDNSDOMAIN || "";
                     domain = domain ? domain.toLowerCase().substring(domain.length - TelemetryUtils.INTERNAL_DOMAIN_SUFFIX.length) : "";
                     userType = domain === TelemetryUtils.INTERNAL_DOMAIN_SUFFIX ? TelemetryUtils.USERTYPE_INTERNAL : TelemetryUtils.USERTYPE_EXTERNAL;
                 }
