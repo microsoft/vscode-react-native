@@ -248,7 +248,7 @@ export function runReactNativeBundleCommand(projectRootPath: string, bundleName:
         reject(new Error(`"react-native bundle" command exited with code ${exitCode}.`));
       }
 
-      resolve();
+      resolve(void 0);
     });
   });
 }
