@@ -1,8 +1,3 @@
-## We want to hear from you!
-Feedback helps us determine what's most important to you! Share your thoughts and help steer the extension into the future.
-
-[https://aka.ms/react-native-survey](https://aka.ms/react-native-survey)
-
 # React Native Tools
 [![Build Status](https://travis-ci.org/Microsoft/vscode-react-native.svg?branch=master)](https://travis-ci.org/Microsoft/vscode-react-native)
 
