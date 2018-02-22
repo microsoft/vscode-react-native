@@ -302,7 +302,7 @@ export function getDefautEntryFilePath(os: string, projectDir?: string): string 
   }
 
   let entryFilePath: string = path.join(projectDir, `index.${os}.js`);
-  if (fileUtils.fileDoesNotExistOrIsDirectory(path.join(projectDir, entryFilePath))) {
+  if (fileUtils.fileDoesNotExistOrIsDirectory(entryFilePath)) {
     entryFilePath = path.join(projectDir, 'index.js');
   }
 
