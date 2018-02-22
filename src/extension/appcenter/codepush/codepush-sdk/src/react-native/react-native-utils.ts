@@ -44,7 +44,7 @@ export async function getAndroidAppVersion(projectRoot?: string, gradleFile?: st
       throw new Error(`Unable to parse the "${buildGradlePath}" file. Please ensure it is a well-formed Gradle file.`);
     })
     .then((buildGradle: any) => {
-      let versionName: string = "";
+      let versionName: string | null = null;
 
       // First "if" statement was implemented as workaround for case
       // when "build.gradle" file contains several "android" nodes.
@@ -87,7 +87,7 @@ export async function getAndroidAppVersion(projectRoot?: string, gradleFile?: st
       ];
 
       // Search for gradle properties across all `gradle.properties` files
-      let propertiesFile: string = "";
+      let propertiesFile: string | null = null;
       for (let i = 0; i < knownLocations.length; i++) {
         propertiesFile = knownLocations[i];
         if (fileUtils.fileExists(propertiesFile)) {
@@ -124,7 +124,7 @@ export async function getiOSAppVersion(projectRoot?: string, plistFilePrefix?: s
 
   console.log(chalk.cyan(`Detecting "iOS" app version:\n`));
 
-  let resolvedPlistFile: string = plistFile || "";
+  let resolvedPlistFile: string | undefined = plistFile;
   if (resolvedPlistFile) {
     // If a plist file path is explicitly provided, then we don"t
     // need to attempt to "resolve" it within the well-known locations.
@@ -209,9 +209,9 @@ export async function getWindowsAppVersion(projectRoot?: string): Promise<string
   });
 }
 
-export function runReactNativeBundleCommand(projectRootPath: string, bundleName: string, development: boolean, entryFile: string, outputFolder: string, platform: string, sourcemapOutput: string): Promise<void> {
+export function runReactNativeBundleCommand(projectRootPath: string, bundleName: string, development: boolean | undefined, entryFile: string, outputFolder: string, platform: string, sourcemapOutput: string | undefined): Promise<void> {
   const reactNativeBundleArgs: string[] = [];
-  const envNodeArgs: string = process.env.CODE_PUSH_NODE_ARGS || "";
+  const envNodeArgs: string | undefined  = process.env.CODE_PUSH_NODE_ARGS;
 
   if (typeof envNodeArgs !== "undefined") {
     Array.prototype.push.apply(reactNativeBundleArgs, envNodeArgs.trim().split(/\s+/));
@@ -354,7 +354,7 @@ export async function makeUpdateContents(bundleConfig: BundleConfig): Promise<st
 
   fileUtils.createEmptyTmpReleaseFolder(updateContentsPath);
   fileUtils.removeReactTmpDir();
-  await runReactNativeBundleCommand(bundleConfig.projectRootPath, bundleConfig.bundleName, bundleConfig.development || false, bundleConfig.entryFilePath, updateContentsPath, bundleConfig.os, bundleConfig.sourcemapOutput || "");
+  await runReactNativeBundleCommand(bundleConfig.projectRootPath, bundleConfig.bundleName, bundleConfig.development, bundleConfig.entryFilePath, updateContentsPath, bundleConfig.os, bundleConfig.sourcemapOutput);
 
   return updateContentsPath;
 }

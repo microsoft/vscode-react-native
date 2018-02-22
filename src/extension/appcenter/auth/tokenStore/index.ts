@@ -21,7 +21,7 @@ function getTokenDir(): string {
 
 function getTokenDirParent(): string {
   if (os.platform() === "win32") {
-    return process.env.AppData || "";
+    return process.env.AppData;
   } else {
     return os.homedir();
   }
