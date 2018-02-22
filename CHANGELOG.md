@@ -1,3 +1,6 @@
+## 0.6.2
+* Fixed issue with finding index{os}.js file
+
 ## 0.6.1
 * Fixed issue with detecting react-native-code-push
 * Minor fixes
