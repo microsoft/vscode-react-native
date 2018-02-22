@@ -17,7 +17,7 @@ import { AppCenterExtensionManager } from "../appCenterExtensionManager";
 import { ACStrings } from "../appCenterStrings";
 import CodePushRelease from "../codepush/release";
 import { ACUtils } from "../helpers/utils";
-import { updateContents, reactNative, fileUtils } from "../lib/codepush-node-sdk/src/index";
+import { updateContents, reactNative, fileUtils } from "../codepush/codepush-sdk/src/index";
 import BundleConfig = reactNative.BundleConfig;
 import { getQPromisifiedClientResult } from "../api/createClient";
 import { validRange } from "semver";
