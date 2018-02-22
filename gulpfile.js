@@ -187,12 +187,11 @@ gulp.task("clean", function () {
     var del = require("del");
     var pathsToDelete = [
         "src/**/*.js",
-
+        "!src/extension/appcenter/lib/**/*.js",
         "src/**/*.js.map",
         "test/**/*.js",
         "test/**/*.js.map",
         "out/",
-        "!src/extension/appcenter/api/app-center-node-client/**/*.js",
         "!src/extension/codepush/api/codepush-sdk/**/*.js",
         "!test/resources/sampleReactNative022Project/**/*.js",
         ".vscode-test/"
