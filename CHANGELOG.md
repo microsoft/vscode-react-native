@@ -1,3 +1,6 @@
+## 0.6.3
+* Updated README
+
 ## 0.6.2
 * Fixed issue with finding index{os}.js file
 
