@@ -58,7 +58,7 @@ export class RecordingsHelper {
                     return recordingsHelper
                         .getRecordingConsumer()
                         .loadRecordingFromString(recording)
-                        .then(code.bind(this));
+                        .then(code.bind(test));
                 });
             });
         });

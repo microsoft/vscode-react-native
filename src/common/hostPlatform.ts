@@ -34,7 +34,7 @@ export enum HostPlatformId {
  */
 class WindowsHostPlatform implements IHostPlatform {
     public getUserHomePath(): string {
-        return process.env.USERPROFILE;
+        return process.env.USERPROFILE || "";
     }
 
     public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
@@ -42,7 +42,7 @@ class WindowsHostPlatform implements IHostPlatform {
     }
 
     public getSettingsHome(): string {
-        return path.join(process.env.APPDATA, "vscode-react-native");
+        return path.join(process.env.APPDATA || "", "vscode-react-native");
     }
 
     public getNpmCliCommand(cliName: string): string {
@@ -58,7 +58,7 @@ class WindowsHostPlatform implements IHostPlatform {
     }
 
     public getUserID(): string {
-        return process.env.USERNAME;
+        return process.env.USERNAME || "";
     }
 
     public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
@@ -75,13 +75,13 @@ class WindowsHostPlatform implements IHostPlatform {
 
 abstract class UnixHostPlatform implements IHostPlatform {
     public getUserHomePath(): string {
-        return process.env.HOME;
+        return process.env.HOME || "";
     }
 
     public abstract setEnvironmentVariable(name: string, value: string): Q.Promise<any>;
 
     public getSettingsHome(): string {
-        return path.join(process.env.HOME, ".vscode-react-native");
+        return path.join(process.env.HOME || "", ".vscode-react-native");
     }
 
     public getNpmCliCommand(packageName: string): string {
@@ -112,7 +112,7 @@ class OSXHostPlatform extends UnixHostPlatform {
     }
 
     public getUserID(): string {
-        return process.env.LOGNAME;
+        return process.env.LOGNAME || "";
     }
 
     public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {
@@ -140,7 +140,7 @@ class LinuxHostPlatform extends UnixHostPlatform {
     }
 
     public getUserID(): string {
-        return process.env.USER;
+        return process.env.USER || "";
     }
 
     public isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean {

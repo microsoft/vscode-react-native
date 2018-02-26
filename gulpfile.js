@@ -187,13 +187,14 @@ gulp.task("clean", function () {
     var del = require("del");
     var pathsToDelete = [
         "src/**/*.js",
+        "!src/extension/appcenter/lib/**/*.js",
         "src/**/*.js.map",
         "test/**/*.js",
         "test/**/*.js.map",
         "out/",
+        "!src/extension/codepush/api/codepush-sdk/**/*.js",
         "!test/resources/sampleReactNative022Project/**/*.js",
-        ".vscode-test/",
-        "!src/extension/appcenter/lib/**/*.js",
+        ".vscode-test/"
     ]
     return del(pathsToDelete, { force: true });
 });
@@ -236,14 +237,4 @@ gulp.task("release", ["build"], function () {
                 fs.writeFileSync(path.join(__dirname, fileName), fs.readFileSync(path.join(backupFolder, fileName)));
             });
         });
-});
-
-gulp.task("postinstall", function (done) {
-    execSync('node ./node_modules/vscode/bin/install');
-
-    const packages = [
-        path.join(__dirname, "src", "extension", "appcenter", "lib", "codepush-node-sdk", "dist", "package.json"),
-    ];
-    return gulp.src(packages)
-        .pipe(install());
 });

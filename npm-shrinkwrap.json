@@ -1051,34 +1051,6 @@
 			"resolved": "https://registry.npmjs.org/co/-/co-4.6.0.tgz",
 			"integrity": "sha1-bqa989hTrlTMuOR7+gvz+QMfsYQ="
 		},
-		"codepush-node-sdk": {
-			"version": "file:src/extension/appcenter/lib/codepush-node-sdk/dist",
-			"requires": {
-				"chalk": "2.3.1",
-				"crypto": "1.0.1",
-				"date-fns": "1.29.0",
-				"gradle-to-js": "1.0.1",
-				"jsonwebtoken": "8.1.1",
-				"jszip": "3.1.5",
-				"lodash": "4.17.5",
-				"mkdirp": "0.5.1",
-				"node-noop": "1.0.0",
-				"plist": "2.1.0",
-				"properties": "1.2.1",
-				"rimraf": "2.6.2",
-				"semver": "5.5.0",
-				"temp": "0.8.3",
-				"which": "1.3.0",
-				"xml2js": "0.4.19",
-				"yazl": "2.4.3"
-			},
-			"dependencies": {
-				"semver": {
-					"version": "5.5.0",
-					"bundled": true
-				}
-			}
-		},
 		"collection-visit": {
 			"version": "1.0.0",
 			"resolved": "https://registry.npmjs.org/collection-visit/-/collection-visit-1.0.0.tgz",
