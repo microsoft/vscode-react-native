@@ -30,7 +30,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"*"
+		"workspaceContains:**/node_modules/react-native/package.json"
 	],
 	"main": "./src/extension/rn-extension",
 	"contributes": {
