@@ -30,7 +30,29 @@
 		"Other"
 	],
 	"activationEvents": [
-		"*"
+        "onDebug",
+        "workspaceContains:./node_modules/react-native/package.json",
+        "onCommand:reactNative.runAndroidSimulator",
+        "onCommand:reactNative.runAndroidDevice",
+        "onCommand:reactNative.runIosSimulator",
+        "onCommand:reactNative.runIosDevice",
+        "onCommand:reactNative.startPackager",
+        "onCommand:reactNative.startExponentPackager",
+        "onCommand:reactNative.stopPackager",
+        "onCommand:reactNative.restartPackager",
+        "onCommand:reactNative.publishToExpHost",
+        "onCommand:reactNative.showDevMenu",
+        "onCommand:reactNative.reloadApp",
+        "onCommand:reactNative.appcenter.login",
+        "onCommand:reactNative.appcenter.logout",
+        "onCommand:reactNative.appcenter.whoami",
+        "onCommand:reactNative.appcenter.setcurrentapp",
+        "onCommand:reactNative.appcenter.getcurrentapp",
+        "onCommand:reactNative.appcenter.setcurrentdeployment",
+        "onCommand:reactNative.appcenter.releasereact",
+        "onCommand:reactNative.switchMandatoryPropForRelease",
+        "onCommand:reactNative.setTargetBinaryVersion",
+        "onCommand:reactNative.showmenu"
 	],
 	"main": "./src/extension/rn-extension",
 	"contributes": {
