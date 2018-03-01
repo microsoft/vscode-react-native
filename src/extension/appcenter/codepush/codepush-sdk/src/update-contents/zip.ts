@@ -25,6 +25,7 @@ export default function zip(updateContentsPath: string, outputDir?: string): Pro
         });
       }
     } catch (error) {
+      error.message = error.message + " Make sure you have added the platform you are making a release to.`.";
       reject(error);
     }
 
