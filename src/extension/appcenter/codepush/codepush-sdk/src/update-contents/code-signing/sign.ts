@@ -30,8 +30,12 @@ export default async function sign(privateKeyPath: string, updateContentsPath: s
   }
 
   // If releasing a single file, copy the file to a temporary "CodePush" directory in which to publish the release
-  if (!fileUtils.isDirectory(updateContentsPath)) {
-    updateContentsPath = fileUtils.copyFileToTmpDir(updateContentsPath);
+  try {
+    if (!fileUtils.isDirectory(updateContentsPath)) {
+      updateContentsPath = fileUtils.copyFileToTmpDir(updateContentsPath);
+    }
+  } catch (error) {
+    Promise.reject(error);
   }
 
   signatureFilePath = path.join(updateContentsPath, METADATA_FILE_NAME);
