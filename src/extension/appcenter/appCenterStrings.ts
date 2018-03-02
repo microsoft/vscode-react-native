@@ -6,18 +6,18 @@ import { DefaultApp } from "./command/commandParams";
 export class ACStrings {
     public static OkBtnLabel: string = "Ok";
     public static UserMustSignIn: string = "You are signed out. Please login to App Center";
-    public static SelectLoginTypeMsg: string = "Please select the way you would like to login to AppCenter";
+    public static SelectLoginTypeMsg: string = "Select the way you would like to authenticate with App Center";
     public static PleaseProvideToken: string = "Please provide token to authenticate";
-    public static PleaseLoginViaBrowser: string = "Please login to AppCenter in the browser window we will open, then enter your token from the browser to vscode";
-    public static UserLoggedOutMsg: string = "Successfully logged out from App Center";
-    public static UserIsNotLoggedInMsg: string = "You are not logged in to App Center";
+    public static PleaseLoginViaBrowser: string = "We are about to launch a browser window so you can automatically create an App Center API token";
+    public static UserLoggedOutMsg: string = "Successfully logged out of App Center";
+    public static UserIsNotLoggedInMsg: string = "You are not logged into App Center";
     public static LogoutPrompt: string = "Please execute logout to signoff from App Center";
     public static NoCodePushDetectedMsg: string = "Please install React Native Code Push package to run this command!";
     public static NoCurrentAppSetMsg: string = "No current app specified";
     public static NoCurrentDeploymentSetMsg: string = "No current deployment";
     public static PleaseProvideCurrentAppMsg: string = "Please click here to specify current app";
     public static PleaseProvideCurrentDeploymentMsg: string = "Please click here to specify current deployment";
-    public static ProvideCurrentAppPromptMsg: string = "Please specify existant current app";
+    public static ProvideCurrentAppPromptMsg: string = "Please specify an App Center app";
     public static InvalidCurrentAppNameMsg: string = "Sorry, provided app name is invalid";
     public static InvalidAppVersionParamMsg: string = "Sorry, provided app version is invalid";
     public static FailedToExecuteLoginMsg: string = "Failed to execute login to App Center";
@@ -26,7 +26,7 @@ export class ACStrings {
     public static FetchDeploymentsStatusBarMessage: string = "Fetching app deployments for you...";
     public static GettingAppInfoMessage: string = "Getting app info...";
     public static DetectingAppVersionMessage: string = "Detecting app version...";
-    public static RunningReactNativeBundleCommandMessage: string = "Running \"react-native bundle\" command...";
+    public static RunningBundleCommandMessage: string = "Running bundle command...";
     public static ArchivingUpdateContentsMessage: string = "Archiving update contents...";
     public static ReleasingUpdateContentsMessage: string = "Releasing update contents to CodePush...";
     public static LoginToAppCenterButton: string = "Login to App Center";
@@ -35,7 +35,7 @@ export class ACStrings {
     public static MenuTitlePlaceholder: string = "Please select action";
 
     public static YouAreLoggedInMsg: (name: string) => string = (name: string) => {
-         return `You are logged in to App Center as '${name}'`;
+         return `You are logged into App Center as '${name}'`;
     }
 
     public static YourCurrentAppMsg: (appName: string) => string = (appName: string) => {

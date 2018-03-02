@@ -250,7 +250,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                         }
                     }
                 }).then((appVersion: string) => {
-                    p.report({ message: ACStrings.RunningReactNativeBundleCommandMessage });
+                    p.report({ message: ACStrings.RunningBundleCommandMessage });
                     codePushRelaseParams.appVersion = appVersion;
                     return reactNative.makeUpdateContents(<BundleConfig>{
                         os: codePushRelaseParams.app.os,
