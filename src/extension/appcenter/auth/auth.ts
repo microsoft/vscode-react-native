@@ -5,7 +5,7 @@ import * as Q from "q";
 import { SettingsHelper } from "../../../extension/settingsHelper";
 import { createAppCenterClient, getQPromisifiedClientResult } from "../api/index";
 import { Profile, saveUser, deleteUser, getUser } from "../auth/profile/profile";
-import * as models from "app-center-node-client/models";
+import * as models from "../lib/app-center-node-client/models";
 
 export default class Auth {
     public static getProfile(projectRootPath: string): Q.Promise<Profile | null> {
