@@ -569,11 +569,9 @@
 		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
 		"vscode:prepublish": "gulp",
 		"test": "node ./node_modules/vscode/bin/test",
-		"preinstall": "npm install ./src/extension/appcenter/lib/app-center-node-client",
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"dependencies": {
-		"app-center-node-client": "file:src/extension/appcenter/lib/app-center-node-client",
 		"extract-opts": "2.2.0",
 		"flatten-source-map": "0.0.2",
 		"mkdirp": "^0.5.1",

@@ -318,39 +318,6 @@
 			"integrity": "sha1-qCJQ3bABXponyoLoLqYDu/pF768=",
 			"dev": true
 		},
-		"app-center-node-client": {
-			"version": "file:src/extension/appcenter/lib/app-center-node-client",
-			"requires": {
-				"ms-rest": "2.3.0"
-			},
-			"dependencies": {
-				"@types/node": {
-					"version": "8.9.4",
-					"bundled": true
-				},
-				"moment": {
-					"version": "2.18.1",
-					"bundled": true
-				},
-				"ms-rest": {
-					"version": "2.3.0",
-					"bundled": true,
-					"requires": {
-						"@types/node": "8.9.4",
-						"@types/request": "2.47.0",
-						"@types/uuid": "3.4.3",
-						"duplexer": "0.1.1",
-						"is-buffer": "1.1.6",
-						"is-stream": "1.1.0",
-						"moment": "2.18.1",
-						"request": "2.83.0",
-						"through": "2.3.8",
-						"tunnel": "0.0.5",
-						"uuid": "3.2.1"
-					}
-				}
-			}
-		},
 		"applicationinsights": {
 			"version": "0.15.6",
 			"resolved": "https://registry.npmjs.org/applicationinsights/-/applicationinsights-0.15.6.tgz",
