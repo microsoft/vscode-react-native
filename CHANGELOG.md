@@ -1,3 +1,8 @@
+## 0.6.4
+* Narrow down activation events for extension
+* Remove local file dependencies for code-push libs from package.json
+* Bug fixes
+
 ## 0.6.3
 * Updated README
 
