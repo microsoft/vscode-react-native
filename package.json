@@ -572,9 +572,9 @@
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"dependencies": {
-        "chalk": "^2.3.0",
-        "crypto": "^1.0.1",
-        "date-fns": "^1.29.0",
+		"chalk": "^2.3.0",
+		"crypto": "^1.0.1",
+		"date-fns": "^1.29.0",
 		"extract-opts": "2.2.0",
 		"flatten-source-map": "0.0.2",
 		"gradle-to-js": "^1.0.1",
