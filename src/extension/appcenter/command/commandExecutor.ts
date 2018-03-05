@@ -121,9 +121,12 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                             },
                             currentApp.targetBinaryVersion,
                             currentApp.isMandatory
-                        );
+                            );
+                            VsCodeUtils.ShowInformationMessage(ACStrings.YourCurrentDeploymentMsg(deploymentName));
                     }
                 });
+            } else {
+                VsCodeUtils.ShowInformationMessage(ACStrings.NoCurrentAppSetMsg);
             }
         });
         return Q.resolve(void 0);
@@ -432,6 +435,9 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                         return Q.resolve(void 0);
                     }
                 });
+            } else if (appVersion === undefined) {
+                // if user press esc do nothing then
+                return Q.resolve(void 0);
             } else {
                 VsCodeUtils.ShowWarningMessage(ACStrings.InvalidAppVersionParamMsg);
                 return Q.resolve(void 0);
