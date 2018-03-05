@@ -399,7 +399,7 @@ export class AppCenterCommandExecutor implements IAppCenterAuth, IAppCenterCodeP
                     app.targetBinaryVersion,
                     newMandatoryValue
                 ).then(() => {
-                    VsCodeUtils.ShowInformationMessage(`Changed release to ${newMandatoryValue ? "Mandotory" : "NOT Mandatory"}`);
+                    VsCodeUtils.ShowInformationMessage(`Changed release to ${newMandatoryValue ? "Mandatory" : "NOT Mandatory"}`);
                 });
             } else {
                 VsCodeUtils.ShowInformationMessage(ACStrings.NoCurrentAppSetMsg);
