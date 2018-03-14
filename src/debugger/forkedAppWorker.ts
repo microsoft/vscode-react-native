@@ -129,7 +129,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                             url: url.format(packagerUrl),
                         };
                         logger.verbose("Packager requested runtime to load script from " + rnMessage.url);
-                        return this.scriptImporter.downloadAppScript(<string>rnMessage.url)
+                        return this.scriptImporter.downloadAppScript(<string>rnMessage.url, this.projectRootPath)
                             .then((downloadedScript: DownloadedScript) => {
                                 this.bundleLoaded.resolve(void 0);
                                 return Object.assign({}, rnMessage, { url: downloadedScript.filepath });

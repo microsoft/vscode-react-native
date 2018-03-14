@@ -87,6 +87,11 @@ export class SourceMapUtil {
         }
     }
 
+    public appendSourceMapPaths(scriptBody: string, sourceMappingUrl: string) {
+        scriptBody += `//# sourceMappingURL=${sourceMappingUrl}`;
+        return scriptBody;
+    }
+
     /**
      * Updates source map URLs in the script body.
      */

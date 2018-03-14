@@ -41,30 +41,43 @@ export class ScriptImporter {
         this.sourceMapUtil = new SourceMapUtil();
     }
 
-    public downloadAppScript(scriptUrlString: string): Q.Promise<DownloadedScript> {
+    public downloadAppScript(scriptUrlString: string, projectRootPath: string): Q.Promise<DownloadedScript> {
         const parsedScriptUrl = url.parse(scriptUrlString);
         const overriddenScriptUrlString = (parsedScriptUrl.hostname === "localhost") ? this.overridePackagerPort(scriptUrlString) : scriptUrlString;
         // We'll get the source code, and store it locally to have a better debugging experience
         return Request.request(overriddenScriptUrlString, true).then(scriptBody => {
-            // Extract sourceMappingURL from body
-            let scriptUrl = <IStrictUrl>url.parse(overriddenScriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
-            let sourceMappingUrl = this.sourceMapUtil.getSourceMapURL(scriptUrl, scriptBody); // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
+            return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath).then(rnVersion => {
+                // unfortunatelly Metro Bundler is broken in RN 0.54.x versions, so use this workaround unless it will be fixed
+                // https://github.com/facebook/metro/issues/147
+                // https://github.com/Microsoft/vscode-react-native/issues/660
+                if (ReactNativeProjectHelper.getRNVersionsWithBrokenMetroBundler().indexOf(rnVersion) >= 0) {
+                    let noSourceMappingUrlGenerated =  scriptBody.match(/sourceMappingURL=/g) === null;
+                    if (noSourceMappingUrlGenerated) {
+                        let sourceMapPathUrl = overriddenScriptUrlString.replace("bundle", "map");
+                        scriptBody = this.sourceMapUtil.appendSourceMapPaths(scriptBody, sourceMapPathUrl);
+                    }
+                }
 
-            let waitForSourceMapping = Q<void>(void 0);
-            if (sourceMappingUrl) {
-                /* handle source map - request it and store it locally */
-                waitForSourceMapping = this.writeAppSourceMap(sourceMappingUrl, scriptUrl)
-                    .then(() => {
-                        scriptBody = this.sourceMapUtil.updateScriptPaths(scriptBody, <IStrictUrl>sourceMappingUrl);
-                    });
-            }
+                // Extract sourceMappingURL from body
+                let scriptUrl = <IStrictUrl>url.parse(overriddenScriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
+                let sourceMappingUrl = this.sourceMapUtil.getSourceMapURL(scriptUrl, scriptBody); // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
 
-            return waitForSourceMapping
+                let waitForSourceMapping = Q<void>(void 0);
+                if (sourceMappingUrl) {
+                    /* handle source map - request it and store it locally */
+                    waitForSourceMapping = this.writeAppSourceMap(sourceMappingUrl, scriptUrl)
+                        .then(() => {
+                            scriptBody = this.sourceMapUtil.updateScriptPaths(scriptBody, <IStrictUrl>sourceMappingUrl);
+                        });
+                }
+
+                return waitForSourceMapping
                 .then(() => this.writeAppScript(scriptBody, scriptUrl))
                 .then((scriptFilePath: string) => {
                     logger.verbose(`Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
                     return { contents: scriptBody, filepath: scriptFilePath };
                 });
+            });
         });
     }
 

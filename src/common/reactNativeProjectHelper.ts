@@ -7,6 +7,12 @@ import * as path from "path";
 import {CommandExecutor} from "./commandExecutor";
 
 export class ReactNativeProjectHelper {
+
+    public static getRNVersionsWithBrokenMetroBundler() {
+        // https://github.com/Microsoft/vscode-react-native/issues/660 for details
+        return ["0.54.0", "0.54.1", "0.54.2"];
+    }
+
     public static getReactNativeVersion(projectRoot: string) {
         return new CommandExecutor(projectRoot).getReactNativeVersion();
     }
