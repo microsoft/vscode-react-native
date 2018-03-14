@@ -1,3 +1,6 @@
+## 0.6.5
+* Fixed issue with SourceMaps generation for RN 0.54.x
+
 ## 0.6.4
 * Narrow down activation events for extension
 * Remove local file dependencies for code-push libs from package.json
