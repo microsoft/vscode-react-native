@@ -1,3 +1,6 @@
+## 0.6.6
+* Bug fixes
+
 ## 0.6.5
 * Fixed issue with SourceMaps generation for RN 0.54.x
 
