@@ -12,6 +12,7 @@ export class ACConstants {
     public static AppCenterCodePushStatusBarColor: string = "#F3F3B2";
     public static AppCenterDefaultTargetBinaryVersion: string = "";
     public static AppCenterDefaultIsMandatoryParam: boolean = false;
+    public static AppCenterExtId: string = "vsmobile.vscode-appcenter";
 }
 
 export class ACCommandNames {

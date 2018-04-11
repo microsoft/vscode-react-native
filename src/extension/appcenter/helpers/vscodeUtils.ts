@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { MessageTypes, ACConstants } from "../appCenterConstants";
-import { commands, StatusBarItem, window, MessageItem } from "vscode";
+import { commands, StatusBarItem, window, MessageItem, extensions } from "vscode";
 import { ACUtils } from "./utils";
 import * as Q from "q";
 
@@ -55,6 +55,11 @@ export class VsCodeUtils {
                 return;
             });
         });
+    }
+
+    public static appCenterExtensionIsInstalled() {
+        const appcenterExt = extensions.getExtension(ACConstants.AppCenterExtId);
+        return appcenterExt ? true : false;
     }
 
     private static async showMessage(messageToDisplay: string, type: MessageTypes, ...urlMessageItem: IButtonMessageItem[]): Promise<IButtonMessageItem | undefined> {
