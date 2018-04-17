@@ -79,7 +79,7 @@ export function makeSession(
                         this.remoteExtension.getProjectRoot(request.arguments.program),
                     ]);
                 })
-                .then(([packagerPort, projectRoot]) => {
+                .spread((packagerPort: number, projectRoot: string) => {
                     this.attachRequest({
                         ...request,
                         arguments: {
