@@ -25,7 +25,6 @@ export function makeSession(
 
     return class extends debugSessionClass {
 
-        private projectRootPath: string;
         private remoteExtension: RemoteExtension;
         private appWorker: MultipleLifetimesAppWorker | null = null;
 
@@ -75,14 +74,18 @@ export function makeSession(
             this.requestSetup(request.arguments);
             this.remoteExtension.launch(request)
                 .then(() => {
-                    return this.remoteExtension.getPackagerPort(request.arguments.program);
+                    return Q.all<any>([
+                        this.remoteExtension.getPackagerPort(request.arguments.program),
+                        this.remoteExtension.getProjectRoot(request.arguments.program),
+                    ]);
                 })
-                .then((packagerPort: number) => {
+                .then(([packagerPort, projectRoot]) => {
                     this.attachRequest({
                         ...request,
                         arguments: {
                             ...request.arguments,
-                            port: packagerPort,
+                            projectRoot: projectRoot,
+                            port: request.arguments.port || packagerPort,
                         },
                     });
                 })
@@ -93,16 +96,19 @@ export function makeSession(
 
         private attach(request: DebugProtocol.Request): void {
             this.requestSetup(request.arguments);
-            this.remoteExtension.getPackagerPort(request.arguments.program)
-                .then((packagerPort: number) => {
-                    this.attachRequest({
-                        ...request,
-                        arguments: {
-                            ...request.arguments,
-                            port: request.arguments.port || packagerPort,
-                        },
-                    });
+            Q.all<any>([
+                this.remoteExtension.getPackagerPort(request.arguments.program),
+                this.remoteExtension.getProjectRoot(request.arguments.program),
+            ]).spread((packagerPort: number, projectRoot: string) => {
+                this.attachRequest({
+                    ...request,
+                    arguments: {
+                        ...request.arguments,
+                        projectRoot: projectRoot,
+                        port: request.arguments.port || packagerPort,
+                    },
                 });
+            });
         }
 
         private disconnect(request: DebugProtocol.Request): void {
@@ -130,12 +136,12 @@ export function makeSession(
                 logger.setup(Logger.LogLevel.Log, false);
             }
 
-            this.projectRootPath = getProjectRoot(args);
-            this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
+            const projectRootPath = getProjectRoot(args);
+            this.remoteExtension = RemoteExtension.atProjectRootPath(projectRootPath);
 
             // Start to send telemetry
             telemetryReporter.reassignTo(new ExtensionTelemetryReporter(
-                appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
+                appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, projectRootPath));
         }
 
         /**
@@ -159,7 +165,7 @@ export function makeSession(
                         this.appWorker = new MultipleLifetimesAppWorker(
                             request.arguments,
                             sourcesStoragePath,
-                            this.projectRootPath,
+                            request.arguments.projectRoot,
                             undefined);
                         this.appWorker.on("connected", (port: number) => {
                             logger.log("Debugger worker loaded runtime on port " + port);

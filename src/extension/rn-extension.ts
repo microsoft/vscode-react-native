@@ -113,7 +113,7 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                                     let exponentHelper: ExponentHelper = new ExponentHelper(rootPath, projectRootPath);
                                     let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
                                     let packager: Packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(folder.uri.fsPath), packagerStatusIndicator);
-                                    let extensionServer: ExtensionServer = new ExtensionServer(projectRootPath, packager);
+                                    let extensionServer: ExtensionServer = new ExtensionServer(rootPath, packager);
                                     let appCenterManager: AppCenterExtensionManager = new AppCenterExtensionManager(projectRootPath);
 
                                     setupAndDispose(appCenterManager, context);
