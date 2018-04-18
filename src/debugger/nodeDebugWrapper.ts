@@ -11,7 +11,7 @@ import { TelemetryHelper } from "../common/telemetryHelper";
 import { RemoteExtension } from "../common/remoteExtension";
 import { ExtensionTelemetryReporter, ReassignableTelemetryReporter } from "../common/telemetryReporters";
 import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger  } from "vscode-chrome-debug-core";
-import { ContinuedEvent, TerminatedEvent, Logger } from "vscode-debugadapter";
+import { ContinuedEvent, TerminatedEvent, Logger, Response } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 
 import { MultipleLifetimesAppWorker } from "./appWorker";
@@ -152,7 +152,7 @@ export function makeSession(
         // tslint:disable-next-line:member-ordering
         protected attachRequest(
             request: DebugProtocol.Request): Q.Promise<void> {
-            return TelemetryHelper.generate("attach", (generator) => {
+            return TelemetryHelper.generate(request.command, (generator) => {
                 return Q({})
                     .then(() => {
                         logger.log("Starting debugger app worker.");
@@ -178,13 +178,20 @@ export function makeSession(
                                 remoteRoot: undefined,
                                 localRoot: undefined,
                             });
-                            let attachRequest = Object.assign({}, request, { command: "attach", arguments: attachArguments });
-
                             // Reinstantiate debug adapter, as the current implementation of ChromeDebugAdapter
                             // doesn't allow us to reattach to another debug target easily. As of now it's easier
                             // to throw previous instance out and create a new one.
                             (this as any)._debugAdapter = new (<any>debugSessionOpts.adapter)(debugSessionOpts, this);
-                            super.dispatchRequest(attachRequest);
+
+                            // Explicity call _debugAdapter.attach() to prevent directly calling dispatchRequest()
+                            // yield a response as "attach" even for "launch" request. Because dispatchRequest() will
+                            // decide to do a sendResponse() aligning with the request parameter passed in.
+                            Q((this as any)._debugAdapter.attach(attachArguments, request.seq))
+                            .then((responseBody) => {
+                                const response: DebugProtocol.Response = new Response(request);
+                                response.body = responseBody;
+                                this.sendResponse(response);
+                            });
                         });
 
                         return this.appWorker.start();
