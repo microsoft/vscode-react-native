@@ -82,12 +82,6 @@ var checkImports = function() {
 
                 var modulePath = re.exec(importStatement);
                 if (modulePath && modulePath[1]) {
-
-                    // Module app-center-node-client and it's submodules are relative and doesn't use *.ts files but *.d.ts instead
-                    // so no need to check them
-                    if (modulePath[1].startsWith("../lib/app-center-node-client")) {
-                        return;
-                    }
                     var moduleFilePath = path.resolve(workingDirectory, modulePath[1] + ".ts");
 
                     if (!existsCaseSensitive(moduleFilePath)) {
