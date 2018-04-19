@@ -1,9 +1,4 @@
 {
-    "linterOptions": {
-        "exclude": [
-            "src/extension/appcenter/lib"
-        ]
-    },
     "rules": {
         "align": [
             true,
