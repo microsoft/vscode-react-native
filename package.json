@@ -497,7 +497,7 @@
 		"strip-json-comments": "2.0.1",
 		"typechecker": "2.0.8",
 		"ultron": "1.0.2",
-		"vscode-chrome-debug-core": "^3.23.11",
+		"vscode-chrome-debug-core": "^4.1.0",
 		"vscode-debugadapter": "^1.23.0",
 		"vscode-debugprotocol": "^1.23.0",
 		"vscode-extension-telemetry": "0.0.5",
