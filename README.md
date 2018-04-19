@@ -68,6 +68,30 @@ For more details about configuring and debugging Expo applications see [Expo doc
 
 You can add VSCode tasks to build an .apk file and generate iOS/Android bundles. See [here](doc/tasks.md) for more info.
 
+## Using with React Native CodePush
+
+We have added basic support for [react-native-code-push](https://github.com/Microsoft/react-native-code-push) npm package.
+
+This is our first release of this feature and we would love to hear any feedback from you to make things better.
+Please [feel free to reach us](https://github.com/Microsoft/vscode-react-native/issues) in case of any issues or questions.
+
+CodePush is a cloud service that enables Cordova and React Native developers to deploy mobile app updates directly to their users' devices. It works by acting as a central repository that developers can publish updates to (JS, HTML, CSS and images). [How does it work?](https://github.com/Microsoft/react-native-code-push#how-does-it-work)
+
+To use it with your current project you should have the following things to be done:
+1) Your currently opened project should be `react-native` one
+2) You should have added `react-native-code-push` package into your project
+3) You should have an app already created in [Microsoft AppCenter](https://appcenter.ms/) and configured react-native-code-push for your project:
+* [How to configure React Native CodePush](https://github.com/Microsoft/react-native-code-push#getting-started)
+* [How to create an App in the AppCenter portal](https://docs.microsoft.com/en-us/appcenter/sdk/getting-started/react-native#2-create-your-app-in-the-app-center-portal-to-obtain-the-app-secret)
+
+To start using CodePush with current extension please do the following:
+1) Login to AppCenter from CodePush status bar
+2) Set current app that will be used for further code-push releases
+3) Configure AppVersion/IsMandatory for release (optional)
+4) Click on CodePush status bar and select `Releae React` command to make new CodePush release
+
+For more details about configuring and using React Native CodePush applications see [this link](doc/rncp.md).
+
 ## Contributing
 
 Please see our [contributing guide](CONTRIBUTING.md) for more information

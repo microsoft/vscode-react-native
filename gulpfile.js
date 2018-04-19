@@ -85,7 +85,8 @@ var lintSources = [
 ].map(function (tsFolder) { return tsFolder + "/**/*.ts"; });
 lintSources = lintSources.concat([
     "!src/typings/**",
-    "!test/resources/sampleReactNative022Project/**"
+    "!test/resources/sampleReactNative022Project/**",
+    "!src/extension/appcenter/lib/**"
 ]);
 
 var libtslint = require("tslint");
@@ -120,7 +121,7 @@ function test() {
 gulp.task("test", ["build", "tslint"], test);
 
 gulp.task('coverage:instrument', function () {
-    return gulp.src(["src/**/*.js", "!test/**"])
+    return gulp.src(["src/**/*.js", "!test/**", "!src/extension/appcenter/lib/**"])
         .pipe(istanbul({
             // Use the isparta instrumenter (code coverage for ES6)
             instrumenter: isparta.Instrumenter,
@@ -132,7 +133,7 @@ gulp.task('coverage:instrument', function () {
 
 gulp.task('coverage:report', function (done) {
     return gulp.src(
-        ["src/**/*.js", "!test/**"],
+        ["src/**/*.js", "!test/**", "!src/extension/appcenter/lib/**"],
         { read: false }
     )
         .pipe(istanbul.writeReports({
@@ -169,9 +170,11 @@ gulp.task("check-copyright", function (cb) {
         "!**/*.d.ts",
         "!coverage/**",
         "!node_modules/**",
+        "!lib/**",
         "!test/**/*.js",
         "!SampleApplication/**",
-        "!test/resources/sampleReactNative022Project/**/*.js"
+        "!test/resources/sampleReactNative022Project/**/*.js",
+        "!src/extension/appcenter/lib/**",
     ])
         .pipe(copyright());
 });
@@ -184,10 +187,12 @@ gulp.task("clean", function () {
     var del = require("del");
     var pathsToDelete = [
         "src/**/*.js",
+        "!src/extension/appcenter/lib/**/*.js",
         "src/**/*.js.map",
         "test/**/*.js",
         "test/**/*.js.map",
         "out/",
+        "!src/extension/codepush/api/codepush-sdk/**/*.js",
         "!test/resources/sampleReactNative022Project/**/*.js",
         ".vscode-test/"
     ]

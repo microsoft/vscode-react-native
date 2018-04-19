@@ -1,0 +1,9 @@
+{
+    "name": "app-center-node-client",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "version": "1.0.0",
+    "dependencies": {
+        "ms-rest": "^2.2.5"
+    }
+}

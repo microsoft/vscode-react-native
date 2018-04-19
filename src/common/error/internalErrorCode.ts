@@ -15,6 +15,17 @@ export enum InternalErrorCode {
         FailedToStartExponentPackager = 110,
         FailedToPublishToExpHost = 111,
 
+        FailedToExecAppCenterLogin = 112,
+        FailedToExecAppCenterLogout = 113,
+        FailedToExecAppCenterWhoAmI = 114,
+        FailedToExecAppCenterSetCurrentApp = 115,
+        FailedToExecAppCenterGetCurrentApp = 116,
+        FailedToExecAppCenterReleaseReact = 117,
+        FailedToExecAppCenterSetCurrentDeployment = 118,
+        FailedToExecAppCenterShowMenu = 119,
+        FailedToExecAppCenterSwitchMandatoryPropForRelease = 120,
+        FailedToExecAppCenterSetTargetBinaryVersionForRelease = 121,
+
         // Device Deployer errors
         IOSDeployNotFound = 201,
 

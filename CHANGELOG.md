@@ -1,6 +1,8 @@
+## 0.6.8
+* Bug fixes
+
 ## 0.6.7
 * Bug fixes
-* Migrated CodePush functionality to App Center extension for VS Code
 
 ## 0.6.6
 * Bug fixes
