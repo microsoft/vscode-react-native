@@ -6,7 +6,6 @@ import path = require("path");
 import {ConfigurationReader} from "../common/configurationReader";
 import {Packager} from "../common/packager";
 import {LogLevel} from "./log/LogHelper";
-import { ACConstants } from "./appcenter/appCenterConstants";
 
 export class SettingsHelper {
     /**
@@ -63,51 +62,6 @@ export class SettingsHelper {
         }
 
         return [];
-    }
-
-    /**
-     * Get appcenter login endpoint setting
-     */
-    public static getAppCenterLoginEndpoint(): string {
-        const workspaceConfiguration = vscode.workspace.getConfiguration();
-        if (workspaceConfiguration.has("react-native-tools.appcenter.loginendpoint")) {
-            let loginEndpoint: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.appcenter.loginendpoint"));
-            return loginEndpoint;
-        }
-        return ACConstants.DefaultLoginEndPoint;
-    }
-
-    /**
-     * Get appcenter api endpoint setting
-     */
-   public static getAppCenterAPIEndpoint(): string {
-       const workspaceConfiguration = vscode.workspace.getConfiguration();
-       if (workspaceConfiguration.has("react-native-tools.appcenter.api.endpoint")) {
-           let apiEndpoint: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.appcenter.api.endpoint"));
-           return apiEndpoint;
-       }
-       return ACConstants.DefaulAPIEndPoint;
-   }
-
-    /**
-     * Get old codepush endpoint setting
-     */
-    public static getLegacyCodePushEndpoint(): string {
-        const workspaceConfiguration = vscode.workspace.getConfiguration();
-        if (workspaceConfiguration.has("react-native-tools.appcenter.legacycodepushservice")) {
-            let apiEndpoint: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.appcenter.legacycodepushservice"));
-            return apiEndpoint;
-        }
-        return ACConstants.DefaultLegacyCodePushService;
-    }
-
-    public static getLegacyCodePushServiceEnabled(): boolean {
-        const workspaceConfiguration = vscode.workspace.getConfiguration();
-        if (workspaceConfiguration.has("react-native-tools.appcenter.legacycodepushserviceenabled")) {
-            let enabled: boolean = ConfigurationReader.readBoolean(workspaceConfiguration.get("react-native-tools.appcenter.legacycodepushserviceenabled"));
-            return enabled;
-        }
-        return true;
     }
 
     public static getEnvArgs(platform: string, target: "device" | "simulator", uri: vscode.Uri): any {
