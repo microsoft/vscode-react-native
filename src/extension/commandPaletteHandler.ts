@@ -17,16 +17,12 @@ import {ExponentHelper} from "./exponent/exponentHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {ExtensionServer} from "./extensionServer";
 import { IAndroidRunOptions } from "./launchArgs";
-import { AppCenterCommandPalleteHandler } from "./appcenter/appCenterCommandPalleteHandler";
-import { AppCenterCommandType } from "./appcenter/appCenterConstants";
-import { AppCenterExtensionManager } from "./appcenter/appCenterExtensionManager";
 
 interface IReactNativeStuff {
     packager: Packager;
     exponentHelper: ExponentHelper;
     reactDirManager: ReactDirManager;
     extensionServer: ExtensionServer;
-    appCenterManager: AppCenterExtensionManager; // Actually not an RN Stuff, but this is RN only extension so no other than RN stuff could exist at all, yeah?
 }
 
 interface IReactNativeProject extends IReactNativeStuff {
@@ -36,9 +32,6 @@ interface IReactNativeProject extends IReactNativeStuff {
 export class CommandPaletteHandler {
     private static projectsCache: {[key: string]: IReactNativeProject} = {};
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
-
-    // Use this class to further cmd exec delegation and not to pollute this class with AppCenter logic
-    private static appCenterCommandPalleteHandler: AppCenterCommandPalleteHandler;
 
     public static addFolder(workspaceFolder: vscode.WorkspaceFolder, stuff: IReactNativeStuff): void {
         this.projectsCache[workspaceFolder.uri.fsPath] = {
@@ -226,76 +219,6 @@ export class CommandPaletteHandler {
             });
     }
 
-    public static appCenterLogin(): Q.Promise<void> {
-        return this.selectProject()
-            .then((project: IReactNativeProject) => {
-                return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.Login);
-        });
-    }
-
-    public static appCenterLogout(): Q.Promise<void> {
-        return this.selectProject()
-            .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.Logout);
-        });
-    }
-
-    public static appCenterWhoAmI(): Q.Promise<void> {
-        return this.selectProject()
-             .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.Whoami);
-        });
-    }
-
-    public static appCenterSetCurrentApp(): Q.Promise<void> {
-        return this.selectProject()
-            .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.SetCurrentApp);
-        });
-    }
-
-    public static appCenterGetCurrentApp(): Q.Promise<void> {
-        return this.selectProject()
-            .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.GetCurrentApp);
-        });
-    }
-
-    public static appCenterSetCurrentDeployment(): Q.Promise<void> {
-        return this.selectProject()
-            .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.SetCurrentDeployment);
-        });
-    }
-
-    public static appCenterCodePushReleaseReact(): Q.Promise<void> {
-        return this.selectProject()
-            .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.CodePushReleaseReact);
-        });
-    }
-
-    public static appCenterShowMenu(): Q.Promise<void> {
-        return this.selectProject()
-            .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.ShowMenu);
-        });
-    }
-
-    public static appCenterSwitchMandatoryPropForRelease(): Q.Promise<void> {
-        return this.selectProject()
-            .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.SwitchMandatoryPropForRelease);
-        });
-    }
-
-    public static appCenterSetTargetBinaryVersionForRelease(): Q.Promise<void> {
-        return this.selectProject()
-            .then((project: IReactNativeProject) => {
-                 return CommandPaletteHandler.getAppCenterCommandPalleteHandler(project).run(AppCenterCommandType.SetTargetBinaryVersionForRelease);
-        });
-    }
-
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {
         return project.packager.restart(SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath))
             .then(() => project.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
@@ -401,14 +324,6 @@ export class CommandPaletteHandler {
                 });
             }
         );
-    }
-
-    private static getAppCenterCommandPalleteHandler(project: IReactNativeProject): AppCenterCommandPalleteHandler {
-        if (!CommandPaletteHandler.appCenterCommandPalleteHandler) {
-            CommandPaletteHandler.appCenterCommandPalleteHandler = new AppCenterCommandPalleteHandler(CommandPaletteHandler.logger);
-        }
-        CommandPaletteHandler.appCenterCommandPalleteHandler.AppCenterManager = project.appCenterManager;
-        return CommandPaletteHandler.appCenterCommandPalleteHandler;
     }
 
     private static selectProject(): Q.Promise<IReactNativeProject> {
