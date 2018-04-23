@@ -77,16 +77,15 @@ export function makeSession(
                     return Q.all<any>([
                         this.remoteExtension.getPackagerPort(request.arguments.program),
                         this.remoteExtension.getProjectRoot(request.arguments.program),
-                    ]);
-                })
-                .spread((packagerPort: number, projectRoot: string) => {
-                    this.attachRequest({
-                        ...request,
-                        arguments: {
-                            ...request.arguments,
-                            projectRoot: projectRoot,
-                            port: request.arguments.port || packagerPort,
-                        },
+                    ]).spread((packagerPort: number, projectRoot: string) => {
+                        this.attachRequest({
+                            ...request,
+                            arguments: {
+                                ...request.arguments,
+                                projectRoot: projectRoot,
+                                port: request.arguments.port || packagerPort,
+                            },
+                        });
                     });
                 })
                 .catch(error => {
