@@ -47,7 +47,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
                     // }
 
                     const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-windows", runArguments, {env});
-                    return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS))
+                    return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), "windows")
                         .process(runWindowsSpawn);
                 });
         });

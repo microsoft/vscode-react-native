@@ -14,13 +14,15 @@ export type PatternToFailure = {
 export class OutputVerifier {
     private generatePatternsForSuccess: () => Q.Promise<string[]>;
     private generatePatternToFailure: () => Q.Promise<PatternToFailure[]>;
+    private platformName: string;
 
     private output = "";
     private errors = "";
 
-    constructor(generatePatternsForSuccess: () => Q.Promise<string[]>, generatePatternToFailure: () => Q.Promise<PatternToFailure[]>) {
+    constructor(generatePatternsForSuccess: () => Q.Promise<string[]>, generatePatternToFailure: () => Q.Promise<PatternToFailure[]>, platformName: string) {
         this.generatePatternsForSuccess = generatePatternsForSuccess;
         this.generatePatternToFailure = generatePatternToFailure;
+        this.platformName = platformName;
     }
 
     public process(spawnResult: ISpawnResult): Q.Promise<void> {
@@ -41,7 +43,12 @@ export class OutputVerifier {
                 }
             }).then(successPatterns => {
                 if (!this.areAllSuccessPatternsPresent(successPatterns)) { // If we don't find all the success patterns, we also fail
-                    return Q.reject<void>(new Error("Unknown error: not all success patterns were matched"));
+                    const message =
+                    `Unknown error: not all success patterns were matched.
+It means that "react-native run-${this.platformName}" command failed. \
+Please, check out information in View -> Toggle Output -> React-native, \
+View -> Toggle Output -> React-native: Run ${this.platformName} output windows.`;
+                    return Q.reject<void>(new Error(message));
                 } // else we found all the success patterns, so we succeed
                 return Q.resolve(void 0);
             });
