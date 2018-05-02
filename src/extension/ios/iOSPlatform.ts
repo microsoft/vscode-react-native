@@ -86,11 +86,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     runArguments.push("--no-packager");
                 }
                 const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", runArguments, {env});
-                return new OutputVerifier(
-                    () =>
-                        this.generateSuccessPatterns(),
-                    () =>
-                        Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS)).process(runIosSpawn);
+                return new OutputVerifier(() => this.generateSuccessPatterns(), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
+                    .process(runIosSpawn);
             });
     }
 
