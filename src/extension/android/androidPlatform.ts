@@ -90,7 +90,8 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         () =>
                             Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
                         () =>
-                            Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS)).process(runAndroidSpawn);
+                            Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS),
+                        "android").process(runAndroidSpawn);
 
                     return output
                         .finally(() => {
