@@ -4,7 +4,7 @@
 import {RemoteExtension} from "../common/remoteExtension";
 import {Telemetry} from "./telemetry";
 
-export class ExtensionTelemetryReporter implements Telemetry.ITelemetryReporter {
+export class RemoteTelemetryReporter implements Telemetry.ITelemetryReporter {
     private remoteExtension: RemoteExtension;
     private extensionId: string;
     private extensionVersion: string;
@@ -16,7 +16,6 @@ export class ExtensionTelemetryReporter implements Telemetry.ITelemetryReporter 
         this.appInsightsKey = key;
         this.remoteExtension = RemoteExtension.atProjectRootPath(projectRootPath);
     }
-
     public sendTelemetryEvent(eventName: string, properties?: Telemetry.ITelemetryEventProperties, measures?: Telemetry.ITelemetryEventMeasures): void {
         this.remoteExtension.sendTelemetry(this.extensionId, this.extensionVersion, this.appInsightsKey, eventName, properties, measures)
             .catch(function() { });
