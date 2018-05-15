@@ -251,11 +251,6 @@ export module Telemetry {
 
     export const APPINSIGHTS_INSTRUMENTATIONKEY: string = "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217"; // Matches vscode telemetry key
 
-    export function defaultTelemetryReporter(appVersion: string): ITelemetryReporter {
-        const TelemetryReporter = require("vscode-extension-telemetry").default;
-        return new TelemetryReporter(Telemetry.appName, appVersion, APPINSIGHTS_INSTRUMENTATIONKEY);
-    }
-
     export interface ITelemetryEventProperties {
         [key: string]: string;
     }

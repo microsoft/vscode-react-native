@@ -38,14 +38,17 @@ const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
 const fsUtil = new FileSystem();
 
+const APP_NAME = "react-native-tools";
+
 interface ISetupableDisposable extends vscode.Disposable {
     setup(): Q.Promise<any>;
 }
 
 export function activate(context: vscode.ExtensionContext): void {
     const appVersion = <string>require("../../package.json").version;
-    const reporter = Telemetry.defaultTelemetryReporter(appVersion);
-    entryPointHandler.runApp("react-native", appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, () => {
+    const ExtensionTelemetryReporter = require("vscode-extension-telemetry").default;
+    const reporter = new ExtensionTelemetryReporter(APP_NAME, appVersion, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY);
+    entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, () => {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
