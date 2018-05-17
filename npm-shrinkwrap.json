@@ -2047,7 +2047,7 @@
     },
     "event-stream": {
       "version": "3.3.4",
-      "resolved": "http://registry.npmjs.org/event-stream/-/event-stream-3.3.4.tgz",
+      "resolved": "https://registry.npmjs.org/event-stream/-/event-stream-3.3.4.tgz",
       "integrity": "sha1-SrTJoPWlTbkzi0w02Gv86PSzVXE=",
       "dev": true,
       "requires": {
@@ -9700,7 +9700,7 @@
     },
     "should-equal": {
       "version": "0.8.0",
-      "resolved": "http://registry.npmjs.org/should-equal/-/should-equal-0.8.0.tgz",
+      "resolved": "https://registry.npmjs.org/should-equal/-/should-equal-0.8.0.tgz",
       "integrity": "sha1-o/BXMv9FusG3ukEvhAiFaBlkEpk=",
       "dev": true,
       "requires": {
