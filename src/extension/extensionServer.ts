@@ -200,7 +200,7 @@ export class ExtensionServer implements vscode.Disposable {
                         return mobilePlatform.prewarmBundleCache();
                     })
                     .then(() => {
-                        generator.step("mobilePlatform.runApp");
+                        generator.step("mobilePlatform.runApp").add("target", mobilePlatformOptions.target, false);
                         this.logger.info("Building and running application.");
                         return mobilePlatform.runApp();
                     })
