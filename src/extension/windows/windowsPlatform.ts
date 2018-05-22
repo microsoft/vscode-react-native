@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
+import * as semver from "semver";
 
 import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import {IWindowsRunOptions} from "../launchArgs";
@@ -14,6 +15,7 @@ import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
  * Windows specific platform implementation for debugging RN applications.
  */
 export class WindowsPlatform extends GeneralMobilePlatform {
+    protected static NO_PACKAGER_VERSION = "0.53.0";
 
     private static SUCCESS_PATTERNS = [
         "Installing new version of the app",
@@ -41,10 +43,9 @@ export class WindowsPlatform extends GeneralMobilePlatform {
 
             return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
                 .then(version => {
-                    // TODO Uncomment when it will be implemented in `react-native-windows`
-                    // if (semver.gte(version, WindowsPlatform.NO_PACKAGER_VERSION)) {
-                    //     runArguments.push("--no-packager");
-                    // }
+                    if (semver.gte(version, WindowsPlatform.NO_PACKAGER_VERSION)) {
+                        runArguments.push("--no-packager");
+                    }
 
                     const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-windows", runArguments, {env});
                     return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), "windows")
