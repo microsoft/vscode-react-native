@@ -169,7 +169,7 @@ function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T
 }
 
 function isSupportedVersion(version: string): boolean {
-    if (!semver.gte(version, "0.19.0")) {
+    if (!!semver.valid(version) && !semver.gte(version, "0.19.0")) {
         TelemetryHelper.sendSimpleEvent("unsupportedRNVersion", { rnVersion: version });
         const shortMessage = `React Native Tools need React Native version 0.19.0 or later to be installed in <PROJECT_ROOT>/node_modules/`;
         const longMessage = `${shortMessage}: ${version}`;
@@ -177,6 +177,7 @@ function isSupportedVersion(version: string): boolean {
         outputChannelLogger.warning(longMessage);
         return false;
     } else {
+        // !!semver.valid(version) === false is OK for us, someone can use custom RN implementation with custom version e.g. -> "0.2018.0107-v1"
         return true;
     }
 }
