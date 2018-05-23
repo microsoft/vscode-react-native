@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/Microsoft/vscode-react-native.svg?branch=master)](https://travis-ci.org/Microsoft/vscode-react-native)
 
 This extension provides a development environment for React Native projects.
-Using this extension, you can debug your code, quickly run `react-native` commands from the command palette, and use IntelliSense to browse objects, functions and parameters for React Native APIs.
+Using this extension, you can debug your code and quickly run `react-native` commands from the command palette.
 
 ![React Native features](images/react-features.gif)
 
@@ -48,25 +48,19 @@ The **Run iOS** command similarly triggers `react-native run-ios` and starts you
 
 The **Packager** commands allow you to start/stop the [**Metro Bundler**](https://github.com/facebook/metro-bundler) (formerly React Packager).
 
-## Using IntelliSense
-
-IntelliSense helps you discover objects, functions, and parameters in React Native.
-
-![IntelliSense](images/intellisense.png)
-
-IntelliSense is enabled automatically once you open the project in VS Code, so no additional action is required. Notice that in order to set it up, the extension might create a `jsconfig.json` file (if no such file exists) in the project root with `allowJs: true` to allow TypeScript to process JavaScript files.
-
-See also [Setting up Flowtype for IntelliSense](doc/intellisense.md) for more advanced setup.
-
 ## Using Expo
 
-We support using exponentjs to run, debug and publish applications. For more information on exponent, see [here](https://docs.getexponent.com/).
+We support using Expo to run, debug and publish applications. For more information on Expo, see [here](https://docs.expo.io).
 
 For more details about configuring and debugging Expo applications see [Expo docs](doc/expo.md)
 
 ## Build APK and Generate Bundle
 
 You can add VSCode tasks to build an .apk file and generate iOS/Android bundles. See [here](doc/tasks.md) for more info.
+
+## Customization
+
+Extension can be customized for different use cases. Please, follow [Customization](doc/customization.md) section for more details.
 
 ## Contributing
 
@@ -81,7 +75,7 @@ Issue                                | Description
 Debugger doesn't stop at breakpoints | Breakpoints require sourcemaps to be correctly configured. If you are using TypeScript, then make sure to follow the `Getting started` section for how to ensure sourcemaps are correctly set up.
 'adb: command not found'             | If you receive an error `adb: command not found`, you need to update your system Path to include the location of your *ADB* executable.The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
 Targeting iPhone 6 doesn't work      | There was a known issue with React Native ([#5850](https://github.com/facebook/react-native/issues/5850)) but it was fixed. Please upgrade your version of React Native.
-Can't comunicate with socket pipe    | (Linux only) If you have two workspaces open that only differ in casing, the extension will fail to comunicate effectively.
+Can't communicate with socket pipe    | (Linux only) If you have two workspaces open that only differ in casing, the extension will fail to communicate effectively.
 
 [Known-Issues](https://github.com/Microsoft/vscode-react-native/issues?q=is%3Aissue+label%3Aknown-issues) provides a complete list of active and resolved issues.
 
