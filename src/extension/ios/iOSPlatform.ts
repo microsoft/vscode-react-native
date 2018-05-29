@@ -82,7 +82,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
         return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
             .then(version => {
-                if (semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
+                if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
                     runArguments.push("--no-packager");
                 }
                 const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", runArguments, {env});

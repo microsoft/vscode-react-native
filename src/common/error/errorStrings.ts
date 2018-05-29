@@ -6,7 +6,7 @@ export const ERROR_STRINGS = {
     "CommandFailedWithErrorCode": "Command '{0}' failed with error code {1}",
     "ExpectedIntegerValue": "Expected an integer. Couldn't read {0}",
     "PackagerStartFailed": "Error while executing React Native Packager.",
-    "IOSDeployNotFound": "Unable to find ios-deploy. Please make sure to install it globally('npm install -g is-deploy')",
+    "IOSDeployNotFound": "Unable to find ios-deploy. Please make sure to install it globally('npm install -g ios-deploy')",
     "DeviceNotPluggedIn": "Unable to mount developer disk image.",
     "DeveloperDiskImgNotMountable": "Unable to mount developer disk image.",
     "UnableToLaunchApplication": "Unable to launch application.",

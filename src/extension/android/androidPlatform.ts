@@ -81,7 +81,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
             return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
                 .then(version => {
-                    if (semver.gte(version, AndroidPlatform.NO_PACKAGER_VERSION)) {
+                    if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, AndroidPlatform.NO_PACKAGER_VERSION)) {
                         runArguments.push("--no-packager");
                     }
 

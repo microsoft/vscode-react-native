@@ -9,7 +9,7 @@ import stripJsonComments = require("strip-json-comments");
 import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { RemoteExtension } from "../common/remoteExtension";
-import { ExtensionTelemetryReporter, ReassignableTelemetryReporter } from "../common/telemetryReporters";
+import { RemoteTelemetryReporter, ReassignableTelemetryReporter } from "../common/telemetryReporters";
 import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger  } from "vscode-chrome-debug-core";
 import { ContinuedEvent, TerminatedEvent, Logger, Response } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
@@ -139,8 +139,9 @@ export function makeSession(
             this.remoteExtension = RemoteExtension.atProjectRootPath(projectRootPath);
 
             // Start to send telemetry
-            telemetryReporter.reassignTo(new ExtensionTelemetryReporter(
+            telemetryReporter.reassignTo(new RemoteTelemetryReporter(
                 appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, projectRootPath));
+
         }
 
         /**

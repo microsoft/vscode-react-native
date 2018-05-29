@@ -91,7 +91,7 @@ export class ScriptImporter {
             .then((rnVersion: string) => {
                 let newPackager = "";
                 const isHaulProject = ReactNativeProjectHelper.isHaulProject(projectRootPath);
-                if (semver.gte(rnVersion, "0.50.0") && !isHaulProject) {
+                if (!semver.valid(rnVersion) /*Custom RN implementations should support new packager*/ || (semver.gte(rnVersion, "0.50.0") && !isHaulProject)) {
                     newPackager = "debugger-ui/";
                 }
                 let debuggerWorkerURL = `http://${this.packagerAddress}:${this.packagerPort}/${newPackager}${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;

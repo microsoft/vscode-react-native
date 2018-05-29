@@ -38,14 +38,17 @@ const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
 const fsUtil = new FileSystem();
 
+const APP_NAME = "react-native-tools";
+
 interface ISetupableDisposable extends vscode.Disposable {
     setup(): Q.Promise<any>;
 }
 
 export function activate(context: vscode.ExtensionContext): void {
     const appVersion = <string>require("../../package.json").version;
-    const reporter = Telemetry.defaultTelemetryReporter(appVersion);
-    entryPointHandler.runApp("react-native", appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, () => {
+    const ExtensionTelemetryReporter = require("vscode-extension-telemetry").default;
+    const reporter = new ExtensionTelemetryReporter(APP_NAME, appVersion, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY);
+    entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, () => {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
@@ -166,7 +169,7 @@ function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T
 }
 
 function isSupportedVersion(version: string): boolean {
-    if (!semver.gte(version, "0.19.0")) {
+    if (!!semver.valid(version) && !semver.gte(version, "0.19.0")) {
         TelemetryHelper.sendSimpleEvent("unsupportedRNVersion", { rnVersion: version });
         const shortMessage = `React Native Tools need React Native version 0.19.0 or later to be installed in <PROJECT_ROOT>/node_modules/`;
         const longMessage = `${shortMessage}: ${version}`;
@@ -174,6 +177,7 @@ function isSupportedVersion(version: string): boolean {
         outputChannelLogger.warning(longMessage);
         return false;
     } else {
+        // !!semver.valid(version) === false is OK for us, someone can use custom RN implementation with custom version e.g. -> "0.2018.0107-v1"
         return true;
     }
 }
