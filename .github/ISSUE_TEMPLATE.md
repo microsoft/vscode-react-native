@@ -12,6 +12,7 @@
 - OS platform and version: 
 - NodeJS version: 
 - React Native version: 
+- Expo SDK version (include if relevant):
 
 ## Outputs (Include if relevant)
 - Output of the Debug Console (View -> Toggle Debug Console):
