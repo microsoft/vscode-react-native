@@ -75,6 +75,7 @@ export class ExtensionServer implements vscode.Disposable {
         let methods: any = {};
         methods.stopMonitoringLogCat = this.stopMonitoringLogCat.bind(this);
         methods.getPackagerPort = this.getPackagerPort.bind(this);
+        methods.getProjectRoot = this.getProjectRoot.bind(this);
         methods.sendTelemetry = this.sendTelemetry.bind(this);
         methods.openFileAtLocation = this.openFileAtLocation.bind(this);
         methods.showInformationMessage = this.showInformationMessage.bind(this);
@@ -123,6 +124,13 @@ export class ExtensionServer implements vscode.Disposable {
      */
     private getPackagerPort(program: string): number {
         return SettingsHelper.getPackagerPort(program);
+    }
+
+    /**
+     * Message handler for GET_PROJECT_ROOT
+     */
+    private getProjectRoot(program: string): string {
+        return SettingsHelper.getReactNativeProjectRoot(program);
     }
 
     /**
@@ -236,7 +244,7 @@ function isNullOrUndefined(value: any): boolean {
 
 function requestSetup(args: any): any {
     const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.program));
-    const projectRootPath = getProjectRoot(args);
+    const projectRootPath = SettingsHelper.getReactNativeProjectRoot(args.program);
     let mobilePlatformOptions: any = {
         workspaceRoot: workspaceFolder.uri.fsPath,
         projectRoot: projectRootPath,
@@ -254,8 +262,4 @@ function requestSetup(args: any): any {
     }
 
     return mobilePlatformOptions;
-}
-
-function getProjectRoot(args: any): string {
-    return SettingsHelper.getReactNativeProjectRoot(args.program);
 }

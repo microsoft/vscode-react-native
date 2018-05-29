@@ -176,10 +176,11 @@ export class CommandPaletteHandler {
                     const runArgs = SettingsHelper.getRunArgs("ios", target, project.workspaceFolder.uri);
                     const envArgs = SettingsHelper.getEnvArgs("ios", target, project.workspaceFolder.uri);
                     const envFile = SettingsHelper.getEnvFile("ios", target, project.workspaceFolder.uri);
+                    const projectRoot = SettingsHelper.getReactNativeProjectRoot(project.workspaceFolder.uri.fsPath);
                     const platform = new IOSPlatform({
                         platform: "ios",
                         workspaceRoot: project.workspaceFolder.uri.fsPath,
-                        projectRoot: project.workspaceFolder.uri.fsPath,
+                        projectRoot: projectRoot,
                         packagerPort: packagerPort,
                         runArguments: runArgs,
                         env: envArgs,
