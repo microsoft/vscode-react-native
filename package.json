@@ -29,7 +29,6 @@
 	],
 	"activationEvents": [
 		"onDebug",
-		"workspaceContains:**/node_modules/react-native/package.json",
 		"onCommand:reactNative.runAndroidSimulator",
 		"onCommand:reactNative.runAndroidDevice",
 		"onCommand:reactNative.runIosSimulator",

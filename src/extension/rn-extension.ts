@@ -44,25 +44,29 @@ interface ISetupableDisposable extends vscode.Disposable {
     setup(): Q.Promise<any>;
 }
 
-export function activate(context: vscode.ExtensionContext): void {
+export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
     const appVersion = <string>require("../../package.json").version;
     const ExtensionTelemetryReporter = require("vscode-extension-telemetry").default;
     const reporter = new ExtensionTelemetryReporter(APP_NAME, appVersion, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY);
-    entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, () => {
+    return entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, function activateRunApp() {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
-        registerReactNativeCommands(context);
 
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
 
         const workspaceFolders: vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
+        let promises: any = [];
         if (workspaceFolders) {
             workspaceFolders.forEach((folder: vscode.WorkspaceFolder) => {
-                onFolderAdded(context, folder);
+                promises.push(onFolderAdded(context, folder));
             });
         }
+
+        return Q.all(promises).then(() => {
+            return registerReactNativeCommands(context);
+        });
     });
 }
 
@@ -98,36 +102,39 @@ function onChangeConfiguration(context: vscode.ExtensionContext) {
     // TODO implements
 }
 
-function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder): void {
+function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder): Q.Promise<void> {
     let rootPath = folder.uri.fsPath;
     let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
-    ReactNativeProjectHelper.getReactNativeVersion(projectRootPath)
+    return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath)
         .then(version => {
-                if (version && isSupportedVersion(version)) {
+            if (version && isSupportedVersion(version)) {
+                return Q.all([
                     entryPointHandler.runFunction("debugger.setupLauncherStub", ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () => {
-                            let reactDirManager = new ReactDirManager(rootPath);
-                            return setupAndDispose(reactDirManager, context)
-                                .then(() => {
-                                    let exponentHelper: ExponentHelper = new ExponentHelper(rootPath, projectRootPath);
-                                    let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
-                                    let packager: Packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(folder.uri.fsPath), packagerStatusIndicator);
-                                    let extensionServer: ExtensionServer = new ExtensionServer(projectRootPath, packager);
+                        let reactDirManager = new ReactDirManager(rootPath);
+                        return setupAndDispose(reactDirManager, context)
+                            .then(() => {
+                                let exponentHelper: ExponentHelper = new ExponentHelper(rootPath, projectRootPath);
+                                let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
+                                let packager: Packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(folder.uri.fsPath), packagerStatusIndicator);
+                                let extensionServer: ExtensionServer = new ExtensionServer(projectRootPath, packager);
 
-                                    setupAndDispose(extensionServer, context);
-                                    CommandPaletteHandler.addFolder(folder, {
-                                        packager,
-                                        exponentHelper,
-                                        reactDirManager,
-                                        extensionServer,
-                                    });
+                                CommandPaletteHandler.addFolder(folder, {
+                                    packager,
+                                    exponentHelper,
+                                    reactDirManager,
+                                    extensionServer,
                                 });
-                        });
 
+                                return setupAndDispose(extensionServer, context).then(() => { });
+                            });
+                    }),
                     entryPointHandler.runFunction("debugger.setupNodeDebuggerLocation",
                         ErrorHelper.getInternalError(InternalErrorCode.NodeDebuggerConfigurationFailed), () => {
-                            configureNodeDebuggerLocation();
-                        });
-                }
+                            return configureNodeDebuggerLocation();
+                        })]).then(() => {});
+            } else {
+                return Q.resolve(void 0);
+            }
         });
 }
 

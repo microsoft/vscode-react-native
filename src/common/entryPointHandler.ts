@@ -8,6 +8,7 @@ import {TelemetryGenerator} from "./telemetryGenerators";
 import {Telemetry} from "./telemetry";
 import {ConsoleLogger} from "../extension/log/ConsoleLogger";
 import {ILogger} from "../extension/log/LogHelper";
+import * as Q from "q";
 
 export enum ProcessType {
     Extension,
@@ -25,12 +26,12 @@ export class EntryPointHandler {
     }
 
     /* This method should wrap any async entry points to the code, so we handle telemetry and error reporting properly */
-    public runFunction(taskName: string, error: InternalError, codeToRun: (telemetry: TelemetryGenerator) => Q.Promise<void> | void, errorsAreFatal: boolean = false): void {
+    public runFunction(taskName: string, error: InternalError, codeToRun: (telemetry: TelemetryGenerator) => Q.Promise<void> | void, errorsAreFatal: boolean = false): Q.Promise<void> {
         return this.handleErrors(error, TelemetryHelper.generate(taskName, codeToRun), /*errorsAreFatal*/ errorsAreFatal);
     }
 
     // This method should wrap the entry point of the whole app, so we handle telemetry and error reporting properly
-    public runApp(appName: string, appVersion: string, error: InternalError, reporter: Telemetry.ITelemetryReporter, codeToRun: () => Q.Promise<void> | void): void {
+    public runApp(appName: string, appVersion: string, error: InternalError, reporter: Telemetry.ITelemetryReporter, codeToRun: () => Q.Promise<void> | void): Q.Promise<void>  {
         try {
             Telemetry.init(appName, appVersion, reporter);
             return this.runFunction(appName, error, codeToRun, true);
@@ -40,7 +41,7 @@ export class EntryPointHandler {
         }
     }
 
-    private handleErrors(error: InternalError, resultOfCode: Q.Promise<void>, errorsAreFatal: boolean): void {
+    private handleErrors(error: InternalError, resultOfCode: Q.Promise<void>, errorsAreFatal: boolean): Q.Promise<void> {
         resultOfCode.done(() => { }, reason => {
             const isDebugeeProcess = this.processType === ProcessType.Debugee;
             const shouldLogStack = !errorsAreFatal || isDebugeeProcess;
@@ -55,5 +56,7 @@ export class EntryPointHandler {
                 }
             }
         });
+
+        return resultOfCode;
     }
 }
