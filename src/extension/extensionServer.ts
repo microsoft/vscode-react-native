@@ -39,21 +39,10 @@ export class ExtensionServer implements vscode.Disposable {
      */
     public setup(): Q.Promise<void> {
         this.isDisposed = false;
-        let deferred = Q.defer<void>();
 
-        let launchCallback = (error: any) => {
-            this.logger.debug(`Extension messaging server started at ${this.pipePath}.`);
-            deferred.resolve(void 0);
-        };
-
-        this.serverInstance = new WebSocketServer({port: <any>this.pipePath});
-        this.api = new rpc.Server(this.serverInstance).api();
-        this.serverInstance.on("listening", launchCallback.bind(this));
-        this.serverInstance.on("error", this.recoverServer.bind(this));
-
-        this.setupApiHandlers();
-
-        return deferred.promise;
+        return Q.Promise((resolve, reject) => {
+            this._setup(resolve, reject);
+        });
     }
 
     /**
@@ -69,6 +58,26 @@ export class ExtensionServer implements vscode.Disposable {
         this.reactNativePackager.statusIndicator.dispose();
         this.reactNativePackager.stop(true);
         this.stopMonitoringLogCat();
+    }
+
+    private _setup(resolve: (val: void | Q.IPromise<void>) => void, reject: (reason: any) => void): void {
+        const errorCallback = this.recoverServer.bind(this, resolve, reject);
+        let launchCallback = (done: (val: void | Q.IPromise<void>) => void) => {
+            this.logger.debug(`Extension messaging server started at ${this.pipePath}.`);
+
+            if (this.serverInstance) {
+                this.serverInstance.removeListener("error", errorCallback);
+                this.serverInstance.on("error", this.recoverServer.bind(this, null, null));
+            }
+            done(void 0);
+        };
+
+        this.serverInstance = new WebSocketServer({port: <any>this.pipePath});
+        this.api = new rpc.Server(this.serverInstance).api();
+        this.serverInstance.on("listening", launchCallback.bind(this, resolve));
+        this.serverInstance.on("error", errorCallback);
+
+        this.setupApiHandlers();
     }
 
     private setupApiHandlers(): void {
@@ -96,13 +105,17 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Recovers the server in case the named socket we use already exists, but no other instance of VSCode is active.
      */
-    private recoverServer(error: any): void {
+    private recoverServer(resolve: (value: void) => {} , reject: (reason: any) => {}, error: any): void {
         let errorHandler = (e: any) => {
             /* The named socket is not used. */
             if (e.code === "ECONNREFUSED") {
                 new FileSystem().removePathRecursivelyAsync(this.pipePath)
                     .then(() => {
-                        return this.setup();
+                        if (resolve && reject) {
+                            return this._setup(resolve, reject);
+                        } else {
+                            return this.setup();
+                        }
                     })
                     .done();
             }

@@ -107,8 +107,8 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
     let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
     return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath)
         .then(version => {
+            let promises = [];
             if (version && isSupportedVersion(version)) {
-                let promises = [];
                 promises.push(entryPointHandler.runFunction("debugger.setupLauncherStub", ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () => {
                     let reactDirManager = new ReactDirManager(rootPath);
                     return setupAndDispose(reactDirManager, context)
@@ -132,15 +132,9 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                     ErrorHelper.getInternalError(InternalErrorCode.NodeDebuggerConfigurationFailed), () => {
                         return configureNodeDebuggerLocation();
                     }));
-
-                return Q.all(promises)
-                    .then(() => { })
-                    .catch((err) => {
-                        console.error(err);
-                    });
-            } else {
-                return Q.resolve(void 0);
             }
+
+            return Q.all(promises).then(() => {});
         });
 }
 
