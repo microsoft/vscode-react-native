@@ -68,7 +68,6 @@ export abstract class TelemetryGeneratorBase {
         return Q(codeToMeasure())
         .finally(() => this.finishTime(name, startTime))
         .fail((reason: any): Q.Promise<T> => {
-            console.log(name);
             this.addError(reason);
             return Q.reject<T>(reason);
         });
