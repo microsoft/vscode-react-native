@@ -339,7 +339,7 @@ export class CommandPaletteHandler {
         } else if (keys.length === 1) {
             return Q.resolve(this.projectsCache[keys[0]]);
         } else {
-            return Q.reject();
+            return Q.reject(new Error("Current workspace is not a React Native project."));
         }
     }
 }
