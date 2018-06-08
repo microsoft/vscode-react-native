@@ -1,3 +1,8 @@
+## 0.6.11
+* Fixed activation event promises handling
+* Fixed "connect ENOENT *.sock" error during debugging from within non React Native project root
+* Minor bug fixes and improvements
+
 ## 0.6.10
 * Minor fixes and improvements
 
