@@ -41,7 +41,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             const runArguments = this.getRunArgument();
             const env = this.getEnvArgument();
 
-            if (enableDebug) {
+            if (enableDebug && this.platformName !== "wpf") {
                 runArguments.push("--proxy");
             }
 
