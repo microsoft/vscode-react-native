@@ -24,6 +24,7 @@ export class PlatformResolver {
             case "exponent":
                 return new ExponentPlatform(runOptions, platformDeps);
             case "windows":
+            case "wpf":
                 return new WindowsPlatform(runOptions, platformDeps);
             default:
                 return new GeneralMobilePlatform(runOptions, platformDeps);

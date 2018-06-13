@@ -26,6 +26,10 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             pattern: "Unrecognized command 'run-windows'",
             message: "'rnpm-plugin-windows' doesn't install",
         },
+        {
+            pattern: "Unrecognized command 'run-wpf'",
+            message: "'rnpm-plugin-windows' doesn't install",
+        },
     ];
 
     constructor(protected runOptions: IWindowsRunOptions, platformDeps: MobilePlatformDeps = {}) {
@@ -47,15 +51,15 @@ export class WindowsPlatform extends GeneralMobilePlatform {
                         runArguments.push("--no-packager");
                     }
 
-                    const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-windows", runArguments, {env});
-                    return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), "windows")
+                    const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, runArguments, {env});
+                    return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), this.platformName)
                         .process(runWindowsSpawn);
                 });
         });
     }
 
     public prewarmBundleCache(): Q.Promise<void> {
-        return this.packager.prewarmBundleCache("windows");
+        return this.packager.prewarmBundleCache(this.platformName);
     }
 
     public getRunArgument(): string[] {
