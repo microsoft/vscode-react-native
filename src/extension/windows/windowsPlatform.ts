@@ -26,10 +26,6 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             pattern: "Unrecognized command 'run-windows'",
             message: "'rnpm-plugin-windows' doesn't install",
         },
-        {
-            pattern: "Unrecognized command 'run-wpf'",
-            message: "'rnpm-plugin-windows' doesn't install",
-        },
     ];
 
     constructor(protected runOptions: IWindowsRunOptions, platformDeps: MobilePlatformDeps = {}) {
@@ -69,7 +65,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             runArguments.push(...this.runOptions.runArguments);
         } else {
             if (this.runOptions.target) {
-                runArguments.push(this.runOptions.target === "device" ? this.runOptions.target : "emulator");
+                runArguments.push(`--${this.runOptions.target}`);
             }
         }
 

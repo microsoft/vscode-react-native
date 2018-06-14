@@ -5,6 +5,7 @@ import {IRunOptions} from "./launchArgs";
 import {IOSPlatform} from "./ios/iOSPlatform";
 import {AndroidPlatform} from "./android/androidPlatform";
 import {WindowsPlatform} from "./windows/windowsPlatform";
+import {WpfPlatform} from "./windows/wpfPlatform";
 import {GeneralMobilePlatform, MobilePlatformDeps} from "../extension/generalMobilePlatform";
 import {ExponentPlatform} from "./exponent/exponentPlatform";
 
@@ -24,8 +25,9 @@ export class PlatformResolver {
             case "exponent":
                 return new ExponentPlatform(runOptions, platformDeps);
             case "windows":
-            case "wpf":
                 return new WindowsPlatform(runOptions, platformDeps);
+            case "wpf":
+                return new WpfPlatform(runOptions, platformDeps);
             default:
                 return new GeneralMobilePlatform(runOptions, platformDeps);
         }
