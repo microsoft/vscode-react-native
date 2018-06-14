@@ -36,29 +36,31 @@ export class WpfPlatform extends WindowsPlatform {
                     }
 
                     const exec = new CommandExecutor(this.projectPath, this.logger);
-                    const runWpfSpawn = exec.spawnReactCommand(`run-${this.platformName}`, runArguments, {env});
                     return Q.Promise((resolve, reject) => {
-                        const appName = process.cwd().split(path.sep).pop();
-                        exec.execute(`cmd /C Taskkill /IM ${appName}.exe /F`);
-                        let resolved = false;
-                        let output = "";
-                        runWpfSpawn.stdout.on("data", (data: Buffer) => {
-                            output += data.toString();
-                            if (!resolved && output.indexOf("Starting the app") > -1) {
-                                resolved = true;
-                                resolve(void 0);
-                            }
-                        });
+                        const appName = this.projectPath.split(path.sep).pop();
+                        return exec.execute(`cmd /C Taskkill /IM ${appName}.exe /F`)
+                            .finally(() => {
+                                const runWpfSpawn = exec.spawnReactCommand(`run-${this.platformName}`, runArguments, {env});
+                                let resolved = false;
+                                let output = "";
+                                runWpfSpawn.stdout.on("data", (data: Buffer) => {
+                                    output += data.toString();
+                                    if (!resolved && output.indexOf("Starting the app") > -1) {
+                                        resolved = true;
+                                        resolve(void 0);
+                                    }
+                                });
 
-                        runWpfSpawn.stderr.on("data", (error: Buffer) => {
-                            if (error.toString().trim()) {
-                                reject(error.toString());
-                            }
-                        });
+                                runWpfSpawn.stderr.on("data", (error: Buffer) => {
+                                    if (error.toString().trim()) {
+                                        reject(error.toString());
+                                    }
+                                });
 
-                        runWpfSpawn.outcome.then(() => {
-                            reject(void 0); // If WPF process ended then app run fault
-                        });
+                                runWpfSpawn.outcome.then(() => {
+                                    reject(void 0); // If WPF process ended then app run fault
+                                });
+                            });
                     });
                 });
         });
