@@ -3,6 +3,7 @@
 
 import * as Q from "q";
 import * as semver from "semver";
+import * as path from "path";
 
 import {MobilePlatformDeps} from "../generalMobilePlatform";
 import {IWindowsRunOptions} from "../launchArgs";
@@ -34,8 +35,11 @@ export class WpfPlatform extends WindowsPlatform {
                         runArguments.push("--no-packager");
                     }
 
-                    const runWpfSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, runArguments, {env});
+                    const exec = new CommandExecutor(this.projectPath, this.logger);
+                    const runWpfSpawn = exec.spawnReactCommand(`run-${this.platformName}`, runArguments, {env});
                     return Q.Promise((resolve, reject) => {
+                        const appName = process.cwd().split(path.sep).pop();
+                        exec.execute(`cmd /C Taskkill /IM ${appName}.exe /F`);
                         let resolved = false;
                         let output = "";
                         runWpfSpawn.stdout.on("data", (data: Buffer) => {
@@ -46,8 +50,10 @@ export class WpfPlatform extends WindowsPlatform {
                             }
                         });
 
-                        runWpfSpawn.stderr.on("data", (data: Buffer) => {
-                            reject(data.toString());
+                        runWpfSpawn.stderr.on("data", (error: Buffer) => {
+                            if (error.toString().trim()) {
+                                reject(error.toString());
+                            }
                         });
 
                         runWpfSpawn.outcome.then(() => {
