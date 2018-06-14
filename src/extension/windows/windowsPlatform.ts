@@ -41,7 +41,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             const runArguments = this.getRunArgument();
             const env = this.getEnvArgument();
 
-            if (enableDebug && this.platformName !== "wpf") {
+            if (enableDebug) {
                 runArguments.push("--proxy");
             }
 
@@ -59,7 +59,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
     }
 
     public prewarmBundleCache(): Q.Promise<void> {
-        return this.packager.prewarmBundleCache(this.platformName);
+        return this.packager.prewarmBundleCache("windows");
     }
 
     public getRunArgument(): string[] {
