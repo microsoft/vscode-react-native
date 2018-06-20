@@ -7,6 +7,7 @@ import * as XDL from "./exponent/xdlInterface";
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager, PackagerRunAs} from "../common/packager";
+import {TargetType} from "./generalMobilePlatform";
 import {AndroidPlatform} from "./android/androidPlatform";
 import {IOSPlatform} from "./ios/iOSPlatform";
 import {PackagerStatus} from "./packagerStatusIndicator";
@@ -16,7 +17,7 @@ import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExponentHelper} from "./exponent/exponentHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {ExtensionServer} from "./extensionServer";
-import { IAndroidRunOptions } from "./launchArgs";
+import {IAndroidRunOptions, IIOSRunOptions} from "./launchArgs";
 
 interface IReactNativeStuff {
     packager: Packager;
@@ -134,25 +135,12 @@ export class CommandPaletteHandler {
     /**
      * Executes the 'react-native run-android' command
      */
-    public static runAndroid(target: "device" | "simulator" = "simulator"): Q.Promise<void> {
+    public static runAndroid(target: TargetType = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("android");
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => this.executeWithPackagerRunning(project, () => {
-                    const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath);
-                    const runArgs = SettingsHelper.getRunArgs("android", target, project.workspaceFolder.uri);
-                    const envArgs = SettingsHelper.getEnvArgs("android", target, project.workspaceFolder.uri);
-                    const envFile = SettingsHelper.getEnvFile("android", target, project.workspaceFolder.uri);
-                    const projectRoot = SettingsHelper.getReactNativeProjectRoot(project.workspaceFolder.uri.fsPath);
-                    const runOptions: IAndroidRunOptions = {
-                        platform: "android",
-                        workspaceRoot: project.workspaceFolder.uri.fsPath,
-                        projectRoot: projectRoot,
-                        packagerPort: packagerPort,
-                        runArguments: runArgs,
-                        env: envArgs,
-                        envFile: envFile,
-                    };
+                    const runOptions = CommandPaletteHandler.getRunOptions("android", target, project);
                     const platform = new AndroidPlatform(runOptions, {
                         packager: project.packager,
                     });
@@ -167,25 +155,15 @@ export class CommandPaletteHandler {
     /**
      * Executes the 'react-native run-ios' command
      */
-    public static runIos(target: "device" | "simulator" = "simulator"): Q.Promise<void> {
+    public static runIos(target: TargetType = "simulator"): Q.Promise<void> {
         TargetPlatformHelper.checkTargetPlatformSupport("ios");
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 return this.executeCommandInContext("runIos", project.workspaceFolder, () => this.executeWithPackagerRunning(project, () => {
-                    const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath);
-                    const runArgs = SettingsHelper.getRunArgs("ios", target, project.workspaceFolder.uri);
-                    const envArgs = SettingsHelper.getEnvArgs("ios", target, project.workspaceFolder.uri);
-                    const envFile = SettingsHelper.getEnvFile("ios", target, project.workspaceFolder.uri);
-                    const platform = new IOSPlatform({
-                        platform: "ios",
-                        workspaceRoot: project.workspaceFolder.uri.fsPath,
-                        projectRoot: project.workspaceFolder.uri.fsPath,
-                        packagerPort: packagerPort,
-                        runArguments: runArgs,
-                        env: envArgs,
-                        envFile: envFile,
-                    }, { packager: project.packager });
-
+                    const runOptions = CommandPaletteHandler.getRunOptions("ios", target, project);
+                    const platform = new IOSPlatform(runOptions, {
+                        packager: project.packager,
+                    });
                     // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
                     return platform.disableJSDebuggingMode()
                         .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
@@ -341,5 +319,24 @@ export class CommandPaletteHandler {
         } else {
             return Q.reject(new Error("Current workspace is not a React Native project."));
         }
+    }
+
+    private static getRunOptions(platform: "ios" | "android", target: TargetType, project: IReactNativeProject): IAndroidRunOptions | IIOSRunOptions {
+        const packagerPort = SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath);
+        const runArgs = SettingsHelper.getRunArgs(platform, target, project.workspaceFolder.uri);
+        const envArgs = SettingsHelper.getEnvArgs(platform, target, project.workspaceFolder.uri);
+        const envFile = SettingsHelper.getEnvFile(platform, target, project.workspaceFolder.uri);
+        const projectRoot = SettingsHelper.getReactNativeProjectRoot(project.workspaceFolder.uri.fsPath);
+        const runOptions: IAndroidRunOptions | IIOSRunOptions = {
+            platform: platform,
+            workspaceRoot: project.workspaceFolder.uri.fsPath,
+            projectRoot: projectRoot,
+            packagerPort: packagerPort,
+            runArguments: runArgs,
+            env: envArgs,
+            envFile: envFile,
+        };
+
+        return runOptions;
     }
 }
