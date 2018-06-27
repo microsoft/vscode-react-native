@@ -200,7 +200,14 @@ export class ExtensionServer implements vscode.Disposable {
         const mobilePlatform = new PlatformResolver()
             .resolveMobilePlatform(request.arguments.platform, mobilePlatformOptions, platformDeps);
         return new Promise((resolve, reject) => {
-            TelemetryHelper.generate("launch", (generator) => {
+            const extProps = {
+                platform: {
+                    value: request.arguments.platform,
+                    isPii: false,
+                },
+            };
+
+            TelemetryHelper.generate("launch", extProps, (generator) => {
                 generator.step("checkPlatformCompatibility");
                 TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
                 return mobilePlatform.beforeStartPackager()

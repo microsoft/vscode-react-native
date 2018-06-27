@@ -205,6 +205,12 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
 
 function registerVSCodeCommand(context: vscode.ExtensionContext, commandName: string, error: InternalError, commandHandler: () => Q.Promise<void>): void {
     context.subscriptions.push(vscode.commands.registerCommand(`reactNative.${commandName}`, () => {
-        return entryPointHandler.runFunction(`commandPalette.${commandName}`, error, commandHandler);
+        const extProps = {
+            platform: {
+                value: CommandPaletteHandler.getPlatformByCommandName(commandName),
+                isPii: false,
+            },
+        };
+        return entryPointHandler.runFunctionWExtProps(`commandPalette.${commandName}`, extProps, error, commandHandler);
     }));
 }

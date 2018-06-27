@@ -176,7 +176,7 @@ export class CommandPaletteHandler {
             .then((project: IReactNativeProject) => {
                 return this.loginToExponent(project)
                     .then(() => {
-                        return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
+                        return this.executeCommandInContext("runExponent", project.workspaceFolder, () => {
                             const runOptions = CommandPaletteHandler.getRunOptions(project, "exponent");
                             const platform = new ExponentPlatform(runOptions, {
                                 packager: project.packager,
@@ -215,6 +215,24 @@ export class CommandPaletteHandler {
             });
     }
 
+    public static getPlatformByCommandName(commandName: string): string {
+        commandName = commandName.toLocaleLowerCase();
+
+        if (commandName.indexOf("android") > -1) {
+            return "android";
+        }
+
+        if (commandName.indexOf("ios") > -1) {
+            return "ios";
+        }
+
+        if (commandName.indexOf("exponent") > -1) {
+            return "exponent";
+        }
+
+        return "";
+    }
+
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {
         return project.packager.restart(SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath));
     }
@@ -225,7 +243,14 @@ export class CommandPaletteHandler {
      * {operation} - a function that performs the expected operation
      */
     private static executeCommandInContext(rnCommand: string, workspaceFolder: vscode.WorkspaceFolder, operation: () => Q.Promise<void>): Q.Promise<void> {
-        return TelemetryHelper.generate("RNCommand", (generator) => {
+        const extProps = {
+            platform: {
+                value: CommandPaletteHandler.getPlatformByCommandName(rnCommand),
+                isPii: false,
+            },
+        };
+
+        return TelemetryHelper.generate("RNCommand", extProps, (generator) => {
             generator.add("command", rnCommand, false);
             const projectRoot = SettingsHelper.getReactNativeProjectRoot(workspaceFolder.uri.fsPath);
             return ReactNativeProjectHelper.isReactNativeProject(projectRoot).then(isRNProject => {
