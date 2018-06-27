@@ -203,8 +203,11 @@ export class ExtensionServer implements vscode.Disposable {
             TelemetryHelper.generate("launch", (generator) => {
                 generator.step("checkPlatformCompatibility");
                 TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
-                generator.step("startPackager");
-                return mobilePlatform.startPackager()
+                return mobilePlatform.beforeStartPackager()
+                    .then(() => {
+                        generator.step("startPackager");
+                        return mobilePlatform.startPackager();
+                    })
                     .then(() => {
                         // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
                         // and the user needs to Reload JS manually. We prewarm it to prevent that issue
