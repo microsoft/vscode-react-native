@@ -77,8 +77,8 @@ export class TelemetryHelper {
         return telemetryProperties;
     }
 
-    public static generate<T>(name: string, codeGeneratingTelemetry: { (telemetry: TelemetryGenerator): Q.Promise<T> | T }): Q.Promise<T> {
-        let generator: TelemetryGenerator = new TelemetryGenerator(name);
+    public static generate<T>(name: string, extendedParamsToSend: ICommandTelemetryProperties = {}, codeGeneratingTelemetry: { (telemetry: TelemetryGenerator): Q.Promise<T> | T }): Q.Promise<T> {
+        let generator: TelemetryGenerator = new TelemetryGenerator(name, extendedParamsToSend);
         return generator.time("", () => codeGeneratingTelemetry(generator)).finally(() => generator.send());
     }
 

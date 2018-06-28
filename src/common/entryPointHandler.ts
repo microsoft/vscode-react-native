@@ -3,7 +3,7 @@
 
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalError} from "./error/internalError";
-import {TelemetryHelper} from "./telemetryHelper";
+import {TelemetryHelper, ICommandTelemetryProperties} from "./telemetryHelper";
 import {TelemetryGenerator} from "./telemetryGenerators";
 import {Telemetry} from "./telemetry";
 import {ConsoleLogger} from "../extension/log/ConsoleLogger";
@@ -27,7 +27,11 @@ export class EntryPointHandler {
 
     /* This method should wrap any async entry points to the code, so we handle telemetry and error reporting properly */
     public runFunction(taskName: string, error: InternalError, codeToRun: (telemetry: TelemetryGenerator) => Q.Promise<void> | void, errorsAreFatal: boolean = false): Q.Promise<void> {
-        return this.handleErrors(error, TelemetryHelper.generate(taskName, codeToRun), /*errorsAreFatal*/ errorsAreFatal);
+        return this.runFunctionWExtProps(taskName, {}, error, codeToRun, errorsAreFatal);
+    }
+
+    public runFunctionWExtProps(taskName: string, extProps: ICommandTelemetryProperties, error: InternalError, codeToRun: (telemetry: TelemetryGenerator) => Q.Promise<void> | void, errorsAreFatal: boolean = false): Q.Promise<void> {
+        return this.handleErrors(error, TelemetryHelper.generate(taskName, extProps, codeToRun), /*errorsAreFatal*/ errorsAreFatal);
     }
 
     // This method should wrap the entry point of the whole app, so we handle telemetry and error reporting properly
