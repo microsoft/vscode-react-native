@@ -16,12 +16,20 @@ import {WindowsPlatform} from "./windowsPlatform";
  * WPF specific platform implementation for debugging RN applications.
  */
 export class WpfPlatform extends WindowsPlatform {
+    private static WPF_SUPPORTED = "0.55.0";
     constructor(protected runOptions: IWindowsRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
     }
 
     public runApp(enableDebug: boolean = true): Q.Promise<void> {
-        return TelemetryHelper.generate("WpfPlatform.runApp", () => {
+        const extProps = {
+            platform: {
+                value: "wpf",
+                isPii: false,
+            },
+        };
+
+        return TelemetryHelper.generate("WpfPlatform.runApp", extProps, () => {
             const runArguments = this.getRunArgument();
             const env = this.getEnvArgument();
 
@@ -31,6 +39,10 @@ export class WpfPlatform extends WindowsPlatform {
 
             return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
                 .then(version => {
+                    if (!semver.gt(version, WpfPlatform.WPF_SUPPORTED)) {
+                        throw new Error(`Debugging WPF platform is not supported for this react-native-windows version(${version})`);
+                    }
+
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, WpfPlatform.NO_PACKAGER_VERSION)) {
                         runArguments.push("--no-packager");
                     }

@@ -45,7 +45,7 @@ For UWP apps use `windows` target platform in `launch.json` configuration, e.g.:
 }
 ```
 
-For WPF apps use `wpf`, e.g.:
+For WPF apps use `wpf`, e.g.(WPF debugging available only for react-native-windows gt 0.55.0):
 
 ```
 {
