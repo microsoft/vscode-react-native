@@ -162,9 +162,15 @@ If so, please, follow these instructions: https://github.com/Microsoft/vscode-re
          * - Enable js debugging
          */
         // tslint:disable-next-line:member-ordering
-        protected attachRequest(
-            request: DebugProtocol.Request): Q.Promise<void> {
-            return TelemetryHelper.generate(request.command, (generator) => {
+        protected attachRequest(request: DebugProtocol.Request): Q.Promise<void> {
+            const extProps = {
+                platform: {
+                    value: request.arguments.platform,
+                    isPii: false,
+                },
+            };
+
+            return TelemetryHelper.generate("attach", extProps, (generator) => {
                 return Q({})
                     .then(() => {
                         logger.log("Starting debugger app worker.");

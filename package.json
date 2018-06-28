@@ -33,8 +33,8 @@
 		"onCommand:reactNative.runAndroidDevice",
 		"onCommand:reactNative.runIosSimulator",
 		"onCommand:reactNative.runIosDevice",
+		"onCommand:reactNative.runExponent",
 		"onCommand:reactNative.startPackager",
-		"onCommand:reactNative.startExponentPackager",
 		"onCommand:reactNative.stopPackager",
 		"onCommand:reactNative.restartPackager",
 		"onCommand:reactNative.publishToExpHost",
@@ -61,12 +61,12 @@
 				"title": "React Native: Run iOS on Device"
 			},
 			{
-				"command": "reactNative.startPackager",
-				"title": "React Native: Start Packager"
+				"command": "reactNative.runExponent",
+				"title": "React Native: Run Exponent"
 			},
 			{
-				"command": "reactNative.startExponentPackager",
-				"title": "React Native: Start Exponent Packager"
+				"command": "reactNative.startPackager",
+				"title": "React Native: Start Packager"
 			},
 			{
 				"command": "reactNative.stopPackager",

@@ -33,7 +33,14 @@ export class WindowsPlatform extends GeneralMobilePlatform {
     }
 
     public runApp(enableDebug: boolean = true): Q.Promise<void> {
-        return TelemetryHelper.generate("WindowsPlatform.runApp", () => {
+        const extProps = {
+            platform: {
+                value: "windows",
+                isPii: false,
+            },
+        };
+
+        return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
             const runArguments = this.getRunArgument();
             const env = this.getEnvArgument();
 

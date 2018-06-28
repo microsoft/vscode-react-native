@@ -26,6 +26,7 @@ export const ERROR_STRINGS = {
     "FailedToStopPackagerOnExit": "Failed to stop the packager while closing React Native Tools",
     "FailedToRunOnAndroid": "Failed to run the application in Android",
     "FailedToRunOnIos": "Failed to run the application in iOS",
+    "FailedToRunExponent": "Failed to run the application in Exponent",
     "FailedToStartPackager": "Failed to start the React Native packager",
     "FailedToStopPackager": "Failed to stop the React Native packager",
     "FailedToRestartPackager": "Failed to restart the React Native packager",

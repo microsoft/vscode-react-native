@@ -16,6 +16,7 @@ import {ErrorHelper} from "../../common/error/errorHelper";
 import {SettingsHelper} from "../settingsHelper";
 import {RemoteExtension} from "../../common/remoteExtension";
 import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
+import {TelemetryHelper} from "../../common/telemetryHelper";
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
@@ -76,19 +77,28 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     public runApp(): Q.Promise<void> {
-        // Compile, deploy, and launch the app on either a simulator or a device
-        const runArguments = this.getRunArgument();
-        const env = this.getEnvArgument();
+        const extProps = {
+            platform: {
+                value: "ios",
+                isPii: false,
+            },
+        };
 
-        return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
-            .then(version => {
-                if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
-                    runArguments.push("--no-packager");
-                }
-                const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", runArguments, {env});
-                return new OutputVerifier(() => this.generateSuccessPatterns(), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
-                    .process(runIosSpawn);
-            });
+        return TelemetryHelper.generate("iOSPlatform.runApp", extProps, () => {
+            // Compile, deploy, and launch the app on either a simulator or a device
+            const runArguments = this.getRunArgument();
+            const env = this.getEnvArgument();
+
+            return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
+                .then(version => {
+                    if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
+                        runArguments.push("--no-packager");
+                    }
+                    const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", runArguments, {env});
+                    return new OutputVerifier(() => this.generateSuccessPatterns(), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
+                        .process(runIosSpawn);
+                });
+        });
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
