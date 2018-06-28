@@ -29,6 +29,7 @@ export class TargetPlatformHelper {
             case "exponent":
                 return TargetPlatformId.EXPONENT;
             case "windows":
+            case "wpf":
                 return TargetPlatformId.WINDOWS;
             default:
                 throw new Error(`The target platform ${platformName} is not supported.`);

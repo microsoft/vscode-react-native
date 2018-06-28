@@ -271,7 +271,8 @@
 									"ios",
 									"android",
 									"exponent",
-									"windows"
+									"windows",
+									"wpf"
 								],
 								"description": "The platform to target"
 							},
