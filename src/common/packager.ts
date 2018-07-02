@@ -18,6 +18,7 @@ import {SettingsHelper} from "../extension/settingsHelper";
 import * as Q from "q";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
+import { FileSystem } from "./node/fileSystem";
 
 export class Packager {
     public static DEFAULT_PORT = 8081;
@@ -32,6 +33,7 @@ export class Packager {
     private static OPN_PACKAGE_NAME = "opn";
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
+    private static fs: FileSystem = new Node.FileSystem();
 
     constructor(private workspacePath: string, private projectPath: string, private packagerPort?: number, packagerStatusIndicator?: PackagerStatusIndicator) {
         this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
@@ -190,13 +192,42 @@ export class Packager {
             });
     }
 
-    public prewarmBundleCache(platform: string) {
+    public prewarmBundleCache(platform: string): Q.Promise<void> {
         if (platform === "exponent") {
-            return Q.resolve<void>(void 0);
+            return Q.resolve(void 0);
         }
+
         return this.isRunning()
             .then(running => {
-                return running ? this.prewarmBundleCacheWithBundleFilename(`index.${platform}`, platform) : void 0;
+                if (!running) {
+                    return void 0;
+                }
+                const defaultIndex = path.resolve(this.projectPath, "index.js");
+                const oldIndex = path.resolve(this.projectPath, `index.${platform}.js`); // react-native < 0.49.0
+
+                return Q.all([Packager.fs.exists(defaultIndex), Packager.fs.exists(oldIndex)])
+                .then((exists) => {
+                    let bundleName = "";
+                    if (exists[0]) {
+                        bundleName = "index.bundle";
+                    } else if (exists[1]) {
+                        bundleName = `index.${platform}.bundle`;
+                    } else {
+                        this.logger.info(`Entry point at index.js and index.${platform}.js doesn't exist. Skip prewarming...`);
+                        return;
+                    }
+
+                    const bundleURL = `http://${this.getHost()}/${bundleName}?platform=${platform}`;
+                    this.logger.info("About to get: " + bundleURL);
+                    return Request.request(bundleURL, true)
+                        .then(() => {
+                            this.logger.warning("The Bundle Cache was prewarmed.");
+                        });
+                })
+                .catch(() => {
+                    // The attempt to prefetch the bundle failed. This may be because the bundle has
+                    // a different name that the one we guessed so we shouldn't treat this as fatal.
+                });
             });
     }
 
@@ -208,30 +239,6 @@ export class Packager {
             },
             (error: any) => {
                 return false;
-            });
-    }
-
-    private prewarmBundleCacheWithBundleFilename(bundleFilename: string, platform: string): Q.Promise<void> {
-        const indexFileName = path.resolve(this.projectPath, bundleFilename + ".js");
-        const bundleURL = `http://${this.getHost()}/${bundleFilename}.bundle?platform=${platform}`;
-        return new Node.FileSystem().exists(indexFileName)
-            .then(exists => {
-                // If guessed entry point doesn't exist - skip prewarming, since it's not possible
-                // at this moment to determine _real_ bundle/ entry point name anyway
-                if (!exists) {
-                    this.logger.info(`Entry point at ${indexFileName} doesn't exist. Skipping prewarming...`);
-                    return;
-                }
-
-                this.logger.info("About to get: " + bundleURL);
-                return Request.request(bundleURL, true)
-                    .then(() => {
-                        this.logger.warning("The Bundle Cache was prewarmed.");
-                    });
-            })
-            .catch(() => {
-                // The attempt to prefetch the bundle failed. This may be because the bundle has
-                // a different name that the one we guessed so we shouldn't treat this as fatal.
             });
     }
 
