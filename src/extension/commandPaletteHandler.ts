@@ -117,7 +117,11 @@ export class CommandPaletteHandler {
      * Executes the 'react-native run-android' command
      */
     public static runAndroid(target: TargetType = "simulator"): Q.Promise<void> {
-        TargetPlatformHelper.checkTargetPlatformSupport("android");
+        try {
+            TargetPlatformHelper.checkTargetPlatformSupport("android");
+        } catch (e) {
+            return Q.reject(e);
+        }
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
@@ -143,7 +147,11 @@ export class CommandPaletteHandler {
      * Executes the 'react-native run-ios' command
      */
     public static runIos(target: TargetType = "simulator"): Q.Promise<void> {
-        TargetPlatformHelper.checkTargetPlatformSupport("ios");
+        try {
+            TargetPlatformHelper.checkTargetPlatformSupport("ios");
+        } catch (e) {
+            return Q.reject(e);
+        }
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
