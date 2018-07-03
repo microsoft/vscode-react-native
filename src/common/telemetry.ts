@@ -19,6 +19,15 @@ export module Telemetry {
         [propertyName: string]: any;
     }
 
+    export interface TelemetryRequest {
+        extensionId: string;
+        extensionVersion: string;
+        appInsightsKey: string;
+        eventName: string;
+        properties: Telemetry.ITelemetryEventProperties;
+        measures: Telemetry.ITelemetryEventMeasures;
+    }
+
     class TelemetryUtils {
         private static telemetrySettings: ITelemetrySettings;
         private static TELEMETRY_SETTINGS_FILENAME: string = "VSCodeTelemetrySettings.json";
