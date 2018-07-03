@@ -15,7 +15,7 @@ import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
-import {IRemoteExtension} from "../common/remoteExtension";
+import {IRemoteExtension, OpenFileRequest} from "../common/remoteExtension";
 import * as rpc from "noice-json-rpc";
 import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
@@ -141,7 +141,8 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Message handler for OPEN_FILE_AT_LOCATION
      */
-    private openFileAtLocation(filename: string, lineNumber: number): Promise<void> {
+    private openFileAtLocation(openFileRequest: OpenFileRequest): Promise<void> {
+        const { filename, lineNumber } = openFileRequest;
         return new Promise((resolve) => {
             vscode.workspace.openTextDocument(vscode.Uri.file(filename))
                 .then((document: vscode.TextDocument) => {
@@ -166,7 +167,8 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Sends telemetry
      */
-    private sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string, properties: {[key: string]: string}, measures: {[key: string]: number}): void {
+    private sendTelemetry(telemetryRequest: Telemetry.TelemetryRequest): void {
+        const { extensionId, extensionVersion, appInsightsKey, eventName, properties, measures } = telemetryRequest;
         Telemetry.sendExtensionTelemetry(extensionId, extensionVersion, appInsightsKey, eventName, properties, measures);
     }
 
