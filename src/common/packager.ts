@@ -213,7 +213,7 @@ export class Packager {
                     } else if (exists[1]) {
                         bundleName = `index.${platform}.bundle`;
                     } else {
-                        this.logger.info(`Entry point at index.js and index.${platform}.js doesn't exist. Skip prewarming...`);
+                        this.logger.info(`Entry point at index.js or index.${platform}.js doesn't exist. Skip prewarming...`);
                         return;
                     }
 
