@@ -21,7 +21,7 @@
 		"url": "https://github.com/Microsoft/vscode-react-native"
 	},
 	"engines": {
-		"vscode": "^1.17.1"
+		"vscode": "^1.24.0"
 	},
 	"categories": [
 		"Debuggers",
