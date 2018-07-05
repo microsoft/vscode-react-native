@@ -117,9 +117,9 @@ export class CommandPaletteHandler {
      * Executes the 'react-native run-android' command
      */
     public static runAndroid(target: TargetType = "simulator"): Q.Promise<void> {
-        TargetPlatformHelper.checkTargetPlatformSupport("android");
         return this.selectProject()
             .then((project: IReactNativeProject) => {
+                TargetPlatformHelper.checkTargetPlatformSupport("android");
                 return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
                     const runOptions = CommandPaletteHandler.getRunOptions(project, "android", target);
                     const platform = new AndroidPlatform(runOptions, {
@@ -143,9 +143,9 @@ export class CommandPaletteHandler {
      * Executes the 'react-native run-ios' command
      */
     public static runIos(target: TargetType = "simulator"): Q.Promise<void> {
-        TargetPlatformHelper.checkTargetPlatformSupport("ios");
         return this.selectProject()
             .then((project: IReactNativeProject) => {
+                TargetPlatformHelper.checkTargetPlatformSupport("ios");
                 return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
                     const runOptions = CommandPaletteHandler.getRunOptions(project, "ios", target);
                     const platform = new IOSPlatform(runOptions, {
