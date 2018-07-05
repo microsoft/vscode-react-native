@@ -27,6 +27,7 @@ export const ERROR_STRINGS = {
     "FailedToRunOnAndroid": "Failed to run the application in Android",
     "FailedToRunOnIos": "Failed to run the application in iOS",
     "FailedToRunExponent": "Failed to run the application in Exponent",
+    "FailedToPublishToExpHost": "Failed to publish the application to Exponent",
     "FailedToStartPackager": "Failed to start the React Native packager",
     "FailedToStopPackager": "Failed to stop the React Native packager",
     "FailedToRestartPackager": "Failed to restart the React Native packager",
