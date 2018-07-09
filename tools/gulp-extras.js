@@ -33,6 +33,7 @@ var checkCopyright = function() {
             var fileContents = file.contents.toString(encoding);
             fileContents = fileContents.replace("\r\n", "\n");
             fileContents = fileContents.replace("\"use strict\";\n", "");
+            fileContents = fileContents.replace("Object.defineProperty(exports, \"__esModule\", { value: true });\n", "");
 
             if (fileContents.indexOf(copyrightNotice) !== 0) {
                 logError(pluginName, file, "missing copyright notice");
