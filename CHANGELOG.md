@@ -1,3 +1,7 @@
+## 0.6.12
+* Added debugger for WPF platform(react-native-windows > 0.55.0)
+* Minor bug fixes and improvements
+
 ## 0.6.11
 * Fixed activation event promises handling
 * Fixed "connect ENOENT *.sock" error during debugging from within non React Native project root
