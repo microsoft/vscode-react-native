@@ -10,7 +10,7 @@ export class ReactNativeProjectHelper {
 
     public static getRNVersionsWithBrokenMetroBundler() {
         // https://github.com/Microsoft/vscode-react-native/issues/660 for details
-        return ["0.54.0", "0.54.1", "0.54.2"];
+        return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
 
     public static getReactNativeVersion(projectRoot: string) {
