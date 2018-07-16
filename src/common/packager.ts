@@ -71,7 +71,7 @@ export class Packager {
                             let args: string[] = ["--port", this.port.toString()];
                             if (resetCache) {
                                 args = args.concat("--resetCache");
-                }
+                            }
 
                             // Arguments below using for Expo apps
                             args.push("--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode")));
@@ -82,13 +82,8 @@ export class Packager {
                                         args = args.concat([`--${key}`, options[key]]);
                                     });
 
-                                    // Patch for CRNA
-                                    if (args.indexOf("--assetExts") === -1) {
-                                        args.push("--assetExts", "ttf");
-                                    }
-
                                     return args;
-            })
+                                })
                                 .catch(() => {
                                     this.logger.warning("Couldn't read packager's options from exp.json, continue...");
                                     return args;
