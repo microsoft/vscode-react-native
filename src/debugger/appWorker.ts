@@ -51,6 +51,11 @@ Object.defineProperty(global, "GLOBAL", {
     enumerable: true,
     value: global
 });
+// Prevent leaking process.versions from debugger process to
+// worker because pure React Native doesn't do that and some packages as js-md5 rely on this behavior
+Object.defineProperty(process, "versions", {
+    value: undefined
+});
 
 var vscodeHandlers = {
     'vscode_reloadApp': function () {
