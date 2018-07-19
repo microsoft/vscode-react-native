@@ -1,3 +1,8 @@
+## 0.6.13
+* Fixed "Inverified breakpoint" error while debugging apps with RN >= 0.54.3 < 0.55
+* Fixed issue with ignoring getAssetExts() in rn-cli.config.js during debugging
+* Fixed leaking global variable "process.versions" from debugger process to worker
+
 ## 0.6.12
 * Added debugger for WPF platform(react-native-windows > 0.55.0)
 * Minor bug fixes and improvements
