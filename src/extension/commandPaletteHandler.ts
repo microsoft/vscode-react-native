@@ -196,7 +196,11 @@ export class CommandPaletteHandler {
     public static showDevMenu(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                AndroidPlatform.showDevMenu()
+                const runOptions = CommandPaletteHandler.getRunOptions(project, "android");
+                const androidPlatform = new AndroidPlatform(runOptions, {
+                    packager: project.packager,
+                });
+                androidPlatform.showDevMenu()
                     .catch(() => { }); // Ignore any errors
                 IOSPlatform.showDevMenu(project.workspaceFolder.uri.fsPath)
                     .catch(() => { }); // Ignore any errors
@@ -207,7 +211,11 @@ export class CommandPaletteHandler {
     public static reloadApp(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                AndroidPlatform.reloadApp()
+                const runOptions = CommandPaletteHandler.getRunOptions(project, "android");
+                const androidPlatform = new AndroidPlatform(runOptions, {
+                    packager: project.packager,
+                });
+                androidPlatform.reloadApp()
                     .catch(() => { }); // Ignore any errors
                 IOSPlatform.reloadApp(project.workspaceFolder.uri.fsPath)
                     .catch(() => { }); // Ignore any errors
