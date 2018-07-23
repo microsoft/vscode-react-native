@@ -189,6 +189,7 @@ export class AdbHelper {
         }
         const matches = fileContent.match(/^sdk\.dir=(.+)$/m);
         if (!matches || !matches[1]) {
+            logger.info(`No sdk.dir value found in local.properties file. Using Android SDK location from PATH.`);
             return null;
         }
 
