@@ -45,8 +45,6 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
     private static RUN_ANDROID_SUCCESS_PATTERNS: string[] = ["BUILD SUCCESSFUL", "Starting the app", "Starting: Intent"];
 
-    private static platformToolsDirectory: string | null;
-
     private debugTarget: IDevice;
     private devices: IDevice[];
     private packageName: string;
@@ -156,14 +154,6 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         }
 
         return runArguments;
-    }
-
-    public static getPlatformToolsDirectory() {
-        if (!this.platformToolsDirectory) {
-
-        }
-
-        return this.platformToolsDirectory;
     }
 
     private initializeTargetDevicesAndPackageName(): Q.Promise<void> {
