@@ -61,7 +61,7 @@ export class AdbHelper {
      * Gets the list of Android connected devices and emulators.
      */
     public getConnectedDevices(): Q.Promise<IDevice[]> {
-        return this.childProcess.execToString("adb devices")
+        return this.childProcess.execToString(`${this.adbExecutable} devices`)
             .then(output => {
                 return this.parseConnectedDevices(output);
             });
