@@ -4,11 +4,10 @@
 import * as Q from "q";
 
 import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
-import {CommandExecutor} from "../../common/commandExecutor";
+import { CommandExecutor } from "../../common/commandExecutor";
 import * as path from "path";
-import { FileSystem } from "../../common/node/fileSystem";
+import * as fs from "fs";
 import { ILogger } from "../log/LogHelper";
-const fs = new FileSystem();
 
 // See android versions usage at: http://developer.android.com/about/dashboards/index.html
 export enum AndroidAPILevel {
@@ -49,7 +48,7 @@ export class AdbHelper {
     private commandExecutor: CommandExecutor = new CommandExecutor();
     private adbExecutable: string = "";
 
-    constructor(projectRoot: string, logger: ILogger) {
+    constructor(projectRoot: string, logger?: ILogger) {
 
         // Trying to read sdk location from local.properties file and if we succueded then
         // we would run adb from inside it, otherwise we would rely to PATH
@@ -172,29 +171,37 @@ export class AdbHelper {
         return `${this.adbExecutable} -s "${deviceId}" ${adbCommand}`;
     }
 
-    private getSdkLocationFromLocalPropertiesFile(projectRoot: string, logger: ILogger): string | null {
+    private getSdkLocationFromLocalPropertiesFile(projectRoot: string, logger?: ILogger): string | null {
         const localPropertiesFilePath = path.join(projectRoot, "android", "local.properties");
         if (!fs.existsSync(localPropertiesFilePath)) {
-            logger.info(`local.properties file doesn't exist. Using Android SDK location from PATH.`);
+            if (logger) {
+                logger.info(`local.properties file doesn't exist. Using Android SDK location from PATH.`);
+            }
             return null;
         }
 
         let fileContent;
         try {
-            fileContent = fs.readFileSync(localPropertiesFilePath);
+            fileContent = fs.readFileSync(localPropertiesFilePath).toString();
         } catch (e) {
-            logger.error(`Could read from ${localPropertiesFilePath}.`, e, e.stack);
-            logger.info(`Using Android SDK location from PATH.`);
+            if (logger) {
+                logger.error(`Could read from ${localPropertiesFilePath}.`, e, e.stack);
+                logger.info(`Using Android SDK location from PATH.`);
+            }
             return null;
         }
         const matches = fileContent.match(/^sdk\.dir=(.+)$/m);
         if (!matches || !matches[1]) {
-            logger.info(`No sdk.dir value found in local.properties file. Using Android SDK location from PATH.`);
+            if (logger) {
+                logger.info(`No sdk.dir value found in local.properties file. Using Android SDK location from PATH.`);
+            }
             return null;
         }
 
         const sdkLocation = matches[1].trim();
-        logger.info(`Using Android SDK location defined in android/local.properties file: ${sdkLocation}.`);
+        if (logger) {
+            logger.info(`Using Android SDK location defined in android/local.properties file: ${sdkLocation}.`);
+        }
 
         return sdkLocation;
     }

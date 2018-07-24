@@ -123,10 +123,6 @@ export class FileSystem {
         return Q.nfcall<string>(this.fs.readFile, filename, encoding);
     }
 
-    public readFileSync(filename: string, encoding: string = "utf8"): string {
-        return this.fs.readFileSync(filename, encoding);
-    }
-
     public writeFile(filename: string, data: any): Q.Promise<void> {
         return Q.nfcall<void>(this.fs.writeFile, filename, data);
     }
