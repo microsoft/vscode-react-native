@@ -18,6 +18,7 @@ import * as rnHelper from "../../../src/common/reactNativeProjectHelper";
 import "should";
 import * as sinon from "sinon";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
+import { NullLogger } from "../../../src/extension/log/NullLogger";
 
 // TODO: Launch the extension server
 
@@ -36,6 +37,7 @@ suite("androidPlatform", function () {
         let androidPlatform: AndroidPlatform;
         let sandbox: Sinon.SinonSandbox;
         let devices: any;
+        let adbHelper: adb.AdbHelper;
 
         function createAndroidPlatform(runOptions: IAndroidRunOptions): AndroidPlatform {
             return new AndroidPlatform(runOptions);
@@ -61,7 +63,9 @@ suite("androidPlatform", function () {
                 return Q.resolve("0.0.1");
             });
 
-            sandbox.stub(adb.AdbHelper, "launchApp", function (projectRoot_: string, packageName: string, debugTarget?: string) {
+            adbHelper = new adb.AdbHelper("", new NullLogger());
+
+            sandbox.stub(adbHelper, "launchApp", function (projectRoot_: string, packageName: string, debugTarget?: string) {
                 devices = devices.map((device: any) => {
                     if (!debugTarget) {
                         device.installedApplications[androidPackageName] = { isInDebugMode: false };
@@ -76,20 +80,22 @@ suite("androidPlatform", function () {
 
                 return Q.resolve(void 0);
             });
-            sandbox.stub(adb.AdbHelper, "getConnectedDevices", function () {
+            sandbox.stub(adbHelper, "getConnectedDevices", function () {
                 return Q.resolve(devices);
             });
-            sandbox.stub(adb.AdbHelper, "getOnlineDevices", function () {
+            sandbox.stub(adbHelper, "getOnlineDevices", function () {
                 return Q.resolve(devices.filter((device: any) => {
                     return device.isOnline;
                 }));
             });
-            sandbox.stub(adb.AdbHelper, "apiVersion", function () {
+            sandbox.stub(adbHelper, "apiVersion", function () {
                 return Q.resolve(adb.AndroidAPILevel.LOLLIPOP);
             });
-            sandbox.stub(adb.AdbHelper, "reverseAdb", function () {
+            sandbox.stub(adbHelper, "reverseAdb", function () {
                 return Q.resolve(void 0);
             });
+
+            androidPlatform.setAdbHelper(adbHelper);
 
             sandbox.stub(reactNative, "installAppInDevice", function (deviceId: string) {
                 devices = devices.map((device: any)  => {

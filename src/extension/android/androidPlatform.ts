@@ -79,6 +79,11 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         this.adbHelper = new AdbHelper(this.runOptions.projectRoot, this.logger);
     }
 
+    // TODO: remove this method when sinon will be updated to upper version. Now it is used for tests only.
+    public setAdbHelper(adbHelper: AdbHelper) {
+        this.adbHelper = adbHelper;
+    }
+
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {
         const extProps = {
             platform: {
