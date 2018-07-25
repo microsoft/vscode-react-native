@@ -36,6 +36,7 @@ suite("androidPlatform", function () {
         let androidPlatform: AndroidPlatform;
         let sandbox: Sinon.SinonSandbox;
         let devices: any;
+        let adbHelper: adb.AdbHelper;
 
         function createAndroidPlatform(runOptions: IAndroidRunOptions): AndroidPlatform {
             return new AndroidPlatform(runOptions);
@@ -47,21 +48,9 @@ suite("androidPlatform", function () {
 
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
-            reactNative = new ReactNative022(fileSystem);
 
-            sandbox.stub(SettingsHelper, "getReactNativeProjectRoot", () => projectRoot);
-
-            androidPlatform = createAndroidPlatform(genericRunOptions);
-
-            sandbox.stub(CommandExecutor.prototype, "spawnReactCommand", function () {
-                return reactNative.runAndroid(genericRunOptions);
-            });
-
-            sandbox.stub(rnHelper.ReactNativeProjectHelper, "getReactNativeVersion", function () {
-                return Q.resolve("0.0.1");
-            });
-
-            sandbox.stub(adb.AdbHelper, "launchApp", function (projectRoot_: string, packageName: string, debugTarget?: string) {
+            adbHelper = new adb.AdbHelper(genericRunOptions.projectRoot);
+            sandbox.stub(adbHelper, "launchApp", function (projectRoot_: string, packageName: string, debugTarget?: string) {
                 devices = devices.map((device: any) => {
                     if (!debugTarget) {
                         device.installedApplications[androidPackageName] = { isInDebugMode: false };
@@ -76,20 +65,36 @@ suite("androidPlatform", function () {
 
                 return Q.resolve(void 0);
             });
-            sandbox.stub(adb.AdbHelper, "getConnectedDevices", function () {
+            sandbox.stub(adbHelper, "getConnectedDevices", function () {
                 return Q.resolve(devices);
             });
-            sandbox.stub(adb.AdbHelper, "getOnlineDevices", function () {
+            sandbox.stub(adbHelper, "getOnlineDevices", function () {
                 return Q.resolve(devices.filter((device: any) => {
                     return device.isOnline;
                 }));
             });
-            sandbox.stub(adb.AdbHelper, "apiVersion", function () {
+            sandbox.stub(adbHelper, "apiVersion", function () {
                 return Q.resolve(adb.AndroidAPILevel.LOLLIPOP);
             });
-            sandbox.stub(adb.AdbHelper, "reverseAdb", function () {
+            sandbox.stub(adbHelper, "reverseAdb", function () {
                 return Q.resolve(void 0);
             });
+
+            reactNative = new ReactNative022(fileSystem, adbHelper);
+
+            sandbox.stub(SettingsHelper, "getReactNativeProjectRoot", () => projectRoot);
+
+            androidPlatform = createAndroidPlatform(genericRunOptions);
+
+            sandbox.stub(CommandExecutor.prototype, "spawnReactCommand", function () {
+                return reactNative.runAndroid(genericRunOptions);
+            });
+
+            sandbox.stub(rnHelper.ReactNativeProjectHelper, "getReactNativeVersion", function () {
+                return Q.resolve("0.0.1");
+            });
+
+            androidPlatform.setAdbHelper(adbHelper);
 
             sandbox.stub(reactNative, "installAppInDevice", function (deviceId: string) {
                 devices = devices.map((device: any)  => {
@@ -204,7 +209,9 @@ suite("androidPlatform", function () {
                 return Q({})
                     .then(() => {
                         const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
-                        return createAndroidPlatform(runOptions).runApp();
+                        const platform = createAndroidPlatform(runOptions);
+                        platform.setAdbHelper(adbHelper);
+                        return platform.runApp();
                     }).then(() => {
                         return devices[4].installedApplications[androidPackageName].isInDebugMode === false;
                     }).then((isRunningOnNexus12) => {
@@ -225,7 +232,9 @@ suite("androidPlatform", function () {
                 return Q({})
                     .then(() => {
                         const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
-                        return createAndroidPlatform(runOptions).runApp();
+                        const platform = createAndroidPlatform(runOptions);
+                        platform.setAdbHelper(adbHelper);
+                        return platform.runApp();
                     }).then(() => {
                         return devices.filter((device: any) => device.installedApplications[androidPackageName].isInDebugMode === false);
                     }).then((devicesRunningAppId) => {

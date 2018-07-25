@@ -7,7 +7,7 @@ import * as XDL from "./exponent/xdlInterface";
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
-import {TargetType} from "./generalMobilePlatform";
+import {TargetType, GeneralMobilePlatform} from "./generalMobilePlatform";
 import {AndroidPlatform} from "./android/androidPlatform";
 import {IOSPlatform} from "./ios/iOSPlatform";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
@@ -121,10 +121,7 @@ export class CommandPaletteHandler {
             .then((project: IReactNativeProject) => {
                 TargetPlatformHelper.checkTargetPlatformSupport("android");
                 return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
-                    const runOptions = CommandPaletteHandler.getRunOptions(project, "android", target);
-                    const platform = new AndroidPlatform(runOptions, {
-                        packager: project.packager,
-                    });
+                    const platform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform, target);
                     return platform.beforeStartPackager()
                         .then(() => {
                             return platform.startPackager();
@@ -147,11 +144,7 @@ export class CommandPaletteHandler {
             .then((project: IReactNativeProject) => {
                 TargetPlatformHelper.checkTargetPlatformSupport("ios");
                 return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
-                    const runOptions = CommandPaletteHandler.getRunOptions(project, "ios", target);
-                    const platform = new IOSPlatform(runOptions, {
-                        packager: project.packager,
-                    });
-
+                    const platform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform, target);
                     return platform.beforeStartPackager()
                         .then(() => {
                             return platform.startPackager();
@@ -177,10 +170,7 @@ export class CommandPaletteHandler {
                 return this.loginToExponent(project)
                     .then(() => {
                         return this.executeCommandInContext("runExponent", project.workspaceFolder, () => {
-                            const runOptions = CommandPaletteHandler.getRunOptions(project, "exponent");
-                            const platform = new ExponentPlatform(runOptions, {
-                                packager: project.packager,
-                            });
+                            const platform = <ExponentPlatform>this.createPlatform(project, "exponent", ExponentPlatform);
                             return platform.beforeStartPackager()
                                 .then(() => {
                                     return platform.startPackager();
@@ -196,9 +186,11 @@ export class CommandPaletteHandler {
     public static showDevMenu(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                AndroidPlatform.showDevMenu()
+                const androidPlatform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform);
+                androidPlatform.showDevMenu()
                     .catch(() => { }); // Ignore any errors
-                IOSPlatform.showDevMenu(project.workspaceFolder.uri.fsPath)
+                const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
+                iosPlatform.showDevMenu()
                     .catch(() => { }); // Ignore any errors
                 return Q.resolve(void 0);
             });
@@ -207,9 +199,11 @@ export class CommandPaletteHandler {
     public static reloadApp(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                AndroidPlatform.reloadApp()
+                const androidPlatform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform);
+                androidPlatform.reloadApp()
                     .catch(() => { }); // Ignore any errors
-                IOSPlatform.reloadApp(project.workspaceFolder.uri.fsPath)
+                const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
+                iosPlatform.reloadApp()
                     .catch(() => { }); // Ignore any errors
                 return Q.resolve(void 0);
             });
@@ -231,6 +225,13 @@ export class CommandPaletteHandler {
         }
 
         return "";
+    }
+
+    private static createPlatform(project: IReactNativeProject, platform: "ios" | "android" | "exponent", platformClass: typeof GeneralMobilePlatform, target?: TargetType): GeneralMobilePlatform {
+        const runOptions = CommandPaletteHandler.getRunOptions(project, platform, target);
+        return new platformClass(runOptions, {
+            packager: project.packager,
+        });
     }
 
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {
