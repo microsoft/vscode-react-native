@@ -18,7 +18,6 @@ import * as rnHelper from "../../../src/common/reactNativeProjectHelper";
 import "should";
 import * as sinon from "sinon";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
-import { NullLogger } from "../../../src/extension/log/NullLogger";
 
 // TODO: Launch the extension server
 
@@ -49,22 +48,8 @@ suite("androidPlatform", function () {
 
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
-            reactNative = new ReactNative022(fileSystem);
 
-            sandbox.stub(SettingsHelper, "getReactNativeProjectRoot", () => projectRoot);
-
-            androidPlatform = createAndroidPlatform(genericRunOptions);
-
-            sandbox.stub(CommandExecutor.prototype, "spawnReactCommand", function () {
-                return reactNative.runAndroid(genericRunOptions);
-            });
-
-            sandbox.stub(rnHelper.ReactNativeProjectHelper, "getReactNativeVersion", function () {
-                return Q.resolve("0.0.1");
-            });
-
-            adbHelper = new adb.AdbHelper("", new NullLogger());
-
+            adbHelper = new adb.AdbHelper(genericRunOptions.projectRoot);
             sandbox.stub(adbHelper, "launchApp", function (projectRoot_: string, packageName: string, debugTarget?: string) {
                 devices = devices.map((device: any) => {
                     if (!debugTarget) {
@@ -93,6 +78,20 @@ suite("androidPlatform", function () {
             });
             sandbox.stub(adbHelper, "reverseAdb", function () {
                 return Q.resolve(void 0);
+            });
+
+            reactNative = new ReactNative022(fileSystem, adbHelper);
+
+            sandbox.stub(SettingsHelper, "getReactNativeProjectRoot", () => projectRoot);
+
+            androidPlatform = createAndroidPlatform(genericRunOptions);
+
+            sandbox.stub(CommandExecutor.prototype, "spawnReactCommand", function () {
+                return reactNative.runAndroid(genericRunOptions);
+            });
+
+            sandbox.stub(rnHelper.ReactNativeProjectHelper, "getReactNativeVersion", function () {
+                return Q.resolve("0.0.1");
             });
 
             androidPlatform.setAdbHelper(adbHelper);
@@ -210,7 +209,9 @@ suite("androidPlatform", function () {
                 return Q({})
                     .then(() => {
                         const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
-                        return createAndroidPlatform(runOptions).runApp();
+                        const platform = createAndroidPlatform(runOptions);
+                        platform.setAdbHelper(adbHelper);
+                        return platform.runApp();
                     }).then(() => {
                         return devices[4].installedApplications[androidPackageName].isInDebugMode === false;
                     }).then((isRunningOnNexus12) => {
@@ -231,7 +232,9 @@ suite("androidPlatform", function () {
                 return Q({})
                     .then(() => {
                         const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
-                        return createAndroidPlatform(runOptions).runApp();
+                        const platform = createAndroidPlatform(runOptions);
+                        platform.setAdbHelper(adbHelper);
+                        return platform.runApp();
                     }).then(() => {
                         return devices.filter((device: any) => device.installedApplications[androidPackageName].isInDebugMode === false);
                     }).then((devicesRunningAppId) => {

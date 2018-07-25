@@ -50,7 +50,7 @@ export class ReactNative022 {
     private projectRoot: string;
     private androidAPKPath: string;
 
-    constructor(private fileSystem: FileSystem) {
+    constructor(private fileSystem: FileSystem, private adbHelper: AdbHelper) {
         assert(this.fileSystem, "fileSystem shouldn't be null");
     }
 
@@ -133,7 +133,7 @@ export class ReactNative022 {
     }
 
     private installAppInAllDevices(): Q.Promise<void> {
-        let devices = new AdbHelper(this.projectRoot).getConnectedDevices();
+        let devices = this.adbHelper.getConnectedDevices();
         return new PromiseUtil().reduce(devices, device => this.installAppInDevice(device.id));
     }
 
@@ -164,7 +164,7 @@ export class ReactNative022 {
         const matches = stdout.match(new RegExp(succesfulOutputEnd));
         if (matches) {
             if (matches.length === 3 && matches[1] === this.androidPackageName && matches[2] === this.androidPackageName) {
-                return new AdbHelper(this.projectRoot).launchApp(this.projectRoot, this.androidPackageName);
+                return this.adbHelper.launchApp(this.projectRoot, this.androidPackageName);
             } else {
                 return Q.reject<void>(new Error("There was an error while trying to match the Starting the app messages."
                     + "Expected to match the pattern and recognize the expected android package name, but it failed."
