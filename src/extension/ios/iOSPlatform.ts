@@ -42,12 +42,12 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
-    public showDevMenu(fsPath: string, deviceId?: string): Q.Promise<void> {
-        return IOSPlatform.remote(fsPath).showDevMenu(deviceId);
+    public showDevMenu(deviceId?: string): Q.Promise<void> {
+        return IOSPlatform.remote(this.runOptions.projectRoot).showDevMenu(deviceId);
     }
 
-    public reloadApp(fsPath: string, deviceId?: string): Q.Promise<void> {
-        return IOSPlatform.remote(fsPath).reloadApp(deviceId);
+    public reloadApp(deviceId?: string): Q.Promise<void> {
+        return IOSPlatform.remote(this.runOptions.projectRoot).reloadApp(deviceId);
     }
 
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {

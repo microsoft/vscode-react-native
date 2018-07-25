@@ -190,7 +190,7 @@ export class CommandPaletteHandler {
                 androidPlatform.showDevMenu()
                     .catch(() => { }); // Ignore any errors
                 const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
-                iosPlatform.showDevMenu(project.workspaceFolder.uri.fsPath)
+                iosPlatform.showDevMenu()
                     .catch(() => { }); // Ignore any errors
                 return Q.resolve(void 0);
             });
@@ -203,7 +203,7 @@ export class CommandPaletteHandler {
                 androidPlatform.reloadApp()
                     .catch(() => { }); // Ignore any errors
                 const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
-                iosPlatform.reloadApp(project.workspaceFolder.uri.fsPath)
+                iosPlatform.reloadApp()
                     .catch(() => { }); // Ignore any errors
                 return Q.resolve(void 0);
             });
