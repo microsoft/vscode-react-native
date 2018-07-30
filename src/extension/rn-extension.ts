@@ -45,7 +45,7 @@ interface ISetupableDisposable extends vscode.Disposable {
 }
 
 export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
-    outputChannelLogger.debug("Begin activate...");
+    outputChannelLogger.debug("Begin to activate...");
     const appVersion = require(path.resolve(__dirname, "../../package.json")).version;
     outputChannelLogger.debug(`Extension version: ${appVersion}`);
     const ExtensionTelemetryReporter = require("vscode-extension-telemetry").default;
@@ -66,7 +66,7 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
                 promises.push(onFolderAdded(context, folder));
             });
         } else {
-            outputChannelLogger.warning("Could not found workspace while activate");
+            outputChannelLogger.warning("Could not found workspace while activating");
         }
 
         return Q.all(promises).then(() => {
@@ -140,7 +140,7 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                         return configureNodeDebuggerLocation();
                     }));
             } else {
-                outputChannelLogger.debug(`Version doesn't support: ${version}`);
+                outputChannelLogger.debug(`react-native@${version} isn't supported`);
             }
 
             return Q.all(promises).then(() => {});
@@ -154,7 +154,7 @@ function onFolderRemoved(context: vscode.ExtensionContext, folder: vscode.Worksp
             project[key].dispose();
         }
     });
-    outputChannelLogger.debug(`Delete project:\n\t${folder.uri.fsPath}`);
+    outputChannelLogger.debug(`Delete project: ${folder.uri.fsPath}`);
     CommandPaletteHandler.delFolder(folder);
 
     try { // Preventing memory leaks
