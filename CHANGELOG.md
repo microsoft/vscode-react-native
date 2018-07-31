@@ -1,3 +1,7 @@
+## 0.6.14
+* Addded reading SDK location from `local.properties`
+* Bug fixes and improvements
+
 ## 0.6.13
 * Fixed "Inverified breakpoint" error while debugging apps with RN >= 0.54.3 < 0.55
 * Fixed issue with ignoring getAssetExts() in rn-cli.config.js during debugging
