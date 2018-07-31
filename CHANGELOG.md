@@ -1,5 +1,5 @@
 ## 0.6.14
-* Addded reading SDK location from `local.properties`
+* Added reading SDK location from `local.properties`
 * Bug fixes and improvements
 
 ## 0.6.13
