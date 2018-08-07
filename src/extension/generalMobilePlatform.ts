@@ -26,9 +26,12 @@ export class GeneralMobilePlatform {
     protected static simulatorString: TargetType = "simulator";
     protected static NO_PACKAGER_VERSION = "0.42.0";
 
+    public runArguments: string[];
+
     constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
+        this.runArguments = this.getRunArguments();
         this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator());
         this.logger = OutputChannelLogger.getChannel(`React Native: Run ${this.platformName}`, true);
         this.logger.clear();
@@ -76,8 +79,8 @@ export class GeneralMobilePlatform {
         return Q.resolve<void>(void 0);
     }
 
-    public getRunArgument(): string[] {
-        throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArgument");
+    protected getRunArguments(): string[] {
+        throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArguments");
     }
 
     public getEnvArgument(): any {
