@@ -21,21 +21,21 @@ export class PlistBuddy {
 
     public getBundleId(projectRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string): Q.Promise<string> {
         const productsFolder = path.join(projectRoot, "build", "Build", "Products");
-        const configutationFolder = path.join(productsFolder, `${configuration}${simulator ? "-iphonesimulator" : "-iphoneos"}`);
+        const configurationFolder = path.join(productsFolder, `${configuration}${simulator ? "-iphonesimulator" : "-iphoneos"}`);
         let executable = "";
         if (productName) {
             executable = `${productName}.app`;
         } else {
-            const executableList = this.findExecutable(configutationFolder);
+            const executableList = this.findExecutable(configurationFolder);
             if (!executableList.length) {
-                throw new Error(`Could not found executable in ${configutationFolder}`);
+                throw new Error(`Could not found executable in ${configurationFolder}`);
             } else if (executableList.length > 1) {
-                throw new Error(`Found more than one executables in ${configutationFolder}. Please cleanup build folder or setup 'productName' launch option.`);
+                throw new Error(`Found more than one executables in ${configurationFolder}. Please cleanup build folder or setup 'productName' launch option.`);
             }
             executable = `${executableList[0]}`;
         }
 
-        const infoPlistPath = path.join(configutationFolder, executable, "Info.plist");
+        const infoPlistPath = path.join(configurationFolder, executable, "Info.plist");
         return this.invokePlistBuddy("Print:CFBundleIdentifier", infoPlistPath);
 
     }
