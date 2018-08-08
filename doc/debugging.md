@@ -4,7 +4,7 @@ Once you have set up a `launch.json` file with default configurations, you can m
 
 ![React Native launch configuration file](../images/launch-config.png)
 
-For example, you can modify the `target` field to specify the simulator you want to target for iOS debugging or the device is as output from `adb devices`.
+For example, you can modify the `target` field to specify the simulator you want to target for iOS debugging or the device using the one from output of `adb devices` command for Android debugging.
 
 ## Debugging with TypeScript and Haul
 
