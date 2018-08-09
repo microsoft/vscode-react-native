@@ -53,11 +53,9 @@ export class IOSPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
 
-        if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
-            this.logger.warning("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
-        }
+        let iosRelativeProjectPath = this.getOptFromRunArgs("--package-path");
 
-        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
+        this.iosProjectRoot = path.join(this.projectPath, iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
         this.iosDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot);
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
@@ -167,10 +165,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 } else {
                     runArguments.push("--simulator", `${this.runOptions.target}`);
                 }
-            }
-
-            if (this.runOptions.iosRelativeProjectPath) {
-                runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath);
             }
 
             // provide any defined scheme
