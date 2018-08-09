@@ -84,7 +84,7 @@ suite("plistBuddy", function() {
 
             return Q.all([
                 plistBuddy.getBundleId(projectRoot, true, "Debug", appName),
-                plistBuddy.getBundleId(projectRoot, false, "Debug", appName),
+                plistBuddy.getBundleId(projectRoot, false, undefined, appName),
             ]).spread((simulatorId, deviceId) => {
                 assert.equal(simulatorBundleId, simulatorId);
                 assert.equal(deviceBundleId, deviceId);

@@ -27,6 +27,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private iosProjectRoot: string;
     private iosDebugModeManager: IOSDebugModeManager;
 
+    private defaultConfiguration: string = "Debug";
+    private configurationArgumentName: string = "--configuration";
 
     // We should add the common iOS build/run errors we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
@@ -53,9 +55,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
 
-        const configurationIdx = this.runArguments.indexOf("--configuration");
-        const configuration = configurationIdx > -1 ? this.runArguments[configurationIdx + 1] : "";
-        this.runOptions.configuration = configuration;
+
+        this.runOptions.configuration = this.getConfiguration();
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
             this.logger.warning("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
@@ -191,6 +192,26 @@ export class IOSPlatform extends GeneralMobilePlatform {
             this.getBundleId()
                 .then(bundleId => IOSPlatform.RUN_IOS_SUCCESS_PATTERNS
                     .concat([`Launching ${bundleId}\n${bundleId}: `]));
+    }
+
+    private getConfiguration(): string {
+        if (this.runArguments.length === 0) {
+            return this.defaultConfiguration;
+        } else {
+            const configurationIdx = this.runArguments.indexOf(this.configurationArgumentName);
+            if (configurationIdx > -1) {
+                return this.runArguments[configurationIdx + 1];
+            } else {
+                for (let i = 0; i < this.runArguments.length; i++) {
+                    const arg = this.runArguments[i];
+                    if (arg.indexOf(this.configurationArgumentName) > -1) {
+                        return arg.split("=")[1].trim() || this.defaultConfiguration;
+                    }
+                }
+            }
+        }
+
+        return this.defaultConfiguration;
     }
 
     private getBundleId(): Q.Promise<string> {
