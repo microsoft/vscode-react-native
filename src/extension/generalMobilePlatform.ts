@@ -95,8 +95,8 @@ export class GeneralMobilePlatform {
                 }
             }
 
-            if (result instanceof Boolean) {
-                return result;
+            if (binary) {
+                return !!result;
             }
 
             if (result) {
