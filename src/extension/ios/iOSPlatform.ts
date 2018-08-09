@@ -195,23 +195,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private getConfiguration(): string {
-        if (this.runArguments.length === 0) {
-            return this.defaultConfiguration;
-        } else {
-            const configurationIdx = this.runArguments.indexOf(this.configurationArgumentName);
-            if (configurationIdx > -1) {
-                return this.runArguments[configurationIdx + 1];
-            } else {
-                for (let i = 0; i < this.runArguments.length; i++) {
-                    const arg = this.runArguments[i];
-                    if (arg.indexOf(this.configurationArgumentName) > -1) {
-                        return arg.split("=")[1].trim() || this.defaultConfiguration;
-                    }
-                }
-            }
-        }
-
-        return this.defaultConfiguration;
+        return this.getOptFromRunArgs(this.configurationArgumentName) || this.defaultConfiguration;
     }
 
     private getBundleId(): Q.Promise<string> {
