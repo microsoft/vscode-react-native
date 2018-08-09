@@ -95,11 +95,11 @@ export class GeneralMobilePlatform {
                 }
             }
 
-            if (binary) {
-                return !!result;
-            }
-
             if (result) {
+                if (binary) {
+                    return !!result;
+                }
+
                 try {
                     return JSON.parse(result);
                 } catch (err) {
