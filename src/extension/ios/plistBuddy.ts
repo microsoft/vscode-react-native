@@ -3,33 +3,41 @@
 
 import * as path from "path";
 import * as Q from "q";
+import * as glob from "glob";
 
 import {Node} from "../../common/node/node";
 import {ChildProcess} from "../../common/node/childProcess";
-import {Xcodeproj, IXcodeProjFile} from "./xcodeproj";
 
 export class PlistBuddy {
     private static plistBuddyExecutable = "/usr/libexec/PlistBuddy";
 
     private nodeChildProcess: ChildProcess;
-    private xcodeproj: Xcodeproj;
 
     constructor({
         nodeChildProcess = new Node.ChildProcess(),
-        xcodeproj = new Xcodeproj(),
     } = {}) {
         this.nodeChildProcess = nodeChildProcess;
-        this.xcodeproj = xcodeproj;
     }
 
-    public getBundleId(projectRoot: string, simulator: boolean = true): Q.Promise<string> {
-        return this.xcodeproj.findXcodeprojFile(projectRoot).then((projectFile: IXcodeProjFile) => {
-            const infoPlistPath = path.join(projectRoot, "build", "Build", "Products",
-                simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
-                `${projectFile.projectName}.app`, "Info.plist");
+    public getBundleId(projectRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string): Q.Promise<string> {
+        const productsFolder = path.join(projectRoot, "build", "Build", "Products");
+        const configurationFolder = path.join(productsFolder, `${configuration}${simulator ? "-iphonesimulator" : "-iphoneos"}`);
+        let executable = "";
+        if (productName) {
+            executable = `${productName}.app`;
+        } else {
+            const executableList = this.findExecutable(configurationFolder);
+            if (!executableList.length) {
+                throw new Error(`Could not found executable in ${configurationFolder}`);
+            } else if (executableList.length > 1) {
+                throw new Error(`Found more than one executables in ${configurationFolder}. Please cleanup build folder or setup 'productName' launch option.`);
+            }
+            executable = `${executableList[0]}`;
+        }
 
-            return this.invokePlistBuddy("Print:CFBundleIdentifier", infoPlistPath);
-        });
+        const infoPlistPath = path.join(configurationFolder, executable, "Info.plist");
+        return this.invokePlistBuddy("Print:CFBundleIdentifier", infoPlistPath);
+
     }
 
     public setPlistProperty(plistFile: string, property: string, value: string): Q.Promise<void> {
@@ -54,6 +62,12 @@ export class PlistBuddy {
 
     public readPlistProperty(plistFile: string, property: string): Q.Promise<string> {
         return this.invokePlistBuddy(`Print ${property}`, plistFile);
+    }
+
+    private findExecutable(folder: string): string[] {
+        return glob.sync("*.app", {
+            cwd: folder,
+        });
     }
 
     private invokePlistBuddy(command: string, plistFile: string): Q.Promise<string> {
