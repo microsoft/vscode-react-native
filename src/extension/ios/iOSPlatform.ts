@@ -55,16 +55,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
 
-<<<<<<< HEAD
         let iosRelativeProjectPath = this.getOptFromRunArgs("--package-path");
-=======
-
-        this.runOptions.configuration = this.getConfiguration();
-
-        if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
-            this.logger.warning("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
-        }
->>>>>>> 3e313f6f67947ce34ff732411733f8750203f316
 
         this.iosProjectRoot = path.join(this.projectPath, iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
         this.iosDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot);

@@ -28,12 +28,8 @@ export interface IAndroidRunOptions extends ILaunchArgs {
 
 export interface IIOSRunOptions extends ILaunchArgs {
     scheme?: string;
-<<<<<<< HEAD
-=======
-    iosRelativeProjectPath?: string; // TODO Remove deprecated
     productName?: string;
     configuration?: string;
->>>>>>> 3e313f6f67947ce34ff732411733f8750203f316
 }
 
 export interface IWindowsRunOptions extends ILaunchArgs {
