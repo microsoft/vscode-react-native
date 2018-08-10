@@ -93,4 +93,8 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         this.logger.info("Application is running on Exponent. Please shake device and select 'Debug JS Remotely' to enable debugging.");
         return Q.resolve<void>(void 0);
     }
+
+    protected getRunArguments(): string[] {
+        return [];
+    }
 }
