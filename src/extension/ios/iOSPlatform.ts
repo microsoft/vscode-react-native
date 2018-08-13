@@ -55,6 +55,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
 
+        this.runOptions.configuration = this.getConfiguration();
+
         let iosRelativeProjectPath = this.getOptFromRunArgs("--package-path");
 
         this.iosProjectRoot = path.join(this.projectPath, iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
