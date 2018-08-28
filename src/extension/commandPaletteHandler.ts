@@ -35,7 +35,6 @@ export class CommandPaletteHandler {
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     public static addFolder(workspaceFolder: vscode.WorkspaceFolder, stuff: IReactNativeStuff): void {
-        this.logger.debug(`Command palette: added folder ${workspaceFolder.uri.fsPath}`);
         this.projectsCache[workspaceFolder.uri.fsPath] = {
             ...stuff,
             workspaceFolder,
@@ -255,21 +254,19 @@ export class CommandPaletteHandler {
         return TelemetryHelper.generate("RNCommand", extProps, (generator) => {
             generator.add("command", rnCommand, false);
             const projectRoot = SettingsHelper.getReactNativeProjectRoot(workspaceFolder.uri.fsPath);
-            this.logger.debug(`Command palette: run project ${projectRoot} in context`);
-            return ReactNativeProjectHelper.isReactNativeProject(projectRoot)
-                .then(isRNProject => {
-                    generator.add("isRNProject", isRNProject, false);
-                    if (isRNProject) {
-                        // Bring the log channel to focus
-                        this.logger.setFocusOnLogChannel();
+            return ReactNativeProjectHelper.isReactNativeProject(projectRoot).then(isRNProject => {
+                generator.add("isRNProject", isRNProject, false);
+                if (isRNProject) {
+                    // Bring the log channel to focus
+                    CommandPaletteHandler.logger.setFocusOnLogChannel();
 
-                        // Execute the operation
-                        return operation();
-                    } else {
-                        vscode.window.showErrorMessage(`${projectRoot} workspace is not a React Native project.`);
-                        return;
-                    }
-                });
+                    // Execute the operation
+                    return operation();
+                } else {
+                    vscode.window.showErrorMessage("Current workspace is not a React Native project.");
+                    return;
+                }
+            });
         });
     }
 
@@ -328,16 +325,14 @@ export class CommandPaletteHandler {
                 vscode.window.showQuickPick(keys)
                     .then((selected) => {
                         if (selected) {
-                            this.logger.debug(`Command palette: selected project ${selected}`);
                             resolve(this.projectsCache[selected]);
                         }
                     }, reject);
             });
         } else if (keys.length === 1) {
-            this.logger.debug(`Command palette: once project ${keys[0]}`);
             return Q.resolve(this.projectsCache[keys[0]]);
         } else {
-            return Q.reject(new Error("Current workspace does not contain React Native projects."));
+            return Q.reject(new Error("Current workspace is not a React Native project."));
         }
     }
 
