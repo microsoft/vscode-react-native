@@ -27,8 +27,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private iosProjectRoot: string;
     private iosDebugModeManager: IOSDebugModeManager;
 
-    private defaultConfiguration: string = "Debug";
-    private configurationArgumentName: string = "--configuration";
 
     // We should add the common iOS build/run errors we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
@@ -44,18 +42,16 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
-    public showDevMenu(deviceId?: string): Q.Promise<void> {
-        return IOSPlatform.remote(this.runOptions.projectRoot).showDevMenu(deviceId);
+    public static showDevMenu(fsPath: string, deviceId?: string): Q.Promise<void> {
+        return this.remote(fsPath).showDevMenu(deviceId);
     }
 
-    public reloadApp(deviceId?: string): Q.Promise<void> {
-        return IOSPlatform.remote(this.runOptions.projectRoot).reloadApp(deviceId);
+    public static reloadApp(fsPath: string, deviceId?: string): Q.Promise<void> {
+        return this.remote(fsPath).reloadApp(deviceId);
     }
 
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
-
-        this.runOptions.configuration = this.getConfiguration();
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
             this.logger.warning("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
@@ -64,8 +60,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
         this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
         this.iosDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot);
 
-        if (this.runArguments && this.runArguments.length > 0) {
-            this.targetType = (this.runArguments.indexOf(`--${IOSPlatform.deviceString}`) >= 0) ?
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
+            this.targetType = (this.runOptions.runArguments.indexOf(`--${IOSPlatform.deviceString}`) >= 0) ?
                 IOSPlatform.deviceString : IOSPlatform.simulatorString;
             return;
         }
@@ -90,14 +86,15 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
         return TelemetryHelper.generate("iOSPlatform.runApp", extProps, () => {
             // Compile, deploy, and launch the app on either a simulator or a device
+            const runArguments = this.getRunArgument();
             const env = this.getEnvArgument();
 
             return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
                 .then(version => {
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
-                        this.runArguments.push("--no-packager");
+                        runArguments.push("--no-packager");
                     }
-                    const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", this.runArguments, {env});
+                    const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", runArguments, {env});
                     return new OutputVerifier(() => this.generateSuccessPatterns(), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
                         .process(runIosSpawn);
                 });
@@ -114,7 +111,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
         // Wait until the configuration file exists, and check to see if debugging is enabled
         return Q.all<boolean | string>([
-            this.iosDebugModeManager.getSimulatorRemoteDebuggingSetting(this.runOptions.configuration, this.runOptions.productName),
+            this.iosDebugModeManager.getSimulatorRemoteDebuggingSetting(),
             this.getBundleId(),
         ])
             .spread((debugModeEnabled: boolean, bundleId: string) => {
@@ -139,7 +136,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     })
                     .then(() => {
                         // Write to the settings file while the app is not running to avoid races
-                        return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ true, this.runOptions.configuration, this.runOptions.productName);
+                        return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ true);
                     })
                     .then(() => {
                         // Relaunch the app
@@ -149,14 +146,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     public disableJSDebuggingMode(): Q.Promise<void> {
-        return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ false, this.runOptions.configuration, this.runOptions.productName);
+        return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ false);
     }
 
     public prewarmBundleCache(): Q.Promise<void> {
         return this.packager.prewarmBundleCache("ios");
     }
 
-    protected getRunArguments(): string[] {
+    public getRunArgument(): string[] {
         let runArguments: string[] = [];
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
@@ -193,12 +190,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     .concat([`Launching ${bundleId}\n${bundleId}: `]));
     }
 
-    private getConfiguration(): string {
-        return this.getOptFromRunArgs(this.configurationArgumentName) || this.defaultConfiguration;
-    }
-
     private getBundleId(): Q.Promise<string> {
-        return this.plistBuddy.getBundleId(this.iosProjectRoot, true, this.runOptions.configuration, this.runOptions.productName);
+        return this.plistBuddy.getBundleId(this.iosProjectRoot);
     }
 
     private static remote(fsPath: string): RemoteExtension {

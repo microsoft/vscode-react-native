@@ -45,9 +45,7 @@ interface ISetupableDisposable extends vscode.Disposable {
 }
 
 export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
-    outputChannelLogger.debug("Begin to activate...");
-    const appVersion = require(path.resolve(__dirname, "../../package.json")).version;
-    outputChannelLogger.debug(`Extension version: ${appVersion}`);
+    const appVersion = <string>require("../../package.json").version;
     const ExtensionTelemetryReporter = require("vscode-extension-telemetry").default;
     const reporter = new ExtensionTelemetryReporter(APP_NAME, appVersion, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY);
     return entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, function activateRunApp() {
@@ -61,12 +59,9 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
         const workspaceFolders: vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
         let promises: any = [];
         if (workspaceFolders) {
-            outputChannelLogger.debug(`Projects found: ${workspaceFolders.length}`);
             workspaceFolders.forEach((folder: vscode.WorkspaceFolder) => {
                 promises.push(onFolderAdded(context, folder));
             });
-        } else {
-            outputChannelLogger.warning("Could not found workspace while activating");
         }
 
         return Q.all(promises).then(() => {
@@ -110,10 +105,8 @@ function onChangeConfiguration(context: vscode.ExtensionContext) {
 function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder): Q.Promise<void> {
     let rootPath = folder.uri.fsPath;
     let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
-    outputChannelLogger.debug(`Add project: ${projectRootPath}`);
     return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath)
         .then(version => {
-            outputChannelLogger.debug(`React Native version: ${version}`);
             let promises = [];
             if (version && isSupportedVersion(version)) {
                 promises.push(entryPointHandler.runFunction("debugger.setupLauncherStub", ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () => {
@@ -139,8 +132,6 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                     ErrorHelper.getInternalError(InternalErrorCode.NodeDebuggerConfigurationFailed), () => {
                         return configureNodeDebuggerLocation();
                     }));
-            } else {
-                outputChannelLogger.debug(`react-native@${version} isn't supported`);
             }
 
             return Q.all(promises).then(() => {});
@@ -154,7 +145,6 @@ function onFolderRemoved(context: vscode.ExtensionContext, folder: vscode.Worksp
             project[key].dispose();
         }
     });
-    outputChannelLogger.debug(`Delete project: ${folder.uri.fsPath}`);
     CommandPaletteHandler.delFolder(folder);
 
     try { // Preventing memory leaks
@@ -221,7 +211,6 @@ function registerVSCodeCommand(context: vscode.ExtensionContext, commandName: st
                 isPii: false,
             },
         };
-        outputChannelLogger.debug(`Run command: ${commandName}`);
         return entryPointHandler.runFunctionWExtProps(`commandPalette.${commandName}`, extProps, error, commandHandler);
     }));
 }
