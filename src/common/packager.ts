@@ -73,29 +73,21 @@ export class Packager {
                                 args = args.concat("--resetCache");
                             }
 
+                            // Arguments below using for Expo apps
+                            args.push("--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode")));
                             let helper = new ExponentHelper(this.workspacePath, this.projectPath);
-
-                            return helper.isExpoApp(false)
-                            .then((isExpo) => {
-                                if (isExpo) {
-                                    // Arguments below using for Expo apps
-                                    args.push("--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode")));
-                                    return helper.getExpPackagerOptions()
-                                    .then((options: ExpConfigPackager) => {
-                                        Object.keys(options).forEach(key => {
-                                            args = args.concat([`--${key}`, options[key]]);
-                                        });
-
-                                        return args;
-                                    })
-                                    .catch(() => {
-                                        this.logger.warning("Couldn't read packager's options from exp.json, continue...");
-                                        return args;
+                            return helper.getExpPackagerOptions()
+                                .then((options: ExpConfigPackager) => {
+                                    Object.keys(options).forEach(key => {
+                                        args = args.concat([`--${key}`, options[key]]);
                                     });
-                                } else {
+
                                     return args;
-                                }
-                            });
+                                })
+                                .catch(() => {
+                                    this.logger.warning("Couldn't read packager's options from exp.json, continue...");
+                                    return args;
+                                });
                         })
                         .then((args) => {
                             const projectRoot = SettingsHelper.getReactNativeProjectRoot(this.workspacePath);
@@ -301,27 +293,11 @@ export class Packager {
         this.logger.info("Stopping Packager");
         return new CommandExecutor(this.projectPath, this.logger).killReactPackager(this.packagerProcess).then(() => {
             this.packagerProcess = undefined;
-
-            let helper = new ExponentHelper(this.workspacePath, this.projectPath);
-
-            return helper.isExpoApp(false)
-            .then((isExpo) => {
-                if (isExpo) {
-                    this.logger.debug("Stopping Exponent");
-                    return XDL.stopAll(this.projectPath)
-                        .then(() => {
-                            this.logger.debug("Exponent Stopped");
-                        })
-                        .catch((err) => {
-                            if (err.code === "NOT_LOGGED_IN") {
-                                return void(0);
-                            }
-                            throw err;
-                        });
-                } else {
-                    return void(0);
-                }
-            });
+            this.logger.debug("Stopping Exponent");
+            return XDL.stopAll(this.projectPath)
+                .then(() =>
+                    this.logger.debug("Exponent Stopped")
+                );
         });
     }
 
