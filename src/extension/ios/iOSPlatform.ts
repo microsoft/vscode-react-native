@@ -55,6 +55,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
 
+
         this.runOptions.configuration = this.getConfiguration();
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option

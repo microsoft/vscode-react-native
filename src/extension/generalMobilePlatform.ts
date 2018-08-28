@@ -31,11 +31,10 @@ export class GeneralMobilePlatform {
     constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
+        this.runArguments = this.getRunArguments();
         this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator());
         this.logger = OutputChannelLogger.getChannel(`React Native: Run ${this.platformName}`, true);
         this.logger.clear();
-        this.removeUnsupportedTargetsFromRunOptions();
-        this.runArguments = this.getRunArguments();
     }
 
     public runApp(): Q.Promise<void> {
@@ -115,9 +114,6 @@ export class GeneralMobilePlatform {
 
     protected getRunArguments(): string[] {
         throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArguments");
-    }
-
-    protected removeUnsupportedTargetsFromRunOptions() {
     }
 
     public getEnvArgument(): any {
