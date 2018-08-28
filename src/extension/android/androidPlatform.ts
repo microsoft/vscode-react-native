@@ -93,15 +93,16 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         };
 
         return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
+            const runArguments = this.getRunArgument();
             const env = this.getEnvArgument();
 
             return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
                 .then(version => {
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, AndroidPlatform.NO_PACKAGER_VERSION)) {
-                        this.runArguments.push("--no-packager");
+                        runArguments.push("--no-packager");
                     }
 
-                    const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", this.runArguments, {env});
+                    const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", runArguments, {env});
                     const output = new OutputVerifier(
                         () =>
                             Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
@@ -143,7 +144,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return this.packager.prewarmBundleCache("android");
     }
 
-    protected getRunArguments(): string[] {
+    public getRunArgument(): string[] {
         let runArguments: string[] = [];
 
         if (this.runOptions.runArguments  && this.runOptions.runArguments.length > 0) {

@@ -35,25 +35,25 @@ suite("iOSPlatform", function () {
     suite("extensionContext", function () {
         test("getRunArgument properties not defined", function () {
             let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.runArguments, []);
+            assert.deepEqual(platform.getRunArgument(), []);
         });
         test("getRunArgument simulator simulator", function () {
             runOptions.target = "simulator";
             const expected = ["--simulator"];
             let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.runArguments, expected);
+            assert.deepEqual(platform.getRunArgument(), expected);
         });
         test("getRunArgument device device", function () {
             runOptions.target = "device";
             const expected = ["--device"];
             let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.runArguments, expected);
+            assert.deepEqual(platform.getRunArgument(), expected);
         });
         test("getRunArgument simulator iPhone 6", function () {
             runOptions.target = "iPhone 6";
             const expected = ["--simulator", runOptions.target];
             let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.runArguments, expected);
+            assert.deepEqual(platform.getRunArgument(), expected);
         });
     });
 });

@@ -26,12 +26,9 @@ export class GeneralMobilePlatform {
     protected static simulatorString: TargetType = "simulator";
     protected static NO_PACKAGER_VERSION = "0.42.0";
 
-    public runArguments: string[];
-
     constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
-        this.runArguments = this.getRunArguments();
         this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator());
         this.logger = OutputChannelLogger.getChannel(`React Native: Run ${this.platformName}`, true);
         this.logger.clear();
@@ -79,41 +76,8 @@ export class GeneralMobilePlatform {
         return Q.resolve<void>(void 0);
     }
 
-    protected getOptFromRunArgs(optName: string, binary: boolean = false): any {
-        if (this.runArguments.length > 0) {
-            const optIdx = this.runArguments.indexOf(optName);
-            let result: any = false;
-
-            if (optIdx > -1) {
-                result = binary ? true : this.runArguments[optIdx + 1];
-            } else {
-                for (let i = 0; i < this.runArguments.length; i++) {
-                    const arg = this.runArguments[i];
-                    if (arg.indexOf(optName) > -1) {
-                        result = binary ? true : arg.split("=")[1].trim();
-                    }
-                }
-            }
-
-            if (binary) {
-                return !!result;
-            }
-
-            if (result) {
-                try {
-                    return JSON.parse(result);
-                } catch (err) {
-                    // sipmle string value, return as is
-                    return result;
-                }
-            }
-        }
-
-        return undefined;
-    }
-
-    protected getRunArguments(): string[] {
-        throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArguments");
+    public getRunArgument(): string[] {
+        throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArgument");
     }
 
     public getEnvArgument(): any {

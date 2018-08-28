@@ -3,6 +3,8 @@
 
 import {PlistBuddy} from "../../../src/extension/ios/plistBuddy";
 
+import {IXcodeProjFile} from "../../../src/extension/ios/xcodeproj";
+
 import * as assert from "assert";
 import * as path from "path";
 import * as Q from "q";
@@ -80,11 +82,21 @@ suite("plistBuddy", function() {
                 exec: mockedExecFunc,
             };
 
-            const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess });
+            const mockedFindXcodeprojFile = sinon.stub();
+            const mockedProjResult: IXcodeProjFile = {
+                    fileName: appName + ".xcodeproj",
+                    fileType: ".xcodeproj",
+                    projectName: appName,
+                };
+            mockedFindXcodeprojFile.withArgs(projectRoot).returns(Q.resolve(mockedProjResult));
+            const mockXcodeproj: any = {
+                findXcodeprojFile: mockedFindXcodeprojFile,
+            };
+            const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess, xcodeproj: mockXcodeproj });
 
             return Q.all([
-                plistBuddy.getBundleId(projectRoot, true, "Debug", appName),
-                plistBuddy.getBundleId(projectRoot, false, undefined, appName),
+                plistBuddy.getBundleId(projectRoot, true),
+                plistBuddy.getBundleId(projectRoot, false),
             ]).spread((simulatorId, deviceId) => {
                 assert.equal(simulatorBundleId, simulatorId);
                 assert.equal(deviceBundleId, deviceId);

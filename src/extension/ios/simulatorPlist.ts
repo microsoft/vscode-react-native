@@ -32,10 +32,10 @@ export class SimulatorPlist {
         this.nodeChildProcess = nodeChildProcess;
     }
 
-    public findPlistFile(configuration?: string, productName?: string): Q.Promise<string> {
+    public findPlistFile(): Q.Promise<string> {
 
         return Q.all<any>([
-            this.plistBuddy.getBundleId(this.projectRoot, true, configuration, productName), // Find the name of the application
+            this.plistBuddy.getBundleId(this.projectRoot), // Find the name of the application
             this.nodeChildProcess.exec("xcrun simctl getenv booted HOME").outcome, // Find the path of the simulator we are running
             ]).spread((bundleId: string, pathBuffer: Buffer) => {
                 const pathBefore = path.join(pathBuffer.toString().trim(), "Containers", "Data", "Application");

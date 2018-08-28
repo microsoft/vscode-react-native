@@ -30,10 +30,11 @@ export class WpfPlatform extends WindowsPlatform {
         };
 
         return TelemetryHelper.generate("WpfPlatform.runApp", extProps, () => {
+            const runArguments = this.getRunArgument();
             const env = this.getEnvArgument();
 
             if (enableDebug) {
-                this.runArguments.push("--proxy");
+                runArguments.push("--proxy");
             }
 
             return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
@@ -43,7 +44,7 @@ export class WpfPlatform extends WindowsPlatform {
                     }
 
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, WpfPlatform.NO_PACKAGER_VERSION)) {
-                        this.runArguments.push("--no-packager");
+                        runArguments.push("--no-packager");
                     }
 
                     const exec = new CommandExecutor(this.projectPath, this.logger);
@@ -52,7 +53,7 @@ export class WpfPlatform extends WindowsPlatform {
                         // Killing another instances of the app which were run earlier
                         return exec.execute(`cmd /C Taskkill /IM ${appName}.exe /F`)
                             .finally(() => {
-                                const runWpfSpawn = exec.spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
+                                const runWpfSpawn = exec.spawnReactCommand(`run-${this.platformName}`, runArguments, {env});
                                 let resolved = false;
                                 let output = "";
                                 runWpfSpawn.stdout.on("data", (data: Buffer) => {
