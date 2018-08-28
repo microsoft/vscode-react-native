@@ -64,18 +64,6 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
     constructor(protected runOptions: IAndroidRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
-
-        if (this.runOptions.target === AndroidPlatform.simulatorString ||
-            this.runOptions.target === AndroidPlatform.deviceString) {
-
-            const message = `Target ${this.runOptions.target} is not supported for Android ` +
-                "platform. If you want to use particular device or simulator for launching " +
-                "Android app, please specify  device id (as in 'adb devices' output) instead.";
-
-            this.logger.warning(message);
-            delete this.runOptions.target;
-        }
-
         this.adbHelper = new AdbHelper(this.runOptions.projectRoot, this.logger);
     }
 
@@ -158,6 +146,19 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         }
 
         return runArguments;
+    }
+
+    protected removeUnsupportedTargetsFromRunOptions() {
+        if (this.runOptions.target === AndroidPlatform.simulatorString ||
+            this.runOptions.target === AndroidPlatform.deviceString) {
+
+            const message = `Target ${this.runOptions.target} is not supported for Android ` +
+                "platform. If you want to use particular device or simulator for launching " +
+                "Android app, please specify  device id (as in 'adb devices' output) instead.";
+
+            this.logger.warning(message);
+            delete this.runOptions.target;
+        }
     }
 
     private initializeTargetDevicesAndPackageName(): Q.Promise<void> {
