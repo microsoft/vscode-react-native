@@ -19,22 +19,22 @@ suite("appWorker", function() {
         const packagerPort = 8081;
 
         suite("SandboxedAppWorker", function() {
+            const originalSpawn = child_process.spawn;
             const sourcesStoragePath = path.resolve(__dirname, "assets");
 
             // Inject 5 sec delay before shutting down to worker to give tests some time to execute
             const WORKER_DELAY_SHUTDOWN = `setTimeout(() => {console.log("Shutting down")}, 5000)`;
 
             let testWorker: ForkedAppWorker;
-            let forkStub: Sinon.SinonStub;
+            let spawnStub: Sinon.SinonStub;
             let postReplyFunction = sinon.stub();
 
             function workerWithScript(scriptBody: string): ForkedAppWorker {
                 const wrappedBody = [ MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
                     scriptBody, MultipleLifetimesAppWorker.WORKER_DONE, WORKER_DELAY_SHUTDOWN ].join("\n");
 
-                forkStub = sinon.stub(child_process, "fork", () => {
-                    return child_process.spawn("node", ["-e", wrappedBody], { stdio: ["inherit", "inherit", "inherit", "ipc"] });
-                });
+                spawnStub = sinon.stub(child_process, "spawn", () =>
+                    originalSpawn("node", ["-e", wrappedBody], {stdio: ["pipe", "pipe", "pipe", "ipc"]}));
 
                 testWorker = new ForkedAppWorker("localhost", packagerPort, sourcesStoragePath, "", postReplyFunction);
                 return testWorker;
@@ -42,7 +42,7 @@ suite("appWorker", function() {
 
             teardown(function() {
                 // Reset everything
-                forkStub.restore();
+                spawnStub.restore();
                 postReplyFunction.reset();
                 if (testWorker) {
                     testWorker.stop();
@@ -63,7 +63,7 @@ suite("appWorker", function() {
             test("should be able to import scripts", function() {
                 // NOTE: we're not able to mock reading script for import since this is performed by a
                 // separate node process and is out of control so we must provide a real script file
-                const scriptImportPath = path.resolve(sourcesStoragePath, "importScriptsTest.js").replace(/\\/g, "/");
+                const scriptImportPath = path.resolve(sourcesStoragePath, "importScriptsTest.js");
                 const startScriptContents = `importScripts("${scriptImportPath}"); postMessage("postImport");`;
 
                 return workerWithScript(startScriptContents).start().then(() => {

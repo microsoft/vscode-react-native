@@ -76,7 +76,7 @@ export function makeSession(
         private launch(request: DebugProtocol.Request): void {
             this.requestSetup(request.arguments)
                 .then(() => {
-                    logger.verbose(`Handle launch request: ${JSON.stringify(request.arguments, null , 2)}`);
+                    logger.verbose(`Handle launch request: ${request.arguments}`);
                     return this.remoteExtension.launch(request);
                 })
                 .then(() => {
