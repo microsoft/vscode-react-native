@@ -1,3 +1,6 @@
+## 0.6.15
+* Fixed critical issue with android debugging introduced in 0.6.14
+
 ## 0.6.14
 * Added reading SDK location from `local.properties`
 * Added support for building iOS apps with custom configuration names
