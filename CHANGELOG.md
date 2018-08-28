@@ -2,7 +2,7 @@
 * Fixed critical issue with android debugging introduced in 0.6.14
 
 ## 0.6.14
-* Added reading SDK location from `local.properties`
+* Addded reading SDK location from `local.properties`
 * Bug fixes and improvements
 
 ## 0.6.13
