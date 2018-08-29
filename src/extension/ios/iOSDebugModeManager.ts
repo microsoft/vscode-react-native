@@ -24,12 +24,12 @@ export class IOSDebugModeManager {
         this.simulatorPlist = new SimulatorPlist(this.projectRoot);
     }
 
-    public setSimulatorRemoteDebuggingSetting(enable: boolean): Q.Promise<void> {
+    public setSimulatorRemoteDebuggingSetting(enable: boolean, configuration?: string, productName?: string): Q.Promise<void> {
         const plistBuddy = new PlistBuddy();
 
         // Find the plistFile with the configuration setting
         // There is a race here between us checking for the plist file, and the application starting up.
-        return this.findPListFile()
+        return this.findPListFile(configuration, productName)
             .then((plistFile: string) => {
                 // Set the executorClass to be RCTWebSocketExecutor so on the next startup it will default into debug mode
                 // This is approximately equivalent to clicking the "Debug in Chrome" button
@@ -41,8 +41,8 @@ export class IOSDebugModeManager {
             });
     }
 
-    public getSimulatorRemoteDebuggingSetting(): Q.Promise<boolean> {
-        return this.findPListFile()
+    public getSimulatorRemoteDebuggingSetting(configuration?: string, productName?: string): Q.Promise<boolean> {
+        return this.findPListFile(configuration, productName)
             .then((plistFile: string) => {
                 // Attempt to read from the file, but if the property is not defined then return the empty string
                 return Q.all([
@@ -57,13 +57,13 @@ export class IOSDebugModeManager {
             });
     }
 
-    public findPListFile(): Q.Promise<string> {
+    public findPListFile(configuration?: string, productName?: string): Q.Promise<string> {
         const pu = new PromiseUtil();
         const failureString = `Unable to find plist file to configure debugging`;
 
         return pu.retryAsync(
             () =>
-                this.tryOneAttemptToFindPListFile(), // Operation to retry until successful
+                this.tryOneAttemptToFindPListFile(configuration, productName), // Operation to retry until successful
             (file: string) =>
                 file !== "", // Condition to check if the operation was successful, and this logic is done
             IOSDebugModeManager.MAX_RETRIES,
@@ -71,8 +71,8 @@ export class IOSDebugModeManager {
             failureString); // Error to show in case all retries fail
     }
 
-    private tryOneAttemptToFindPListFile(): Q.Promise<string> {
-        return this.simulatorPlist.findPlistFile().catch(reason => {
+    private tryOneAttemptToFindPListFile(configuration?: string, productName?: string): Q.Promise<string> {
+        return this.simulatorPlist.findPlistFile(configuration, productName).catch(reason => {
             this.logger.debug(`Failed one attempt to find plist file: ${reason}`);
             return "";
         });

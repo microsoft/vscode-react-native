@@ -25,7 +25,7 @@ const DBL_SLASHES = /\\/g;
 export class ExponentHelper {
     private workspaceRootPath: string;
     private projectRootPath: string;
-    private fs: FileSystem;
+    private fs: FileSystem = new FileSystem();
     private hasInitialized: boolean;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
@@ -42,6 +42,7 @@ export class ExponentHelper {
     public configureExponentEnvironment(): Q.Promise<void> {
         this.lazilyInitialize();
         this.logger.info("Making sure your project uses the correct dependencies for exponent. This may take a while...");
+        this.logger.logStream("Checking if this is Expo app.");
         return this.isExpoApp(true)
             .then(isExpo => {
                 this.logger.logStream(".\n");
@@ -83,6 +84,27 @@ export class ExponentHelper {
         this.lazilyInitialize();
         return this.getFromExpConfig("packagerOpts")
             .then(opts => opts || {});
+    }
+
+    public isExpoApp(showProgress: boolean = false): Q.Promise<boolean> {
+        if (showProgress) {
+            this.logger.logStream("...");
+        }
+
+        const packageJsonPath = this.pathToFileInWorkspace("package.json");
+        return this.fs.readFile(packageJsonPath)
+            .then(content => {
+                const packageJson = JSON.parse(content);
+                const isExp = packageJson.dependencies && !!packageJson.dependencies.expo || false;
+                if (showProgress) this.logger.logStream(".");
+                return isExp;
+            }).catch(() => {
+                if (showProgress) {
+                    this.logger.logStream(".");
+                }
+                // Not in a react-native project
+                return false;
+            });
     }
 
     /**
@@ -258,35 +280,12 @@ AppRegistry.registerRunnable('main', function(appParameters) {
         return path.join(this.projectRootPath, filename).replace(DBL_SLASHES, "/");
     }
 
-    private isExpoApp(showProgress: boolean = false): Q.Promise<boolean> {
-        this.logger.logStream("Checking if this is Expo app.");
-        if (showProgress) {
-            this.logger.logStream("...");
-        }
-
-        const packageJsonPath = this.pathToFileInWorkspace("package.json");
-        return this.fs.readFile(packageJsonPath)
-            .then(content => {
-                const packageJson = JSON.parse(content);
-                const isExp = packageJson.dependencies && !!packageJson.dependencies.expo || false;
-                if (showProgress) this.logger.logStream(".");
-                return isExp;
-            }).catch(() => {
-                if (showProgress) {
-                    this.logger.logStream(".");
-                }
-                // Not in a react-native project
-                return false;
-            });
-    }
-
     /**
      * Works as a constructor but only initiliazes when it's actually needed.
      */
     private lazilyInitialize(): void {
         if (!this.hasInitialized) {
             this.hasInitialized = true;
-            this.fs = new FileSystem();
 
             XDL.configReactNativeVersionWargnings();
             XDL.attachLoggerStream(this.projectRootPath, {

@@ -340,6 +340,10 @@
 								"type": "string",
 								"description": "A scheme name to be passed to react-native run-ios, e.g. 'devDebug' to specify --scheme=devDebug"
 							},
+							"productName": {
+								"type": "string",
+								"description": "Bundle display name e.g 'AwesomeProject'"
+							},
 							"skipFiles": {
 								"type": "array",
 								"description": "An array of file or folder names, or glob patterns, to skip when debugging.",
@@ -488,6 +492,7 @@
 	"dependencies": {
 		"extract-opts": "2.2.0",
 		"flatten-source-map": "0.0.2",
+		"glob": "^7.1.2",
 		"noice-json-rpc": "^1.0.2",
 		"options": "0.0.6",
 		"q": "1.4.1",
