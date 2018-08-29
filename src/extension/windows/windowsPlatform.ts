@@ -41,20 +41,19 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         };
 
         return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
-            const runArguments = this.getRunArgument();
             const env = this.getEnvArgument();
 
             if (enableDebug) {
-                runArguments.push("--proxy");
+                this.runArguments.push("--proxy");
             }
 
             return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
                 .then(version => {
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, WindowsPlatform.NO_PACKAGER_VERSION)) {
-                        runArguments.push("--no-packager");
+                        this.runArguments.push("--no-packager");
                     }
 
-                    const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, runArguments, {env});
+                    const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
                     return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), this.platformName)
                         .process(runWindowsSpawn);
                 });
@@ -65,7 +64,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         return this.packager.prewarmBundleCache("windows");
     }
 
-    public getRunArgument(): string[] {
+    protected getRunArguments(): string[] {
         let runArguments: string[] = [];
 
         if (this.runOptions.runArguments  && this.runOptions.runArguments.length > 0) {

@@ -7,7 +7,7 @@ import * as XDL from "./exponent/xdlInterface";
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
-import {TargetType} from "./generalMobilePlatform";
+import {TargetType, GeneralMobilePlatform} from "./generalMobilePlatform";
 import {AndroidPlatform} from "./android/androidPlatform";
 import {IOSPlatform} from "./ios/iOSPlatform";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
@@ -35,6 +35,7 @@ export class CommandPaletteHandler {
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     public static addFolder(workspaceFolder: vscode.WorkspaceFolder, stuff: IReactNativeStuff): void {
+        this.logger.debug(`Command palette: added folder ${workspaceFolder.uri.fsPath}`);
         this.projectsCache[workspaceFolder.uri.fsPath] = {
             ...stuff,
             workspaceFolder,
@@ -121,10 +122,7 @@ export class CommandPaletteHandler {
             .then((project: IReactNativeProject) => {
                 TargetPlatformHelper.checkTargetPlatformSupport("android");
                 return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
-                    const runOptions = CommandPaletteHandler.getRunOptions(project, "android", target);
-                    const platform = new AndroidPlatform(runOptions, {
-                        packager: project.packager,
-                    });
+                    const platform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform, target);
                     return platform.beforeStartPackager()
                         .then(() => {
                             return platform.startPackager();
@@ -147,11 +145,7 @@ export class CommandPaletteHandler {
             .then((project: IReactNativeProject) => {
                 TargetPlatformHelper.checkTargetPlatformSupport("ios");
                 return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
-                    const runOptions = CommandPaletteHandler.getRunOptions(project, "ios", target);
-                    const platform = new IOSPlatform(runOptions, {
-                        packager: project.packager,
-                    });
-
+                    const platform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform, target);
                     return platform.beforeStartPackager()
                         .then(() => {
                             return platform.startPackager();
@@ -177,10 +171,7 @@ export class CommandPaletteHandler {
                 return this.loginToExponent(project)
                     .then(() => {
                         return this.executeCommandInContext("runExponent", project.workspaceFolder, () => {
-                            const runOptions = CommandPaletteHandler.getRunOptions(project, "exponent");
-                            const platform = new ExponentPlatform(runOptions, {
-                                packager: project.packager,
-                            });
+                            const platform = <ExponentPlatform>this.createPlatform(project, "exponent", ExponentPlatform);
                             return platform.beforeStartPackager()
                                 .then(() => {
                                     return platform.startPackager();
@@ -196,9 +187,11 @@ export class CommandPaletteHandler {
     public static showDevMenu(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                AndroidPlatform.showDevMenu()
+                const androidPlatform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform);
+                androidPlatform.showDevMenu()
                     .catch(() => { }); // Ignore any errors
-                IOSPlatform.showDevMenu(project.workspaceFolder.uri.fsPath)
+                const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
+                iosPlatform.showDevMenu()
                     .catch(() => { }); // Ignore any errors
                 return Q.resolve(void 0);
             });
@@ -207,9 +200,11 @@ export class CommandPaletteHandler {
     public static reloadApp(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                AndroidPlatform.reloadApp()
+                const androidPlatform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform);
+                androidPlatform.reloadApp()
                     .catch(() => { }); // Ignore any errors
-                IOSPlatform.reloadApp(project.workspaceFolder.uri.fsPath)
+                const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
+                iosPlatform.reloadApp()
                     .catch(() => { }); // Ignore any errors
                 return Q.resolve(void 0);
             });
@@ -233,6 +228,13 @@ export class CommandPaletteHandler {
         return "";
     }
 
+    private static createPlatform(project: IReactNativeProject, platform: "ios" | "android" | "exponent", platformClass: typeof GeneralMobilePlatform, target?: TargetType): GeneralMobilePlatform {
+        const runOptions = CommandPaletteHandler.getRunOptions(project, platform, target);
+        return new platformClass(runOptions, {
+            packager: project.packager,
+        });
+    }
+
     private static runRestartPackagerCommandAndUpdateStatus(project: IReactNativeProject): Q.Promise<void> {
         return project.packager.restart(SettingsHelper.getPackagerPort(project.workspaceFolder.uri.fsPath));
     }
@@ -253,19 +255,21 @@ export class CommandPaletteHandler {
         return TelemetryHelper.generate("RNCommand", extProps, (generator) => {
             generator.add("command", rnCommand, false);
             const projectRoot = SettingsHelper.getReactNativeProjectRoot(workspaceFolder.uri.fsPath);
-            return ReactNativeProjectHelper.isReactNativeProject(projectRoot).then(isRNProject => {
-                generator.add("isRNProject", isRNProject, false);
-                if (isRNProject) {
-                    // Bring the log channel to focus
-                    CommandPaletteHandler.logger.setFocusOnLogChannel();
+            this.logger.debug(`Command palette: run project ${projectRoot} in context`);
+            return ReactNativeProjectHelper.isReactNativeProject(projectRoot)
+                .then(isRNProject => {
+                    generator.add("isRNProject", isRNProject, false);
+                    if (isRNProject) {
+                        // Bring the log channel to focus
+                        this.logger.setFocusOnLogChannel();
 
-                    // Execute the operation
-                    return operation();
-                } else {
-                    vscode.window.showErrorMessage("Current workspace is not a React Native project.");
-                    return;
-                }
-            });
+                        // Execute the operation
+                        return operation();
+                    } else {
+                        vscode.window.showErrorMessage(`${projectRoot} workspace is not a React Native project.`);
+                        return;
+                    }
+                });
         });
     }
 
@@ -324,14 +328,16 @@ export class CommandPaletteHandler {
                 vscode.window.showQuickPick(keys)
                     .then((selected) => {
                         if (selected) {
+                            this.logger.debug(`Command palette: selected project ${selected}`);
                             resolve(this.projectsCache[selected]);
                         }
                     }, reject);
             });
         } else if (keys.length === 1) {
+            this.logger.debug(`Command palette: once project ${keys[0]}`);
             return Q.resolve(this.projectsCache[keys[0]]);
         } else {
-            return Q.reject(new Error("Current workspace is not a React Native project."));
+            return Q.reject(new Error("Current workspace does not contain React Native projects."));
         }
     }
 
