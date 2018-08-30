@@ -14,56 +14,56 @@ import * as ForkedAppWorkerModule from "../../src/debugger/forkedAppWorker";
 import * as packagerStatus from "../../src/common/packagerStatus";
 import { ScriptImporter, DownloadedScript } from "../../src/debugger/scriptImporter";
 
-suite("appWorker", function() {
-    suite("debuggerContext", function() {
+suite("appWorker", function () {
+    suite("debuggerContext", function () {
         const packagerPort = 8081;
 
-        suite("SandboxedAppWorker", function() {
+        suite("SandboxedAppWorker", function () {
+            const originalSpawn = child_process.spawn;
             const sourcesStoragePath = path.resolve(__dirname, "assets");
 
             // Inject 5 sec delay before shutting down to worker to give tests some time to execute
             const WORKER_DELAY_SHUTDOWN = `setTimeout(() => {console.log("Shutting down")}, 5000)`;
 
             let testWorker: ForkedAppWorker;
-            let forkStub: Sinon.SinonStub;
+            let spawnStub: Sinon.SinonStub;
             let postReplyFunction = sinon.stub();
 
             function workerWithScript(scriptBody: string): ForkedAppWorker {
-                const wrappedBody = [ MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
-                    scriptBody, MultipleLifetimesAppWorker.WORKER_DONE, WORKER_DELAY_SHUTDOWN ].join("\n");
+                const wrappedBody = [MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
+                    scriptBody, MultipleLifetimesAppWorker.WORKER_DONE, WORKER_DELAY_SHUTDOWN].join("\n");
 
-                forkStub = sinon.stub(child_process, "fork", () => {
-                    return child_process.spawn("node", ["-e", wrappedBody], { stdio: ["inherit", "inherit", "inherit", "ipc"] });
-                });
+                spawnStub = sinon.stub(child_process, "spawn", () =>
+                    originalSpawn("node", ["-e", wrappedBody], { stdio: ["pipe", "pipe", "pipe", "ipc"] }))
 
                 testWorker = new ForkedAppWorker("localhost", packagerPort, sourcesStoragePath, "", postReplyFunction);
                 return testWorker;
             }
 
-            teardown(function() {
+            teardown(function () {
                 // Reset everything
-                forkStub.restore();
+                spawnStub.restore();
                 postReplyFunction.reset();
                 if (testWorker) {
                     testWorker.stop();
                 }
             });
 
-            test("should execute scripts correctly and be able to invoke the callback", function() {
+            test("should execute scripts correctly and be able to invoke the callback", function () {
                 const expectedMessageResult = { success: true };
                 const startScriptContents = `var testResponse = ${JSON.stringify(expectedMessageResult)}; postMessage(testResponse);`;
 
                 return workerWithScript(startScriptContents).start()
-                .then(() =>
-                    Q.delay(1000))
-                .then(() =>
-                    assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
+                    .then(() =>
+                        Q.delay(1000))
+                    .then(() =>
+                        assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
             });
 
-            test("should be able to import scripts", function() {
+            test("should be able to import scripts", function () {
                 // NOTE: we're not able to mock reading script for import since this is performed by a
                 // separate node process and is out of control so we must provide a real script file
-                const scriptImportPath = path.resolve(sourcesStoragePath, "importScriptsTest.js").replace(/\\/g, "/");
+                const scriptImportPath = path.resolve(sourcesStoragePath, "importScriptsTest.js");
                 const startScriptContents = `importScripts("${scriptImportPath}"); postMessage("postImport");`;
 
                 return workerWithScript(startScriptContents).start().then(() => {
@@ -76,7 +76,7 @@ suite("appWorker", function() {
                 });
             });
 
-            test("should correctly pass postMessage to the loaded script", function() {
+            test("should correctly pass postMessage to the loaded script", function () {
                 const startScriptContents = `onmessage = postMessage;`;
                 const testMessage = { method: "test", success: true };
 
@@ -97,9 +97,9 @@ suite("appWorker", function() {
                     postMessage(testResponse);`;
 
                 return workerWithScript(startScriptContents).start()
-                .then(() => Q.delay(500))
-                .then(() =>
-                    assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
+                    .then(() => Q.delay(500))
+                    .then(() =>
+                        assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
             });
 
             test("should download script from remote packager", async () => {
@@ -137,7 +137,7 @@ suite("appWorker", function() {
             });
         });
 
-        suite("MultipleLifetimesAppWorker", function() {
+        suite("MultipleLifetimesAppWorker", function () {
             const sourcesStoragePath = path.resolve(__dirname, "assets");
 
             let multipleLifetimesWorker: MultipleLifetimesAppWorker;
@@ -151,7 +151,7 @@ suite("appWorker", function() {
 
             let clock: Sinon.SinonFakeTimers;
 
-            setup(function() {
+            setup(function () {
                 webSocket = sinon.createStubInstance(WebSocket);
 
                 sandboxedAppWorkerStub = sinon.createStubInstance(ForkedAppWorker);
@@ -176,7 +176,7 @@ suite("appWorker", function() {
                 sinon.stub(multipleLifetimesWorker, "downloadAndPatchDebuggerWorker").returns(Q.resolve({}));
             });
 
-            teardown(function() {
+            teardown(function () {
                 // Reset everything
                 multipleLifetimesWorker.stop();
                 appWorkerModuleStub.restore();
@@ -187,7 +187,7 @@ suite("appWorker", function() {
                 }
             });
 
-            test("with packager running should construct a websocket connection to the correct endpoint and listen for events", function() {
+            test("with packager running should construct a websocket connection to the correct endpoint and listen for events", function () {
                 return multipleLifetimesWorker.start().then(() => {
                     const websocketRegex = new RegExp("ws://[^:]*:[0-9]*/debugger-proxy\\?role=debugger");
                     assert(webSocketConstructor.calledWithMatch(websocketRegex), "The web socket was not constructed to the correct url: " + webSocketConstructor.args[0][0]);
@@ -199,7 +199,7 @@ suite("appWorker", function() {
                 });
             });
 
-            test("with packager running should attempt to reconnect after disconnecting", function() {
+            test("with packager running should attempt to reconnect after disconnecting", function () {
                 let startWorker = sinon.spy(multipleLifetimesWorker, "start");
                 return multipleLifetimesWorker.start().then(() => {
                     // Forget previous invocations
@@ -221,7 +221,7 @@ suite("appWorker", function() {
                 });
             });
 
-            test("with packager running should respond correctly to prepareJSRuntime messages", function() {
+            test("with packager running should respond correctly to prepareJSRuntime messages", function () {
                 return multipleLifetimesWorker.start().then(() => {
                     const messageId = 1;
                     const testMessage = JSON.stringify({ method: "prepareJSRuntime", id: messageId });
@@ -247,7 +247,7 @@ suite("appWorker", function() {
                 });
             });
 
-            test("with packager running should pass unknown messages to the sandboxedAppWorker", function() {
+            test("with packager running should pass unknown messages to the sandboxedAppWorker", function () {
                 return multipleLifetimesWorker.start().then(() => {
                     // Start up an app worker
                     const prepareJSMessage = JSON.stringify({ method: "prepareJSRuntime", id: 1 });

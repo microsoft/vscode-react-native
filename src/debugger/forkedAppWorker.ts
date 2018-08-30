@@ -77,6 +77,8 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         // The adapter will continue execution once it's done with breakpoints.
         const nodeArgs = [`--inspect=${port}`, "--debug-brk", scriptToRunPath];
         // Start child Node process in debugging mode
+        // Using fork instead of spawn causes breakage of piping between app worker and VS Code debug console, e.g. console.log() in application
+        // wouldn't work. Please see https://github.com/Microsoft/vscode-react-native/issues/758
         this.debuggeeProcess = child_process.spawn("node", nodeArgs, {
             stdio: ["pipe", "pipe", "pipe", "ipc"],
         })
