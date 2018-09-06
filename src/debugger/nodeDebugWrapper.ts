@@ -238,6 +238,12 @@ export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeo
             (this as any)._attachMode = false;
             return super.doAttach(port, targetUrl, address, timeout);
         }
+
+        public async terminate(args: DebugProtocol.TerminatedEvent) {
+            return this.disconnect({
+                terminateDebuggee: true,
+            });
+        }
     };
 }
 
