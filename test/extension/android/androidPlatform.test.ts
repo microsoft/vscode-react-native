@@ -301,6 +301,43 @@ suite("androidPlatform", function () {
                         isRunning.should.be.false();
                     });
             });
+
+        test("getRunArguments should return correct target", function() {
+            const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
+            const platform = createAndroidPlatform(runOptions);
+            const runArgs = platform.getRunArguments();
+
+            runArgs.should.be.an.Array();
+            runArgs.should.containDeepOrdered(["--deviceId", "Nexus_12"]);
+        });
+
+        test("getRunArguments should remove simulator target from args", function() {
+            const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "simulator" };
+            const platform = createAndroidPlatform(runOptions);
+            const runArgs = platform.getRunArguments();
+
+            runArgs.should.be.an.Array();
+            runArgs.should.be.empty();
+        });
+
+        test("getRunArguments should remove device target from args", function() {
+            const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "device" };
+            const platform = createAndroidPlatform(runOptions);
+            const runArgs = platform.getRunArguments();
+
+            runArgs.should.be.an.Array();
+            runArgs.should.be.empty();
+        });
+
+        test("getRunArguments should return correct args", function() {
+            const args = ["--deviceId", "device_id"];
+            const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, runArguments: args, target: "Nexus_12" };
+            const platform = createAndroidPlatform(runOptions);
+            const runArgs = platform.getRunArguments();
+
+            runArgs.should.be.an.Array();
+            runArgs.should.containDeepOrdered(args);
+        });
     });
 });
 

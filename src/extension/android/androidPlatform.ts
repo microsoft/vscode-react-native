@@ -131,7 +131,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return this.packager.prewarmBundleCache("android");
     }
 
-    protected getRunArguments(): string[] {
+    public getRunArguments(): string[] {
         let runArguments: string[] = [];
 
         if (this.runOptions.runArguments  && this.runOptions.runArguments.length > 0) {
@@ -141,24 +141,21 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 runArguments.push("--variant", this.runOptions.variant);
             }
             if (this.runOptions.target) {
-                runArguments.push("--deviceId", this.runOptions.target);
+                if (this.runOptions.target === AndroidPlatform.simulatorString ||
+                    this.runOptions.target === AndroidPlatform.deviceString) {
+
+                    const message = `Target ${this.runOptions.target} is not supported for Android ` +
+                        "platform. If you want to use particular device or simulator for launching " +
+                        "Android app, please specify  device id (as in 'adb devices' output) instead.";
+
+                    this.logger.warning(message);
+                } else {
+                    runArguments.push("--deviceId", this.runOptions.target);
+                }
             }
         }
 
         return runArguments;
-    }
-
-    protected removeUnsupportedTargetsFromRunOptions() {
-        if (this.runOptions.target === AndroidPlatform.simulatorString ||
-            this.runOptions.target === AndroidPlatform.deviceString) {
-
-            const message = `Target ${this.runOptions.target} is not supported for Android ` +
-                "platform. If you want to use particular device or simulator for launching " +
-                "Android app, please specify  device id (as in 'adb devices' output) instead.";
-
-            this.logger.warning(message);
-            delete this.runOptions.target;
-        }
     }
 
     private initializeTargetDevicesAndPackageName(): Q.Promise<void> {
