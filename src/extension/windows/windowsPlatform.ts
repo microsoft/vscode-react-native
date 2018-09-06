@@ -64,7 +64,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         return this.packager.prewarmBundleCache("windows");
     }
 
-    protected getRunArguments(): string[] {
+    public getRunArguments(): string[] {
         let runArguments: string[] = [];
 
         if (this.runOptions.runArguments  && this.runOptions.runArguments.length > 0) {

@@ -34,7 +34,6 @@ export class GeneralMobilePlatform {
         this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator());
         this.logger = OutputChannelLogger.getChannel(`React Native: Run ${this.platformName}`, true);
         this.logger.clear();
-        this.removeUnsupportedTargetsFromRunOptions();
         this.runArguments = this.getRunArguments();
     }
 
@@ -113,11 +112,8 @@ export class GeneralMobilePlatform {
         return undefined;
     }
 
-    protected getRunArguments(): string[] {
+    public getRunArguments(): string[] {
         throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArguments");
-    }
-
-    protected removeUnsupportedTargetsFromRunOptions() {
     }
 
     public getEnvArgument(): any {

@@ -94,7 +94,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         return Q.resolve<void>(void 0);
     }
 
-    protected getRunArguments(): string[] {
+    public getRunArguments(): string[] {
         return [];
     }
 }
