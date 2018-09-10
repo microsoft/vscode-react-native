@@ -84,7 +84,7 @@ export class Packager {
                     .then((version) => {
                         return helper.isExpoApp(false)
                         .then((isExpo) => {
-                            if (!isExpo) {
+                            if (isExpo) {
                                 // Arguments below using for Expo apps
 
                                 if (!semver.gte(version, "0.57.0")) {
