@@ -35,10 +35,12 @@ export class Packager {
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
     private static fs: FileSystem = new Node.FileSystem();
+    private expoHelper: ExponentHelper;
 
     constructor(private workspacePath: string, private projectPath: string, private packagerPort?: number, packagerStatusIndicator?: PackagerStatusIndicator) {
         this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
         this.packagerStatusIndicator = packagerStatusIndicator || new PackagerStatusIndicator();
+        this.expoHelper = new ExponentHelper(this.workspacePath, this.projectPath);
     }
 
     public get port(): number {
@@ -60,83 +62,84 @@ export class Packager {
         return this.packagerStatus;
     }
 
+    public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<string[]> {
+        let args: string[] = ["--port", this.port.toString()];
+
+        if (resetCache) {
+            args = args.concat("--resetCache");
+        }
+
+        return this.expoHelper.isExpoApp(false)
+        .then((isExpo) => {
+            if (!isExpo) {
+                return args;
+            }
+
+            // Arguments below using for Expo apps
+            if (!semver.gte(rnVersion, "0.57.0")) {
+                args.push("--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode")));
+            }
+
+            return this.expoHelper.getExpPackagerOptions()
+            .then((options: ExpConfigPackager) => {
+                Object.keys(options).forEach(key => {
+                    args = args.concat([`--${key}`, options[key]]);
+                });
+
+                return args;
+            })
+            .catch(() => {
+                this.logger.warning("Couldn't read packager's options from exp.json, continue...");
+
+                return args;
+            });
+        });
+    }
+
     public start(resetCache: boolean = false): Q.Promise<void> {
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTING);
         let executedStartPackagerCmd = false;
+        let rnVersion: string;
 
         return this.isRunning()
         .then((running) => {
-            if (!running) {
-                executedStartPackagerCmd = true;
-
-                return this.monkeyPatchOpnForRNPackager()
-                .then(() => {
-                    let args: string[] = ["--port", this.port.toString()];
-                    if (resetCache) {
-                        args = args.concat("--resetCache");
-                    }
-
-                    let helper = new ExponentHelper(this.workspacePath, this.projectPath);
-
-                    const projectRoot = SettingsHelper.getReactNativeProjectRoot(this.workspacePath);
-
-                    return ReactNativeProjectHelper.getReactNativeVersion(projectRoot)
-                    .then((version) => {
-                        return helper.isExpoApp(false)
-                        .then((isExpo) => {
-                            if (isExpo) {
-                                // Arguments below using for Expo apps
-
-                                if (!semver.gte(version, "0.57.0")) {
-                                    args.push("--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode")));
-                                }
-
-                                return helper.getExpPackagerOptions()
-                                .then((options: ExpConfigPackager) => {
-                                    Object.keys(options).forEach(key => {
-                                        args = args.concat([`--${key}`, options[key]]);
-                                    });
-
-                                    return args;
-                                })
-                                .catch(() => {
-                                    this.logger.warning("Couldn't read packager's options from exp.json, continue...");
-
-                                    return args;
-                                });
-                            } else {
-                                return args;
-                            }
-                        })
-                        .then((args) => {
-                            //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
-                            //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210
-                            //  This bug will be fixed in 0.41
-                            const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
-
-                            let reactEnv = Object.assign({}, process.env, {
-                                REACT_DEBUGGER: "echo A debugger is not needed: ",
-                                REACT_EDITOR: failedRNVersions.indexOf(version) < 0 ? "code" : this.openFileAtLocationCommand(),
-                            });
-
-                            this.logger.info("Starting Packager");
-                            // The packager will continue running while we debug the application, so we can"t
-                            // wait for this command to finish
-
-                            let spawnOptions = { env: reactEnv };
-
-                            const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
-                            this.packagerProcess = packagerSpawnResult.spawnedProcess;
-                            packagerSpawnResult.outcome.done(() => { }, () => { }); // Q prints a warning if we don't call .done(). We ignore all outcome errors
-
-                            return packagerSpawnResult.startup;
-                        });
-                    });
-
-                });
-            } else {
+            if (running) {
                 return void 0;
             }
+
+            executedStartPackagerCmd = true;
+
+            return this.monkeyPatchOpnForRNPackager()
+            .then(() => {
+                return ReactNativeProjectHelper.getReactNativeVersion(this.projectPath);
+            })
+            .then((version) => {
+                rnVersion = version;
+                return this.getPackagerArgs(rnVersion, resetCache);
+            })
+            .then((args) => {
+                //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
+                //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210
+                //  This bug will be fixed in 0.41
+                const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
+
+                let reactEnv = Object.assign({}, process.env, {
+                    REACT_DEBUGGER: "echo A debugger is not needed: ",
+                    REACT_EDITOR: failedRNVersions.indexOf(rnVersion) < 0 ? "code" : this.openFileAtLocationCommand(),
+                });
+
+                this.logger.info("Starting Packager");
+                // The packager will continue running while we debug the application, so we can"t
+                // wait for this command to finish
+
+                let spawnOptions = { env: reactEnv };
+
+                const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
+                this.packagerProcess = packagerSpawnResult.spawnedProcess;
+                packagerSpawnResult.outcome.done(() => { }, () => { }); // Q prints a warning if we don't call .done(). We ignore all outcome errors
+
+                return packagerSpawnResult.startup;
+            });
         })
         .then(() => {
             return this.awaitStart();
