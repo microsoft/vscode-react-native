@@ -3,6 +3,7 @@
 
 import { Packager } from "../../src/common/packager";
 import { Request } from "../../src/common/node/request";
+import { ExponentHelper } from "../../src/extension/exponent/exponentHelper";
 
 import * as assert from "assert";
 import * as sinon from "sinon";
@@ -10,13 +11,19 @@ import * as sinon from "sinon";
 suite("packager", function () {
     suite("extensionContext", function () {
         let requestStub: Sinon.SinonStub;
+        let isExpoAppStub: Sinon.SinonStub;
+        let getExpPackagerOptionsStub: Sinon.SinonStub;
 
         setup(() => {
             requestStub = sinon.stub(Request, "request");
+            isExpoAppStub = sinon.stub(ExponentHelper.prototype, "isExpoApp");
+            getExpPackagerOptionsStub = sinon.stub(ExponentHelper.prototype, "getExpPackagerOptions");
         });
 
         teardown(() => {
             requestStub.restore();
+            isExpoAppStub.restore();
+            getExpPackagerOptionsStub.restore();
         });
 
         test("isRunning should check correct status URL", function (done) {
@@ -55,6 +62,70 @@ suite("packager", function () {
                 .then(done, () => {
                     assert.fail(null, null, "packager was not expected to be running");
                     done();
+                });
+        });
+
+        test("getPackagerArgs should return correct value (react-native@0.56.0)", function (done) {
+            isExpoAppStub.returns(Promise.resolve(false));
+            const rnVersion = "0.56.0";
+            const expected = ["--port", "10001"];
+            new Packager("/workspace", "/workspace", 10001)
+                .getPackagerArgs(rnVersion)
+                .then((args) => {
+                    assert.deepEqual(args, expected);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
+        });
+
+        test("getPackagerArgs should return correct value (react-native@0.57.0)", function (done) {
+            isExpoAppStub.returns(Promise.resolve(false));
+            const rnVersion = "0.57.0";
+            const expected = ["--port", "10001", "--resetCache"];
+            new Packager("/workspace", "/workspace", 10001)
+                .getPackagerArgs(rnVersion, true)
+                .then((args) => {
+                    assert.deepEqual(args, expected);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
+        });
+
+        test("getPackagerArgs should return correct value for expo app (react-native@0.56.0)", function (done) {
+            isExpoAppStub.returns(Promise.resolve(true));
+            getExpPackagerOptionsStub.returns(Promise.resolve({}));
+            const rnVersion = "0.56.0";
+            const expected = ["--port", "10001", "--resetCache", "--root", ".vscode"];
+            new Packager("/workspace", "/workspace", 10001)
+                .getPackagerArgs(rnVersion, true)
+                .then((args) => {
+                    assert.deepEqual(args, expected);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
+        });
+
+        test("getPackagerArgs should return correct value for expo app (react-native@0.57.0)", function (done) {
+            isExpoAppStub.returns(Promise.resolve(true));
+            getExpPackagerOptionsStub.returns(Promise.resolve({
+                assetExts: ["txt", "md"],
+            }));
+            const rnVersion = "0.57.0";
+            const expected = ["--port", "10001", "--assetExts", [ "txt", "md"]];
+            new Packager("/workspace", "/workspace", 10001)
+                .getPackagerArgs(rnVersion)
+                .then((args) => {
+                    assert.deepEqual(args, expected);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
     });
