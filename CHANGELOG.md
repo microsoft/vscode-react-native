@@ -1,3 +1,7 @@
+## 0.6.17
+* Added support for react-native versions >= 0.57
+* Bug fixes
+
 ## 0.6.16
 * Reverted to the state of 0.6.13
 
