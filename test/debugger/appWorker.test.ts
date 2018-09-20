@@ -151,8 +151,9 @@ suite("appWorker", function () {
                 let waitForCheckingOutput = Q.defer();
                 let debuggeeProcess: child_process.ChildProcess;
 
-                after(() => {
+                teardown((done) => {
                     if (ws) ws.close();
+                    done();
                 });
 
                 const sendContinueToDebuggee = (wsDebuggerUrl: string, resolve: (value: {}) => void, reject: (reason: any) => void) => {
