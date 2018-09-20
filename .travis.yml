@@ -23,6 +23,7 @@ install:
 
 script:
   - npm test
+  - /node_modules/mocha/bin/_mocha --ui tdd test/debugger/**/*.test.js test/common/**/*.test.js
   - node_modules/.bin/gulp test:coverage
 
 after_script:
