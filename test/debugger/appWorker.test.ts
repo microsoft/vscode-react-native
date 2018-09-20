@@ -63,7 +63,7 @@ suite("appWorker", function () {
             test("should be able to import scripts", function () {
                 // NOTE: we're not able to mock reading script for import since this is performed by a
                 // separate node process and is out of control so we must provide a real script file
-                const scriptImportPath = path.resolve(sourcesStoragePath, "importScriptsTest.js");
+                const scriptImportPath = path.resolve(sourcesStoragePath, "importScriptsTest.js").replace(/\\/g, "/");
                 const startScriptContents = `importScripts("${scriptImportPath}"); postMessage("postImport");`;
 
                 return workerWithScript(startScriptContents).start().then(() => {
