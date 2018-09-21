@@ -7,6 +7,7 @@ import * as path from "path";
 import * as Q from "q";
 import * as sinon from "sinon";
 import * as child_process from "child_process";
+import * as os from "os";
 
 import { MultipleLifetimesAppWorker } from "../../src/debugger/appWorker";
 import { ForkedAppWorker } from "../../src/debugger/forkedAppWorker";
@@ -42,7 +43,9 @@ suite("appWorker", function () {
 
             teardown(function () {
                 // Reset everything
-                spawnStub.restore();
+                if (spawnStub) {
+                    spawnStub.restore();
+                }
                 postReplyFunction.reset();
                 if (testWorker) {
                     testWorker.stop();
@@ -168,7 +171,7 @@ suite("appWorker", function () {
                                 reject(err);
                             }
                             // Delay is needed for debuggee process to execute script
-                            return Q.delay(500).then(() => {
+                            return Q.delay(1000).then(() => {
                                 resolve({});
                             });
                         });
@@ -188,12 +191,22 @@ suite("appWorker", function () {
                         //    but for some reason sometimes it returns ECONNRESET, so we have to find it in debug logs produced by debuggee
                         // 2. Debuggee process writes debug logs in stderr for some reasons
                         data = data.toString();
-                        // Looking for urls like ws://127.0.0.1:31732/7dd4c075-3222-4f31-8fb5-50cc5705dd21
-                        const found = data.match(/(ws:\/\/.+$)/gm);
+                        console.log(data);
+                        // Looking for websocket url
+                        // 1. Node v8+: ws://127.0.0.1:31732/7dd4c075-3222-4f31-8fb5-50cc5705dd21
+                        let found = data.match(/(ws:\/\/.+$)/gm);
                         if (found) {
                             // Debuggee process which has been ran with --debug-brk will be stopped at 0 line,
                             // so we have to send it a command to continue execution of the script via websocket.
                             sendContinueToDebuggee(found[0], waitForContinue.resolve, waitForContinue.reject);
+                            return;
+                        }
+
+                        // 2. Node v6: ws=127.0.0.1:31732/7dd4c075-3222-4f31-8fb5-50cc5705dd21
+                        found = data.match(/(ws=.+$)/gm);
+                        if (found) {
+                            sendContinueToDebuggee(found[0].replace("ws=", "ws:\\\\"), waitForContinue.resolve, waitForContinue.reject);
+                            return;
                         }
                     });
                     debuggeeProcess.stdout.on("data", (data: string) => {
@@ -201,7 +214,7 @@ suite("appWorker", function () {
                     });
                     debuggeeProcess.on("exit", () => {
                         assert.notEqual(output, "");
-                        assert.equal(output.replace(require("os").EOL, ""), "test output from debuggee process");
+                        assert.equal(output.replace(os.EOL, ""), "test output from debuggee process");
                         waitForCheckingOutput.resolve({});
                     });
                     return waitForContinue.promise;
@@ -209,7 +222,7 @@ suite("appWorker", function () {
                     debuggeeProcess.kill();
                     return waitForCheckingOutput.promise;
                 });
-            }).timeout(3000);
+            });
         });
 
         suite("MultipleLifetimesAppWorker", function () {
