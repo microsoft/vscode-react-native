@@ -209,7 +209,7 @@ suite("appWorker", function () {
                     debuggeeProcess.kill();
                     return waitForCheckingOutput.promise;
                 });
-            });
+            }).timeout(3000);
         });
 
         suite("MultipleLifetimesAppWorker", function () {
