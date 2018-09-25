@@ -8,6 +8,7 @@ import { CommandExecutor } from "../../common/commandExecutor";
 import * as path from "path";
 import * as fs from "fs";
 import { ILogger } from "../log/LogHelper";
+import * as os from "os";
 
 // See android versions usage at: http://developer.android.com/about/dashboards/index.html
 export enum AndroidAPILevel {
@@ -136,6 +137,27 @@ export class AdbHelper {
         return new ChildProcess().spawn(`${this.adbExecutable}`, adbParameters);
     }
 
+    public parseSdkLocation(fileContent: string, logger?: ILogger) {
+        const matches = fileContent.match(/^sdk\.dir=(.+)$/m);
+        if (!matches || !matches[1]) {
+            if (logger) {
+                logger.info(`No sdk.dir value found in local.properties file. Using Android SDK location from PATH.`);
+            }
+            return null;
+        }
+
+        let sdkLocation = matches[1].trim();
+        if (os.platform() === "win32") {
+            // For Windows we need to unescape files separators and drive letter separators
+            sdkLocation = sdkLocation.replace(/\\\\/g, "\\").replace("\\:", ":");
+        }
+        if (logger) {
+            logger.info(`Using Android SDK location defined in android/local.properties file: ${sdkLocation}.`);
+        }
+
+        return sdkLocation;
+    }
+
     private parseConnectedDevices(input: string): IDevice[] {
         let result: IDevice[] = [];
         let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
@@ -180,29 +202,16 @@ export class AdbHelper {
             return null;
         }
 
-        let fileContent;
+        let fileContent: string;
         try {
             fileContent = fs.readFileSync(localPropertiesFilePath).toString();
         } catch (e) {
             if (logger) {
-                logger.error(`Could read from ${localPropertiesFilePath}.`, e, e.stack);
+                logger.error(`Couldn't read from ${localPropertiesFilePath}.`, e, e.stack);
                 logger.info(`Using Android SDK location from PATH.`);
             }
             return null;
         }
-        const matches = fileContent.match(/^sdk\.dir=(.+)$/m);
-        if (!matches || !matches[1]) {
-            if (logger) {
-                logger.info(`No sdk.dir value found in local.properties file. Using Android SDK location from PATH.`);
-            }
-            return null;
-        }
-
-        const sdkLocation = matches[1].trim();
-        if (logger) {
-            logger.info(`Using Android SDK location defined in android/local.properties file: ${sdkLocation}.`);
-        }
-
-        return sdkLocation;
+        return this.parseSdkLocation(fileContent, logger);
     }
 }

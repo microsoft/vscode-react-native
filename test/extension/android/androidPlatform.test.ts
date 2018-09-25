@@ -5,6 +5,7 @@ import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
 import * as mockFs from "mock-fs";
+import * as assert from "assert";
 
 import {AndroidPlatform} from "../../../src/extension/android/androidPlatform";
 import {IAndroidRunOptions} from "../../../src/extension/launchArgs";
@@ -337,6 +338,31 @@ suite("androidPlatform", function () {
 
             runArgs.should.be.an.Array();
             runArgs.should.containDeepOrdered(args);
+        });
+
+        test("AdbHelper should correctly parse Android Sdk Location from local.properties file content", () => {
+            const adbHelper = new adb.AdbHelper("");
+            function testPaths(inputPath: string, expectedPath: string) {
+                const resultPath = adbHelper.parseSdkLocation(`sdk.dir=${inputPath}`);
+                assert.equal(resultPath, expectedPath);
+            }
+
+            const os = require("os");
+            function mockPlatform(platform: NodeJS.Platform) {
+                sandbox.restore();
+                sandbox.stub(os, "platform", function () {
+                    return platform;
+                });
+            }
+
+            mockPlatform("win32");
+            testPaths(String.raw`C\:\\Users\\User1\\AndroidSdk`, String.raw`C:\Users\User1\AndroidSdk`);
+            testPaths(String.raw`\\\\Network\\Shared\\Folder`, String.raw`\\Network\Shared\Folder`);
+
+            mockPlatform("darwin");
+            testPaths(String.raw`/var/lib/some/path`, String.raw`/var/lib/some/path`);
+            testPaths(String.raw`~/Library`, String.raw`~/Library`);
+            testPaths(String.raw`/Users/User1/home/path`, String.raw`/Users/User1/home/path`);
         });
     });
 });
