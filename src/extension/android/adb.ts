@@ -207,7 +207,7 @@ export class AdbHelper {
             fileContent = fs.readFileSync(localPropertiesFilePath).toString();
         } catch (e) {
             if (logger) {
-                logger.error(`Could't read from ${localPropertiesFilePath}.`, e, e.stack);
+                logger.error(`Couldn't read from ${localPropertiesFilePath}.`, e, e.stack);
                 logger.info(`Using Android SDK location from PATH.`);
             }
             return null;
