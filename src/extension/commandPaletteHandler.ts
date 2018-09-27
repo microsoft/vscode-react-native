@@ -17,7 +17,9 @@ import {ExponentHelper} from "./exponent/exponentHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {ExtensionServer} from "./extensionServer";
 import {IAndroidRunOptions, IIOSRunOptions} from "./launchArgs";
-import { ExponentPlatform } from "./exponent/exponentPlatform";
+import {ExponentPlatform} from "./exponent/exponentPlatform";
+import {CommandExecutor} from "../common/commandExecutor";
+import {resolve} from "path";
 
 interface IReactNativeStuff {
     packager: Packager;
@@ -33,6 +35,7 @@ interface IReactNativeProject extends IReactNativeStuff {
 export class CommandPaletteHandler {
     private static projectsCache: {[key: string]: IReactNativeProject} = {};
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
+    private static commandExecutor = new CommandExecutor(__dirname,CommandPaletteHandler.logger);
 
     public static addFolder(workspaceFolder: vscode.WorkspaceFolder, stuff: IReactNativeStuff): void {
         this.logger.debug(`Command palette: added folder ${workspaceFolder.uri.fsPath}`);
@@ -210,6 +213,10 @@ export class CommandPaletteHandler {
             });
     }
 
+    public static runInspector(): Q.Promise<void> {
+        const devToolsPath = resolve(__dirname, "..", "..", "node_modules", ".bin", /^win/.test(process.platform)? "react-devtools.cmd": "react-devtools");
+        return CommandPaletteHandler.commandExecutor.spawn(devToolsPath,[],{env:{}});
+    }
     public static getPlatformByCommandName(commandName: string): string {
         commandName = commandName.toLocaleLowerCase();
 
