@@ -18,8 +18,9 @@ import {ReactDirManager} from "./reactDirManager";
 import {ExtensionServer} from "./extensionServer";
 import {IAndroidRunOptions, IIOSRunOptions} from "./launchArgs";
 import {ExponentPlatform} from "./exponent/exponentPlatform";
-import {CommandExecutor} from "../common/commandExecutor";
-import {resolve} from "path";
+import { spawn, ChildProcess } from "child_process";
+import * as path from "path";
+const electron = require("electron");
 
 interface IReactNativeStuff {
     packager: Packager;
@@ -35,7 +36,7 @@ interface IReactNativeProject extends IReactNativeStuff {
 export class CommandPaletteHandler {
     private static projectsCache: {[key: string]: IReactNativeProject} = {};
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
-    private static commandExecutor = new CommandExecutor(__dirname, CommandPaletteHandler.logger);
+    private static elementInspector: ChildProcess | null;
 
     public static addFolder(workspaceFolder: vscode.WorkspaceFolder, stuff: IReactNativeStuff): void {
         this.logger.debug(`Command palette: added folder ${workspaceFolder.uri.fsPath}`);
@@ -213,10 +214,28 @@ export class CommandPaletteHandler {
             });
     }
 
-    public static runInspector(): Q.Promise<void> {
-        const devToolsPath = resolve(__dirname, "..", "..", "node_modules", ".bin", /^win/.test(process.platform)? "react-devtools.cmd": "react-devtools");
-        return CommandPaletteHandler.commandExecutor.spawn(devToolsPath, [], {env:{}});
+    public static runElementInspector(): Q.Promise<void> {
+        if (!CommandPaletteHandler.elementInspector) {
+            const devToolsPath = path.resolve(__dirname, "..", "..", "node_modules", "react-devtools", "app");
+            CommandPaletteHandler.elementInspector = spawn(electron, [devToolsPath], {
+                env: {
+                    PATH: process.env.PATH,
+                },
+            });
+            CommandPaletteHandler.elementInspector.once("exit", () => {
+                CommandPaletteHandler.elementInspector = null;
+            });
+        } else {
+            this.logger.info("Another element inspector already run");
+        }
+
+        return Q(void 0);
     }
+
+    public static stopElementInspector(): void {
+        return CommandPaletteHandler.elementInspector ? CommandPaletteHandler.elementInspector.kill() : void 0;
+    }
+
     public static getPlatformByCommandName(commandName: string): string {
         commandName = commandName.toLocaleLowerCase();
 
