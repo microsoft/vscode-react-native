@@ -35,7 +35,7 @@ interface IReactNativeProject extends IReactNativeStuff {
 export class CommandPaletteHandler {
     private static projectsCache: {[key: string]: IReactNativeProject} = {};
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
-    private static commandExecutor = new CommandExecutor(__dirname,CommandPaletteHandler.logger);
+    private static commandExecutor = new CommandExecutor(__dirname, CommandPaletteHandler.logger);
 
     public static addFolder(workspaceFolder: vscode.WorkspaceFolder, stuff: IReactNativeStuff): void {
         this.logger.debug(`Command palette: added folder ${workspaceFolder.uri.fsPath}`);
@@ -215,7 +215,7 @@ export class CommandPaletteHandler {
 
     public static runInspector(): Q.Promise<void> {
         const devToolsPath = resolve(__dirname, "..", "..", "node_modules", ".bin", /^win/.test(process.platform)? "react-devtools.cmd": "react-devtools");
-        return CommandPaletteHandler.commandExecutor.spawn(devToolsPath,[],{env:{}});
+        return CommandPaletteHandler.commandExecutor.spawn(devToolsPath, [], {env:{}});
     }
     public static getPlatformByCommandName(commandName: string): string {
         commandName = commandName.toLocaleLowerCase();
