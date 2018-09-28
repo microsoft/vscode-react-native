@@ -28,7 +28,7 @@ suite("elementInspector", function() {
         test("element inspector should not allow multiple windows to run", function(done: MochaDone) {
             CommandPaletteHandler.runElementInspector();
             if (CommandPaletteHandler.elementInspector) {
-                var PID = CommandPaletteHandler.elementInspector.pid;
+                let PID = CommandPaletteHandler.elementInspector.pid;
                 assert.equal(CommandPaletteHandler.elementInspector.pid, PID);
                 CommandPaletteHandler.stopElementInspector();
                 done();
