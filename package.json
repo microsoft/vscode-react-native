@@ -91,7 +91,7 @@
 			},
 			{
 				"command": "reactNative.runInspector",
-				"title": "React Native: Element Inspector"
+				"title": "React Native: Run Element Inspector"
 			}
 		],
 		"debuggers": [
