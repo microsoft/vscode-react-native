@@ -30,6 +30,7 @@ suite("elementInspector", function() {
             CommandPaletteHandler.runElementInspector();
             if (CommandPaletteHandler.elementInspector) {
                 let PID = CommandPaletteHandler.elementInspector.pid;
+                CommandPaletteHandler.runElementInspector();
                 assert.equal(CommandPaletteHandler.elementInspector.pid, PID);
                 CommandPaletteHandler.stopElementInspector();
                 done();

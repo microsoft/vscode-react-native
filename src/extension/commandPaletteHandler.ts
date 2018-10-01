@@ -20,6 +20,7 @@ import {IAndroidRunOptions, IIOSRunOptions} from "./launchArgs";
 import {ExponentPlatform} from "./exponent/exponentPlatform";
 import { spawn, ChildProcess } from "child_process";
 import * as path from "path";
+import * as fs from "fs";
 const electron = require("electron");
 
 interface IReactNativeStuff {
@@ -34,17 +35,9 @@ interface IReactNativeProject extends IReactNativeStuff {
 }
 
 export class CommandPaletteHandler {
+    public static elementInspector: ChildProcess | null;
     private static projectsCache: {[key: string]: IReactNativeProject} = {};
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
-    private static _elementInspector: ChildProcess | null;
-
-    public static get elementInspector() {
-        return CommandPaletteHandler._elementInspector;
-    }
-
-    public static set elementInspector(val) {
-        CommandPaletteHandler._elementInspector = val;
-    }
 
     public static addFolder(workspaceFolder: vscode.WorkspaceFolder, stuff: IReactNativeStuff): void {
         this.logger.debug(`Command palette: added folder ${workspaceFolder.uri.fsPath}`);
@@ -224,7 +217,9 @@ export class CommandPaletteHandler {
 
     public static runElementInspector(): Q.Promise<void> {
         if (!CommandPaletteHandler.elementInspector) {
+            // DO NOT CHANGE THIS PATH
             const devToolsPath = path.resolve(__dirname, "..", "..", "node_modules", "react-devtools", "app.js");
+            if (fs.existsSync(devToolsPath)) {
             CommandPaletteHandler.elementInspector = spawn(electron, [devToolsPath], {
                 env: {
                     PATH: process.env.PATH,
@@ -233,10 +228,11 @@ export class CommandPaletteHandler {
             CommandPaletteHandler.elementInspector.once("exit", () => {
                 CommandPaletteHandler.elementInspector = null;
             });
-        } else {
-            this.logger.info("Another element inspector already run");
+    } else {
+        this.logger.error("Not found element inspector file, maybe not installed or damaged");
+        throw new Error("Not found element inspector file, maybe not installed or damaged");
         }
-
+    } else this.logger.info("Another element inspector already run");
         return Q(void 0);
     }
 
