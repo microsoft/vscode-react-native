@@ -17,7 +17,11 @@ import {ExponentHelper} from "./exponent/exponentHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {ExtensionServer} from "./extensionServer";
 import {IAndroidRunOptions, IIOSRunOptions} from "./launchArgs";
-import { ExponentPlatform } from "./exponent/exponentPlatform";
+import {ExponentPlatform} from "./exponent/exponentPlatform";
+import { spawn, ChildProcess } from "child_process";
+import * as path from "path";
+import * as fs from "fs";
+const electron = require("electron");
 
 interface IReactNativeStuff {
     packager: Packager;
@@ -31,6 +35,7 @@ interface IReactNativeProject extends IReactNativeStuff {
 }
 
 export class CommandPaletteHandler {
+    public static elementInspector: ChildProcess | null;
     private static projectsCache: {[key: string]: IReactNativeProject} = {};
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
@@ -208,6 +213,42 @@ export class CommandPaletteHandler {
                     .catch(() => { }); // Ignore any errors
                 return Q.resolve(void 0);
             });
+    }
+
+    public static runElementInspector(): Q.Promise<void> {
+        if (!CommandPaletteHandler.elementInspector) {
+            // DO NOT CHANGE THIS PATH
+            const devToolsPath = path.resolve(__dirname, "..", "..", "node_modules", "react-devtools", "app.js");
+            if (fs.existsSync(devToolsPath)) {
+                // Remove the following env variables to prevent running electron app in node mode.
+                // https://github.com/Microsoft/vscode/issues/3011#issuecomment-184577502
+                let env = Object.assign({}, process.env);
+                delete env.ATOM_SHELL_INTERNAL_RUN_AS_NODE;
+                delete env.ELECTRON_RUN_AS_NODE;
+                CommandPaletteHandler.elementInspector = spawn(electron, [devToolsPath], {
+                    env,
+                });
+                CommandPaletteHandler.elementInspector.stdout.on("data", (data: string) => {
+                    this.logger.info(data);
+                });
+                CommandPaletteHandler.elementInspector.stderr.on("data", (data: string) => {
+                    this.logger.error(data);
+                });
+                CommandPaletteHandler.elementInspector.once("exit", () => {
+                    CommandPaletteHandler.elementInspector = null;
+                });
+            } else {
+                this.logger.error("Not found element inspector file, maybe not installed or damaged");
+                throw new Error("Not found element inspector file, maybe not installed or damaged");
+            }
+        } else {
+            this.logger.info("Another element inspector already run");
+        }
+        return Q(void 0);
+    }
+
+    public static stopElementInspector(): void {
+        return CommandPaletteHandler.elementInspector ? CommandPaletteHandler.elementInspector.kill() : void 0;
     }
 
     public static getPlatformByCommandName(commandName: string): string {
