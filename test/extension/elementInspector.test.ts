@@ -21,8 +21,9 @@ suite("elementInspector", function() {
                     assert.equal(CommandPaletteHandler.elementInspector, null);
                     done();
                 });
-            } else
+            } else {
                 assert.ifError("element inspector didn't launch properly");
+            }
             CommandPaletteHandler.stopElementInspector();
         });
 
@@ -34,8 +35,9 @@ suite("elementInspector", function() {
                 assert.equal(CommandPaletteHandler.elementInspector.pid, PID);
                 CommandPaletteHandler.stopElementInspector();
                 done();
-            } else
+            } else {
                 assert.ifError("element inspector didn't launch properly");
+            }
         });
     });
 

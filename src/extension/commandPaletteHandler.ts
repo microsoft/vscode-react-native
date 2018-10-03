@@ -232,7 +232,9 @@ export class CommandPaletteHandler {
                 this.logger.error("Not found element inspector file, maybe not installed or damaged");
                 throw new Error("Not found element inspector file, maybe not installed or damaged");
             }
-        } else this.logger.info("Another element inspector already run");
+        } else {
+            this.logger.info("Another element inspector already run");
+        }
         return Q(void 0);
     }
 
