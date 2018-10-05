@@ -7,7 +7,6 @@ import * as path from "path";
 import * as Q from "q";
 import * as sinon from "sinon";
 import * as child_process from "child_process";
-import * as os from "os";
 
 import { MultipleLifetimesAppWorker } from "../../src/debugger/appWorker";
 import { ForkedAppWorker } from "../../src/debugger/forkedAppWorker";
@@ -214,7 +213,7 @@ suite("appWorker", function () {
                     });
                     debuggeeProcess.on("exit", () => {
                         assert.notEqual(output, "");
-                        assert.equal(output.replace(os.EOL, ""), "test output from debuggee process");
+                        assert.equal(output.trim(), "test output from debuggee process");
                         waitForCheckingOutput.resolve({});
                     });
                     return waitForContinue.promise;
