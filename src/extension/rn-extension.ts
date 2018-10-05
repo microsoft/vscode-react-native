@@ -81,7 +81,11 @@ export function deactivate(): Q.Promise<void> {
         entryPointHandler.runFunction("extension.deactivate",
             ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
             () => {
-                CommandPaletteHandler.stopAllPackagers().done(() => {
+                CommandPaletteHandler.stopAllPackagers()
+                .then(() => {
+                    return CommandPaletteHandler.stopElementInspector();
+                })
+                .done(() => {
                     // Tell vscode that we are done with deactivation
                     resolve(void 0);
                 });
@@ -211,6 +215,7 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     registerVSCodeCommand(context, "publishToExpHost", ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost), () => CommandPaletteHandler.publishToExpHost());
     registerVSCodeCommand(context, "showDevMenu", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, "React Native: Show Dev Menu"), () => CommandPaletteHandler.showDevMenu());
     registerVSCodeCommand(context, "reloadApp", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, "React Native: Reload App"), () => CommandPaletteHandler.reloadApp());
+    registerVSCodeCommand(context, "runInspector", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, "React Native: Run Element Inspector"), () => CommandPaletteHandler.runElementInspector());
 }
 
 function registerVSCodeCommand(context: vscode.ExtensionContext, commandName: string, error: InternalError, commandHandler: () => Q.Promise<void>): void {

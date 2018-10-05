@@ -1,7 +1,7 @@
 {
 	"name": "vscode-react-native",
 	"displayName": "React Native Tools",
-	"version": "0.6.17",
+	"version": "0.6.18",
 	"private": true,
 	"publisher": "vsmobile",
 	"icon": "images/icon.png",
@@ -39,7 +39,8 @@
 		"onCommand:reactNative.restartPackager",
 		"onCommand:reactNative.publishToExpHost",
 		"onCommand:reactNative.showDevMenu",
-		"onCommand:reactNative.reloadApp"
+		"onCommand:reactNative.reloadApp",
+		"onCommand:reactNative.runInspector"
 	],
 	"main": "./src/extension/rn-extension",
 	"contributes": {
@@ -87,6 +88,10 @@
 			{
 				"command": "reactNative.reloadApp",
 				"title": "React Native: Reload App"
+			},
+			{
+				"command": "reactNative.runInspector",
+				"title": "React Native: Run Element Inspector"
 			}
 		],
 		"debuggers": [
@@ -497,6 +502,7 @@
 		"options": "0.0.6",
 		"q": "1.4.1",
 		"qr-image": "^3.2.0",
+		"react-devtools": "^3.4.0",
 		"semver": "5.1.0",
 		"source-map": "0.5.2",
 		"source-map-resolve": "^0.5.0",

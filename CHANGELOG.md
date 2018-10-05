@@ -1,3 +1,6 @@
+## 0.6.18
+* Fix parsing `sdk.dir` in `android/local.properties` on Windows machines
+
 ## 0.6.17
 * Return changes from 0.6.14 - 0.6.15
 * Added support for react-native versions >= 0.57
