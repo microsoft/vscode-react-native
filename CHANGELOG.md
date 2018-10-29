@@ -1,5 +1,5 @@
 ## 0.6.19
-* Added React Native Element Inspector command to the command palette
+* Added `Run Element Inspector` command that runs standalone [React Developer Tools](https://github.com/facebook/react-devtools)
 
 ## 0.6.18
 * Fix parsing `sdk.dir` in `android/local.properties` on Windows machines
