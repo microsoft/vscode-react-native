@@ -1,3 +1,6 @@
+## 0.6.19
+* Added React Native Element Inspector command to the command palette
+
 ## 0.6.18
 * Fix parsing `sdk.dir` in `android/local.properties` on Windows machines
 
