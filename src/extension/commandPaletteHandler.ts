@@ -18,7 +18,8 @@ import {ReactDirManager} from "./reactDirManager";
 import {ExtensionServer} from "./extensionServer";
 import {IAndroidRunOptions, IIOSRunOptions} from "./launchArgs";
 import {ExponentPlatform} from "./exponent/exponentPlatform";
-import { spawn, ChildProcess, spawnSync } from "child_process";
+import {spawn, ChildProcess} from "child_process";
+import {HostPlatform} from "../common/hostPlatform";
 
 interface IReactNativeStuff {
     packager: Packager;
@@ -219,15 +220,15 @@ export class CommandPaletteHandler {
             let env = Object.assign({}, process.env);
             delete env.ATOM_SHELL_INTERNAL_RUN_AS_NODE;
             delete env.ELECTRON_RUN_AS_NODE;
-            let command = /^win/.test(process.platform) ? "react-devtools.cmd" : "react-devtools";
-            let checkExistence = spawnSync(/^win/.test(process.platform) ? "npm.cmd" : "npm", ["list", "-g", "react-devtools"]);
-            if (/empty/.exec(checkExistence.output[1].toString())) {
-               this.logger.error("React devtools is not installed. Run `npm install -g react-devtools` command in your terminal to install it.");
-               throw new Error("React devtools is not installed. Run `npm install -g react-devtools` command in your terminal to install it.");
-            }
+            let command = HostPlatform.getNpmCliCommand("react-devtools");
             CommandPaletteHandler.elementInspector = spawn(command, [], {
                 env,
             });
+            if (!CommandPaletteHandler.elementInspector.pid) {
+                CommandPaletteHandler.elementInspector = null;
+                this.logger.error("React devtools is not installed. Run `npm install -g react-devtools` command in your terminal to install it.");
+                throw new Error("React devtools is not installed. Run `npm install -g react-devtools` command in your terminal to install it.");
+            }
             CommandPaletteHandler.elementInspector.stdout.on("data", (data: string) => {
                 this.logger.info(data);
             });
