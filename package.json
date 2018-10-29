@@ -542,7 +542,6 @@
 		"mocha": "^3.2.0",
 		"mocha-teamcity-reporter": "^1.0.0",
 		"mock-fs": "^4.4.1",
-		"react-devtools": "^3.4.2",
 		"remap-istanbul": "^0.9.5",
 		"rmdir": "^1.2.0",
 		"run-sequence": "^1.2.2",
