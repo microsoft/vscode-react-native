@@ -20,6 +20,7 @@ before_install:
 install:
   - npm install
   - npm run vscode:prepublish
+  - npm install -g react-devtools
 
 script:
   - npm test

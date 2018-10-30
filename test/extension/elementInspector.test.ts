@@ -3,16 +3,12 @@
 
 import { CommandPaletteHandler } from "../../src/extension/commandPaletteHandler";
 import * as assert from "assert";
-import * as fs from "fs";
-import * as path from "path";
 
 
 suite("elementInspector", function() {
     suite("extensionContext", function () {
 
         test("element inspector should run and closed without errors", function(done: MochaDone) {
-            const devToolsPath = path.resolve(__dirname, "..", "..", "node_modules", "react-devtools", "app.js");
-            assert.equal(fs.existsSync(devToolsPath), true);
             CommandPaletteHandler.runElementInspector();
             assert.notEqual(CommandPaletteHandler.elementInspector, null);
 
