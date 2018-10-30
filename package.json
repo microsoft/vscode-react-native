@@ -103,7 +103,7 @@
 			{
 				"command": "reactNative.runInspector",
 				"title": "%reactNative.command.runInspector.title%",
-				"category": "React Native:"
+				"category": "React Native"
 			}
 		],
 		"debuggers": [
