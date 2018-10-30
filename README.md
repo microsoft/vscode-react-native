@@ -30,7 +30,7 @@ VS Code will generate a `launch.json` in your project with some default configur
 
 ![React Native launch targets](images/debug-targets.png)
 
-Once app is loaded and ran, open Developer Menu inside your application and enable remote debug by click on `Debug JS Remotely` button.
+Once app is loaded and ran, [open Developer Menu](https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu) inside your application and enable remote debug by click on `Debug JS Remotely` button.
 
 ![React Native enable remote debug](images/enable-remote-debug.png)
 
