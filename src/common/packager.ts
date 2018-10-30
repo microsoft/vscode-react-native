@@ -12,24 +12,19 @@ import {Package} from "./node/package";
 import {PromiseUtil} from "./node/promise";
 import {Request} from "./node/request";
 import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
-import {PackagerStatusIndicator} from "../extension/packagerStatusIndicator";
+import {PackagerStatusIndicator, PackagerStatus} from "../extension/packagerStatusIndicator";
 import {SettingsHelper} from "../extension/settingsHelper";
 
 import * as Q from "q";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
-import * as url from "url";
-
-export enum PackagerRunAs {
-    REACT_NATIVE,
-    EXPONENT,
-    NOT_RUNNING,
-}
+import * as semver from "semver";
+import { FileSystem } from "./node/fileSystem";
 
 export class Packager {
     public static DEFAULT_PORT = 8081;
     private packagerProcess: ChildProcess | undefined;
-    private packagerRunningAs: PackagerRunAs;
+    private packagerStatus: PackagerStatus;
     private packagerStatusIndicator: PackagerStatusIndicator;
     private logger: OutputChannelLogger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
 
@@ -39,13 +34,16 @@ export class Packager {
     private static OPN_PACKAGE_NAME = "opn";
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
+    private static fs: FileSystem = new Node.FileSystem();
+    private expoHelper: ExponentHelper;
 
     constructor(private workspacePath: string, private projectPath: string, private packagerPort?: number, packagerStatusIndicator?: PackagerStatusIndicator) {
-        this.packagerRunningAs = PackagerRunAs.NOT_RUNNING;
+        this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
         this.packagerStatusIndicator = packagerStatusIndicator || new PackagerStatusIndicator();
+        this.expoHelper = new ExponentHelper(this.workspacePath, this.projectPath);
     }
 
-    private get port(): number {
+    public get port(): number {
         return this.packagerPort || SettingsHelper.getPackagerPort(this.workspacePath);
     }
 
@@ -60,50 +58,108 @@ export class Packager {
         return Packager.getHostForPort(this.port);
     }
 
-    public getRunningAs(): PackagerRunAs {
-        return this.packagerRunningAs;
+    public getPackagerStatus(): PackagerStatus {
+        return this.packagerStatus;
     }
 
-    public startAsReactNative(): Q.Promise<void> {
-        return this.start(PackagerRunAs.REACT_NATIVE);
-    }
+    public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<string[]> {
+        let args: string[] = ["--port", this.port.toString()];
 
-    public startAsExponent(): Q.Promise<string> {
-        return this.isRunning()
-            .then(running => {
-                if (running && this.packagerRunningAs === PackagerRunAs.REACT_NATIVE) {
-                    return this.killPackagerProcess()
-                        .then(() =>
-                            this.start(PackagerRunAs.EXPONENT));
-                } else if (running && this.packagerRunningAs === PackagerRunAs.NOT_RUNNING) {
-                    this.logger.warning(ErrorHelper.getWarning("Packager running outside of VS Code. To avoid issues with exponent make sure it is running with .vscode/ as a root."));
-                    return Q.resolve<void>(void 0);
-                } else if (this.packagerRunningAs !== PackagerRunAs.EXPONENT) {
-                    return this.start(PackagerRunAs.EXPONENT);
-                } else {
-                    return Q.resolve(void 0);
-                }
+        if (resetCache) {
+            args = args.concat("--resetCache");
+        }
+
+        return this.expoHelper.isExpoApp(false)
+        .then((isExpo) => {
+            if (!isExpo) {
+                return args;
+            }
+
+            // Arguments below using for Expo apps
+            if (!semver.gte(rnVersion, "0.57.0")) {
+                args.push("--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode")));
+            }
+
+            return this.expoHelper.getExpPackagerOptions()
+            .then((options: ExpConfigPackager) => {
+                Object.keys(options).forEach(key => {
+                    args = args.concat([`--${key}`, options[key]]);
+                });
+
+                return args;
             })
-            .then(() =>
-                XDL.setOptions(this.projectPath, { packagerPort: this.port })
-            )
-            .then(() =>
-                XDL.startExponentServer(this.projectPath)
-            )
-            .then(() =>
-                XDL.startTunnels(this.projectPath)
-            )
-            .then(() =>
-                XDL.getUrl(this.projectPath, { dev: true, minify: false })
-            ).then(exponentUrl => {
-                return "exp://" + url.parse(exponentUrl).host;
-            })
-            .catch(reason => {
-                return Q.reject<string>(reason);
+            .catch(() => {
+                this.logger.warning("Couldn't read packager's options from exp.json, continue...");
+
+                return args;
             });
+        });
+    }
+
+    public start(resetCache: boolean = false): Q.Promise<void> {
+        this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTING);
+        let executedStartPackagerCmd = false;
+        let rnVersion: string;
+
+        return this.isRunning()
+        .then((running) => {
+            if (running) {
+                return void 0;
+            }
+
+            executedStartPackagerCmd = true;
+
+            return this.monkeyPatchOpnForRNPackager()
+            .then(() => {
+                return ReactNativeProjectHelper.getReactNativeVersion(this.projectPath);
+            })
+            .then((version) => {
+                rnVersion = version;
+                return this.getPackagerArgs(rnVersion, resetCache);
+            })
+            .then((args) => {
+                //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
+                //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210
+                //  This bug will be fixed in 0.41
+                const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
+
+                let reactEnv = Object.assign({}, process.env, {
+                    REACT_DEBUGGER: "echo A debugger is not needed: ",
+                    REACT_EDITOR: failedRNVersions.indexOf(rnVersion) < 0 ? "code" : this.openFileAtLocationCommand(),
+                });
+
+                this.logger.info("Starting Packager");
+                // The packager will continue running while we debug the application, so we can"t
+                // wait for this command to finish
+
+                let spawnOptions = { env: reactEnv };
+
+                const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
+                this.packagerProcess = packagerSpawnResult.spawnedProcess;
+                packagerSpawnResult.outcome.done(() => { }, () => { }); // Q prints a warning if we don't call .done(). We ignore all outcome errors
+
+                return packagerSpawnResult.startup;
+            });
+        })
+        .then(() => {
+            return this.awaitStart();
+        })
+        .then(() => {
+            this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
+            if (executedStartPackagerCmd) {
+                this.logger.info("Packager started.");
+                this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
+            } else {
+                this.logger.info("Packager is already running.");
+                if (!this.packagerProcess) {
+                    this.logger.warning(ErrorHelper.getWarning("React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option"));
+                }
+            }
+        });
     }
 
     public stop(silent: boolean = false): Q.Promise<void> {
+        this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPING);
         return this.isRunning()
             .then(running => {
                 if (running) {
@@ -121,7 +177,8 @@ export class Packager {
                     return Q.resolve<void>(void 0);
                 }
             }).then(() => {
-                this.packagerRunningAs = PackagerRunAs.NOT_RUNNING;
+                this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
+                this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED);
             });
     }
 
@@ -129,8 +186,6 @@ export class Packager {
         if (this.port && this.port !== port) {
             return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
         }
-
-        const currentRunningState = this.packagerRunningAs;
 
         return this.isRunning()
             .then(running => {
@@ -148,20 +203,49 @@ export class Packager {
             })
             .then(stoppedOK => {
                 if (stoppedOK) {
-                    return this.start(currentRunningState,  true);
+                    return this.start(true);
                 } else {
                     return Q.resolve<void>(void 0);
                 }
             });
     }
 
-    public prewarmBundleCache(platform: string) {
+    public prewarmBundleCache(platform: string): Q.Promise<void> {
         if (platform === "exponent") {
-            return Q.resolve<void>(void 0);
+            return Q.resolve(void 0);
         }
+
         return this.isRunning()
             .then(running => {
-                return running ? this.prewarmBundleCacheWithBundleFilename(`index.${platform}`, platform) : void 0;
+                if (!running) {
+                    return void 0;
+                }
+                const defaultIndex = path.resolve(this.projectPath, "index.js");
+                const oldIndex = path.resolve(this.projectPath, `index.${platform}.js`); // react-native < 0.49.0
+
+                return Q.all([Packager.fs.exists(defaultIndex), Packager.fs.exists(oldIndex)])
+                .then((exists) => {
+                    let bundleName = "";
+                    if (exists[0]) {
+                        bundleName = "index.bundle";
+                    } else if (exists[1]) {
+                        bundleName = `index.${platform}.bundle`;
+                    } else {
+                        this.logger.info(`Entry point doesn't exist neither at index.js nor index.${platform}.js. Skip prewarming...`);
+                        return;
+                    }
+
+                    const bundleURL = `http://${this.getHost()}/${bundleName}?platform=${platform}`;
+                    this.logger.info("About to get: " + bundleURL);
+                    return Request.request(bundleURL, true)
+                        .then(() => {
+                            this.logger.warning("The Bundle Cache was prewarmed.");
+                        });
+                })
+                .catch(() => {
+                    // The attempt to prefetch the bundle failed. This may be because the bundle has
+                    // a different name that the one we guessed so we shouldn't treat this as fatal.
+                });
             });
     }
 
@@ -173,113 +257,6 @@ export class Packager {
             },
             (error: any) => {
                 return false;
-            });
-    }
-
-    private prewarmBundleCacheWithBundleFilename(bundleFilename: string, platform: string): Q.Promise<void> {
-        const indexFileName = path.resolve(this.projectPath, bundleFilename + ".js");
-        const bundleURL = `http://${this.getHost()}/${bundleFilename}.bundle?platform=${platform}`;
-        return new Node.FileSystem().exists(indexFileName)
-            .then(exists => {
-                // If guessed entry point doesn't exist - skip prewarming, since it's not possible
-                // at this moment to determine _real_ bundle/ entry point name anyway
-                if (!exists) {
-                    this.logger.info(`Entry point at ${indexFileName} doesn't exist. Skipping prewarming...`);
-                    return;
-                }
-
-                this.logger.info("About to get: " + bundleURL);
-                return Request.request(bundleURL, true)
-                    .then(() => {
-                        this.logger.warning("The Bundle Cache was prewarmed.");
-                    });
-            })
-            .catch(() => {
-                // The attempt to prefetch the bundle failed. This may be because the bundle has
-                // a different name that the one we guessed so we shouldn't treat this as fatal.
-            });
-    }
-
-    private start(runAs: PackagerRunAs, resetCache: boolean = false): Q.Promise<void> {
-        let executedStartPackagerCmd = false;
-        return this.isRunning()
-            .then(running => {
-                if (!running) {
-                    executedStartPackagerCmd = true;
-                    return this.monkeyPatchOpnForRNPackager()
-                        .then(() => {
-                            let args: string[] = ["--port", this.port.toString()];
-                            if (resetCache) {
-                                args = args.concat("--resetCache");
-                            }
-
-                            if (runAs !== PackagerRunAs.EXPONENT) {
-                                return args;
-                            }
-
-                            args.push("--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode")));
-
-                            let helper = new ExponentHelper(this.workspacePath, this.projectPath);
-                            return helper.getExpPackagerOptions()
-                                .then((options: ExpConfigPackager) => {
-                                    Object.keys(options).forEach(key => {
-                                        args = args.concat([`--${key}`, options[key]]);
-                                    });
-
-                                    // Patch for CRNA
-                                    if (args.indexOf("--assetExts") === -1) {
-                                        args.push("--assetExts", "ttf");
-                                    }
-
-                                    return args;
-                                })
-                                .catch(() => {
-                                    this.logger.warning("Couldn't read packager's options from exp.json, continue...");
-                                    return args;
-                                });
-                        })
-                        .then((args) => {
-                            const projectRoot = SettingsHelper.getReactNativeProjectRoot(this.workspacePath);
-                            ReactNativeProjectHelper.getReactNativeVersion(projectRoot).then(version => {
-
-                                //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
-                                //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210
-                                //  This bug will be fixed in 0.41
-                                const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
-
-                                let reactEnv = Object.assign({}, process.env, {
-                                    REACT_DEBUGGER: "echo A debugger is not needed: ",
-                                    REACT_EDITOR: failedRNVersions.indexOf(version) < 0 ? "code" : this.openFileAtLocationCommand(),
-                                });
-
-                                this.logger.info("Starting Packager");
-                                // The packager will continue running while we debug the application, so we can"t
-                                // wait for this command to finish
-
-                                let spawnOptions = { env: reactEnv };
-
-                                const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
-                                this.packagerProcess = packagerSpawnResult.spawnedProcess;
-                                packagerSpawnResult.outcome.done(() => { }, () => { }); /* Q prints a warning if we don't call .done().
-                                                                                        We ignore all outcome errors */
-                                return packagerSpawnResult.startup;
-                            });
-                        });
-                }
-                return void 0;
-            })
-            .then(() =>
-                this.awaitStart())
-            .then(() => {
-                if (executedStartPackagerCmd) {
-                    this.logger.info("Packager started.");
-                    this.packagerRunningAs = runAs;
-                } else {
-                    this.logger.info("Packager is already running.");
-                    if (!this.packagerProcess) {
-                        this.logger.warning(ErrorHelper.getWarning("React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option"));
-                    }
-                }
             });
     }
 
@@ -339,14 +316,27 @@ export class Packager {
         this.logger.info("Stopping Packager");
         return new CommandExecutor(this.projectPath, this.logger).killReactPackager(this.packagerProcess).then(() => {
             this.packagerProcess = undefined;
-            if (this.packagerRunningAs === PackagerRunAs.EXPONENT) {
-                this.logger.info("Stopping Exponent");
-                return XDL.stopAll(this.projectPath)
-                    .then(() =>
-                        this.logger.info("Exponent Stopped")
-                    );
-            }
-            return Q.resolve<void>(void 0);
+
+            let helper = new ExponentHelper(this.workspacePath, this.projectPath);
+
+            return helper.isExpoApp(false)
+            .then((isExpo) => {
+                if (isExpo) {
+                    this.logger.debug("Stopping Exponent");
+                    return XDL.stopAll(this.projectPath)
+                        .then(() => {
+                            this.logger.debug("Exponent Stopped");
+                        })
+                        .catch((err) => {
+                            if (err.code === "NOT_LOGGED_IN") {
+                                return void(0);
+                            }
+                            throw err;
+                        });
+                } else {
+                    return void(0);
+                }
+            });
         });
     }
 

@@ -9,11 +9,16 @@ import {Telemetry} from "./telemetry";
 export interface ICommonApi {
     expose(methods: any): void;
 }
+
+export interface OpenFileRequest {
+    filename: string;
+    lineNumber: number;
+}
+
 export interface IExtensionApi extends ICommonApi {
     stopMonitoringLogcat(): Q.Promise<void>;
-    sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string,
-                  properties?: Telemetry.ITelemetryEventProperties, measures?: Telemetry.ITelemetryEventMeasures): Q.Promise<any>;
-    openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void>;
+    sendTelemetry(telemetryRequest: Telemetry.TelemetryRequest): Q.Promise<any>;
+    openFileAtLocation(openFileRequest: OpenFileRequest): Q.Promise<void>;
     getPackagerPort(program: string): Q.Promise<number>;
     showInformationMessage(infoMessage: string): Q.Promise<void>;
     launch(request: any): Q.Promise<any>;
@@ -55,12 +60,24 @@ export class RemoteExtension {
     }
 
     public sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string,
-                         properties?: Telemetry.ITelemetryEventProperties, measures?: Telemetry.ITelemetryEventMeasures): Q.Promise<any> {
-        return this._api.Extension.sendTelemetry(extensionId, extensionVersion, appInsightsKey, eventName, properties, measures);
+                         properties: Telemetry.ITelemetryEventProperties = {}, measures: Telemetry.ITelemetryEventMeasures = {}): Q.Promise<any> {
+        const request: Telemetry.TelemetryRequest = {
+            extensionId,
+            extensionVersion,
+            appInsightsKey,
+            eventName,
+            properties,
+            measures,
+        };
+        return this._api.Extension.sendTelemetry(request);
     }
 
     public openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void> {
-        return this._api.Extension.openFileAtLocation(filename, lineNumber);
+        const request: OpenFileRequest = {
+            filename,
+            lineNumber,
+        };
+        return this._api.Extension.openFileAtLocation(request);
     }
 
     public getPackagerPort(program: string): Q.Promise<number> {

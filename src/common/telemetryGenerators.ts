@@ -19,9 +19,11 @@ export abstract class TelemetryGeneratorBase {
     private currentStepStartTime: [number, number];
     private currentStep: string = "initialStep";
     private errorIndex: number = -1; // In case we have more than one error (We start at -1 because we increment it before using it)
+    private extendedTelemetryProperties: ICommandTelemetryProperties = {};
 
-    constructor(componentName: string) {
+    constructor(componentName: string, extendedProps: ICommandTelemetryProperties = {}) {
         this.componentName = componentName;
+        this.extendedTelemetryProperties = extendedProps;
         this.currentStepStartTime = process.hrtime();
     }
 
@@ -96,7 +98,7 @@ export abstract class TelemetryGeneratorBase {
     private sendCurrentStep(): void {
         this.add("step", this.currentStep, /*isPii*/ false);
         let telemetryEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(this.componentName);
-        TelemetryHelper.addTelemetryEventProperties(telemetryEvent, this.telemetryProperties);
+        TelemetryHelper.addTelemetryEventProperties(telemetryEvent, Object.assign(this.telemetryProperties, this.extendedTelemetryProperties));
         this.sendTelemetryEvent(telemetryEvent);
     }
 
@@ -116,13 +118,15 @@ export abstract class TelemetryGeneratorBase {
     }
 
     private combine(...components: string[]): string {
-        let nonNullComponents: string[] = components.filter((component: string) => component !== null);
+        let nonNullComponents: string[] = components.filter((component: string) => !!component);
         return nonNullComponents.join(".");
     }
 
     private finishTime(name: string, startTime: [number, number]): void {
-        let endTime: [number, number] = process.hrtime(startTime);
-        this.add(this.combine(name, "time"), String(endTime[0] * 1000 + endTime[1] / 1000000), /*isPii*/ false);
+        if (!!name) { // not a ghost step
+            let endTime: [number, number] = process.hrtime(startTime);
+            this.add(this.combine(name, "time"), String(endTime[0] * 1000 + endTime[1] / 1000000), /*isPii*/ false);
+        }
     }
 }
 

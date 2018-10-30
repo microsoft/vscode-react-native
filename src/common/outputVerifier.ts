@@ -46,8 +46,8 @@ export class OutputVerifier {
                     const message =
                     `Unknown error: not all success patterns were matched.
 It means that "react-native run-${this.platformName}" command failed. \
-Please, check the View -> Toggle Output -> React-native, \
-View -> Toggle Output -> React-native: Run ${this.platformName} output windows.`;
+Please, check the View -> Toggle Output -> React Native, \
+View -> Toggle Output -> React Native: Run ${this.platformName} output windows.`;
                     return Q.reject<void>(new Error(message));
                 } // else we found all the success patterns, so we succeed
                 return Q.resolve(void 0);

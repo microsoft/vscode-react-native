@@ -1,3 +1,39 @@
+## 0.6.19
+* Added `Run Element Inspector` command that runs standalone [React Developer Tools](https://github.com/facebook/react-devtools)
+
+## 0.6.18
+* Fix parsing `sdk.dir` in `android/local.properties` on Windows machines
+
+## 0.6.17
+* Return changes from 0.6.14 - 0.6.15
+* Added support for react-native versions >= 0.57
+* Bug fixes
+
+## 0.6.16
+* Reverted to the state of 0.6.13
+
+## 0.6.15
+* Fixed critical issue with android debugging introduced in 0.6.14
+
+## 0.6.14
+* Added reading SDK location from `local.properties`
+* Added support for building iOS apps with custom configuration names
+* Bug fixes and improvements
+
+## 0.6.13
+* Fixed "Inverified breakpoint" error while debugging apps with RN >= 0.54.3 < 0.55
+* Fixed issue with ignoring getAssetExts() in rn-cli.config.js during debugging
+* Fixed leaking global variable "process.versions" from debugger process to worker
+
+## 0.6.12
+* Added debugger for WPF platform(react-native-windows > 0.55.0)
+* Minor bug fixes and improvements
+
+## 0.6.11
+* Fixed activation event promises handling
+* Fixed "connect ENOENT *.sock" error during debugging from within non React Native project root
+* Minor bug fixes and improvements
+
 ## 0.6.10
 * Minor fixes and improvements
 

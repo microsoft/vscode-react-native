@@ -11,6 +11,7 @@ src/**/*.js
 !src/extension/appcenter/lib/**/*.js
 test/**/*.js
 **/*.js.map
+vscode-react-native-*.vsix
 
 # Sample Application auto-generated files
 SampleApplication/.vscode/.react/debuggerWorker.js

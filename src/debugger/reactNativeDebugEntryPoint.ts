@@ -16,7 +16,7 @@ import { DebugSession, OutputEvent, TerminatedEvent } from "vscode-debugadapter"
 
 const version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
 const telemetryReporter = new ReassignableTelemetryReporter(new NullTelemetryReporter());
-const extensionName = "react-native-debug-adapter";
+const extensionName = "react-native-tools";
 
 function bailOut(reason: string): void {
     // Things have gone wrong in initialization: Report the error to telemetry and exit

@@ -10,11 +10,13 @@ import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { RemoteExtension } from "../common/remoteExtension";
 import { RemoteTelemetryReporter, ReassignableTelemetryReporter } from "../common/telemetryReporters";
-import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger  } from "vscode-chrome-debug-core";
+import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger } from "vscode-chrome-debug-core";
 import { ContinuedEvent, TerminatedEvent, Logger, Response } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 
 import { MultipleLifetimesAppWorker } from "./appWorker";
+
+import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 
 
 export function makeSession(
@@ -72,8 +74,11 @@ export function makeSession(
         }
 
         private launch(request: DebugProtocol.Request): void {
-            this.requestSetup(request.arguments);
-            this.remoteExtension.launch(request)
+            this.requestSetup(request.arguments)
+                .then(() => {
+                    logger.verbose(`Handle launch request: ${JSON.stringify(request.arguments, null , 2)}`);
+                    return this.remoteExtension.launch(request);
+                })
                 .then(() => {
                     return this.remoteExtension.getPackagerPort(request.arguments.program);
                 })
@@ -92,8 +97,11 @@ export function makeSession(
         }
 
         private attach(request: DebugProtocol.Request): void {
-            this.requestSetup(request.arguments);
-            this.remoteExtension.getPackagerPort(request.arguments.program)
+            this.requestSetup(request.arguments)
+                .then(() => {
+                    logger.verbose(`Handle attach request: ${request.arguments}`);
+                    return this.remoteExtension.getPackagerPort(request.arguments.program);
+                })
                 .then((packagerPort: number) => {
                     this.attachRequest({
                         ...request,
@@ -102,6 +110,9 @@ export function makeSession(
                             port: request.arguments.port || packagerPort,
                         },
                     });
+                })
+                .catch(error => {
+                    this.bailOut(error.data || error.message);
                 });
         }
 
@@ -121,7 +132,7 @@ export function makeSession(
             }
         }
 
-        private requestSetup(args: any): void {
+        private requestSetup(args: any): Q.Promise<void> {
             let logLevel: string = args.trace;
             if (logLevel) {
                 logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
@@ -130,12 +141,21 @@ export function makeSession(
                 logger.setup(Logger.LogLevel.Log, false);
             }
 
-            this.projectRootPath = getProjectRoot(args);
-            this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
+            const projectRootPath = getProjectRoot(args);
+            return ReactNativeProjectHelper.isReactNativeProject(projectRootPath)
+                .then((result) => {
+                    if (!result) {
+                        throw new Error(`Seems to be that you are trying to debug from within directory that is not a React Native project root.
+If so, please, follow these instructions: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.`);
+                    }
+                    this.projectRootPath = projectRootPath;
+                    this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
 
-            // Start to send telemetry
-            telemetryReporter.reassignTo(new RemoteTelemetryReporter(
-                appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
+                    // Start to send telemetry
+                    telemetryReporter.reassignTo(new RemoteTelemetryReporter(
+                        appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
+                    return void 0;
+                });
         }
 
         /**
@@ -144,9 +164,15 @@ export function makeSession(
          * - Enable js debugging
          */
         // tslint:disable-next-line:member-ordering
-        protected attachRequest(
-            request: DebugProtocol.Request): Q.Promise<void> {
-            return TelemetryHelper.generate(request.command, (generator) => {
+        protected attachRequest(request: DebugProtocol.Request): Q.Promise<void> {
+            const extProps = {
+                platform: {
+                    value: request.arguments.platform,
+                    isPii: false,
+                },
+            };
+
+            return TelemetryHelper.generate("attach", extProps, (generator) => {
                 return Q({})
                     .then(() => {
                         logger.log("Starting debugger app worker.");
@@ -181,11 +207,11 @@ export function makeSession(
                             // yield a response as "attach" even for "launch" request. Because dispatchRequest() will
                             // decide to do a sendResponse() aligning with the request parameter passed in.
                             Q((this as any)._debugAdapter.attach(attachArguments, request.seq))
-                            .then((responseBody) => {
-                                const response: DebugProtocol.Response = new Response(request);
-                                response.body = responseBody;
-                                this.sendResponse(response);
-                            });
+                                .then((responseBody) => {
+                                    const response: DebugProtocol.Response = new Response(request);
+                                    response.body = responseBody;
+                                    this.sendResponse(response);
+                                });
                         });
 
                         return this.appWorker.start();
@@ -211,6 +237,12 @@ export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeo
             // to set up breakpoints on initial pause event
             (this as any)._attachMode = false;
             return super.doAttach(port, targetUrl, address, timeout);
+        }
+
+        public async terminate(args: DebugProtocol.TerminatedEvent) {
+            return this.disconnect({
+                terminateDebuggee: true,
+            });
         }
     };
 }

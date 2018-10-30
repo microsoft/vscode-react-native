@@ -24,9 +24,11 @@ export class SettingsHelper {
      * Get logLevel setting
      */
     public static getLogLevel(): LogLevel {
-        const workspaceConfiguration = vscode.workspace.getConfiguration();
-        if (workspaceConfiguration.has("react-native-tools.logLevel")) {
-            let logLevelString: string = ConfigurationReader.readString(workspaceConfiguration.get("react-native-tools.logLevel"));
+        // Ideally, we should read this from settings.json but we ignore it for now instead.
+        // In future we should support it as well.
+        const workspaceConfiguration = vscode.workspace.getConfiguration("react-native-tools", null);
+        if (workspaceConfiguration.has("logLevel")) {
+            let logLevelString: string = ConfigurationReader.readString(workspaceConfiguration.get("logLevel"));
             return <LogLevel>parseInt(LogLevel[<any>logLevelString], 10);
         }
         return LogLevel.Info;

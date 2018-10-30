@@ -2,6 +2,8 @@
 
 There are a few customizations supported by this extension; they can be added to your `.vscode/settings.json` if you need them.
 
+**NOTE**: To apply changes you made to `.vscode/settings.json`, please, save it and then **restart VS Code instance**.
+
 ## Specifying custom arguments for `react-native run-*` command
 
 For using custom run arguments for `react-native run-<platform>`:

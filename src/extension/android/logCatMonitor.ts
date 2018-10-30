@@ -4,9 +4,10 @@
 import * as Q from "q";
 import * as vscode from "vscode";
 
-import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
+import { ISpawnResult } from "../../common/node/childProcess";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ExecutionsFilterBeforeTimestamp } from "../../common/executionsLimiter";
+import { AdbHelper } from "./adb";
 
 /* This class will print the LogCat messages to an Output Channel. The configuration for logcat can be cutomized in
    the .vscode/launch.json file by defining a setting named logCatArguments for the configuration being used. The
@@ -18,20 +19,20 @@ import { ExecutionsFilterBeforeTimestamp } from "../../common/executionsLimiter"
 export class LogCatMonitor implements vscode.Disposable {
     private static DEFAULT_PARAMETERS = ["*:S", "ReactNative:V", "ReactNativeJS:V"];
 
-    private _childProcess: ChildProcess;
     private _logger: OutputChannelLogger;
 
     private _deviceId: string;
     private _userProvidedLogCatArguments: any; // This is user input, we don't know what's here
 
     private _logCatSpawn: ISpawnResult | null;
+    private adbHelper: AdbHelper;
 
-    constructor(deviceId: string, userProvidedLogCatArguments: string, { childProcess = new ChildProcess() } = {}) {
+    constructor(deviceId: string, userProvidedLogCatArguments: string, adbHelper: AdbHelper) {
         this._deviceId = deviceId;
         this._userProvidedLogCatArguments = userProvidedLogCatArguments;
-        this._childProcess = childProcess;
 
         this._logger = OutputChannelLogger.getChannel(`LogCat - ${deviceId}`);
+        this.adbHelper = adbHelper;
     }
 
     public start(): Q.Promise<void> {
@@ -39,7 +40,7 @@ export class LogCatMonitor implements vscode.Disposable {
         const adbParameters = ["-s", this._deviceId, "logcat"].concat(logCatArguments);
         this._logger.debug(`Monitoring LogCat for device ${this._deviceId} with arguments: ${logCatArguments}`);
 
-        this._logCatSpawn = new ChildProcess().spawn("adb", adbParameters);
+        this._logCatSpawn = this.adbHelper.startLogCat(adbParameters);
 
         /* LogCat has a buffer and prints old messages when first called. To ignore them,
             we won't print messages for the first 0.5 seconds */

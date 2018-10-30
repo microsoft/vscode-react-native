@@ -1,7 +1,7 @@
 {
 	"name": "vscode-react-native",
 	"displayName": "React Native Tools",
-	"version": "0.6.10",
+	"version": "0.6.19",
 	"private": true,
 	"publisher": "vsmobile",
 	"icon": "images/icon.png",
@@ -21,7 +21,7 @@
 		"url": "https://github.com/Microsoft/vscode-react-native"
 	},
 	"engines": {
-		"vscode": "^1.17.1"
+		"vscode": "^1.24.0"
 	},
 	"categories": [
 		"Debuggers",
@@ -29,18 +29,18 @@
 	],
 	"activationEvents": [
 		"onDebug",
-		"workspaceContains:**/node_modules/react-native/package.json",
 		"onCommand:reactNative.runAndroidSimulator",
 		"onCommand:reactNative.runAndroidDevice",
 		"onCommand:reactNative.runIosSimulator",
 		"onCommand:reactNative.runIosDevice",
+		"onCommand:reactNative.runExponent",
 		"onCommand:reactNative.startPackager",
-		"onCommand:reactNative.startExponentPackager",
 		"onCommand:reactNative.stopPackager",
 		"onCommand:reactNative.restartPackager",
 		"onCommand:reactNative.publishToExpHost",
 		"onCommand:reactNative.showDevMenu",
-		"onCommand:reactNative.reloadApp"
+		"onCommand:reactNative.reloadApp",
+		"onCommand:reactNative.runInspector"
 	],
 	"main": "./src/extension/rn-extension",
 	"contributes": {
@@ -62,12 +62,12 @@
 				"title": "React Native: Run iOS on Device"
 			},
 			{
-				"command": "reactNative.startPackager",
-				"title": "React Native: Start Packager"
+				"command": "reactNative.runExponent",
+				"title": "React Native: Run Exponent"
 			},
 			{
-				"command": "reactNative.startExponentPackager",
-				"title": "React Native: Start Exponent Packager"
+				"command": "reactNative.startPackager",
+				"title": "React Native: Start Packager"
 			},
 			{
 				"command": "reactNative.stopPackager",
@@ -88,6 +88,10 @@
 			{
 				"command": "reactNative.reloadApp",
 				"title": "React Native: Reload App"
+			},
+			{
+				"command": "reactNative.runInspector",
+				"title": "React Native: Run Element Inspector"
 			}
 		],
 		"debuggers": [
@@ -272,7 +276,8 @@
 									"ios",
 									"android",
 									"exponent",
-									"windows"
+									"windows",
+									"wpf"
 								],
 								"description": "The platform to target"
 							},
@@ -339,6 +344,10 @@
 							"scheme": {
 								"type": "string",
 								"description": "A scheme name to be passed to react-native run-ios, e.g. 'devDebug' to specify --scheme=devDebug"
+							},
+							"productName": {
+								"type": "string",
+								"description": "Bundle display name e.g 'AwesomeProject'"
 							},
 							"skipFiles": {
 								"type": "array",
@@ -488,10 +497,12 @@
 	"dependencies": {
 		"extract-opts": "2.2.0",
 		"flatten-source-map": "0.0.2",
+		"glob": "^7.1.2",
 		"noice-json-rpc": "^1.0.2",
 		"options": "0.0.6",
 		"q": "1.4.1",
 		"qr-image": "^3.2.0",
+		"react-devtools": "^3.4.0",
 		"semver": "5.1.0",
 		"source-map": "0.5.2",
 		"source-map-resolve": "^0.5.0",

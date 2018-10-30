@@ -4,7 +4,7 @@
 import * as Q from "q";
 import * as semver from "semver";
 
-import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
+import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
 import {IWindowsRunOptions} from "../launchArgs";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {TelemetryHelper} from "../../common/telemetryHelper";
@@ -33,22 +33,28 @@ export class WindowsPlatform extends GeneralMobilePlatform {
     }
 
     public runApp(enableDebug: boolean = true): Q.Promise<void> {
-        return TelemetryHelper.generate("WindowsPlatform.runApp", () => {
-            const runArguments = this.getRunArgument();
+        const extProps = {
+            platform: {
+                value: "windows",
+                isPii: false,
+            },
+        };
+
+        return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
             const env = this.getEnvArgument();
 
             if (enableDebug) {
-                runArguments.push("--proxy");
+                this.runArguments.push("--proxy");
             }
 
             return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
                 .then(version => {
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, WindowsPlatform.NO_PACKAGER_VERSION)) {
-                        runArguments.push("--no-packager");
+                        this.runArguments.push("--no-packager");
                     }
 
-                    const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-windows", runArguments, {env});
-                    return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), "windows")
+                    const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
+                    return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), this.platformName)
                         .process(runWindowsSpawn);
                 });
         });
@@ -58,14 +64,15 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         return this.packager.prewarmBundleCache("windows");
     }
 
-    public getRunArgument(): string[] {
+    public getRunArguments(): string[] {
         let runArguments: string[] = [];
 
         if (this.runOptions.runArguments  && this.runOptions.runArguments.length > 0) {
             runArguments.push(...this.runOptions.runArguments);
         } else {
-            if (this.runOptions.target) {
-                runArguments.push(this.runOptions.target === "device" ? this.runOptions.target : "emulator");
+            let target = this.runOptions.target === WindowsPlatform.simulatorString ? "" : this.runOptions.target;
+            if (target) {
+                runArguments.push(`--${target}`);
             }
         }
 

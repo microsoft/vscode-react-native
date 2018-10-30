@@ -5,8 +5,8 @@ import * as Q from "q";
 import * as fs from "fs";
 
 import {IRunOptions} from "./launchArgs";
-import {Packager, PackagerRunAs} from "../common/packager";
-import {PackagerStatus, PackagerStatusIndicator} from "./packagerStatusIndicator";
+import {Packager} from "../common/packager";
+import {PackagerStatusIndicator, PackagerStatus} from "./packagerStatusIndicator";
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 
@@ -26,12 +26,15 @@ export class GeneralMobilePlatform {
     protected static simulatorString: TargetType = "simulator";
     protected static NO_PACKAGER_VERSION = "0.42.0";
 
+    public runArguments: string[];
+
     constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
         this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator());
         this.logger = OutputChannelLogger.getChannel(`React Native: Run ${this.platformName}`, true);
         this.logger.clear();
+        this.runArguments = this.getRunArguments();
     }
 
     public runApp(): Q.Promise<void> {
@@ -49,25 +52,26 @@ export class GeneralMobilePlatform {
         return Q.resolve<void>(void 0);
     }
 
+    public beforeStartPackager(): Q.Promise<void> {
+        return Q.resolve<void>(void 0);
+    }
+
     public startPackager(): Q.Promise<void> {
         this.logger.info("Starting React Native Packager.");
-        return this.packager.isRunning().then((running) => {
+        return this.packager.isRunning()
+        .then((running) => {
             if (running) {
-                if (this.packager.getRunningAs() !== PackagerRunAs.REACT_NATIVE) {
-                    return this.packager.stop().then(() =>
-                        this.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED)
-                    );
+                if (this.packager.getPackagerStatus() !== PackagerStatus.PACKAGER_STARTED) {
+                    return this.packager.stop();
                 }
 
                 this.logger.info("Attaching to running React Native packager");
             }
             return void 0;
         })
-            .then(() => {
-                return this.packager.startAsReactNative();
-            })
-            .then(() =>
-                this.packager.statusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED));
+        .then(() => {
+            return this.packager.start();
+        });
     }
 
     public prewarmBundleCache(): Q.Promise<void> {
@@ -75,8 +79,41 @@ export class GeneralMobilePlatform {
         return Q.resolve<void>(void 0);
     }
 
-    public getRunArgument(): string[] {
-        throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArgument");
+    protected getOptFromRunArgs(optName: string, binary: boolean = false): any {
+        if (this.runArguments.length > 0) {
+            const optIdx = this.runArguments.indexOf(optName);
+            let result: any = false;
+
+            if (optIdx > -1) {
+                result = binary ? true : this.runArguments[optIdx + 1];
+            } else {
+                for (let i = 0; i < this.runArguments.length; i++) {
+                    const arg = this.runArguments[i];
+                    if (arg.indexOf(optName) > -1) {
+                        result = binary ? true : arg.split("=")[1].trim();
+                    }
+                }
+            }
+
+            if (binary) {
+                return !!result;
+            }
+
+            if (result) {
+                try {
+                    return JSON.parse(result);
+                } catch (err) {
+                    // sipmle string value, return as is
+                    return result;
+                }
+            }
+        }
+
+        return undefined;
+    }
+
+    public getRunArguments(): string[] {
+        throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArguments");
     }
 
     public getEnvArgument(): any {

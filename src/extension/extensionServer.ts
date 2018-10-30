@@ -15,7 +15,7 @@ import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
-import {IRemoteExtension} from "../common/remoteExtension";
+import {IRemoteExtension, OpenFileRequest} from "../common/remoteExtension";
 import * as rpc from "noice-json-rpc";
 import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
@@ -39,21 +39,10 @@ export class ExtensionServer implements vscode.Disposable {
      */
     public setup(): Q.Promise<void> {
         this.isDisposed = false;
-        let deferred = Q.defer<void>();
 
-        let launchCallback = (error: any) => {
-            this.logger.debug(`Extension messaging server started at ${this.pipePath}.`);
-            deferred.resolve(void 0);
-        };
-
-        this.serverInstance = new WebSocketServer({port: <any>this.pipePath});
-        this.api = new rpc.Server(this.serverInstance).api();
-        this.serverInstance.on("listening", launchCallback.bind(this));
-        this.serverInstance.on("error", this.recoverServer.bind(this));
-
-        this.setupApiHandlers();
-
-        return deferred.promise;
+        return Q.Promise((resolve, reject) => {
+            this._setup(resolve, reject);
+        });
     }
 
     /**
@@ -69,6 +58,26 @@ export class ExtensionServer implements vscode.Disposable {
         this.reactNativePackager.statusIndicator.dispose();
         this.reactNativePackager.stop(true);
         this.stopMonitoringLogCat();
+    }
+
+    private _setup(resolve: (val: void | Q.IPromise<void>) => void, reject: (reason: any) => void): void {
+        const errorCallback = this.recoverServer.bind(this, resolve, reject);
+        let launchCallback = (done: (val: void | Q.IPromise<void>) => void) => {
+            this.logger.debug(`Extension messaging server started at ${this.pipePath}.`);
+
+            if (this.serverInstance) {
+                this.serverInstance.removeListener("error", errorCallback);
+                this.serverInstance.on("error", this.recoverServer.bind(this, null, null));
+            }
+            done(void 0);
+        };
+
+        this.serverInstance = new WebSocketServer({port: <any>this.pipePath});
+        this.api = new rpc.Server(this.serverInstance).api();
+        this.serverInstance.on("listening", launchCallback.bind(this, resolve));
+        this.serverInstance.on("error", errorCallback);
+
+        this.setupApiHandlers();
     }
 
     private setupApiHandlers(): void {
@@ -96,13 +105,17 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Recovers the server in case the named socket we use already exists, but no other instance of VSCode is active.
      */
-    private recoverServer(error: any): void {
+    private recoverServer(resolve: (value: void) => {} , reject: (reason: any) => {}, error: any): void {
         let errorHandler = (e: any) => {
             /* The named socket is not used. */
             if (e.code === "ECONNREFUSED") {
                 new FileSystem().removePathRecursivelyAsync(this.pipePath)
                     .then(() => {
-                        return this.setup();
+                        if (resolve && reject) {
+                            return this._setup(resolve, reject);
+                        } else {
+                            return this.setup();
+                        }
                     })
                     .done();
             }
@@ -128,7 +141,8 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Message handler for OPEN_FILE_AT_LOCATION
      */
-    private openFileAtLocation(filename: string, lineNumber: number): Promise<void> {
+    private openFileAtLocation(openFileRequest: OpenFileRequest): Promise<void> {
+        const { filename, lineNumber } = openFileRequest;
         return new Promise((resolve) => {
             vscode.workspace.openTextDocument(vscode.Uri.file(filename))
                 .then((document: vscode.TextDocument) => {
@@ -153,7 +167,8 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Sends telemetry
      */
-    private sendTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string, properties: {[key: string]: string}, measures: {[key: string]: number}): void {
+    private sendTelemetry(telemetryRequest: Telemetry.TelemetryRequest): void {
+        const { extensionId, extensionVersion, appInsightsKey, eventName, properties, measures } = telemetryRequest;
         Telemetry.sendExtensionTelemetry(extensionId, extensionVersion, appInsightsKey, eventName, properties, measures);
     }
 
@@ -180,6 +195,10 @@ export class ExtensionServer implements vscode.Disposable {
             mobilePlatformOptions.scheme = request.arguments.scheme;
         }
 
+        if (!isNullOrUndefined(request.arguments.productName)) {
+            mobilePlatformOptions.productName = request.arguments.productName;
+        }
+
         mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(request.arguments.program);
         const platformDeps: MobilePlatformDeps = {
             packager: this.reactNativePackager,
@@ -187,11 +206,21 @@ export class ExtensionServer implements vscode.Disposable {
         const mobilePlatform = new PlatformResolver()
             .resolveMobilePlatform(request.arguments.platform, mobilePlatformOptions, platformDeps);
         return new Promise((resolve, reject) => {
-            TelemetryHelper.generate("launch", (generator) => {
+            const extProps = {
+                platform: {
+                    value: request.arguments.platform,
+                    isPii: false,
+                },
+            };
+
+            TelemetryHelper.generate("launch", extProps, (generator) => {
                 generator.step("checkPlatformCompatibility");
                 TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
-                generator.step("startPackager");
-                return mobilePlatform.startPackager()
+                return mobilePlatform.beforeStartPackager()
+                    .then(() => {
+                        generator.step("startPackager");
+                        return mobilePlatform.startPackager();
+                    })
                     .then(() => {
                         // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
                         // and the user needs to Reload JS manually. We prewarm it to prevent that issue
