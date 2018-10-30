@@ -47,51 +47,63 @@
 		"commands": [
 			{
 				"command": "reactNative.runAndroidSimulator",
-				"title": "React Native: Run Android on Simulator"
+				"title": "%reactNative.command.runAndroidSimulator.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.runAndroidDevice",
-				"title": "React Native: Run Android on Device"
+				"title": "%reactNative.command.runAndroidDevice.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.runIosSimulator",
-				"title": "React Native: Run iOS on Simulator"
+				"title": "%reactNative.command.runIosSimulator.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.runIosDevice",
-				"title": "React Native: Run iOS on Device"
+				"title": "%reactNative.command.runIosDevice.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.runExponent",
-				"title": "React Native: Run Exponent"
+				"title": "%reactNative.command.runExponent.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.startPackager",
-				"title": "React Native: Start Packager"
+				"title": "%reactNative.command.startPackager.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.stopPackager",
-				"title": "React Native: Stop Packager"
+				"title": "%reactNative.command.stopPackager.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.restartPackager",
-				"title": "React Native: Restart Packager"
+				"title": "%reactNative.command.restartPackager.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.publishToExpHost",
-				"title": "React Native: Publish to Exponent"
+				"title": "%reactNative.command.publishToExpHost.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.showDevMenu",
-				"title": "React Native: Show Dev Menu"
+				"title": "%reactNative.command.showDevMenu.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.reloadApp",
-				"title": "React Native: Reload App"
+				"title": "%reactNative.command.reloadApp.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.runInspector",
-				"title": "React Native: Run Element Inspector"
+				"title": "%reactNative.command.runInspector.title%",
+				"category": "React Native"
 			}
 		],
 		"debuggers": [
