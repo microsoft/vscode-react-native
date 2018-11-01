@@ -59,7 +59,7 @@ suite("appWorker", function () {
                     .then(() =>
                         Q.delay(1000))
                     .then(() =>
-                        assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
+                        assert(!postReplyFunction.calledWithExactly(expectedMessageResult)));
             });
 
             test("should be able to import scripts", function () {
