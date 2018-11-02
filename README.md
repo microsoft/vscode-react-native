@@ -22,7 +22,11 @@ Please notice that the extension uses `.vscode/.react` directory at the project 
 
 ## Debugging React Native applications
 
-Click the debug icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configuration (gear) icon ![Configure-gear](images/configure-gear-icon.png), then choose the React Native debug environment.
+To start debugging you need to create debug configurations in `.vscode/launch.json` first. You can always do it by opening it and clicking at `Add Configuration...` button and then choosing needed debug configuration.
+
+![Choose React Native debug configuration](images/add-debug-configuration.png)
+
+In case if you haven't `.vscode/launch.json` file yet, you can add a whole default debug configuration set. To do that click the debug icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configuration (gear) icon ![Configure-gear](images/configure-gear-icon.png), then choose the React Native debug environment.
 
 ![Choose React Native debugger](images/choose-debugger.png)
 
@@ -54,9 +58,7 @@ The **Packager** commands allow you to start/stop the [**Metro Bundler**](https:
 
 ## Using Expo
 
-We support using Expo to run, debug and publish applications. For more information on Expo, see [here](https://docs.expo.io).
-
-For more details about configuring and debugging Expo applications see [Expo docs](doc/expo.md)
+We support using Expo to run, debug and publish applications. For more details about configuring and debugging Expo applications see [Expo docs](doc/expo.md)
 
 ## Build APK and Generate Bundle
 
