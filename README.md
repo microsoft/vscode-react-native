@@ -22,7 +22,7 @@ Please notice that the extension uses `.vscode/.react` directory at the project 
 
 ## Debugging React Native applications
 
-To start debugging you need to create debug configurations in `.vscode/launch.json` first. You can always do it by opening it and clicking at `Add Configuration...` button and then choosing needed debug configuration.
+To start debugging create a new debug configuration for your ReactNative app in your `.vscode/launch.json`. Adding a new configuration can be done by opening your `launch.json` file and clicking on `Add Configuration...` button and choosing a relevant debug configuration. All available debug configurations for ReactNative can be accessed by typing in *ReactNative* and picking one from the list populated by Intellisense as shown in the image below.
 
 ![Add React Native debug configuration](images/add-debug-configuration.gif)
 
