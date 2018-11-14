@@ -7,52 +7,24 @@ import { IRunOptions } from "../launchArgs";
 import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import { ExponentHelper } from "./exponentHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
+import { QRCodeContentProvider } from "../qrCodeContentProvider";
 
 import * as vscode from "vscode";
 import * as Q from "q";
 import * as XDL from "./xdlInterface";
 import * as url from "url";
 
+
 export class ExponentPlatform extends GeneralMobilePlatform {
     private exponentTunnelPath: string | null;
     private exponentHelper: ExponentHelper;
+    private exponentPage: vscode.WebviewPanel | null;
 
     constructor(runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
         this.exponentHelper = new ExponentHelper(runOptions.workspaceRoot, runOptions.projectRoot);
         this.exponentTunnelPath = null;
-    }
-
-    public provideTextDocumentContentByUrl(url: string): string {
-        // always return different html so that the tab is properly reloaded and events are fired
-        return `<!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        html, body {
-                            height: 100%;
-                            margin: 0;
-                            overflow: hidden;
-                        }
-                        .intrinsic-container iframe {
-                            position: absolute;
-                            top:0;
-                            left: 0;
-                            border: 0;
-                            width: 100%;
-                            height: 100%;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div style="display: none">
-                        Always be changing ${Math.random()}
-                    </div>
-                    <div class="intrinsic-container">
-                        <iframe src="vscode-resource:${url}"></iframe>
-                    </div>
-                </body>
-                </html>`;
+        this.exponentPage = null;
     }
 
     public runApp(): Q.Promise<void> {
@@ -100,12 +72,18 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     return Q.reject<string>(reason);
                 })
                 .then(exponentUrl => {
-                    let exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, {
+                    if (this.exponentPage) {
+                        this.exponentPage.dispose();
+                    }
+                    this.exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, {
                          enableScripts: true,
                          retainContextWhenHidden: true,
                          enableCommandUris: true,
                     });
-                    exponentPage.webview.html = this.provideTextDocumentContentByUrl(exponentUrl);
+                    this.exponentPage.onDidDispose(() => {
+                        this.exponentPage = null;
+                    });
+                    this.exponentPage.webview.html = (new QRCodeContentProvider()).provideTextDocumentContent(vscode.Uri.parse(exponentUrl));
                     return exponentUrl;
                 })
                 .then(exponentUrl => {
