@@ -71,11 +71,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     return Q.reject<string>(reason);
                 })
                 .then(exponentUrl => {
-                    let exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, {
-                         enableScripts: true,
-                         retainContextWhenHidden: true,
-                         enableCommandUris: true,
-                    });
+                    let exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, { });
                     exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(vscode.Uri.parse(exponentUrl));
                     return exponentUrl;
                 })
