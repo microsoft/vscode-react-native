@@ -23,6 +23,38 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         this.exponentTunnelPath = null;
     }
 
+    public provideTextDocumentContentByUrl(url: string): string {
+        // always return different html so that the tab is properly reloaded and events are fired
+        return `<!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        html, body {
+                            height: 100%;
+                            margin: 0;
+                            overflow: hidden;
+                        }
+                        .intrinsic-container iframe {
+                            position: absolute;
+                            top:0;
+                            left: 0;
+                            border: 0;
+                            width: 100%;
+                            height: 100%;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div style="display: none">
+                        Always be changing ${Math.random()}
+                    </div>
+                    <div class="intrinsic-container">
+                        <iframe src="vscode-resource:${url}"></iframe>
+                    </div>
+                </body>
+                </html>`;
+    }
+
     public runApp(): Q.Promise<void> {
         const extProps = {
             platform: {
@@ -68,7 +100,12 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     return Q.reject<string>(reason);
                 })
                 .then(exponentUrl => {
-                    vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
+                    let exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, {
+                         enableScripts: true,
+                         retainContextWhenHidden: true,
+                         enableCommandUris: true,
+                    });
+                    exponentPage.webview.html = this.provideTextDocumentContentByUrl(exponentUrl);
                     return exponentUrl;
                 })
                 .then(exponentUrl => {
