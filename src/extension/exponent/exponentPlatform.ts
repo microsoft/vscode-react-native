@@ -7,15 +7,18 @@ import { IRunOptions } from "../launchArgs";
 import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import { ExponentHelper } from "./exponentHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
+import { QRCodeContentProvider } from "../qrCodeContentProvider";
 
 import * as vscode from "vscode";
 import * as Q from "q";
 import * as XDL from "./xdlInterface";
 import * as url from "url";
 
+
 export class ExponentPlatform extends GeneralMobilePlatform {
     private exponentTunnelPath: string | null;
     private exponentHelper: ExponentHelper;
+    private qrCodeContentProvider: QRCodeContentProvider = new QRCodeContentProvider();
 
     constructor(runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
@@ -68,7 +71,8 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     return Q.reject<string>(reason);
                 })
                 .then(exponentUrl => {
-                    vscode.commands.executeCommand("vscode.previewHtml", vscode.Uri.parse(exponentUrl), 1, "Expo QR code");
+                    let exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, { });
+                    exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(vscode.Uri.parse(exponentUrl));
                     return exponentUrl;
                 })
                 .then(exponentUrl => {

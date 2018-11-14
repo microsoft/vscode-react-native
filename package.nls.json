@@ -1,0 +1,14 @@
+{
+    "reactNative.command.runAndroidSimulator.title":"Run Android on Simulator",
+    "reactNative.command.runAndroidDevice.title":"Run Android on Device",
+    "reactNative.command.runIosSimulator.title":"Run iOS on Simulator",
+    "reactNative.command.runIosDevice.title":"Run iOS on Device",
+    "reactNative.command.runExponent.title":"Run Exponent",
+    "reactNative.command.startPackager.title":"Start Packager",
+    "reactNative.command.stopPackager.title":"Stop Packager",
+    "reactNative.command.restartPackager.title":"Restart Packager",
+    "reactNative.command.publishToExpHost.title":"Publish to Exponent",
+    "reactNative.command.showDevMenu.title":"Show Dev Menu",
+    "reactNative.command.reloadApp.title":"Reload App",
+    "reactNative.command.runInspector.title":"Run Element Inspector"
+}

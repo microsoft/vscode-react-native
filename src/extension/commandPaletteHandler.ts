@@ -18,10 +18,8 @@ import {ReactDirManager} from "./reactDirManager";
 import {ExtensionServer} from "./extensionServer";
 import {IAndroidRunOptions, IIOSRunOptions} from "./launchArgs";
 import {ExponentPlatform} from "./exponent/exponentPlatform";
-import { spawn, ChildProcess } from "child_process";
-import * as path from "path";
-import * as fs from "fs";
-const electron = require("electron");
+import {spawn, ChildProcess} from "child_process";
+import {HostPlatform} from "../common/hostPlatform";
 
 interface IReactNativeStuff {
     packager: Packager;
@@ -217,30 +215,29 @@ export class CommandPaletteHandler {
 
     public static runElementInspector(): Q.Promise<void> {
         if (!CommandPaletteHandler.elementInspector) {
-            // DO NOT CHANGE THIS PATH
-            const devToolsPath = path.resolve(__dirname, "..", "..", "node_modules", "react-devtools", "app.js");
-            if (fs.existsSync(devToolsPath)) {
-                // Remove the following env variables to prevent running electron app in node mode.
-                // https://github.com/Microsoft/vscode/issues/3011#issuecomment-184577502
-                let env = Object.assign({}, process.env);
-                delete env.ATOM_SHELL_INTERNAL_RUN_AS_NODE;
-                delete env.ELECTRON_RUN_AS_NODE;
-                CommandPaletteHandler.elementInspector = spawn(electron, [devToolsPath], {
-                    env,
-                });
-                CommandPaletteHandler.elementInspector.stdout.on("data", (data: string) => {
-                    this.logger.info(data);
-                });
-                CommandPaletteHandler.elementInspector.stderr.on("data", (data: string) => {
-                    this.logger.error(data);
-                });
-                CommandPaletteHandler.elementInspector.once("exit", () => {
-                    CommandPaletteHandler.elementInspector = null;
-                });
-            } else {
-                this.logger.error("Not found element inspector file, maybe not installed or damaged");
-                throw new Error("Not found element inspector file, maybe not installed or damaged");
+            // Remove the following env variables to prevent running electron app in node mode.
+            // https://github.com/Microsoft/vscode/issues/3011#issuecomment-184577502
+            let env = Object.assign({}, process.env);
+            delete env.ATOM_SHELL_INTERNAL_RUN_AS_NODE;
+            delete env.ELECTRON_RUN_AS_NODE;
+            let command = HostPlatform.getNpmCliCommand("react-devtools");
+            CommandPaletteHandler.elementInspector = spawn(command, [], {
+                env,
+            });
+            if (!CommandPaletteHandler.elementInspector.pid) {
+                CommandPaletteHandler.elementInspector = null;
+                this.logger.error("React devtools is not installed. Run `npm install -g react-devtools` command in your terminal to install it.");
+                throw new Error("React devtools is not installed. Run `npm install -g react-devtools` command in your terminal to install it.");
             }
+            CommandPaletteHandler.elementInspector.stdout.on("data", (data: string) => {
+                this.logger.info(data);
+            });
+            CommandPaletteHandler.elementInspector.stderr.on("data", (data: string) => {
+                this.logger.error(data);
+            });
+            CommandPaletteHandler.elementInspector.once("exit", () => {
+                CommandPaletteHandler.elementInspector = null;
+            });
         } else {
             this.logger.info("Another element inspector already run");
         }

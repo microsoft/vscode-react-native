@@ -47,51 +47,63 @@
 		"commands": [
 			{
 				"command": "reactNative.runAndroidSimulator",
-				"title": "React Native: Run Android on Simulator"
+				"title": "%reactNative.command.runAndroidSimulator.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.runAndroidDevice",
-				"title": "React Native: Run Android on Device"
+				"title": "%reactNative.command.runAndroidDevice.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.runIosSimulator",
-				"title": "React Native: Run iOS on Simulator"
+				"title": "%reactNative.command.runIosSimulator.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.runIosDevice",
-				"title": "React Native: Run iOS on Device"
+				"title": "%reactNative.command.runIosDevice.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.runExponent",
-				"title": "React Native: Run Exponent"
+				"title": "%reactNative.command.runExponent.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.startPackager",
-				"title": "React Native: Start Packager"
+				"title": "%reactNative.command.startPackager.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.stopPackager",
-				"title": "React Native: Stop Packager"
+				"title": "%reactNative.command.stopPackager.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.restartPackager",
-				"title": "React Native: Restart Packager"
+				"title": "%reactNative.command.restartPackager.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.publishToExpHost",
-				"title": "React Native: Publish to Exponent"
+				"title": "%reactNative.command.publishToExpHost.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.showDevMenu",
-				"title": "React Native: Show Dev Menu"
+				"title": "%reactNative.command.showDevMenu.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.reloadApp",
-				"title": "React Native: Reload App"
+				"title": "%reactNative.command.reloadApp.title%",
+				"category": "React Native"
 			},
 			{
 				"command": "reactNative.runInspector",
-				"title": "React Native: Run Element Inspector"
+				"title": "%reactNative.command.runInspector.title%",
+				"category": "React Native"
 			}
 		],
 		"debuggers": [
@@ -502,7 +514,6 @@
 		"options": "0.0.6",
 		"q": "1.4.1",
 		"qr-image": "^3.2.0",
-		"react-devtools": "^3.4.0",
 		"semver": "5.1.0",
 		"source-map": "0.5.2",
 		"source-map-resolve": "^0.5.0",
@@ -527,38 +538,38 @@
 		"@types/ws": "^0.0.39",
 		"del": "^2.2.0",
 		"gulp": "^3.9.1",
+		"gulp-install": "^1.1.0",
 		"gulp-istanbul": "^1.1.2",
 		"gulp-mocha": "^3.0.1",
 		"gulp-preprocess": "^2.0.0",
+		"gulp-sequence": "1.0.0",
 		"gulp-sourcemaps": "^1.6.0",
 		"gulp-tslint": "^8.1.2",
 		"gulp-typescript": "^3.1.5",
 		"ansi-colors": "^3.1.0",
 		"fancy-log": "^1.3.2",
 		"isparta": "^4.0.0",
-		"plugin-error":"^1.0.1",
+		"jest": "^22.1.4",
+		"jest-cli": "^22.1.4",
 		"minimist": "^1.2.0",
 		"mocha": "^3.2.0",
 		"mocha-teamcity-reporter": "^1.0.0",
 		"mock-fs": "^4.4.1",
+		"plugin-error":"^1.0.1",
 		"remap-istanbul": "^0.9.5",
+		"rmdir": "^1.2.0",
 		"run-sequence": "^1.2.2",
 		"should": "^8.3.0",
 		"sinon": "^1.17.3",
 		"source-map-support": "^0.4.0",
-		"through2": "^2.0.1",
-		"tslint": "^5.6.0",
-		"typescript": "2.4.2",
-		"vsce": "^1.3.0",
-		"gulp-install": "^1.1.0",
-		"gulp-sequence": "1.0.0",
-		"jest": "^22.1.4",
-		"jest-cli": "^22.1.4",
-		"rmdir": "^1.2.0",
 		"testdouble": "^3.3.3",
+		"through2": "^2.0.1",
 		"ts-jest": "^22.0.3",
 		"ts-node": "^4.1.0",
+		"tslint": "^5.6.0",
 		"tslint-microsoft-contrib": "^5.0.2",
+		"typescript": "2.4.2",
+		"vsce": "^1.3.0",
 		"vscode": "^1.1.6"
 	},
 	"extensionDependencies": [

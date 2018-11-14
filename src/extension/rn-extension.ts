@@ -31,7 +31,6 @@ import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ExponentHelper} from "./exponent/exponentHelper";
-import {QRCodeContentProvider} from "./qrCodeContentProvider";
 
 /* all components use the same packager instance */
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
@@ -53,7 +52,6 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
     return entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, function activateRunApp() {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
-        context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider("exp", new QRCodeContentProvider()));
 
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
