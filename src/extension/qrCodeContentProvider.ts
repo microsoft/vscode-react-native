@@ -2,13 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as qr from "qr-image";
-import { TextDocumentContentProvider, Uri, CancellationToken } from "vscode";
+import { TextDocumentContentProvider, Uri } from "vscode";
 
 export class QRCodeContentProvider implements TextDocumentContentProvider {
 
     private cache: { [uri: string]: string } = {};
 
-    public provideTextDocumentContent(uri: Uri, token: CancellationToken): string {
+    public provideTextDocumentContent(uri: Uri): string {
 
         let stringUri = uri.toString();
 
