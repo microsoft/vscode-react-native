@@ -18,13 +18,12 @@ import * as url from "url";
 export class ExponentPlatform extends GeneralMobilePlatform {
     private exponentTunnelPath: string | null;
     private exponentHelper: ExponentHelper;
-    private exponentPage: vscode.WebviewPanel | null;
+    private qrCodeContentProvider: QRCodeContentProvider = new QRCodeContentProvider();
 
     constructor(runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
         this.exponentHelper = new ExponentHelper(runOptions.workspaceRoot, runOptions.projectRoot);
         this.exponentTunnelPath = null;
-        this.exponentPage = null;
     }
 
     public runApp(): Q.Promise<void> {
@@ -72,18 +71,12 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     return Q.reject<string>(reason);
                 })
                 .then(exponentUrl => {
-                    if (this.exponentPage) {
-                        this.exponentPage.dispose();
-                    }
-                    this.exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, {
+                    let exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, {
                          enableScripts: true,
                          retainContextWhenHidden: true,
                          enableCommandUris: true,
                     });
-                    this.exponentPage.onDidDispose(() => {
-                        this.exponentPage = null;
-                    });
-                    this.exponentPage.webview.html = (new QRCodeContentProvider()).provideTextDocumentContent(vscode.Uri.parse(exponentUrl));
+                    exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(vscode.Uri.parse(exponentUrl));
                     return exponentUrl;
                 })
                 .then(exponentUrl => {
