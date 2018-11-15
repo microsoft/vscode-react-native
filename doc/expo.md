@@ -21,22 +21,26 @@ To start debugging in Expo follow these steps:
 
 ## Configuring Expo
 
-When you use Exponent for the first time in VS Code for **pure React Native** (either to run, debug or publish) your `app.json` will be patched by Expo configuration like this:
+Expo CLI can be used to run not just the applications with Expo SDK but even pure React Native applications. The extension supports both scenarios as well.
+
+In either cases Expo CLI uses `app.json` configuration file in the root of the project.
+
+If you are running `Debug in Exponent` configuration or any of pallette commands like `Run in Exponent`, `Publish to Exponent` then this file will be created automatically if absent or updated with the following basic configuration section:
+
 ```
   "expo": {
-    "slug": "LatestRNApp",
-    "name": "LatestRNApp",
-    "sdkVersion": "31.0.0",
-    "entryPoint": "<Path to your project>\\.vscode\\exponentIndex.js"
+    "slug": "MyApp", // Project slug
+    "name": "MyApp", // Project name
+    "sdkVersion": "31.0.0", // Expo SDK version
+    "entryPoint": "<Path to your project>\\.vscode\\exponentIndex.js" // Entrypoint for the project
   }
 ```
-When running **pure React Native** under Exponent, your application will start via `.vscode/exponentIndex.js` will reference the entry point file name (`index.js`) from the root project folder.
 
-**NOTE: Pure Expo App working without `.vscode/exponentIndex.js` and its `app.json` contains `expo` section by default**
+Full list of configurational parameters for `expo` section in `app.json` may be found on [official Expo documentation page](https://docs.expo.io/versions/latest/workflow/configuration).
 
-If you change your application's entry point (e.g. changing from `index.ios.js` to `index.android.js`), delete or update `.vscode/exponentIndex.js` for it to take effect.
+For running **pure React Native app**, extension, also, creates and uses `.vscode/exponentIndex.js` which is point to the app entrypoint (`index.js`) file.
 
-If you are an experienced exponent user, or you want to customize your `expo` section in `app.json` use [this reference](https://docs.expo.io/versions/latest/workflow/configuration).
+If you change your app entrypoint (for example, from `index.js` to `index.android.js`), delete or update `.vscode/exponentIndex.js` for it to take effect for the extension.
 
 ## FAQ
 
