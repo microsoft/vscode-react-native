@@ -32,7 +32,7 @@ When you use Exponent for the first time in VS Code for **pure React Native** (e
 ```
 When running **pure React Native** under Exponent, your application will start via `.vscode/exponentIndex.js` will reference the entry point file name (`index.js`) from the root project folder.
 
-**NOTE: `.vscode/exponentIndex.js` is not generated for pure Expo App**
+**NOTE: Pure Expo App working without`.vscode/exponentIndex.js` and its `app.json` contains `expo` section by default**
 
 If you change your application's entry point (e.g. changing from `index.ios.js` to `index.android.js`), delete or update `.vscode/exponentIndex.js` for it to take effect.
 
