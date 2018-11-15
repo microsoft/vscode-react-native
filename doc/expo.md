@@ -21,25 +21,24 @@ To start debugging in Expo follow these steps:
 
 ## Configuring Expo
 
-When you use Exponent for the first time in VS Code (either to run, debug or publish) you will notice that we created a couple of files for you. This files are: `.vscode/exponentIndex.js`, `.vscode/vscodeExponent.json` and `exp.json`.
+The extension supports running through Exponent not just the applications with Expo SDK but even pure React Native applications. In either cases it uses `app.json` configuration file in the root of the project.
 
-Under your `.vscode/` directory there will be a `vscodeExponent.json` file; this file has the settings used to setup exponent correctly in VS Code.
+If you are running `Debug in Exponent` configuration or any of pallette commands like `Run in Exponent`, `Publish to Exponent` then this file will be created automatically if absent or updated with the following basic configuration section:
 
 ```
-{
-    "entryPointFilename": ""          // File under the project root that is used as an entrypoint. We look for index.ios.js or index.android.js
-    "entryPointComponent": ""         // Name of the main component used in your entrypoint. By default it's the same name as your app
-    "createOrOverwriteExpJson": false  // If true we will create and overwrite exp.json everytime. If you need a custom exp.json ensure this is false.
-}
+  "expo": {
+    "slug": "MyApp", // Project slug
+    "name": "MyApp", // Project name
+    "sdkVersion": "31.0.0", // Expo SDK version
+    "entryPoint": "<Path to your project>\\.vscode\\exponentIndex.js" // Entrypoint for the project
+  }
 ```
 
-The extension attempts to guess some default settings, but you may need to change them to suit your configuration.
-If we guessed the filename or component wrong, or you want to try out different entrypoints, feel free to modify `.vscode/vscodeExponent.json` to try out the appropriate settings for your environment.
+Full list of configurational parameters for `expo` section in `app.json` may be found on [official Expo documentation page](https://docs.expo.io/versions/latest/workflow/configuration).
 
-When running under Exponent, your application will start via `.vscode/exponentIndex.js` will reference the `entryPointFilename` from `vscodeExponent.json`.
-If you change your application's entry point (e.g. changing from `index.ios.js` to `index.android.js`), delete or update `.vscode/exponentIndex.js` for it to take effect.
+For running **pure React Native app**, extension, also, creates and uses `.vscode/exponentIndex.js` which is point to the app entrypoint (`index.js` or `index.android.js` or `index.ios.js`) file.
 
-If you are an experienced exponent user, or you want to customize your `exp.json` set `createOrOverwriteExpJson` to `false` in `.vscode/vscodeExponent.json`. This will let you have your own version of `exp.json` without overwritting it each time we run something.
+If you want to change your app entrypoint (for example, from `index.js` to `index.android.js`), delete `.vscode/exponentIndex.js` and then restart your debugging session.
 
 ## FAQ
 
