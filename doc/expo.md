@@ -38,9 +38,9 @@ If you are running `Debug in Exponent` configuration or any of pallette commands
 
 Full list of configurational parameters for `expo` section in `app.json` may be found on [official Expo documentation page](https://docs.expo.io/versions/latest/workflow/configuration).
 
-For running **pure React Native app**, extension, also, creates and uses `.vscode/exponentIndex.js` which is point to the app entrypoint (`index.js`) file.
+For running **pure React Native app**, extension, also, creates and uses `.vscode/exponentIndex.js` which is point to the app entrypoint (`index.js` or `index.android.js` or `index.ios.js`) file.
 
-If you change your app entrypoint (for example, from `index.js` to `index.android.js`), delete or update `.vscode/exponentIndex.js` for it to take effect for the extension.
+If you want to change your app entrypoint (for example, from `index.js` to `index.android.js`), delete `.vscode/exponentIndex.js` and then restart your debugging session.
 
 ## FAQ
 
