@@ -63,7 +63,7 @@ export class ExponentHelper {
             .then((user) => {
                 if (!user) {
                     let username = "";
-                    return showMessage("You need to login to exponent. Please provide username and password to login. If you don't have an account we will create one for you.")
+                    return showMessage("You need to login to exponent. Please provide username and password in the input boxes after closing this window.")
                         .then(() =>
                             promptForInformation("Exponent username", false)
                         ).then((name: string) => {

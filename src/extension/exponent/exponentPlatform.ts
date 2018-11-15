@@ -46,7 +46,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                 },
                 (message) => {
                     return Q.Promise((resolve, reject) => {
-                        vscode.window.showInformationMessage(message)
+                        vscode.window.showInformationMessage(message, {modal: true} )
                             .then(password => {
                                 resolve(password || "");
                             }, reject);
