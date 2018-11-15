@@ -36,7 +36,7 @@ When running **pure React Native** under Exponent, your application will start v
 
 If you change your application's entry point (e.g. changing from `index.ios.js` to `index.android.js`), delete or update `.vscode/exponentIndex.js` for it to take effect.
 
-If you are an experienced exponent user, or you want to customize your `app.json` use [this reference](https://docs.expo.io/versions/latest/workflow/configuration).
+If you are an experienced exponent user, or you want to customize your `expo` section in `app.json` use [this reference](https://docs.expo.io/versions/latest/workflow/configuration).
 
 ## FAQ
 
