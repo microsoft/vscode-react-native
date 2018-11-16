@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 var gulp = require("gulp");
-var log = require("gulp-util").log;
+var log = require('fancy-log');
 var istanbul = require('gulp-istanbul');
 var isparta = require('isparta');
 var sourcemaps = require("gulp-sourcemaps");
