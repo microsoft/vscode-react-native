@@ -4,20 +4,21 @@
 
 var child_process = require("child_process");
 var fs = require("fs");
-var gutil = require("gulp-util");
+var log = require('fancy-log');
+const colors = require('ansi-colors');
 var path = require("path");
-var PluginError = gutil.PluginError;
+var PluginError = require('plugin-error');
 var through = require("through2");
 
 /**
- * Pretty logger using gutil.log
+ * Pretty logger using 'log'
  * @param {string} pluginName Name of the pluginName
  * @param {Object} file A gulp file to report on
  * @param {string} message The error message to display
  */
 var logError = function(pluginName, file, message) {
     var sourcePath = path.relative(__dirname, file.path).replace("../","");
-    gutil.log("[" + gutil.colors.cyan(pluginName) + "] " + gutil.colors.red("error") + " " + sourcePath + ": " + message);
+    log("[" + colors.cyan(pluginName) + "] " + colors.red("error") + " " + sourcePath + ": " + message);
 };
 
 /**
