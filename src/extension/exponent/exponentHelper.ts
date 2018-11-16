@@ -63,12 +63,12 @@ export class ExponentHelper {
             .then((user) => {
                 if (!user) {
                     let username = "";
-                    return showMessage("You need to login to exponent. Please provide username and password in the input boxes after closing this window.")
+                    return showMessage("You need to login to Expo. Please provide username and password in the input boxes after closing this window. If you don't have an account, please go to https://expo.io to create one.")
                         .then(() =>
-                            promptForInformation("Exponent username", false)
+                            promptForInformation("Expo username", false)
                         ).then((name: string) => {
                             username = name;
-                            return promptForInformation("Exponent password", true);
+                            return promptForInformation("Expo password", true);
                         })
                         .then((password: string) =>
                             XDL.login(username, password));

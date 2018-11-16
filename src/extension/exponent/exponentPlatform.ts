@@ -46,9 +46,14 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                 },
                 (message) => {
                     return Q.Promise((resolve, reject) => {
-                        vscode.window.showInformationMessage(message, {modal: true} )
-                            .then(password => {
-                                resolve(password || "");
+                        const okButton =  { title: "Ok" };
+                        const cancelButton =  { title: "Cancel", isCloseAffordance: true };
+                        vscode.window.showInformationMessage(message, {modal: true}, okButton, cancelButton)
+                            .then(answer => {
+                                if (answer === cancelButton) {
+                                    reject(new Error("User canceled login."));
+                                }
+                                resolve("");
                             }, reject);
                     });
                 }
