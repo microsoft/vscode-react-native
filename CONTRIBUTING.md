@@ -58,6 +58,6 @@ To avoid line ending issues, set `autocrlf = input` and `whitespace = cr-at-eol`
 * Seeing problems in VS Code connected to Q promises library while opening extension's Typescript files
 
 This problems caused by incorrect Intellisense Typescript version choosed for the workspace.
-Change the the Typescript version to 2.4.2 in the lower right corner of the VS Code window.
+Change the Typescript version to 2.4.2 in the lower right corner of the VS Code window.
 
 ![Typescript Intellisense version](images/typescript-version.png)
