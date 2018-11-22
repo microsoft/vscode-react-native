@@ -50,6 +50,14 @@ Pull requests should:
     * Include baseline changes with your change
 * Have linting issues (`gulp tslint`)
 
-It is desirable, but not necessary, for the tests to pass at each commit. 
+It is desirable, but not necessary, for the tests to pass at each commit.
 
 To avoid line ending issues, set `autocrlf = input` and `whitespace = cr-at-eol` in your system's git configuration.
+
+## Troubleshooting
+* VS Code complains about Q promises and mark it as problems almost everywhere
+
+This problems caused by incorrect Intellisense Typescript version choosed for the workspace.
+Change the Typescript version to workspace version in the lower right corner of the VS Code window.
+
+![Typescript Intellisense version](images/typescript-version.png)
