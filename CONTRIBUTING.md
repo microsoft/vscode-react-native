@@ -55,9 +55,9 @@ It is desirable, but not necessary, for the tests to pass at each commit.
 To avoid line ending issues, set `autocrlf = input` and `whitespace = cr-at-eol` in your system's git configuration.
 
 ## Troubleshooting
-* Seeing problems in VS Code connected to Q promises library while opening extension's Typescript files
+* VS Code complains about Q promises and mark it as problems almost everywhere
 
 This problems caused by incorrect Intellisense Typescript version choosed for the workspace.
-Change the Typescript version to 2.4.2 in the lower right corner of the VS Code window.
+Change the Typescript version to workspace version in the lower right corner of the VS Code window.
 
 ![Typescript Intellisense version](images/typescript-version.png)
