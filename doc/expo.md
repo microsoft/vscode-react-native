@@ -17,6 +17,10 @@ To start debugging in Expo follow these steps:
    Note that there is no e-mail associated with the account, and no way to recover a forgotten password.
 6. Once the packager starts, the extension will open a separate tab with QR code to scan from the Exponent app. Once you do so, the Exponent app will connect to the packager and begin running your app.
 
+7. Once app is loaded and ran, [open Developer Menu](https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu) inside your application and enable remote debugging by clicking on `Debug JS Remotely` button.
+
+![React Native enable remote debug](../images/enable-remote-debug.png)
+
    From here you can run and debug the app as normal.
 
 ## Configuring Expo
