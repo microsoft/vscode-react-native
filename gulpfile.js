@@ -81,6 +81,7 @@ function build(callback) {
     var tsProject = ts.createProject("tsconfig.json");
     var isProd = options.env === "production";
     var preprocessorContext = isProd ? { PROD: true } : { DEBUG: true };
+    let gotError = false;
     log(`Building with preprocessor context: ${JSON.stringify(preprocessorContext)}`);
     var tsResult = tsProject.src()
         .pipe(preprocess({ context: preprocessorContext })) //To set environment variables in-line
@@ -88,14 +89,7 @@ function build(callback) {
         .pipe(tsProject())
         .on("error", function (e) {
             callback(e);
-        })
-        .pipe(sourcemaps.write(".", {
-            includeContent: false,
-            sourceRoot: "."
-        }))
-        .pipe(gulp.dest(function (file) {
-            return file.cwd;
-        }));
+        });
 
 
         return tsResult.js
@@ -277,7 +271,7 @@ gulp.task("release", ["build"], function () {
                 fs.writeFileSync(path.join(__dirname, fileName), fs.readFileSync(path.join(backupFolder, fileName)));
             });
         });
-}
+});
 
 
 
