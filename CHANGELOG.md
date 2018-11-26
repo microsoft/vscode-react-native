@@ -1,5 +1,9 @@
 ## 0.6.19
 * Added `Run Element Inspector` command that runs standalone [React Developer Tools](https://github.com/facebook/react-devtools)
+* Migrate to [WebView Api](https://code.visualstudio.com/docs/extensions/webview) instead of using deprecated `vscode.previewHtml` command
+* Added minimal externalization support for Italian language
+* Move to Azure pipelines builds instead of Travis CI for pull requests validation
+* Replaced deprecated dependency gulp-util
 
 ## 0.6.18
 * Fix parsing `sdk.dir` in `android/local.properties` on Windows machines
