@@ -94,11 +94,13 @@ function build(callback) {
 
         return tsResult.js
         .pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
-        .pipe(buildNls ? nls.createAdditionalLanguageFiles(defaultLanguages, 'i18n', 'out') : es.through())
-		.pipe(buildNls ? nls.bundleMetaDataFiles('ms-vscode.node-debug2', 'out') : es.through())
+        .pipe(buildNls ? nls.createAdditionalLanguageFiles(defaultLanguages, 'i18n', '.') : es.through())
+		.pipe(buildNls ? nls.bundleMetaDataFiles('ms-vscode.node-debug2', '.') : es.through())
 		.pipe(buildNls ? nls.bundleLanguageFiles() : es.through())
-        .pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '..' })) // .. to compensate for TS returning paths from 'out'
-        .pipe(gulp.dest('out'))
+        .pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '.' }))
+        .pipe(gulp.dest(function (file) {
+            return file.cwd;
+        }))
         .once('error', () => {
             gotError = true;
         })
