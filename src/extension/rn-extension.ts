@@ -64,7 +64,7 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
                 promises.push(onFolderAdded(context, folder));
             });
         } else {
-            outputChannelLogger.warning("Could not found workspace while activating");
+            outputChannelLogger.warning("Could not find workspace while activating");
         }
 
         return Q.all(promises).then(() => {
