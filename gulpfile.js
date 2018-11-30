@@ -282,7 +282,7 @@ gulp.task('add-i18n', function () {
         .pipe(gulp.dest('.'));
 });
 
-// Gathers all strings to Transifex readable .xliff file for translating and push them to Transifex
+// Gathers all strings to Transifex readable .xliff file for translating and pushes them to Transifex
 gulp.task('transifex-push', ['build'], function () {
     return gulp.src(['package.nls.json', 'out/nls.metadata.header.json','out/nls.metadata.json'])
         .pipe(nls.createXlfFiles(transifexProjectName, transifexExtensionName))
