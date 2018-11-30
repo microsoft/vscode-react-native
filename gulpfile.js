@@ -95,7 +95,7 @@ function build(callback) {
         return tsResult.js
         .pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
         .pipe(buildNls ? nls.createAdditionalLanguageFiles(defaultLanguages, 'i18n', '.') : es.through())
-		.pipe(buildNls ? nls.bundleMetaDataFiles('ms-vscode.node-debug2', '.') : es.through())
+		.pipe(buildNls ? nls.bundleMetaDataFiles('vsmobile.vscode-react-native', '.') : es.through())
 		.pipe(buildNls ? nls.bundleLanguageFiles() : es.through())
         .pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '.' }))
         .pipe(gulp.dest(function (file) {
