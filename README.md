@@ -1,5 +1,5 @@
 # React Native Tools
-[![Build Status](https://travis-ci.org/Microsoft/vscode-react-native.svg?branch=master)](https://travis-ci.org/Microsoft/vscode-react-native)
+[![Build status](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_apis/build/status/vscode-react-native%20%5Bmaster%5D)](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_build/latest?definitionId=2)
 
 This extension provides a development environment for React Native projects.
 Using this extension, you can debug your code and quickly run `react-native` commands from the command palette.
@@ -22,7 +22,11 @@ Please notice that the extension uses `.vscode/.react` directory at the project 
 
 ## Debugging React Native applications
 
-Click the debug icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configuration (gear) icon ![Configure-gear](images/configure-gear-icon.png), then choose the React Native debug environment.
+To start debugging create a new debug configuration for your ReactNative app in your `.vscode/launch.json`. Adding a new configuration can be done by opening your `launch.json` file and clicking on `Add Configuration...` button and choosing a relevant debug configuration. All available debug configurations for ReactNative can be accessed by typing in *ReactNative* and picking one from the list populated by Intellisense as shown in the image below.
+
+![Add React Native debug configuration](images/add-debug-configuration.gif)
+
+In case if you haven't `.vscode/launch.json` file yet, you can add a whole default debug configuration set. To do that click the debug icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configuration (gear) icon ![Configure-gear](images/configure-gear-icon.png), then choose the React Native debug environment.
 
 ![Choose React Native debugger](images/choose-debugger.png)
 
@@ -54,9 +58,7 @@ The **Packager** commands allow you to start/stop the [**Metro Bundler**](https:
 
 ## Using Expo
 
-We support using Expo to run, debug and publish applications. For more information on Expo, see [here](https://docs.expo.io).
-
-For more details about configuring and debugging Expo applications see [Expo docs](doc/expo.md)
+We support using Expo to run, debug and publish applications. For more details about configuring and debugging Expo applications see [Expo docs](doc/expo.md)
 
 ## Build APK and Generate Bundle
 
