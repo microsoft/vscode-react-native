@@ -275,8 +275,6 @@ gulp.task("release", ["build"], function () {
         });
 });
 
-
-
 gulp.task('add-i18n', function () {
     return gulp.src(['package.nls.json'])
         .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, 'i18n'))
