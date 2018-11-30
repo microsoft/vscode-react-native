@@ -160,7 +160,7 @@
 				"configurationSnippets": [
 					{
 						"label": "React Native: Debug Android",
-						"description": "A new configuration for launching react-native app on android",
+						"description": "%reactNative.snippets.debugAndroid.description%",
 						"body": {
 							"name": "Debug Android",
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
@@ -173,7 +173,7 @@
 					},
 					{
 						"label": "React Native: Debug iOS",
-						"description": "A new configuration for launching react-native app on iOS",
+						"description": "%reactNative.snippets.debugiOS.description%",
 						"body": {
 							"name": "Debug iOS",
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
@@ -186,7 +186,7 @@
 					},
 					{
 						"label": "React Native: Attach to packager",
-						"description": "A new configuration for attaching to packager",
+						"description": "%reactNative.snippets.attachPackager.description%",
 						"body": {
 							"name": "Attach to packager",
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
@@ -198,7 +198,7 @@
 					},
 					{
 						"label": "React Native: Debug in Exponent",
-						"description": "A new configuration for launching exponent app",
+						"description": "%reactNative.snippets.debugExpo.description%",
 						"body": {
 							"name": "Debug in Exponent",
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
@@ -218,21 +218,21 @@
 						"properties": {
 							"program": {
 								"type": "string",
-								"description": "The path to launchReactNative.js in the vscode folder"
+								"description": "%reactNative.attach.program.description%"
 							},
 							"sourceMaps": {
 								"type": "boolean",
-								"description": "Whether to use JavaScript source maps to map the generated bundled code back to its original sources",
+								"description": "%reactNative.attach.sourceMaps.description%",
 								"default": false
 							},
 							"outDir": {
 								"type": "string",
-								"description": "The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
+								"description": "%reactNative.attach.outDir.description%",
 								"default": null
 							},
 							"sourceMapPathOverrides": {
 								"type": "object",
-								"description": "A set of mappings for rewriting the locations of source files from what the sourcemap says, to their locations on disk. See README for details."
+								"description": "%reactNative.attach.sourceMapsPathOverrides.description%"
 							},
 							"trace": {
 								"type": "string",
@@ -244,31 +244,31 @@
 									"stop"
 								],
 								"default": "log",
-								"description": "Setup logging level in debugger."
+								"description": "%reactNative.attach.trace.description%"
 							},
 							"address": {
 								"type": "string",
-								"description": "TCP/IP address of debug port. Default is 'localhost'.",
+								"description": "%reactNative.attach.address.description%",
 								"default": "localhost"
 							},
 							"port": {
 								"type": "string",
-								"description": "Debug port to attach to. Default is 8081.",
+								"description": "%reactNative.attach.port.description%",
 								"default": "8081"
 							},
 							"remoteRoot": {
 								"type": "string",
-								"description": "The source root of the remote host.",
+								"description": "%reactNative.attach.remoteRoot.description%",
 								"default": null
 							},
 							"localRoot": {
 								"type": "string",
-								"description": "The local source root that corresponds to the 'remoteRoot'.",
+								"description": "%reactNative.attach.localRoot.description%",
 								"default": "${workspaceRoot}"
 							},
 							"skipFiles": {
 								"type": "array",
-								"description": "An array of file or folder names, or glob patterns, to skip when debugging.",
+								"description": "%reactNative.attach.skipFiles.description%",
 								"items": {
 									"type": "string"
 								},
@@ -291,11 +291,11 @@
 									"windows",
 									"wpf"
 								],
-								"description": "The platform to target"
+								"description": "%reactNative.launch.platform.description%"
 							},
 							"program": {
 								"type": "string",
-								"description": "The path to launchReactNative.js in the vscode folder"
+								"description": "%reactNative.launch.program.description%"
 							},
 							"target": {
 								"anyOf": [
@@ -311,16 +311,16 @@
 									}
 								],
 								"default": "simulator",
-								"description": "Device target to run on (either device or simulator)"
+								"description": "%reactNative.launch.target.description%"
 							},
 							"sourceMaps": {
 								"type": "boolean",
-								"description": "Whether to use JavaScript source maps to map the generated bundled code back to its original sources",
+								"description": "%reactNative.launch.sourceMaps.description%",
 								"default": false
 							},
 							"logCatArguments": {
 								"type": "array",
-								"description": "Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can either be an array such as: [\":S\", \"ReactNative:V\", \"ReactNativeJS:V\"] or a string such as \":S ReactNative:V ReactNativeJS:V\"",
+								"description": "%reactNative.launch.logCatArguments.description%",
 								"default": [
 									"*:S",
 									"ReactNative:V",
@@ -329,41 +329,41 @@
 							},
 							"outDir": {
 								"type": "string",
-								"description": "The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
+								"description": "%reactNative.launch.outDir.description%",
 								"default": null
 							},
 							"runArguments": {
 								"type": "array",
-								"description": "Run arguments to be passed to 'react-native run-<platform>' command(Override all other configuration params)"
+								"description": "%reactNative.launch.runArguments.description%"
 							},
 							"env": {
 								"type": "object",
 								"additionalProperties": {
 									"type": "string"
 								},
-								"description": "Environment variables passed to the program.",
+								"description": "%reactNative.launch.env.description%",
 								"default": {}
 							},
 							"envFile": {
 								"type": "string",
-								"description": "Absolute path to a file containing environment variable definitions.",
+								"description": "%reactNative.launch.envFile.description%",
 								"default": "${workspaceFolder}/.env"
 							},
 							"variant": {
 								"type": "string",
-								"description": "A variant to be passed to react-native run-android, e.g. 'devDebug' to specify --variant=devDebug"
+								"description": "%reactNative.launch.variant.description%"
 							},
 							"scheme": {
 								"type": "string",
-								"description": "A scheme name to be passed to react-native run-ios, e.g. 'devDebug' to specify --scheme=devDebug"
+								"description": "%reactNative.launch.scheme.description%"
 							},
 							"productName": {
 								"type": "string",
-								"description": "Bundle display name e.g 'AwesomeProject'"
+								"description": "%reactNative.launch.productName.description%"
 							},
 							"skipFiles": {
 								"type": "array",
-								"description": "An array of file or folder names, or glob patterns, to skip when debugging.",
+								"description": "%reactNative.launch.skipFiles.description%",
 								"items": {
 									"type": "string"
 								},
@@ -379,7 +379,7 @@
 									"stop"
 								],
 								"default": "log",
-								"description": "Setup logging level in debugger."
+								"description": "%reactNative.launch.trace.description%"
 							}
 						}
 					}
