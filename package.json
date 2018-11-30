@@ -524,6 +524,7 @@
 		"vscode-debugadapter": "^1.23.0",
 		"vscode-debugprotocol": "^1.23.0",
 		"vscode-extension-telemetry": "0.0.5",
+		"vscode-nls": "^4.0.0",
 		"ws": "^3.2.0"
 	},
 	"devDependencies": {
@@ -570,7 +571,8 @@
 		"tslint-microsoft-contrib": "^5.0.2",
 		"typescript": "2.4.2",
 		"vsce": "^1.3.0",
-		"vscode": "^1.1.22"
+		"vscode": "^1.1.22",
+		"vscode-nls-dev": "^3.2.3"
 	},
 	"extensionDependencies": [
 		"ms-vscode.node-debug2"
