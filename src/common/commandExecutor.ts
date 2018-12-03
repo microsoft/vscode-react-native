@@ -116,7 +116,7 @@ export class CommandExecutor {
             });
 
         } else {
-            this.logger.warning(localize("PackagerNotFounD", "Packager not found"));
+            this.logger.warning(localize("PackagerNotFound", "Packager not found"));
             return Q.resolve<void>(void 0);
         }
     }
