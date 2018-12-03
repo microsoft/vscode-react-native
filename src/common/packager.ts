@@ -152,7 +152,7 @@ export class Packager {
                 this.logger.info(localize("StartedPackager", "Packager started."));
                 this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
             } else {
-                this.logger.info(localize("PackagerAlreadyRunning", "Packager is already running."));
+                this.logger.info(localize("PackagerIsAlreadyRunning", "Packager is already running."));
                 if (!this.packagerProcess) {
                     this.logger.warning(ErrorHelper.getWarning(localize("PackagerRunningOutsideVSCode", "React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option")));
                 }
