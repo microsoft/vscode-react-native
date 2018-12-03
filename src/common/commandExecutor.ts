@@ -116,7 +116,7 @@ export class CommandExecutor {
             });
 
         } else {
-            this.logger.warning(localize("PackagerNotFounD", "Packager not found"));
+            this.logger.warning(localize("PackagerNotFound", "Packager not found"));
             return Q.resolve<void>(void 0);
         }
     }
@@ -218,13 +218,13 @@ export class CommandExecutor {
     private static getCommandStatusString(command: string, status: CommandStatus) {
         switch (status) {
             case CommandStatus.Start:
-                return localize("ExecCom", "Executing command: {0}", command);
+                return localize("ExecutingCommand", "Executing command: {0}", command);
 
             case CommandStatus.End:
-                return localize("ExecComFinished", "Finished executing: {0}", command);
+                return localize("FinishedExecutingCommand", "Finished executing: {0}", command);
 
             default:
-                throw new Error(localize("UnsupCommStatus", "Unsupported command status"));
+                throw new Error(localize("UnsupportedCommandStatus", "Unsupported command status"));
         }
     }
 }
