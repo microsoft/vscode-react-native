@@ -149,7 +149,7 @@ export class Packager {
         .then(() => {
             this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
             if (executedStartPackagerCmd) {
-                this.logger.info(localize("StartedPackager", "Packager started."));
+                this.logger.info(localize("PackagerStarted", "Packager started."));
                 this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
             } else {
                 this.logger.info(localize("PackagerIsAlreadyRunning", "Packager is already running."));
