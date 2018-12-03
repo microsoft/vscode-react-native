@@ -286,7 +286,7 @@ export class Packager {
                         ? Q.resolve(fsPath)
                         : Q.reject<string>(localize("OpnPackageLocationNotFound", "opn package location not found")))));
         } catch (err) {
-            return Q.reject<string>(localize("OpnPackageLocationWasNotFound", "The package 'opn' was not found. ") + err);
+            return Q.reject<string>(localize("ThePackageOpnWasNotFound", "The package 'opn' was not found. ") + err);
         }
     }
 
