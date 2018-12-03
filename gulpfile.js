@@ -284,14 +284,14 @@ gulp.task('add-i18n', function () {
 
 // Gathers all strings to Transifex readable .xliff file for translating and pushes them to Transifex
 gulp.task('transifex-push', ['build'], function () {
-    return gulp.src(['package.nls.json', 'out/nls.metadata.header.json','out/nls.metadata.json'])
+    return gulp.src(['package.nls.json', 'nls.metadata.header.json','nls.metadata.json'])
         .pipe(nls.createXlfFiles(transifexProjectName, transifexExtensionName))
         .pipe(nls.pushXlfFiles(transifexApiHostname, transifexApiName, transifexApiToken));
 });
 
 // Creates Transifex readable .xliff file and saves it locally
 gulp.task('transifex-push-test', ['build'], function() {
-    return gulp.src(['package.nls.json', 'out/nls.metadata.header.json','out/nls.metadata.json'])
+    return gulp.src(['package.nls.json', 'nls.metadata.header.json','nls.metadata.json'])
         .pipe(nls.createXlfFiles(transifexProjectName, transifexExtensionName))
         .pipe(gulp.dest(path.join('..', `${transifexExtensionName}-push-test`)));
 });
