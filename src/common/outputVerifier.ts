@@ -3,6 +3,8 @@
 
 import * as Q from "q";
 import {ISpawnResult} from "./node/childProcess";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export type PatternToFailure = {
     pattern: string | RegExp,
@@ -43,11 +45,11 @@ export class OutputVerifier {
                 }
             }).then(successPatterns => {
                 if (!this.areAllSuccessPatternsPresent(successPatterns)) { // If we don't find all the success patterns, we also fail
-                    const message =
+                    const message = localize("ErrorMessageNotAllSuccessPatternsMatched",
                     `Unknown error: not all success patterns were matched.
-It means that "react-native run-${this.platformName}" command failed. \
+It means that "react-native run-{0}" command failed. \
 Please, check the View -> Toggle Output -> React Native, \
-View -> Toggle Output -> React Native: Run ${this.platformName} output windows.`;
+View -> Toggle Output -> React Native: Run {1} output windows.`, this.platformName, this.platformName);
                     return Q.reject<void>(new Error(message));
                 } // else we found all the success patterns, so we succeed
                 return Q.resolve(void 0);

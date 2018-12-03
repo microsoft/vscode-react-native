@@ -10,6 +10,8 @@ import {ISpawnResult} from "./node/childProcess";
 import {HostPlatform, HostPlatformId} from "./hostPlatform";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export enum CommandVerbosity {
     OUTPUT,
@@ -110,11 +112,11 @@ export class CommandExecutor {
                     return Q.resolve(void 0);
                 }
             }).then(() => {
-                this.logger.info("Packager stopped");
+                this.logger.info(localize("PackagerStopped", "Packager stopped"));
             });
 
         } else {
-            this.logger.warning("Packager not found");
+            this.logger.warning(localize("PackagerNotFounD", "Packager not found"));
             return Q.resolve<void>(void 0);
         }
     }
@@ -216,13 +218,13 @@ export class CommandExecutor {
     private static getCommandStatusString(command: string, status: CommandStatus) {
         switch (status) {
             case CommandStatus.Start:
-                return `Executing command: ${command}`;
+                return localize("ExecCom", "Executing command: {0}", command);
 
             case CommandStatus.End:
-                return `Finished executing: ${command}`;
+                return localize("ExecComFinished", "Finished executing: {0}", command);
 
             default:
-                throw new Error("Unsupported command status");
+                throw new Error(localize("UnsupCommStatus", "Unsupported command status"));
         }
     }
 }
