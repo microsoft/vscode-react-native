@@ -1,4 +1,6 @@
 {
+    "reactNative.description":"Code-hinting, debugging and integrated commands for React Native аыфыв",
+    "reactNative.license":"SEE LICENSE IN LICENSE.txt",
     "reactNative.command.runAndroidSimulator.title":"Run Android on Simulator",
     "reactNative.command.runAndroidDevice.title":"Run Android on Device",
     "reactNative.command.runIosSimulator.title":"Run iOS on Simulator",
@@ -39,6 +41,20 @@
     "reactNative.launch.productName.description":"Bundle display name e.g 'AwesomeProject'",
     "reactNative.launch.skipFiles.description":"An array of file or folder names, or glob patterns, to skip when debugging.",
     "reactNative.launch.trace.description":"Setup logging level in debugger.",
-    "":""
-
+    "reactNative.configuration.title":"React-Native configuration",
+    "reactNative.configuration.properties.react-native.ios.runArguments.simulator.description":"Run arguments to be passed to 'react-native run-ios' command",
+    "reactNative.configuration.properties.react-native.ios.runArguments.device.description":"Run arguments to be passed to 'react-native run-ios' command",
+    "reactNative.configuration.properties.react-native.ios.env.simulator.description":"Environment variables passed to the program.",
+    "reactNative.configuration.properties.react-native.ios.env.device.description":"Environment variables passed to the program.",
+    "reactNative.configuration.properties.react-native.ios.envFile.simulator.description":"Absolute path to a file containing environment variable definitions.",
+    "reactNative.configuration.properties.react-native.ios.envFile.device.description":"Absolute path to a file containing environment variable definitions.",
+    "reactNative.configuration.properties.react-native.android.runArguments.simulator.description":"Run arguments to be passed to 'react-native run-android' command",
+    "reactNative.configuration.properties.react-native.android.runArguments.device.description":"Run arguments to be passed to 'react-native run-android' command",
+    "reactNative.configuration.properties.react-native.android.env.simulator.description":"Environment variables passed to the program.",
+    "reactNative.configuration.properties.react-native.android.env.device.description":"Environment variables passed to the program.",
+    "reactNative.configuration.properties.react-native.android.envFile.simulator.description":"Absolute path to a file containing environment variable definitions.",
+    "reactNative.configuration.properties.react-native.android.envFile.device.description":"Absolute path to a file containing environment variable definitions.",
+    "reactNative.configuration.properties.react-native.packager.port.description":"React-native packager port",
+    "reactNative.configuration.properties.react-native-tools.projectRoot.description":"Subfolder in which the react-native project is located",
+    "reactNative.configuration.properties.react-native-tools.logLevel.description":"Logging level in extension"
 }
