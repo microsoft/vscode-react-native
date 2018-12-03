@@ -1,29 +1,54 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-var gulp = require("gulp");
-var log = require('fancy-log');
-var istanbul = require('gulp-istanbul');
-var isparta = require('isparta');
-var sourcemaps = require("gulp-sourcemaps");
-var path = require("path");
-var preprocess = require("gulp-preprocess");
-var install = require("gulp-install");
-var runSequence = require("run-sequence");
-var ts = require("gulp-typescript");
-var mocha = require("gulp-mocha");
-var GulpExtras = require("./tools/gulp-extras");
-var minimist = require("minimist");
-var os = require("os");
-var fs = require("fs");
-var Q = require("q");
-var remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
-var execSync = require('child_process').execSync;
+const gulp = require("gulp");
+const log = require('fancy-log');
+const istanbul = require('gulp-istanbul');
+const isparta = require('isparta');
+const sourcemaps = require("gulp-sourcemaps");
+const path = require("path");
+const preprocess = require("gulp-preprocess");
+const install = require("gulp-install");
+const runSequence = require("run-sequence");
+const ts = require("gulp-typescript");
+const mocha = require("gulp-mocha");
+const GulpExtras = require("./tools/gulp-extras");
+const minimist = require("minimist");
+const os = require("os");
+const fs = require("fs");
+const Q = require("q");
+const es = require('event-stream');
+const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
+const execSync = require('child_process').execSync;
+const nls = require('vscode-nls-dev');
 
-var copyright = GulpExtras.checkCopyright;
-var imports = GulpExtras.checkImports;
-var executeCommand = GulpExtras.executeCommand;
+const copyright = GulpExtras.checkCopyright;
+const imports = GulpExtras.checkImports;
+const executeCommand = GulpExtras.executeCommand;
 
+const transifexApiHostname = 'www.transifex.com'
+const transifexApiName = 'api';
+const transifexApiToken = process.env.TRANSIFEX_API_TOKEN;
+const transifexProjectName = 'vscode-extensions';
+const transifexExtensionName = 'vscode-react-native';
+
+const defaultLanguages = [
+	{ id: 'zh-tw', folderName: 'cht', transifexId: 'zh-hant' },
+	{ id: 'zh-cn', folderName: 'chs', transifexId: 'zh-hans' },
+	{ id: 'ja', folderName: 'jpn' },
+	{ id: 'ko', folderName: 'kor' },
+	{ id: 'de', folderName: 'deu' },
+	{ id: 'fr', folderName: 'fra' },
+	{ id: 'es', folderName: 'esn' },
+	{ id: 'ru', folderName: 'rus' },
+    { id: 'it', folderName: 'ita' },
+
+    // These language-pack languages are included for VS but excluded from the vscode package
+    { id: 'cs', folderName: 'csy' },
+    { id: 'tr', folderName: 'trk' },
+    { id: 'pt-br', folderName: 'ptb', transifexId: 'pt_BR' },
+    { id: 'pl', folderName: 'plk' }
+];
 
 var srcPath = "src";
 var testPath = "test";
@@ -49,25 +74,41 @@ gulp.task("build", ["check-imports", "check-copyright"], build);
 
 gulp.task("quick-build", build);
 
+// Configuring build task
+var failOnError = true;
+var buildNls = true;
 function build(callback) {
     var tsProject = ts.createProject("tsconfig.json");
     var isProd = options.env === "production";
     var preprocessorContext = isProd ? { PROD: true } : { DEBUG: true };
+    let gotError = false;
     log(`Building with preprocessor context: ${JSON.stringify(preprocessorContext)}`);
-    return tsProject.src()
+    var tsResult = tsProject.src()
         .pipe(preprocess({ context: preprocessorContext })) //To set environment variables in-line
         .pipe(sourcemaps.init())
         .pipe(tsProject())
         .on("error", function (e) {
             callback(e);
-        })
-        .pipe(sourcemaps.write(".", {
-            includeContent: false,
-            sourceRoot: "."
-        }))
+        });
+
+
+        return tsResult.js
+        .pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
+        .pipe(buildNls ? nls.createAdditionalLanguageFiles(defaultLanguages, 'i18n', '.') : es.through())
+		.pipe(buildNls ? nls.bundleMetaDataFiles('vsmobile.vscode-react-native', '.') : es.through())
+		.pipe(buildNls ? nls.bundleLanguageFiles() : es.through())
+        .pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '.' }))
         .pipe(gulp.dest(function (file) {
             return file.cwd;
-        }));
+        }))
+        .once('error', () => {
+            gotError = true;
+        })
+        .once('finish', () => {
+            if (failOnError && gotError) {
+                process.exit(1);
+            }
+        });
 }
 
 gulp.task("watch", ["build"], function (cb) {
@@ -232,4 +273,42 @@ gulp.task("release", ["build"], function () {
                 fs.writeFileSync(path.join(__dirname, fileName), fs.readFileSync(path.join(backupFolder, fileName)));
             });
         });
+});
+
+// Creates package.i18n.json files for all languages to {workspaceRoot}/i18n folder
+gulp.task('add-i18n', function () {
+    return gulp.src(['package.nls.json'])
+        .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, 'i18n'))
+        .pipe(gulp.dest('.'));
+});
+
+// Gathers all strings to Transifex readable .xliff file for translating and pushes them to Transifex
+gulp.task('transifex-push', ['build'], function () {
+    return gulp.src(['package.nls.json', 'nls.metadata.header.json','nls.metadata.json'])
+        .pipe(nls.createXlfFiles(transifexProjectName, transifexExtensionName))
+        .pipe(nls.pushXlfFiles(transifexApiHostname, transifexApiName, transifexApiToken));
+});
+
+// Creates Transifex readable .xliff file and saves it locally
+gulp.task('transifex-push-test', ['build'], function() {
+    return gulp.src(['package.nls.json', 'nls.metadata.header.json','nls.metadata.json'])
+        .pipe(nls.createXlfFiles(transifexProjectName, transifexExtensionName))
+        .pipe(gulp.dest(path.join('..', `${transifexExtensionName}-push-test`)));
+});
+
+// Gets the files with localized strings from Transifex
+gulp.task('transifex-pull', function () {
+    return es.merge(defaultLanguages.map(function(language) {
+        return nls.pullXlfFiles(transifexApiHostname, transifexApiName, transifexApiToken, language, [{ name: transifexExtensionName, project: transifexProjectName }]).
+            pipe(gulp.dest(`../${transifexExtensionName}-localization/${language.folderName}`));
+    }));
+});
+
+// Imports localization from raw localized Transifex strings to VS Code .i18n.json files
+gulp.task('i18n-import', function() {
+    return es.merge(defaultLanguages.map(function(language) {
+        return gulp.src(`../${transifexExtensionName}-localization/${language.folderName}/**/*.xlf`)
+            .pipe(nls.prepareJsonFiles())
+            .pipe(gulp.dest(path.join('./i18n', language.folderName)));
+    }));
 });

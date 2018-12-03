@@ -20,6 +20,8 @@ import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
 import { FileSystem } from "./node/fileSystem";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export class Packager {
     public static DEFAULT_PORT = 8081;
@@ -89,7 +91,7 @@ export class Packager {
                 return args;
             })
             .catch(() => {
-                this.logger.warning("Couldn't read packager's options from exp.json, continue...");
+                this.logger.warning(localize("CouldNotReadPackagerOptions", "Couldn't read packager's options from exp.json, continue..."));
 
                 return args;
             });
@@ -128,7 +130,7 @@ export class Packager {
                     REACT_EDITOR: failedRNVersions.indexOf(rnVersion) < 0 ? "code" : this.openFileAtLocationCommand(),
                 });
 
-                this.logger.info("Starting Packager");
+                this.logger.info(localize("StartingPackager", "Starting Packager"));
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
 
@@ -147,12 +149,12 @@ export class Packager {
         .then(() => {
             this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
             if (executedStartPackagerCmd) {
-                this.logger.info("Packager started.");
+                this.logger.info(localize("PackagerStarted", "Packager started."));
                 this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
             } else {
-                this.logger.info("Packager is already running.");
+                this.logger.info(localize("PackagerIsAlreadyRunning", "Packager is already running."));
                 if (!this.packagerProcess) {
-                    this.logger.warning(ErrorHelper.getWarning("React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option"));
+                    this.logger.warning(ErrorHelper.getWarning(localize("PackagerRunningOutsideVSCode", "React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option")));
                 }
             }
         });
@@ -165,14 +167,14 @@ export class Packager {
                 if (running) {
                     if (!this.packagerProcess) {
                         if (!silent) {
-                            this.logger.warning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager."));
+                            this.logger.warning(ErrorHelper.getWarning(localize("PackagerIsStillRunning", "Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager.")));
                         }
                         return Q.resolve<void>(void 0);
                     }
                     return this.killPackagerProcess();
                 } else {
                     if (!silent) {
-                        this.logger.warning(ErrorHelper.getWarning("Packager is not running"));
+                        this.logger.warning(ErrorHelper.getWarning(localize("PackagerIsNotRunning", "Packager is not running")));
                     }
                     return Q.resolve<void>(void 0);
                 }
@@ -191,13 +193,13 @@ export class Packager {
             .then(running => {
                 if (running) {
                     if (!this.packagerProcess) {
-                        this.logger.warning(ErrorHelper.getWarning("Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager. Then try the restart packager again."));
+                        this.logger.warning(ErrorHelper.getWarning(localize("PackagerIsStillRunning", "Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager. Then try the restart packager again.")));
                         return Q.resolve<boolean>(false);
                     }
 
                     return this.killPackagerProcess().then(() => Q.resolve<boolean>(true));
                 } else {
-                    this.logger.warning(ErrorHelper.getWarning("Packager is not running"));
+                    this.logger.warning(ErrorHelper.getWarning(localize("PackagerIsNotRunning", "Packager is not running")));
                     return Q.resolve<boolean>(true);
                 }
             })
@@ -231,15 +233,15 @@ export class Packager {
                     } else if (exists[1]) {
                         bundleName = `index.${platform}.bundle`;
                     } else {
-                        this.logger.info(`Entry point doesn't exist neither at index.js nor index.${platform}.js. Skip prewarming...`);
+                        this.logger.info(localize("EntryPointDoesntExist", "Entry point doesn't exist neither at index.js nor index.{0}.js. Skip prewarming...", platform));
                         return;
                     }
 
                     const bundleURL = `http://${this.getHost()}/${bundleName}?platform=${platform}`;
-                    this.logger.info("About to get: " + bundleURL);
+                    this.logger.info(localize("AboutToGetURL", "About to get: {0}", bundleURL));
                     return Request.request(bundleURL, true)
                         .then(() => {
-                            this.logger.warning("The Bundle Cache was prewarmed.");
+                            this.logger.warning(localize("BundleCacheWasPrewarmed", "The Bundle Cache was prewarmed."));
                         });
                 })
                 .catch(() => {
@@ -262,7 +264,7 @@ export class Packager {
 
     private awaitStart(retryCount = 30, delay = 2000): Q.Promise<boolean> {
         let pu: PromiseUtil = new PromiseUtil();
-        return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, "Could not start the packager.");
+        return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, localize("CouldNotStartPackager", "Could not start the packager."));
     }
 
     private findOpnPackage(): Q.Promise<string> {
@@ -282,9 +284,9 @@ export class Packager {
                 fsHelper.exists(fsPath).then(exists =>
                     exists
                         ? Q.resolve(fsPath)
-                        : Q.reject<string>("opn package location not found"))));
+                        : Q.reject<string>(localize("OpnPackageLocationNotFound", "opn package location not found")))));
         } catch (err) {
-            return Q.reject<string>("The package 'opn' was not found. " + err);
+            return Q.reject<string>(localize("ThePackageOpnWasNotFound", "The package 'opn' was not found. ") + err);
         }
     }
 
@@ -313,7 +315,7 @@ export class Packager {
     }
 
     private killPackagerProcess(): Q.Promise<void> {
-        this.logger.info("Stopping Packager");
+        this.logger.info(localize("StoppingPackager", "Stopping Packager"));
         return new CommandExecutor(this.projectPath, this.logger).killReactPackager(this.packagerProcess).then(() => {
             this.packagerProcess = undefined;
 
@@ -322,10 +324,10 @@ export class Packager {
             return helper.isExpoApp(false)
             .then((isExpo) => {
                 if (isExpo) {
-                    this.logger.debug("Stopping Exponent");
+                    this.logger.debug(localize("StoppingExponent", "Stopping Exponent"));
                     return XDL.stopAll(this.projectPath)
                         .then(() => {
-                            this.logger.debug("Exponent Stopped");
+                            this.logger.debug(localize("ExponentStopped", "Exponent Stopped"));
                         })
                         .catch((err) => {
                             if (err.code === "NOT_LOGGED_IN") {
