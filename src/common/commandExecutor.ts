@@ -218,7 +218,7 @@ export class CommandExecutor {
     private static getCommandStatusString(command: string, status: CommandStatus) {
         switch (status) {
             case CommandStatus.Start:
-                return localize("ExecCom", "Executing command: {0}", command);
+                return localize("ExecutingCommand", "Executing command: {0}", command);
 
             case CommandStatus.End:
                 return localize("ExecComFinished", "Finished executing: {0}", command);
