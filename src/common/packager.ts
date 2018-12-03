@@ -238,7 +238,7 @@ export class Packager {
                     }
 
                     const bundleURL = `http://${this.getHost()}/${bundleName}?platform=${platform}`;
-                    this.logger.info(localize("AboutToGet", "About to get: ") + bundleURL);
+                    this.logger.info(localize("AboutToGetURL", "About to get: {0}", bundleURL));
                     return Request.request(bundleURL, true)
                         .then(() => {
                             this.logger.warning(localize("BundleCacheWasPrewarmed", "The Bundle Cache was prewarmed."));
