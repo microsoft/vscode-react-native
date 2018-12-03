@@ -224,7 +224,7 @@ export class CommandExecutor {
                 return localize("FinishedExecutingCommand", "Finished executing: {0}", command);
 
             default:
-                throw new Error(localize("UnsupCommStatus", "Unsupported command status"));
+                throw new Error(localize("UnsupportedCommandStatus", "Unsupported command status"));
         }
     }
 }
