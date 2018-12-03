@@ -221,7 +221,7 @@ export class CommandExecutor {
                 return localize("ExecutingCommand", "Executing command: {0}", command);
 
             case CommandStatus.End:
-                return localize("ExecComFinished", "Finished executing: {0}", command);
+                return localize("FinishedExecutingCommand", "Finished executing: {0}", command);
 
             default:
                 throw new Error(localize("UnsupCommStatus", "Unsupported command status"));
