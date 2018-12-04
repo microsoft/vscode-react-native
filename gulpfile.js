@@ -70,7 +70,10 @@ var tsProject = ts.createProject("tsconfig.json");
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn't have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task("build", ["check-imports", "check-copyright"], build);
+gulp.task("build",  gulp.series("check-imports", "check-copyright", function() {
+    build();
+}));
+
 
 gulp.task("quick-build", build);
 
@@ -111,10 +114,10 @@ function build(callback) {
         });
 }
 
-gulp.task("watch", ["build"], function (cb) {
+gulp.task("watch", gulp.series("build", function () {
     log("Watching build sources...");
     return gulp.watch(sources, ["build"]);
-});
+}));
 
 gulp.task("default", function (callback) {
     runSequence("clean", "build", "tslint", callback);
@@ -198,12 +201,12 @@ gulp.task("test:coverage", function (done) {
 
 gulp.task("test-no-build", test);
 
-gulp.task("check-imports", function (cb) {
+gulp.task("check-imports", function () {
     return tsProject.src()
         .pipe(imports());
 });
 
-gulp.task("check-copyright", function (cb) {
+gulp.task("check-copyright", function () {
     return gulp.src([
         "**/*.ts",
         "**/*.js",
@@ -217,9 +220,9 @@ gulp.task("check-copyright", function (cb) {
         .pipe(copyright());
 });
 
-gulp.task("watch-build-test", ["build", "build-test"], function () {
+gulp.task("watch-build-test", gulp.series("build", "build-test", function () {
     return gulp.watch(sources, ["build", "build-test"]);
-});
+}));
 
 gulp.task("clean", function () {
     var del = require("del");
@@ -241,7 +244,7 @@ gulp.task("package", function (callback) {
     executeCommand(command, args, callback);
 });
 
-gulp.task("release", ["build"], function () {
+gulp.task("release", gulp.series("build", function () {
     var licenseFiles = ["LICENSE.txt", "ThirdPartyNotices.txt"];
     var backupFolder = path.resolve(path.join(os.tmpdir(), "vscode-react-native"));
     if (!fs.existsSync(backupFolder)) {
@@ -273,7 +276,7 @@ gulp.task("release", ["build"], function () {
                 fs.writeFileSync(path.join(__dirname, fileName), fs.readFileSync(path.join(backupFolder, fileName)));
             });
         });
-});
+}));
 
 // Creates package.i18n.json files for all languages to {workspaceRoot}/i18n folder
 gulp.task('add-i18n', function () {
@@ -283,18 +286,18 @@ gulp.task('add-i18n', function () {
 });
 
 // Gathers all strings to Transifex readable .xliff file for translating and pushes them to Transifex
-gulp.task('transifex-push', ['build'], function () {
+gulp.task('transifex-push', gulp.series('build', function () {
     return gulp.src(['package.nls.json', 'nls.metadata.header.json','nls.metadata.json'])
         .pipe(nls.createXlfFiles(transifexProjectName, transifexExtensionName))
         .pipe(nls.pushXlfFiles(transifexApiHostname, transifexApiName, transifexApiToken));
-});
+}));
 
 // Creates Transifex readable .xliff file and saves it locally
-gulp.task('transifex-push-test', ['build'], function() {
+gulp.task('transifex-push-test', gulp.series('build', function() {
     return gulp.src(['package.nls.json', 'nls.metadata.header.json','nls.metadata.json'])
         .pipe(nls.createXlfFiles(transifexProjectName, transifexExtensionName))
         .pipe(gulp.dest(path.join('..', `${transifexExtensionName}-push-test`)));
-});
+}));
 
 // Gets the files with localized strings from Transifex
 gulp.task('transifex-pull', function () {
