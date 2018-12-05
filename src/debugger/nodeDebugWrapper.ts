@@ -17,7 +17,8 @@ import { DebugProtocol } from "vscode-debugprotocol";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
-
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export function makeSession(
     debugSessionClass: typeof ChromeDebugSession,
@@ -76,7 +77,7 @@ export function makeSession(
         private launch(request: DebugProtocol.Request): void {
             this.requestSetup(request.arguments)
                 .then(() => {
-                    logger.verbose(`Handle launch request: ${JSON.stringify(request.arguments, null , 2)}`);
+                    logger.verbose(localize("HandleLaunchRequest", "Handle launch request: ${0}", JSON.stringify(request.arguments, null , 2)));
                     return this.remoteExtension.launch(request);
                 })
                 .then(() => {
@@ -99,7 +100,7 @@ export function makeSession(
         private attach(request: DebugProtocol.Request): void {
             this.requestSetup(request.arguments)
                 .then(() => {
-                    logger.verbose(`Handle attach request: ${request.arguments}`);
+                    logger.verbose(localize("HandleLaunchRequest", "Handle launch request: ${0}", request.arguments));
                     return this.remoteExtension.getPackagerPort(request.arguments.program);
                 })
                 .then((packagerPort: number) => {
@@ -125,7 +126,7 @@ export function makeSession(
             // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
             if (request.arguments.platform === "android") {
                 this.remoteExtension.stopMonitoringLogcat()
-                    .catch(reason => logger.warn(`Couldn't stop monitoring logcat: ${reason.message || reason}`))
+                    .catch(reason => logger.warn(localize("CouldntStopMonitoringLogcat", "Couldn't stop monitoring logcat: ${0}", reason.message || reason)))
                     .finally(() => super.dispatchRequest(request));
             } else {
                 super.dispatchRequest(request);
@@ -145,8 +146,7 @@ export function makeSession(
             return ReactNativeProjectHelper.isReactNativeProject(projectRootPath)
                 .then((result) => {
                     if (!result) {
-                        throw new Error(`Seems to be that you are trying to debug from within directory that is not a React Native project root.
-If so, please, follow these instructions: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.`);
+                        throw new Error(localize("NotInReactNativeFolderError", "Seems to be that you are trying to debug from within directory that is not a React Native project root. \n If so, please, follow these instructions: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure."));
                     }
                     this.projectRootPath = projectRootPath;
                     this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
@@ -175,7 +175,7 @@ If so, please, follow these instructions: https://github.com/Microsoft/vscode-re
             return TelemetryHelper.generate("attach", extProps, (generator) => {
                 return Q({})
                     .then(() => {
-                        logger.log("Starting debugger app worker.");
+                        logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
                         // TODO: remove dependency on args.program - "program" property is technically
                         // no more required in launch configuration and could be removed
                         const workspaceRootPath = path.resolve(path.dirname(request.arguments.program), "..");
@@ -188,7 +188,7 @@ If so, please, follow these instructions: https://github.com/Microsoft/vscode-re
                             this.projectRootPath,
                             undefined);
                         this.appWorker.on("connected", (port: number) => {
-                            logger.log("Debugger worker loaded runtime on port " + port);
+                            logger.log(localize("", "Debugger worker loaded runtime on port {0}", port));
                             // Don't mutate original request to avoid side effects
                             let attachArguments = Object.assign({}, request.arguments, {
                                 address: "localhost",
