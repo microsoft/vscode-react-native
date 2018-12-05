@@ -87,7 +87,7 @@ suite("commandExecutor", function() {
 
             sinon.stub(Log, "log", function(message: string, formatMessage: boolean = true) {
                 loggedOutput += message;
-                console.log(message);
+                console.log(loggedOutput);
             });
 
             Q({})
@@ -102,7 +102,7 @@ suite("commandExecutor", function() {
 
             sinon.stub(Log, "log", function(message: string, formatMessage: boolean = true) {
                 loggedOutput += message;
-                console.log(message);
+                console.log(loggedOutput);
             });
 
             Q({})

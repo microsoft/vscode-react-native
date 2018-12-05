@@ -140,13 +140,13 @@ export class Simulator {
         return Q.delay(0).then(() => {
             this.allSimulatedEvents.push(event);
             const key = Object.keys(event).find(eventKey => eventKey !== "after"); // At the moment we are only using a single key/parameter per event
-            let result = Q<void>(void 0);
+            Q<void>(void 0);
             switch (key) {
                 case "stdout": {
                     const data = (<IStdOutEvent>event).stdout.data;
                     const previousOutputLength = this.allStdout.length;
                     this.allStdout += data;
-                    result = this.simulateOutputSideEffects(data, previousOutputLength).then(() => {
+                    this.simulateOutputSideEffects(data, previousOutputLength).then(() => {
                         this.process.stdout.emit("data", new Buffer(data));
                     });
                     break;
@@ -168,7 +168,7 @@ export class Simulator {
                         beforeFinishing = Q(this.sideEffectsDefinition.beforeSuccess(this.allStdout, this.allStderr));
                     }
 
-                    result = beforeFinishing.then(() => {
+                    beforeFinishing.then(() => {
                         this.process.emit("exit", code);
                     });
                     break;
