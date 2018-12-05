@@ -29,7 +29,7 @@ export interface IDebuggeeWorker {
 }
 
 function printDebuggingError(message: string, reason: any) {
-    const nestedError = ErrorHelper.getNestedWarning(reason, localize("DebuggingWontWorkReloadJSAndReconnect", "${0}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger", message));
+    const nestedError = ErrorHelper.getNestedWarning(reason, localize("DebuggingWontWorkReloadJSAndReconnect", "{0}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger", message));
 
     logger.error(nestedError.message);
 }

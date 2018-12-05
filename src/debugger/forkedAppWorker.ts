@@ -11,9 +11,11 @@ import { logger } from "vscode-chrome-debug-core";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 import { RemoteExtension } from "../common/remoteExtension";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 function printDebuggingError(message: string, reason: any) {
-    const nestedError = ErrorHelper.getNestedWarning(reason, `${message}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger`);
+    const nestedError = ErrorHelper.getNestedWarning(reason, localize("DebuggingWontWorkReloadJSAndReconnect", "{0}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger", message));
 
     logger.error(nestedError.message);
 }
@@ -62,7 +64,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     public stop() {
         if (this.debuggeeProcess) {
-            logger.verbose(`About to kill debuggee with pid ${this.debuggeeProcess.pid}`);
+            logger.verbose(localize("AboutToKillDebuggeeWithPID", "About to kill debuggee with pid {0}", this.debuggeeProcess.pid));
             this.debuggeeProcess.kill();
             this.debuggeeProcess = null;
         }
@@ -95,12 +97,12 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             this.postReplyToApp(message);
         })
         .on("error", (error: Error) => {
-            printDebuggingError("React Native worker process thrown an error", error);
+            printDebuggingError(localize("ReactNativeWorkerProcessThrownAnError", "React Native worker process thrown an error"), error);
         });
 
         // Resolve with port debugger server is listening on
         // This will be sent to subscribers of MLAppWorker in "connected" event
-        logger.verbose(`Spawned debuggee process with pid ${this.debuggeeProcess.pid} listening to ${port}`);
+        logger.verbose(localize("SpawnedDebugeeProcessWithPidListening", "Spawned debuggee process with pid {0} listening to {1}", this.debuggeeProcess.pid, port));
 
         return Q.resolve(port);
     }
@@ -130,14 +132,14 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                             ...rnMessage,
                             url: url.format(packagerUrl),
                         };
-                        logger.verbose("Packager requested runtime to load script from " + rnMessage.url);
+                        logger.verbose(localize("PackagerRequestedRuntimeToLoadScriptFrom", "Packager requested runtime to load script from {0}", rnMessage.url));
                         return this.scriptImporter.downloadAppScript(<string>rnMessage.url, this.projectRootPath)
                             .then((downloadedScript: DownloadedScript) => {
                                 this.bundleLoaded.resolve(void 0);
                                 return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
                             });
                     } else {
-                        throw Error("RNMessage with method 'executeApplicationScript' doesn't have 'url' property");
+                        throw Error(localize("RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty", "RNMessage with method 'executeApplicationScript' doesn't have 'url' property"));
                     }
                 }
             });
@@ -147,7 +149,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                     this.debuggeeProcess.send({ data: message });
                 }
             },
-            (reason) => printDebuggingError(`Couldn't import script at <${rnMessage.url}>`, reason));
+            (reason) => printDebuggingError(localize("CouldntImportScriptAt", "Couldn't import script at <{0}>", rnMessage.url), reason));
 
         return promise;
     }
