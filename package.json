@@ -549,7 +549,7 @@
 		"gulp-sequence": "1.0.0",
 		"gulp-sourcemaps": "^1.6.0",
 		"gulp-tslint": "^8.1.2",
-		"gulp-typescript": "^3.1.5",
+		"gulp-typescript": "^4.0.2",
 		"isparta": "^4.0.0",
 		"jest": "^22.1.4",
 		"jest-cli": "^22.1.4",
