@@ -86,10 +86,8 @@ gulp.task("check-copyright", function () {
         .pipe(copyright());
 });
 
-// Configuring build task
-var failOnError = true;
-var buildNls = true;
-function build(callback) {
+
+function build(failOnError, buildNls) {
     var tsProject = ts.createProject("tsconfig.json");
     var isProd = options.env === "production";
     var preprocessorContext = isProd ? { PROD: true } : { DEBUG: true };
@@ -98,11 +96,7 @@ function build(callback) {
     var tsResult = tsProject.src()
         .pipe(preprocess({ context: preprocessorContext })) //To set environment variables in-line
         .pipe(sourcemaps.init())
-        .pipe(tsProject())
-        .on("error", function (e) {
-            callback(e);
-        });
-
+        .pipe(tsProject());
 
         return tsResult.js
         .pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
@@ -126,7 +120,15 @@ function build(callback) {
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn"t have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task("build",  gulp.series("check-imports", "check-copyright", build));
+gulp.task("build",  gulp.series("check-imports", "check-copyright", function (done) {
+    build(true, true);
+    done();
+}));
+
+gulp.task("build-dev",  gulp.series("check-imports", "check-copyright", function (done) {
+    build(false, false);
+    done();
+}));
 
 gulp.task("quick-build", build);
 
@@ -135,18 +137,20 @@ gulp.task("watch", gulp.series("build", function () {
     return gulp.watch(sources, gulp.series("build"));
 }));
 
-gulp.task("default", function (callback) {
-    runSequence("clean", "build", "tslint", callback);
+gulp.task("clean", function () {
+    var del = require("del");
+    var pathsToDelete = [
+        "src/**/*.js",
+        "src/**/*.js.map",
+        "test/**/*.js",
+        "test/**/*.js.map",
+        "out/",
+        "!test/resources/sampleReactNative022Project/**/*.js",
+        ".vscode-test/",
+        "nls.*.json"
+    ]
+    return del(pathsToDelete, { force: true });
 });
-
-var lintSources = [
-    srcPath,
-    testPath
-].map(function (tsFolder) { return tsFolder + "/**/*.ts"; });
-lintSources = lintSources.concat([
-    "!src/typings/**",
-    "!test/resources/sampleReactNative022Project/**"
-]);
 
 var libtslint = require("tslint");
 var tslint = require("gulp-tslint");
@@ -159,6 +163,17 @@ gulp.task("tslint", function () {
         }))
         .pipe(tslint.report());
 });
+
+gulp.task("default", gulp.series("clean", "build", "tslint"));
+
+var lintSources = [
+    srcPath,
+    testPath
+].map(function (tsFolder) { return tsFolder + "/**/*.ts"; });
+lintSources = lintSources.concat([
+    "!src/typings/**",
+    "!test/resources/sampleReactNative022Project/**"
+]);
 
 function test() {
     // Check if arguments were passed
@@ -210,31 +225,16 @@ gulp.task("coverage:remap", function () {
         }));
 });
 
-gulp.task("test:coverage", function (done) {
-    runSequence("quick-build", "coverage:instrument",
-        "test-no-build", "coverage:report", "coverage:remap", done);
-});
-
 gulp.task("test-no-build", test);
 
+gulp.task("test:coverage", gulp.series("quick-build", "coverage:instrument",
+"test-no-build", "coverage:report", "coverage:remap", function (done) {
+    done();
+}));
 
 gulp.task("watch-build-test", gulp.series("build", "test", function () {
     return gulp.watch(sources, gulp.series("build", "test"));
 }));
-
-gulp.task("clean", function () {
-    var del = require("del");
-    var pathsToDelete = [
-        "src/**/*.js",
-        "src/**/*.js.map",
-        "test/**/*.js",
-        "test/**/*.js.map",
-        "out/",
-        "!test/resources/sampleReactNative022Project/**/*.js",
-        ".vscode-test/"
-    ]
-    return del(pathsToDelete, { force: true });
-});
 
 gulp.task("package", function (callback) {
     var command = path.join(__dirname, "node_modules", ".bin", "vsce");
