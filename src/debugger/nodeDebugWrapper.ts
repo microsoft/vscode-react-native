@@ -126,7 +126,7 @@ export function makeSession(
             // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
             if (request.arguments.platform === "android") {
                 this.remoteExtension.stopMonitoringLogcat()
-                    .catch(reason => logger.warn(localize("CouldntStopMonitoringLogcat", "Couldn't stop monitoring logcat: ${0}", reason.message || reason)))
+                    .catch(reason => logger.warn(localize("CouldNotStopMonitoringLogcat", "Couldn't stop monitoring logcat: ${0}", reason.message || reason)))
                     .finally(() => super.dispatchRequest(request));
             } else {
                 super.dispatchRequest(request);
@@ -188,7 +188,7 @@ export function makeSession(
                             this.projectRootPath,
                             undefined);
                         this.appWorker.on("connected", (port: number) => {
-                            logger.log(localize("", "Debugger worker loaded runtime on port {0}", port));
+                            logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
                             // Don't mutate original request to avoid side effects
                             let attachArguments = Object.assign({}, request.arguments, {
                                 address: "localhost",

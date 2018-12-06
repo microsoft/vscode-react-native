@@ -11,6 +11,8 @@ import {SourceMapUtil} from "./sourceMap";
 import url = require("url");
 import * as semver from "semver";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export interface DownloadedScript {
     contents: string;
@@ -74,7 +76,7 @@ export class ScriptImporter {
                 return waitForSourceMapping
                 .then(() => this.writeAppScript(scriptBody, scriptUrl))
                 .then((scriptFilePath: string) => {
-                    logger.verbose(`Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
+                    logger.verbose(localize("ScriptDownloadedTo", "Script {0} downloaded to {1}", overriddenScriptUrlString, scriptFilePath));
                     return { contents: scriptBody, filepath: scriptFilePath };
                 });
             });

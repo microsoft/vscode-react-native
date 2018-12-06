@@ -17,6 +17,8 @@ import { DebugSession, OutputEvent, TerminatedEvent } from "vscode-debugadapter"
 const version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")).version;
 const telemetryReporter = new ReassignableTelemetryReporter(new NullTelemetryReporter());
 const extensionName = "react-native-tools";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 function bailOut(reason: string): void {
     // Things have gone wrong in initialization: Report the error to telemetry and exit
@@ -62,7 +64,7 @@ function codeToRun() {
             const debugSession = new DebugSession();
             // Start session before sending any events otherwise the client wouldn't receive them
             debugSession.start(process.stdin, process.stdout);
-            debugSession.sendEvent(new OutputEvent("Unable to start debug adapter: " + e.toString(), "stderr"));
+            debugSession.sendEvent(new OutputEvent(localize("UnableToStartDebugAdapter", "Unable to start debug adapter: {0}", e.toString()), "stderr"));
             debugSession.sendEvent(new TerminatedEvent());
             bailOut(e.toString());
         }
