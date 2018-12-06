@@ -140,7 +140,6 @@ export class Simulator {
         return Q.delay(0).then(() => {
             this.allSimulatedEvents.push(event);
             const key = Object.keys(event).find(eventKey => eventKey !== "after"); // At the moment we are only using a single key/parameter per event
-            Q<void>(void 0);
             switch (key) {
                 case "stdout": {
                     const data = (<IStdOutEvent>event).stdout.data;

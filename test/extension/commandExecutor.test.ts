@@ -83,11 +83,9 @@ suite("commandExecutor", function() {
 
         test("should spawn a command", function(done: MochaDone) {
             let ce = new CommandExecutor();
-            let loggedOutput: string = "";
 
             sinon.stub(Log, "log", function(message: string, formatMessage: boolean = true) {
-                loggedOutput += message;
-                console.log(loggedOutput);
+                console.log(message);
             });
 
             Q({})
@@ -98,11 +96,8 @@ suite("commandExecutor", function() {
 
         test("spawn should reject a bad command", function(done: MochaDone) {
             let ce = new CommandExecutor();
-            let loggedOutput: string = "";
-
             sinon.stub(Log, "log", function(message: string, formatMessage: boolean = true) {
-                loggedOutput += message;
-                console.log(loggedOutput);
+                console.log(message);
             });
 
             Q({})
