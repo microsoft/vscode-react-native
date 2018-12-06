@@ -9,8 +9,6 @@ import * as path from "path";
 import * as fs from "fs";
 import { ILogger } from "../log/LogHelper";
 import * as os from "os";
-import * as nls from "vscode-nls";
-const localize = nls.loadMessageBundle();
 
 // See android versions usage at: http://developer.android.com/about/dashboards/index.html
 export enum AndroidAPILevel {
@@ -143,7 +141,7 @@ export class AdbHelper {
         const matches = fileContent.match(/^sdk\.dir=(.+)$/m);
         if (!matches || !matches[1]) {
             if (logger) {
-                logger.info(localize("NoSdkDirFoundInLocalPropertiesFile", "No sdk.dir value found in local.properties file. Using Android SDK location from PATH."));
+                logger.info(`No sdk.dir value found in local.properties file. Using Android SDK location from PATH.`);
             }
             return null;
         }
@@ -154,7 +152,7 @@ export class AdbHelper {
             sdkLocation = sdkLocation.replace(/\\\\/g, "\\").replace("\\:", ":");
         }
         if (logger) {
-            logger.info(localize("UsindAndroidSDKLocationDefinedInLocalPropertiesFile", "Using Android SDK location defined in android/local.properties file: {0}.", sdkLocation));
+            logger.info(`Using Android SDK location defined in android/local.properties file: ${sdkLocation}.`);
         }
 
         return sdkLocation;
@@ -199,7 +197,7 @@ export class AdbHelper {
         const localPropertiesFilePath = path.join(projectRoot, "android", "local.properties");
         if (!fs.existsSync(localPropertiesFilePath)) {
             if (logger) {
-                logger.info(localize("LocalPropertiesFileDoesNotExist", "local.properties file doesn't exist. Using Android SDK location from PATH."));
+                logger.info(`local.properties file doesn't exist. Using Android SDK location from PATH.`);
             }
             return null;
         }
@@ -209,8 +207,8 @@ export class AdbHelper {
             fileContent = fs.readFileSync(localPropertiesFilePath).toString();
         } catch (e) {
             if (logger) {
-                logger.error(localize("CouldNotReadFrom", "Couldn't read from {0}.", localPropertiesFilePath), e, e.stack);
-                logger.info(localize("UsingAndroidSDKLocationFromPATH", "Using Android SDK location from PATH."));
+                logger.error(`Couldn't read from ${localPropertiesFilePath}.`, e, e.stack);
+                logger.info(`Using Android SDK location from PATH.`);
             }
             return null;
         }
