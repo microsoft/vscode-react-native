@@ -297,10 +297,12 @@ gulp.task("transifex-push-test", gulp.series("build", function() {
 // Gets the files with localized strings from Transifex
 gulp.task("transifex-pull", function (done) {
     es.merge(defaultLanguages.map(function(language) {
-        return nls.pullXlfFiles(transifexApiHostname, transifexApiName, transifexApiToken, language, [{ name: transifexExtensionName, project: transifexProjectName }]).
-            pipe(gulp.dest(`../${transifexExtensionName}-localization/${language.folderName}`));
+        return nls.pullXlfFiles(transifexApiHostname, transifexApiName, transifexApiToken, language, [{ name: transifexExtensionName, project: transifexProjectName }])
+            .pipe(gulp.dest(`../${transifexExtensionName}-localization/${language.folderName}`))
+    }))
+    .pipe(es.wait(function() {
+        done();
     }));
-    done();
 });
 
 // Imports localization from raw localized Transifex strings to VS Code .i18n.json files
@@ -308,7 +310,10 @@ gulp.task("i18n-import", function(done) {
     es.merge(defaultLanguages.map(function(language) {
         return gulp.src(`../${transifexExtensionName}-localization/${language.folderName}/**/*.xlf`)
             .pipe(nls.prepareJsonFiles())
-            .pipe(gulp.dest(path.join("./i18n", language.folderName)));
+            .pipe(gulp.dest(path.join("./i18n", language.folderName)))
+    }))
+    .pipe(es.wait(function() {
+        done();
     }));
-    done();
+
 });
