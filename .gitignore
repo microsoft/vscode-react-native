@@ -5,6 +5,7 @@ coverage/
 .idea
 out
 src/**/nodeDebugLocation.json
+nls.*.json
 
 # Compiled files
 src/**/*.js
