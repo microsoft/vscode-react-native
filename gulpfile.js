@@ -227,10 +227,7 @@ gulp.task("coverage:remap", function () {
 
 gulp.task("test-no-build", test);
 
-gulp.task("test:coverage", gulp.series("quick-build", "coverage:instrument",
-"test-no-build", "coverage:report", "coverage:remap", function (done) {
-    done();
-}));
+gulp.task("test:coverage", gulp.series("quick-build", "coverage:instrument", "test-no-build", "coverage:report", "coverage:remap"));
 
 gulp.task("watch-build-test", gulp.series("build", "test", function () {
     return gulp.watch(sources, gulp.series("build", "test"));
