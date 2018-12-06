@@ -9,7 +9,7 @@ export class NestedError extends Error {
         super(message);
         this._innerError = innerError;
         this.name = innerError.name;
-        const innerMessage = innerError.message;
+        const innerMessage = this._innerError.message;
         this.message = innerMessage ? `${message}: ${innerMessage}` : message;
         this._extras = extras;
     }
