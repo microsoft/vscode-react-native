@@ -84,7 +84,7 @@ export class ScriptImporter {
     }
 
     public downloadDebuggerWorker(sourcesStoragePath: string, projectRootPath: string): Q.Promise<void> {
-        const errPackagerNotRunning = new RangeError(`Cannot attach to packager. Are you sure there is a packager and it is running in the port ${this.packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
+        const errPackagerNotRunning = new RangeError(localize("CannotAttachToPackager", "Cannot attach to packager. Are you sure there is a packager and it is running in the port {0}? If your packager is configured to run in another port make sure to add that to the setting.json.", this.packagerPort));
 
         return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
             .then(() => {
