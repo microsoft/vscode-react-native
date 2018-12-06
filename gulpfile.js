@@ -315,5 +315,4 @@ gulp.task("i18n-import", function(done) {
     .pipe(es.wait(function() {
         done();
     }));
-
 });
