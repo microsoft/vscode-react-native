@@ -17,7 +17,7 @@
     "reactNative.snippets.debugiOS.description":"A new configuration for launching react-native app on iOS",
     "reactNative.snippets.attachPackager.description":"A new configuration for attaching to packager",
     "reactNative.snippets.debugExpo.description":"A new configuration for launching Expo app",
-    "reactNative.attach.properties.description":"The path to launchReactNative.js in the vscode folder",
+    "reactNative.attach.program.description":"The path to launchReactNative.js in the vscode folder",
     "reactNative.attach.sourceMaps.description":"Whether to use JavaScript source maps to map the generated bundled code back to its original sources",
     "reactNative.attach.outDir.description":"The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
     "reactNative.attach.sourceMapsPathOverrides.description":"A set of mappings for rewriting the locations of source files from what the sourcemap says, to their locations on disk. See README for details.",
