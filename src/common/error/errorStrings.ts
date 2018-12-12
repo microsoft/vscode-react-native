@@ -15,6 +15,7 @@ export const ERROR_STRINGS = {
     "ApplicationLaunchTimedOut": localize("ApplicationLaunchTimedOut", "Timeout launching application. Is the device locked?"),
     "IOSSimulatorNotLaunchable": localize("IOSSimulatorNotLaunchable", "Unable to launch iOS simulator. Try specifying a different target."),
     "OpnPackagerLocationNotFound": localize("OpnPackagerLocationNotFound", "Opn package location not found"),
+    "OpnPackagerNotFound": localize("OpnPackagerNotFound", "The package 'opn' was not found. {0}"),
     "PackageNotFound": localize("PackageNotFound", "Attempting to find package {0} failed with error: {1}"),
     "PlatformNotSupported": localize("PlatformNotSupported", "Platform '{0}' is not supported on host platform: {1}"),
     "ProjectVersionNotParsable": localize("ProjectVersionNotParsable", "Couldn't parse the version component of the package at {0}: version = {1}"),
@@ -40,4 +41,8 @@ export const ERROR_STRINGS = {
     "PackagerRunningInDifferentPort": localize("PackagerRunningInDifferentPort", "A packager cannot be started on port {0} because a packager process is already running on port {1}"),
     "ErrorWhileProcessingMessageInIPMSServer": localize("ErrorWhileProcessingMessageInIPMSServer", "An error ocurred while handling message: {0}"),
     "ErrorNoPipeFound": localize("ErrorNoPipeFound", "Unable to set up communication with VSCode react-native extension. Is this a react-native project, and have you made sure that the react-native npm package is installed at the root?"),
+    "NotAllSuccessPatternsMatched": localize("NotAllSuccessPatternsMatched", "Unknown error: not all success patterns were matched. \n It means that \"react-native run-{0}\" command failed. \n Please, check the View -> Toggle Output -> React Native, \n View -> Toggle Output -> React Native: Run {1} output windows."),
+    "CouldNotParseVersion": localize("CouldNotParsePackageVersion", "Couldn't parse the version component of the package at {0}: version = {1}"),
+    "UnsupportedCommandStatus": localize("UnsupportedCommandStatus", "Unsupported command status"),
+
 };

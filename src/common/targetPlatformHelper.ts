@@ -33,7 +33,7 @@ export class TargetPlatformHelper {
             case "wpf":
                 return TargetPlatformId.WINDOWS;
             default:
-                throw new Error( localize("TargetPlatformIsNotSupported", "The target platform {0} is not supported.", platformName));
+                throw ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform());
         }
     }
 
