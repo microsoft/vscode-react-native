@@ -117,13 +117,20 @@ function build(failOnError, buildNls) {
         });
 }
 
+// Creates package.i18n.json files for all languages to {workspaceRoot}/i18n folder
+gulp.task("add-i18n", function () {
+    return gulp.src(["package.nls.json"])
+        .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, "i18n"))
+        .pipe(gulp.dest("."));
+});
+
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn"t have \\s. This seems to
 // be an issue on Windows platforms)
 gulp.task("build",  gulp.series("check-imports", "check-copyright", function (done) {
     build(true, true);
     done();
-}));
+}, "add-i18n"));
 
 gulp.task("build-dev",  gulp.series("check-imports", "check-copyright", function (done) {
     build(false, false);
@@ -272,13 +279,6 @@ gulp.task("release", gulp.series("build", function () {
             });
         });
 }));
-
-// Creates package.i18n.json files for all languages to {workspaceRoot}/i18n folder
-gulp.task("add-i18n", function () {
-    return gulp.src(["package.nls.json"])
-        .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, "i18n"))
-        .pipe(gulp.dest("."));
-});
 
 // Gathers all strings to Transifex readable .xliff file for translating and pushes them to Transifex
 gulp.task("transifex-push", gulp.series("build", function () {
