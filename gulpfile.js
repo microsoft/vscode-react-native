@@ -117,7 +117,7 @@ function build(failOnError, buildNls) {
         });
 }
 
-// Creates package.i18n.json files for all languages to {workspaceRoot}/i18n folder
+// Creates package.i18n.json files for all languages from {workspaceRoot}/i18n folder into project root
 gulp.task("add-i18n", function () {
     return gulp.src(["package.nls.json"])
         .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, "i18n"))
