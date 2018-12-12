@@ -52,6 +52,7 @@ export enum InternalErrorCode {
         ExpectedExponentTunnelPath = 711,
         NotAllSuccessPatternsMatched = 712,
         CouldNotParsePackageVersion = 713,
+        PackageNotFound = 714,
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,
