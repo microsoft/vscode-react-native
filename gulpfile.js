@@ -172,7 +172,7 @@ gulp.task("clean", function () {
     return del(pathsToDelete, { force: true });
 });
 
-gulp.task("default", gulp.series("clean", "build", "tslint"));
+gulp.task("default", gulp.series("clean", "build"));
 
 var lintSources = [
     srcPath,
