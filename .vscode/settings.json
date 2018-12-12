@@ -8,6 +8,7 @@
     "files.exclude": {
         "**/node_modules": true,
         "nls.*.json": true,
+        "package.nls.*.json": true,
         "**/*.js": {
             "when": "$(basename).ts"
         },

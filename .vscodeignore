@@ -11,6 +11,7 @@ src/**
 SampleApplication/**
 tools/**
 nls.*.json
+package.nls.*.json
 .vscodeignore
 gulpfile.js
 preparebuild.bat
