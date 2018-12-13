@@ -10,24 +10,24 @@ export class ErrorHelper {
     public static getInternalError(errorCode: InternalErrorCode, ...optionalArgs: IInternalErrorArgument[]): InternalError {
         let args = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
         let message = ErrorHelper.getErrorMessage(errorCode, args);
-        return new InternalError(<number> errorCode, message);
+        return new InternalError(<number> errorCode, message, InternalErrorLevel.Error, args);
     }
 
     public static getNestedError(innerError: Error, errorCode: InternalErrorCode, ...optionalArgs: IInternalErrorArgument[]): NestedError {
         let args = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 2);
         let message = ErrorHelper.getErrorMessage(errorCode, args);
-        return new NestedError(<number> errorCode, message, innerError);
+        return new NestedError(<number> errorCode, message, innerError, args);
     }
 
     public static wrapError(error: InternalError, innerError: Error): NestedError {
         return NestedError.getWrappedError(error, innerError);
     }
     public static getWarning(message: string, ...optionalArgs: IInternalErrorArgument[]): InternalError {
-        return new InternalError(-1, message, InternalErrorLevel.Warning);
+        return new InternalError(-1, message, InternalErrorLevel.Warning, []);
     }
 
     public static getNestedWarning(innerError: Error, message: string, ...optionalArgs: IInternalErrorArgument[]): NestedError {
-        return new NestedError(-1, message, innerError, null /* extras */, InternalErrorLevel.Warning);
+        return new NestedError(-1, message, innerError, [] /* extras */, InternalErrorLevel.Warning);
     }
 
     private static getErrorMessage(errorCode: InternalErrorCode, optionalArgs: IInternalErrorArgument[]): string {
