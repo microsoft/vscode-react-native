@@ -1,47 +1,48 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {InternalError, NestedError, InternalErrorLevel} from "./internalError";
+import {InternalError, NestedError, InternalErrorLevel, IInternalErrorArgument} from "./internalError";
 import {InternalErrorCode} from "./internalErrorCode";
 import {ERROR_STRINGS} from "./errorStrings";
 
 export class ErrorHelper {
     public static ERROR_STRINGS = ERROR_STRINGS;
-    public static getInternalError(errorCode: InternalErrorCode, ...optionalArgs: any[]): InternalError {
-        let message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
+    public static getInternalError(errorCode: InternalErrorCode, ...optionalArgs: IInternalErrorArgument[]): InternalError {
+        let args = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
+        let message = ErrorHelper.getErrorMessage(errorCode, args);
         return new InternalError(<number> errorCode, message);
     }
 
-    public static getNestedError(innerError: Error, errorCode: InternalErrorCode, ...optionalArgs: any[]): NestedError {
-        let message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
+    public static getNestedError(innerError: Error, errorCode: InternalErrorCode, ...optionalArgs: IInternalErrorArgument[]): NestedError {
+        let args = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 2);
+        let message = ErrorHelper.getErrorMessage(errorCode, args);
         return new NestedError(<number> errorCode, message, innerError);
     }
 
     public static wrapError(error: InternalError, innerError: Error): NestedError {
         return NestedError.getWrappedError(error, innerError);
     }
-    public static getWarning(message: string, ...optionalArgs: any[]): InternalError {
+    public static getWarning(message: string, ...optionalArgs: IInternalErrorArgument[]): InternalError {
         return new InternalError(-1, message, InternalErrorLevel.Warning);
     }
 
-    public static getNestedWarning(innerError: Error, message: string, ...optionalArgs: any[]): NestedError {
+    public static getNestedWarning(innerError: Error, message: string, ...optionalArgs: IInternalErrorArgument[]): NestedError {
         return new NestedError(-1, message, innerError, null /* extras */, InternalErrorLevel.Warning);
     }
 
-    private static getErrorMessage(errorCode: InternalErrorCode, ...optionalArgs: any[]): string {
-        return ErrorHelper.formatErrorMessage(ErrorHelper.ERROR_STRINGS[errorCode], ...optionalArgs);
+    private static getErrorMessage(errorCode: InternalErrorCode, optionalArgs: IInternalErrorArgument[]): string {
+        return ErrorHelper.formatErrorMessage(ErrorHelper.ERROR_STRINGS[errorCode], optionalArgs);
     }
 
-    private static formatErrorMessage(errorMessage: string, ...optionalArgs: any[]): string {
+    private static formatErrorMessage(errorMessage: string, optionalArgs: IInternalErrorArgument[]): string {
          if (!errorMessage) {
              return errorMessage;
          }
 
          let result: string = <string> errorMessage;
-         let args: string[] = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
-         if (args) {
-            for (let i: number = 0; i < args.length; i++) {
-                result = result.replace(new RegExp("\\{" + i + "\\}", "g"), args[i]);
+         if (optionalArgs) {
+            for (let i: number = 0; i < optionalArgs.length; i++) {
+                result = result.replace(new RegExp("\\{" + i + "\\}", "g"), optionalArgs[i].argument);
             }
          }
 

@@ -30,8 +30,11 @@ export class TargetPlatformHelper {
             case "windows":
             case "wpf":
                 return TargetPlatformId.WINDOWS;
-            default:
-                throw ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform());
+            default: {
+                const extraArgs = [{argument: platformName, isPii: false}, {argument: os.platform(), isPii: false}];
+                throw ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, ...extraArgs);
+            }
+
         }
     }
 
@@ -42,11 +45,13 @@ export class TargetPlatformHelper {
         let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(platformName);
         try {
             if (!HostPlatform.isCompatibleWithTarget(targetPlatformId)) {
-                throw ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform());
+                const extraArgs = [{argument: platformName, isPii: false}, {argument: os.platform(), isPii: false}];
+                throw ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, ...extraArgs);
             }
         } catch (e) {
             /* we throw in the case of an invalid target platform */
-            throw ErrorHelper.getNestedError(e, InternalErrorCode.PlatformNotSupported, platformName, os.platform());
+            const extraArgs = [{argument: platformName, isPii: false}, {argument: os.platform(), isPii: false}];
+            throw ErrorHelper.getNestedError(e, InternalErrorCode.PlatformNotSupported, ...extraArgs);
         }
     }
 }

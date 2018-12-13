@@ -50,7 +50,7 @@ import * as Q from "q";
         return remoteExtension.openFileAtLocation(filename, lineNumber);
     }).done(() => { }, (reason) => {
         throw ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed,
-            "Unable to communicate with VSCode. Please make sure it is open in the appropriate workspace.");
+            {argument: "Unable to communicate with VSCode. Please make sure it is open in the appropriate workspace.", isPii: false});
     });
 }
 
@@ -60,7 +60,8 @@ function getReactNativeWorkspaceForFile(file: string, workspace: string): Q.Prom
     }
     return getPathForRNParentWorkspace(path.dirname(file))
         .catch((reason) => {
-            return Q.reject<string>(ErrorHelper.getNestedError(reason, InternalErrorCode.WorkspaceNotFound, `Error while looking at workspace for file: ${file}.`));
+            const extraArgs = [{argument: `Error while looking at workspace for file: ${file}.`, isPii: true}];
+            return Q.reject<string>(ErrorHelper.getNestedError(reason, InternalErrorCode.WorkspaceNotFound, ...extraArgs));
         });
 }
 
@@ -70,7 +71,8 @@ function getPathForRNParentWorkspace(dir: string): Q.Promise<string> {
             return dir;
         }
         if (dir === "" || dir === "." || dir === "/" || dir === path.dirname(dir)) {
-            return Q.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.WorkspaceNotFound, "React Native project workspace not found."));
+            const extraArgs = [{argument: "React Native project workspace not found.", isPii: false}];
+            return Q.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.WorkspaceNotFound, ...extraArgs));
         }
         return getPathForRNParentWorkspace(path.dirname(dir));
     });

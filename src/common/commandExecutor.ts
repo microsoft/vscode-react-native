@@ -212,7 +212,8 @@ export class CommandExecutor {
     }
 
     private generateRejectionForCommand(command: string, reason: any): Q.Promise<void> {
-        return Q.reject<void>(ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed, command));
+        const extraArgs = [{argument: command, isPii: true}];
+        return Q.reject<void>(ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed, ...extraArgs));
     }
 
     private static getCommandStatusString(command: string, status: CommandStatus) {

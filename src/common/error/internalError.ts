@@ -6,9 +6,15 @@ export enum InternalErrorLevel {
     Warning,
 }
 
+export interface IInternalErrorArgument {
+    argument: any;
+    isPii: boolean;
+}
+
 export class InternalError extends Error {
     public errorCode: number;
     public errorLevel: InternalErrorLevel;
+    public errorArgs: IInternalErrorArgument[];
 
     public get isInternalError(): boolean {
         return true;
