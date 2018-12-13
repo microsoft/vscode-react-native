@@ -31,7 +31,6 @@ suite("errorHelper", function() {
 
         test("internal error object without arguments should not have errorArgs array", (done: MochaDone) => {
             if (internalErrorWithoutArgs.errorArgs)
-                if (internalErrorWithoutArgs.errorArgs.length)
                     assert.ifError("internal error object without arguments is contains errorArgs array");
             done();
         });

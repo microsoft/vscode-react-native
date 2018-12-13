@@ -10,24 +10,31 @@ export class ErrorHelper {
     public static getInternalError(errorCode: InternalErrorCode, ...optionalArgs: InternalErrorArgument[]): InternalError {
         let args = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
         let message = ErrorHelper.getErrorMessage(errorCode, ...args);
-        return new InternalError(<number> errorCode, message, InternalErrorLevel.Error, args);
+        if (args.length)
+            return new InternalError(<number> errorCode, message, InternalErrorLevel.Error, args);
+        else
+            return new InternalError(<number> errorCode, message, InternalErrorLevel.Error);
+
     }
 
     public static getNestedError(innerError: Error, errorCode: InternalErrorCode, ...optionalArgs: InternalErrorArgument[]): NestedError {
         let args = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 2);
         let message = ErrorHelper.getErrorMessage(errorCode, ...args);
-        return new NestedError(<number> errorCode, message, innerError, args);
+        if (args.length)
+            return new NestedError(<number> errorCode, message, innerError, args);
+        else
+        return new NestedError(<number> errorCode, message, innerError);
     }
 
     public static wrapError(error: InternalError, innerError: Error): NestedError {
         return NestedError.getWrappedError(error, innerError);
     }
     public static getWarning(message: string, ...optionalArgs: InternalErrorArgument[]): InternalError {
-        return new InternalError(-1, message, InternalErrorLevel.Warning, []);
+        return new InternalError(-1, message, InternalErrorLevel.Warning);
     }
 
     public static getNestedWarning(innerError: Error, message: string, ...optionalArgs: InternalErrorArgument[]): NestedError {
-        return new NestedError(-1, message, innerError, [] /* extras */, InternalErrorLevel.Warning);
+        return new NestedError(-1, message, innerError, undefined /* extras */, InternalErrorLevel.Warning);
     }
 
     private static getErrorMessage(errorCode: InternalErrorCode, ...optionalArgs: InternalErrorArgument[]): string {
