@@ -284,9 +284,9 @@ export class Packager {
                 fsHelper.exists(fsPath).then(exists =>
                     exists
                         ? Q.resolve(fsPath)
-                        : Q.reject<string>(localize("OpnPackageLocationNotFound", "opn package location not found")))));
+                        : Q.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.OpnPackagerLocationNotFound)))));
         } catch (err) {
-            return Q.reject<string>(localize("ThePackageOpnWasNotFound", "The package 'opn' was not found. ") + err);
+            return Q.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.OpnPackagerNotFound, err));
         }
     }
 
@@ -324,10 +324,10 @@ export class Packager {
             return helper.isExpoApp(false)
             .then((isExpo) => {
                 if (isExpo) {
-                    this.logger.debug(localize("StoppingExponent", "Stopping Exponent"));
+                    this.logger.debug("Stopping Exponent");
                     return XDL.stopAll(this.projectPath)
                         .then(() => {
-                            this.logger.debug(localize("ExponentStopped", "Exponent Stopped"));
+                            this.logger.debug("Exponent Stopped");
                         })
                         .catch((err) => {
                             if (err.code === "NOT_LOGGED_IN") {

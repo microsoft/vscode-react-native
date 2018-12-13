@@ -218,13 +218,11 @@ export class CommandExecutor {
     private static getCommandStatusString(command: string, status: CommandStatus) {
         switch (status) {
             case CommandStatus.Start:
-                return localize("ExecutingCommand", "Executing command: {0}", command);
-
+                return `Executing command: ${command}`;
             case CommandStatus.End:
-                return localize("FinishedExecutingCommand", "Finished executing: {0}", command);
-
+                return `Finished executing: ${command}`;
             default:
-                throw new Error(localize("UnsupportedCommandStatus", "Unsupported command status"));
+                throw ErrorHelper.getInternalError(InternalErrorCode.UnsupportedCommandStatus);
         }
     }
 }

@@ -14,6 +14,7 @@ export enum InternalErrorCode {
         FailedToRestartPackager = 109,
         FailedToRunExponent = 110,
         FailedToPublishToExpHost = 111,
+        UnsupportedCommandStatus = 112,
 
         // Device Deployer errors
         IOSDeployNotFound = 201,
@@ -49,6 +50,9 @@ export enum InternalErrorCode {
         PlatformNotSupported = 709,
         WorkspaceNotFound = 710,
         ExpectedExponentTunnelPath = 711,
+        NotAllSuccessPatternsMatched = 712,
+        CouldNotParsePackageVersion = 713,
+        PackageNotFound = 714,
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,

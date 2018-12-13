@@ -29,7 +29,7 @@ export class ErrorHelper {
     }
 
     private static getErrorMessage(errorCode: InternalErrorCode, ...optionalArgs: any[]): string {
-        return ErrorHelper.formatErrorMessage(ErrorHelper.ERROR_STRINGS[InternalErrorCode[errorCode]], ...optionalArgs);
+        return ErrorHelper.formatErrorMessage(ErrorHelper.ERROR_STRINGS[errorCode], ...optionalArgs);
     }
 
     private static formatErrorMessage(errorMessage: string, ...optionalArgs: any[]): string {
