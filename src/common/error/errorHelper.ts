@@ -1,40 +1,40 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {InternalError, NestedError, InternalErrorLevel, IInternalErrorArgument} from "./internalError";
+import {InternalError, NestedError, InternalErrorLevel, InternalErrorArgument} from "./internalError";
 import {InternalErrorCode} from "./internalErrorCode";
 import {ERROR_STRINGS} from "./errorStrings";
 
 export class ErrorHelper {
     public static ERROR_STRINGS = ERROR_STRINGS;
-    public static getInternalError(errorCode: InternalErrorCode, ...optionalArgs: IInternalErrorArgument[]): InternalError {
+    public static getInternalError(errorCode: InternalErrorCode, ...optionalArgs: InternalErrorArgument[]): InternalError {
         let args = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
-        let message = ErrorHelper.getErrorMessage(errorCode, args);
+        let message = ErrorHelper.getErrorMessage(errorCode, ...args);
         return new InternalError(<number> errorCode, message, InternalErrorLevel.Error, args);
     }
 
-    public static getNestedError(innerError: Error, errorCode: InternalErrorCode, ...optionalArgs: IInternalErrorArgument[]): NestedError {
+    public static getNestedError(innerError: Error, errorCode: InternalErrorCode, ...optionalArgs: InternalErrorArgument[]): NestedError {
         let args = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 2);
-        let message = ErrorHelper.getErrorMessage(errorCode, args);
+        let message = ErrorHelper.getErrorMessage(errorCode, ...args);
         return new NestedError(<number> errorCode, message, innerError, args);
     }
 
     public static wrapError(error: InternalError, innerError: Error): NestedError {
         return NestedError.getWrappedError(error, innerError);
     }
-    public static getWarning(message: string, ...optionalArgs: IInternalErrorArgument[]): InternalError {
+    public static getWarning(message: string, ...optionalArgs: InternalErrorArgument[]): InternalError {
         return new InternalError(-1, message, InternalErrorLevel.Warning, []);
     }
 
-    public static getNestedWarning(innerError: Error, message: string, ...optionalArgs: IInternalErrorArgument[]): NestedError {
+    public static getNestedWarning(innerError: Error, message: string, ...optionalArgs: InternalErrorArgument[]): NestedError {
         return new NestedError(-1, message, innerError, [] /* extras */, InternalErrorLevel.Warning);
     }
 
-    private static getErrorMessage(errorCode: InternalErrorCode, optionalArgs: IInternalErrorArgument[]): string {
-        return ErrorHelper.formatErrorMessage(ErrorHelper.ERROR_STRINGS[errorCode], optionalArgs);
+    private static getErrorMessage(errorCode: InternalErrorCode, ...optionalArgs: InternalErrorArgument[]): string {
+        return ErrorHelper.formatErrorMessage(ErrorHelper.ERROR_STRINGS[errorCode], ...optionalArgs);
     }
 
-    private static formatErrorMessage(errorMessage: string, optionalArgs: IInternalErrorArgument[]): string {
+    private static formatErrorMessage(errorMessage: string, ...optionalArgs: InternalErrorArgument[]): string {
          if (!errorMessage) {
              return errorMessage;
          }

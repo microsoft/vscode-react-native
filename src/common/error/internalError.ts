@@ -6,21 +6,21 @@ export enum InternalErrorLevel {
     Warning,
 }
 
-export interface IInternalErrorArgument {
+export interface InternalErrorArgument {
     argument: any;
-    isPii: boolean;
+    isPii?: boolean;
 }
 
 export class InternalError extends Error {
     public errorCode: number;
     public errorLevel: InternalErrorLevel;
-    public errorArgs: IInternalErrorArgument[];
+    public errorArgs?: InternalErrorArgument[];
 
     public get isInternalError(): boolean {
         return true;
     }
 
-    constructor(errorCode: number, message: string, errorLevel: InternalErrorLevel = InternalErrorLevel.Error, errorArgs: IInternalErrorArgument[]) {
+    constructor(errorCode: number, message: string, errorLevel: InternalErrorLevel = InternalErrorLevel.Error, errorArgs?: InternalErrorArgument[]) {
         super(message);
         this.errorCode = errorCode;
         this.errorLevel = errorLevel;
@@ -32,7 +32,7 @@ export class InternalError extends Error {
 export class NestedError extends InternalError {
     public innerError: Error | any; // Normally this should be an error, but we support any value
 
-    constructor(errorCode: number, message: string, innerError: any = null, errorArgs: IInternalErrorArgument[], errorLevel: InternalErrorLevel = InternalErrorLevel.Error) {
+    constructor(errorCode: number, message: string, innerError: any = null, errorArgs?: InternalErrorArgument[], errorLevel: InternalErrorLevel = InternalErrorLevel.Error) {
         super(errorCode, message, errorLevel, errorArgs);
         this.innerError = innerError;
         this.name = innerError ? innerError.name : null;
@@ -41,6 +41,6 @@ export class NestedError extends InternalError {
     }
 
     public static getWrappedError(error: InternalError, innerError: any): NestedError {
-        return new NestedError(innerError.errorCode || error.errorCode, error.message, innerError, []);
+        return new NestedError(innerError.errorCode || error.errorCode, error.message, innerError);
     }
 }
