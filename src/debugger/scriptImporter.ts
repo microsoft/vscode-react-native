@@ -76,7 +76,7 @@ export class ScriptImporter {
                 return waitForSourceMapping
                 .then(() => this.writeAppScript(scriptBody, scriptUrl))
                 .then((scriptFilePath: string) => {
-                    logger.verbose(`ScriptDownloadedTo", "Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
+                    logger.verbose(`Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
                     return { contents: scriptBody, filepath: scriptFilePath };
                 });
             });
