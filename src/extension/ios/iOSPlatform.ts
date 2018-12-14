@@ -17,6 +17,7 @@ import {SettingsHelper} from "../settingsHelper";
 import {RemoteExtension} from "../../common/remoteExtension";
 import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 import {TelemetryHelper} from "../../common/telemetryHelper";
+import { InternalErrorCode } from "../../common/error/internalErrorCode";
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
@@ -33,13 +34,13 @@ export class IOSPlatform extends GeneralMobilePlatform {
     // We should add the common iOS build/run errors we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
         pattern: "No devices are booted",
-        message: ErrorHelper.ERROR_STRINGS.IOSSimulatorNotLaunchable,
+        message: ErrorHelper.ERROR_STRINGS[InternalErrorCode.IOSSimulatorNotLaunchable],
     }, {
         pattern: "FBSOpenApplicationErrorDomain",
-        message: ErrorHelper.ERROR_STRINGS.IOSSimulatorNotLaunchable,
+        message: ErrorHelper.ERROR_STRINGS[InternalErrorCode.IOSSimulatorNotLaunchable],
     }, {
         pattern: "ios-deploy",
-        message: ErrorHelper.ERROR_STRINGS.IOSDeployNotFound,
+        message: ErrorHelper.ERROR_STRINGS[InternalErrorCode.IOSDeployNotFound],
     }];
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];

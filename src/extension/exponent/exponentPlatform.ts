@@ -46,9 +46,14 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                 },
                 (message) => {
                     return Q.Promise((resolve, reject) => {
-                        vscode.window.showInformationMessage(message)
-                            .then(password => {
-                                resolve(password || "");
+                        const okButton =  { title: "Ok" };
+                        const cancelButton =  { title: "Cancel", isCloseAffordance: true };
+                        vscode.window.showInformationMessage(message, {modal: true}, okButton, cancelButton)
+                            .then(answer => {
+                                if (answer === cancelButton) {
+                                    reject(new Error("User canceled login."));
+                                }
+                                resolve("");
                             }, reject);
                     });
                 }
@@ -77,8 +82,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                 })
                 .then(exponentUrl => {
                     if (!exponentUrl) {
-                        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath,
-                            "No link provided by exponent. Is your project correctly setup?"));
+                        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath));
                     }
                     this.exponentTunnelPath = exponentUrl;
                     const outputMessage = `Application is running on Exponent. Open your exponent app at ${this.exponentTunnelPath} to see it.`;
