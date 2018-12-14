@@ -18,7 +18,7 @@ export class InternalError extends Error {
         super(message);
         this.errorCode = errorCode;
         this.errorLevel = errorLevel;
-        this.message = message + ` (error code ${this.errorCode})`;
+        this.message = errorCode > 0 ? (message + ` (error code ${this.errorCode})`) : message;
     }
 }
 
