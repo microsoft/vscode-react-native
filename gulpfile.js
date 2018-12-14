@@ -107,10 +107,10 @@ function build(failOnError, buildNls) {
         .pipe(gulp.dest(function (file) {
             return file.cwd;
         }))
-        .once("error", () => {
+        .once("error", function () {
             gotError = true;
         })
-        .once("finish", () => {
+        .once("finish", function ()  {
             if (failOnError && gotError) {
                 process.exit(1);
             }
@@ -133,13 +133,17 @@ gulp.task("tslint", function () {
 // We should also make sure that we always generate urls in all the path properties (We shouldn"t have \\s. This seems to
 // be an issue on Windows platforms)
 gulp.task("build",  gulp.series("check-imports", "check-copyright", "tslint", function (done) {
-    build(true, true);
-    done();
+    build(true, true)
+    .once("finish", function () {
+        done();
+    });
 }));
 
 gulp.task("build-dev",  gulp.series("check-imports", "check-copyright", function (done) {
-    build(false, false);
-    done();
+    build(false, false)
+    .once("finish", function () {
+        done();
+    });
 }));
 
 gulp.task("quick-build", gulp.series("build-dev"));
