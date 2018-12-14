@@ -45,8 +45,7 @@ export class OutputVerifier {
                 }
             }).then(successPatterns => {
                 if (!this.areAllSuccessPatternsPresent(successPatterns)) { // If we don't find all the success patterns, we also fail
-                    const extraArgs = [{argument: this.platformName, isPii: false}, {argument: this.platformName, isPii: false}];
-                    return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.NotAllSuccessPatternsMatched, ...extraArgs));
+                    return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.NotAllSuccessPatternsMatched, this.platformName, this.platformName));
                 } // else we found all the success patterns, so we succeed
                 return Q.resolve(void 0);
             });

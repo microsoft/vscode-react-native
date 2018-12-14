@@ -51,8 +51,7 @@ export class Package {
         return this.parseProperty("version").then(version =>
             typeof version === "string"
                 ? version
-                : Q.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.CouldNotParsePackageVersion,
-                     {argument: this.informationJsonFilePath(), isPii: true}, {argument: version, isPii: false})));
+                : Q.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.CouldNotParsePackageVersion, this.informationJsonFilePath(), version)));
     }
 
     public setMainFile(value: string): Q.Promise<void> {

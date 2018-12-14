@@ -54,8 +54,7 @@ export class ChildProcess {
 
         let execProcess = this.childProcess.exec(command, options, (error: Error, stdout: string, stderr: string) => {
             if (error) {
-                const extraArgs = [{argument: command, isPii: true}];
-                outcome.reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, ...extraArgs));
+                outcome.reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
             } else {
                 outcome.resolve(stdout);
             }
@@ -89,8 +88,7 @@ export class ChildProcess {
                 outcome.resolve(void 0);
             } else {
                 const commandWithArgs = command + " " + args.join(" ");
-                const extraArgs = [{argument: commandWithArgs, isPii: true}, {argument: code, isPii: false}];
-                outcome.reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, ...extraArgs));
+                outcome.reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, commandWithArgs, code));
             }
         });
 

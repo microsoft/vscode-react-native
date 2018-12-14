@@ -186,8 +186,7 @@ export class Packager {
 
     public restart(port: number): Q.Promise<void> {
         if (this.port && this.port !== port) {
-            const extraArgs = [{argument: port, isPii: false}, {argument: this.port, isPii: false}];
-            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, ...extraArgs));
+            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
         }
 
         return this.isRunning()
