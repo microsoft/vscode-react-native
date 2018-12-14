@@ -45,5 +45,6 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.NotAllSuccessPatternsMatched]: localize("NotAllSuccessPatternsMatched", "Unknown error: not all success patterns were matched. \n It means that \"react-native run-{0}\" command failed. \n Please, check the View -> Toggle Output -> React Native, \n View -> Toggle Output -> React Native: Run {1} output windows."),
     [InternalErrorCode.CouldNotParsePackageVersion]: localize("CouldNotParsePackageVersion", "Couldn't parse the version component of the package at {0}: version = {1}"),
     [InternalErrorCode.UnsupportedCommandStatus]: localize("UnsupportedCommandStatus", "Unsupported command status"),
-
+    [InternalErrorCode.ExpectedExponentTunnelPath]: localize("ExpectedExponentTunnelPath", "No link provided by exponent. Is your project correctly setup?"),
+    [InternalErrorCode.WorkspaceNotFound]: localize("WorkspaceNotFound", "Error while working with workspace: {0}"),
 };

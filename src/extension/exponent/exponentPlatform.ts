@@ -82,8 +82,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                 })
                 .then(exponentUrl => {
                     if (!exponentUrl) {
-                        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath,
-                            "No link provided by exponent. Is your project correctly setup?"));
+                        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath));
                     }
                     this.exponentTunnelPath = exponentUrl;
                     const outputMessage = `Application is running on Exponent. Open your exponent app at ${this.exponentTunnelPath} to see it.`;
