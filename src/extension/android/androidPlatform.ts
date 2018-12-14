@@ -15,6 +15,8 @@ import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {LogCatMonitor} from "./logCatMonitor";
 import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 /**
  * Android specific platform implementation for debugging RN applications.
@@ -144,10 +146,9 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 if (this.runOptions.target === AndroidPlatform.simulatorString ||
                     this.runOptions.target === AndroidPlatform.deviceString) {
 
-                    const message = `Target ${this.runOptions.target} is not supported for Android ` +
-                        "platform. If you want to use particular device or simulator for launching " +
-                        "Android app, please specify  device id (as in 'adb devices' output) instead.";
-
+                    const message = localize("TargetIsNotSupportedForAndroid",
+                     "Target {0} is not supported for Android platform. \n If you want to use particular device or simulator for launching Android app,\n please specify  device id (as in 'adb devices' output) instead.",
+                      this.runOptions.target);
                     this.logger.warning(message);
                 } else {
                     runArguments.push("--deviceId", this.runOptions.target);
@@ -188,12 +189,10 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 if (apiVersion >= AndroidAPILevel.LOLLIPOP) { // If we support adb reverse
                     return this.adbHelper.reverseAdb(device.id, Number(this.runOptions.packagerPort));
                 } else {
-                    this.logger.warning(`Device ${device.id} supports only API Level ${apiVersion}. `
-                    + `Level ${AndroidAPILevel.LOLLIPOP} is needed to support port forwarding via adb reverse. `
-                    + "For debugging to work you'll need <Shake or press menu button> for the dev menu, "
-                    + "go into <Dev Settings> and configure <Debug Server host & port for Device> to be "
-                    + "an IP address of your computer that the Device can reach. More info at: "
-                    + "https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps");
+                    const message = localize("DeviceSupportsOnlyAPILevel",
+                     "Device {0} supports only API Level {1}. \n Level {2} is needed to support port forwarding via adb reverse. \n For debugging to work you'll need <Shake or press menu button> for the dev menu, \n go into <Dev Settings> and configure <Debug Server host & port for Device> to be \n an IP address of your computer that the Device can reach. More info at: \n https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps",
+                      device.id, apiVersion, AndroidAPILevel.LOLLIPOP);
+                    this.logger.warning(message);
                     return void 0;
                 }
             });
