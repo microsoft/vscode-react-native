@@ -14,6 +14,7 @@ import { ForkedAppWorker } from "./forkedAppWorker";
 import { ScriptImporter } from "./scriptImporter";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import * as nls from "vscode-nls";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
 const localize = nls.loadMessageBundle();
 
 export interface RNAppMessage {
@@ -161,7 +162,7 @@ postMessage({workerLoaded:true});`;
     }
 
     public start(retryAttempt: boolean = false): Q.Promise<any> {
-        const errPackagerNotRunning = new Error(localize("CannotAttachToPackagerCheckPackagerRunningOnPort", "Cannot attach to packager. Are you sure there is a packager and it is running in the port {0}? If your packager is configured to run in another port make sure to add that to the setting.json.", this.packagerPort));
+        const errPackagerNotRunning = ErrorHelper.getInternalError(InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort, this.packagerPort);
 
         return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
             .then(() => {
@@ -207,7 +208,7 @@ postMessage({workerLoaded:true});`;
                 this.sendMessageToApp(message);
             },
             this.packagerRemoteRoot, this.packagerLocalRoot);
-        logger.verbose(localize("NewAppWorkerWasCreated", "A new app worker lifetime was created."));
+        logger.verbose("A new app worker lifetime was created.");
         return this.singleLifetimeWorker.start()
             .then(startedEvent => {
                 this.emit("connected", startedEvent);
@@ -230,7 +231,7 @@ postMessage({workerLoaded:true});`;
                      */
                     let msgKey = "_closeMessage";
                     if (this.socketToApp[msgKey] === "Another debugger is already connected") {
-                        deferred.reject(new RangeError(localize("AnotherDebuggerConnectedToPackager", "Another debugger is already connected to packager. Please close it before trying to debug with VSCode.")));
+                        deferred.reject(ErrorHelper.getInternalError(InternalErrorCode.AnotherDebuggerConnectedToPackager));
                     }
                     logger.log(localize("DisconnectedFromThePackagerToReactNative", "Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon..."));
                 });
@@ -290,7 +291,7 @@ postMessage({workerLoaded:true});`;
                 }
             } else {
                 // Message doesn't have a method. Ignore it. This is an info message instead of warn because it's normal and expected
-                logger.verbose(localize("ReactNativeAppSentMessageWithoutSpecifyingAMethod", "The react-native app sent a message without specifying a method: {0}", message));
+                logger.verbose(`The react-native app sent a message without specifying a method: ${message}`);
             }
         } catch (exception) {
             printDebuggingError(localize("FailedToProcessMessageFromReactNativeApp", "Failed to process message from the React Native app. Message:\n{0}", message), exception);
@@ -308,7 +309,7 @@ postMessage({workerLoaded:true});`;
         let stringified: string = "";
         try {
             stringified = JSON.stringify(message);
-            logger.verbose(localize("SendMessageToRNApp", "To RN APP: {0}",  stringified));
+            logger.verbose(`To RN APP: ${stringified}`);
             this.socketToApp.send(stringified);
         } catch (exception) {
             let messageToShow = stringified || ("" + message); // Try to show the stringified version, but show the toString if unavailable

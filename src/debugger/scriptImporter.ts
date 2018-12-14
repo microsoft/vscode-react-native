@@ -11,8 +11,8 @@ import {SourceMapUtil} from "./sourceMap";
 import url = require("url");
 import * as semver from "semver";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
-import * as nls from "vscode-nls";
-const localize = nls.loadMessageBundle();
+import { ErrorHelper } from "../common/error/errorHelper";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
 
 export interface DownloadedScript {
     contents: string;
@@ -76,7 +76,7 @@ export class ScriptImporter {
                 return waitForSourceMapping
                 .then(() => this.writeAppScript(scriptBody, scriptUrl))
                 .then((scriptFilePath: string) => {
-                    logger.verbose(localize("ScriptDownloadedTo", "Script {0} downloaded to {1}", overriddenScriptUrlString, scriptFilePath));
+                    logger.verbose(`ScriptDownloadedTo", "Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
                     return { contents: scriptBody, filepath: scriptFilePath };
                 });
             });
@@ -84,8 +84,7 @@ export class ScriptImporter {
     }
 
     public downloadDebuggerWorker(sourcesStoragePath: string, projectRootPath: string): Q.Promise<void> {
-        const errPackagerNotRunning = new RangeError(localize("CannotAttachToPackager", "Cannot attach to packager. Are you sure there is a packager and it is running in the port {0}? If your packager is configured to run in another port make sure to add that to the setting.json.", this.packagerPort));
-
+        const errPackagerNotRunning = ErrorHelper.getInternalError(InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort, this.packagerPort);
         return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
             .then(() => {
                 return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath);

@@ -32,11 +32,14 @@ export enum InternalErrorCode {
         OpnPackagerLocationNotFound = 501,
         OpnPackagerNotFound = 502,
         FailedToStopPackagerOnExit = 503,
+        CannotAttachToPackagerCheckPackagerRunningOnPort = 504,
+        AnotherDebuggerConnectedToPackager = 505,
 
         // React Native Project errors
         ProjectVersionNotParsable = 601,
         ProjectVersionUnsupported = 602,
         ProjectVersionNotReadable = 603,
+        NotInReactNativeFolderError = 604,
 
         // Miscellaneous errors
         TelemetryInitializationFailed = 701,

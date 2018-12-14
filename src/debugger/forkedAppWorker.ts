@@ -64,7 +64,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     public stop() {
         if (this.debuggeeProcess) {
-            logger.verbose(localize("AboutToKillDebuggeeWithPID", "About to kill debuggee with pid {0}", this.debuggeeProcess.pid));
+            logger.verbose(`About to kill debuggee with pid ${this.debuggeeProcess.pid}`);
             this.debuggeeProcess.kill();
             this.debuggeeProcess = null;
         }
@@ -102,7 +102,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
         // Resolve with port debugger server is listening on
         // This will be sent to subscribers of MLAppWorker in "connected" event
-        logger.verbose(localize("SpawnedDebugeeProcessWithPidListening", "Spawned debuggee process with pid {0} listening to {1}", this.debuggeeProcess.pid, port));
+        logger.verbose(`Spawned debuggee process with pid ${this.debuggeeProcess.pid} listening to ${port}`);
 
         return Q.resolve(port);
     }
@@ -132,7 +132,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                             ...rnMessage,
                             url: url.format(packagerUrl),
                         };
-                        logger.verbose(localize("PackagerRequestedRuntimeToLoadScriptFrom", "Packager requested runtime to load script from {0}", rnMessage.url));
+                        logger.verbose(`Packager requested runtime to load script from ${rnMessage.url}`);
                         return this.scriptImporter.downloadAppScript(<string>rnMessage.url, this.projectRootPath)
                             .then((downloadedScript: DownloadedScript) => {
                                 this.bundleLoaded.resolve(void 0);
