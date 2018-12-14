@@ -5,8 +5,8 @@ import * as pathModule from "path";
 import * as Q from "q";
 
 import {FileSystem} from "./fileSystem";
-import * as nls from "vscode-nls";
-const localize = nls.loadMessageBundle();
+import { ErrorHelper } from "../error/errorHelper";
+import { InternalErrorCode } from "../error/internalErrorCode";
 
 interface IPackageDependencyDict {
     [packageName: string]: string;
@@ -51,7 +51,7 @@ export class Package {
         return this.parseProperty("version").then(version =>
             typeof version === "string"
                 ? version
-                : Q.reject<string>(localize("CouldNotParseVersion", "Couldn't parse the version component of the package at {0}: version = {1}", this.informationJsonFilePath(), version)));
+                : Q.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.CouldNotParsePackageVersion, this.informationJsonFilePath(), version)));
     }
 
     public setMainFile(value: string): Q.Promise<void> {

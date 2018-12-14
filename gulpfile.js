@@ -117,10 +117,22 @@ function build(failOnError, buildNls) {
         });
 }
 
+var libtslint = require("tslint");
+var tslint = require("gulp-tslint");
+gulp.task("tslint", function () {
+    var program = libtslint.Linter.createProgram("./tsconfig.json");
+    return gulp.src(lintSources, { base: "." })
+        .pipe(tslint({
+            formatter: "verbose",
+            program: program
+        }))
+        .pipe(tslint.report());
+});
+
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn"t have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task("build",  gulp.series("check-imports", "check-copyright", function (done) {
+gulp.task("build",  gulp.series("check-imports", "check-copyright", "tslint", function (done) {
     build(true, true);
     done();
 }));
@@ -130,7 +142,7 @@ gulp.task("build-dev",  gulp.series("check-imports", "check-copyright", function
     done();
 }));
 
-gulp.task("quick-build", build);
+gulp.task("quick-build", gulp.series("build-dev"));
 
 gulp.task("watch", gulp.series("build", function () {
     log("Watching build sources...");
@@ -147,24 +159,13 @@ gulp.task("clean", function () {
         "out/",
         "!test/resources/sampleReactNative022Project/**/*.js",
         ".vscode-test/",
-        "nls.*.json"
+        "nls.*.json",
+        "package.nls.*.json"
     ]
     return del(pathsToDelete, { force: true });
 });
 
-var libtslint = require("tslint");
-var tslint = require("gulp-tslint");
-gulp.task("tslint", function () {
-    var program = libtslint.Linter.createProgram("./tsconfig.json");
-    return gulp.src(lintSources, { base: "." })
-        .pipe(tslint({
-            formatter: "verbose",
-            program: program
-        }))
-        .pipe(tslint.report());
-});
-
-gulp.task("default", gulp.series("clean", "build", "tslint"));
+gulp.task("default", gulp.series("clean", "build"));
 
 var lintSources = [
     srcPath,
@@ -273,7 +274,7 @@ gulp.task("release", gulp.series("build", function () {
         });
 }));
 
-// Creates package.i18n.json files for all languages to {workspaceRoot}/i18n folder
+// Creates package.i18n.json files for all languages from {workspaceRoot}/i18n folder into project root
 gulp.task("add-i18n", function () {
     return gulp.src(["package.nls.json"])
         .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, "i18n"))
