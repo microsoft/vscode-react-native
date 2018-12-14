@@ -302,7 +302,7 @@ postMessage({workerLoaded:true});`;
         // Create the sandbox, and replay that we finished processing the message
         this.startNewWorkerLifetime().done(() => {
             this.sendMessageToApp({ replyID: parseInt(message.id, 10) });
-        }, error => printDebuggingError(localize("FailedToPrepareJSRuntimeEnvironment", "Failed to prepare the JavaScript runtime environment. Message:\n {0}", message), error));
+        }, error => printDebuggingError(localize("FailedToPrepareJSRuntimeEnvironment", "Failed to prepare the JavaScript runtime environment. Message:\n{0}", message), error));
     }
 
     private sendMessageToApp(message: any): void {
