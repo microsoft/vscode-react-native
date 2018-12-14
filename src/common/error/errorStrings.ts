@@ -47,4 +47,6 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.UnsupportedCommandStatus]: localize("UnsupportedCommandStatus", "Unsupported command status"),
     [InternalErrorCode.ExpectedExponentTunnelPath]: localize("ExpectedExponentTunnelPath", "No link provided by exponent. Is your project correctly setup?"),
     [InternalErrorCode.WorkspaceNotFound]: localize("WorkspaceNotFound", "Error while working with workspace: {0}"),
+    [InternalErrorCode.RNVersionNotSupportedByExponent]: localize("RNVersionNotSupportedByExponent", "React Native version not supported by exponent. Major versions supported: {0}"),
+    [InternalErrorCode.UserCancelledExpoLogin]: localize("UserCancelledExpoLogin", "User canceled login."),
 };

@@ -57,6 +57,10 @@ export enum InternalErrorCode {
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,
 
+        // Inter Process Communication errors
+        ErrorWhileProcessingMessageInIPMSServer = 901,
+        ErrorNoPipeFound = 902,
+
         // Validating user input errors
         ExpectedIntegerValue = 1001,
         ExpectedStringValue = 1002,
@@ -64,7 +68,7 @@ export enum InternalErrorCode {
         ExpectedArrayValue = 1004,
         ExpectedObjectValue = 1005,
 
-        // Inter Process Communication errors
-        ErrorWhileProcessingMessageInIPMSServer = 901,
-        ErrorNoPipeFound = 902,
+        // Exponent errors
+        RNVersionNotSupportedByExponent = 1101,
+        UserCancelledExpoLogin = 1102,
     }

@@ -11,6 +11,10 @@ import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper"
 import { FileSystem } from "../../common/node/fileSystem";
 import {OutputChannelLogger} from "../log/OutputChannelLogger";
 import stripJSONComments = require("strip-json-comments");
+import * as nls from "vscode-nls";
+import { ErrorHelper } from "../../common/error/errorHelper";
+import { InternalErrorCode } from "../../common/error/internalErrorCode";
+const localize = nls.loadMessageBundle();
 
 const APP_JSON = "app.json";
 const EXP_JSON = "exp.json";
@@ -41,8 +45,8 @@ export class ExponentHelper {
 
     public configureExponentEnvironment(): Q.Promise<void> {
         this.lazilyInitialize();
-        this.logger.info("Making sure your project uses the correct dependencies for exponent. This may take a while...");
-        this.logger.logStream("Checking if this is Expo app.");
+        this.logger.info(localize("MakingSureYourProjectUsesCorrectExponentDependencies", "Making sure your project uses the correct dependencies for exponent. This may take a while..."));
+        this.logger.logStream(localize("CheckingIfThisIsExpoApp", "Checking if this is Expo app."));
         return this.isExpoApp(true)
             .then(isExpo => {
                 this.logger.logStream(".\n");
@@ -63,12 +67,12 @@ export class ExponentHelper {
             .then((user) => {
                 if (!user) {
                     let username = "";
-                    return showMessage("You need to login to Expo. Please provide your Expo account username and password in the input boxes after closing this window. If you don't have an account, please go to https://expo.io to create one.")
+                    return showMessage(localize("YouNeedToLoginToExpo", "You need to login to Expo. Please provide your Expo account username and password in the input boxes after closing this window. If you don't have an account, please go to https://expo.io to create one."))
                         .then(() =>
-                            promptForInformation("Expo username", false)
+                            promptForInformation(localize("ExpoUsername", "Expo username"), false)
                         ).then((name: string) => {
                             username = name;
-                            return promptForInformation("Expo password", true);
+                            return promptForInformation(localize("ExpoPassword", "Expo password"), true);
                         })
                         .then((password: string) =>
                             XDL.login(username, password));
@@ -213,7 +217,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
                         if (!sdkVersion) {
                             return XDL.supportedVersions()
                                 .then((versions) => {
-                                    return Q.reject<string>(new Error(`React Native version not supported by exponent. Major versions supported: ${versions.join(", ")}`));
+                                    return Q.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.RNVersionNotSupportedByExponent, versions.join(", ")));
                                 });
                         }
                         return sdkVersion;
