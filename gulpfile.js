@@ -107,10 +107,10 @@ function build(failOnError, buildNls) {
         .pipe(gulp.dest(function (file) {
             return file.cwd;
         }))
-        .once("error", function () {
+        .once("error", () => {
             gotError = true;
         })
-        .once("finish", function ()  {
+        .once("finish", () => {
             if (failOnError && gotError) {
                 process.exit(1);
             }
@@ -134,14 +134,14 @@ gulp.task("tslint", function () {
 // be an issue on Windows platforms)
 gulp.task("build",  gulp.series("check-imports", "check-copyright", "tslint", function (done) {
     build(true, true)
-    .once("finish", function () {
+    .once("finish", () => {
         done();
     });
 }));
 
 gulp.task("build-dev",  gulp.series("check-imports", "check-copyright", function (done) {
     build(false, false)
-    .once("finish", function () {
+    .once("finish", () => {
         done();
     });
 }));
