@@ -22,7 +22,7 @@ suite("errorHelper", function() {
             done();
         });
 
-        test("nested error object without arguments should have correct error message on English", (done: MochaDone) => {
+        test("nested error object with arguments should have correct error message on English", (done: MochaDone) => {
             assert.equal(nestedErrorWithArgs.message, "Error while executing command 'Command failed with ES Error': Nested ES Error");
             done();
         });
