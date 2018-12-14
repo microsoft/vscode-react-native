@@ -236,7 +236,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         // this.logCatMonitor can be mutated, so we store it locally too
         this.logCatMonitor = new LogCatMonitor(device.id, logCatArguments, this.adbHelper);
         this.logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
-            .catch(error => this.logger.warning("Error while monitoring LogCat", error)) // The LogCatMonitor failing won't stop the debugging experience
+            .catch(error => this.logger.warning(localize("ErrorWhileMonitoringLogCat", "Error while monitoring LogCat"), error)) // The LogCatMonitor failing won't stop the debugging experience
             .done();
     }
 
