@@ -20,6 +20,7 @@ export class ErrorHelper {
     public static wrapError(error: InternalError, innerError: Error): NestedError {
         return NestedError.getWrappedError(error, innerError);
     }
+
     public static getWarning(message: string, ...optionalArgs: any[]): InternalError {
         return new InternalError(-1, message, InternalErrorLevel.Warning);
     }
