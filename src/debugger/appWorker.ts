@@ -155,7 +155,7 @@ postMessage({workerLoaded:true});`;
         this.packagerLocalRoot = attachRequestArguments.localRoot;
         this.sourcesStoragePath = sourcesStoragePath;
         this.projectRootPath = projectRootPath;
-        console.assert(!!this.sourcesStoragePath, localize("SourcesStoragePathIsNullOrEmpty", "The sourcesStoragePath argument was null or empty"));
+        if (!this.sourcesStoragePath) Q.reject(ErrorHelper.getInternalError(InternalErrorCode.SourcesStoragePathIsNullOrEmpty));
 
         this.webSocketConstructor = webSocketConstructor;
         this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
