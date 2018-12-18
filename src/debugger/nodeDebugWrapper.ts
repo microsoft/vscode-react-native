@@ -226,7 +226,7 @@ export function makeSession(
          * Logs error to user and finishes the debugging process.
          */
         private bailOut(message: string): void {
-            logger.error(`Could not debug. ${message}`);
+            logger.error(localize("CouldNotDebug", "Could not debug. {0}" , message));
             this.sendEvent(new TerminatedEvent());
         }
     };
