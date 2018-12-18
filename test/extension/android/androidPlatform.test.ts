@@ -278,7 +278,7 @@ suite("androidPlatform", function () {
                         should.assert(false, "Expected runApp to end up with an error");
                         return false;
                     }, reason => {
-                        reason.message.should.eql("Android project not found.");
+                        reason.message.should.eql("Android project not found. (error code 1203)");
                         return !!devices[0].installedApplications[androidPackageName];
                     }).then(isRunning => {
                         isRunning.should.be.false();
@@ -296,7 +296,7 @@ suite("androidPlatform", function () {
                         should.assert(false, "Expected runApp to end up with an error");
                         return false;
                     }, reason => {
-                        "An Android shell command timed-out. Please retry the operation.".should.eql(reason.message);
+                        "An Android shell command timed-out. Please retry the operation. (error code 1202)".should.eql(reason.message);
                         return !!devices[0].installedApplications[androidPackageName];
                     }).then(isRunning => {
                         isRunning.should.be.false();
