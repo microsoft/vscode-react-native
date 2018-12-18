@@ -12,12 +12,13 @@ import {IIOSRunOptions} from "../launchArgs";
 import {PlistBuddy} from "./plistBuddy";
 import {IOSDebugModeManager} from "./iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
-import {ErrorHelper} from "../../common/error/errorHelper";
 import {SettingsHelper} from "../settingsHelper";
 import {RemoteExtension} from "../../common/remoteExtension";
 import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
@@ -34,13 +35,13 @@ export class IOSPlatform extends GeneralMobilePlatform {
     // We should add the common iOS build/run errors we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [{
         pattern: "No devices are booted",
-        message: ErrorHelper.ERROR_STRINGS[InternalErrorCode.IOSSimulatorNotLaunchable],
+        errorCode: InternalErrorCode.IOSSimulatorNotLaunchable,
     }, {
         pattern: "FBSOpenApplicationErrorDomain",
-        message: ErrorHelper.ERROR_STRINGS[InternalErrorCode.IOSSimulatorNotLaunchable],
+        errorCode: InternalErrorCode.IOSSimulatorNotLaunchable,
     }, {
         pattern: "ios-deploy",
-        message: ErrorHelper.ERROR_STRINGS[InternalErrorCode.IOSDeployNotFound],
+        errorCode: InternalErrorCode.IOSDeployNotFound,
     }];
 
     private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
@@ -59,7 +60,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         this.runOptions.configuration = this.getConfiguration();
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
-            this.logger.warning("'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead");
+            this.logger.warning(localize("iosRelativeProjectPathOptionIsDeprecatedUseRunArgumentsInstead", "'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead"));
         }
 
         this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);

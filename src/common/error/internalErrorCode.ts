@@ -27,6 +27,8 @@ export enum InternalErrorCode {
 
         // iOS Platform errors
         IOSSimulatorNotLaunchable = 401,
+        IOSFoundMoreThanOneExecutablesCleanupBuildFolder = 402,
+        IOSCouldNotFoundExecutableInFolder = 403,
 
         // Packager errors
         OpnPackagerLocationNotFound = 501,
@@ -75,4 +77,11 @@ export enum InternalErrorCode {
         // Exponent errors
         RNVersionNotSupportedByExponent = 1101,
         UserCancelledExpoLogin = 1102,
+
+        // Android errors
+        AndroidCouldNotInstallTheAppOnAnyAvailibleDevice = 1201,
+        AndroidShellCommandTimedOut = 1202,
+        AndroidProjectNotFound = 1203,
+        AndroidMoreThanOneDeviceOrEmulator = 1204,
+        AndroidFailedToLaunchTheSpecifiedActivity = 1205,
     }

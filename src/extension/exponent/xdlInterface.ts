@@ -24,7 +24,7 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
     }
     // Don't do the require if we don't actually need it
     try {
-        logger.debug("Getting exponent dependecy.");
+        logger.debug("Getting exponent dependency.");
         const xdl = require("xdl");
         xdlPackage = Q(xdl);
         return xdlPackage;

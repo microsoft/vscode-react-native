@@ -53,4 +53,11 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.AnotherDebuggerConnectedToPackager]: localize("AnotherDebuggerConnectedToPackager", "Another debugger is already connected to packager. Please close it before trying to debug with VSCode."),
     [InternalErrorCode.NotInReactNativeFolderError]: localize("NotInReactNativeFolderError", "Seems to be that you are trying to debug from within directory that is not a React Native project root. \n If so, please, follow these instructions: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure."),
     [InternalErrorCode.SourcesStoragePathIsNullOrEmpty]: localize("SourcesStoragePathIsNullOrEmpty", "The sourcesStoragePath argument was null or empty"),
+    [InternalErrorCode.AndroidCouldNotInstallTheAppOnAnyAvailibleDevice]: localize("AndroidCouldNotInstallTheAppOnAnyAvailibleDevice", "Could not install the app on any available device. Make sure you have a correctly \n configured device or emulator running. See https://facebook.github.io/react-native/docs/android-setup.html"),
+    [InternalErrorCode.AndroidShellCommandTimedOut]: localize("AndroidShellCommandTimedOut", "An Android shell command timed-out. Please retry the operation."),
+    [InternalErrorCode.AndroidProjectNotFound]: localize("AndroidProjectNotFound", "Android project not found."),
+    [InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator]: localize("AndroidMoreThanOneDeviceOrEmulator", "More than one device/emulator"),
+    [InternalErrorCode.AndroidFailedToLaunchTheSpecifiedActivity]: localize("AndroidFailedToLaunchTheSpecifiedActivity", "Failed to launch the specified activity. Try running application manually and start debugging using 'Attach to packager' launch configuration."),
+    [InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder]: localize("IOSFoundMoreThanOneExecutablesCleanupBuildFolder", "Found more than one executables in {0}. Please cleanup build folder or setup 'productName' launch option."),
+    [InternalErrorCode.IOSCouldNotFoundExecutableInFolder]: localize("IOSCouldNotFoundExecutableInFolder", "Could not found executable in {0}"),
 };

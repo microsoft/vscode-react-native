@@ -7,6 +7,8 @@ import * as glob from "glob";
 
 import {Node} from "../../common/node/node";
 import {ChildProcess} from "../../common/node/childProcess";
+import { ErrorHelper } from "../../common/error/errorHelper";
+import { InternalErrorCode } from "../../common/error/internalErrorCode";
 
 export class PlistBuddy {
     private static plistBuddyExecutable = "/usr/libexec/PlistBuddy";
@@ -28,9 +30,9 @@ export class PlistBuddy {
         } else {
             const executableList = this.findExecutable(configurationFolder);
             if (!executableList.length) {
-                throw new Error(`Could not found executable in ${configurationFolder}`);
+                throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundExecutableInFolder, configurationFolder);
             } else if (executableList.length > 1) {
-                throw new Error(`Found more than one executables in ${configurationFolder}. Please cleanup build folder or setup 'productName' launch option.`);
+                throw ErrorHelper.getInternalError(InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder, configurationFolder);
             }
             executable = `${executableList[0]}`;
         }

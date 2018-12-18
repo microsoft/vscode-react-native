@@ -16,6 +16,7 @@ import {CommandExecutor} from "../../common/commandExecutor";
 import {LogCatMonitor} from "./logCatMonitor";
 import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 import * as nls from "vscode-nls";
+import { InternalErrorCode } from "../../common/error/internalErrorCode";
 const localize = nls.loadMessageBundle();
 
 /**
@@ -27,22 +28,20 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     // We should add the common Android build/run errors we find to this list
     private static RUN_ANDROID_FAILURE_PATTERNS: PatternToFailure[] = [{
         pattern: "Failed to install on any devices",
-        message: "Could not install the app on any available device. Make sure you have a correctly"
-            + " configured device or emulator running. See https://facebook.github.io/react-native/docs/android-setup.html",
+        errorCode: InternalErrorCode.AndroidCouldNotInstallTheAppOnAnyAvailibleDevice,
     }, {
         pattern: "com.android.ddmlib.ShellCommandUnresponsiveException",
-        message: "An Android shell command timed-out. Please retry the operation.",
+        errorCode: InternalErrorCode.AndroidShellCommandTimedOut,
     }, {
         pattern: "Android project not found",
-        message: "Android project not found.",
+        errorCode: InternalErrorCode.AndroidProjectNotFound,
 
     }, {
         pattern: "error: more than one device/emulator",
-        message: AndroidPlatform.MULTIPLE_DEVICES_ERROR,
+        errorCode: InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator,
     }, {
         pattern: /^Error: Activity class \{.*\} does not exist\.$/m,
-        message: "Failed to launch the specified activity. Try running application manually and "
-            + "start debugging using 'Attach to packager' launch configuration.",
+        errorCode: InternalErrorCode.AndroidFailedToLaunchTheSpecifiedActivity,
     }];
 
     private static RUN_ANDROID_SUCCESS_PATTERNS: string[] = ["BUILD SUCCESSFUL", "Starting the app", "Starting: Intent"];
