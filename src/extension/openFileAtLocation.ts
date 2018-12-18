@@ -7,6 +7,8 @@ import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {ErrorHelper} from "../common/error/errorHelper";
 import * as path from "path";
 import * as Q from "q";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 /* Usage:
 ...path\openFileAtLocation.js filename:lineNumber
@@ -17,7 +19,7 @@ import * as Q from "q";
 
 {
     if (process.argv.length < 3) {
-        throw "Wrong number of parameters provided. Please refer to the usage of this script for proper use.";
+        throw localize("WrongNumberOfParametersProvidedReferToTheUsageOfThisScript", "Wrong number of parameters provided. Please refer to the usage of this script for proper use.");
     }
 
     let fullpath: string;

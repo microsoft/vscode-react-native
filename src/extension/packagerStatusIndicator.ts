@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {window, Disposable, StatusBarItem, StatusBarAlignment} from "vscode";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 /**
  * Updates the Status bar with the status of React Native Packager.
@@ -18,11 +20,11 @@ export class PackagerStatusIndicator implements Disposable {
     private packagerStatusItem: StatusBarItem;
     private togglePackagerItem: StatusBarItem;
     private restartPackagerItem: StatusBarItem;
-    private static PACKAGER_NAME: string = "React Native Packager";
-    private static PACKAGER_STATUS_STOPPED: string = `${PackagerStatusIndicator.PACKAGER_NAME}: Stopped`;
-    private static PACKAGER_STATUS_STOPPING: string = `${PackagerStatusIndicator.PACKAGER_NAME}: Stopping`;
-    private static PACKAGER_STATUS_STARTED: string = `${PackagerStatusIndicator.PACKAGER_NAME}: Started`;
-    private static PACKAGER_STATUS_STARTING: string = `${PackagerStatusIndicator.PACKAGER_NAME}: Starting`;
+    private static PACKAGER_NAME: string = localize("ReactNativePackager", "React Native Packager");
+    private static PACKAGER_STATUS_STOPPED: string = localize("PackagerStopped", "{0}: Stopped", PackagerStatusIndicator.PACKAGER_NAME);
+    private static PACKAGER_STATUS_STOPPING: string = localize("PackagerStopping", "{0}: Stopping", PackagerStatusIndicator.PACKAGER_NAME);
+    private static PACKAGER_STATUS_STARTED: string = localize("PackagerStarted", "{0}: Started", PackagerStatusIndicator.PACKAGER_NAME);
+    private static PACKAGER_STATUS_STARTING: string = localize("PackagerStarting", "{0}: Starting", PackagerStatusIndicator.PACKAGER_NAME);
 
     private static START_ICON = "$(triangle-right)";
     private static STOP_ICON = "$(primitive-square)";
@@ -41,13 +43,13 @@ export class PackagerStatusIndicator implements Disposable {
         this.togglePackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
         this.togglePackagerItem.text = PackagerStatusIndicator.START_ICON;
         this.togglePackagerItem.command = PackagerStatusIndicator.START_COMMAND;
-        this.togglePackagerItem.tooltip = "Start Packager";
+        this.togglePackagerItem.tooltip = localize("StartPackager", "Start Packager");
         this.togglePackagerItem.show();
 
         this.restartPackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
         this.restartPackagerItem.text = PackagerStatusIndicator.RESTART_ICON;
         this.restartPackagerItem.command = PackagerStatusIndicator.RESTART_COMMAND;
-        this.restartPackagerItem.tooltip = "Restart Packager";
+        this.restartPackagerItem.tooltip = localize("RestartPackager", "Restart Packager");
         this.restartPackagerItem.show();
 
     }
@@ -65,7 +67,7 @@ export class PackagerStatusIndicator implements Disposable {
 
                 this.togglePackagerItem.text = PackagerStatusIndicator.START_ICON;
                 this.togglePackagerItem.command = PackagerStatusIndicator.START_COMMAND;
-                this.togglePackagerItem.tooltip = "Start Packager";
+                this.togglePackagerItem.tooltip = localize("StartPackager", "Start Packager");
 
                 this.restartPackagerItem.command = PackagerStatusIndicator.RESTART_COMMAND;
                 break;
@@ -83,7 +85,7 @@ export class PackagerStatusIndicator implements Disposable {
 
                 this.togglePackagerItem.text = PackagerStatusIndicator.STOP_ICON;
                 this.togglePackagerItem.command = PackagerStatusIndicator.STOP_COMMAND;
-                this.togglePackagerItem.tooltip = "Stop Packager";
+                this.togglePackagerItem.tooltip = localize("StopPackager", "Stop Packager");
 
                 this.restartPackagerItem.command = PackagerStatusIndicator.RESTART_COMMAND;
                 break;

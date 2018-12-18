@@ -61,4 +61,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder]: localize("IOSFoundMoreThanOneExecutablesCleanupBuildFolder", "Found more than one executables in {0}. Please cleanup build folder or setup 'productName' launch option."),
     [InternalErrorCode.IOSCouldNotFoundExecutableInFolder]: localize("IOSCouldNotFoundExecutableInFolder", "Could not found executable in {0}"),
     [InternalErrorCode.WinRNMPPluginDoesntInstall]: localize("WinRNMPPluginDoesntInstall", "'rnpm-plugin-windows' doesn't install"),
+    [InternalErrorCode.ReactDevtoolsIsNotInstalled]: localize("ReactDevtoolsIsNotInstalled", "React Devtools is not installed. Run `npm install -g react-devtools` command in your terminal to install it."),
 };

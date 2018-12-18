@@ -59,6 +59,7 @@ export enum InternalErrorCode {
         NotAllSuccessPatternsMatched = 712,
         CouldNotParsePackageVersion = 713,
         PackageNotFound = 714,
+        ReactDevtoolsIsNotInstalled = 715,
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,
