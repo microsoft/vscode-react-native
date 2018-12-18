@@ -47,4 +47,8 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.UnsupportedCommandStatus]: localize("UnsupportedCommandStatus", "Unsupported command status"),
     [InternalErrorCode.ExpectedExponentTunnelPath]: localize("ExpectedExponentTunnelPath", "No link provided by exponent. Is your project correctly setup?"),
     [InternalErrorCode.WorkspaceNotFound]: localize("WorkspaceNotFound", "Error while working with workspace: {0}"),
+    [InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort]: localize("CannotAttachToPackagerCheckPackagerRunningOnPort", "Cannot attach to packager. Are you sure there is a packager and it is running in the port {0}? If your packager is configured to run in another port make sure to add that to the settings.json."),
+    [InternalErrorCode.AnotherDebuggerConnectedToPackager]: localize("AnotherDebuggerConnectedToPackager", "Another debugger is already connected to packager. Please close it before trying to debug with VSCode."),
+    [InternalErrorCode.NotInReactNativeFolderError]: localize("NotInReactNativeFolderError", "Seems to be that you are trying to debug from within directory that is not a React Native project root. \n If so, please, follow these instructions: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure."),
+    [InternalErrorCode.SourcesStoragePathIsNullOrEmpty]: localize("SourcesStoragePathIsNullOrEmpty", "The sourcesStoragePath argument was null or empty"),
 };
