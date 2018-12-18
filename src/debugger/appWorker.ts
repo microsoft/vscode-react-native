@@ -155,6 +155,7 @@ postMessage({workerLoaded:true});`;
         this.packagerLocalRoot = attachRequestArguments.localRoot;
         this.sourcesStoragePath = sourcesStoragePath;
         this.projectRootPath = projectRootPath;
+        // TODO: add custom error code here to be able to identify it after localization
         console.assert(!!this.sourcesStoragePath, localize("SourcesStoragePathIsNullOrEmpty", "The sourcesStoragePath argument was null or empty"));
 
         this.webSocketConstructor = webSocketConstructor;
