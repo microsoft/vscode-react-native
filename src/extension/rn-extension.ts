@@ -213,7 +213,7 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     registerVSCodeCommand(context, "stopPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager), () => CommandPaletteHandler.stopPackager());
     registerVSCodeCommand(context, "restartPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToRestartPackager), () => CommandPaletteHandler.restartPackager());
     registerVSCodeCommand(context, "publishToExpHost", ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost), () => CommandPaletteHandler.publishToExpHost());
-    registerVSCodeCommand(context, "showDevMenu", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeShowDevMenu", "React Native: Show Developer Menu")), () => CommandPaletteHandler.showDevMenu());
+    registerVSCodeCommand(context, "showDevMenu", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeShowDevMenu", "React Native: Show Developer Menu for app")), () => CommandPaletteHandler.showDevMenu());
     registerVSCodeCommand(context, "reloadApp", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeReloadApp", "React Native: Reload App")), () => CommandPaletteHandler.reloadApp());
     registerVSCodeCommand(context, "runInspector", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeRunElementInspector", "React Native: Run Element Inspector")), () => CommandPaletteHandler.runElementInspector());
 }
