@@ -87,5 +87,5 @@ export enum InternalErrorCode {
         AndroidFailedToLaunchTheSpecifiedActivity = 1205,
 
         // Windows Phone errors
-        WinRNMPPluginDoesntInstall = 1301,
+        WinRNMPPluginIsNotInstalled = 1301,
     }

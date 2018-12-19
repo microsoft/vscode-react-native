@@ -25,7 +25,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
     private static FAILURE_PATTERNS: PatternToFailure[] = [
         {
             pattern: "Unrecognized command 'run-windows'",
-            errorCode: InternalErrorCode.WinRNMPPluginDoesntInstall,
+            errorCode: InternalErrorCode.WinRNMPPluginIsNotInstalled,
         },
     ];
 
