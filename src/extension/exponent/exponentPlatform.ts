@@ -100,7 +100,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
-        this.logger.info(localize("ApplicationIsRunningOnExponentShakeDeviceForRemoteDebugging", "Application is running on Exponent. Please shake device and select 'Debug JS Remotely' to enable debugging."));
+        this.logger.info(localize("ApplicationIsRunningOnExponentShakeDeviceForRemoteDebugging", "Application is running on Expo. Please shake device and select 'Debug JS Remotely' to enable debugging."));
         return Q.resolve<void>(void 0);
     }
 
