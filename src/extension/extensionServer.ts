@@ -19,6 +19,8 @@ import {IRemoteExtension, OpenFileRequest} from "../common/remoteExtension";
 import * as rpc from "noice-json-rpc";
 import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export class ExtensionServer implements vscode.Disposable {
     public api: IRemoteExtension;
@@ -225,17 +227,17 @@ export class ExtensionServer implements vscode.Disposable {
                         // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
                         // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                         generator.step("prewarmBundleCache");
-                        this.logger.info("Prewarming bundle cache. This may take a while ...");
+                        this.logger.info(localize("PrewarmingBundleCache", "Prewarming bundle cache. This may take a while ..."));
                         return mobilePlatform.prewarmBundleCache();
                     })
                     .then(() => {
                         generator.step("mobilePlatform.runApp").add("target", mobilePlatformOptions.target, false);
-                        this.logger.info("Building and running application.");
+                        this.logger.info(localize("BuildingAndRunningApplication", "Building and running application."));
                         return mobilePlatform.runApp();
                     })
                     .then(() => {
                         generator.step("mobilePlatform.enableJSDebuggingMode");
-                        this.logger.info("Enable JS Debugging");
+                        this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
                         return mobilePlatform.enableJSDebuggingMode();
                     })
                     .then(() => {
