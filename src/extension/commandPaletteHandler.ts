@@ -318,7 +318,7 @@ export class CommandPaletteHandler {
      * Publish project to exponent server. In order to do this we need to make sure the user is logged in exponent and the packager is running.
      */
     private static executePublishToExpHost(project: IReactNativeProject): Q.Promise<boolean> {
-        CommandPaletteHandler.logger.info(localize("PublishingAppToExponentServer", "Publishing app to Exponent server. This might take a moment."));
+        CommandPaletteHandler.logger.info(localize("PublishingAppToExponentServer", "Publishing app to Expo server. This might take a moment."));
         return this.loginToExponent(project)
             .then(user => {
                 CommandPaletteHandler.logger.debug(`Publishing as ${user.username}...`);
