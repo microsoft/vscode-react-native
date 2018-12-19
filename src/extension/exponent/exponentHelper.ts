@@ -45,7 +45,7 @@ export class ExponentHelper {
 
     public configureExponentEnvironment(): Q.Promise<void> {
         this.lazilyInitialize();
-        this.logger.info(localize("MakingSureYourProjectUsesCorrectExponentDependencies", "Making sure your project uses the correct dependencies for exponent. This may take a while..."));
+        this.logger.info(localize("MakingSureYourProjectUsesCorrectExponentDependencies", "Making sure your project uses the correct dependencies for Expo. This may take a while..."));
         this.logger.logStream(localize("CheckingIfThisIsExpoApp", "Checking if this is Expo app."));
         return this.isExpoApp(true)
             .then(isExpo => {
