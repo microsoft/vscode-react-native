@@ -17,13 +17,13 @@ import {LogCatMonitor} from "./logCatMonitor";
 import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 import * as nls from "vscode-nls";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { ErrorHelper } from "../../common/error/errorHelper";
 const localize = nls.loadMessageBundle();
 
 /**
  * Android specific platform implementation for debugging RN applications.
  */
 export class AndroidPlatform extends GeneralMobilePlatform {
-    private static MULTIPLE_DEVICES_ERROR = "error: more than one device/emulator";
 
     // We should add the common Android build/run errors we find to this list
     private static RUN_ANDROID_FAILURE_PATTERNS: PatternToFailure[] = [{
@@ -102,7 +102,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         .finally(() => {
                             return this.initializeTargetDevicesAndPackageName();
                         }).then(() => [this.debugTarget], reason => {
-                            if (reason.message === AndroidPlatform.MULTIPLE_DEVICES_ERROR && this.devices.length > 1 && this.debugTarget) {
+                            if (reason.message === ErrorHelper.getInternalError(InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator).message && this.devices.length > 1 && this.debugTarget) {
                                 /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
                                 this.needsToLaunchApps = true;
                                 return shouldLaunchInAllDevices
