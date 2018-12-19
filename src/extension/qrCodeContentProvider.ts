@@ -18,7 +18,7 @@ export class QRCodeContentProvider implements TextDocumentContentProvider {
             const imageBuffer: NodeBuffer = qr.imageSync(stringUri);
             this.cache[stringUri] = "data:image/png;base64," + imageBuffer.toString("base64");
         }
-        let message = localize("QRCodeInstructions", "Expo is running. Open your Expo app at<br/> \n <span style=\"text-decoration: underline\">{0}</span><br/> \n or scan QR code below:", stringUri);
+        let message = localize("QRCodeInstructions", "Expo is running. Open your Expo app at<br/><span style=\"text-decoration: underline\">{0}</span><br/>or scan QR code below:", stringUri);
         return `<!DOCTYPE html>
         <html>
         <body>
