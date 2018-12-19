@@ -60,6 +60,6 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.AndroidFailedToLaunchTheSpecifiedActivity]: localize("AndroidFailedToLaunchTheSpecifiedActivity", "Failed to launch the specified activity. Try running application manually and start debugging using 'Attach to packager' launch configuration."),
     [InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder]: localize("IOSFoundMoreThanOneExecutablesCleanupBuildFolder", "Found more than one executables in {0}. Please cleanup build folder or setup 'productName' launch option."),
     [InternalErrorCode.IOSCouldNotFoundExecutableInFolder]: localize("IOSCouldNotFoundExecutableInFolder", "Could not found executable in {0}"),
-    [InternalErrorCode.WinRNMPPluginDoesntInstall]: localize("WinRNMPPluginDoesntInstall", "'rnpm-plugin-windows' doesn't install"),
+    [InternalErrorCode.WinRNMPPluginIsNotInstalled]: localize("WinRNMPPluginIsNotInstalled", "'rnpm-plugin-windows' is not installed."),
     [InternalErrorCode.ReactDevtoolsIsNotInstalled]: localize("ReactDevtoolsIsNotInstalled", "React Devtools is not installed. Run `npm install -g react-devtools` command in your terminal to install it."),
 };
