@@ -8,7 +8,6 @@ const isparta = require("isparta");
 const sourcemaps = require("gulp-sourcemaps");
 const path = require("path");
 const preprocess = require("gulp-preprocess");
-const install = require("gulp-install");
 const runSequence = require("run-sequence");
 const ts = require("gulp-typescript");
 const mocha = require("gulp-mocha");
