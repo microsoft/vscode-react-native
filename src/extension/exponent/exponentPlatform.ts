@@ -87,7 +87,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                         return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath));
                     }
                     this.exponentTunnelPath = exponentUrl;
-                    const outputMessage = localize("ApplicationIsRunningOnExponentOpenToSeeIt", "Application is running on Exponent. Open your exponent app at {0} to see it.", this.exponentTunnelPath);
+                    const outputMessage = localize("ApplicationIsRunningOnExponentOpenToSeeIt", "Application is running on Expo. Open your Expo app at {0} to see it.", this.exponentTunnelPath);
                     this.logger.info(outputMessage);
 
                     return Q.resolve(void 0);
