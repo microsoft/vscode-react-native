@@ -357,7 +357,7 @@ export class CommandPaletteHandler {
             }
         )
         .catch((err) => {
-            CommandPaletteHandler.logger.warning(localize("ExpoErrorOccuredMakeSureYouAreLoggedIn", "An error has occured. Please make sure you are logged in to exponent, your project is setup correctly for publishing and your packager is running as exponent."));
+            CommandPaletteHandler.logger.warning(localize("ExpoErrorOccuredMakeSureYouAreLoggedIn", "An error has occured. Please make sure you are logged in to Expo, your project is setup correctly for publishing and your packager is running as Expo."));
             throw err;
         });
     }
