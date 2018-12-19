@@ -13,6 +13,8 @@ import * as vscode from "vscode";
 import * as Q from "q";
 import * as XDL from "./xdlInterface";
 import * as url from "url";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 
 export class ExponentPlatform extends GeneralMobilePlatform {
@@ -51,7 +53,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                         vscode.window.showInformationMessage(message, {modal: true}, okButton, cancelButton)
                             .then(answer => {
                                 if (answer === cancelButton) {
-                                    reject(new Error("User canceled login."));
+                                    reject(ErrorHelper.getInternalError(InternalErrorCode.UserCancelledExpoLogin));
                                 }
                                 resolve("");
                             }, reject);
@@ -85,7 +87,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                         return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath));
                     }
                     this.exponentTunnelPath = exponentUrl;
-                    const outputMessage = `Application is running on Exponent. Open your exponent app at ${this.exponentTunnelPath} to see it.`;
+                    const outputMessage = localize("ApplicationIsRunningOnExponentOpenToSeeIt", "Application is running on Expo. Open your Expo app at {0} to see it.", this.exponentTunnelPath);
                     this.logger.info(outputMessage);
 
                     return Q.resolve(void 0);
@@ -98,7 +100,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
-        this.logger.info("Application is running on Exponent. Please shake device and select 'Debug JS Remotely' to enable debugging.");
+        this.logger.info(localize("ApplicationIsRunningOnExponentShakeDeviceForRemoteDebugging", "Application is running on Expo. Please shake device and select 'Debug JS Remotely' to enable debugging."));
         return Q.resolve<void>(void 0);
     }
 

@@ -8,7 +8,7 @@ import { InternalErrorCode } from "./error/internalErrorCode";
 
 export type PatternToFailure = {
     pattern: string | RegExp,
-    message: string
+    errorCode: number
 };
 
 /* This class transforms a spawn process to only succeed if all defined success patterns
@@ -37,9 +37,9 @@ export class OutputVerifier {
         return spawnResult.outcome // Wait for the process to finish
             .then(this.generatePatternToFailure) // Generate the failure patterns to check
             .then(patterns => {
-                const failureMessage = this.findAnyFailurePattern(patterns);
-                if (failureMessage) {
-                    return Q.reject<string[]>(new Error(failureMessage)); // If at least one failure happened, we fail
+                const failureErrorCode = this.findAnyFailurePattern(patterns);
+                if (failureErrorCode) {
+                    return Q.reject<string[]>(ErrorHelper.getInternalError(failureErrorCode)); // If at least one failure happened, we fail
                 } else {
                     return this.generatePatternsForSuccess(); // If not we generate the success patterns
                 }
@@ -58,7 +58,7 @@ export class OutputVerifier {
     }
 
     // We check the failure patterns one by one, to see if any of those appeared on the errors. If they did, we return the associated error
-    private findAnyFailurePattern(patterns: PatternToFailure[]): string | null {
+    private findAnyFailurePattern(patterns: PatternToFailure[]): number | null {
         const errorsAndOutput = this.errors + this.output;
         const patternThatAppeared = patterns.find(pattern => {
             return pattern.pattern instanceof RegExp ?
@@ -66,7 +66,7 @@ export class OutputVerifier {
                 errorsAndOutput.indexOf(pattern.pattern as string) !== -1;
         });
 
-        return patternThatAppeared ? patternThatAppeared.message : null;
+        return patternThatAppeared ? patternThatAppeared.errorCode : null;
     }
 
     // We check that all the patterns appeared on the output

@@ -27,6 +27,8 @@ export enum InternalErrorCode {
 
         // iOS Platform errors
         IOSSimulatorNotLaunchable = 401,
+        IOSFoundMoreThanOneExecutablesCleanupBuildFolder = 402,
+        IOSCouldNotFoundExecutableInFolder = 403,
 
         // Packager errors
         OpnPackagerLocationNotFound = 501,
@@ -57,9 +59,14 @@ export enum InternalErrorCode {
         NotAllSuccessPatternsMatched = 712,
         CouldNotParsePackageVersion = 713,
         PackageNotFound = 714,
+        ReactDevtoolsIsNotInstalled = 715,
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,
+
+        // Inter Process Communication errors
+        ErrorWhileProcessingMessageInIPMSServer = 901,
+        ErrorNoPipeFound = 902,
 
         // Validating user input errors
         ExpectedIntegerValue = 1001,
@@ -68,7 +75,17 @@ export enum InternalErrorCode {
         ExpectedArrayValue = 1004,
         ExpectedObjectValue = 1005,
 
-        // Inter Process Communication errors
-        ErrorWhileProcessingMessageInIPMSServer = 901,
-        ErrorNoPipeFound = 902,
+        // Exponent errors
+        RNVersionNotSupportedByExponent = 1101,
+        UserCancelledExpoLogin = 1102,
+
+        // Android errors
+        AndroidCouldNotInstallTheAppOnAnyAvailibleDevice = 1201,
+        AndroidShellCommandTimedOut = 1202,
+        AndroidProjectNotFound = 1203,
+        AndroidMoreThanOneDeviceOrEmulator = 1204,
+        AndroidFailedToLaunchTheSpecifiedActivity = 1205,
+
+        // Windows Phone errors
+        WinRNMPPluginIsNotInstalled = 1301,
     }

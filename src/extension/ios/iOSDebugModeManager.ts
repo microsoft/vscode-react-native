@@ -7,6 +7,8 @@ import {OutputChannelLogger} from "../log/OutputChannelLogger";
 import {PromiseUtil} from "../../common/node/promise";
 import {PlistBuddy} from "./plistBuddy";
 import {SimulatorPlist} from "./simulatorPlist";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export class IOSDebugModeManager {
     public static WEBSOCKET_EXECUTOR_NAME = "RCTWebSocketExecutor";
@@ -59,7 +61,7 @@ export class IOSDebugModeManager {
 
     public findPListFile(configuration?: string, productName?: string): Q.Promise<string> {
         const pu = new PromiseUtil();
-        const failureString = `Unable to find plist file to configure debugging`;
+        const failureString = localize("UnableToFindPlistFileToConfigureDebugging", "Unable to find plist file to configure debugging");
 
         return pu.retryAsync(
             () =>

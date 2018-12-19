@@ -9,6 +9,8 @@ import {Packager} from "../common/packager";
 import {PackagerStatusIndicator, PackagerStatus} from "./packagerStatusIndicator";
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export interface MobilePlatformDeps {
     packager?: Packager;
@@ -38,17 +40,17 @@ export class GeneralMobilePlatform {
     }
 
     public runApp(): Q.Promise<void> {
-        this.logger.info("Connected to packager. You can now open your app in the simulator.");
+        this.logger.info(localize("ConnectedToPackager", "Connected to packager. You can now open your app in the simulator."));
         return Q.resolve<void>(void 0);
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
-        this.logger.info("Debugger ready. Enable remote debugging in app.");
+        this.logger.info(localize("DebuggerReadyEnableRemoteDebuggingInApp", "Debugger ready. Enable remote debugging in app."));
         return Q.resolve<void>(void 0);
     }
 
     public disableJSDebuggingMode(): Q.Promise<void> {
-        this.logger.info("Debugger ready. Disable remote debugging in app.");
+        this.logger.info(localize("DebuggerReadyDisableRemoteDebuggingInApp", "Debugger ready. Disable remote debugging in app."));
         return Q.resolve<void>(void 0);
     }
 
@@ -57,7 +59,7 @@ export class GeneralMobilePlatform {
     }
 
     public startPackager(): Q.Promise<void> {
-        this.logger.info("Starting React Native Packager.");
+        this.logger.info(localize("StartingReactNativePackager", "Starting React Native Packager."));
         return this.packager.isRunning()
         .then((running) => {
             if (running) {
@@ -65,7 +67,7 @@ export class GeneralMobilePlatform {
                     return this.packager.stop();
                 }
 
-                this.logger.info("Attaching to running React Native packager");
+                this.logger.info(localize("AttachingToRunningReactNativePackager", "Attaching to running React Native packager"));
             }
             return void 0;
         })

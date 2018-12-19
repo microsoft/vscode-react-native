@@ -15,32 +15,33 @@ import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {LogCatMonitor} from "./logCatMonitor";
 import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
+import * as nls from "vscode-nls";
+import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { ErrorHelper } from "../../common/error/errorHelper";
+const localize = nls.loadMessageBundle();
 
 /**
  * Android specific platform implementation for debugging RN applications.
  */
 export class AndroidPlatform extends GeneralMobilePlatform {
-    private static MULTIPLE_DEVICES_ERROR = "error: more than one device/emulator";
 
     // We should add the common Android build/run errors we find to this list
     private static RUN_ANDROID_FAILURE_PATTERNS: PatternToFailure[] = [{
         pattern: "Failed to install on any devices",
-        message: "Could not install the app on any available device. Make sure you have a correctly"
-            + " configured device or emulator running. See https://facebook.github.io/react-native/docs/android-setup.html",
+        errorCode: InternalErrorCode.AndroidCouldNotInstallTheAppOnAnyAvailibleDevice,
     }, {
         pattern: "com.android.ddmlib.ShellCommandUnresponsiveException",
-        message: "An Android shell command timed-out. Please retry the operation.",
+        errorCode: InternalErrorCode.AndroidShellCommandTimedOut,
     }, {
         pattern: "Android project not found",
-        message: "Android project not found.",
+        errorCode: InternalErrorCode.AndroidProjectNotFound,
 
     }, {
         pattern: "error: more than one device/emulator",
-        message: AndroidPlatform.MULTIPLE_DEVICES_ERROR,
+        errorCode: InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator,
     }, {
         pattern: /^Error: Activity class \{.*\} does not exist\.$/m,
-        message: "Failed to launch the specified activity. Try running application manually and "
-            + "start debugging using 'Attach to packager' launch configuration.",
+        errorCode: InternalErrorCode.AndroidFailedToLaunchTheSpecifiedActivity,
     }];
 
     private static RUN_ANDROID_SUCCESS_PATTERNS: string[] = ["BUILD SUCCESSFUL", "Starting the app", "Starting: Intent"];
@@ -101,7 +102,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         .finally(() => {
                             return this.initializeTargetDevicesAndPackageName();
                         }).then(() => [this.debugTarget], reason => {
-                            if (reason.message === AndroidPlatform.MULTIPLE_DEVICES_ERROR && this.devices.length > 1 && this.debugTarget) {
+                            if (reason.message === ErrorHelper.getInternalError(InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator).message && this.devices.length > 1 && this.debugTarget) {
                                 /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
                                 this.needsToLaunchApps = true;
                                 return shouldLaunchInAllDevices
@@ -144,10 +145,9 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 if (this.runOptions.target === AndroidPlatform.simulatorString ||
                     this.runOptions.target === AndroidPlatform.deviceString) {
 
-                    const message = `Target ${this.runOptions.target} is not supported for Android ` +
-                        "platform. If you want to use particular device or simulator for launching " +
-                        "Android app, please specify  device id (as in 'adb devices' output) instead.";
-
+                    const message = localize("TargetIsNotSupportedForAndroid",
+                     "Target {0} is not supported for Android platform. \n If you want to use particular device or simulator for launching Android app,\n please specify  device id (as in 'adb devices' output) instead.",
+                      this.runOptions.target);
                     this.logger.warning(message);
                 } else {
                     runArguments.push("--deviceId", this.runOptions.target);
@@ -188,12 +188,10 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 if (apiVersion >= AndroidAPILevel.LOLLIPOP) { // If we support adb reverse
                     return this.adbHelper.reverseAdb(device.id, Number(this.runOptions.packagerPort));
                 } else {
-                    this.logger.warning(`Device ${device.id} supports only API Level ${apiVersion}. `
-                    + `Level ${AndroidAPILevel.LOLLIPOP} is needed to support port forwarding via adb reverse. `
-                    + "For debugging to work you'll need <Shake or press menu button> for the dev menu, "
-                    + "go into <Dev Settings> and configure <Debug Server host & port for Device> to be "
-                    + "an IP address of your computer that the Device can reach. More info at: "
-                    + "https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps");
+                    const message = localize("DeviceSupportsOnlyAPILevel",
+                     "Device {0} supports only API Level {1}. \n Level {2} is needed to support port forwarding via adb reverse. \n For debugging to work you'll need <Shake or press menu button> for the dev menu, \n go into <Dev Settings> and configure <Debug Server host & port for Device> to be \n an IP address of your computer that the Device can reach. More info at: \n https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps",
+                      device.id, apiVersion, AndroidAPILevel.LOLLIPOP);
+                    this.logger.warning(message);
                     return void 0;
                 }
             });
@@ -237,7 +235,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         // this.logCatMonitor can be mutated, so we store it locally too
         this.logCatMonitor = new LogCatMonitor(device.id, logCatArguments, this.adbHelper);
         this.logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
-            .catch(error => this.logger.warning("Error while monitoring LogCat", error)) // The LogCatMonitor failing won't stop the debugging experience
+            .catch(error => this.logger.warning(localize("ErrorWhileMonitoringLogCat", "Error while monitoring LogCat"), error)) // The LogCatMonitor failing won't stop the debugging experience
             .done();
     }
 

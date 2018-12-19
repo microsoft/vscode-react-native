@@ -11,6 +11,8 @@ import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 import {WindowsPlatform} from "./windowsPlatform";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 /**
  * WPF specific platform implementation for debugging RN applications.
@@ -39,7 +41,7 @@ export class WpfPlatform extends WindowsPlatform {
             return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
                 .then(version => {
                     if (!semver.gt(version, WpfPlatform.WPF_SUPPORTED)) {
-                        throw new Error(`Debugging WPF platform is not supported for this react-native-windows version(${version})`);
+                        throw new Error(localize("DebuggingWPFPlatformIsNotSupportedForThisRNWinVersion", "Debugging WPF platform is not supported for this react-native-windows version({0})", version));
                     }
 
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, WpfPlatform.NO_PACKAGER_VERSION)) {

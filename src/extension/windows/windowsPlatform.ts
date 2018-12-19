@@ -10,6 +10,7 @@ import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
+import { InternalErrorCode } from "../../common/error/internalErrorCode";
 
 /**
  * Windows specific platform implementation for debugging RN applications.
@@ -24,7 +25,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
     private static FAILURE_PATTERNS: PatternToFailure[] = [
         {
             pattern: "Unrecognized command 'run-windows'",
-            message: "'rnpm-plugin-windows' doesn't install",
+            errorCode: InternalErrorCode.WinRNMPPluginIsNotInstalled,
         },
     ];
 

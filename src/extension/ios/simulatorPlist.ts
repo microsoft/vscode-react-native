@@ -11,6 +11,8 @@ import {FileSystem} from "../../common/node/fileSystem";
 import {ChildProcess} from "../../common/node/childProcess";
 
 import {TelemetryHelper} from "../../common/telemetryHelper";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export class SimulatorPlist {
     private projectRoot: string;
@@ -50,7 +52,7 @@ export class SimulatorPlist {
                         throw new Error(`Unable to find plist file for ${bundleId}`);
                     } else if (plistCandidates.length > 1) {
                         TelemetryHelper.sendSimpleEvent("multipleDebugPlistFound");
-                        this.logger.warning(ErrorHelper.getWarning("Multiple plist candidates found. Application may not be in debug mode."));
+                        this.logger.warning(ErrorHelper.getWarning(localize("MultiplePlistCandidatesFoundAppMayNotBeDebuggedInDebugMode", "Multiple plist candidates found. Application may not be in debug mode.")));
                     }
 
                     return plistCandidates[0];
