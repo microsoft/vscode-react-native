@@ -42,7 +42,6 @@ export enum InternalErrorCode {
         ProjectVersionUnsupported = 602,
         ProjectVersionNotReadable = 603,
         NotInReactNativeFolderError = 604,
-        SourcesStoragePathIsNullOrEmpty = 605,
 
         // Miscellaneous errors
         TelemetryInitializationFailed = 701,
@@ -88,4 +87,16 @@ export enum InternalErrorCode {
 
         // Windows Phone errors
         WinRNMPPluginIsNotInstalled = 1301,
+
+        // Debugger errors
+        SourcesStoragePathIsNullOrEmpty = 1401,
+        DebuggingWontWorkReloadJSAndReconnect = 1402,
+        ReconnectionToPackagerFailedCheckForErrorsOrRestartReactNative = 1403,
+        FailedToProcessMessageFromReactNativeApp = 1404,
+        FailedToPrepareJSRuntimeEnvironment = 1405,
+        FailedToSendMessageToTheReactNativeApp = 1406,
+        ReactNativeWorkerProcessThrownAnError = 1407,
+        CouldntImportScriptAt = 1408,
+        RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty = 1409,
+
     }
