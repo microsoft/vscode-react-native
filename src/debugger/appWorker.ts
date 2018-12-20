@@ -29,8 +29,8 @@ export interface IDebuggeeWorker {
     postMessage(message: RNAppMessage): void;
 }
 
-function printDebuggingError(message: string, reason: any) {
-    const nestedError = ErrorHelper.getNestedWarning(reason, localize("DebuggingWontWorkReloadJSAndReconnect", "{0}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger", message));
+function printDebuggingError(error: Error, reason: any) {
+    const nestedError = ErrorHelper.getNestedError(error, InternalErrorCode.DebuggingWontWorkReloadJSAndReconnect, reason);
 
     logger.error(nestedError.message);
 }
@@ -155,9 +155,8 @@ postMessage({workerLoaded:true});`;
         this.packagerLocalRoot = attachRequestArguments.localRoot;
         this.sourcesStoragePath = sourcesStoragePath;
         this.projectRootPath = projectRootPath;
-        // TODO: add custom error code here to be able to identify it after localization
-        console.assert(!!this.sourcesStoragePath, localize("SourcesStoragePathIsNullOrEmpty", "The sourcesStoragePath argument was null or empty"));
-
+        if (!this.sourcesStoragePath)
+            throw ErrorHelper.getInternalError(InternalErrorCode.SourcesStoragePathIsNullOrEmpty);
         this.webSocketConstructor = webSocketConstructor;
         this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
     }
@@ -245,7 +244,7 @@ postMessage({workerLoaded:true});`;
         this.socketToApp.on("error",
             (error: Error) => {
                 if (retryAttempt) {
-                    printDebuggingError(localize("ReconnectionToPackagerFailedCheckForErrorsOrRestartReactNative", "Reconnection to the proxy (Packager) failed. Please check the output window for Packager errors, if any. If failure persists, please restart the React Native debugger."), error);
+                    printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.ReconnectionToPackagerFailedCheckForErrorsOrRestartReactNative), error);
                 }
 
                 deferred.reject(error);
@@ -295,7 +294,7 @@ postMessage({workerLoaded:true});`;
                 logger.verbose(`The react-native app sent a message without specifying a method: ${message}`);
             }
         } catch (exception) {
-            printDebuggingError(localize("FailedToProcessMessageFromReactNativeApp", "Failed to process message from the React Native app. Message:\n{0}", message), exception);
+            printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.FailedToProcessMessageFromReactNativeApp, message), exception);
         }
     }
 
@@ -303,7 +302,7 @@ postMessage({workerLoaded:true});`;
         // Create the sandbox, and replay that we finished processing the message
         this.startNewWorkerLifetime().done(() => {
             this.sendMessageToApp({ replyID: parseInt(message.id, 10) });
-        }, error => printDebuggingError(localize("FailedToPrepareJSRuntimeEnvironment", "Failed to prepare the JavaScript runtime environment. Message:\n{0}", message), error));
+        }, error => printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.FailedToPrepareJSRuntimeEnvironment, message), error));
     }
 
     private sendMessageToApp(message: any): void {
@@ -314,7 +313,7 @@ postMessage({workerLoaded:true});`;
             this.socketToApp.send(stringified);
         } catch (exception) {
             let messageToShow = stringified || ("" + message); // Try to show the stringified version, but show the toString if unavailable
-            printDebuggingError(localize("FailedToSendMessageToTheReactNativeApp", "Failed to send message to the React Native app. Message:\n{0}", messageToShow), exception);
+            printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.FailedToSendMessageToTheReactNativeApp, messageToShow), exception);
         }
     }
 }
