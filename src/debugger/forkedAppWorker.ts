@@ -140,7 +140,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                                 return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
                             });
                     } else {
-                        throw Error(localize("RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty", "RNMessage with method 'executeApplicationScript' doesn't have 'url' property"));
+                        throw ErrorHelper.getInternalError(InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty);
                     }
                 }
             });

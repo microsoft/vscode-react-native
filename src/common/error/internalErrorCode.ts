@@ -97,5 +97,6 @@ export enum InternalErrorCode {
         FailedToSendMessageToTheReactNativeApp = 1406,
         ReactNativeWorkerProcessThrownAnError = 1407,
         CouldntImportScriptAt = 1408,
+        RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty = 1409,
 
     }

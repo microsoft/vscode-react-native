@@ -69,4 +69,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.FailedToSendMessageToTheReactNativeApp]: localize("FailedToSendMessageToTheReactNativeApp", "Failed to send message to the React Native app. Message:\n{0}"),
     [InternalErrorCode.ReactNativeWorkerProcessThrownAnError]: localize("ReactNativeWorkerProcessThrownAnError", "React Native worker process thrown an error"),
     [InternalErrorCode.CouldntImportScriptAt]: localize("CouldntImportScriptAt", "Couldn't import script at <{0}>"),
+    [InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty]: localize("RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty", "RNMessage with method 'executeApplicationScript' doesn't have 'url' property"),
 };
