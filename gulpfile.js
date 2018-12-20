@@ -163,7 +163,6 @@ gulp.task("clean", function () {
         "!test/resources/sampleReactNative022Project/**/*.js",
         ".vscode-test/",
         "nls.*.json",
-        "package.nls.*.json"
     ]
     return del(pathsToDelete, { force: true });
 });
