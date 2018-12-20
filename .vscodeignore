@@ -10,7 +10,6 @@ src/**
 **/*.js.map
 SampleApplication/**
 tools/**
-nls.*.json
 .vscodeignore
 gulpfile.js
 preparebuild.bat
