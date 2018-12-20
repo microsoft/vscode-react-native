@@ -12,10 +12,11 @@ import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 import { RemoteExtension } from "../common/remoteExtension";
 import * as nls from "vscode-nls";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
 const localize = nls.loadMessageBundle();
 
-function printDebuggingError(message: string, reason: any) {
-    const nestedError = ErrorHelper.getNestedWarning(reason, localize("DebuggingWontWorkReloadJSAndReconnect", "{0}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger", message));
+function printDebuggingError(error: Error, reason: any) {
+    const nestedError = ErrorHelper.getNestedError(error, InternalErrorCode.DebuggingWontWorkReloadJSAndReconnect, reason);
 
     logger.error(nestedError.message);
 }
@@ -97,7 +98,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             this.postReplyToApp(message);
         })
         .on("error", (error: Error) => {
-            printDebuggingError(localize("ReactNativeWorkerProcessThrownAnError", "React Native worker process thrown an error"), error);
+            printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWorkerProcessThrownAnError), error);
         });
 
         // Resolve with port debugger server is listening on
@@ -149,7 +150,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                     this.debuggeeProcess.send({ data: message });
                 }
             },
-            (reason) => printDebuggingError(localize("CouldntImportScriptAt", "Couldn't import script at <{0}>", rnMessage.url), reason));
+            (reason) => printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.CouldntImportScriptAt, rnMessage.url), reason));
 
         return promise;
     }
