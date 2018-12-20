@@ -11,9 +11,7 @@ import { logger } from "vscode-chrome-debug-core";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 import { RemoteExtension } from "../common/remoteExtension";
-import * as nls from "vscode-nls";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
-const localize = nls.loadMessageBundle();
 
 function printDebuggingError(error: Error, reason: any) {
     const nestedError = ErrorHelper.getNestedError(error, InternalErrorCode.DebuggingWontWorkReloadJSAndReconnect, reason);
