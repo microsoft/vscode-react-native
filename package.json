@@ -549,7 +549,7 @@
 		"gulp-sourcemaps": "^1.6.0",
 		"gulp-tslint": "^8.1.2",
 		"gulp-typescript": "^4.0.2",
-		"isparta": "^4.0.0",
+		"isparta": "^4.1.1",
 		"minimist": "^1.2.0",
 		"mocha": "^4.1.0",
 		"mocha-teamcity-reporter": "^2.5.1",
