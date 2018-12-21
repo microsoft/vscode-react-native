@@ -32,14 +32,14 @@ const transifexProjectName = "vscode-extensions";
 const transifexExtensionName = "vscode-react-native";
 
 const defaultLanguages = [
-	{ id: "zh-tw", folderName: "cht", transifexId: "zh-hant" },
-	{ id: "zh-cn", folderName: "chs", transifexId: "zh-hans" },
-	{ id: "ja", folderName: "jpn" },
-	{ id: "ko", folderName: "kor" },
-	{ id: "de", folderName: "deu" },
-	{ id: "fr", folderName: "fra" },
-	{ id: "es", folderName: "esn" },
-	{ id: "ru", folderName: "rus" },
+    { id: "zh-tw", folderName: "cht", transifexId: "zh-hant" },
+    { id: "zh-cn", folderName: "chs", transifexId: "zh-hans" },
+    { id: "ja", folderName: "jpn" },
+    { id: "ko", folderName: "kor" },
+    { id: "de", folderName: "deu" },
+    { id: "fr", folderName: "fra" },
+    { id: "es", folderName: "esn" },
+    { id: "ru", folderName: "rus" },
     { id: "it", folderName: "ita" },
 
     // These language-pack languages are included for VS but excluded from the vscode package
@@ -81,8 +81,8 @@ function build(failOnError, buildNls) {
     return tsResult.js
         .pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
         .pipe(buildNls ? nls.createAdditionalLanguageFiles(defaultLanguages, "i18n", ".") : es.through())
-		.pipe(buildNls ? nls.bundleMetaDataFiles("vsmobile.vscode-react-native", ".") : es.through())
-		.pipe(buildNls ? nls.bundleLanguageFiles() : es.through())
+        .pipe(buildNls ? nls.bundleMetaDataFiles("vsmobile.vscode-react-native", ".") : es.through())
+        .pipe(buildNls ? nls.bundleLanguageFiles() : es.through())
         .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: "." }))
         .pipe(gulp.dest((file) => file.cwd))
         .once("error", () => {
@@ -152,7 +152,7 @@ gulp.task("build", gulp.series("check-imports", "check-copyright", "tslint", fun
         });
 }));
 
-gulp.task("build-dev",  gulp.series("check-imports", "check-copyright", function runBuild(done) {
+gulp.task("build-dev", gulp.series("check-imports", "check-copyright", function runBuild(done) {
     build(false, false)
         .once("finish", () => {
             done();
@@ -274,14 +274,14 @@ gulp.task("add-i18n", () => {
 
 // Gathers all strings to Transifex readable .xliff file for translating and pushes them to Transifex
 gulp.task("transifex-push", gulp.series("build", function runTransifexPush() {
-    return gulp.src(["package.nls.json", "nls.metadata.header.json","nls.metadata.json"])
+    return gulp.src(["package.nls.json", "nls.metadata.header.json", "nls.metadata.json"])
         .pipe(nls.createXlfFiles(transifexProjectName, transifexExtensionName))
         .pipe(nls.pushXlfFiles(transifexApiHostname, transifexApiName, transifexApiToken));
 }));
 
 // Creates Transifex readable .xliff file and saves it locally
 gulp.task("transifex-push-local", gulp.series("build", function runTransifexPushLocal() {
-    return gulp.src(["package.nls.json", "nls.metadata.header.json","nls.metadata.json"])
+    return gulp.src(["package.nls.json", "nls.metadata.header.json", "nls.metadata.json"])
         .pipe(nls.createXlfFiles(transifexProjectName, transifexExtensionName))
         .pipe(gulp.dest(path.join("..", `${transifexExtensionName}-push-test`)));
 }));
@@ -292,9 +292,9 @@ gulp.task("transifex-pull", (done) => {
         return nls.pullXlfFiles(transifexApiHostname, transifexApiName, transifexApiToken, language, [{ name: transifexExtensionName, project: transifexProjectName }])
             .pipe(gulp.dest(`../${transifexExtensionName}-localization/${language.folderName}`))
     }))
-    .pipe(es.wait(() => {
-        done();
-    }));
+        .pipe(es.wait(() => {
+            done();
+        }));
 });
 
 // Imports localization from raw localized Transifex strings to VS Code .i18n.json files
@@ -304,7 +304,7 @@ gulp.task("i18n-import", (done) => {
             .pipe(nls.prepareJsonFiles())
             .pipe(gulp.dest(path.join("./i18n", language.folderName)))
     }))
-    .pipe(es.wait(() => {
-        done();
-    }));
+        .pipe(es.wait(() => {
+            done();
+        }));
 });
