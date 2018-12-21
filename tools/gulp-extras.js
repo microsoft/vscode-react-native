@@ -17,7 +17,7 @@ const through = require("through2");
  * @param {string} message The error message to display
  */
 function logError(pluginName, file, message) {
-    const sourcePath = path.relative(__dirname, file.path).replace("../","");
+    const sourcePath = path.relative(__dirname, file.path).replace("../", "");
     log(`[${colors.cyan(pluginName)}] ${colors.red("error")} ${sourcePath}: ${message}`);
 }
 
@@ -44,12 +44,12 @@ function checkCopyright() {
 
         callback(null, file);
     },
-    function (callback) {
-        if (hadErrors) {
-            return this.emit("error", new PluginError(pluginName, "Failed copyright check"));
-        }
-        callback();
-    });
+        function (callback) {
+            if (hadErrors) {
+                return this.emit("error", new PluginError(pluginName, "Failed copyright check"));
+            }
+            callback();
+        });
 }
 
 /**
@@ -74,20 +74,20 @@ function checkImports() {
     let hadErrors = false;
     const re = /(?:\s|^)(?:[^\n:]*).*from ["'](\.[^"']*)["'];/;
 
-    return through.obj(function(file, encoding, callback) {
+    return through.obj(function (file, encoding, callback) {
         if (file.isBuffer()) {
             var fileContents = file.contents.toString(encoding);
             var importStatements = fileContents.match(new RegExp(re.source, "g")) || [];
             var workingDirectory = path.dirname(file.path);
 
-            importStatements.forEach(function(importStatement) {
+            importStatements.forEach(function (importStatement) {
 
                 var modulePath = re.exec(importStatement);
                 if (modulePath && modulePath[1]) {
                     var moduleFilePath = path.resolve(workingDirectory, modulePath[1] + ".ts");
 
                     if (!existsCaseSensitive(moduleFilePath)) {
-                        logError(pluginName, file,`unresolved import: "${modulePath[1]}"`);
+                        logError(pluginName, file, `unresolved import: "${modulePath[1]}"`);
                         hadErrors = true;
                     }
                 }
@@ -96,12 +96,12 @@ function checkImports() {
 
         callback(null, file);
     },
-    function (callback) {
-        if (hadErrors) {
-            return this.emit("error", new PluginError(pluginName, "Failed import casing check"));
-        }
-        callback();
-    });
+        function (callback) {
+            if (hadErrors) {
+                return this.emit("error", new PluginError(pluginName, "Failed import casing check"));
+            }
+            callback();
+        });
 }
 
 function executeCommand(command, args, callback, opts) {
