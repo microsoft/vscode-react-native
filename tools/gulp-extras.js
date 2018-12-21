@@ -29,7 +29,7 @@ function checkCopyright() {
     let hadErrors = false;
     const copyrightNotice = "// Copyright (c) Microsoft Corporation. All rights reserved.\n// Licensed under the MIT license. See LICENSE file in the project root for details.";
 
-    return through.obj((file, encoding, callback) => {
+    return through.obj(function (file, encoding, callback) {
         if (file.isBuffer()) {
             let fileContents = file.contents.toString(encoding);
             fileContents = fileContents.replace("\r\n", "\n");
@@ -44,7 +44,7 @@ function checkCopyright() {
 
         callback(null, file);
     },
-    (callback) => {
+    function (callback) {
         if (hadErrors) {
             return this.emit("error", new PluginError(pluginName, "Failed copyright check"));
         }
@@ -74,7 +74,7 @@ function checkImports() {
     let hadErrors = false;
     const re = /(?:\s|^)(?:[^\n:]*).*from ["'](\.[^"']*)["'];/;
 
-    return through.obj((file, encoding, callback) => {
+    return through.obj(function(file, encoding, callback) {
         if (file.isBuffer()) {
             var fileContents = file.contents.toString(encoding);
             var importStatements = fileContents.match(new RegExp(re.source, "g")) || [];
@@ -96,7 +96,7 @@ function checkImports() {
 
         callback(null, file);
     },
-    (callback) => {
+    function (callback) {
         if (hadErrors) {
             return this.emit("error", new PluginError(pluginName, "Failed import casing check"));
         }
