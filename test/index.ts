@@ -11,7 +11,7 @@ let mochaOptions: any = {
     ui: "tdd",
     useColors: true,
     invert: true,
-    grep: "(debuggerContext|localizationContext)", // Do not run tests intended for the debuggerContext
+    grep: "(debuggerContext|localizationContext)", // Do not run tests intended for the debuggerContext and localizationContext
 };
 
 // Look for the env variable to decide wheter to use the TeamCity reporter or not
