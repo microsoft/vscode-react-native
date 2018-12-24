@@ -191,7 +191,7 @@ function test() {
             ui: "tdd",
             useColors: true,
             invert: !options.pattern,
-            grep: options.pattern || "extensionContext"
+            grep: options.pattern || "(extensionContext|localizationContext)"
         }));
 }
 
