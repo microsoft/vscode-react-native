@@ -14,7 +14,7 @@ suite("localizationTest", function() {
             done();
         });
 
-        test("localize should show correct message on Russian for iOSDeployNotFound error", function(done: MochaDone) {
+        test("localize should show correct message on Russian for iOSDeployNotFound error", (done: MochaDone) => {
             assert.strictEqual(iosDeployErrorRu.message,
                 "Не удается найти ios-deploy. Установите его глобально (с помощью команды 'npm install -g ios-deploy') (error code 201)");
             done();
