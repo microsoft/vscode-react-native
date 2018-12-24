@@ -146,6 +146,23 @@
             "preLaunchTask": "build"
         },
         {
+            "name": "Launch Localization Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--locale=ru",
+                "--extensionDevelopmentPath=${workspaceRoot}",
+                "--extensionTestsPath=${workspaceRoot}/test/localization"
+            ],
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/src/**/*.js"
+            ],
+            "preLaunchTask": "build"
+        },
+        {
             "name": "Run mocha",
             "type": "node",
             "protocol": "inspector",
@@ -170,7 +187,7 @@
             ],
             "sourceMaps": true,
             "preLaunchTask": "quick-build"
-        }
+        },
     ],
     "compounds": [
         {
