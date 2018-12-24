@@ -10,13 +10,13 @@ suite("localizationTest", function() {
         const commandFailedErrorRu = ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, "Команда");
         const iosDeployErrorRu = ErrorHelper.getInternalError(InternalErrorCode.IOSDeployNotFound);
         test("localize should show correct message on Russian on CommandFailed error", function(done: MochaDone) {
-            assert.strictEqual(commandFailedErrorRu, "Error: Ошибка при выполнении команды \"Команда\" (error code 101)");
+            assert.strictEqual(commandFailedErrorRu.message, "Ошибка при выполнении команды \"Команда\" (error code 101)");
             done();
         });
 
         test("localize should show correct message on Russian for iOSDeployNotFound error", function(done: MochaDone) {
-            assert.strictEqual(iosDeployErrorRu,
-                "Error: Не удается найти ios-deploy. Установите его глобально (с помощью команды 'npm install -g ios-deploy') (error code 201)");
+            assert.strictEqual(iosDeployErrorRu.message,
+                "Не удается найти ios-deploy. Установите его глобально (с помощью команды 'npm install -g ios-deploy') (error code 201)");
             done();
         });
     });
