@@ -17,7 +17,7 @@
     * Portuguese
     * Polish
 
-**Some localization may be not completed, so [you can join the localization process at Transifex](https://www.transifex.com/microsoft-oss/vscode-extensions/vscode-react-native/)**
+**Some localizations may be not completed, so [you can join the localization process at Transifex](https://www.transifex.com/microsoft-oss/vscode-extensions/vscode-react-native/)**
 
 
 ## 0.7.0
