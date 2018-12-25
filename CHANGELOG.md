@@ -2,7 +2,7 @@
 * Improved extension security
 * Improved error logging
 * Improved Expo login workflow
-* Added localization for next languages (some localization may be not completed, so [you can join the localization process at Transifex](https://www.transifex.com/microsoft-oss/vscode-extensions/vscode-react-native/)):
+* Added localization for next languages:
     * Chinese Simplified
     * Chinese Traditional
     * Japanese
@@ -16,6 +16,7 @@
     * Turkish
     * Portuguese
     * Polish
+**Some localization may be not completed, so [you can join the localization process at Transifex](https://www.transifex.com/microsoft-oss/vscode-extensions/vscode-react-native/))**
 
 
 ## 0.7.0
