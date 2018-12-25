@@ -23,3 +23,4 @@ if (process.env.VSCODE_REACT_NATIVE_TEAMCITY_TEST) {
 testRunner.configure(mochaOptions);
 
 module.exports = testRunner;
+

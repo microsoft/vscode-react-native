@@ -10,6 +10,7 @@ var testRunner = require("vscode/lib/testrunner");
 let mochaOption: any = {
     ui: "tdd",
     useColors: true,
+    grep: "localizationContext",
 };
 
 // Look for the env variable to decide wheter to use the TeamCity reporter or not
