@@ -1,3 +1,23 @@
+## 0.8.0
+* Improved extension security
+* Improved error logging
+* Improved Expo login workflow
+* Added localization for next languages (some localization may be not completed, so [you can join the localization process at Transifex](https://www.transifex.com/microsoft-oss/vscode-extensions/vscode-react-native/)):
+    * Chinese Simplified
+    * Chinese Traditional
+    * Japanese
+    * Korean
+    * German
+    * French
+    * Spanish
+    * Russian
+    * Italian
+    * Czech
+    * Turkish
+    * Portuguese
+    * Polish
+
+
 ## 0.7.0
 * Added `Run Element Inspector` command that runs standalone [React Developer Tools](https://github.com/facebook/react-devtools)
 * Migrate to [WebView Api](https://code.visualstudio.com/docs/extensions/webview) instead of using deprecated `vscode.previewHtml` command
