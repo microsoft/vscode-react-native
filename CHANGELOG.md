@@ -17,7 +17,7 @@
     * Portuguese
     * Polish
 
-**Some localizations may be not completed, so [you can join the localization process at Transifex](https://www.transifex.com/microsoft-oss/vscode-extensions/vscode-react-native/)**
+**Some localizations may be not completed, we'll update them in future**
 
 ## 0.7.0
 * Added `Run Element Inspector` command that runs standalone [React Developer Tools](https://github.com/facebook/react-devtools)
