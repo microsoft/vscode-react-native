@@ -19,7 +19,6 @@
 
 **Some localizations may be not completed, so [you can join the localization process at Transifex](https://www.transifex.com/microsoft-oss/vscode-extensions/vscode-react-native/)**
 
-
 ## 0.7.0
 * Added `Run Element Inspector` command that runs standalone [React Developer Tools](https://github.com/facebook/react-devtools)
 * Migrate to [WebView Api](https://code.visualstudio.com/docs/extensions/webview) instead of using deprecated `vscode.previewHtml` command
