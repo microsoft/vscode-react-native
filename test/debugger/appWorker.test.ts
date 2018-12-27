@@ -99,10 +99,10 @@ suite("appWorker", function () {
                     postMessage(testResponse);`;
 
                 return workerWithScript(startScriptContents).start()
-                    .then(() => Q.delay(500))
+                    .then(() => Q.delay(5000))
                     .then(() =>
                         assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
-            });
+            }).timeout(5500);
 
             test("should download script from remote packager", async () => {
                 class MockAppWorker extends ForkedAppWorker {
