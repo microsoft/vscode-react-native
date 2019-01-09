@@ -2,6 +2,7 @@
 * Improved extension security
 * Improved error logging
 * Improved Expo login workflow
+* Fixed debugger url problem for haul projects [#875](https://github.com/Microsoft/vscode-react-native/issues/875)
 * Added localization for next languages:
     * Chinese Simplified
     * Chinese Traditional
