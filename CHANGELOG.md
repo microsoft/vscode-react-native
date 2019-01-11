@@ -2,6 +2,7 @@
 * Improved extension security
 * Improved error logging
 * Improved Expo login workflow
+* Added warning if RN application is being ran using `Debug In Exponent` configuration and `expo` package is not installed [#882](https://github.com/Microsoft/vscode-react-native/issues/882)
 * Fixed debugger url problem for haul projects [#875](https://github.com/Microsoft/vscode-react-native/issues/875)
 * Added localization for next languages:
     * Chinese Simplified
