@@ -29,13 +29,14 @@ const DBL_SLASHES = /\\/g;
 export class ExponentHelper {
     private workspaceRootPath: string;
     private projectRootPath: string;
-    private fs: FileSystem = new FileSystem();
+    private fs: FileSystem;
     private hasInitialized: boolean;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
-    public constructor(workspaceRootPath: string, projectRootPath: string) {
+    public constructor(workspaceRootPath: string, projectRootPath: string, fs: FileSystem = new FileSystem()) {
         this.workspaceRootPath = workspaceRootPath;
         this.projectRootPath = projectRootPath;
+        this.fs = fs;
         this.hasInitialized = false;
         // Constructor is slim by design. This is to add as less computation as possible
         // to the initialization of the extension. If a public method is added, make sure
@@ -99,9 +100,9 @@ export class ExponentHelper {
         return this.fs.readFile(packageJsonPath)
             .then(content => {
                 const packageJson = JSON.parse(content);
-                const isExp = packageJson.dependencies && !!packageJson.dependencies.expo || false;
+                const isExp = (packageJson.dependencies && packageJson.dependencies.expo) || (packageJson.devDependencies && packageJson.devDependencies.expo);
                 if (showProgress) this.logger.logStream(".");
-                return isExp;
+                return !!isExp;
             }).catch(() => {
                 if (showProgress) {
                     this.logger.logStream(".");
