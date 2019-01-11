@@ -106,7 +106,7 @@ export class ExponentHelper {
                     // Expo requires expo package to be installed inside RN application in order to be able to run it
                     // https://github.com/expo/expo-cli/issues/255#issuecomment-453214632
                     this.logger.logStream("\n");
-                    this.logger.logStream(localize("ExpoPackageIsNotInstalled", "[Warning] expo package is not installed locally for your project, further errors may occur. Please, run \"npm install expo\" inside your project."));
+                    this.logger.logStream(localize("ExpoPackageIsNotInstalled", "[Warning] expo package is not installed locally for your project, further errors may occur. Please, run \"npm install expo --save-dev\" inside your project."));
                     this.logger.logStream("\n");
                 }
                 return isExp;
