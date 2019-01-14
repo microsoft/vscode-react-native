@@ -19,7 +19,7 @@
     * Portuguese
     * Polish
 
-**Some localizations may be not completed, we'll update them in future**
+**Some localizations may not be completed, they we'll updated in future**
 
 ## 0.7.0
 * Added `Run Element Inspector` command that runs standalone [React Developer Tools](https://github.com/facebook/react-devtools)
