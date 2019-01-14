@@ -29,13 +29,14 @@ const DBL_SLASHES = /\\/g;
 export class ExponentHelper {
     private workspaceRootPath: string;
     private projectRootPath: string;
-    private fs: FileSystem = new FileSystem();
+    private fs: FileSystem;
     private hasInitialized: boolean;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
-    public constructor(workspaceRootPath: string, projectRootPath: string) {
+    public constructor(workspaceRootPath: string, projectRootPath: string, fs: FileSystem = new FileSystem()) {
         this.workspaceRootPath = workspaceRootPath;
         this.projectRootPath = projectRootPath;
+        this.fs = fs;
         this.hasInitialized = false;
         // Constructor is slim by design. This is to add as less computation as possible
         // to the initialization of the extension. If a public method is added, make sure
@@ -47,10 +48,9 @@ export class ExponentHelper {
         this.lazilyInitialize();
         this.logger.info(localize("MakingSureYourProjectUsesCorrectExponentDependencies", "Making sure your project uses the correct dependencies for Expo. This may take a while..."));
         this.logger.logStream(localize("CheckingIfThisIsExpoApp", "Checking if this is Expo app."));
-        return this.isExpoApp(true)
+        return this.isExpoApp(true, true)
             .then(isExpo => {
                 this.logger.logStream(".\n");
-
                 return this.patchAppJson(isExpo);
             });
     }
@@ -90,7 +90,7 @@ export class ExponentHelper {
             .then(opts => opts || {});
     }
 
-    public isExpoApp(showProgress: boolean = false): Q.Promise<boolean> {
+    public isExpoApp(showProgress: boolean = false, logIfExpoIsNotInstalled: boolean = false): Q.Promise<boolean> {
         if (showProgress) {
             this.logger.logStream("...");
         }
@@ -99,8 +99,16 @@ export class ExponentHelper {
         return this.fs.readFile(packageJsonPath)
             .then(content => {
                 const packageJson = JSON.parse(content);
-                const isExp = packageJson.dependencies && !!packageJson.dependencies.expo || false;
+                let isExp = (packageJson.dependencies && packageJson.dependencies.expo) || (packageJson.devDependencies && packageJson.devDependencies.expo);
+                isExp = !!isExp;
                 if (showProgress) this.logger.logStream(".");
+                if (!isExp && logIfExpoIsNotInstalled) {
+                    // Expo requires expo package to be installed inside RN application in order to be able to run it
+                    // https://github.com/expo/expo-cli/issues/255#issuecomment-453214632
+                    this.logger.logStream("\n");
+                    this.logger.logStream(localize("ExpoPackageIsNotInstalled", "[Warning] expo package is not installed locally for your project, further errors may occur. Please, run \"npm install expo --save-dev\" inside your project."));
+                    this.logger.logStream("\n");
+                }
                 return isExp;
             }).catch(() => {
                 if (showProgress) {
@@ -135,11 +143,11 @@ export class ExponentHelper {
             this.fs.exists(this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)),
             this.fs.exists(this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX)),
         ])
-        .spread((expo: boolean, ios: boolean): string => {
-            return expo ? this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX) :
-                ios ? this.pathToFileInWorkspace(DEFAULT_IOS_INDEX) :
-                this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX);
-        });
+            .spread((expo: boolean, ios: boolean): string => {
+                return expo ? this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX) :
+                    ios ? this.pathToFileInWorkspace(DEFAULT_IOS_INDEX) :
+                        this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX);
+            });
     }
 
     private generateFileContent(name: string, entryPoint: string): string {

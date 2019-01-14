@@ -1,3 +1,26 @@
+## 0.8.0
+* Improved extension security
+* Improved error logging
+* Improved Expo login workflow
+* Added warning if RN application is being ran using `Debug In Exponent` configuration and `expo` package is not installed [#882](https://github.com/Microsoft/vscode-react-native/issues/882)
+* Fixed debugger url problem for haul projects [#875](https://github.com/Microsoft/vscode-react-native/issues/875)
+* Added localization for next languages:
+    * Chinese Simplified
+    * Chinese Traditional
+    * Japanese
+    * Korean
+    * German
+    * French
+    * Spanish
+    * Russian
+    * Italian
+    * Czech
+    * Turkish
+    * Portuguese
+    * Polish
+
+**Some localizations may not be completed, they we'll updated in future**
+
 ## 0.7.0
 * Added `Run Element Inspector` command that runs standalone [React Developer Tools](https://github.com/facebook/react-devtools)
 * Migrate to [WebView Api](https://code.visualstudio.com/docs/extensions/webview) instead of using deprecated `vscode.previewHtml` command
