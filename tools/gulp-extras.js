@@ -2,13 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 "use strict";
 
-var child_process = require("child_process");
-var fs = require("fs");
-var log = require('fancy-log');
+const child_process = require("child_process");
+const fs = require("fs");
+const log = require('fancy-log');
 const colors = require('ansi-colors');
-var path = require("path");
-var PluginError = require('plugin-error');
-var through = require("through2");
+const path = require("path");
+const PluginError = require('plugin-error');
+const through = require("through2");
 
 /**
  * Pretty logger using 'log'
@@ -16,22 +16,22 @@ var through = require("through2");
  * @param {Object} file A gulp file to report on
  * @param {string} message The error message to display
  */
-var logError = function(pluginName, file, message) {
-    var sourcePath = path.relative(__dirname, file.path).replace("../","");
-    log("[" + colors.cyan(pluginName) + "] " + colors.red("error") + " " + sourcePath + ": " + message);
-};
+function logError(pluginName, file, message) {
+    const sourcePath = path.relative(__dirname, file.path).replace("../", "");
+    log(`[${colors.cyan(pluginName)}] ${colors.red("error")} ${sourcePath}: ${message}`);
+}
 
 /**
  * Plugin to verify the Microsoft copyright notice is present
  */
-var checkCopyright = function() {
-    var pluginName = "check-copyright";
-    var hadErrors = false;
-    var copyrightNotice = "// Copyright (c) Microsoft Corporation. All rights reserved.\n// Licensed under the MIT license. See LICENSE file in the project root for details.";
+function checkCopyright() {
+    const pluginName = "check-copyright";
+    let hadErrors = false;
+    const copyrightNotice = "// Copyright (c) Microsoft Corporation. All rights reserved.\n// Licensed under the MIT license. See LICENSE file in the project root for details.";
 
-    return through.obj(function(file, encoding, callback) {
+    return through.obj(function (file, encoding, callback) {
         if (file.isBuffer()) {
-            var fileContents = file.contents.toString(encoding);
+            let fileContents = file.contents.toString(encoding);
             fileContents = fileContents.replace("\r\n", "\n");
             fileContents = fileContents.replace("\"use strict\";\n", "");
             fileContents = fileContents.replace("Object.defineProperty(exports, \"__esModule\", { value: true });\n", "");
@@ -44,50 +44,50 @@ var checkCopyright = function() {
 
         callback(null, file);
     },
-    function(callback) {
-        if (hadErrors) {
-            return this.emit("error", new PluginError(pluginName, "Failed copyright check"));
-        }
-        callback();
-    });
-};
+        function (callback) {
+            if (hadErrors) {
+                return this.emit("error", new PluginError(pluginName, "Failed copyright check"));
+            }
+            callback();
+        });
+}
 
 /**
  * Helper function to check if a file exists case sensitive
  * @param {string} filePath The path to check
  * @returns {boolean} If the path exists case sensitive
  */
-var existsCaseSensitive = function(filePath) {
+function existsCaseSensitive(filePath) {
     if (fs.existsSync(filePath)) {
-        var fileName = path.basename(filePath);
+        const fileName = path.basename(filePath);
         return fs.readdirSync(path.dirname(filePath)).indexOf(fileName) !== -1;
     }
 
     return false;
-};
+}
 
 /**
  * Plugin to verify if import statements use correct casing
  */
-var checkImports = function() {
-    var pluginName = "check-imports";
-    var hadErrors = false;
-    var re = /(?:\s|^)(?:[^\n:]*).*from ["'](\.[^"']*)["'];/;
+function checkImports() {
+    const pluginName = "check-imports";
+    let hadErrors = false;
+    const re = /(?:\s|^)(?:[^\n:]*).*from ["'](\.[^"']*)["'];/;
 
-    return through.obj(function(file, encoding, callback) {
+    return through.obj(function (file, encoding, callback) {
         if (file.isBuffer()) {
             var fileContents = file.contents.toString(encoding);
             var importStatements = fileContents.match(new RegExp(re.source, "g")) || [];
             var workingDirectory = path.dirname(file.path);
 
-            importStatements.forEach(function(importStatement) {
+            importStatements.forEach(function (importStatement) {
 
                 var modulePath = re.exec(importStatement);
                 if (modulePath && modulePath[1]) {
                     var moduleFilePath = path.resolve(workingDirectory, modulePath[1] + ".ts");
 
                     if (!existsCaseSensitive(moduleFilePath)) {
-                        logError(pluginName, file, "unresolved import: \"" + modulePath[1] + "\"");
+                        logError(pluginName, file, `unresolved import: "${modulePath[1]}"`);
                         hadErrors = true;
                     }
                 }
@@ -96,45 +96,45 @@ var checkImports = function() {
 
         callback(null, file);
     },
-    function(callback) {
-        if (hadErrors) {
-            return this.emit("error", new PluginError(pluginName, "Failed import casing check"));
-        }
-        callback();
-    });
-};
+        function (callback) {
+            if (hadErrors) {
+                return this.emit("error", new PluginError(pluginName, "Failed import casing check"));
+            }
+            callback();
+        });
+}
 
-var executeCommand = function(command, args, callback, opts) {
-    var proc = child_process.spawn(command + (process.platform === "win32" ? ".cmd" : ""), args, opts);
-    var errorSignaled = false;
+function executeCommand(command, args, callback, opts) {
+    const proc = child_process.spawn(command + (process.platform === "win32" ? ".cmd" : ""), args, opts);
+    let errorSignaled = false;
 
-    proc.stdout.on("data", function(data) {
-        console.log("" + data);
-    });
-
-    proc.stderr.on("data", function(data) {
-        console.error("" + data);
+    proc.stdout.on("data", (data) => {
+        log(`${data}`);
     });
 
-    proc.on("error", function(error) {
+    proc.stderr.on("data", (data) => {
+        log.error(`${data}`);
+    });
+
+    proc.on("error", (error) => {
         if (!errorSignaled) {
-            callback("An error occurred. " + error);
+            callback(`An error occurred. ${error}`);
             errorSignaled = true;
         }
     });
 
-    proc.on("exit", function(code) {
+    proc.on("exit", (code) => {
         if (code === 0) {
             callback();
         } else if (!errorSignaled) {
-            callback("Error code: " + code);
+            callback(`Error code: ${code}`);
             errorSignaled = true;
         }
     });
-};
+}
 
 module.exports = {
-    checkCopyright: checkCopyright,
-    checkImports: checkImports,
-    executeCommand: executeCommand
+    checkCopyright,
+    checkImports,
+    executeCommand
 }
