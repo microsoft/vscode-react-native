@@ -201,9 +201,9 @@ gulp.task("coverage:report", () => {
         ["src/**/*.js", "!test/**"],
         { read: false }
     )
-        .pipe(istanbul.writeReports({
-            reporters: ["json", "text-summary"]
-        }));
+    .pipe(istanbul.writeReports({
+        reporters: ["json", "text-summary"]
+    }));
 });
 
 gulp.task("coverage:remap", () => {
