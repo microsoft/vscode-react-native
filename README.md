@@ -26,7 +26,7 @@ To start debugging create a new debug configuration for your ReactNative app in 
 
 ![Add React Native debug configuration](images/add-debug-configuration.gif)
 
-In case if you haven't `.vscode/launch.json` file yet, you can add a whole default debug configuration set. To do that click the debug icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configuration (gear) icon ![Configure-gear](images/configure-gear-icon.png), then choose the React Native debug environment.
+In case if you haven't created the `.vscode/launch.json` file yet, you can add a whole default debug configuration set. To do that click the debug icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configuration (gear) icon ![Configure-gear](images/configure-gear-icon.png), then choose the React Native debug environment.
 
 ![Choose React Native debugger](images/choose-debugger.png)
 
