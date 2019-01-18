@@ -284,7 +284,7 @@ gulp.task("translations-import", (done) => {
     });
     es.merge(defaultLanguages.map((language) => {
         let id = language.transifexId || language.id;
-        console.log(path.join(options.location, id, 'vscode-extensions', `${translationExtensionName}.xlf`));
+        log(path.join(options.location, id, 'vscode-extensions', `${translationExtensionName}.xlf`));
         return gulp.src(path.join(options.location, id, 'vscode-extensions', `${translationExtensionName}.xlf`))
             .pipe(nls.prepareJsonFiles())
             .pipe(gulp.dest(path.join("./i18n", language.folderName)));
