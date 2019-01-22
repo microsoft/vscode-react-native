@@ -9,7 +9,7 @@ suite("localizationTest", function() {
     suite("localizationContext", function () {
         const commandFailedErrorRu = ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, "Команда");
         const iosDeployErrorRu = ErrorHelper.getInternalError(InternalErrorCode.IOSDeployNotFound);
-        test("localize should show correct message on Russian on CommandFailed error", (done: MochaDone) => {
+        test("localize should show correct message on Russian for CommandFailed error", (done: MochaDone) => {
             assert.strictEqual(commandFailedErrorRu.message, "Ошибка при выполнении команды \"Команда\" (error code 101)");
             done();
         });
