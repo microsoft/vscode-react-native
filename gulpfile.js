@@ -25,12 +25,8 @@ const copyright = GulpExtras.checkCopyright;
 const imports = GulpExtras.checkImports;
 const executeCommand = GulpExtras.executeCommand;
 
-const transifexApiHostname = "www.transifex.com"
-const transifexApiName = "api";
-const transifexApiToken = process.env.TRANSIFEX_API_TOKEN;
-const transifexProjectName = "vscode-extensions";
-const transifexExtensionName = "vscode-react-native";
-
+const translationProjectName  = "vscode-extensions";
+const translationExtensionName  = "vscode-react-native";
 const defaultLanguages = [
     { id: "zh-tw", folderName: "cht", transifexId: "zh-hant" },
     { id: "zh-cn", folderName: "chs", transifexId: "zh-hans" },
@@ -108,7 +104,7 @@ function test() {
             ui: "tdd",
             useColors: true,
             invert: !options.pattern,
-            grep: options.pattern || "extensionContext"
+            grep: options.pattern || "(extensionContext|localizationContext)"
         }));
 }
 
@@ -271,37 +267,27 @@ gulp.task("add-i18n", () => {
         .pipe(gulp.dest("."))
 });
 
-// Gathers all strings to Transifex readable .xliff file for translating and pushes them to Transifex
-gulp.task("transifex-push", gulp.series("build", function runTransifexPush() {
+// Creates MLCP readable .xliff file and saves it locally
+gulp.task("translations-export", gulp.series("build", function runTranslationExport() {
     return gulp.src(["package.nls.json", "nls.metadata.header.json", "nls.metadata.json"])
-        .pipe(nls.createXlfFiles(transifexProjectName, transifexExtensionName))
-        .pipe(nls.pushXlfFiles(transifexApiHostname, transifexApiName, transifexApiToken));
+        .pipe(nls.createXlfFiles(translationProjectName, translationExtensionName))
+        .pipe(gulp.dest(path.join("..", `${translationProjectName}-localization-export`)));
 }));
 
-// Creates Transifex readable .xliff file and saves it locally
-gulp.task("transifex-push-local", gulp.series("build", function runTransifexPushLocal() {
-    return gulp.src(["package.nls.json", "nls.metadata.header.json", "nls.metadata.json"])
-        .pipe(nls.createXlfFiles(transifexProjectName, transifexExtensionName))
-        .pipe(gulp.dest(path.join("..", `${transifexExtensionName}-push-test`)));
-}));
-
-// Gets the files with localized strings from Transifex
-gulp.task("transifex-pull", (done) => {
+// Imports localization from raw localized MLCP strings to VS Code .i18n.json files
+gulp.task("translations-import", (done) => {
+    var options = minimist(process.argv.slice(2), {
+        string: "location",
+        default: {
+            location: "../vscode-translations-import"
+        }
+    });
     es.merge(defaultLanguages.map((language) => {
-        return nls.pullXlfFiles(transifexApiHostname, transifexApiName, transifexApiToken, language, [{ name: transifexExtensionName, project: transifexProjectName }])
-            .pipe(gulp.dest(`../${transifexExtensionName}-localization/${language.folderName}`))
-    }))
-        .pipe(es.wait(() => {
-            done();
-        }));
-});
-
-// Imports localization from raw localized Transifex strings to VS Code .i18n.json files
-gulp.task("i18n-import", (done) => {
-    es.merge(defaultLanguages.map((language) => {
-        return gulp.src(`../${transifexExtensionName}-localization/${language.folderName}/**/*.xlf`)
+        let id = language.transifexId || language.id;
+        log(path.join(options.location, id, 'vscode-extensions', `${translationExtensionName}.xlf`));
+        return gulp.src(path.join(options.location, id, 'vscode-extensions', `${translationExtensionName}.xlf`))
             .pipe(nls.prepareJsonFiles())
-            .pipe(gulp.dest(path.join("./i18n", language.folderName)))
+            .pipe(gulp.dest(path.join("./i18n", language.folderName)));
     }))
         .pipe(es.wait(() => {
             done();
