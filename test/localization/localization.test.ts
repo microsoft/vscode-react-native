@@ -21,4 +21,3 @@ suite("localizationTest", function() {
         });
     });
 });
-
