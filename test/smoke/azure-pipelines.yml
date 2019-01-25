@@ -1,0 +1,9 @@
+# Pipeline for running smoke tests in Azure DevOps
+
+trigger:
+- master
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
