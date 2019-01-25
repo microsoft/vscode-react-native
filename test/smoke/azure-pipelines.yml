@@ -4,6 +4,14 @@ trigger:
 - master
 
 pool:
-  vmImage: 'Ubuntu-16.04'
+ name: 'React Native smoke tests'
+ demands: 'RN-WIN10-WBDIAG'
 
 steps:
+  - task: NodeTool@0
+    displayName: Node install
+    inputs:
+      versionSpec: '10.x'
+  # Write the installed version to the command line
+  - script: which node
+ 
