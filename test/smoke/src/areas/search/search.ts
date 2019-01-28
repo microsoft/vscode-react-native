@@ -3,134 +3,85 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { SpectronApplication } from '../../spectron/application';
 import { Viewlet } from '../workbench/viewlet';
-import { Code } from '../../vscode/code';
 
-const VIEWLET = 'div[id="workbench.view.search"].search-view';
-const INPUT = `${VIEWLET} .search-widget .search-container .monaco-inputbox textarea`;
-const INCLUDE_INPUT = `${VIEWLET} .query-details .file-types.includes .monaco-inputbox input`;
-const FILE_MATCH = filename => `${VIEWLET} .results .filematch[data-resource$="${filename}"]`;
-
-async function retry(setup: () => Promise<any>, attempt: () => Promise<any>) {
-	let count = 0;
-	while (true) {
-		await setup();
-
-		try {
-			await attempt();
-			return;
-		} catch (err) {
-			if (++count > 5) {
-				throw err;
-			}
-		}
-	}
-}
+const VIEWLET = 'div[id="workbench.view.search"] .search-view';
+const INPUT = `${VIEWLET} .search-widget .search-container .monaco-inputbox input`;
+const INCLUDE_INPUT = `${VIEWLET} .query-details .monaco-inputbox input[aria-label="Search Include/Exclude Patterns"]`;
 
 export class Search extends Viewlet {
 
-	constructor(code: Code) {
-		super(code);
+	constructor(spectron: SpectronApplication) {
+		super(spectron);
 	}
 
 	async openSearchViewlet(): Promise<any> {
-		if (process.platform === 'darwin') {
-			await this.code.dispatchKeybinding('cmd+shift+f');
-		} else {
-			await this.code.dispatchKeybinding('ctrl+shift+f');
-		}
-
-		await this.waitForInputFocus(INPUT);
+		await this.spectron.runCommand('workbench.view.search');
+		await this.spectron.client.waitForActiveElement(INPUT);
 	}
 
 	async searchFor(text: string): Promise<void> {
-		await this.waitForInputFocus(INPUT);
-		await this.code.waitForSetValue(INPUT, text);
+		await this.spectron.client.click(INPUT);
+		await this.spectron.client.waitForActiveElement(INPUT);
+		await this.spectron.client.setValue(INPUT, text);
 		await this.submitSearch();
 	}
 
 	async submitSearch(): Promise<void> {
-		await this.waitForInputFocus(INPUT);
+		await this.spectron.client.click(INPUT);
+		await this.spectron.client.waitForActiveElement(INPUT);
 
-		await this.code.dispatchKeybinding('enter');
-		await this.code.waitForElement(`${VIEWLET} .messages`);
+		await this.spectron.client.keys(['Enter', 'NULL']);
+		await this.spectron.client.element(`${VIEWLET} .messages[aria-hidden="false"]`);
 	}
 
 	async setFilesToIncludeText(text: string): Promise<void> {
-		await this.waitForInputFocus(INCLUDE_INPUT);
-		await this.code.waitForSetValue(INCLUDE_INPUT, text || '');
+		await this.spectron.client.click(INCLUDE_INPUT);
+		await this.spectron.client.waitForActiveElement(INCLUDE_INPUT);
+		await this.spectron.client.setValue(INCLUDE_INPUT, text || '');
 	}
 
 	async showQueryDetails(): Promise<void> {
-		await this.code.waitAndClick(`${VIEWLET} .query-details .more`);
+		if (!await this.areDetailsVisible()) {
+			await this.spectron.client.waitAndClick(`${VIEWLET} .query-details .more`);
+		}
 	}
 
 	async hideQueryDetails(): Promise<void> {
-		await this.code.waitAndClick(`${VIEWLET} .query-details.more .more`);
+		if (await this.areDetailsVisible()) {
+			await this.spectron.client.waitAndClick(`${VIEWLET} .query-details.more .more`);
+		}
 	}
 
-	async removeFileMatch(filename: string): Promise<void> {
-		const fileMatch = FILE_MATCH(filename);
+	async areDetailsVisible(): Promise<boolean> {
+		const element = await this.spectron.client.element(`${VIEWLET} .query-details.more`);
+		return !!element;
+	}
 
-		await retry(
-			() => this.code.waitAndClick(fileMatch),
-			() => this.code.waitForElement(`${fileMatch} .action-label.icon.action-remove`, el => !!el && el.top > 0 && el.left > 0, 10)
-		);
-
-		// ¯\_(ツ)_/¯
-		await new Promise(c => setTimeout(c, 500));
-		await this.code.waitAndClick(`${fileMatch} .action-label.icon.action-remove`);
-		await this.code.waitForElement(fileMatch, el => !el);
+	async removeFileMatch(index: number): Promise<void> {
+		await this.spectron.client.waitAndMoveToObject(`${VIEWLET} .results .monaco-tree-rows>:nth-child(${index}) .filematch`);
+		const file = await this.spectron.client.waitForText(`${VIEWLET} .results .monaco-tree-rows>:nth-child(${index}) .filematch a.label-name`);
+		await this.spectron.client.waitAndClick(`${VIEWLET} .results .monaco-tree-rows>:nth-child(${index}) .filematch .action-label.icon.action-remove`);
+		await this.spectron.client.waitForText(`${VIEWLET} .results .monaco-tree-rows>:nth-child(${index}) .filematch a.label-name`, void 0, result => result !== file);
 	}
 
 	async expandReplace(): Promise<void> {
-		await this.code.waitAndClick(`${VIEWLET} .search-widget .monaco-button.toggle-replace-button.collapse`);
-	}
-
-	async collapseReplace(): Promise<void> {
-		await this.code.waitAndClick(`${VIEWLET} .search-widget .monaco-button.toggle-replace-button.expand`);
+		await this.spectron.client.waitAndClick(`${VIEWLET} .search-widget .monaco-button.toggle-replace-button.collapse`);
 	}
 
 	async setReplaceText(text: string): Promise<void> {
-		await this.code.waitForSetValue(`${VIEWLET} .search-widget .replace-container .monaco-inputbox textarea[title="Replace"]`, text);
+		await this.spectron.client.waitAndClick(`${VIEWLET} .search-widget .replace-container .monaco-inputbox input[title="Replace"]`);
+		await this.spectron.client.element(`${VIEWLET} .search-widget .replace-container .monaco-inputbox.synthetic-focus input[title="Replace"]`);
+		await this.spectron.client.setValue(`${VIEWLET} .search-widget .replace-container .monaco-inputbox.synthetic-focus input[title="Replace"]`, text);
 	}
 
-	async replaceFileMatch(filename: string): Promise<void> {
-		const fileMatch = FILE_MATCH(filename);
-
-		await retry(
-			() => this.code.waitAndClick(fileMatch),
-			() => this.code.waitForElement(`${fileMatch} .action-label.icon.action-replace-all`, el => !!el && el.top > 0 && el.left > 0, 10)
-		);
-
-		// ¯\_(ツ)_/¯
-		await new Promise(c => setTimeout(c, 500));
-		await this.code.waitAndClick(`${fileMatch} .action-label.icon.action-replace-all`);
+	async replaceFileMatch(index: number): Promise<void> {
+		await this.spectron.client.waitAndMoveToObject(`${VIEWLET} .results .monaco-tree-rows>:nth-child(${index}) .filematch`);
+		await this.spectron.client.click(`${VIEWLET} .results .monaco-tree-rows>:nth-child(${index}) .filematch .action-label.icon.action-replace-all`);
 	}
 
 	async waitForResultText(text: string): Promise<void> {
-		await this.code.waitForTextContent(`${VIEWLET} .messages .message>p`, text);
-	}
-
-	async waitForNoResultText(): Promise<void> {
-		await this.code.waitForElement(`${VIEWLET} .messages[aria-hidden="true"] .message>p`);
-	}
-
-	private async waitForInputFocus(selector: string): Promise<void> {
-		let retries = 0;
-
-		// other parts of code might steal focus away from input boxes :(
-		while (retries < 5) {
-			await this.code.waitAndClick(INPUT, 2, 2);
-
-			try {
-				await this.code.waitForActiveElement(INPUT, 10);
-				break;
-			} catch (err) {
-				if (++retries > 5) {
-					throw err;
-				}
-			}
-		}
+		await this.spectron.client.waitForText(`${VIEWLET} .messages[aria-hidden="false"] .message>p`, text);
 	}
 }
