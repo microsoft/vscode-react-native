@@ -5,7 +5,6 @@ trigger:
 
 pool:
  name: 'React Native smoke tests'
- demands: 'RN-WIN10-WBDIAG'
 
 steps:
   - task: NodeTool@0
