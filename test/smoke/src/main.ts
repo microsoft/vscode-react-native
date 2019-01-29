@@ -12,7 +12,7 @@ import * as tmp from 'tmp';
 import * as rimraf from 'rimraf';
 import * as mkdirp from 'mkdirp';
 import { SpectronApplication, Quality } from './spectron/application';
-import { setup as setupDataMigrationTests } from './areas/workbench/data-migration.test';
+// import { setup as setupDataMigrationTests } from './areas/workbench/data-migration.test';
 
 import { setup as setupDataLossTests } from './areas/workbench/data-loss.test';
 import { setup as setupDataExplorerTests } from './areas/explorer/explorer.test';
@@ -38,8 +38,8 @@ const opts = minimist(args, {
 		'build',
 		'stable-build',
 		'log',
-		'wait-time'
-	]
+		'wait-time',
+	],
 });
 
 const artifactsPath = opts.log || '';
@@ -60,23 +60,8 @@ if (parseInt(process.version.substr(1)) < 6) {
 	fail('Please update your Node version to greater than 6 to run the smoke test.');
 }
 
-const repoPath = path.join(__dirname, '..', '..', '..');
+const repoPath = path.join(__dirname, '..', '..', '..', '.vscode-test', 'stable');
 
-function getDevElectronPath(): string {
-	const buildPath = path.join(repoPath, '.build');
-	const product = require(path.join(repoPath, 'product.json'));
-
-	switch (process.platform) {
-		case 'darwin':
-			return path.join(buildPath, 'electron', `${product.nameLong}.app`, 'Contents', 'MacOS', 'Electron');
-		case 'linux':
-			return path.join(buildPath, 'electron', `${product.applicationName}`);
-		case 'win32':
-			return path.join(buildPath, 'electron', `${product.nameShort}.exe`);
-		default:
-			throw new Error('Unsupported platform.');
-	}
-}
 
 function getBuildElectronPath(root: string): string {
 	switch (process.platform) {
@@ -95,41 +80,16 @@ function getBuildElectronPath(root: string): string {
 	}
 }
 
-let testCodePath = opts.build;
-let stableCodePath = opts['stable-build'];
-let electronPath: string;
 let stablePath: string;
-
-if (testCodePath) {
-	electronPath = getBuildElectronPath(testCodePath);
-
-	if (stableCodePath) {
-		stablePath = getBuildElectronPath(stableCodePath);
-	}
-} else {
-	testCodePath = getDevElectronPath();
-	electronPath = testCodePath;
-	process.env.VSCODE_REPOSITORY = repoPath;
-	process.env.VSCODE_DEV = '1';
-	process.env.VSCODE_CLI = '1';
-}
-
-if (!fs.existsSync(electronPath || '')) {
-	fail(`Can't find Code at ${electronPath}.`);
-}
+stablePath = getBuildElectronPath(repoPath);
 
 const userDataDir = path.join(testDataPath, 'd');
 // process.env.VSCODE_WORKSPACE_PATH = workspaceFilePath;
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
 
 let quality: Quality;
-if (process.env.VSCODE_DEV === '1') {
-	quality = Quality.Dev;
-} else if (electronPath.indexOf('Code - Insiders') >= 0 /* macOS/Windows */ || electronPath.indexOf('code-insiders') /* Linux */ >= 0) {
-	quality = Quality.Insiders;
-} else {
-	quality = Quality.Stable;
-}
+quality = Quality.Stable;
+
 
 function getKeybindingPlatform(): string {
 	switch (process.platform) {
@@ -169,15 +129,15 @@ async function setup(): Promise<void> {
 		const workspace = {
 			folders: [
 				{
-					path: toUri(path.join(workspacePath, 'public'))
+					path: toUri(path.join(workspacePath, 'public')),
 				},
 				{
-					path: toUri(path.join(workspacePath, 'routes'))
+					path: toUri(path.join(workspacePath, 'routes')),
 				},
 				{
-					path: toUri(path.join(workspacePath, 'views'))
-				}
-			]
+					path: toUri(path.join(workspacePath, 'views')),
+				},
+			],
 		};
 
 		fs.writeFileSync(workspaceFilePath, JSON.stringify(workspace, null, '\t'));
@@ -220,7 +180,7 @@ console.warn = function suppressWebdriverWarnings(message) {
 };
 
 function createApp(quality: Quality): SpectronApplication | null {
-	const path = quality === Quality.Stable ? stablePath : electronPath;
+	const path = stablePath;
 
 	if (!path) {
 		return null;
@@ -234,7 +194,7 @@ function createApp(quality: Quality): SpectronApplication | null {
 		extensionsPath,
 		artifactsPath,
 		workspaceFilePath,
-		waitTime: parseInt(opts['wait-time'] || '0') || 20
+		waitTime: parseInt(opts['wait-time'] || '0') || 20,
 	});
 }
 before(async function () {
@@ -247,19 +207,22 @@ after(async function () {
 	await new Promise((c, e) => rimraf(testDataPath, { maxBusyTries: 10 }, err => err ? e(err) : c()));
 });
 
-describe('Data Migration', () => {
-	setupDataMigrationTests(userDataDir, createApp);
-});
+// describe('Data Migration', () => {
+// 	setupDataMigrationTests(userDataDir, createApp);
+// });
 
 describe('Everything Else', () => {
-	before(async function () {
+	before(async (done: MochaDone) => {
 		const app = createApp(quality);
+		console.log(app);
 		await app!.start();
 		this.app = app;
+		done();
 	});
 
-	after(async function () {
+	after(async (done: MochaDone) => {
 		await this.app.stop();
+		done();
 	});
 
 	setupDataLossTests();
