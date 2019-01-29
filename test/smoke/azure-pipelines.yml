@@ -20,7 +20,7 @@ jobs:
       versionSpec: 10.x
 - job: Linux
   pool:
-    name: React Native smoke tests - Ubuntu
+    name: React Native smoke tests - Linux
   steps:
   - task: NodeTool@0
     displayName: 'Use Node 10.x'
