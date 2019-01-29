@@ -555,6 +555,7 @@
 		"mocha-teamcity-reporter": "^2.5.1",
 		"mock-fs": "^4.4.1",
 		"plugin-error": "^1.0.1",
+		"portastic": "^1.0.1",
 		"remap-istanbul": "^0.9.5",
 		"run-sequence": "^1.2.2",
 		"should": "^8.3.0",
