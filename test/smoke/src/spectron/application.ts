@@ -30,7 +30,7 @@ export async function findFreePort(): Promise<number> {
 export enum Quality {
 	Dev,
 	Insiders,
-	Stable
+	Stable,
 }
 
 export interface SpectronApplicationOptions {
@@ -48,18 +48,6 @@ export interface SpectronApplicationOptions {
  * Wraps Spectron's Application instance with its used methods.
  */
 export class SpectronApplication {
-
-	private static count = 0;
-
-	private _client: SpectronClient;
-	private _workbench: Workbench;
-	private _screenCapturer: ScreenCapturer;
-	private spectron: Application | undefined;
-	private keybindings: any[]; private stopLogCollection: (() => Promise<void>) | undefined;
-
-	constructor(
-		private options: SpectronApplicationOptions
-	) { }
 
 	get quality(): Quality {
 		return this.options.quality;
@@ -101,14 +89,26 @@ export class SpectronApplication {
 		return this.options.workspaceFilePath;
 	}
 
-	private _suiteName: string = 'Init';
-
 	set suiteName(suiteName: string) {
 		this._suiteName = suiteName;
 		this._screenCapturer.suiteName = suiteName;
 	}
 
-	async start(waitForWelcome: boolean = true): Promise<any> {
+	private static count = 0;
+
+	private _client: SpectronClient;
+	private _workbench: Workbench;
+	private _screenCapturer: ScreenCapturer;
+	private spectron: Application | undefined;
+	private keybindings: any[]; private stopLogCollection: (() => Promise<void>) | undefined;
+
+	private _suiteName: string = 'Init';
+
+	constructor(
+		private options: SpectronApplicationOptions
+	) { }
+
+	public async start(waitForWelcome: boolean = true): Promise<any> {
 		await this._start();
 
 		if (waitForWelcome) {
@@ -116,27 +116,20 @@ export class SpectronApplication {
 		}
 	}
 
-	async restart(options: { workspaceOrFolder?: string, extraArgs?: string[] }): Promise<any> {
+	public async restart(options: { workspaceOrFolder?: string, extraArgs?: string[] }): Promise<any> {
 		await this.stop();
 		await new Promise(c => setTimeout(c, 1000));
 		await this._start(options.workspaceOrFolder, options.extraArgs);
 	}
 
-	private async _start(workspaceOrFolder = this.options.workspacePath, extraArgs: string[] = []): Promise<any> {
-		await this.retrieveKeybindings();
-		cp.execSync('git checkout .', { cwd: this.options.workspacePath });
-		await this.startApplication(workspaceOrFolder, extraArgs);
-		await this.checkWindowReady();
-	}
-
-	async reload(): Promise<any> {
+	public async reload(): Promise<any> {
 		await this.workbench.quickopen.runCommand('Reload Window');
 		// TODO @sandy: Find a proper condition to wait for reload
 		await new Promise(c => setTimeout(c, 1500));
 		await this.checkWindowReady();
 	}
 
-	async stop(): Promise<any> {
+	public async stop(): Promise<any> {
 		if (this.stopLogCollection) {
 			await this.stopLogCollection();
 			this.stopLogCollection = undefined;
@@ -146,6 +139,36 @@ export class SpectronApplication {
 			await this.spectron.stop();
 			this.spectron = undefined;
 		}
+	}
+
+	/**
+	 * Retrieves the command from keybindings file and executes it with WebdriverIO client API
+	 * @param command command (e.g. 'workbench.action.files.newUntitledFile')
+	 */
+	public runCommand(command: string): Promise<any> {
+		const binding = this.keybindings.find(x => x['command'] === command);
+		if (!binding) {
+			return this.workbench.quickopen.runCommand(command);
+		}
+
+		const keys: string = binding.key;
+		let keysToPress: string[] = [];
+
+		const chords = keys.split(' ');
+		chords.forEach((chord) => {
+			const keys = chord.split('+');
+			keys.forEach((key) => keysToPress.push(this.transliterate(key)));
+			keysToPress.push('NULL');
+		});
+
+		return this.client.keys(keysToPress);
+	}
+
+	private async _start(workspaceOrFolder = this.options.workspacePath, extraArgs: string[] = []): Promise<any> {
+		await this.retrieveKeybindings();
+		cp.execSync('git checkout .', { cwd: this.options.workspacePath });
+		await this.startApplication(workspaceOrFolder, extraArgs);
+		await this.checkWindowReady();
 	}
 
 	private async startApplication(workspaceOrFolder: string, extraArgs: string[] = []): Promise<any> {
@@ -203,7 +226,7 @@ export class SpectronApplication {
 			env,
 			chromeDriverArgs,
 			startTimeout: 10000,
-			requireName: 'nodeRequire'
+			requireName: 'nodeRequire',
 		};
 
 		const runName = String(SpectronApplication.count++);
@@ -309,29 +332,6 @@ export class SpectronApplication {
 				}
 			});
 		});
-	}
-
-	/**
-	 * Retrieves the command from keybindings file and executes it with WebdriverIO client API
-	 * @param command command (e.g. 'workbench.action.files.newUntitledFile')
-	 */
-	runCommand(command: string): Promise<any> {
-		const binding = this.keybindings.find(x => x['command'] === command);
-		if (!binding) {
-			return this.workbench.quickopen.runCommand(command);
-		}
-
-		const keys: string = binding.key;
-		let keysToPress: string[] = [];
-
-		const chords = keys.split(' ');
-		chords.forEach((chord) => {
-			const keys = chord.split('+');
-			keys.forEach((key) => keysToPress.push(this.transliterate(key)));
-			keysToPress.push('NULL');
-		});
-
-		return this.client.keys(keysToPress);
 	}
 
 	/**
