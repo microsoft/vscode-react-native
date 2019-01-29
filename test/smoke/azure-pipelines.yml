@@ -4,13 +4,11 @@ trigger:
 - master
 
 pool:
- name: 'React Native smoke tests'
+ name: 'React Native smoke tests - Windows'
 
 steps:
   - task: NodeTool@0
     displayName: Node install
     inputs:
       versionSpec: '10.x'
-  # Write the installed version to the command line
-  - script: which node
  
