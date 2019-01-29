@@ -3,16 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Application, SpectronClient as WebClient } from 'spectron';
-import { test as testPort } from 'portastic';
-import { SpectronClient } from './client';
-import { ScreenCapturer } from '../helpers/screenshot';
-import { Workbench } from '../areas/workbench/workbench';
-import * as fs from 'fs';
-import * as cp from 'child_process';
-import * as path from 'path';
-import * as mkdirp from 'mkdirp';
-import { sanitize } from '../helpers/utilities';
+import { Application, SpectronClient as WebClient } from "spectron";
+import { test as testPort } from "portastic";
+import { SpectronClient } from "./client";
+import * as fs from "fs";
+import * as cp from "child_process";
+import * as path from "path";
+import * as mkdirp from "mkdirp";
+
 
 // Just hope random helps us here, cross your fingers!
 export async function findFreePort(): Promise<number> {
@@ -24,7 +22,7 @@ export async function findFreePort(): Promise<number> {
 		}
 	}
 
-	throw new Error('Could not find free port!');
+	throw new Error("Could not find free port!");
 }
 
 export enum Quality {
@@ -49,6 +47,16 @@ export interface SpectronApplicationOptions {
  */
 export class SpectronApplication {
 
+	private static count = 0;
+
+	private _client: SpectronClient;
+	private spectron: Application | undefined;
+	private keybindings: any[]; private stopLogCollection: (() => Promise<void>) | undefined;
+
+	constructor(
+		private options: SpectronApplicationOptions
+	) { }
+
 	get quality(): Quality {
 		return this.options.quality;
 	}
@@ -59,7 +67,7 @@ export class SpectronApplication {
 
 	get webclient(): WebClient {
 		if (!this.spectron) {
-			throw new Error('Application not started');
+			throw new Error("Application not started");
 		}
 
 		return this.spectron.client;
@@ -89,24 +97,12 @@ export class SpectronApplication {
 		return this.options.workspaceFilePath;
 	}
 
+	private _suiteName: string = "Init";
+
 	set suiteName(suiteName: string) {
 		this._suiteName = suiteName;
 		this._screenCapturer.suiteName = suiteName;
 	}
-
-	private static count = 0;
-
-	private _client: SpectronClient;
-	private _workbench: Workbench;
-	private _screenCapturer: ScreenCapturer;
-	private spectron: Application | undefined;
-	private keybindings: any[]; private stopLogCollection: (() => Promise<void>) | undefined;
-
-	private _suiteName: string = 'Init';
-
-	constructor(
-		private options: SpectronApplicationOptions
-	) { }
 
 	public async start(waitForWelcome: boolean = true): Promise<any> {
 		await this._start();
@@ -122,8 +118,15 @@ export class SpectronApplication {
 		await this._start(options.workspaceOrFolder, options.extraArgs);
 	}
 
+	private async _start(workspaceOrFolder = this.options.workspacePath, extraArgs: string[] = []): Promise<any> {
+		await this.retrieveKeybindings();
+		cp.execSync("git checkout .", { cwd: this.options.workspacePath });
+		await this.startApplication(workspaceOrFolder, extraArgs);
+		await this.checkWindowReady();
+	}
+
 	public async reload(): Promise<any> {
-		await this.workbench.quickopen.runCommand('Reload Window');
+		await this.workbench.quickopen.runCommand("Reload Window");
 		// TODO @sandy: Find a proper condition to wait for reload
 		await new Promise(c => setTimeout(c, 1500));
 		await this.checkWindowReady();
@@ -141,36 +144,6 @@ export class SpectronApplication {
 		}
 	}
 
-	/**
-	 * Retrieves the command from keybindings file and executes it with WebdriverIO client API
-	 * @param command command (e.g. 'workbench.action.files.newUntitledFile')
-	 */
-	public runCommand(command: string): Promise<any> {
-		const binding = this.keybindings.find(x => x['command'] === command);
-		if (!binding) {
-			return this.workbench.quickopen.runCommand(command);
-		}
-
-		const keys: string = binding.key;
-		let keysToPress: string[] = [];
-
-		const chords = keys.split(' ');
-		chords.forEach((chord) => {
-			const keys = chord.split('+');
-			keys.forEach((key) => keysToPress.push(this.transliterate(key)));
-			keysToPress.push('NULL');
-		});
-
-		return this.client.keys(keysToPress);
-	}
-
-	private async _start(workspaceOrFolder = this.options.workspacePath, extraArgs: string[] = []): Promise<any> {
-		await this.retrieveKeybindings();
-		cp.execSync('git checkout .', { cwd: this.options.workspacePath });
-		await this.startApplication(workspaceOrFolder, extraArgs);
-		await this.checkWindowReady();
-	}
-
 	private async startApplication(workspaceOrFolder: string, extraArgs: string[] = []): Promise<any> {
 
 		let args: string[] = [];
@@ -183,24 +156,24 @@ export class SpectronApplication {
 		args.push(workspaceOrFolder);
 
 		// Prevent 'Getting Started' web page from opening on clean user-data-dir
-		args.push('--skip-getting-started');
+		args.push("--skip-getting-started");
 
 		// Prevent 'Getting Started' web page from opening on clean user-data-dir
-		args.push('--skip-release-notes');
+		args.push("--skip-release-notes");
 
 		// Prevent Quick Open from closing when focus is stolen, this allows concurrent smoketest suite running
-		args.push('--sticky-quickopen');
+		args.push("--sticky-quickopen");
 
 		// Disable telemetry
-		args.push('--disable-telemetry');
+		args.push("--disable-telemetry");
 
 		// Disable updates
-		args.push('--disable-updates');
+		args.push("--disable-updates");
 
 		// Disable crash reporter
 		// This seems to be the fix for the strange hangups in which Code stays unresponsive
 		// and tests finish badly with timeouts, leaving Code running in the background forever
-		args.push('--disable-crash-reporter');
+		args.push("--disable-crash-reporter");
 
 		// Ensure that running over custom extensions directory, rather than picking up the one that was used by a tester previously
 		args.push(`--extensions-dir=${this.options.extensionsPath}`);
@@ -226,7 +199,7 @@ export class SpectronApplication {
 			env,
 			chromeDriverArgs,
 			startTimeout: 10000,
-			requireName: 'nodeRequire',
+			requireName: "nodeRequire",
 		};
 
 		const runName = String(SpectronApplication.count++);
@@ -238,26 +211,28 @@ export class SpectronApplication {
 			mkdirp.sync(testsuiteRootPath);
 
 			// Collect screenshots
-			screenshotsDirPath = path.join(testsuiteRootPath, 'screenshots');
+			screenshotsDirPath = path.join(testsuiteRootPath, "screenshots");
 			mkdirp.sync(screenshotsDirPath);
 
 			// Collect chromedriver logs
-			const chromedriverLogPath = path.join(testsuiteRootPath, 'chromedriver.log');
+			const chromedriverLogPath = path.join(testsuiteRootPath, "chromedriver.log");
 			opts.chromeDriverLogPath = chromedriverLogPath;
 
 			// Collect webdriver logs
-			const webdriverLogsPath = path.join(testsuiteRootPath, 'webdriver');
+			const webdriverLogsPath = path.join(testsuiteRootPath, "webdriver");
 			mkdirp.sync(webdriverLogsPath);
 			opts.webdriverLogPath = webdriverLogsPath;
 		}
 
 		this.spectron = new Application(opts);
+		console.log("start process");
 		await this.spectron.start();
+		console.log("end process");
 
 		if (testsuiteRootPath) {
 			// Collect logs
-			const mainProcessLogPath = path.join(testsuiteRootPath, 'main.log');
-			const rendererProcessLogPath = path.join(testsuiteRootPath, 'renderer.log');
+			const mainProcessLogPath = path.join(testsuiteRootPath, "main.log");
+			const rendererProcessLogPath = path.join(testsuiteRootPath, "renderer.log");
 
 			const flush = async () => {
 				if (!this.spectron) {
@@ -265,10 +240,10 @@ export class SpectronApplication {
 				}
 
 				const mainLogs = await this.spectron.client.getMainProcessLogs();
-				await new Promise((c, e) => fs.appendFile(mainProcessLogPath, mainLogs.join('\n'), { encoding: 'utf8' }, err => err ? e(err) : c()));
+				await new Promise((c, e) => fs.appendFile(mainProcessLogPath, mainLogs.join("\n"), { encoding: "utf8" }, err => err ? e(err) : c()));
 
 				const rendererLogs = (await this.spectron.client.getRenderProcessLogs()).map(m => `${m.timestamp} - ${m.level} - ${m.message}`);
-				await new Promise((c, e) => fs.appendFile(rendererProcessLogPath, rendererLogs.join('\n'), { encoding: 'utf8' }, err => err ? e(err) : c()));
+				await new Promise((c, e) => fs.appendFile(rendererProcessLogPath, rendererLogs.join("\n"), { encoding: "utf8" }, err => err ? e(err) : c()));
 			};
 
 			let running = true;
@@ -310,17 +285,17 @@ export class SpectronApplication {
 			}
 		}
 
-		await this.client.waitForElement('.monaco-workbench');
+		await this.client.waitForElement(".monaco-workbench");
 	}
 
 	private async waitForWelcome(): Promise<any> {
-		await this.client.waitForElement('.explorer-folders-view');
+		await this.client.waitForElement(".explorer-folders-view");
 		await this.client.waitForElement(`.editor-container[id="workbench.editor.walkThroughPart"] .welcomePage`);
 	}
 
 	private retrieveKeybindings(): Promise<void> {
 		return new Promise((c, e) => {
-			fs.readFile(process.env.VSCODE_KEYBINDINGS_PATH as string, 'utf8', (err, data) => {
+			fs.readFile(process.env.VSCODE_KEYBINDINGS_PATH as string, "utf8", (err, data) => {
 				if (err) {
 					throw err;
 				}
@@ -335,15 +310,38 @@ export class SpectronApplication {
 	}
 
 	/**
+	 * Retrieves the command from keybindings file and executes it with WebdriverIO client API
+	 * @param command command (e.g. 'workbench.action.files.newUntitledFile')
+	 */
+	public runCommand(command: string): Promise<any> {
+		const binding = this.keybindings.find(x => x["command"] === command);
+		if (!binding) {
+			return this.workbench.quickopen.runCommand(command);
+		}
+
+		const keys: string = binding.key;
+		let keysToPress: string[] = [];
+
+		const chords = keys.split(" ");
+		chords.forEach((chord) => {
+			const keys = chord.split("+");
+			keys.forEach((key) => keysToPress.push(this.transliterate(key)));
+			keysToPress.push("NULL");
+		});
+
+		return this.client.keys(keysToPress);
+	}
+
+	/**
 	 * Transliterates key names from keybindings file to WebdriverIO keyboard actions defined in:
 	 * https://w3c.github.io/webdriver/webdriver-spec.html#keyboard-actions
 	 */
 	private transliterate(key: string): string {
 		switch (key) {
-			case 'ctrl':
-				return 'Control';
-			case 'cmd':
-				return 'Meta';
+			case "ctrl":
+				return "Control";
+			case "cmd":
+				return "Meta";
 			default:
 				return key.length === 1 ? key : key.charAt(0).toUpperCase() + key.slice(1);
 		}
