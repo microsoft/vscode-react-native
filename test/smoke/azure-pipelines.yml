@@ -1,0 +1,28 @@
+# Pipeline for running smoke tests in Azure DevOps
+trigger:
+- none
+jobs:
+- job: Windows
+  pool:
+    name: React Native smoke tests - Windows
+  steps:
+  - task: NodeTool@0
+    displayName: 'Use Node 10.x'
+    inputs:
+      versionSpec: 10.x
+- job: macOS
+  pool:
+    name: React Native smoke tests - macOS
+  steps:
+  - task: NodeTool@0
+    displayName: 'Use Node 10.x'
+    inputs:
+      versionSpec: 10.x
+- job: Linux
+  pool:
+    name: React Native smoke tests - Linux
+  steps:
+  - task: NodeTool@0
+    displayName: 'Use Node 10.x'
+    inputs:
+      versionSpec: 10.x
