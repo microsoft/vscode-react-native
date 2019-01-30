@@ -197,7 +197,6 @@
 			"cwd": "${workspaceFolder}/test/smoke",
             "timeout": 240000,
             "stopOnEntry": false,
-			// "port": 9000,
 			"args": [
                 "--build",
 				"${workspaceFolder}/.vscode-test/insiders"
