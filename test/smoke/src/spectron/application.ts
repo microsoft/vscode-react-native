@@ -246,7 +246,7 @@ export class SpectronApplication {
             mkdirp.sync(webdriverLogsPath);
             opts.webdriverLogPath = webdriverLogsPath;
         }
-        console.log(opts);
+
         this.spectron = new Application(opts);
         await this.spectron.start();
 
