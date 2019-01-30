@@ -202,7 +202,7 @@
 				"${workspaceFolder}/.vscode-test/insiders"
 			],
 			"outFiles": [
-				"${cwd}/out/**/*.js"
+				"${workspaceRoot}/src/**/*.js"
             ],
             "sourceMaps": true,
             "trace": true
