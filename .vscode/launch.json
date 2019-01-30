@@ -187,7 +187,29 @@
             ],
             "sourceMaps": true,
             "preLaunchTask": "quick-build"
-        }
+        },
+        {
+			"type": "node",
+            "request": "launch",
+            "protocol": "inspector",
+			"name": "Launch Smoke Test",
+			"program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+			"cwd": "${workspaceFolder}/test/smoke",
+            "timeout": 240000,
+            "stopOnEntry": false,
+			// "port": 9000,
+			"args": [
+                "--build",
+				"${workspaceFolder}/.vscode-test/insiders"
+			],
+			"outFiles": [
+				"${cwd}/out/**/*.js"
+            ],
+            "sourceMaps": true,
+            "trace": true
+
+
+		}
     ],
     "compounds": [
         {

@@ -176,10 +176,6 @@ export class SpectronApplication {
         let args: string[] = [];
         let chromeDriverArgs: string[] = [];
 
-        if (process.env.VSCODE_REPOSITORY) {
-            args.push(process.env.VSCODE_REPOSITORY as string);
-        }
-
         args.push(workspaceOrFolder);
 
         // Prevent 'Getting Started' web page from opening on clean user-data-dir
@@ -250,7 +246,7 @@ export class SpectronApplication {
             mkdirp.sync(webdriverLogsPath);
             opts.webdriverLogPath = webdriverLogsPath;
         }
-
+        console.log(opts);
         this.spectron = new Application(opts);
         await this.spectron.start();
 
@@ -315,7 +311,7 @@ export class SpectronApplication {
 
     private async waitForWelcome(): Promise<any> {
         await this.client.waitForElement(".explorer-folders-view");
-        await this.client.waitForElement(`.editor-container[id="workbench.editor.walkThroughPart"] .welcomePage`);
+        await this.client.waitForElement(`.editor-instance[id="workbench.editor.walkThroughPart"] .welcomePage`);
     }
 
     private retrieveKeybindings(): Promise<void> {
