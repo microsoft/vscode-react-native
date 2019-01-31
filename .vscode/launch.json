@@ -204,10 +204,7 @@
 			"outFiles": [
 				"${workspaceRoot}/src/**/*.js"
             ],
-            "sourceMaps": true,
-            "trace": true
-
-
+            "sourceMaps": true
 		}
     ],
     "compounds": [

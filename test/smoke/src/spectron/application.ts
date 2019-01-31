@@ -9,7 +9,6 @@ import { SpectronClient } from "./client";
 import { ScreenCapturer } from "../helpers/screenshot";
 import { Workbench } from "../areas/workbench/workbench";
 import * as fs from "fs";
-import * as cp from "child_process";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
 import { sanitize } from "../helpers/utilities";
@@ -166,7 +165,6 @@ export class SpectronApplication {
 
     private async _start(workspaceOrFolder = this.options.workspacePath, extraArgs: string[] = []): Promise<any> {
         await this.retrieveKeybindings();
-        cp.execSync("git checkout .", { cwd: this.options.workspacePath });
         await this.startApplication(workspaceOrFolder, extraArgs);
         await this.checkWindowReady();
     }
@@ -198,8 +196,8 @@ export class SpectronApplication {
         // and tests finish badly with timeouts, leaving Code running in the background forever
         args.push("--disable-crash-reporter");
 
-        // Ensure that running over custom extensions directory, rather than picking up the one that was used by a tester previously
-        args.push(`--extensions-dir=${this.options.extensionsPath}`);
+        // // Ensure that running over custom extensions directory, rather than picking up the one that was used by a tester previously
+        // args.push(`--extensions-dir=${this.options.extensionsPath}`);
 
         args.push(...extraArgs);
 

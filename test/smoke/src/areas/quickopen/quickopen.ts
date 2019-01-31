@@ -16,7 +16,24 @@ export class QuickOpen {
     constructor(readonly spectron: SpectronApplication) { }
 
     public async openQuickOpen(value: string): Promise<void> {
-        await this.spectron.runCommand("workbench.action.quickOpen");
+        let retries = 0;
+
+        // other parts of code might steal focus away from quickopen :(
+        while (retries < 5) {
+            await this.spectron.runCommand("workbench.action.quickOpen");
+            try {
+                await this.waitForQuickOpenOpened();
+                break;
+            } catch (err) {
+                if (++retries > 5) {
+                    throw err;
+                }
+
+                await this.spectron.client.keys(["escape"]);
+            }
+        }
+
+
         await this.waitForQuickOpenOpened();
 
         if (value) {

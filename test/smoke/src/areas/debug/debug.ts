@@ -17,7 +17,7 @@ const STEP_OUT = `.debug-actions-widget .debug-action.step-out`;
 const CONTINUE = `.debug-actions-widget .debug-action.continue`;
 const GLYPH_AREA = ".margin-view-overlays>:nth-child";
 const BREAKPOINT_GLYPH = ".debug-breakpoint";
-const PAUSE = `.debug-actions-widget .debug-action.pause`;
+// const PAUSE = `.debug-actions-widget .debug-action.pause`;
 const DEBUG_STATUS_BAR = `.statusbar.debugging`;
 const NOT_DEBUG_STATUS_BAR = `.statusbar:not(debugging)`;
 const TOOLBAR_HIDDEN = `.debug-actions-widget.monaco-builder-hidden`;
@@ -56,19 +56,9 @@ export class Debug extends Viewlet {
         await this.spectron.client.waitForElement(BREAKPOINT_GLYPH);
     }
 
-    public async startDebugging(): Promise<number> {
+    public async startDebugging(): Promise<void> {
         await this.spectron.client.waitAndClick(START);
-        await this.spectron.client.waitForElement(PAUSE);
         await this.spectron.client.waitForElement(DEBUG_STATUS_BAR);
-        const portPrefix = "Port: ";
-        await this.spectron.client.waitFor(async () => {
-            const output = await this.getConsoleOutput();
-            return output.join("");
-        }, text => !!text && text.indexOf(portPrefix) >= 0);
-        const output = await this.getConsoleOutput();
-        const lastOutput = output.pop();
-
-        return lastOutput ? parseInt(lastOutput.substr(portPrefix.length)) : 3000;
     }
 
     public async stepOver(): Promise<any> {

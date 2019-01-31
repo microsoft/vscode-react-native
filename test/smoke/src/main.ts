@@ -4,18 +4,15 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as fs from "fs";
+import * as https from "https";
+import * as cp from "child_process";
 import * as path from "path";
 import * as minimist from "minimist";
-import * as tmp from "tmp";
 import * as rimraf from "rimraf";
 import { SpectronApplication, Quality } from "./spectron/application";
 
 import { setup as setupDataDebugTests } from "./areas/debug/debug.test";
 // import './areas/terminal/terminal.test';
-
-const tmpDir = tmp.dirSync({ prefix: "t" }) as { name: string; removeCallback: Function; };
-const testDataPath = tmpDir.name;
-process.once("exit", () => rimraf.sync(testDataPath));
 
 const [, , ...args] = process.argv;
 const opts = minimist(args, {
@@ -57,7 +54,7 @@ function getBuildElectronPath(root: string): string {
 
 let testCodePath = opts.build;
 let stableCodePath = opts["stable-build"];
-let electronPath: string;
+let electronPath: string = "";
 let stablePath: string;
 
 if (testCodePath) {
@@ -72,7 +69,6 @@ if (!fs.existsSync(electronPath || "")) {
     fail(`Can't find Code at ${electronPath}.`);
 }
 
-const userDataDir = path.join(testDataPath, "d");
 
 let quality: Quality;
 if (process.env.VSCODE_DEV === "1") {
@@ -111,24 +107,72 @@ console.warn = function suppressWebdriverWarnings(message) {
     warn.apply(console, arguments);
 };
 
-function createApp(quality: Quality): SpectronApplication | null {
-    const path = quality === Quality.Stable ? stablePath : electronPath;
+const testDataPath = path.join(__dirname, "..", "..", ".vscode-test", "insiders");
+process.once("exit", () => rimraf.sync(testDataPath));
+const userDataDir = path.join(testDataPath, "d");
+let workspacePath = path.join(__dirname, "..", "..", "resources", "latestRNApp");
+let extensionsPath = path.join(__dirname, "..", "..", "..", "..", ".vscode-insiders", "extensions");
+let workspaceFilePath = path.join(__dirname, "..", "..", "resources", "latestRNApp", "src", "App.js");
 
-    if (!path) {
+const keybindingsPath = path.join(workspacePath, "keybindings.json");
+process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
+process.once("exit", () => rimraf.sync(keybindingsPath));
+
+function createApp(quality: Quality): SpectronApplication | null {
+    const vscodePath = quality === Quality.Stable ? stablePath : electronPath;
+
+    if (!vscodePath) {
         return null;
     }
 
     return new SpectronApplication({
         quality,
-        electronPath: path,
+        electronPath: vscodePath,
         workspacePath,
         userDataDir,
         extensionsPath,
         artifactsPath,
         workspaceFilePath,
-        waitTime:  20,
+        waitTime:  150,
     });
 }
+
+function getKeybindingPlatform(): string {
+    switch (process.platform) {
+        case "darwin": return "osx";
+        case "win32": return "win";
+        default: return process.platform;
+    }
+}
+
+async function setup(): Promise<void> {
+    console.log("*** Test data:", testDataPath);
+    console.log("*** Preparing smoketest setup...");
+
+    const keybindingsUrl = `https://raw.githubusercontent.com/Microsoft/vscode-docs/master/build/keybindings/doc.keybindings.${getKeybindingPlatform()}.json`;
+    console.log("*** Fetching keybindings...");
+
+    await new Promise((c, e) => {
+        https.get(keybindingsUrl, res => {
+            const output = fs.createWriteStream(keybindingsPath);
+            res.on("error", e);
+            output.on("error", e);
+            output.on("close", c);
+            res.pipe(output);
+        }).on("error", e);
+    });
+
+    console.log("*** Running npm install...");
+    cp.execSync("npm install", { cwd: workspacePath, stdio: "inherit" });
+
+    console.log("*** Smoketest setup done!\n");
+}
+
+before(async function () {
+    // allow two minutes for setup
+    this.timeout(2 * 60 * 1000);
+    await setup();
+});
 
 describe("Everything Else", () => {
     before(async function () {
