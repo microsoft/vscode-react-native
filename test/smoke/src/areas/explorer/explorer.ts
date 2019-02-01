@@ -25,7 +25,7 @@ export class Explorer extends Viewlet {
     }
 
     public async openFile(fileName: string): Promise<any> {
-        await this.spectron.client.doubleClickAndWait(`div[class="monaco-icon-label file-icon ${fileName}-name-file-icon ${this.getExtensionSelector(fileName)} explorer-item"]`);
+        await this.spectron.client.doubleClickAndWait(`div[class="monaco-icon-label file-icon ${fileName.toLowerCase()}-name-file-icon ${this.getExtensionSelector(fileName.toLowerCase())} explorer-item"]`);
         await this.spectron.workbench.waitForEditorFocus(fileName);
     }
 

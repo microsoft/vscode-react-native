@@ -5,13 +5,13 @@
 
 import * as fs from "fs";
 import * as https from "https";
-import * as cp from "child_process";
+// import * as cp from "child_process";
 import * as path from "path";
 import * as minimist from "minimist";
-import * as rimraf from "rimraf";
+import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
 
-import { setup as setupDataDebugTests } from "./areas/debug/debug.test";
+import { setup as setupDataDebugTests } from "./debug.test";
 // import './areas/terminal/terminal.test';
 
 const [, , ...args] = process.argv;
@@ -52,9 +52,10 @@ function getBuildElectronPath(root: string): string {
     }
 }
 
+const testDataPath = path.join(__dirname, "..", "..", "..", ".vscode-test", "insiders");
 let testCodePath = opts.build;
 let stableCodePath = opts["stable-build"];
-let electronPath: string = "";
+let electronPath: string = testDataPath;
 let stablePath: string;
 
 if (testCodePath) {
@@ -79,14 +80,6 @@ if (process.env.VSCODE_DEV === "1") {
     quality = Quality.Stable;
 }
 
-// function toUri(path: string): string {
-//     if (process.platform === "win32") {
-//         return `${path.replace(/\\/g, "/")}`;
-//     }
-
-//     return `${path}`;
-// }
-
 /**
  * WebDriverIO 4.8.0 outputs all kinds of "deprecation" warnings
  * for common commands like `keys` and `moveToObject`.
@@ -107,16 +100,14 @@ console.warn = function suppressWebdriverWarnings(message) {
     warn.apply(console, arguments);
 };
 
-const testDataPath = path.join(__dirname, "..", "..", ".vscode-test", "insiders");
-process.once("exit", () => rimraf.sync(testDataPath));
+
 const userDataDir = path.join(testDataPath, "d");
 let workspacePath = path.join(__dirname, "..", "..", "resources", "latestRNApp");
 let extensionsPath = path.join(__dirname, "..", "..", "..", "..", ".vscode-insiders", "extensions");
-let workspaceFilePath = path.join(__dirname, "..", "..", "resources", "latestRNApp", "src", "App.js");
+let workspaceFilePath = path.join(__dirname, "..", "..", "resources", "latestRNApp", "src", "app.js");
 
-const keybindingsPath = path.join(workspacePath, "keybindings.json");
+const keybindingsPath = path.join(__dirname, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
-process.once("exit", () => rimraf.sync(keybindingsPath));
 
 function createApp(quality: Quality): SpectronApplication | null {
     const vscodePath = quality === Quality.Stable ? stablePath : electronPath;
@@ -149,6 +140,7 @@ async function setup(): Promise<void> {
     console.log("*** Test data:", testDataPath);
     console.log("*** Preparing smoketest setup...");
 
+    await setupEnvironmentHelper.downloadVSCodeExecutable(path.join(__dirname, "..", "..", ".."));
     const keybindingsUrl = `https://raw.githubusercontent.com/Microsoft/vscode-docs/master/build/keybindings/doc.keybindings.${getKeybindingPlatform()}.json`;
     console.log("*** Fetching keybindings...");
 
@@ -162,8 +154,8 @@ async function setup(): Promise<void> {
         }).on("error", e);
     });
 
-    console.log("*** Running npm install...");
-    cp.execSync("npm install", { cwd: workspacePath, stdio: "inherit" });
+    // console.log("*** Running npm install...");
+    // cp.execSync("npm install", { cwd: workspacePath, stdio: "inherit" });
 
     console.log("*** Smoketest setup done!\n");
 }

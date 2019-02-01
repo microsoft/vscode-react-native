@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "tsc",
     "watch": "tsc --watch",
-    "mocha": "mocha"
+    "mocha": "node ./node_modules/mocha/bin/_mocha"
   },
   "devDependencies": {
     "@types/htmlparser2": "3.7.29",
@@ -15,6 +15,18 @@
     "@types/node": "8.0.33",
     "@types/rimraf": "2.0.2",
     "@types/webdriverio": "4.6.1",
+    "gulp-chmod": "^2.0.0",
+    "gulp-filter": "^5.0.1",
+    "gulp-gunzip": "1.0.0",
+    "gulp-remote-src-vscode": "^0.5.1",
+    "gulp-untar": "^0.0.7",
+    "gulp-vinyl-zip": "^2.1.2",
+    "request": "^2.88.0",
+    "semver": "^5.4.1",
+    "source-map-support": "^0.5.0",
+    "url-parse": "^1.4.3",
+    "vinyl-fs": "^3.0.3",
+    "vinyl-source-stream": "^1.1.0",
     "electron": "3.1.2",
     "htmlparser2": "^3.9.2",
     "mkdirp": "^0.5.1",
