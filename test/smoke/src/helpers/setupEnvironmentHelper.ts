@@ -38,7 +38,7 @@ export async function downloadVSCodeExecutable(targetFolder: string) {
                 .pipe(gulpFilter)
                 .pipe(chmod(493)) // 0o755
                 .pipe(gulpFilter.restore)
-                .pipe(vfs.dest(testRunFolder))
+                .pipe(vfs.dest(testRunFolder));
         } else {
             stream = remote("", { base: downloadUrl })
                 .pipe(vzip.src())
@@ -46,7 +46,7 @@ export async function downloadVSCodeExecutable(targetFolder: string) {
         }
         stream.on("end", () => {
             resolve();
-        });
+            });
 
         });
     });
