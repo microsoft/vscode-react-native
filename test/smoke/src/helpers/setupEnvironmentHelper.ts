@@ -13,6 +13,8 @@ const path = require("path");
 const shared = require("./shared");
 const request = require("request");
 const source = require("vinyl-source-stream");
+const https = require("https");
+const fs = require("fs");
 
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
@@ -23,7 +25,7 @@ export async function downloadVSCodeExecutable(targetFolder: string) {
 
     return new Promise ((resolve, reject) => {
         getDownloadUrl((downloadUrl) => {
-        console.log("Downloading VS Code into \"" + testRunFolder + "\" from: " + downloadUrl);
+        console.log("*** Downloading VS Code into \"" + testRunFolder + "\" from: " + downloadUrl);
 
         let version = downloadUrl.match(/\d+\.\d+\.\d+/)[0].split("\.");
         let isTarGz = downloadUrl.match(/linux/) && version[0] >= 1 && version[1] >= 5;
@@ -50,6 +52,29 @@ export async function downloadVSCodeExecutable(targetFolder: string) {
 
         });
     });
+}
+
+export async function fetchKeybindings(keybindingsPath: string) {
+    const keybindingsUrl = `https://raw.githubusercontent.com/Microsoft/vscode-docs/master/build/keybindings/doc.keybindings.${getKeybindingPlatform()}.json`;
+    console.log("*** Fetching keybindings...");
+
+    await new Promise((c, e) => {
+        https.get(keybindingsUrl, res => {
+            const output = fs.createWriteStream(keybindingsPath);
+            res.on("error", e);
+            output.on("error", e);
+            output.on("close", c);
+            res.pipe(output);
+        }).on("error", e);
+    });
+}
+
+function getKeybindingPlatform(): string {
+    switch (process.platform) {
+        case "darwin": return "osx";
+        case "win32": return "win";
+        default: return process.platform;
+    }
 }
 
 function getDownloadUrl(clb) {

@@ -4,25 +4,15 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as fs from "fs";
-import * as https from "https";
-// import * as cp from "child_process";
 import * as path from "path";
 import * as minimist from "minimist";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
-
 import { setup as setupDataDebugTests } from "./debug.test";
-// import './areas/terminal/terminal.test';
+
 
 const [, , ...args] = process.argv;
-const opts = minimist(args, {
-    string: [
-        "build",
-        "stable-build",
-        "log",
-        "wait-time",
-    ],
-});
+const opts = minimist(args);
 
 const artifactsPath = opts.log || "";
 
@@ -31,8 +21,8 @@ function fail(errorMessage): void {
     process.exit(1);
 }
 
-if (parseInt(process.version.substr(1)) < 6) {
-    fail("Please update your Node version to greater than 6 to run the smoke test.");
+if (parseInt(process.version.substr(1)) < 8) {
+    fail("Please update your Node version to greater than 8 to run the smoke test.");
 }
 
 function getBuildElectronPath(root: string): string {
@@ -51,30 +41,19 @@ function getBuildElectronPath(root: string): string {
             throw new Error("Unsupported platform.");
     }
 }
-
-const testDataPath = path.join(__dirname, "..", "..", "..", ".vscode-test", "insiders");
-let testCodePath = opts.build;
-let stableCodePath = opts["stable-build"];
-let electronPath: string = testDataPath;
-let stablePath: string;
-
-if (testCodePath) {
-    electronPath = getBuildElectronPath(testCodePath);
-
-    if (stableCodePath) {
-        stablePath = getBuildElectronPath(stableCodePath);
-    }
+const repoRoot = path.join(__dirname, "..", "..", "..");
+const isInsiders = process.env.CODE_VERSION === "insiders";
+let testVSCodeExecutableFolder;
+if (!isInsiders) {
+     testVSCodeExecutableFolder = path.join(repoRoot, ".vscode-test", "stable");
+} else {
+    testVSCodeExecutableFolder = path.join(repoRoot, ".vscode-test", "insiders");
 }
 
-if (!fs.existsSync(electronPath || "")) {
-    fail(`Can't find Code at ${electronPath}.`);
-}
-
+let executablePath: string;
 
 let quality: Quality;
-if (process.env.VSCODE_DEV === "1") {
-    quality = Quality.Dev;
-} else if (electronPath.indexOf("Code - Insiders") >= 0 /* macOS/Windows */ || electronPath.indexOf("code-insiders") /* Linux */ >= 0) {
+if (isInsiders) {
     quality = Quality.Insiders;
 } else {
     quality = Quality.Stable;
@@ -100,25 +79,23 @@ console.warn = function suppressWebdriverWarnings(message) {
     warn.apply(console, arguments);
 };
 
+const userDataDir = path.join(testVSCodeExecutableFolder, "d");
+const workspacePath = path.join(__dirname, "..", "..", "resources", "latestRNApp");
+const extensionsPath = path.join(testVSCodeExecutableFolder, "extensions");
+const workspaceFilePath = path.join(__dirname, "..", "..", "resources", "latestRNApp", "src", "App.js");
 
-const userDataDir = path.join(testDataPath, "d");
-let workspacePath = path.join(__dirname, "..", "..", "resources", "latestRNApp");
-let extensionsPath = path.join(__dirname, "..", "..", "..", "..", ".vscode-insiders", "extensions");
-let workspaceFilePath = path.join(__dirname, "..", "..", "resources", "latestRNApp", "src", "app.js");
-
-const keybindingsPath = path.join(__dirname, "keybindings.json");
+const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
 
 function createApp(quality: Quality): SpectronApplication | null {
-    const vscodePath = quality === Quality.Stable ? stablePath : electronPath;
 
-    if (!vscodePath) {
+    if (!executablePath) {
         return null;
     }
 
     return new SpectronApplication({
         quality,
-        electronPath: vscodePath,
+        electronPath: executablePath,
         workspacePath,
         userDataDir,
         extensionsPath,
@@ -128,31 +105,14 @@ function createApp(quality: Quality): SpectronApplication | null {
     });
 }
 
-function getKeybindingPlatform(): string {
-    switch (process.platform) {
-        case "darwin": return "osx";
-        case "win32": return "win";
-        default: return process.platform;
-    }
-}
+
 
 async function setup(): Promise<void> {
-    console.log("*** Test data:", testDataPath);
+    console.log("*** Test data:", testVSCodeExecutableFolder);
     console.log("*** Preparing smoketest setup...");
 
-    await setupEnvironmentHelper.downloadVSCodeExecutable(path.join(__dirname, "..", "..", ".."));
-    const keybindingsUrl = `https://raw.githubusercontent.com/Microsoft/vscode-docs/master/build/keybindings/doc.keybindings.${getKeybindingPlatform()}.json`;
-    console.log("*** Fetching keybindings...");
-
-    await new Promise((c, e) => {
-        https.get(keybindingsUrl, res => {
-            const output = fs.createWriteStream(keybindingsPath);
-            res.on("error", e);
-            output.on("error", e);
-            output.on("close", c);
-            res.pipe(output);
-        }).on("error", e);
-    });
+    await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
+    await setupEnvironmentHelper.fetchKeybindings(keybindingsPath);
 
     // console.log("*** Running npm install...");
     // cp.execSync("npm install", { cwd: workspacePath, stdio: "inherit" });
@@ -164,6 +124,11 @@ before(async function () {
     // allow two minutes for setup
     this.timeout(2 * 60 * 1000);
     await setup();
+    executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
+
+    if (!fs.existsSync(testVSCodeExecutableFolder || "")) {
+        fail(`Can't find Code at ${testVSCodeExecutableFolder}.`);
+    }
 });
 
 describe("Everything Else", () => {
