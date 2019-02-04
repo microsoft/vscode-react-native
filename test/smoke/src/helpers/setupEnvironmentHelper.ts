@@ -14,6 +14,8 @@ const request = require("request");
 const source = require("vinyl-source-stream");
 const https = require("https");
 const fs = require("fs");
+const cp = require("child_process");
+const rimraf = require("rimraf");
 
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
@@ -66,6 +68,39 @@ export async function fetchKeybindings(keybindingsPath: string) {
             res.pipe(output);
         }).on("error", err);
     });
+}
+
+export function prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
+    console.log(`*** Running 'react-native init ${appName}' into ${workspacePath}...`);
+    cp.execSync(`react-native init ${appName}`, { cwd: resourcesPath, stdio: "inherit" });
+
+    let customEntryPointFile = path.join(resourcesPath, "App.js");
+    let launchConfigFile = path.join(resourcesPath, "launch.json");
+    let vsCodeConfigPath = path.join(workspacePath, ".vscode");
+
+    console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
+    fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
+
+    if (!fs.existsSync(vsCodeConfigPath)) {
+        console.log(`*** Creating  ${vsCodeConfigPath}...`);
+        fs.mkdirSync(vsCodeConfigPath);
+    }
+
+    console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
+    fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+}
+
+export function cleanUp(testVSCodeExecutableFolder: string, workspacePath: string) {
+    console.log("\n*** Clean up...");
+    if (fs.existsSync(testVSCodeExecutableFolder)) {
+        console.log(`*** Deleting test VS Code directory: ${testVSCodeExecutableFolder}`);
+        rimraf.sync(testVSCodeExecutableFolder);
+    }
+    if (fs.existsSync(workspacePath)) {
+        console.log(`*** Deleting test React Native application: ${workspacePath}`);
+        rimraf.sync(workspacePath);
+    }
+
 }
 
 function getKeybindingPlatform(): string {

@@ -4,7 +4,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as minimist from "minimist";
-import * as cp from "child_process";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
 import { setup as setupDataDebugTests } from "./debug.test";
@@ -41,6 +40,7 @@ function getBuildElectronPath(root: string): string {
     }
 }
 const repoRoot = path.join(__dirname, "..", "..", "..");
+const resourcesPath = path.join(__dirname, "..", "resources");
 const isInsiders = process.env.CODE_VERSION === "insiders";
 let testVSCodeExecutableFolder;
 if (!isInsiders) {
@@ -80,9 +80,9 @@ console.warn = function suppressWebdriverWarnings(message) {
 
 const appName = "latestRNApp";
 const userDataDir = path.join(testVSCodeExecutableFolder, "userTmpFolder");
-const workspacePath = path.join(__dirname, appName);
+const workspacePath = path.join(resourcesPath, appName);
 const extensionsPath = path.join(testVSCodeExecutableFolder, "extensions");
-const workspaceFilePath = path.join(workspacePath, "src", "App.js");
+const workspaceFilePath = path.join(workspacePath, "App.js");
 
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
@@ -102,20 +102,14 @@ function createApp(quality: Quality): SpectronApplication | null {
         extensionsPath,
         artifactsPath,
         workspaceFilePath,
-        waitTime:  150,
+        waitTime:  20,
     });
-}
-
-
-function prepareReactNativeApplication() {
-    console.log(`*** Running 'react-native init ${appName}' into ${workspacePath}...`);
-    cp.execSync(`react-native init ${appName}`, { cwd: __dirname, stdio: "inherit" });
 }
 
 async function setup(): Promise<void> {
     console.log("*** Test VS Code executable folder:", testVSCodeExecutableFolder);
     console.log("*** Preparing smoke tests setup...");
-    prepareReactNativeApplication();
+    setupEnvironmentHelper.prepareReactNativeApplication(workspaceFilePath, resourcesPath, workspacePath, appName);
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
     if (!fs.existsSync(userDataDir)) {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
@@ -127,8 +121,9 @@ async function setup(): Promise<void> {
 }
 
 before(async function () {
-    // allow two minutes for setup
-    this.timeout(2 * 60 * 1000);
+    setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), workspacePath);
+    // allow three minutes for setup
+    this.timeout(3 * 60 * 1000);
     await setup();
     executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
 
@@ -137,7 +132,7 @@ before(async function () {
     }
 });
 
-describe("Everything Else", () => {
+describe("Test React Native extension debug scenarios", () => {
     before(async function () {
         const app = createApp(quality);
         await app!.start();
