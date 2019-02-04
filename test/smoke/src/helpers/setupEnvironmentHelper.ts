@@ -48,7 +48,7 @@ export async function downloadVSCodeExecutable(targetFolder: string) {
         }
         stream.on("end", () => {
             resolve();
-            });
+        });
 
         });
     });
