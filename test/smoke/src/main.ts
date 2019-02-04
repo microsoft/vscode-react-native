@@ -82,7 +82,7 @@ console.warn = function suppressWebdriverWarnings(message) {
 const userDataDir = path.join(testVSCodeExecutableFolder, "d");
 const workspacePath = path.join(__dirname, "..", "..", "resources", "latestRNApp");
 const extensionsPath = path.join(testVSCodeExecutableFolder, "extensions");
-const workspaceFilePath = path.join(__dirname, "..", "..", "resources", "latestRNApp", "src", "App.js");
+const workspaceFilePath = path.join(workspacePath, "src", "App.js");
 
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
