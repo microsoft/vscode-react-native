@@ -109,7 +109,7 @@ function createApp(quality: Quality): SpectronApplication | null {
 
 async function setup(): Promise<void> {
     console.log("*** Test data:", testVSCodeExecutableFolder);
-    console.log("*** Preparing smoketest setup...");
+    console.log("*** Preparing smoke tests setup...");
 
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
     await setupEnvironmentHelper.fetchKeybindings(keybindingsPath);
