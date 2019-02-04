@@ -196,7 +196,7 @@ export class SpectronApplication {
         // and tests finish badly with timeouts, leaving Code running in the background forever
         args.push("--disable-crash-reporter");
 
-        // // Ensure that running over custom extensions directory, rather than picking up the one that was used by a tester previously
+        // Ensure that running over custom extensions directory, rather than picking up the one that was used by a tester previously
         // args.push(`--extensions-dir=${this.options.extensionsPath}`);
 
         args.push(...extraArgs);
