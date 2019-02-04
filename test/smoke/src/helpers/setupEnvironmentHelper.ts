@@ -1,7 +1,6 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+
 const remote = require("gulp-remote-src-vscode");
 const vzip = require("gulp-vinyl-zip");
 const vfs = require("vinyl-fs");
@@ -56,7 +55,7 @@ export async function downloadVSCodeExecutable(targetFolder: string): Promise<an
 
 export async function fetchKeybindings(keybindingsPath: string) {
     const keybindingsUrl = `https://raw.githubusercontent.com/Microsoft/vscode-docs/master/build/keybindings/doc.keybindings.${getKeybindingPlatform()}.json`;
-    console.log("*** Fetching keybindings...");
+    console.log(`*** Fetching keybindings into ${keybindingsPath}` );
 
     await new Promise((cb, err) => {
         https.get(keybindingsUrl, res => {

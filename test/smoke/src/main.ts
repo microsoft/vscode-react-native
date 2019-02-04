@@ -1,7 +1,5 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
 import * as path from "path";
@@ -79,13 +77,14 @@ console.warn = function suppressWebdriverWarnings(message) {
     warn.apply(console, arguments);
 };
 
-const userDataDir = path.join(testVSCodeExecutableFolder, "d");
-const workspacePath = path.join(__dirname, "..", "..", "resources", "latestRNApp");
+const userDataDir = path.join(testVSCodeExecutableFolder, "userTmpFolder");
+const workspacePath = path.join(__dirname, "latestRNApp");
 const extensionsPath = path.join(testVSCodeExecutableFolder, "extensions");
 const workspaceFilePath = path.join(workspacePath, "src", "App.js");
 
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
+
 
 function createApp(quality: Quality): SpectronApplication | null {
 
@@ -110,8 +109,15 @@ function createApp(quality: Quality): SpectronApplication | null {
 async function setup(): Promise<void> {
     console.log("*** Test data:", testVSCodeExecutableFolder);
     console.log("*** Preparing smoke tests setup...");
-
+    if (!fs.existsSync(workspacePath)) {
+        console.log(`*** Creating workspace directory: ${workspacePath}`);
+        fs.mkdirSync(workspacePath);
+    }
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
+    if (!fs.existsSync(userDataDir)) {
+        console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
+        fs.mkdirSync(userDataDir);
+    }
     await setupEnvironmentHelper.fetchKeybindings(keybindingsPath);
 
     // console.log("*** Running npm install...");
