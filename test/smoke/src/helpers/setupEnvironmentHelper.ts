@@ -19,7 +19,7 @@ const fs = require("fs");
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
 const downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-archive" : "linux-x64";
-export async function downloadVSCodeExecutable(targetFolder: string) {
+export async function downloadVSCodeExecutable(targetFolder: string): Promise<any> {
 
     const testRunFolder = path.join(targetFolder, ".vscode-test", isInsiders ? "insiders" : "stable");
 
@@ -58,14 +58,14 @@ export async function fetchKeybindings(keybindingsPath: string) {
     const keybindingsUrl = `https://raw.githubusercontent.com/Microsoft/vscode-docs/master/build/keybindings/doc.keybindings.${getKeybindingPlatform()}.json`;
     console.log("*** Fetching keybindings...");
 
-    await new Promise((c, e) => {
+    await new Promise((cb, err) => {
         https.get(keybindingsUrl, res => {
             const output = fs.createWriteStream(keybindingsPath);
-            res.on("error", e);
-            output.on("error", e);
-            output.on("close", c);
+            res.on("error", err);
+            output.on("error", err);
+            output.on("close", cb);
             res.pipe(output);
-        }).on("error", e);
+        }).on("error", err);
     });
 }
 
@@ -77,16 +77,16 @@ function getKeybindingPlatform(): string {
     }
 }
 
-function getDownloadUrl(clb) {
+function getDownloadUrl(cb) {
 
     getTag(function (tag) {
-        return clb(["https://vscode-update.azurewebsites.net", tag, downloadPlatform, (isInsiders ? "insider" : "stable")].join("/"));
+        return cb(["https://vscode-update.azurewebsites.net", tag, downloadPlatform, (isInsiders ? "insider" : "stable")].join("/"));
     });
 }
 
-function getTag(clb) {
+function getTag(cb) {
     if (version !== "*" && version !== "insiders") {
-        return clb(version);
+        return cb(version);
     }
 
     shared.getContents("https://vscode-update.azurewebsites.net/api/releases/" + (isInsiders ? "insider/" : "stable/") + downloadPlatform, null, null, function (error, tagsRaw) {
@@ -95,7 +95,7 @@ function getTag(clb) {
         }
 
         try {
-            clb(JSON.parse(tagsRaw)[0]); // first one is latest
+            cb(JSON.parse(tagsRaw)[0]); // first one is latest
         } catch (error) {
             exitWithError(error);
         }
