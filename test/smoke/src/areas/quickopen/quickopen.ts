@@ -18,7 +18,7 @@ export class QuickOpen {
     public async openQuickOpen(value: string): Promise<void> {
         let retries = 0;
 
-        // other parts of code might steal focus away from quickopen :(
+        // Other parts of code might steal focus away from quickopen :(
         while (retries < 5) {
             await this.spectron.runCommand("workbench.action.quickOpen");
             try {
