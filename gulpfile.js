@@ -61,6 +61,7 @@ let lintSources = [srcPath, testPath].map((tsFolder) => tsFolder + "/**/*.ts");
 lintSources = lintSources.concat([
     "!src/typings/**",
     "!test/resources/sampleReactNative022Project/**",
+    // TODO Fix lint issues in smoke tests
     "!test/smoke/**"
 ]);
 
