@@ -4,6 +4,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as minimist from "minimist";
+import * as cp from "child_process";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
 import { setup as setupDataDebugTests } from "./debug.test";
@@ -77,8 +78,9 @@ console.warn = function suppressWebdriverWarnings(message) {
     warn.apply(console, arguments);
 };
 
+const appName = "latestRNApp";
 const userDataDir = path.join(testVSCodeExecutableFolder, "userTmpFolder");
-const workspacePath = path.join(__dirname, "latestRNApp");
+const workspacePath = path.join(__dirname, appName);
 const extensionsPath = path.join(testVSCodeExecutableFolder, "extensions");
 const workspaceFilePath = path.join(workspacePath, "src", "App.js");
 
@@ -105,24 +107,26 @@ function createApp(quality: Quality): SpectronApplication | null {
 }
 
 
-
-async function setup(): Promise<void> {
-    console.log("*** Test data:", testVSCodeExecutableFolder);
-    console.log("*** Preparing smoke tests setup...");
+function prepareReactNativeApplication() {
     if (!fs.existsSync(workspacePath)) {
         console.log(`*** Creating workspace directory: ${workspacePath}`);
         fs.mkdirSync(workspacePath);
     }
+    console.log(`*** Running 'react-native init ${appName}'...`);
+    cp.execSync(`react-native init ${appName}`, { cwd: __dirname, stdio: "inherit" });
+}
+
+async function setup(): Promise<void> {
+    console.log("*** Test VS Code executable folder:", testVSCodeExecutableFolder);
+    console.log("*** Preparing smoke tests setup...");
+    prepareReactNativeApplication();
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
     if (!fs.existsSync(userDataDir)) {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
         fs.mkdirSync(userDataDir);
     }
+
     await setupEnvironmentHelper.fetchKeybindings(keybindingsPath);
-
-    // console.log("*** Running npm install...");
-    // cp.execSync("npm install", { cwd: workspacePath, stdio: "inherit" });
-
     console.log("*** Smoke tests setup done!\n");
 }
 
