@@ -5,26 +5,30 @@
   "scripts": {
     "postinstall": "tsc",
     "watch": "tsc --watch",
-    "mocha": "mocha"
+    "mocha": "node ./node_modules/mocha/bin/_mocha"
   },
   "devDependencies": {
-    "@types/htmlparser2": "3.7.29",
     "@types/mkdirp": "0.5.1",
     "@types/mocha": "2.2.41",
-    "@types/ncp": "2.0.1",
     "@types/node": "8.0.33",
     "@types/rimraf": "2.0.2",
     "@types/webdriverio": "4.6.1",
     "electron": "3.1.2",
-    "htmlparser2": "^3.9.2",
+    "gulp-chmod": "^2.0.0",
+    "gulp-filter": "^5.0.1",
+    "gulp-gunzip": "1.0.0",
+    "gulp-remote-src-vscode": "^0.5.1",
+    "gulp-untar": "^0.0.7",
+    "gulp-vinyl-zip": "^2.1.2",
     "mkdirp": "^0.5.1",
     "mocha": "^3.2.0",
-    "ncp": "^2.0.0",
     "portastic": "^1.0.1",
+    "request": "^2.88.0",
     "rimraf": "^2.6.1",
     "spectron": "5.0.0",
-    "strip-json-comments": "^2.0.1",
-    "tmp": "0.0.33",
-    "typescript": "2.8.3"
+    "typescript": "2.8.3",
+    "url-parse": "^1.4.3",
+    "vinyl-fs": "^3.0.3",
+    "vinyl-source-stream": "^1.1.0"
   }
 }

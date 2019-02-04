@@ -60,7 +60,9 @@ const options = minimist(process.argv.slice(2), knownOptions);
 let lintSources = [srcPath, testPath].map((tsFolder) => tsFolder + "/**/*.ts");
 lintSources = lintSources.concat([
     "!src/typings/**",
-    "!test/resources/sampleReactNative022Project/**"
+    "!test/resources/sampleReactNative022Project/**",
+    // TODO Fix lint issues in smoke tests
+    "!test/smoke/**"
 ]);
 
 function build(failOnError, buildNls) {
@@ -123,7 +125,8 @@ gulp.task("check-copyright", () => {
         "!node_modules/**",
         "!test/**/*.js",
         "!SampleApplication/**",
-        "!test/resources/sampleReactNative022Project/**/*.js"
+        "!test/resources/sampleReactNative022Project/**/*.js",
+        "!test/smoke/node_modules/**"
     ])
         .pipe(copyright());
 });

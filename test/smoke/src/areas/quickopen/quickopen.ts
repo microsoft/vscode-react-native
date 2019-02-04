@@ -1,7 +1,5 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { SpectronApplication } from "../../spectron/application";
 
@@ -16,8 +14,22 @@ export class QuickOpen {
     constructor(readonly spectron: SpectronApplication) { }
 
     public async openQuickOpen(value: string): Promise<void> {
-        await this.spectron.runCommand("workbench.action.quickOpen");
-        await this.waitForQuickOpenOpened();
+        let retries = 0;
+
+        // Other parts of code might steal focus away from quickopen :(
+        while (retries < 5) {
+            await this.spectron.runCommand("workbench.action.quickOpen");
+            try {
+                await this.waitForQuickOpenOpened();
+                break;
+            } catch (err) {
+                if (++retries > 5) {
+                    throw err;
+                }
+
+                await this.spectron.client.keys(["escape"]);
+            }
+        }
 
         if (value) {
             await this.spectron.client.setValue(QuickOpen.QUICK_OPEN_INPUT, value);

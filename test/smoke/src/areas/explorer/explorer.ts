@@ -1,7 +1,5 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { SpectronApplication } from "../../spectron/application";
 import { Viewlet } from "../workbench/viewlet";
@@ -25,7 +23,7 @@ export class Explorer extends Viewlet {
     }
 
     public async openFile(fileName: string): Promise<any> {
-        await this.spectron.client.doubleClickAndWait(`div[class="monaco-icon-label file-icon ${fileName}-name-file-icon ${this.getExtensionSelector(fileName)} explorer-item"]`);
+        await this.spectron.client.doubleClickAndWait(`div[class="monaco-icon-label file-icon ${fileName.toLowerCase()}-name-file-icon ${this.getExtensionSelector(fileName.toLowerCase())} explorer-item"]`);
         await this.spectron.workbench.waitForEditorFocus(fileName);
     }
 

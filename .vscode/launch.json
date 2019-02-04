@@ -197,17 +197,10 @@
 			"cwd": "${workspaceFolder}/test/smoke",
             "timeout": 240000,
             "stopOnEntry": false,
-			"args": [
-                "--build",
-				"${workspaceFolder}/.vscode-test/insiders"
-			],
 			"outFiles": [
-				"${cwd}/out/**/*.js"
+				"${workspaceRoot}/src/**/*.js"
             ],
-            "sourceMaps": true,
-            "trace": true
-
-
+            "sourceMaps": true
 		}
     ],
     "compounds": [
