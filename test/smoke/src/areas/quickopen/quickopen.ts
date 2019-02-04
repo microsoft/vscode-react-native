@@ -33,9 +33,6 @@ export class QuickOpen {
             }
         }
 
-
-        await this.waitForQuickOpenOpened();
-
         if (value) {
             await this.spectron.client.setValue(QuickOpen.QUICK_OPEN_INPUT, value);
         }
