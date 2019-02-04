@@ -72,7 +72,7 @@ export async function fetchKeybindings(keybindingsPath: string) {
 }
 
 export function prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
-    console.log(`*** Running 'react-native init ${appName}' into ${workspacePath}...`);
+    console.log(`*** Creating RN app via 'react-native init ${appName}' in ${workspacePath}...`);
     cp.execSync(`react-native init ${appName}`, { cwd: resourcesPath, stdio: "inherit" });
 
     let customEntryPointFile = path.join(resourcesPath, "App.js");
