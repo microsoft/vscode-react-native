@@ -117,7 +117,7 @@ async function setup(): Promise<void> {
     // console.log("*** Running npm install...");
     // cp.execSync("npm install", { cwd: workspacePath, stdio: "inherit" });
 
-    console.log("*** Smoketest setup done!\n");
+    console.log("*** Smoke tests setup done!\n");
 }
 
 before(async function () {
