@@ -82,7 +82,7 @@ console.warn = function suppressWebdriverWarnings(message) {
 const userDataDir = path.join(testVSCodeExecutableFolder, "d");
 const workspacePath = path.join(__dirname, "..", "..", "resources", "latestRNApp");
 const extensionsPath = path.join(testVSCodeExecutableFolder, "extensions");
-const workspaceFilePath = path.join(__dirname, "..", "..", "resources", "latestRNApp", "src", "App.js");
+const workspaceFilePath = path.join(workspacePath, "src", "App.js");
 
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
@@ -109,7 +109,7 @@ function createApp(quality: Quality): SpectronApplication | null {
 
 async function setup(): Promise<void> {
     console.log("*** Test data:", testVSCodeExecutableFolder);
-    console.log("*** Preparing smoketest setup...");
+    console.log("*** Preparing smoke tests setup...");
 
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
     await setupEnvironmentHelper.fetchKeybindings(keybindingsPath);
@@ -117,7 +117,7 @@ async function setup(): Promise<void> {
     // console.log("*** Running npm install...");
     // cp.execSync("npm install", { cwd: workspacePath, stdio: "inherit" });
 
-    console.log("*** Smoketest setup done!\n");
+    console.log("*** Smoke tests setup done!\n");
 }
 
 before(async function () {
@@ -127,7 +127,7 @@ before(async function () {
     executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
 
     if (!fs.existsSync(testVSCodeExecutableFolder || "")) {
-        fail(`Can't find Code at ${testVSCodeExecutableFolder}.`);
+        fail(`Can't find VS Code executable at ${testVSCodeExecutableFolder}.`);
     }
 });
 
