@@ -127,7 +127,7 @@ before(async function () {
     executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
 
     if (!fs.existsSync(testVSCodeExecutableFolder || "")) {
-        fail(`Can't find Code at ${testVSCodeExecutableFolder}.`);
+        fail(`Can't find VS Code executable at ${testVSCodeExecutableFolder}.`);
     }
 });
 
