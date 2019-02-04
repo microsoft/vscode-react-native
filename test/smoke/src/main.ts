@@ -108,11 +108,7 @@ function createApp(quality: Quality): SpectronApplication | null {
 
 
 function prepareReactNativeApplication() {
-    if (!fs.existsSync(workspacePath)) {
-        console.log(`*** Creating workspace directory: ${workspacePath}`);
-        fs.mkdirSync(workspacePath);
-    }
-    console.log(`*** Running 'react-native init ${appName}'...`);
+    console.log(`*** Running 'react-native init ${appName}' into ${workspacePath}...`);
     cp.execSync(`react-native init ${appName}`, { cwd: __dirname, stdio: "inherit" });
 }
 
