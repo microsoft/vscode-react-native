@@ -17,6 +17,7 @@ const fs = require("fs");
 const cp = require("child_process");
 const rimraf = require("rimraf");
 
+
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
 const downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-archive" : "linux-x64";

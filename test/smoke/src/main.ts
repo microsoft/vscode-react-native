@@ -102,7 +102,7 @@ function createApp(quality: Quality): SpectronApplication | null {
         extensionsPath,
         artifactsPath,
         workspaceFilePath,
-        waitTime:  20,
+        waitTime:  150,
     });
 }
 
