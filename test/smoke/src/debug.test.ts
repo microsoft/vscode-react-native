@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { SpectronApplication } from "./spectron/application";
+import * as assert from "assert";
 
 export function setup() {
     describe("Debug", () => {
@@ -19,7 +20,11 @@ export function setup() {
             await app.workbench.debug.setBreakpointOnLine(23);
             await app.workbench.debug.openDebugViewlet();
             await app.workbench.debug.startDebugging();
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 0");
             await app.workbench.debug.continue();
+            let result = await app.workbench.debug.getConsoleOutput();
+            let testOutputIndex = result.indexOf("Test output from debuggee");
+            assert.notStrictEqual(testOutputIndex, -1, "\"Test output from debuggee\" string contains in debug console");
         });
 
     });
