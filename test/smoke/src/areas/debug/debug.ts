@@ -123,6 +123,17 @@ export class Debug extends Viewlet {
         return stackFrames.length;
     }
 
+    public async getConsoleOutput(): Promise<string[]> {
+        const result = await this.spectron.webclient.selectorExecute(CONSOLE_OUTPUT,
+            div => (Array.isArray(div) ? div : [div]).map(element => {
+                const value = element.querySelector(".value") as HTMLElement;
+                return value && value.textContent;
+            }).filter(line => !!line)
+        );
+
+        return result;
+    }
+
     private async getStackFrames(): Promise<IStackFrame[]> {
         const result = await this.spectron.webclient.selectorExecute(STACK_FRAME,
             div => (Array.isArray(div) ? div : [div]).map(element => {
@@ -146,14 +157,4 @@ export class Debug extends Viewlet {
             .map(({ name, lineNumber, element }) => ({ name, lineNumber, id: element.ELEMENT }));
     }
 
-    private async getConsoleOutput(): Promise<string[]> {
-        const result = await this.spectron.webclient.selectorExecute(CONSOLE_OUTPUT,
-            div => (Array.isArray(div) ? div : [div]).map(element => {
-                const value = element.querySelector(".value") as HTMLElement;
-                return value && value.textContent;
-            }).filter(line => !!line)
-        );
-
-        return result;
-    }
 }

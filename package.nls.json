@@ -1,5 +1,5 @@
 {
-    "reactNative.description":"Code-hinting, debugging and integrated commands for React Native",
+    "reactNative.description":"Debugging and integrated commands for React Native",
     "reactNative.license":"SEE LICENSE IN LICENSE.txt",
     "reactNative.command.runAndroidSimulator.title":"Run Android on Simulator",
     "reactNative.command.runAndroidDevice.title":"Run Android on Device",
