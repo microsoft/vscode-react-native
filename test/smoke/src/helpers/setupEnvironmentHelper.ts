@@ -101,7 +101,6 @@ export function cleanUp(testVSCodeExecutableFolder: string, workspacePath: strin
         console.log(`*** Deleting test React Native application: ${workspacePath}`);
         rimraf.sync(workspacePath);
     }
-
 }
 
 function getKeybindingPlatform(): string {
