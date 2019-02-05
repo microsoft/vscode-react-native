@@ -8,18 +8,18 @@ const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
 const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .configure`;
 const START = `.icon[title="Start Debugging"]`;
-const STOP = `.debug-actions-widget .debug-action.stop`;
-const STEP_OVER = `.debug-actions-widget .debug-action.step-over`;
-const STEP_IN = `.debug-actions-widget .debug-action.step-into`;
-const STEP_OUT = `.debug-actions-widget .debug-action.step-out`;
-const CONTINUE = `.debug-actions-widget .debug-action.continue`;
+const STOP = `.debug-toolbar .debug-action.stop`;
+const STEP_OVER = `.debug-toolbar .debug-action.step-over`;
+const STEP_IN = `.debug-toolbar .debug-action.step-into`;
+const STEP_OUT = `.debug-toolbar .debug-action.step-out`;
+const CONTINUE = `.debug-toolbar .debug-action.continue`;
 const GLYPH_AREA = ".margin-view-overlays>:nth-child";
 const BREAKPOINT_GLYPH = ".debug-breakpoint";
-// const PAUSE = `.debug-actions-widget .debug-action.pause`;
+// const PAUSE = `.debug-toolbar .debug-action.pause`;
 const DEBUG_STATUS_BAR = `.statusbar.debugging`;
 const NOT_DEBUG_STATUS_BAR = `.statusbar:not(debugging)`;
-const TOOLBAR_HIDDEN = `.debug-actions-widget.monaco-builder-hidden`;
-const STACK_FRAME = `${VIEWLET} .monaco-tree-row .stack-frame`;
+// const TOOLBAR_HIDDEN = `.debug-toolbar.monaco-builder-hidden`;
+const STACK_FRAME = `${VIEWLET} .monaco-list-row .stack-frame`;
 const VARIABLE = `${VIEWLET} .debug-variables .monaco-tree-row .expression`;
 const CONSOLE_OUTPUT = `.repl .output.expression`;
 const CONSOLE_INPUT_OUTPUT = `.repl .input-output-pair .output.expression .value`;
@@ -73,12 +73,10 @@ export class Debug extends Viewlet {
 
     public async continue(): Promise<any> {
         await this.spectron.client.waitAndClick(CONTINUE);
-        await this.waitForStackFrameLength(0);
     }
 
     public async stopDebugging(): Promise<any> {
         await this.spectron.client.waitAndClick(STOP);
-        await this.spectron.client.waitForElement(TOOLBAR_HIDDEN);
         await this.spectron.client.waitForElement(NOT_DEBUG_STATUS_BAR);
     }
 
