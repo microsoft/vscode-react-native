@@ -140,7 +140,7 @@ describe("Test React Native extension debug scenarios", () => {
     });
 
     after(async function () {
-            await this.app.stop();
+        await this.app.stop();
     });
 
     setupDataDebugTests();
