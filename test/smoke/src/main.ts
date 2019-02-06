@@ -111,6 +111,14 @@ async function setup(): Promise<void> {
     console.log("*** Preparing smoke tests setup...");
     setupEnvironmentHelper.prepareReactNativeApplication(workspaceFilePath, resourcesPath, workspacePath, appName);
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
+
+    executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
+    if (!fs.existsSync(testVSCodeExecutableFolder || "")) {
+        fail(`Can't find VS Code executable at ${testVSCodeExecutableFolder}.`);
+    }
+
+    setupEnvironmentHelper.installExtensionVSIX(extensionsPath, path.join(testVSCodeExecutableFolder, "bin"), resourcesPath, isInsiders);
+
     if (!fs.existsSync(userDataDir)) {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
         fs.mkdirSync(userDataDir);
@@ -125,11 +133,6 @@ before(async function () {
     // allow three minutes for setup
     this.timeout(3 * 60 * 1000);
     await setup();
-    executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
-
-    if (!fs.existsSync(testVSCodeExecutableFolder || "")) {
-        fail(`Can't find VS Code executable at ${testVSCodeExecutableFolder}.`);
-    }
 });
 
 describe("Test React Native extension debug scenarios", () => {

@@ -91,6 +91,26 @@ export function prepareReactNativeApplication(workspaceFilePath: string, resourc
     fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
 }
 
+export function installExtensionVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string, isInsiders: boolean) {
+    let args: string[] = [];
+    args.push(`--extensions-dir=${extensionDir}`);
+    let dirFiles = fs.readdirSync(resourcesPath);
+    let extensionFile = dirFiles.find((elem) => {
+        return elem.match(/.*\.(vsix)/);
+    });
+    if (!extensionFile) throw new Error(`React Native extension .vsix is not found in ${resourcesPath}`);
+
+    extensionFile = path.join(resourcesPath, extensionFile);
+    args.push(`--install-extension=${extensionFile}`);
+    let codeExecutableScript = isInsiders ? "code-insiders" : "code";
+    testVSCodeExecutablePath = path.join(testVSCodeExecutablePath, codeExecutableScript);
+    if (process.platform === "win32") {
+        testVSCodeExecutablePath += ".cmd";
+    }
+    console.log(`*** Installing ${extensionFile} into ${extensionDir} with ${testVSCodeExecutablePath} executable`);
+    cp.spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
+}
+
 export function cleanUp(testVSCodeExecutableFolder: string, workspacePath: string) {
     console.log("\n*** Clean up...");
     if (fs.existsSync(testVSCodeExecutableFolder)) {
