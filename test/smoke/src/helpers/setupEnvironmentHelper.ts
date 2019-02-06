@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
-
+import * as cp from "child_process";
 const remote = require("gulp-remote-src-vscode");
 const vzip = require("gulp-vinyl-zip");
 const vfs = require("vinyl-fs");
@@ -14,7 +14,6 @@ const request = require("request");
 const source = require("vinyl-source-stream");
 const https = require("https");
 const fs = require("fs");
-const cp = require("child_process");
 const rimraf = require("rimraf");
 
 
@@ -109,6 +108,15 @@ export function installExtensionVSIX(extensionDir: string, testVSCodeExecutableP
     }
     console.log(`*** Installing ${extensionFile} into ${extensionDir} with ${testVSCodeExecutablePath} executable`);
     cp.spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
+    console.log(`*** Deleting ${extensionFile} after installation`);
+    rimraf.sync(extensionFile);
+}
+
+export function runAndroidEmulator(): cp.ChildProcess {
+    if (!process.env.ANDROID_EMULATOR) throw new Error("Environment variable 'ANDROID_EMULATOR' is not set. Exiting...");
+    console.log(`*** Executing Android emulator with 'emulator -avd ${process.env.ANDROID_EMULATOR}' command...`);
+    let emulatorProc = cp.spawn("emulator", ["-avd", process.env.ANDROID_EMULATOR || ""], {stdio: "inherit"});
+    return emulatorProc;
 }
 
 export function cleanUp(testVSCodeExecutableFolder: string, workspacePath: string) {
