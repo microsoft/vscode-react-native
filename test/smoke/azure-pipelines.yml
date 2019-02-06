@@ -10,7 +10,6 @@ jobs:
     displayName: 'Use Node 10.x'
     inputs:
       versionSpec: 10.x
-    displayName: Run smoke tests
 - job: macOS
   pool:
     name: React Native smoke tests - macOS
