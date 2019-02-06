@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
-import * as cp from "child_process";
 const remote = require("gulp-remote-src-vscode");
 const vzip = require("gulp-vinyl-zip");
 const vfs = require("vinyl-fs");
@@ -15,6 +14,7 @@ const source = require("vinyl-source-stream");
 const https = require("https");
 const fs = require("fs");
 const rimraf = require("rimraf");
+const cp = require("child_process");
 
 
 const version = process.env.CODE_VERSION || "*";
@@ -121,9 +121,11 @@ export function runAndroidEmulator() {
 }
 
 export function terminateAndroidEmulator() {
-    let devices = cp.execSync("adb devices").toString();
+    let devices = cp.execSync("adb devices", {stdio: "inherit"}).toString();
+    console.log("*** Checking for running emulators...");
     if (devices !== "List of devices attached\r\n\r\n") {
         // Check if we already have a running emulator, and terminate it if it so
+        console.log("Terminating Android 'emulator-5554'...");
         cp.execSync("adb -s emulator-5554 emu kill", {stdio: "inherit"});
     }
 }
