@@ -16,6 +16,7 @@ const artifactsPath = opts.log || "";
 
 function fail(errorMessage): void {
     console.error(errorMessage);
+    setupEnvironmentHelper.terminateAndroidEmulator();
     process.exit(1);
 }
 
