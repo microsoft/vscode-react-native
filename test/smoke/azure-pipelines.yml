@@ -10,9 +10,6 @@ jobs:
     displayName: 'Use Node 10.x'
     inputs:
       versionSpec: 10.x
-  - bash: npm install -g yarn react-native-cli expo-cli
-    displayName: npm install -g yarn react-native-cli expo-cli
-  - bash: cd test/smoke && yarn install && node ./node_modules/mocha/bin/_mocha
     displayName: Run smoke tests
 - job: macOS
   pool:
