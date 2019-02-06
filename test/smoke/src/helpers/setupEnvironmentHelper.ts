@@ -112,11 +112,20 @@ export function installExtensionVSIX(extensionDir: string, testVSCodeExecutableP
     rimraf.sync(extensionFile);
 }
 
-export function runAndroidEmulator(): cp.ChildProcess {
+export function runAndroidEmulator() {
     if (!process.env.ANDROID_EMULATOR) throw new Error("Environment variable 'ANDROID_EMULATOR' is not set. Exiting...");
+    let devices = cp.execSync("adb devices").toString();
+    if (devices !== "List of devices attached\r\n\r\n") {
+        // Check if we already have a running emulator, and terminate it if it so
+        terminateAndroidEmulator();
+    }
     console.log(`*** Executing Android emulator with 'emulator -avd ${process.env.ANDROID_EMULATOR}' command...`);
-    let emulatorProc = cp.spawn("emulator", ["-avd", process.env.ANDROID_EMULATOR || ""], {stdio: "inherit"});
-    return emulatorProc;
+    cp.spawn("emulator", ["-avd", process.env.ANDROID_EMULATOR || "", "-wipe-data"], {stdio: "inherit"});
+
+}
+
+export function terminateAndroidEmulator() {
+    cp.execSync("adb -s emulator-5554 emu kill", {stdio: "inherit"});
 }
 
 export function cleanUp(testVSCodeExecutableFolder: string, workspacePath: string) {

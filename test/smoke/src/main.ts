@@ -6,8 +6,7 @@ import * as path from "path";
 import * as minimist from "minimist";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
-import { setup as setupDataDebugTests } from "./debug.test";
-import { ChildProcess } from "child_process";
+import { setup as setupReactNativeSmokeTests } from "./debug.test";
 
 
 const [, , ...args] = process.argv;
@@ -107,11 +106,10 @@ function createApp(quality: Quality): SpectronApplication | null {
     });
 }
 
-let emulatorInstance: ChildProcess;
 async function setup(): Promise<void> {
     console.log("*** Test VS Code executable folder:", testVSCodeExecutableFolder);
     console.log("*** Preparing smoke tests setup...");
-    emulatorInstance = setupEnvironmentHelper.runAndroidEmulator();
+    setupEnvironmentHelper.runAndroidEmulator();
     setupEnvironmentHelper.prepareReactNativeApplication(workspaceFilePath, resourcesPath, workspacePath, appName);
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
 
@@ -134,7 +132,11 @@ before(async function () {
     setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), workspacePath);
     // allow three minutes for setup
     this.timeout(3 * 60 * 1000);
-    await setup();
+    try {
+        await setup();
+    } catch (err) {
+        fail(err);
+    }
 });
 
 describe("Test React Native extension debug scenarios", () => {
@@ -146,10 +148,8 @@ describe("Test React Native extension debug scenarios", () => {
 
     after(async function () {
         await this.app.stop();
-        if (emulatorInstance) {
-            emulatorInstance.kill();
-        }
+        setupEnvironmentHelper.terminateAndroidEmulator();
     });
 
-    setupDataDebugTests();
+    setupReactNativeSmokeTests();
 });
