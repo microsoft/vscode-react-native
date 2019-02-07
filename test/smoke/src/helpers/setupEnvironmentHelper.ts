@@ -14,8 +14,8 @@ const request = require("request");
 const source = require("vinyl-source-stream");
 const https = require("https");
 const fs = require("fs");
-const rimraf = require("rimraf");
 const cp = require("child_process");
+const rimraf = require("rimraf");
 
 
 const version = process.env.CODE_VERSION || "*";
