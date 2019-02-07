@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
+
 const remote = require("gulp-remote-src-vscode");
 const vzip = require("gulp-vinyl-zip");
 const vfs = require("vinyl-fs");
@@ -108,7 +109,7 @@ export function installExtensionFromVSIX(extensionDir: string, testVSCodeExecuta
     if (process.platform === "win32") {
         testVSCodeExecutablePath += ".cmd";
     }
-    console.log(`*** Installing ${extensionFile} into ${extensionDir} with ${testVSCodeExecutablePath} executable`);
+    console.log(`*** Installing ${extensionFile} into ${extensionDir} using ${testVSCodeExecutablePath} executable`);
     cp.spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
     console.log(`*** Deleting ${extensionFile} after installation`);
     rimraf.sync(extensionFile);
@@ -126,7 +127,7 @@ export function runAndroidEmulator() {
 
 // Terminates emulator with name emulator-5554 on port 5554 if it exists
 export function terminateAndroidEmulator() {
-    let devices = cp.execSync("adb devices").toString();
+    let devices = cp.execSync("adb devices").toString().trim();
     console.log("*** Checking for running emulators...");
     if (devices !== "List of devices attached") {
         // Check if we already have a running emulator, and terminate it if it so
