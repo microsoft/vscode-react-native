@@ -121,7 +121,7 @@ export function runAndroidEmulator() {
     }
     terminateAndroidEmulator();
     console.log(`*** Executing Android emulator with 'emulator -avd ${process.env.ANDROID_EMULATOR}' command...`);
-    cp.spawn("emulator", ["-avd", process.env.ANDROID_EMULATOR || "", "-wipe-data", "-port", 5554], {stdio: "inherit"});
+    cp.spawn("emulator", ["-avd", process.env.ANDROID_EMULATOR || "", "-wipe-data", "-port", 5554, "-no-snapshot"], {stdio: "inherit"});
 
 }
 
