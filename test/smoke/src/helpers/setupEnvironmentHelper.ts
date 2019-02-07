@@ -21,6 +21,8 @@ const cp = require("child_process");
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
 const downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-archive" : "linux-x64";
+const androidEmulatorPort = 5554;
+const androidEmulatorName = "emulator-" + androidEmulatorPort;
 export async function downloadVSCodeExecutable(targetFolder: string): Promise<any> {
 
     const testRunFolder = path.join(targetFolder, ".vscode-test", isInsiders ? "insiders" : "stable");
@@ -121,18 +123,18 @@ export function runAndroidEmulator() {
     }
     terminateAndroidEmulator();
     console.log(`*** Executing Android emulator with 'emulator -avd ${process.env.ANDROID_EMULATOR}' command...`);
-    cp.spawn("emulator", ["-avd", process.env.ANDROID_EMULATOR || "", "-wipe-data", "-port", 5554, "-no-snapshot"], {stdio: "inherit"});
+    cp.spawn("emulator", ["-avd", process.env.ANDROID_EMULATOR || "", "-wipe-data", "-port", androidEmulatorPort, "-no-snapshot"], {stdio: "inherit"});
 
 }
 
-// Terminates emulator with name emulator-5554 on port 5554 if it exists
+// Terminates emulator with name emulator-5554(by default) on port 5554 if it exists
 export function terminateAndroidEmulator() {
     let devices = cp.execSync("adb devices").toString().trim();
     console.log("*** Checking for running emulators...");
     if (devices !== "List of devices attached") {
         // Check if we already have a running emulator, and terminate it if it so
-        console.log("Terminating Android 'emulator-5554'...");
-        cp.execSync("adb -s emulator-5554 emu kill", {stdio: "inherit"});
+        console.log(`Terminating Android '${androidEmulatorName}'...`);
+        cp.execSync(`adb -s ${androidEmulatorName} emu kill`, {stdio: "inherit"});
     }
 }
 
