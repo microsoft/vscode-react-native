@@ -22,7 +22,7 @@ const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
 const downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-archive" : "linux-x64";
 const androidEmulatorPort = 5554;
-const androidEmulatorName = "emulator-" + androidEmulatorPort;
+const androidEmulatorName = `emulator-${androidEmulatorPort}`;
 export async function downloadVSCodeExecutable(targetFolder: string): Promise<any> {
 
     const testRunFolder = path.join(targetFolder, ".vscode-test", isInsiders ? "insiders" : "stable");
