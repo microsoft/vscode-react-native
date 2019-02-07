@@ -90,18 +90,20 @@ export function prepareReactNativeApplication(workspaceFilePath: string, resourc
     fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
 }
 
-export function installExtensionVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string, isInsiders: boolean) {
+export function installExtensionFromVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string, isInsiders: boolean) {
     let args: string[] = [];
     args.push(`--extensions-dir=${extensionDir}`);
-    let dirFiles = fs.readdirSync(resourcesPath);
+    const dirFiles = fs.readdirSync(resourcesPath);
     let extensionFile = dirFiles.find((elem) => {
         return elem.match(/.*\.(vsix)/);
     });
-    if (!extensionFile) throw new Error(`React Native extension .vsix is not found in ${resourcesPath}`);
+    if (!extensionFile) {
+        throw new Error(`React Native extension .vsix is not found in ${resourcesPath}`);
+    }
 
     extensionFile = path.join(resourcesPath, extensionFile);
     args.push(`--install-extension=${extensionFile}`);
-    let codeExecutableScript = isInsiders ? "code-insiders" : "code";
+    const codeExecutableScript = isInsiders ? "code-insiders" : "code";
     testVSCodeExecutablePath = path.join(testVSCodeExecutablePath, codeExecutableScript);
     if (process.platform === "win32") {
         testVSCodeExecutablePath += ".cmd";
@@ -113,17 +115,20 @@ export function installExtensionVSIX(extensionDir: string, testVSCodeExecutableP
 }
 
 export function runAndroidEmulator() {
-    if (!process.env.ANDROID_EMULATOR) throw new Error("Environment variable 'ANDROID_EMULATOR' is not set. Exiting...");
+    if (!process.env.ANDROID_EMULATOR) {
+        throw new Error("Environment variable 'ANDROID_EMULATOR' is not set. Exiting...");
+    }
     terminateAndroidEmulator();
     console.log(`*** Executing Android emulator with 'emulator -avd ${process.env.ANDROID_EMULATOR}' command...`);
-    cp.spawn("emulator", ["-avd", process.env.ANDROID_EMULATOR || "", "-wipe-data"], {stdio: "inherit"});
+    cp.spawn("emulator", ["-avd", process.env.ANDROID_EMULATOR || "", "-wipe-data", "-port", 5554], {stdio: "inherit"});
 
 }
 
+// Terminates emulator with name emulator-5554 on port 5554 if it exists
 export function terminateAndroidEmulator() {
-    let devices = cp.execSync("adb devices", {stdio: "inherit"}).toString();
+    let devices = cp.execSync("adb devices").toString();
     console.log("*** Checking for running emulators...");
-    if (devices !== "List of devices attached\r\n\r\n") {
+    if (devices !== "List of devices attached") {
         // Check if we already have a running emulator, and terminate it if it so
         console.log("Terminating Android 'emulator-5554'...");
         cp.execSync("adb -s emulator-5554 emu kill", {stdio: "inherit"});

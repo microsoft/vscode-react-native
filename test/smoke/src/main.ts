@@ -119,7 +119,7 @@ async function setup(): Promise<void> {
         fail(`Can't find VS Code executable at ${testVSCodeExecutableFolder}.`);
     }
 
-    setupEnvironmentHelper.installExtensionVSIX(extensionsPath, path.join(testVSCodeExecutableFolder, "bin"), resourcesPath, isInsiders);
+    setupEnvironmentHelper.installExtensionFromVSIX(extensionsPath, path.join(testVSCodeExecutableFolder, "bin"), resourcesPath, isInsiders);
 
     if (!fs.existsSync(userDataDir)) {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
