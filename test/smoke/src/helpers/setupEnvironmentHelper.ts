@@ -122,7 +122,7 @@ export function runAndroidEmulator() {
 }
 
 export function terminateAndroidEmulator() {
-    let devices = cp.execSync("adb devices", {stdio: "inherit"}).toString();
+    let devices = cp.execSync("adb devices", {stdio: "inherit"}).toString().trim();
     console.log("*** Checking for running emulators...");
     if (devices !== "List of devices attached\r\n\r\n") {
         // Check if we already have a running emulator, and terminate it if it so
