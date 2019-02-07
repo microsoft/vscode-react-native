@@ -124,7 +124,6 @@ export function runAndroidEmulator() {
     terminateAndroidEmulator();
     console.log(`*** Executing Android emulator with 'emulator -avd ${process.env.ANDROID_EMULATOR}' command...`);
     cp.spawn("emulator", ["-avd", process.env.ANDROID_EMULATOR || "", "-wipe-data", "-port", androidEmulatorPort, "-no-snapshot"], {stdio: "inherit"});
-
 }
 
 // Terminates emulator with name emulator-5554(by default) on port 5554 if it exists
