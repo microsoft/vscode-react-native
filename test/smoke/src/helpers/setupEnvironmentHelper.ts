@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
+
 const remote = require("gulp-remote-src-vscode");
 const vzip = require("gulp-vinyl-zip");
 const vfs = require("vinyl-fs");
