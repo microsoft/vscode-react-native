@@ -126,7 +126,7 @@ export function runAndroidEmulator() {
     cp.spawn("emulator", ["-avd", process.env.ANDROID_EMULATOR || "", "-wipe-data", "-port", androidEmulatorPort, "-no-snapshot"], {stdio: "inherit"});
 }
 
-// Terminates emulator with name emulator-5554(by default) on port 5554 if it exists
+// Terminates emulator "emulator-PORT" if it exists, where PORT is 5554 by default
 export function terminateAndroidEmulator() {
     let devices = cp.execSync("adb devices").toString().trim();
     console.log("*** Checking for running emulators...");
