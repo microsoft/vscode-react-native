@@ -107,7 +107,7 @@ export function installExtensionVSIX(extensionDir: string, testVSCodeExecutableP
     if (process.platform === "win32") {
         testVSCodeExecutablePath += ".cmd";
     }
-    console.log(`*** Installing ${extensionFile} into ${extensionDir} with ${testVSCodeExecutablePath} executable`);
+    console.log(`*** Installing ${extensionFile} into ${extensionDir} using ${testVSCodeExecutablePath} executable`);
     cp.spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
     console.log(`*** Deleting ${extensionFile} after installation`);
     rimraf.sync(extensionFile);
