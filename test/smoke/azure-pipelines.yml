@@ -10,6 +10,24 @@ jobs:
     displayName: 'Use Node 10.x'
     inputs:
       versionSpec: 10.x
+  - bash: npm install -g yarn react-native-cli expo-cli appium
+    displayName: npm install -g yarn react-native-cli expo-cli appium
+  - task: DownloadBuildArtifacts@0
+    displayName: Download VSIX
+    inputs:
+      project: 'VS Code WebDiag extensions'
+      itemPattern: '**/*.vsix'
+      buildType: specific
+      pipeline: 'vscode-react-native [master]'
+      buildVersionToDownload: 'latest'
+      downloadPath: 'test/smoke/resources'
+      downloadType: 'single'
+      artifactName: 'drop-win'
+  - bash: cd test/smoke && yarn install
+    displayName: Prepare smoke tests
+  - bash: cd test/smoke && yarn mocha
+    displayName: Run smoke tests
+    timeoutInMinutes: 15
 - job: macOS
   pool:
     name: React Native smoke tests - macOS

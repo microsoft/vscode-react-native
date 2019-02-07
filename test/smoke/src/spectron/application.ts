@@ -9,7 +9,6 @@ import { Workbench } from "../areas/workbench/workbench";
 import * as fs from "fs";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
-import { sanitize } from "../helpers/utilities";
 
 // Just hope random helps us here, cross your fingers!
 export async function findFreePort(): Promise<number> {
@@ -90,8 +89,6 @@ export class SpectronApplication {
         this._suiteName = suiteName;
         this._screenCapturer.suiteName = suiteName;
     }
-
-    private static count = 0;
 
     private _client: SpectronClient;
     private _workbench: Workbench;
@@ -195,7 +192,7 @@ export class SpectronApplication {
         args.push("--disable-crash-reporter");
 
         // Ensure that running over custom extensions directory, rather than picking up the one that was used by a tester previously
-        // args.push(`--extensions-dir=${this.options.extensionsPath}`);
+        args.push(`--extensions-dir=${this.options.extensionsPath}`);
 
         args.push(...extraArgs);
 
@@ -207,9 +204,9 @@ export class SpectronApplication {
         // chrome driver with it, leaving the other instance in DISPAIR!!! :(
         const port = await findFreePort();
 
-        // We must get a different port for debugging the smoketest express app
-        // otherwise concurrent test runs will clash on those ports
-        const env = { PORT: String(await findFreePort()), ...process.env };
+        const env = {
+            path: process.env.path
+        };
 
         const opts: any = {
             path: this.options.electronPath,
@@ -221,12 +218,11 @@ export class SpectronApplication {
             requireName: "nodeRequire",
         };
 
-        const runName = String(SpectronApplication.count++);
         let testsuiteRootPath: string | undefined = undefined;
         let screenshotsDirPath: string | undefined = undefined;
 
         if (this.options.artifactsPath) {
-            testsuiteRootPath = path.join(this.options.artifactsPath, sanitize(runName));
+            testsuiteRootPath = this.options.artifactsPath;
             mkdirp.sync(testsuiteRootPath);
 
             // Collect screenshots

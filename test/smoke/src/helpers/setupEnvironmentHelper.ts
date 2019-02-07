@@ -1,3 +1,5 @@
+import { smokeTestsConstants } from "./smokeTestsConstants";
+
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
@@ -21,6 +23,10 @@ const rimraf = require("rimraf");
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
 const downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-archive" : "linux-x64";
+const artifactsFolderName = "drop-win";
+const androidEmulatorPort = 5554;
+export const androidEmulatorName = `emulator-${androidEmulatorPort}`;
+
 export async function downloadVSCodeExecutable(targetFolder: string): Promise<any> {
 
     const testRunFolder = path.join(targetFolder, ".vscode-test", isInsiders ? "insiders" : "stable");
@@ -89,6 +95,73 @@ export function prepareReactNativeApplication(workspaceFilePath: string, resourc
 
     console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
     fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+}
+
+export function installExtensionFromVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string, isInsiders: boolean) {
+    let args: string[] = [];
+    args.push(`--extensions-dir=${extensionDir}`);
+    const artifactPath = path.join(resourcesPath, artifactsFolderName);
+    const dirFiles = fs.readdirSync(artifactPath);
+    let extensionFile = dirFiles.find((elem) => {
+        return elem.match(/.*\.(vsix)/);
+    });
+    if (!extensionFile) {
+        throw new Error(`React Native extension .vsix is not found in ${resourcesPath}`);
+    }
+
+    extensionFile = path.join(artifactPath, extensionFile);
+    args.push(`--install-extension=${extensionFile}`);
+    const codeExecutableScript = isInsiders ? "code-insiders" : "code";
+    testVSCodeExecutablePath = path.join(testVSCodeExecutablePath, codeExecutableScript);
+    if (process.platform === "win32") {
+        testVSCodeExecutablePath += ".cmd";
+    }
+    console.log(`*** Installing ${extensionFile} into ${extensionDir} using ${testVSCodeExecutablePath} executable`);
+    cp.spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
+    console.log(`*** Deleting ${extensionFile} after installation`);
+    rimraf.sync(extensionFile);
+}
+
+export async function runAndroidEmulator() {
+    if (!process.env.ANDROID_EMULATOR) {
+        throw new Error("Environment variable 'ANDROID_EMULATOR' is not set. Exiting...");
+    }
+    terminateAndroidEmulator();
+    console.log(`*** Executing Android emulator with 'emulator -avd ${process.env.ANDROID_EMULATOR}' command...`);
+    // Boot options for emulator - https://developer.android.com/studio/run/emulator-commandline
+    const emulatorOpts = ["-avd",
+     process.env.ANDROID_EMULATOR || "",
+     "-gpu", "swiftshader_indirect",
+     "-wipe-data",
+     "-port", androidEmulatorPort,
+     "-no-snapshot",
+     "-no-boot-anim",
+     "-no-audio"];
+    cp.spawn("emulator", emulatorOpts, {stdio: "inherit"});
+
+    console.log(`*** Awaiting ${smokeTestsConstants.emulatorLoadTimeout}ms for emulator load`);
+    await sleep(smokeTestsConstants.emulatorLoadTimeout);
+}
+
+// Await function
+export async function sleep(time: number) {
+    await new Promise(resolve => {
+        const timer = setTimeout(() => {
+        clearTimeout(timer);
+        resolve();
+        }, time);
+    });
+}
+
+// Terminates emulator "emulator-PORT" if it exists, where PORT is 5554 by default
+export function terminateAndroidEmulator() {
+    let devices = cp.execSync("adb devices").toString().trim();
+    console.log("*** Checking for running emulators...");
+    if (devices !== "List of devices attached") {
+        // Check if we already have a running emulator, and terminate it if it so
+        console.log(`Terminating Android '${androidEmulatorName}'...`);
+        cp.execSync(`adb -s ${androidEmulatorName} emu kill`, {stdio: "inherit"});
+    }
 }
 
 export function cleanUp(testVSCodeExecutableFolder: string, workspacePath: string) {
