@@ -6,7 +6,7 @@ import * as path from "path";
 import * as minimist from "minimist";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
-import { setup as setupDataDebugTests } from "./debug.test";
+import { setup as setupReactNativeSmokeTests } from "./debug.test";
 
 
 const [, , ...args] = process.argv;
@@ -16,6 +16,7 @@ const artifactsPath = opts.log || "";
 
 function fail(errorMessage): void {
     console.error(errorMessage);
+    setupEnvironmentHelper.terminateAndroidEmulator();
     process.exit(1);
 }
 
@@ -109,13 +110,21 @@ function createApp(quality: Quality): SpectronApplication | null {
 async function setup(): Promise<void> {
     console.log("*** Test VS Code executable folder:", testVSCodeExecutableFolder);
     console.log("*** Preparing smoke tests setup...");
+    setupEnvironmentHelper.runAndroidEmulator();
     setupEnvironmentHelper.prepareReactNativeApplication(workspaceFilePath, resourcesPath, workspacePath, appName);
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
+
+    executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
+    if (!fs.existsSync(testVSCodeExecutableFolder || "")) {
+        fail(`Can't find VS Code executable at ${testVSCodeExecutableFolder}.`);
+    }
+
+    setupEnvironmentHelper.installExtensionFromVSIX(extensionsPath, path.join(testVSCodeExecutableFolder, "bin"), resourcesPath, isInsiders);
+
     if (!fs.existsSync(userDataDir)) {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
         fs.mkdirSync(userDataDir);
     }
-
     await setupEnvironmentHelper.fetchKeybindings(keybindingsPath);
     console.log("*** Smoke tests setup done!\n");
 }
@@ -124,11 +133,10 @@ before(async function () {
     setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), workspacePath);
     // allow three minutes for setup
     this.timeout(3 * 60 * 1000);
-    await setup();
-    executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
-
-    if (!fs.existsSync(testVSCodeExecutableFolder || "")) {
-        fail(`Can't find VS Code executable at ${testVSCodeExecutableFolder}.`);
+    try {
+        await setup();
+    } catch (err) {
+        fail(err);
     }
 });
 
@@ -141,7 +149,8 @@ describe("Test React Native extension debug scenarios", () => {
 
     after(async function () {
         await this.app.stop();
+        setupEnvironmentHelper.terminateAndroidEmulator();
     });
 
-    setupDataDebugTests();
+    setupReactNativeSmokeTests();
 });
