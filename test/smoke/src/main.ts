@@ -7,6 +7,7 @@ import * as minimist from "minimist";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
 import { setup as setupReactNativeSmokeTests } from "./debug.test";
+import * as wdio from "webdriverio";
 
 
 const [, , ...args] = process.argv;
@@ -129,7 +130,29 @@ async function setup(): Promise<void> {
     console.log("*** Smoke tests setup done!\n");
 }
 
+async function test() {
+
+    const app = path.join(resourcesPath, "Expo.apk");
+    const opts = {
+    port: 4723,
+    capabilities: [{
+        browserName: "",
+        platformName: "Android",
+        platformVersion: "7.0",
+        deviceName: "test",
+        app: app,
+        automationName: "UiAutomator2"
+        }]
+    };
+
+    const client = wdio.remote(opts);
+
+    const elementId = await client.waitForText("TextField1");
+    console.log(elementId);
+}
+
 before(async function () {
+    await test();
     setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), workspacePath);
     // allow three minutes for setup
     this.timeout(3 * 60 * 1000);

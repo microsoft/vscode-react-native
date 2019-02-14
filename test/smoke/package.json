@@ -29,6 +29,7 @@
     "typescript": "2.8.3",
     "url-parse": "^1.4.3",
     "vinyl-fs": "^3.0.3",
-    "vinyl-source-stream": "^1.1.0"
+    "vinyl-source-stream": "^1.1.0",
+    "webdriverio": "^4.13.0"
   }
 }
