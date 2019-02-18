@@ -135,20 +135,20 @@ async function test() {
     const app = path.join(resourcesPath, "Expo.apk");
     const opts = {
     port: 4723,
-    capabilities: [{
+    host: "localhost",
+    desiredCapabilities: {
         browserName: "",
         platformName: "Android",
         platformVersion: "7.0",
         deviceName: "test",
         app: app,
         automationName: "UiAutomator2"
-        }]
+        }
     };
 
     const client = wdio.remote(opts);
-
-    const elementId = await client.waitForText("TextField1");
-    console.log(elementId);
+    const res = await client.status();
+    console.log(res);
 }
 
 before(async function () {
