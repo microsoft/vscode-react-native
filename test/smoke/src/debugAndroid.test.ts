@@ -33,8 +33,5 @@ export function setup() {
             assert.notStrictEqual(testOutputIndex, -1, "\"Test output from debuggee\" string is not contains in debug console");
             await app.workbench.debug.stopDebugging();
         });
-
-
-
     });
 }
