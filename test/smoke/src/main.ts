@@ -134,21 +134,24 @@ async function test() {
 
     const app = path.join(resourcesPath, "Expo.apk");
     const opts = {
-    port: 4723,
-    host: "localhost",
     desiredCapabilities: {
         browserName: "",
         platformName: "Android",
         platformVersion: "7.0",
-        deviceName: "test",
+        deviceName: "emulator-5554",
         app: app,
         automationName: "UiAutomator2"
-        }
+    },
+    port: 4723,
+    host: "localhost",
+    logLevel: "verbose",
     };
 
     const client = wdio.remote(opts);
-    const res = await client.status();
-    console.log(res);
+    await client.init()
+    .waitForExist("//android.widget.Button[@content-desc='Explore']",5000)
+    .click("//android.widget.Button[@content-desc='Explore']");
+
 }
 
 before(async function () {
