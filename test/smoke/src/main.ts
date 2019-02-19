@@ -6,8 +6,8 @@ import * as path from "path";
 import * as minimist from "minimist";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
-import { setup as setupReactNativeSmokeTests } from "./debug.test";
-import * as wdio from "webdriverio";
+import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
+
 
 
 const [, , ...args] = process.argv;
@@ -130,32 +130,7 @@ async function setup(): Promise<void> {
     console.log("*** Smoke tests setup done!\n");
 }
 
-async function test() {
-
-    const app = path.join(resourcesPath, "Expo.apk");
-    const opts = {
-    desiredCapabilities: {
-        browserName: "",
-        platformName: "Android",
-        platformVersion: "7.0",
-        deviceName: "emulator-5554",
-        app: app,
-        automationName: "UiAutomator2"
-    },
-    port: 4723,
-    host: "localhost",
-    logLevel: "verbose",
-    };
-
-    const client = wdio.remote(opts);
-    await client.init()
-    .waitForExist("//android.widget.Button[@content-desc='Explore']",5000)
-    .click("//android.widget.Button[@content-desc='Explore']");
-
-}
-
 before(async function () {
-    await test();
     setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), workspacePath);
     // allow three minutes for setup
     this.timeout(3 * 60 * 1000);
@@ -178,5 +153,6 @@ describe("Test React Native extension debug scenarios", () => {
         setupEnvironmentHelper.terminateAndroidEmulator();
     });
 
-    setupReactNativeSmokeTests();
+    setupReactNativeDebugAndroidTests();
+
 });

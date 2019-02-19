@@ -5,10 +5,10 @@ import { SpectronApplication } from "./spectron/application";
 import * as assert from "assert";
 
 export function setup() {
-    describe("Debug", () => {
+    describe("Android debugging tests", () => {
         before(async function () {
             const app = this.app as SpectronApplication;
-            app.suiteName = "Debug";
+            app.suiteName = "Android debugging tests";
         });
 
         it("Android Debug test", async function () {
@@ -33,6 +33,8 @@ export function setup() {
             assert.notStrictEqual(testOutputIndex, -1, "\"Test output from debuggee\" string is not contains in debug console");
             await app.workbench.debug.stopDebugging();
         });
+
+
 
     });
 }
