@@ -3,11 +3,12 @@
 
 import * as wdio from "webdriverio";
 import * as setupEnvironmentHelper from "./setupEnvironmentHelper";
+import * as clipboardy from "clipboardy";
 
 const emulatorAndroidVersion = "9.0";
 const waitTime = 20000;
 // Android UI elements
-const EXPO_EXPLORE_BUTTON_ANDROID = "//android.widget.Button[@content-desc='Explore']";
+const EXPO_OPEN_FROM_CLIPBOARD = "//*[@text='Open from Clipboard']";
 
 export async function setupExpoAppAndroid(expoAppURL: string, expoAppAPKPath: string) {
     const opts = {
@@ -22,9 +23,9 @@ export async function setupExpoAppAndroid(expoAppURL: string, expoAppAPKPath: st
         port: 4723,
         host: "localhost",
     };
-
+    clipboardy.writeSync(expoAppURL);
     const client = wdio.remote(opts);
     await client.init()
-    .waitForExist(EXPO_EXPLORE_BUTTON_ANDROID, waitTime)
-    .click(EXPO_EXPLORE_BUTTON_ANDROID);
+    .waitForExist(EXPO_OPEN_FROM_CLIPBOARD, waitTime)
+    .click(EXPO_OPEN_FROM_CLIPBOARD);
 }
