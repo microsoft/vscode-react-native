@@ -23,8 +23,14 @@ export async function setupExpoAppAndroid(expoAppURL: string, expoAppAPKPath: st
         port: 4723,
         host: "localhost",
     };
+    // Expo application automatically detecting Expo URLs in the clipboard
+    // So we are copying expoAppURL to system clipboard and click on the special "Open from Clipboard" UI element
     clipboardy.writeSync(expoAppURL);
+
+    // Connect to the Android emulator with predefined opts
     const client = wdio.remote(opts);
+
+    // Install application on emulator and run Expo app by expoAppURL
     await client.init()
     .waitForExist(EXPO_OPEN_FROM_CLIPBOARD, waitTime)
     .click(EXPO_OPEN_FROM_CLIPBOARD);
