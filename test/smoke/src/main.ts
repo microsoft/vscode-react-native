@@ -7,7 +7,6 @@ import * as minimist from "minimist";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
-import { setupExpoAppAndroid } from "./helpers/expoAppHelper";
 
 const [, , ...args] = process.argv;
 const opts = minimist(args);
