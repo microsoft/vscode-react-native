@@ -6,8 +6,7 @@ import * as path from "path";
 import * as minimist from "minimist";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
-import { setup as setupReactNativeSmokeTests } from "./debug.test";
-
+import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
 
 const [, , ...args] = process.argv;
 const opts = minimist(args);
@@ -130,9 +129,9 @@ async function setup(): Promise<void> {
 }
 
 before(async function () {
+    // allow five minutes for setup
+    this.timeout(5 * 60 * 1000);
     setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), workspacePath);
-    // allow three minutes for setup
-    this.timeout(3 * 60 * 1000);
     try {
         await setup();
     } catch (err) {
@@ -152,5 +151,5 @@ describe("Test React Native extension debug scenarios", () => {
         setupEnvironmentHelper.terminateAndroidEmulator();
     });
 
-    setupReactNativeSmokeTests();
+    setupReactNativeDebugAndroidTests();
 });

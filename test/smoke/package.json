@@ -13,6 +13,7 @@
     "@types/node": "8.0.33",
     "@types/rimraf": "2.0.2",
     "@types/webdriverio": "4.6.1",
+    "clipboardy": "^1.2.3",
     "electron": "3.1.2",
     "gulp-chmod": "^2.0.0",
     "gulp-filter": "^5.0.1",
@@ -29,6 +30,7 @@
     "typescript": "2.8.3",
     "url-parse": "^1.4.3",
     "vinyl-fs": "^3.0.3",
-    "vinyl-source-stream": "^1.1.0"
+    "vinyl-source-stream": "^1.1.0",
+    "webdriverio": "^4.13.0"
   }
 }
