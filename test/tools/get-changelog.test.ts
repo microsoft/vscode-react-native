@@ -53,25 +53,25 @@ async function shouldFail(args: string[], expectedOutput: string) {
 
 suite("tools", () => {
     suite("get-changelog", () => {
-        it("should throw error if path to the changelog file is not specified", async () => {
+        test("should throw error if path to the changelog file is not specified", async () => {
             await shouldFail([], "Please, specify path to the changelog file");
         });
-        it("should throw error if version parameter is not specified", async () => {
+        test("should throw error if version parameter is not specified", async () => {
             await shouldFail(["/some/path"], "Please, specify version");
         });
-        it("should throw error if file is empty", async () => {
+        test("should throw error if file is empty", async () => {
             await shouldFail([changelogs.empty, "1.0.0"], "No version markers were found in the changelog file");
         });
-        it("should throw error if specified version isn't mentioned in the file", async () => {
+        test("should throw error if specified version isn't mentioned in the file", async () => {
             await shouldFail([changelogs.oneVersion, "0.0.0"], "No version markers were found in the changelog file that would match specified version");
         });
-        it("should return version changelog if specified version is in the file and it is first version", async () => {
+        test("should return version changelog if specified version is in the file and it is first version", async () => {
             await shouldSuccess([changelogs.oneVersion, "1.0.0"], "* some text1.0.0");
             await shouldSuccess([changelogs.severalVersions, "1.0.0"], "* some text1.0.0");
             await shouldSuccess([changelogs.severalVersions, "1.0.1"], "* some text1.0.1");
             await shouldSuccess([changelogs.severalVersions, "2.0.0"], "* some text2.0.0");
         });
-        it("should throw error if changelog is empty for version", async () => {
+        test("should throw error if changelog is empty for version", async () => {
             await shouldFail([changelogs.emptyChangelogForVersion, "1.0.1"], "No changelog content found or empty between 1.0.1 and previous version");
         });
     });
