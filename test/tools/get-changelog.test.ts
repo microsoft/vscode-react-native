@@ -5,7 +5,6 @@ import * as assert from "assert";
 import * as path from "path";
 import * as cp from "child_process";
 import * as Q from "q";
-import { writeFileSync } from "fs";
 
 const changelogsDir = path.join(__dirname, "resources", "changelogs");
 const changelogs = {
