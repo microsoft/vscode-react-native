@@ -45,8 +45,6 @@ async function check(args: string[], expectedOutput: string, codeIsZero: boolean
     // Consolidate newlines
     actualOutput = actualOutput.replace(/\r\n/gm, "\n");
     expectedOutput = expectedOutput.replace(/\r\n/gm, "\n");
-    writeFileSync("C:\\Users\\rusla\\out.txt", actualOutput);
-    writeFileSync("C:\\Users\\rusla\\out2.txt", expectedOutput);
     assert.equal(actualOutput, expectedOutput);
     codeIsZero ? assert.equal(result.code, 0) : assert.notEqual(result.code, 0);
 }
