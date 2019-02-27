@@ -19,4 +19,4 @@ release/**
 .github/**
 .npmignore
 npm-shrinkwrap.json
-logArtifacts
+SmokeTestLogs
