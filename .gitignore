@@ -12,6 +12,7 @@ src/**/*.js
 !src/extension/appcenter/lib/**/*.js
 test/**/*.js
 test/smoke/resources/latestRNApp/**
+SmokeTestLogs
 **/*.js.map
 vscode-react-native-*.vsix
 

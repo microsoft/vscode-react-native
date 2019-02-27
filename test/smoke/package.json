@@ -22,7 +22,7 @@
     "gulp-untar": "^0.0.7",
     "gulp-vinyl-zip": "^2.1.2",
     "mkdirp": "^0.5.1",
-    "mocha": "^5.2.0",
+    "mocha": "^3.2.0",
     "portastic": "^1.0.1",
     "request": "^2.88.0",
     "rimraf": "^2.6.1",
