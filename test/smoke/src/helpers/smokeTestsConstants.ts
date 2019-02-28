@@ -14,7 +14,7 @@ public static emulatorLoadTimeout = 90 * 1000;
 // Timeout for Spectron to wait for UI elements response to interaction
 public static spectronElementResponseTimeout = 30 * 1000;
 // Timeout for enabling Remote JS Debugging while testing RN app
-public static enableRemoteJSTimeout = 30 * 1000;
+public static enableRemoteJSTimeout = 50 * 1000;
 // Timeout for Android app to build and to install
-public static androidAppBuildAndInstallTimeout = 100 * 1000;
+public static androidAppBuildAndInstallTimeout = 150 * 1000;
 }

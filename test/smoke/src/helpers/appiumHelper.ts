@@ -16,7 +16,7 @@ export class appiumHelper {
     public static RN_STOP_REMOTE_DEBUGGING_BUTTON = "//*[@text='Stop Remote JS Debugging']";
 
     public static runAppium() {
-        const appiumLogFolder = path.join(__dirname, "..", "..", "..", "..", "logArtifacts");
+        const appiumLogFolder = path.join(__dirname, "..", "..", "..", "..", "SmokeTestLogs");
         mkdirp.sync(appiumLogFolder);
         const appiumLogPath = path.join(appiumLogFolder, "appium.log");
         console.log(`*** Executing Appium with logging to ${appiumLogPath}`);
