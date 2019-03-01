@@ -9,6 +9,7 @@ import { Workbench } from "../areas/workbench/workbench";
 import * as fs from "fs";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
+import { sanitize } from "../helpers/utilities";
 
 // Just hope random helps us here, cross your fingers!
 export async function findFreePort(): Promise<number> {
@@ -44,6 +45,8 @@ export interface SpectronApplicationOptions {
  * Wraps Spectron's Application instance with its used methods.
  */
 export class SpectronApplication {
+
+    private static count = 0;
 
     get quality(): Quality {
         return this.options.quality;
@@ -218,11 +221,12 @@ export class SpectronApplication {
             requireName: "nodeRequire",
         };
 
+        const runName = String(SpectronApplication.count++);
         let testsuiteRootPath: string | undefined = undefined;
         let screenshotsDirPath: string | undefined = undefined;
 
         if (this.options.artifactsPath) {
-            testsuiteRootPath = this.options.artifactsPath;
+            testsuiteRootPath = path.join(this.options.artifactsPath, sanitize(runName));
             mkdirp.sync(testsuiteRootPath);
 
             // Collect screenshots
