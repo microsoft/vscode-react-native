@@ -79,7 +79,27 @@ export function prepareReactNativeApplication(workspaceFilePath: string, resourc
     console.log(`*** Creating RN app via 'react-native init ${appName}' in ${workspacePath}...`);
     cp.execSync(`react-native init ${appName}`, { cwd: resourcesPath, stdio: "inherit" });
 
-    let customEntryPointFile = path.join(resourcesPath, "App.js");
+    let customEntryPointFile = path.join(resourcesPath, "ReactNativeSample", "App.js");
+    let launchConfigFile = path.join(resourcesPath, "launch.json");
+    let vsCodeConfigPath = path.join(workspacePath, ".vscode");
+
+    console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
+    fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
+
+    if (!fs.existsSync(vsCodeConfigPath)) {
+        console.log(`*** Creating  ${vsCodeConfigPath}...`);
+        fs.mkdirSync(vsCodeConfigPath);
+    }
+
+    console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
+    fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+}
+
+export function prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
+    console.log(`*** Creating Expo app via 'echo -ne '\\n' | expo init -t tabs --name ${appName}  --workflow managed ${appName}' in ${workspacePath}...`);
+    cp.execSync(`echo -ne '\\n' | expo init -t tabs --name ${appName}  --workflow managed ${appName}`, { cwd: resourcesPath, stdio: "inherit" });
+
+    let customEntryPointFile = path.join(resourcesPath, "ExpoSample", "App.js");
     let launchConfigFile = path.join(resourcesPath, "launch.json");
     let vsCodeConfigPath = path.join(workspacePath, ".vscode");
 
@@ -162,16 +182,18 @@ export function terminateAndroidEmulator() {
     }
 }
 
-export function cleanUp(testVSCodeExecutableFolder: string, workspacePath: string) {
+export function cleanUp(testVSCodeExecutableFolder: string, workspacePaths: string[]) {
     console.log("\n*** Clean up...");
     if (fs.existsSync(testVSCodeExecutableFolder)) {
         console.log(`*** Deleting test VS Code directory: ${testVSCodeExecutableFolder}`);
         rimraf.sync(testVSCodeExecutableFolder);
     }
-    if (fs.existsSync(workspacePath)) {
-        console.log(`*** Deleting test React Native application: ${workspacePath}`);
-        rimraf.sync(workspacePath);
-    }
+    workspacePaths.forEach(testAppFolder => {
+        if (fs.existsSync(testAppFolder)) {
+            console.log(`*** Deleting test application: ${testAppFolder}`);
+            rimraf.sync(testAppFolder);
+        }
+    });
 }
 
 function getKeybindingPlatform(): string {

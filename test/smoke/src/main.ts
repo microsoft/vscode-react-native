@@ -75,12 +75,17 @@ console.warn = function suppressWebdriverWarnings(message) {
     warn.apply(console, arguments);
 };
 
-const appName = "latestRNApp";
+const RNAppName = "latestRNApp";
+const workspacePath = path.join(resourcesPath, RNAppName);
+const workspaceFilePath = path.join(workspacePath, "App.js");
+const ExpoAppName = "latestExpoApp";
+const ExpoWorkspacePath = path.join(resourcesPath, ExpoAppName);
+const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, "App.js");
 const userDataDir = path.join(testVSCodeExecutableFolder, "userTmpFolder");
 const artifactsPath = path.join(repoRoot, "SmokeTestLogs");
-const workspacePath = path.join(resourcesPath, appName);
+
 const extensionsPath = path.join(testVSCodeExecutableFolder, "extensions");
-const workspaceFilePath = path.join(workspacePath, "App.js");
+
 
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
@@ -111,7 +116,8 @@ async function setup(): Promise<void> {
     appiumHelper.runAppium();
 
     await setupEnvironmentHelper.runAndroidEmulator();
-    setupEnvironmentHelper.prepareReactNativeApplication(workspaceFilePath, resourcesPath, workspacePath, appName);
+    setupEnvironmentHelper.prepareReactNativeApplication(workspaceFilePath, resourcesPath, workspacePath, RNAppName);
+    setupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, ExpoAppName);
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
 
     executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
@@ -131,7 +137,7 @@ async function setup(): Promise<void> {
 
 before(async function () {
     this.timeout(smokeTestsConstants.smokeTestSetupAwaitTimeout);
-    setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), workspacePath);
+    setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), [workspacePath, ExpoWorkspacePath]);
     try {
         await setup();
     } catch (err) {

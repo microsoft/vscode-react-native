@@ -11,6 +11,8 @@ const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
 // Time for Android Debug Test before it reach timeout
 const debugAndroidTestTime = 200 * 1000;
+// Time for Android Expo Debug Test before it reach timeout
+const debugExpoTestTime = 200 * 1000;
 export function setup() {
     describe("Android debugging tests", () => {
         before(async function () {
@@ -18,7 +20,7 @@ export function setup() {
             app.suiteName = "Android debugging tests";
         });
 
-        it("Android Debug test", async function () {
+        it("Android React Native Debug test", async function () {
             this.timeout(debugAndroidTestTime);
             const app = this.app as SpectronApplication;
             await app.workbench.explorer.openExplorerView();
@@ -45,6 +47,11 @@ export function setup() {
             let testOutputIndex = result.indexOf("Test output from debuggee");
             assert.notStrictEqual(testOutputIndex, -1, "\"Test output from debuggee\" string is not contains in debug console");
             await app.workbench.debug.stopDebugging();
+        });
+
+        it("Android Expo Debug test", async function () {
+            this.timeout(debugExpoTestTime);
+            //const app = this.app as SpectronApplication;
         });
     });
 }
