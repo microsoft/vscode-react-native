@@ -1,5 +1,3 @@
-import { smokeTestsConstants } from "./smokeTestsConstants";
-
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
@@ -18,7 +16,7 @@ const https = require("https");
 const fs = require("fs");
 const cp = require("child_process");
 const rimraf = require("rimraf");
-
+import { smokeTestsConstants } from "./smokeTestsConstants";
 
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
