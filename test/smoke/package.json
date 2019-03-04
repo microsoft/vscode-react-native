@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "tsc",
     "watch": "tsc --watch",
-    "mocha": "node ./node_modules/mocha/bin/_mocha"
+    "mocha": "tsc && node ./node_modules/mocha/bin/_mocha"
   },
   "devDependencies": {
     "@types/mkdirp": "0.5.1",
