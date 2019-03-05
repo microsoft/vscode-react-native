@@ -6,6 +6,7 @@ import * as assert from "assert";
 import { appiumHelper } from "./helpers/appiumHelper";
 import { androidEmulatorName, sleep } from "./helpers/setupEnvironmentHelper";
 import { smokeTestsConstants } from "./helpers/smokeTestsConstants";
+import { ExpoWorkspacePath } from "./main";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -47,11 +48,28 @@ export function setup() {
             let testOutputIndex = result.indexOf("Test output from debuggee");
             assert.notStrictEqual(testOutputIndex, -1, "\"Test output from debuggee\" string is not contains in debug console");
             await app.workbench.debug.stopDebugging();
+            client.closeApp();
+            client.end();
         });
 
         it("Android Expo Debug test", async function () {
             this.timeout(debugExpoTestTime);
-            //const app = this.app as SpectronApplication;
+            const app = this.app as SpectronApplication;
+            await app.restart({workspaceOrFolder: ExpoWorkspacePath});
+            await app.workbench.explorer.openExplorerView();
+            await app.workbench.explorer.openFile("App.js");
+            await app.runCommand("cursorTop");
+            console.log("Android Expo Debug test: App.js file is opened");
+            await app.workbench.debug.setBreakpointOnLine(21);
+            console.log("Android Debug test: Breakpoint is set on line 21");
+            await app.workbench.debug.openDebugViewlet();
+            console.log("Android Debug test: starting debugging");
+            await app.workbench.debug.startDebugging();
+            const opts = appiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME,
+            smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
+            let client = appiumHelper.webdriverAttach(opts);
+            await appiumHelper.enableRemoteDebugJSForRN(client);
+            client.end();
         });
     });
 }

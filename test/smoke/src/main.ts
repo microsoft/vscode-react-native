@@ -79,7 +79,7 @@ const RNAppName = "latestRNApp";
 const workspacePath = path.join(resourcesPath, RNAppName);
 const workspaceFilePath = path.join(workspacePath, "App.js");
 const ExpoAppName = "latestExpoApp";
-const ExpoWorkspacePath = path.join(resourcesPath, ExpoAppName);
+export const ExpoWorkspacePath = path.join(resourcesPath, ExpoAppName);
 const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, "App.js");
 const userDataDir = path.join(testVSCodeExecutableFolder, "userTmpFolder");
 const artifactsPath = path.join(repoRoot, "SmokeTestLogs");
@@ -118,6 +118,7 @@ async function setup(): Promise<void> {
     await setupEnvironmentHelper.runAndroidEmulator();
     setupEnvironmentHelper.prepareReactNativeApplication(workspaceFilePath, resourcesPath, workspacePath, RNAppName);
     setupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, ExpoAppName);
+    await setupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
 
     executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
