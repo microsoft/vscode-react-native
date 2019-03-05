@@ -62,7 +62,8 @@ lintSources = lintSources.concat([
     "!src/typings/**",
     "!test/resources/sampleReactNative022Project/**",
     // TODO Fix lint issues in smoke tests
-    "!test/smoke/**"
+    "!test/smoke/**",
+    "!/SmokeTestLogs/**"
 ]);
 
 function build(failOnError, buildNls) {

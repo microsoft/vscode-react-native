@@ -17,11 +17,13 @@ const fs = require("fs");
 const cp = require("child_process");
 const rimraf = require("rimraf");
 import { smokeTestsConstants } from "./smokeTestsConstants";
+import { appiumHelper } from "./appiumHelper";
 
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
 const downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-archive" : "linux-x64";
 const artifactsFolderName = "drop-win";
+const expoPackageName = "host.exp.exponent";
 const androidEmulatorPort = 5554;
 export const androidEmulatorName = `emulator-${androidEmulatorPort}`;
 
@@ -76,8 +78,9 @@ export async function fetchKeybindings(keybindingsPath: string) {
 }
 
 export function prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
-    console.log(`*** Creating RN app via 'react-native init ${appName}' in ${workspacePath}...`);
-    cp.execSync(`react-native init ${appName}`, { cwd: resourcesPath, stdio: "inherit" });
+    const command = `react-native init ${appName}`;
+    console.log(`*** Creating RN app via '${command}' in ${workspacePath}...`);
+    cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
     let customEntryPointFile = path.join(resourcesPath, "ReactNativeSample", "App.js");
     let launchConfigFile = path.join(resourcesPath, "launch.json");
@@ -96,8 +99,12 @@ export function prepareReactNativeApplication(workspaceFilePath: string, resourc
 }
 
 export function prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
-    console.log(`*** Creating Expo app via 'echo -ne '\\n' | expo init -t tabs --name ${appName}  --workflow managed ${appName}' in ${workspacePath}...`);
-    cp.execSync(`echo -ne '\\n' | expo init -t tabs --name ${appName}  --workflow managed ${appName}`, { cwd: resourcesPath, stdio: "inherit" });
+    const command = `echo -ne '\\n' | expo init -t tabs --name ${appName}  --workflow managed ${appName}`;
+    const installExpoCliCommand = "npm install --save-dev expo-cli";
+    console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
+    cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
+    console.log(`*** Adding expo-cli dependency via '${installExpoCliCommand}' in ${workspacePath}...`);
+    cp.execSync(installExpoCliCommand, { cwd: workspacePath, stdio: "inherit" });
 
     let customEntryPointFile = path.join(resourcesPath, "ExpoSample", "App.js");
     let launchConfigFile = path.join(resourcesPath, "launch.json");
@@ -113,6 +120,17 @@ export function prepareExpoApplication(workspaceFilePath: string, resourcesPath:
 
     console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
     fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+}
+
+// Installs Expo app on Android device via Expo start command
+export async function installExpoAppOnAndroid(expoAppPath: string) {
+    console.log(`*** Installing Expo app (${expoPackageName}) on android device with 'expo-cli android' command`);
+    let installerProcess = cp.spawn("node" , ["./node_modules/expo-cli/bin/expo.js", "android"], {cwd: expoAppPath, stdio: "inherit"});
+    await appiumHelper.checkAppIsInstalled(expoPackageName, 100000);
+    installerProcess.kill("SIGTERM");
+    const drawPermitCommand = `adb -s ${androidEmulatorName} shell appops set ${expoPackageName} SYSTEM_ALERT_WINDOW allow`;
+    console.log(`*** Enabling permission for drawing over apps via: ${drawPermitCommand}`);
+    cp.execSync(drawPermitCommand, {stdio: "inherit"});
 }
 
 export function installExtensionFromVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string, isInsiders: boolean) {
@@ -151,7 +169,7 @@ export async function runAndroidEmulator() {
      process.env.ANDROID_EMULATOR || "",
      "-gpu", "swiftshader_indirect",
      "-wipe-data",
-     "-port", androidEmulatorPort,
+     "-port", androidEmulatorPort.toString(),
      "-no-snapshot",
      "-no-boot-anim",
      "-no-audio"];
@@ -159,16 +177,6 @@ export async function runAndroidEmulator() {
 
     console.log(`*** Awaiting ${smokeTestsConstants.emulatorLoadTimeout}ms for emulator load`);
     await sleep(smokeTestsConstants.emulatorLoadTimeout);
-}
-
-// Await function
-export async function sleep(time: number) {
-    await new Promise(resolve => {
-        const timer = setTimeout(() => {
-        clearTimeout(timer);
-        resolve();
-        }, time);
-    });
 }
 
 // Terminates emulator "emulator-PORT" if it exists, where PORT is 5554 by default
@@ -180,6 +188,16 @@ export function terminateAndroidEmulator() {
         console.log(`Terminating Android '${androidEmulatorName}'...`);
         cp.execSync(`adb -s ${androidEmulatorName} emu kill`, {stdio: "inherit"});
     }
+}
+
+// Await function
+export async function sleep(time: number) {
+    await new Promise(resolve => {
+        const timer = setTimeout(() => {
+        clearTimeout(timer);
+        resolve();
+        }, time);
+    });
 }
 
 export function cleanUp(testVSCodeExecutableFolder: string, workspacePaths: string[]) {

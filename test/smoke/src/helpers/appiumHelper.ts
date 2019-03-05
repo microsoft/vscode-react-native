@@ -49,7 +49,7 @@ export class appiumHelper {
     }
 
     // Check if appPackage is installed on Android device for waitTime ms
-    public static async checkAppIsInstalled(appPackage: string, waitTime: number) {
+    public static async checkAppIsInstalled(appPackage: string, waitTime: number, waitInitTime?: number) {
         let awaitRetries: number = waitTime / 1000;
         let retry = 1;
         await new Promise((resolve, reject) => {
@@ -67,8 +67,9 @@ export class appiumHelper {
                 }
                 if (result) {
                     clearInterval(check);
-                    console.log("*** Installed React Native app found, await 10s for initializing...")
-                    await sleep(10000);
+                    const initTimeout = waitInitTime || 10000;
+                    console.log(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`)
+                    await sleep(initTimeout);
                     resolve();
                 } else {
                     retry++;
