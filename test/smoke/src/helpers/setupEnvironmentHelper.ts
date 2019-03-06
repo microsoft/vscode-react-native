@@ -115,9 +115,12 @@ export function installExtensionFromVSIX(extensionDir: string, testVSCodeExecuta
     }
     console.log(`*** Installing ${extensionFile} into ${extensionDir} using ${testVSCodeExecutablePath} executable`);
     cp.spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
-    // TODO add optional parameter to mocha runner to disable deleting extension
-    console.log(`*** Deleting ${extensionFile} after installation`);
-    rimraf.sync(extensionFile);
+    if (!process.argv.includes("--dont-delete-vsix")) {
+        console.log(`*** Deleting ${extensionFile} after installation`);
+        rimraf.sync(extensionFile);
+    } else {
+        console.log("*** --dont-delete-vsix parameter is set, skipping deleting of VSIX");
+    }
 }
 
 export async function runAndroidEmulator() {

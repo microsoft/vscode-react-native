@@ -200,7 +200,8 @@
 			"outFiles": [
 				"${workspaceRoot}/src/**/*.js"
             ],
-            "sourceMaps": true
+            "sourceMaps": true,
+            "preLaunchTask": "build-smoke-tests"
 		}
     ],
     "compounds": [
