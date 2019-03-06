@@ -43,7 +43,7 @@ export function setup() {
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
             await appiumHelper.checkAppIsInstalled(RN_APP_PACKAGE_NAME, smokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = appiumHelper.webdriverAttach(opts);
-            await appiumHelper.enableRemoteDebugJSForRN(client);
+            await appiumHelper.enableRemoteDebugJSForRNAndroid(client);
             console.log("Android Debug test: debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");
             console.log("Android Debug test: stack frame found");
@@ -76,7 +76,7 @@ export function setup() {
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
             let client = appiumHelper.webdriverAttach(opts);
-            await appiumHelper.enableRemoteDebugJSForRN(client);
+            await appiumHelper.enableRemoteDebugJSForRNAndroid(client);
             client.end();
         });
     });

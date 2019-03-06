@@ -5,6 +5,7 @@ import * as cp from "child_process";
 import * as wdio from "webdriverio";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
+import * as clipboardy from "clipboardy";
 import { smokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./setupEnvironmentHelper";
 let appiumProcess: null | cp.ChildProcess;
@@ -14,6 +15,7 @@ export class appiumHelper {
     public static RN_RELOAD_BUTTON = "//*[@text='Reload']";
     public static RN_ENABLE_REMOTE_DEBUGGING_BUTTON = "//*[@text='Debug JS Remotely']";
     public static RN_STOP_REMOTE_DEBUGGING_BUTTON = "//*[@text='Stop Remote JS Debugging']";
+    public static EXPO_OPEN_FROM_CLIPBOARD = "//*[@text='Open from Clipboard']";
 
     public static runAppium() {
         const appiumLogFolder = path.join(__dirname, "..", "..", "..", "..", "SmokeTestLogs");
@@ -87,7 +89,20 @@ export class appiumHelper {
         return wdio.remote(attachArgs);
     }
 
-    public static async enableRemoteDebugJSForRN(client: wdio.Client<void>) {
+    public static async openExpoApplicationAndroid(client: wdio.Client<void>, expoURL: string) {
+        // Expo application automatically detects Expo URLs in the clipboard
+        // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
+        console.log(`*** Copying ${expoURL} to system clipboard`);
+        clipboardy.writeSync(expoURL);
+        console.log(`*** Searching for ${this.EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
+        // Run Expo app by expoAppURL
+        await client.init()
+        .waitForExist(this.EXPO_OPEN_FROM_CLIPBOARD, 30000)
+        .click(this.EXPO_OPEN_FROM_CLIPBOARD);
+        console.log(`*** ${this.EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
+    }
+
+    public static async enableRemoteDebugJSForRNAndroid(client: wdio.Client<void>) {
         console.log("*** Enabling Remote JS Debugging for application...");
         await client.init()
         .waitUntil(async () => {
