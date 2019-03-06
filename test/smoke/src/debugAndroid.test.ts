@@ -34,9 +34,9 @@ export function setup() {
             console.log("Android Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(23);
             console.log("Android Debug test: Breakpoint is set on line 23");
+            await app.workbench.debug.openDebugViewlet();
             await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
             console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
-            await app.workbench.debug.openDebugViewlet();
             console.log("Android Debug test: starting debugging");
             await app.workbench.debug.startDebugging();
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME,
