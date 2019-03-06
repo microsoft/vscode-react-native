@@ -45,10 +45,10 @@ export class Debug extends Viewlet {
         await this.spectron.client.waitForElement(DEBUG_VIEW);
     }
 
-    public async chooseDebugConfiguration(debugOption: number) {
+    public async chooseDebugConfiguration(debugOption: string) {
         await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX}`);
         await this.spectron.client.waitForElement(DEBUG_OPTIONS_COMBOBOX_OPENED);
-        await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX_OPENED}>:nth-child(${debugOption})`);
+        await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX_OPENED} option[value=\"${debugOption}\"]`);
     }
 
     public async configure(): Promise<any> {

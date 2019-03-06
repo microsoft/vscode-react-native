@@ -65,7 +65,7 @@ export function setup() {
             await app.workbench.debug.setBreakpointOnLine(21);
             console.log("Android Debug test: Breakpoint is set on line 21");
             await app.workbench.debug.openDebugViewlet();
-            await app.workbench.debug.chooseDebugConfiguration(4);
+            await app.workbench.debug.chooseDebugConfiguration("Debug in Exponent");
             console.log("Android Debug test: starting debugging");
             await app.workbench.debug.startDebugging();
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
