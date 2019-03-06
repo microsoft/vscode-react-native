@@ -11,7 +11,9 @@ import { ExpoWorkspacePath } from "./main";
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
 const EXPO_APP_PACKAGE_NAME = expoPackageName;
-const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.MainActivity`
+const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity`;
+const RNDebugConfigName = "Debug Android";
+const ExpoDebugConfigName = "Debug in Exponent";
 // Time for Android Debug Test before it reach timeout
 const debugAndroidTestTime = 200 * 1000;
 // Time for Android Expo Debug Test before it reach timeout
@@ -32,6 +34,8 @@ export function setup() {
             console.log("Android Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(23);
             console.log("Android Debug test: Breakpoint is set on line 23");
+            await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
+            console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             await app.workbench.debug.openDebugViewlet();
             console.log("Android Debug test: starting debugging");
             await app.workbench.debug.startDebugging();
@@ -54,7 +58,7 @@ export function setup() {
             client.end();
         });
 
-        it("Android Expo Debug test", async function () {
+        it.only("Android Expo Debug test", async function () {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: ExpoWorkspacePath});
@@ -63,10 +67,11 @@ export function setup() {
             await app.runCommand("cursorTop");
             console.log("Android Expo Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(21);
-            console.log("Android Debug test: Breakpoint is set on line 21");
+            console.log("Android Expo test: Breakpoint is set on line 21");
             await app.workbench.debug.openDebugViewlet();
-            await app.workbench.debug.chooseDebugConfiguration("Debug in Exponent");
-            console.log("Android Debug test: starting debugging");
+            console.log(`Android Expo test: Chosen debug configuration: ${ExpoDebugConfigName}`);
+            await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
+            console.log("Android Expo test: starting debugging");
             await app.workbench.debug.startDebugging();
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
