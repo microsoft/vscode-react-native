@@ -6,6 +6,8 @@ import { Viewlet } from "../workbench/viewlet";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
+const DEBUG_OPTIONS_COMBOBOX = "select[aria-label=\"Debug Launch Configurations\"].monaco-select-box.monaco-select-box-dropdown-padding";
+const DEBUG_OPTIONS_COMBOBOX_OPENED = "select[aria-label=\"Debug Launch Configurations\"].monaco-select-box.monaco-select-box-dropdown-padding.synthetic-focus";
 const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .configure`;
 const START = `.icon[title="Start Debugging"]`;
 const STOP = `.debug-toolbar .debug-action.stop`;
@@ -41,6 +43,12 @@ export class Debug extends Viewlet {
     public async openDebugViewlet(): Promise<any> {
         await this.spectron.runCommand("workbench.view.debug");
         await this.spectron.client.waitForElement(DEBUG_VIEW);
+    }
+
+    public async chooseDebugConfiguration(debugOption: number) {
+        await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX}`);
+        await this.spectron.client.waitForElement(DEBUG_OPTIONS_COMBOBOX_OPENED);
+        await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX_OPENED}>:nth-child(${debugOption})`);
     }
 
     public async configure(): Promise<any> {

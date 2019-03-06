@@ -4,12 +4,14 @@
 import { SpectronApplication } from "./spectron/application";
 import * as assert from "assert";
 import { appiumHelper } from "./helpers/appiumHelper";
-import { androidEmulatorName, sleep } from "./helpers/setupEnvironmentHelper";
+import { androidEmulatorName, sleep, expoPackageName } from "./helpers/setupEnvironmentHelper";
 import { smokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath } from "./main";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
+const EXPO_APP_PACKAGE_NAME = expoPackageName;
+const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.MainActivity`
 // Time for Android Debug Test before it reach timeout
 const debugAndroidTestTime = 200 * 1000;
 // Time for Android Expo Debug Test before it reach timeout
@@ -63,9 +65,10 @@ export function setup() {
             await app.workbench.debug.setBreakpointOnLine(21);
             console.log("Android Debug test: Breakpoint is set on line 21");
             await app.workbench.debug.openDebugViewlet();
+            await app.workbench.debug.chooseDebugConfiguration(4);
             console.log("Android Debug test: starting debugging");
             await app.workbench.debug.startDebugging();
-            const opts = appiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME,
+            const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
             let client = appiumHelper.webdriverAttach(opts);
             await appiumHelper.enableRemoteDebugJSForRN(client);
