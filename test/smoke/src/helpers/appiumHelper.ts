@@ -95,7 +95,7 @@ export class appiumHelper {
         console.log(`*** Copying ${expoURL} to system clipboard`);
         clipboardy.writeSync(expoURL);
         console.log(`*** Searching for ${this.EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
-        // Run Expo app by expoAppURL
+        // Run Expo app by expoURL
         await client.init()
         .waitForExist(this.EXPO_OPEN_FROM_CLIPBOARD, 30000)
         .click(this.EXPO_OPEN_FROM_CLIPBOARD);
