@@ -22,6 +22,12 @@ export class appiumHelper {
         console.log(`*** Executing Appium with logging to ${appiumLogPath}`);
         let appiumCommand = process.platform === "win32" ? "appium.cmd" : "appium";
         appiumProcess = cp.spawn(appiumCommand, ["--log", appiumLogPath]);
+        appiumProcess.on("close", () => {
+            console.log("*** Appium terminated");
+        });
+        appiumProcess.on("error", (error) => {
+            console.log("Error occurred in Appium process: ", error);
+        });
     }
 
     public static terminateAppium() {
