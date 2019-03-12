@@ -73,6 +73,7 @@ export function setup() {
             await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
             console.log("Android Expo test: starting debugging");
             await app.workbench.debug.startDebugging();
+            await app.workbench.waitForTab("Expo QR Code");
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
             let client = appiumHelper.webdriverAttach(opts);
