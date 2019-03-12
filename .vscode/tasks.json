@@ -32,12 +32,15 @@
             ]
         },
         {
-            "type": "typescript",
             "label": "build-smoke-tests",
-            "tsconfig": "test/smoke/tsconfig.json",
-            "problemMatcher": [
-                "$tsc"
-            ]
-        }
+            "type": "process",
+            "command": ["./node_modules/.bin/tsc"],
+            "windows": {
+                "command": ".\\node_modules\\.bin\\tsc.cmd",
+            },
+            "options": {
+                "cwd": "${workspaceRoot}/test/smoke"
+            }
+        },
     ]
 }
