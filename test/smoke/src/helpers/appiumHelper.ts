@@ -33,7 +33,7 @@ export class appiumHelper {
     public static terminateAppium() {
         if (appiumProcess) {
             console.log(`*** Terminating Appium`);
-            appiumProcess.kill();
+            appiumProcess.kill("SIGINT");
         }
     }
 
