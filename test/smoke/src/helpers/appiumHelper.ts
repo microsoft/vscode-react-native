@@ -34,7 +34,7 @@ export class appiumHelper {
     public static terminateAppium() {
         if (appiumProcess) {
             console.log(`*** Terminating Appium`);
-            kill(appiumProcess.pid);
+            kill(appiumProcess.pid, "SIGINT");
         }
     }
 

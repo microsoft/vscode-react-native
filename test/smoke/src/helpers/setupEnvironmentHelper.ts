@@ -18,6 +18,7 @@ import * as rimraf from "rimraf";
 import * as cp from "child_process";
 import { smokeTestsConstants } from "./smokeTestsConstants";
 import { appiumHelper } from "./appiumHelper";
+import * as kill from "tree-kill";
 
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
@@ -100,11 +101,8 @@ export function prepareReactNativeApplication(workspaceFilePath: string, resourc
 
 export function prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
     const command = `echo -ne '\\n' | expo init -t tabs --name ${appName}  --workflow managed ${appName}`;
-    const installExpoCliCommand = "npm install --save-dev expo-cli";
     console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
     cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
-    console.log(`*** Adding expo-cli dependency via '${installExpoCliCommand}' in ${workspacePath}...`);
-    cp.execSync(installExpoCliCommand, { cwd: workspacePath, stdio: "inherit" });
 
     let customEntryPointFile = path.join(resourcesPath, "ExpoSample", "App.js");
     let launchConfigFile = path.join(resourcesPath, "launch.json");
@@ -125,9 +123,16 @@ export function prepareExpoApplication(workspaceFilePath: string, resourcesPath:
 // Installs Expo app on Android device via Expo start command
 export async function installExpoAppOnAndroid(expoAppPath: string) {
     console.log(`*** Installing Expo app (${expoPackageName}) on android device with 'expo-cli android' command`);
-    let installerProcess = cp.spawn("node" , ["./node_modules/expo-cli/bin/expo.js", "android"], {cwd: expoAppPath, stdio: "inherit"});
+    let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
+    let installerProcess = cp.spawn(expoCliCommand, ["android"], {cwd: expoAppPath, stdio: "inherit"});
+    installerProcess.on("close", () => {
+        console.log("*** expo-cli terminated");
+    });
+    installerProcess.on("error", (error) => {
+        console.log("Error occurred in expo-cli process: ", error);
+    });
     await appiumHelper.checkAppIsInstalled(expoPackageName, 100000);
-    installerProcess.kill("SIGTERM");
+    kill(installerProcess.pid, "SIGINT");
     const drawPermitCommand = `adb -s ${androidEmulatorName} shell appops set ${expoPackageName} SYSTEM_ALERT_WINDOW allow`;
     console.log(`*** Enabling permission for drawing over apps via: ${drawPermitCommand}`);
     cp.execSync(drawPermitCommand, {stdio: "inherit"});
