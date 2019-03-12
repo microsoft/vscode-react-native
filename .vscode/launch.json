@@ -194,7 +194,8 @@
             "protocol": "inspector",
 			"name": "Launch Smoke Test",
 			"program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
-			"cwd": "${workspaceFolder}/test/smoke",
+            "cwd": "${workspaceFolder}/test/smoke",
+            "args": [ "--dont-delete-vsix" ],
             "timeout": 240000,
             "stopOnEntry": false,
 			"outFiles": [
