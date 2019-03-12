@@ -1,22 +1,44 @@
 {
-    "version": "0.1.0",
-    "command": "gulp",
-    "isShellCommand": true,
+    "version": "2.0.0",
     "tasks": [
         {
-            "taskName": "watch",
-            "isBuildCommand": true,
+            "label": "watch",
+            "type": "shell",
+            "command": "gulp",
+            "args": [],
+            "group": "build",
             "isBackground": true,
-            "problemMatcher": "$gulp-tsc"
+            "problemMatcher": [
+                "$gulp-tsc"
+            ]
         },
         {
-            "taskName": "build",
-            "isBuildCommand": true,
-            "problemMatcher": "$gulp-tsc"
+            "label": "build",
+            "type": "shell",
+            "command": "gulp",
+            "group": "build",
+            "isBackground": true,
+            "problemMatcher": [
+                "$gulp-tsc"
+            ]
         },
         {
-            "taskName": "tslint",
-            "problemMatcher": "$tslint5"
+            "label": "tslint",
+            "type": "shell",
+            "command": "gulp",
+            "isBackground": true,
+            "problemMatcher": [
+                "$tslint5"
+            ]
+        },
+        {
+            "label": "build-smoke-tests",
+            "type": "shell",
+            "command": "node",
+            "args": ["./node_modules/.bin/tsc"],
+            "options": {
+                "cwd": "${workspaceRoot}/test/smoke"
+            }
         }
     ]
 }

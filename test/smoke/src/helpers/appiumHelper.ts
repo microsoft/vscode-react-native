@@ -5,6 +5,7 @@ import * as cp from "child_process";
 import * as wdio from "webdriverio";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
+import * as kill from "tree-kill";
 import { smokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./setupEnvironmentHelper";
 let appiumProcess: null | cp.ChildProcess;
@@ -22,12 +23,18 @@ export class appiumHelper {
         console.log(`*** Executing Appium with logging to ${appiumLogPath}`);
         let appiumCommand = process.platform === "win32" ? "appium.cmd" : "appium";
         appiumProcess = cp.spawn(appiumCommand, ["--log", appiumLogPath]);
+        appiumProcess.on("close", () => {
+            console.log("*** Appium terminated");
+        });
+        appiumProcess.on("error", (error) => {
+            console.log("Error occurred in Appium process: ", error);
+        });
     }
 
     public static terminateAppium() {
         if (appiumProcess) {
             console.log(`*** Terminating Appium`);
-            appiumProcess.kill();
+            kill(appiumProcess.pid);
         }
     }
 

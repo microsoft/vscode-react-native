@@ -16,7 +16,7 @@ export function getContents(url, token, headers, callback) {
     });
 }
 
-export function toRequestOptions(url, token, headers) {
+export function toRequestOptions(url, token?, headers?) {
     headers = headers || {
         "user-agent": "nodejs",
     };
