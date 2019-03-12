@@ -10,7 +10,7 @@ import { smokeTestsConstants } from "./helpers/smokeTestsConstants";
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
 // Time for Android Debug Test before it reach timeout
-const debugAndroidTestTime = 200 * 1000;
+const debugAndroidTestTime = smokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
 export function setup() {
     describe("Android debugging tests", () => {
         before(async function () {
