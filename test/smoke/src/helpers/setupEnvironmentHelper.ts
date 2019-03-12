@@ -1,21 +1,21 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-const remote = require("gulp-remote-src-vscode");
-const vzip = require("gulp-vinyl-zip");
-const vfs = require("vinyl-fs");
-const untar = require("gulp-untar");
-const gunzip = require("gulp-gunzip");
-const chmod = require("gulp-chmod");
-const filter = require("gulp-filter");
-const path = require("path");
-const shared = require("./shared");
-const request = require("request");
-const source = require("vinyl-source-stream");
-const https = require("https");
-const fs = require("fs");
-const cp = require("child_process");
-const rimraf = require("rimraf");
+import * as remote from "gulp-remote-src-vscode";
+import * as vzip from "gulp-vinyl-zip";
+import * as vfs from "vinyl-fs";
+import * as untar from "gulp-untar";
+import * as gunzip from "gulp-gunzip";
+import * as chmod from "gulp-chmod";
+import * as filter from "gulp-filter";
+import * as path from "path";
+import * as shared from "./shared";
+import * as request from "request";
+import * as source from "vinyl-source-stream";
+import * as https from "https";
+import * as fs from "fs";
+import * as rimraf from "rimraf";
+import * as cp from "child_process";
 import { smokeTestsConstants } from "./smokeTestsConstants";
 import { appiumHelper } from "./appiumHelper";
 
@@ -139,7 +139,7 @@ export function installExtensionFromVSIX(extensionDir: string, testVSCodeExecuta
     const artifactPath = path.join(resourcesPath, artifactsFolderName);
     const dirFiles = fs.readdirSync(artifactPath);
     let extensionFile = dirFiles.find((elem) => {
-        return elem.match(/.*\.(vsix)/);
+        return /.*\.(vsix)/.test(elem);
     });
     if (!extensionFile) {
         throw new Error(`React Native extension .vsix is not found in ${resourcesPath}`);
@@ -154,8 +154,12 @@ export function installExtensionFromVSIX(extensionDir: string, testVSCodeExecuta
     }
     console.log(`*** Installing ${extensionFile} into ${extensionDir} using ${testVSCodeExecutablePath} executable`);
     cp.spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
-    console.log(`*** Deleting ${extensionFile} after installation`);
-    rimraf.sync(extensionFile);
+    if (!process.argv.includes("--dont-delete-vsix")) {
+        console.log(`*** Deleting ${extensionFile} after installation`);
+        rimraf.sync(extensionFile);
+    } else {
+        console.log("*** --dont-delete-vsix parameter is set, skipping deleting of VSIX");
+    }
 }
 
 export async function runAndroidEmulator() {
@@ -173,10 +177,36 @@ export async function runAndroidEmulator() {
      "-no-snapshot",
      "-no-boot-anim",
      "-no-audio"];
-    cp.spawn("emulator", emulatorOpts, {stdio: "inherit"});
+    const proc = cp.spawn("emulator", emulatorOpts, {stdio: "pipe"});
+    let started = false;
+    proc.stdout.on("data", (chunk) => {
+        process.stdout.write(chunk);
+        if (/boot completed/.test(chunk.toString().trim())) {
+            started = true;
+        }
+    });
 
-    console.log(`*** Awaiting ${smokeTestsConstants.emulatorLoadTimeout}ms for emulator load`);
-    await sleep(smokeTestsConstants.emulatorLoadTimeout);
+    console.log(`*** Waiting for emulator to load (timeout is ${smokeTestsConstants.emulatorLoadTimeout}ms)`);
+    let awaitRetries: number = smokeTestsConstants.emulatorLoadTimeout / 1000;
+    let retry = 1;
+    await new Promise((resolve, reject) => {
+        let check = setInterval(async () => {
+            if (started) {
+                clearInterval(check);
+                console.log("*** Emulator finished loading, waiting for 2 seconds");
+                await sleep(2000);
+                resolve();
+            } else {
+                retry++;
+                if (retry >= awaitRetries) {
+                    // When time's up just let it go - emulator should have started at this time
+                    // The reason why std check didn't work is more likely that extra logging (INFO level) for emulator was disabled
+                    clearInterval(check);
+                    resolve();
+                }
+            }
+        }, 1000);
+    });
 }
 
 // Terminates emulator "emulator-PORT" if it exists, where PORT is 5554 by default
