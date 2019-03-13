@@ -22,7 +22,7 @@ import * as kill from "tree-kill";
 
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
-const downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-archive" : "linux-x64";
+const downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-x64-archive" : "linux-x64";
 const artifactsFolderName = "drop-win";
 export const expoPackageName = "host.exp.exponent";
 const androidEmulatorPort = 5554;
