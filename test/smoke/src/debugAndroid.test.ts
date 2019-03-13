@@ -15,9 +15,10 @@ const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity
 const RNDebugConfigName = "Debug Android";
 const ExpoDebugConfigName = "Debug in Exponent";
 // Time for Android Debug Test before it reach timeout
-const debugAndroidTestTime = 200 * 1000;
+const debugAndroidTestTime = smokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
 // Time for Android Expo Debug Test before it reach timeout
 const debugExpoTestTime = 200 * 1000;
+
 export function setup() {
     describe("Android debugging tests", () => {
         before(async function () {
