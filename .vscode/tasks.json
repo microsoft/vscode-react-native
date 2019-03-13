@@ -33,12 +33,14 @@
         },
         {
             "label": "build-smoke-tests",
-            "type": "shell",
-            "command": "node",
-            "args": ["./node_modules/.bin/tsc"],
+            "type": "process",
+            "command": ["./node_modules/.bin/tsc"],
+            "windows": {
+                "command": ".\\node_modules\\.bin\\tsc.cmd",
+            },
             "options": {
                 "cwd": "${workspaceRoot}/test/smoke"
             }
-        }
+        },
     ]
 }
