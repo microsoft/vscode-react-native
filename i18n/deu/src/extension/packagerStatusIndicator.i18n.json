@@ -6,5 +6,10 @@
 {
 	"StartPackager": "Packager starten",
 	"RestartPackager": "Packager neu starten",
-	"StopPackager": "Packager beenden"
+	"StopPackager": "Packager beenden",
+	"ReactNativePackager": "React Native-Packager",
+	"PackagerStopped": "{0}: beendet",
+	"PackagerStopping": "{0}: wird beendet",
+	"PackagerStarted": "{0}: gestartet",
+	"PackagerStarting": "{0}: wird gestartet"
 }
