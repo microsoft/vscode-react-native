@@ -4,8 +4,10 @@
 import * as cp from "child_process";
 import * as wdio from "webdriverio";
 import * as path from "path";
-import * as mkdirp from "mkdirp";import * as kill from "tree-kill";
-import * as clipboardy from "clipboardy";import { smokeTestsConstants } from "./smokeTestsConstants";
+import * as mkdirp from "mkdirp";
+import * as kill from "tree-kill";
+import * as clipboardy from "clipboardy";
+import { smokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./setupEnvironmentHelper";
 let appiumProcess: null | cp.ChildProcess;
 
