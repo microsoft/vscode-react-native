@@ -18,7 +18,7 @@ const ExpoDebugConfigName = "Debug in Exponent";
 // Time for Android Debug Test before it reach timeout
 const debugAndroidTestTime = smokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
 // Time for Android Expo Debug Test before it reach timeout
-const debugExpoTestTime = 200 * 1000;
+const debugExpoTestTime = smokeTestsConstants.ExpoAppBuildAndInstallTimeout + 200 * 1000;
 
 // Function getting Expo URL from VS Code Expo QR Code tab
 // For correct work opened and selected Expo QR Code tab is needed
