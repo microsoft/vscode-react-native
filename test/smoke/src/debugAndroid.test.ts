@@ -63,7 +63,8 @@ export function setup() {
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
             await appiumHelper.checkAppIsInstalled(RN_APP_PACKAGE_NAME, smokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = appiumHelper.webdriverAttach(opts);
-            await appiumHelper.enableRemoteDebugJSForRNAndroid(client);
+            let clientInited = client.init();
+            await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
             console.log("Android Debug test: debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");
             console.log("Android Debug test: stack frame found");
@@ -94,7 +95,6 @@ export function setup() {
             console.log("Android Expo test: starting debugging");
             await app.workbench.debug.startDebugging();
             await app.workbench.waitForTab("Expo QR Code");
-            console.log("Android Expo test: found 'Expo QR Code' Tab");
             await app.workbench.waitForActiveTab("Expo QR Code");
             console.log("Android Expo test: 'Expo QR Code' tab found");
             await app.workbench.selectTab("Expo QR Code", false, false);
@@ -103,8 +103,20 @@ export function setup() {
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
             let client = appiumHelper.webdriverAttach(opts);
-            await appiumHelper.openExpoApplicationAndroid(client, expoURL);
-            await appiumHelper.enableRemoteDebugJSForRNAndroid(client);
+            let clientInited = client.init();
+            await appiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
+            await appiumHelper.waitUntilExpoAppIsReady(clientInited);
+            await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 21, "looking for App.js and line 21");
+            console.log("Android Debug test: stack frame found");
+            await app.workbench.debug.continue();
+            // await for our debug string renders in debug console
+            await sleep(500);
+            let result = await app.workbench.debug.getConsoleOutput();
+            let testOutputIndex = result.indexOf("Test output from debuggee");
+            assert.notStrictEqual(testOutputIndex, -1, "\"Test output from debuggee\" string is not contains in debug console");
+            await app.workbench.debug.stopDebugging();
+            client.closeApp();
             client.endAll();
         });
     });

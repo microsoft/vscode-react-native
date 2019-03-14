@@ -17,6 +17,7 @@ export class appiumHelper {
     public static RN_ENABLE_REMOTE_DEBUGGING_BUTTON = "//*[@text='Debug JS Remotely']";
     public static RN_STOP_REMOTE_DEBUGGING_BUTTON = "//*[@text='Stop Remote JS Debugging']";
     public static EXPO_OPEN_FROM_CLIPBOARD = "//*[@text='Open from Clipboard']";
+    public static EXPO_ELEMENT_LOAD_TRIGGER = "//*[@text='Home']";
 
     public static runAppium() {
         const appiumLogFolder = path.join(__dirname, "..", "..", "..", "..", "SmokeTestLogs");
@@ -96,22 +97,35 @@ export class appiumHelper {
         return wdio.remote(attachArgs);
     }
 
-    public static async openExpoApplicationAndroid(client: wdio.Client<void>, expoURL: string) {
+    public static async openExpoApplicationAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
         console.log(`*** Copying ${expoURL} to system clipboard`);
         clipboardy.writeSync(expoURL);
         console.log(`*** Searching for ${this.EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
         // Run Expo app by expoURL
-        await client.init()
+        await client
         .waitForExist(this.EXPO_OPEN_FROM_CLIPBOARD, 30000)
         .click(this.EXPO_OPEN_FROM_CLIPBOARD);
         console.log(`*** ${this.EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
-    public static async enableRemoteDebugJSForRNAndroid(client: wdio.Client<void>) {
+    public static async waitUntilExpoAppIsReady(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
+        console.log("*** Waiting until Expo app is ready...");
+        await client
+        .waitUntil(async () => {
+            if (client.isExisting(this.EXPO_ELEMENT_LOAD_TRIGGER)) {
+                console.log("*** Expo app loaded...");
+                return true;
+            }
+            return false;
+
+        }, smokeTestsConstants.ExpoAppBuildAndInstallTimeout,`Expo not loaded correctly after ${smokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
+    }
+
+    public static async enableRemoteDebugJSForRNAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
         console.log("*** Enabling Remote JS Debugging for application...");
-        await client.init()
+        await client
         .waitUntil(async () => {
             // This command enables RN Dev Menu
             // https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu
