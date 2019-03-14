@@ -53,9 +53,11 @@ export class Workbench {
         await this.spectron.workbench.quickopen.runCommand("File: Save");
     }
 
-    public async selectTab(tabName: string, untitled: boolean = false): Promise<void> {
+    public async selectTab(tabName: string, untitled: boolean = false, isEditor?: boolean): Promise<void> {
         await this.spectron.client.waitAndClick(`.tabs-container div.tab[aria-label="${tabName}, tab"]`);
-        await this.waitForEditorFocus(tabName, untitled);
+        if (isEditor) {
+            await this.waitForEditorFocus(tabName, untitled);
+        }
     }
 
     public async waitForEditorFocus(fileName: string, untitled: boolean = false): Promise<void> {

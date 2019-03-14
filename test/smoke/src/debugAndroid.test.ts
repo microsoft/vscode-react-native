@@ -7,6 +7,7 @@ import { appiumHelper } from "./helpers/appiumHelper";
 import { androidEmulatorName, sleep, expoPackageName } from "./helpers/setupEnvironmentHelper";
 import { smokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath } from "./main";
+import * as clipboardy from "clipboardy";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -18,6 +19,24 @@ const ExpoDebugConfigName = "Debug in Exponent";
 const debugAndroidTestTime = smokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
 // Time for Android Expo Debug Test before it reach timeout
 const debugExpoTestTime = 200 * 1000;
+
+// Function getting Expo URL from VS Code Expo QR Code tab
+// For correct work opened and selected Expo QR Code tab is needed
+async function prepareExpoURLToClipboard(app: SpectronApplication) {
+    await sleep(2000);
+    await app.runCommand("editor.action.webvieweditor.selectAll");
+    console.log("Expo QR Code tab text prepared to be copied");
+    await sleep(1000);
+    await app.runCommand("editor.action.clipboardCopyAction");
+    await sleep(2000);
+    let clipboard = clipboardy.readSync();
+    console.log(`Expo QR Code tab text copied: \n ${clipboard}`);
+    clipboard = clipboard.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
+    assert.notStrictEqual(clipboard, null, "Expo URL pattern is not found in the clipboard");
+    let expoURL = clipboard[0];
+    console.log(`Found Expo URL: ${expoURL}`);
+    return expoURL;
+}
 
 export function setup() {
     describe("Android debugging tests", () => {
@@ -56,7 +75,7 @@ export function setup() {
             assert.notStrictEqual(testOutputIndex, -1, "\"Test output from debuggee\" string is not contains in debug console");
             await app.workbench.debug.stopDebugging();
             client.closeApp();
-            client.end();
+            client.endAll();
         });
 
         it("Android Expo Debug test", async function () {
@@ -76,11 +95,17 @@ export function setup() {
             await app.workbench.debug.startDebugging();
             await app.workbench.waitForTab("Expo QR Code");
             console.log("Android Expo test: found 'Expo QR Code' Tab");
+            await app.workbench.waitForActiveTab("Expo QR Code");
+            console.log("Android Expo test: 'Expo QR Code' tab found");
+            await app.workbench.selectTab("Expo QR Code", false, false);
+            console.log("Android Expo test: 'Expo QR Code' tab selected");
+            let expoURL = await prepareExpoURLToClipboard(app);
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
             let client = appiumHelper.webdriverAttach(opts);
+            await appiumHelper.openExpoApplicationAndroid(client, expoURL);
             await appiumHelper.enableRemoteDebugJSForRNAndroid(client);
-            client.end();
+            client.endAll();
         });
     });
 }
