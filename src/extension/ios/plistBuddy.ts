@@ -24,15 +24,16 @@ export class PlistBuddy {
         this.nodeChildProcess = nodeChildProcess;
     }
 
-    public getBundleId(projectRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string): Q.Promise<string> {
+    public getBundleId(projectIosRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string): Q.Promise<string> {
+        const projectRoot = path.normalize(path.join(projectIosRoot, ".."));
         return ReactNativeProjectHelper.getReactNativeVersion(projectRoot)
         .then((rnVersion) => {
             let productsFolder;
             if (semver.gte(rnVersion, "0.59.0")) {
                 let scheme = this.getScheme(projectRoot);
-                productsFolder = path.join(projectRoot, "build", scheme, "Build", "Products");
+                productsFolder = path.join(projectIosRoot, "build", scheme, "Build", "Products");
             } else {
-                productsFolder = path.join(projectRoot, "build", "Build", "Products");
+                productsFolder = path.join(projectIosRoot, "build", "Build", "Products");
             }
             const configurationFolder = path.join(productsFolder, `${configuration}${simulator ? "-iphonesimulator" : "-iphoneos"}`);
             let executable = "";
@@ -90,8 +91,19 @@ export class PlistBuddy {
     }
 
     private getScheme(projectRoot: string) {
-        const findXcodeProject = require(path.join(projectRoot, "node_modules/@react-native-community/cli/build/commands/runIOS"));
-        const xcodeProject = findXcodeProject(fs.readdirSync("."));
+        // Take portion of code from https://github.com/react-native-community/react-native-cli/blob/master/packages/cli/src/commands/runIOS/runIOS.js
+        // and modify it a little bit
+        /**
+         * Copyright (c) Facebook, Inc. and its affiliates.
+         *
+         * This source code is licensed under the MIT license found in the
+         * LICENSE file in the root directory of this source tree.
+         *
+         * @flow
+         * @format
+         */
+        const findXcodeProject = require(path.join(projectRoot, "node_modules/@react-native-community/cli/build/commands/runIOS/findXcodeProject")).default;
+        const xcodeProject = findXcodeProject(fs.readdirSync(`${projectRoot}/ios`));
         if (!xcodeProject) {
             throw new Error(
                 `Could not find Xcode project files in "${`${projectRoot}/ios`}" folder`
@@ -102,7 +114,7 @@ export class PlistBuddy {
             xcodeProject.name,
             path.extname(xcodeProject.name)
         );
-        //TODO scheme can be passed from build args
+        // TODO scheme can be passed from build args
         const scheme = /* args.scheme  | */ inferredSchemeName;
         return scheme;
     }
