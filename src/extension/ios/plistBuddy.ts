@@ -24,16 +24,19 @@ export class PlistBuddy {
         this.nodeChildProcess = nodeChildProcess;
     }
 
-    public getBundleId(projectIosRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string): Q.Promise<string> {
-        const projectRoot = path.normalize(path.join(projectIosRoot, ".."));
+    public getBundleId(iosProjectRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string, scheme?: string): Q.Promise<string> {
+        const projectRoot = path.normalize(path.join(iosProjectRoot, ".."));
         return ReactNativeProjectHelper.getReactNativeVersion(projectRoot)
         .then((rnVersion) => {
             let productsFolder;
             if (semver.gte(rnVersion, "0.59.0")) {
-                let scheme = this.getScheme(projectRoot);
-                productsFolder = path.join(projectIosRoot, "build", scheme, "Build", "Products");
+                if (!scheme) {
+                    // If no scheme were provided via runOptions.scheme`~ then try to get scheme using the way RN CLI does.
+                    scheme = this.getInferredScheme(projectRoot);
+                }
+                productsFolder = path.join(iosProjectRoot, "build", scheme, "Build", "Products");
             } else {
-                productsFolder = path.join(projectIosRoot, "build", "Build", "Products");
+                productsFolder = path.join(iosProjectRoot, "build", "Build", "Products");
             }
             const configurationFolder = path.join(productsFolder, `${configuration}${simulator ? "-iphonesimulator" : "-iphoneos"}`);
             let executable = "";
@@ -78,21 +81,9 @@ export class PlistBuddy {
         return this.invokePlistBuddy(`Print ${property}`, plistFile);
     }
 
-    private findExecutable(folder: string): string[] {
-        return glob.sync("*.app", {
-            cwd: folder,
-        });
-    }
-
-    private invokePlistBuddy(command: string, plistFile: string): Q.Promise<string> {
-        return this.nodeChildProcess.exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`).outcome.then((result: string) => {
-            return result.toString().trim();
-        });
-    }
-
-    private getScheme(projectRoot: string) {
-        // Take portion of code from https://github.com/react-native-community/react-native-cli/blob/master/packages/cli/src/commands/runIOS/runIOS.js
-        // and modify it a little bit
+    public getInferredScheme(projectRoot: string) {
+        // Portion of code was taken from https://github.com/react-native-community/react-native-cli/blob/master/packages/cli/src/commands/runIOS/runIOS.js
+        // and modified it a little bit
         /**
          * Copyright (c) Facebook, Inc. and its affiliates.
          *
@@ -114,8 +105,18 @@ export class PlistBuddy {
             xcodeProject.name,
             path.extname(xcodeProject.name)
         );
-        // TODO scheme can be passed from build args
-        const scheme = /* args.scheme  | */ inferredSchemeName;
-        return scheme;
+        return inferredSchemeName;
+    }
+
+    private findExecutable(folder: string): string[] {
+        return glob.sync("*.app", {
+            cwd: folder,
+        });
+    }
+
+    private invokePlistBuddy(command: string, plistFile: string): Q.Promise<string> {
+        return this.nodeChildProcess.exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`).outcome.then((result: string) => {
+            return result.toString().trim();
+        });
     }
 }
