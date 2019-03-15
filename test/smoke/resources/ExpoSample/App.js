@@ -9,6 +9,7 @@ export default class App extends React.Component {
   };
 
   render() {
+    console.log("Test output from debuggee");
     if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
       return (
         <AppLoading
@@ -18,7 +19,6 @@ export default class App extends React.Component {
         />
       );
     } else {
-      console.log('Test output from debuggee');
       return (
         <View style={styles.container}>
           {Platform.OS === 'ios' && <StatusBar barStyle="default" />}

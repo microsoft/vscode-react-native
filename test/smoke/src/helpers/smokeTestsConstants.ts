@@ -11,12 +11,13 @@ public static defaultTargetAndroidDeviceName = "emulator-5554";
 public static smokeTestSetupAwaitTimeout = 10 * 60 * 1000;
 // Timeout for emulator boot
 public static emulatorLoadTimeout = 90 * 1000;
-// Timeout for Spectron to wait for UI elements response to interaction
-public static spectronElementResponseTimeout = 30 * 1000;
+// Timeout for Spectron to wait for UI elements response to interaction (in seconds)
+public static spectronElementResponseTimeout = 45;
 // Timeout for enabling Remote JS Debugging while testing RN app
 public static enableRemoteJSTimeout = 50 * 1000;
 // Timeout for Android app to build and to install
 public static androidAppBuildAndInstallTimeout = 300 * 1000;
-// Timeout for Expo app to build and to install
-public static ExpoAppBuildAndInstallTimeout = 150 * 1000;
+// Timeout for Expo app to execute
+public static expoAppBuildAndInstallTimeout = 10 * 1000;
+// Еш
 }

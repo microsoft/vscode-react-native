@@ -18,7 +18,7 @@ const ExpoDebugConfigName = "Debug in Exponent";
 // Time for Android Debug Test before it reach timeout
 const debugAndroidTestTime = smokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
 // Time for Android Expo Debug Test before it reach timeout
-const debugExpoTestTime = smokeTestsConstants.ExpoAppBuildAndInstallTimeout + 200 * 1000;
+const debugExpoTestTime = smokeTestsConstants.expoAppBuildAndInstallTimeout + 300 * 1000;
 
 // Function getting Expo URL from VS Code Expo QR Code tab
 // For correct work opened and selected Expo QR Code tab is needed
@@ -31,7 +31,7 @@ async function prepareExpoURLToClipboard(app: SpectronApplication) {
     await sleep(2000);
     let clipboard = clipboardy.readSync();
     console.log(`Expo QR Code tab text copied: \n ${clipboard}`);
-    clipboard = clipboard.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
+    clipboard = clipboard.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
     assert.notStrictEqual(clipboard, null, "Expo URL pattern is not found in the clipboard");
     let expoURL = clipboard[0];
     console.log(`Found Expo URL: ${expoURL}`);
@@ -79,7 +79,7 @@ export function setup() {
             client.endAll();
         });
 
-        it("Android Expo Debug test", async function () {
+        it.only("Android Expo Debug test", async function () {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: ExpoWorkspacePath});
@@ -87,31 +87,32 @@ export function setup() {
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
             console.log("Android Expo Debug test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(21);
-            console.log("Android Expo test: Breakpoint is set on line 21");
+            await app.workbench.debug.setBreakpointOnLine(12);
+            console.log("Android Expo Debug test: Breakpoint is set on line 12");
             await app.workbench.debug.openDebugViewlet();
-            console.log(`Android Expo test: Chosen debug configuration: ${ExpoDebugConfigName}`);
+            console.log(`Android Expo Debug test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
-            console.log("Android Expo test: starting debugging");
+            console.log("Android Expo Debug test: starting debugging");
             await app.workbench.debug.startDebugging();
             await app.workbench.waitForTab("Expo QR Code");
             await app.workbench.waitForActiveTab("Expo QR Code");
-            console.log("Android Expo test: 'Expo QR Code' tab found");
+            console.log("Android Expo Debug test: 'Expo QR Code' tab found");
             await app.workbench.selectTab("Expo QR Code", false, false);
-            console.log("Android Expo test: 'Expo QR Code' tab selected");
+            console.log("Android Expo Debug test: 'Expo QR Code' tab selected");
             let expoURL = await prepareExpoURLToClipboard(app);
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
             let client = appiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
             await appiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
-            await appiumHelper.waitUntilExpoAppIsReady(clientInited);
+            console.log(`*** Waiting ${smokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
+            await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 21, "looking for App.js and line 21");
-            console.log("Android Debug test: stack frame found");
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
+            console.log("Android Expo Debug test: stack frame found");
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console
-            await sleep(500);
+            await sleep(1000);
             let result = await app.workbench.debug.getConsoleOutput();
             let testOutputIndex = result.indexOf("Test output from debuggee");
             assert.notStrictEqual(testOutputIndex, -1, "\"Test output from debuggee\" string is not contains in debug console");

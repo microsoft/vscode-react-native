@@ -110,19 +110,6 @@ export class appiumHelper {
         console.log(`*** ${this.EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
-    public static async waitUntilExpoAppIsReady(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
-        console.log("*** Waiting until Expo app is ready...");
-        await client
-        .waitUntil(async () => {
-            if (client.isExisting(this.EXPO_ELEMENT_LOAD_TRIGGER)) {
-                console.log("*** Expo app loaded...");
-                return true;
-            }
-            return false;
-
-        }, smokeTestsConstants.ExpoAppBuildAndInstallTimeout,`Expo not loaded correctly after ${smokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
-    }
-
     public static async enableRemoteDebugJSForRNAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
         console.log("*** Enabling Remote JS Debugging for application...");
         await client
