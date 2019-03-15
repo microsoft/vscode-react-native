@@ -83,7 +83,7 @@ export class PlistBuddy {
 
     public getInferredScheme(projectRoot: string) {
         // Portion of code was taken from https://github.com/react-native-community/react-native-cli/blob/master/packages/cli/src/commands/runIOS/runIOS.js
-        // and modified it a little bit
+        // and modified a little bit
         /**
          * Copyright (c) Facebook, Inc. and its affiliates.
          *
