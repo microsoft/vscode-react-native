@@ -1,6 +1,6 @@
 1.	DefinitelyTyped (https://github.com/DefinitelyTyped/DefinitelyTyped)
 2.	TACO Tools for Apache Cordova (https://github.com/Microsoft/TACO)
-3.  React Native command line tools (https://github.com/react-native-community/react-native-cli)
+3.	React Native command line tools (https://github.com/react-native-community/react-native-cli)
 
 
 %% DefinitelyTyped NOTICES, INFORMATION, AND LICENSE BEGIN HERE
