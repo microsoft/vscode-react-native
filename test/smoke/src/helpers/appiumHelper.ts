@@ -130,7 +130,7 @@ export class appiumHelper {
     }
 
     public static async enableRemoteDebugJSForRNAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
-        console.log("*** Enabling Remote JS Debugging for application...");
+        console.log("*** Enabling Remote JS Debugging for application with DevMenu...");
         await client
         .waitUntil(async () => {
             // This command enables RN Dev Menu
