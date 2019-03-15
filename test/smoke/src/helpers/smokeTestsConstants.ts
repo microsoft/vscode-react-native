@@ -12,7 +12,7 @@ public static smokeTestSetupAwaitTimeout = 10 * 60 * 1000;
 // Timeout for emulator boot
 public static emulatorLoadTimeout = 90 * 1000;
 // Timeout for Spectron to wait for UI elements response to interaction (in seconds)
-public static spectronElementResponseTimeout = 45;
+public static spectronElementResponseTimeout = 100;
 // Timeout for enabling Remote JS Debugging while testing RN app
 public static enableRemoteJSTimeout = 50 * 1000;
 // Timeout for Android app to build and to install
