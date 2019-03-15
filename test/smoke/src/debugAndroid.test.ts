@@ -79,7 +79,7 @@ export function setup() {
             client.endAll();
         });
 
-        it.only("Android Expo Debug test", async function () {
+        it("Android Expo Debug test", async function () {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: ExpoWorkspacePath});
