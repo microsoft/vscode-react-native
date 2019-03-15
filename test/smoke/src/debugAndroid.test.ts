@@ -108,6 +108,8 @@ export function setup() {
             console.log(`*** Waiting ${smokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
+            await sleep(2000);
+            await appiumHelper.reloadRNAppAndroid(clientInited);
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
             console.log("Android Expo Debug test: stack frame found");
             await app.workbench.debug.continue();

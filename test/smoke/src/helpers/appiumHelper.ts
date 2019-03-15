@@ -110,13 +110,33 @@ export class appiumHelper {
         console.log(`*** ${this.EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
+    public static async reloadRNAppAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
+        console.log("*** Reloading React Native application with DevMenu...");
+        await client
+        .waitUntil(async () => {
+            // This command enables RN Dev Menu
+            // https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu
+            const devMenuCallCommand = "adb shell input keyevent 82";
+            cp.exec(devMenuCallCommand);
+            await sleep(300);
+            if (client.isExisting(this.RN_RELOAD_BUTTON)) {
+                console.log("*** Reload button found...");
+                client.click(this.RN_RELOAD_BUTTON);
+                console.log("*** Reload button clicked...");
+                return true;
+            }
+            return false;
+        }, smokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${smokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
+    }
+
     public static async enableRemoteDebugJSForRNAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
         console.log("*** Enabling Remote JS Debugging for application...");
         await client
         .waitUntil(async () => {
             // This command enables RN Dev Menu
             // https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu
-            cp.exec("adb shell input keyevent 82");
+            const devMenuCallCommand = "adb shell input keyevent 82";
+            cp.exec(devMenuCallCommand);
             await sleep(300);
             if (client.isExisting(this.RN_ENABLE_REMOTE_DEBUGGING_BUTTON)) {
                 console.log("*** Debug JS Remotely button found...");
