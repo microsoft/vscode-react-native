@@ -109,12 +109,12 @@ export function setup() {
             await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
             await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
-            await appiumHelper.reloadRNAppAndroid(clientInited);
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
             console.log("Android Expo Debug test: stack frame found");
             await app.workbench.debug.continue();
+            await app.workbench.debug.continue();
             // await for our debug string renders in debug console
-            await sleep(1000);
+            await sleep(10000);
             let result = await app.workbench.debug.getConsoleOutput();
             let testOutputIndex = result.indexOf("Test output from debuggee");
             assert.notStrictEqual(testOutputIndex, -1, "\"Test output from debuggee\" string is not contains in debug console");

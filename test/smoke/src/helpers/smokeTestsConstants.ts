@@ -19,5 +19,4 @@ public static enableRemoteJSTimeout = 50 * 1000;
 public static androidAppBuildAndInstallTimeout = 300 * 1000;
 // Timeout for Expo app to execute
 public static expoAppBuildAndInstallTimeout = 10 * 1000;
-// Еш
 }
