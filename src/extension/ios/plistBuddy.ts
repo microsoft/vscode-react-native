@@ -5,13 +5,13 @@ import * as path from "path";
 import * as Q from "q";
 import * as glob from "glob";
 import * as fs from "fs";
+import * as semver from "semver";
 
 import {Node} from "../../common/node/node";
 import {ChildProcess} from "../../common/node/childProcess";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
-import semver = require("semver");
 
 export class PlistBuddy {
     private static plistBuddyExecutable = "/usr/libexec/PlistBuddy";
