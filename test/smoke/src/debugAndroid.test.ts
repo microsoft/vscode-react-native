@@ -104,6 +104,7 @@ export function setup() {
             console.log("Android Expo Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is not contains in debug console");
+            console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("Android Debug test: Debugging is stopped");
             client.closeApp();
