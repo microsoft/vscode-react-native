@@ -100,7 +100,7 @@ export class appiumHelper {
     public static async openExpoApplicationAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
-        console.log(`*** Copying ${expoURL} to system clipboard`);
+        console.log(`*** Copying ${expoURL} to system clipboard...`);
         clipboardy.writeSync(expoURL);
         console.log(`*** Searching for ${this.EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
         // Run Expo app by expoURL
