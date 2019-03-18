@@ -57,7 +57,7 @@ export function setup() {
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             await app.workbench.debug.stopDebugging();
-            console.log("Android Debug test: \"Test output from debuggee\" string is found and debugging stopped");
+            console.log("Android Debug test: Debugging is stopped");
             client.closeApp();
             client.endAll();
         });
