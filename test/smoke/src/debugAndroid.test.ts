@@ -42,7 +42,7 @@ export function setup() {
             await app.workbench.debug.startDebugging();
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME,
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
-            await appiumHelper.checkAppIsInstalled(RN_APP_PACKAGE_NAME, smokeTestsConstants.androidAppBuildAndInstallTimeout);
+            await appiumHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, smokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = appiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
