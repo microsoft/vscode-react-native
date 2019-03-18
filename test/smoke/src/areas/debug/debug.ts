@@ -3,6 +3,7 @@
 
 import { SpectronApplication } from "../../spectron/application";
 import { Viewlet } from "../workbench/viewlet";
+import { sleep } from "../../helpers/setupEnvironmentHelper";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
@@ -27,6 +28,7 @@ const CONSOLE_OUTPUT = `.repl .output.expression`;
 const CONSOLE_INPUT_OUTPUT = `.repl .input-output-pair .output.expression .value`;
 
 const REPL_FOCUSED = ".repl-input-wrapper .monaco-editor textarea";
+const DEBUG_CONSOLE_AREA = ".repl .monaco-scrollable-element ";
 
 export interface IStackFrame {
     id: string;
@@ -128,6 +130,38 @@ export class Debug extends Viewlet {
         const stackFrames = await this.getStackFrames();
         return stackFrames.length;
     }
+
+    public async focusDebugConsole() {
+        await this.spectron.client.waitAndClick(DEBUG_CONSOLE_AREA);
+        await sleep(300);
+    }
+
+    public async findStringInConsole(stringToFind: string, timeout: number): Promise<boolean> {
+        let awaitRetries: number = timeout / 200;
+        let retry = 1;
+        await this.focusDebugConsole();
+        let found;
+        await new Promise((resolve) => {
+            let check = setInterval(async () => {
+                let result = await this.getConsoleOutput();
+                let testOutputIndex = result.indexOf(stringToFind);
+                if (testOutputIndex !== -1) {
+                    clearInterval(check);
+                    found = true;
+                    resolve();
+                } else {
+                    retry++;
+                    this.spectron.client.keys(["ArrowDown"]);
+                    if (retry >= awaitRetries) {
+                        clearInterval(check);
+                        found = false;
+                        resolve();
+                    }
+                }
+            }, 200);
+    });
+    return found;
+}
 
     public async getConsoleOutput(): Promise<string[]> {
         const result = await this.spectron.webclient.selectorExecute(CONSOLE_OUTPUT,

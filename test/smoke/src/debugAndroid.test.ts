@@ -71,9 +71,8 @@ export function setup() {
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console
             await sleep(500);
-            let result = await app.workbench.debug.getConsoleOutput();
-            let testOutputIndex = result.indexOf("Test output from debuggee");
-            assert.notStrictEqual(testOutputIndex, -1, "\"Test output from debuggee\" string is not contains in debug console");
+            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
+            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is not contains in debug console");
             await app.workbench.debug.stopDebugging();
             client.closeApp();
             client.endAll();
@@ -115,9 +114,8 @@ export function setup() {
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console
             await sleep(10000);
-            let result = await app.workbench.debug.getConsoleOutput();
-            let testOutputIndex = result.indexOf("Test output from debuggee");
-            assert.notStrictEqual(testOutputIndex, -1, "\"Test output from debuggee\" string is not contains in debug console");
+            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
+            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is not contains in debug console");
             await app.workbench.debug.stopDebugging();
             client.closeApp();
             client.endAll();
