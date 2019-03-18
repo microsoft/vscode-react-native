@@ -31,7 +31,7 @@ export class PlistBuddy {
             let productsFolder;
             if (semver.gte(rnVersion, "0.59.0")) {
                 if (!scheme) {
-                    // If no scheme were provided via runOptions.scheme`~ then try to get scheme using the way RN CLI does.
+                    // If no scheme were provided via runOptions.scheme then try to get scheme using the way RN CLI does.
                     scheme = this.getInferredScheme(projectRoot);
                 }
                 productsFolder = path.join(iosProjectRoot, "build", scheme, "Build", "Products");
