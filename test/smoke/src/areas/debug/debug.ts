@@ -4,6 +4,7 @@
 import { SpectronApplication } from "../../spectron/application";
 import { Viewlet } from "../workbench/viewlet";
 import { sleep } from "../../helpers/setupEnvironmentHelper";
+import * as clipboardy from "clipboardy";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
@@ -162,9 +163,9 @@ export class Debug extends Viewlet {
                     }
                 }
             }, 200);
-    });
-    return found;
-}
+        });
+        return found;
+    }
 
     public async getConsoleOutput(): Promise<string[]> {
         const result = await this.spectron.webclient.selectorExecute(CONSOLE_OUTPUT,
@@ -175,6 +176,24 @@ export class Debug extends Viewlet {
         );
 
         return result;
+    }
+
+    // Function getting Expo URL from VS Code Expo QR Code tab
+    // For correct work opened and selected Expo QR Code tab is needed
+    public async prepareExpoURLToClipboard() {
+        await sleep(2000);
+        this.spectron.runCommand("editor.action.webvieweditor.selectAll");
+        console.log("Expo QR Code tab text prepared to be copied");
+        await sleep(1000);
+        this.spectron.runCommand("editor.action.clipboardCopyAction");
+        await sleep(2000);
+        let clipboard = clipboardy.readSync();
+        console.log(`Expo QR Code tab text copied: \n ${clipboard}`);
+        clipboard = clipboard.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
+        if (!clipboard) return null;
+        let expoURL = clipboard[0];
+        console.log(`Found Expo URL: ${expoURL}`);
+        return expoURL;
     }
 
     private async getStackFrames(): Promise<IStackFrame[]> {
