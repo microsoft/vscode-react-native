@@ -17,7 +17,7 @@ const ExpoDebugConfigName = "Debug in Exponent";
 // Time for Android Debug Test before it reach timeout
 const debugAndroidTestTime = smokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
 // Time for Android Expo Debug Test before it reach timeout
-const debugExpoTestTime = smokeTestsConstants.expoAppBuildAndInstallTimeout + 300 * 1000;
+const debugExpoTestTime = smokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
 
 export function setup() {
     describe("Android debugging tests", () => {
