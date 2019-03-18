@@ -106,7 +106,7 @@ export function prepareExpoApplication(workspaceFilePath: string, resourcesPath:
 
     const customEntryPointFile = path.join(resourcesPath, "ExpoSample", "App.js");
     const launchConfigFile = path.join(resourcesPath, "launch.json");
-    let vsCodeConfigPath = path.join(workspacePath, ".vscode");
+    const vsCodeConfigPath = path.join(workspacePath, ".vscode");
 
     console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
     fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
