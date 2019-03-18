@@ -65,15 +65,18 @@ export function setup() {
             let client = appiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
+            await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Debug test: debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");
             console.log("Android Debug test: stack frame found");
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console
             await sleep(500);
+            console.log("Android Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is not contains in debug console");
             await app.workbench.debug.stopDebugging();
+            console.log("Android Debug test: \"Test output from debuggee\" string is found and debugging stopped");
             client.closeApp();
             client.endAll();
         });
@@ -96,7 +99,7 @@ export function setup() {
             await app.workbench.waitForTab("Expo QR Code");
             await app.workbench.waitForActiveTab("Expo QR Code");
             console.log("Android Expo Debug test: 'Expo QR Code' tab found");
-            await app.workbench.selectTab("Expo QR Code", false, false);
+            await app.workbench.selectTab("Expo QR Code");
             console.log("Android Expo Debug test: 'Expo QR Code' tab selected");
             let expoURL = await prepareExpoURLToClipboard(app);
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
@@ -104,19 +107,22 @@ export function setup() {
             let client = appiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
             await appiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
-            console.log(`*** Waiting ${smokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
+            console.log(`Android Expo Debug test: Waiting ${smokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
-            await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
+            await app.workbench.debug.waitForDebuggingToStart();
+            console.log("Android Expo Debug test: debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
             console.log("Android Expo Debug test: stack frame found");
             await app.workbench.debug.continue();
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console
             await sleep(10000);
+            console.log("Android Expo Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is not contains in debug console");
             await app.workbench.debug.stopDebugging();
+            console.log("Android Expo Debug test: \"Test output from debuggee\" string is found and debugging stopped");
             client.closeApp();
             client.endAll();
         });

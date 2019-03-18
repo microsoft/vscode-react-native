@@ -19,7 +19,7 @@ const CONTINUE = `.debug-toolbar .debug-action.continue`;
 const GLYPH_AREA = ".margin-view-overlays>:nth-child";
 const BREAKPOINT_GLYPH = ".debug-breakpoint";
 // const PAUSE = `.debug-toolbar .debug-action.pause`;
-// const DEBUG_STATUS_BAR = `.statusbar.debugging`;
+const DEBUG_STATUS_BAR = `.statusbar.debugging`;
 const NOT_DEBUG_STATUS_BAR = `.statusbar:not(debugging)`;
 // const TOOLBAR_HIDDEN = `.debug-toolbar.monaco-builder-hidden`;
 const STACK_FRAME = `${VIEWLET} .monaco-list-row .stack-frame`;
@@ -66,7 +66,10 @@ export class Debug extends Viewlet {
 
     public async startDebugging(): Promise<void> {
         await this.spectron.client.waitAndClick(START);
-        // await this.spectron.client.waitForElement(DEBUG_STATUS_BAR);
+    }
+
+    public async waitForDebuggingToStart(): Promise<void> {
+        await this.spectron.client.waitForElement(DEBUG_STATUS_BAR);
     }
 
     public async stepOver(): Promise<any> {
