@@ -59,7 +59,7 @@ export class appiumHelper {
     }
 
     // Check if appPackage is installed on Android device for waitTime ms
-    public static async checkAppIsInstalled(appPackage: string, waitTime: number, waitInitTime?: number) {
+    public static async checkIfAppIsInstalled(appPackage: string, waitTime: number, waitInitTime?: number) {
         let awaitRetries: number = waitTime / 1000;
         let retry = 1;
         await new Promise((resolve, reject) => {
