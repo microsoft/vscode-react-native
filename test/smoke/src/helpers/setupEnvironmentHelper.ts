@@ -230,7 +230,7 @@ export async function sleep(time: number) {
     await new Promise(resolve => {
         const timer = setTimeout(() => {
         clearTimeout(timer);
-        resolve();
+            resolve();
         }, time);
     });
 }
