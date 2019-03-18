@@ -131,7 +131,7 @@ export async function installExpoAppOnAndroid(expoAppPath: string) {
     installerProcess.on("error", (error) => {
         console.log("Error occurred in expo-cli process: ", error);
     });
-    await appiumHelper.checkAppIsInstalled(expoPackageName, 100000);
+    await appiumHelper.checkIfAppIsInstalled(expoPackageName, 100 * 1000);
     kill(installerProcess.pid, "SIGINT");
     const drawPermitCommand = `adb -s ${androidEmulatorName} shell appops set ${expoPackageName} SYSTEM_ALERT_WINDOW allow`;
     console.log(`*** Enabling permission for drawing over apps via: ${drawPermitCommand}`);
