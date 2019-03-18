@@ -178,7 +178,7 @@ export class Debug extends Viewlet {
         return result;
     }
 
-    // Function getting Expo URL from VS Code Expo QR Code tab
+    // Gets Expo URL from VS Code Expo QR Code tab
     // For correct work opened and selected Expo QR Code tab is needed
     public async prepareExpoURLToClipboard() {
         await sleep(2000);
