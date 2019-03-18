@@ -99,7 +99,7 @@ export function setup() {
             console.log("Android Expo Debug test: stack frame found");
             await app.workbench.debug.continue();
             await app.workbench.debug.continue();
-            // await for our debug string renders in debug console
+            // Wait for debug string to be rendered in debug console
             await sleep(10000);
             console.log("Android Expo Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
