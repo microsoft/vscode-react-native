@@ -1,3 +1,9 @@
+## 0.9.0
+* Finished localization of the extension
+* Bumped debug core dependencies versions to the more recent ones
+* Fixed debugging issue on iOS due to changes in building process in RN 0.59
+* Minor fixes and improvements
+
 ## 0.8.0
 * Improved extension security
 * Improved error logging
@@ -19,7 +25,7 @@
     * Portuguese
     * Polish
 
-**Some localizations may not be completed, they we'll updated in future**
+**Some localizations may not be completed, they will be updated in future**
 
 ## 0.7.0
 * Added `Run Element Inspector` command that runs standalone [React Developer Tools](https://github.com/facebook/react-devtools)
