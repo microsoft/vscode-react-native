@@ -2,7 +2,8 @@
 * Finished localization of the extension
 * Bumped debug core dependencies versions to the more recent ones
 * Fixed debugging issue on iOS due to changes in building process in RN 0.59
-* Minor fixes and improvements
+* Fixed several documentation wordings, thanks to [Kristian Sakarisson (@Sakarisson)](https://github.com/Sakarisson), [Brendan McGill (@brendanmc6)](https://github.com/brendanmc6)
+* Other minor improvements
 
 ## 0.8.0
 * Improved extension security
