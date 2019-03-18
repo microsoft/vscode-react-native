@@ -17,7 +17,7 @@ suite("plistBuddy", function() {
 
             const findSimulatorHomeCommand = "xcrun simctl getenv booted HOME";
             // The emulator's home folder is /simulator/home
-            const findSimulatorHomeResult = path.join("/", "Users", "theUser", "Library", "Developer", "CoreSimulaotr", "Devices", "FA511653-BA51-479F-A218-1DBD1910D5E5/data");
+            const findSimulatorHomeResult = path.join("/", "Users", "theUser", "Library", "Developer", "CoreSimulator", "Devices", "FA511653-BA51-479F-A218-1DBD1910D5E5/data");
 
             const prefix = path.join("Containers", "Data", "Application");
             const suffix = path.join("Library", "Preferences");
@@ -63,7 +63,7 @@ suite("plistBuddy", function() {
                 exec: execStub,
             };
 
-            const simulatorPlist = new SimulatorPlist(projectRoot, {
+            const simulatorPlist = new SimulatorPlist(projectRoot, undefined, {
                 nodeFileSystem: mockFS,
                 plistBuddy: mockPlistBuddy,
                 nodeChildProcess: mockChildProcess,
