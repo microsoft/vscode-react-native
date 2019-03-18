@@ -38,7 +38,7 @@ export function setup() {
             await app.workbench.debug.openDebugViewlet();
             await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
             console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
-            console.log("Android Debug test: starting debugging");
+            console.log("Android Debug test: Starting debugging");
             await app.workbench.debug.startDebugging();
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME,
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
