@@ -41,7 +41,7 @@ const defaultLanguages = [
     // These language-pack languages are included for VS but excluded from the vscode package
     { id: "cs", folderName: "csy" },
     { id: "tr", folderName: "trk" },
-    { id: "pt-br", folderName: "ptb", transifexId: "pt_BR" },
+    { id: "pt-br", folderName: "ptb", transifexId: "pt-BR" },
     { id: "pl", folderName: "plk" }
 ];
 
@@ -62,7 +62,8 @@ lintSources = lintSources.concat([
     "!src/typings/**",
     "!test/resources/sampleReactNative022Project/**",
     // TODO Fix lint issues in smoke tests
-    "!test/smoke/**"
+    "!test/smoke/**",
+    "!/SmokeTestLogs/**"
 ]);
 
 function build(failOnError, buildNls) {

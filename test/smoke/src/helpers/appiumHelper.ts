@@ -6,6 +6,7 @@ import * as wdio from "webdriverio";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
 import * as kill from "tree-kill";
+import * as clipboardy from "clipboardy";
 import { smokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./setupEnvironmentHelper";
 let appiumProcess: null | cp.ChildProcess;
@@ -15,6 +16,8 @@ export class appiumHelper {
     public static RN_RELOAD_BUTTON = "//*[@text='Reload']";
     public static RN_ENABLE_REMOTE_DEBUGGING_BUTTON = "//*[@text='Debug JS Remotely']";
     public static RN_STOP_REMOTE_DEBUGGING_BUTTON = "//*[@text='Stop Remote JS Debugging']";
+    public static EXPO_OPEN_FROM_CLIPBOARD = "//*[@text='Open from Clipboard']";
+    public static EXPO_ELEMENT_LOAD_TRIGGER = "//*[@text='Home']";
 
     public static runAppium() {
         const appiumLogFolder = path.join(__dirname, "..", "..", "..", "..", "SmokeTestLogs");
@@ -34,7 +37,7 @@ export class appiumHelper {
     public static terminateAppium() {
         if (appiumProcess) {
             console.log(`*** Terminating Appium`);
-            kill(appiumProcess.pid);
+            kill(appiumProcess.pid, "SIGINT");
         }
     }
 
@@ -48,15 +51,22 @@ export class appiumHelper {
                 deviceName: deviceName,
                 appActivity: applicationActivity,
                 appPackage: applicationPackage,
-                automationName: "UiAutomator2"
+                automationName: "UiAutomator2",
+                newCommandTimeout: 150
             },
             port: 4723,
             host: "localhost",
         };
     }
 
+
+    public static webdriverAttach(attachArgs: any) {
+        // Connect to the emulator with predefined opts
+        return wdio.remote(attachArgs);
+    }
+
     // Check if appPackage is installed on Android device for waitTime ms
-    public static async checkAppIsInstalled(appPackage: string, waitTime: number) {
+    public static async checkIfAppIsInstalled(appPackage: string, waitTime: number, waitInitTime?: number) {
         let awaitRetries: number = waitTime / 1000;
         let retry = 1;
         await new Promise((resolve, reject) => {
@@ -74,8 +84,9 @@ export class appiumHelper {
                 }
                 if (result) {
                     clearInterval(check);
-                    console.log("*** Installed React Native app found, await 10s for initializing...")
-                    await sleep(10000);
+                    const initTimeout = waitInitTime || 10000;
+                    console.log(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`)
+                    await sleep(initTimeout);
                     resolve();
                 } else {
                     retry++;
@@ -88,19 +99,47 @@ export class appiumHelper {
         });
     }
 
-    public static webdriverAttach(attachArgs: any) {
-        // Connect to the emulator with predefined opts
-        return wdio.remote(attachArgs);
+    public static async openExpoApplicationAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
+        // Expo application automatically detects Expo URLs in the clipboard
+        // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
+        console.log(`*** Copying ${expoURL} to system clipboard...`);
+        clipboardy.writeSync(expoURL);
+        console.log(`*** Searching for ${this.EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
+        // Run Expo app by expoURL
+        await client
+        .waitForExist(this.EXPO_OPEN_FROM_CLIPBOARD, 30000)
+        .click(this.EXPO_OPEN_FROM_CLIPBOARD);
+        console.log(`*** ${this.EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
-    public static async enableRemoteDebugJSForRN(client: wdio.Client<void>) {
-        console.log("*** Enabling Remote JS Debugging for application...");
-        await client.init()
+    public static async reloadRNAppAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
+        console.log("*** Reloading React Native application with DevMenu...");
+        await client
         .waitUntil(async () => {
             // This command enables RN Dev Menu
             // https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu
-            cp.exec("adb shell input keyevent 82");
+            const devMenuCallCommand = "adb shell input keyevent 82";
+            cp.exec(devMenuCallCommand);
             await sleep(300);
+            if (client.isExisting(this.RN_RELOAD_BUTTON)) {
+                console.log("*** Reload button found...");
+                client.click(this.RN_RELOAD_BUTTON);
+                console.log("*** Reload button clicked...");
+                return true;
+            }
+            return false;
+        }, smokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${smokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
+    }
+
+    public static async enableRemoteDebugJSForRNAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
+        console.log("*** Enabling Remote JS Debugging for application with DevMenu...");
+        await client
+        .waitUntil(async () => {
+            // This command enables RN Dev Menu
+            // https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu
+            const devMenuCallCommand = "adb shell input keyevent 82";
+            cp.exec(devMenuCallCommand);
+            await sleep(1000);
             if (client.isExisting(this.RN_ENABLE_REMOTE_DEBUGGING_BUTTON)) {
                 console.log("*** Debug JS Remotely button found...");
                 client.click(this.RN_ENABLE_REMOTE_DEBUGGING_BUTTON);

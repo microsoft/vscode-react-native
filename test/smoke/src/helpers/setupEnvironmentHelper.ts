@@ -17,11 +17,14 @@ import * as fs from "fs";
 import * as rimraf from "rimraf";
 import * as cp from "child_process";
 import { smokeTestsConstants } from "./smokeTestsConstants";
+import { appiumHelper } from "./appiumHelper";
+import * as kill from "tree-kill";
 
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
-const downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-archive" : "linux-x64";
+const downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-x64-archive" : "linux-x64";
 const artifactsFolderName = "drop-win";
+export const expoPackageName = "host.exp.exponent";
 const androidEmulatorPort = 5554;
 export const androidEmulatorName = `emulator-${androidEmulatorPort}`;
 
@@ -76,10 +79,11 @@ export async function fetchKeybindings(keybindingsPath: string) {
 }
 
 export function prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
-    console.log(`*** Creating RN app via 'react-native init ${appName}' in ${workspacePath}...`);
-    cp.execSync(`react-native init ${appName}`, { cwd: resourcesPath, stdio: "inherit" });
+    const command = `react-native init ${appName}`;
+    console.log(`*** Creating RN app via '${command}' in ${workspacePath}...`);
+    cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
-    let customEntryPointFile = path.join(resourcesPath, "App.js");
+    let customEntryPointFile = path.join(resourcesPath, "ReactNativeSample", "App.js");
     let launchConfigFile = path.join(resourcesPath, "launch.json");
     let vsCodeConfigPath = path.join(workspacePath, ".vscode");
 
@@ -93,6 +97,46 @@ export function prepareReactNativeApplication(workspaceFilePath: string, resourc
 
     console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
     fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+}
+
+export function prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
+    const command = `echo -ne '\\n' | expo init -t tabs --name ${appName}  --workflow managed ${appName}`;
+    console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
+    cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
+
+    const customEntryPointFile = path.join(resourcesPath, "ExpoSample", "App.js");
+    const launchConfigFile = path.join(resourcesPath, "launch.json");
+    const vsCodeConfigPath = path.join(workspacePath, ".vscode");
+
+    console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
+    fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
+
+    if (!fs.existsSync(vsCodeConfigPath)) {
+        console.log(`*** Creating  ${vsCodeConfigPath}...`);
+        fs.mkdirSync(vsCodeConfigPath);
+    }
+
+    console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
+    fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+}
+
+// Installs Expo app on Android device via "expo android" command
+export async function installExpoAppOnAndroid(expoAppPath: string) {
+    console.log(`*** Installing Expo app (${expoPackageName}) on android device with 'expo-cli android' command`);
+    let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
+    let installerProcess = cp.spawn(expoCliCommand, ["android"], {cwd: expoAppPath, stdio: "inherit"});
+    installerProcess.on("close", () => {
+        console.log("*** expo-cli terminated");
+    });
+    installerProcess.on("error", (error) => {
+        console.log("Error occurred in expo-cli process: ", error);
+    });
+    await appiumHelper.checkIfAppIsInstalled(expoPackageName, 100 * 1000);
+    kill(installerProcess.pid, "SIGINT");
+    await sleep(1000);
+    const drawPermitCommand = `adb -s ${androidEmulatorName} shell appops set ${expoPackageName} SYSTEM_ALERT_WINDOW allow`;
+    console.log(`*** Enabling permission for drawing over apps via: ${drawPermitCommand}`);
+    cp.execSync(drawPermitCommand, {stdio: "inherit"});
 }
 
 export function installExtensionFromVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string, isInsiders: boolean) {
@@ -171,16 +215,6 @@ export async function runAndroidEmulator() {
     });
 }
 
-// Await function
-export async function sleep(time: number) {
-    await new Promise(resolve => {
-        const timer = setTimeout(() => {
-        clearTimeout(timer);
-        resolve();
-        }, time);
-    });
-}
-
 // Terminates emulator "emulator-PORT" if it exists, where PORT is 5554 by default
 export function terminateAndroidEmulator() {
     let devices = cp.execSync("adb devices").toString().trim();
@@ -192,16 +226,28 @@ export function terminateAndroidEmulator() {
     }
 }
 
-export function cleanUp(testVSCodeExecutableFolder: string, workspacePath: string) {
+// Await function
+export async function sleep(time: number) {
+    await new Promise(resolve => {
+        const timer = setTimeout(() => {
+            clearTimeout(timer);
+            resolve();
+        }, time);
+    });
+}
+
+export function cleanUp(testVSCodeExecutableFolder: string, workspacePaths: string[]) {
     console.log("\n*** Clean up...");
     if (fs.existsSync(testVSCodeExecutableFolder)) {
         console.log(`*** Deleting test VS Code directory: ${testVSCodeExecutableFolder}`);
         rimraf.sync(testVSCodeExecutableFolder);
     }
-    if (fs.existsSync(workspacePath)) {
-        console.log(`*** Deleting test React Native application: ${workspacePath}`);
-        rimraf.sync(workspacePath);
-    }
+    workspacePaths.forEach(testAppFolder => {
+        if (fs.existsSync(testAppFolder)) {
+            console.log(`*** Deleting test application: ${testAppFolder}`);
+            rimraf.sync(testAppFolder);
+        }
+    });
 }
 
 function getKeybindingPlatform(): string {

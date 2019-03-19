@@ -6,5 +6,10 @@
 {
 	"StartPackager": "Iniciar Empacotador",
 	"RestartPackager": "Reiniciar Empacotador",
-	"StopPackager": "Parar Empacotador"
+	"StopPackager": "Parar Empacotador",
+	"ReactNativePackager": "Empacotador React Native",
+	"PackagerStopped": "{0}: parado",
+	"PackagerStopping": "{0}: parando",
+	"PackagerStarted": "{0}: iniciado",
+	"PackagerStarting": "{0}: iniciando"
 }
