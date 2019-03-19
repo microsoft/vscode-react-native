@@ -2,36 +2,6 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "watch",
-            "type": "shell",
-            "command": "gulp",
-            "args": [],
-            "group": "build",
-            "isBackground": true,
-            "problemMatcher": [
-                "$gulp-tsc"
-            ]
-        },
-        {
-            "label": "build",
-            "type": "shell",
-            "command": "gulp",
-            "group": "build",
-            "isBackground": true,
-            "problemMatcher": [
-                "$gulp-tsc"
-            ]
-        },
-        {
-            "label": "tslint",
-            "type": "shell",
-            "command": "gulp",
-            "isBackground": true,
-            "problemMatcher": [
-                "$tslint5"
-            ]
-        },
-        {
             "label": "build-smoke-tests",
             "type": "process",
             "command": ["./node_modules/.bin/tsc"],
