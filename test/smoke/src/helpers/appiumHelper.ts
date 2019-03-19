@@ -139,7 +139,7 @@ export class appiumHelper {
             // https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu
             const devMenuCallCommand = "adb shell input keyevent 82";
             cp.exec(devMenuCallCommand);
-            await sleep(300);
+            await sleep(1000);
             if (client.isExisting(this.RN_ENABLE_REMOTE_DEBUGGING_BUTTON)) {
                 console.log("*** Debug JS Remotely button found...");
                 client.click(this.RN_ENABLE_REMOTE_DEBUGGING_BUTTON);
