@@ -21,9 +21,9 @@ export class IOSDebugModeManager {
     private projectRoot: string;
     private simulatorPlist: SimulatorPlist;
 
-    constructor(projectRoot: string) {
+    constructor(projectRoot: string, scheme?: string) {
         this.projectRoot = projectRoot;
-        this.simulatorPlist = new SimulatorPlist(this.projectRoot);
+        this.simulatorPlist = new SimulatorPlist(this.projectRoot, scheme);
     }
 
     public setSimulatorRemoteDebuggingSetting(enable: boolean, configuration?: string, productName?: string): Q.Promise<void> {
