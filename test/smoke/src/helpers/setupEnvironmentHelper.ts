@@ -120,7 +120,7 @@ export function prepareExpoApplication(workspaceFilePath: string, resourcesPath:
     fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
 }
 
-// Installs Expo app on Android device via "expo start" command
+// Installs Expo app on Android device via "expo android" command
 export async function installExpoAppOnAndroid(expoAppPath: string) {
     console.log(`*** Installing Expo app (${expoPackageName}) on android device with 'expo-cli android' command`);
     let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
