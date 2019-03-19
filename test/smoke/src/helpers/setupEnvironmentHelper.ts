@@ -124,7 +124,7 @@ export function prepareExpoApplication(workspaceFilePath: string, resourcesPath:
 export async function installExpoAppOnAndroid(expoAppPath: string) {
     console.log(`*** Installing Expo app (${expoPackageName}) on android device with 'expo-cli android' command`);
     let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
-    let installerProcess = cp.spawn(expoCliCommand, ["install:android"], {cwd: expoAppPath, stdio: "inherit"});
+    let installerProcess = cp.spawn(expoCliCommand, ["android"], {cwd: expoAppPath, stdio: "inherit"});
     installerProcess.on("close", () => {
         console.log("*** expo-cli terminated");
     });

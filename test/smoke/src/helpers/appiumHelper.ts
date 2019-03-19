@@ -51,11 +51,18 @@ export class appiumHelper {
                 deviceName: deviceName,
                 appActivity: applicationActivity,
                 appPackage: applicationPackage,
-                automationName: "UiAutomator2"
+                automationName: "UiAutomator2",
+                newCommandTimeout: 150
             },
             port: 4723,
             host: "localhost",
         };
+    }
+
+
+    public static webdriverAttach(attachArgs: any) {
+        // Connect to the emulator with predefined opts
+        return wdio.remote(attachArgs);
     }
 
     // Check if appPackage is installed on Android device for waitTime ms
@@ -90,11 +97,6 @@ export class appiumHelper {
                 }
             }, 1000);
         });
-    }
-
-    public static webdriverAttach(attachArgs: any) {
-        // Connect to the emulator with predefined opts
-        return wdio.remote(attachArgs);
     }
 
     public static async openExpoApplicationAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
