@@ -11,7 +11,7 @@ For using custom run arguments for `react-native run-<platform>`:
 
 ```
 {
-  "react-native.android.runArguments.simulator": ["--appFolder, "/Users/test/AwesomeProject/android/app", "--deviceId", "emulator-5555"],
+  "react-native.android.runArguments.simulator": ["--appFolder", "/Users/test/AwesomeProject/android/app", "--deviceId", "emulator-5555"],
   "react-native.ios.runArguments.device": ["--project-path", "ios", "--device", "Max's iPhone"],
 }
 ```

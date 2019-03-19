@@ -64,7 +64,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         }
 
         this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
-        this.iosDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot);
+        this.iosDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot, this.runOptions.scheme);
 
         if (this.runArguments && this.runArguments.length > 0) {
             this.targetType = (this.runArguments.indexOf(`--${IOSPlatform.deviceString}`) >= 0) ?
@@ -200,7 +200,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private getBundleId(): Q.Promise<string> {
-        return this.plistBuddy.getBundleId(this.iosProjectRoot, true, this.runOptions.configuration, this.runOptions.productName);
+        return this.plistBuddy.getBundleId(this.iosProjectRoot, true, this.runOptions.configuration, this.runOptions.productName, this.runOptions.scheme);
     }
 
     private static remote(fsPath: string): RemoteExtension {
