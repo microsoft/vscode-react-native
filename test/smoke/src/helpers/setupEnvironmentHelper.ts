@@ -129,7 +129,7 @@ export function addExpoDependencyToRNProject(workspacePath: string) {
     if (process.platform === "win32") {
         yarnCmd = "yarn.cmd";
     }
-    const command = `${yarnCmd} install expo --dev`;
+    const command = `${yarnCmd} add expo --dev`;
 
     console.log(`*** Adding expo dependency to ${workspacePath} via '${command}' command...`);
     cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
