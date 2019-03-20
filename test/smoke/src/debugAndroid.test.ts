@@ -150,7 +150,7 @@ export function setup() {
             // Wait for debug string to be rendered in debug console
             await sleep(10 * 1000);
             console.log("Android pure RN Expo test: Searching for \"Test output from debuggee\" string in console");
-            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
+            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
