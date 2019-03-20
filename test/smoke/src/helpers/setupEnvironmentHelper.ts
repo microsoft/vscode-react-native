@@ -35,30 +35,30 @@ export async function downloadVSCodeExecutable(targetFolder: string): Promise<an
 
     return new Promise ((resolve) => {
         getDownloadUrl((downloadUrl) => {
-        console.log("*** Downloading VS Code into \"" + testRunFolder + "\" from: " + downloadUrl);
+            console.log("*** Downloading VS Code into \"" + testRunFolder + "\" from: " + downloadUrl);
 
-        let version = downloadUrl.match(/\d+\.\d+\.\d+/)[0].split("\.");
-        let isTarGz = downloadUrl.match(/linux/) && version[0] >= 1 && version[1] >= 5;
+            let version = downloadUrl.match(/\d+\.\d+\.\d+/)[0].split("\.");
+            let isTarGz = downloadUrl.match(/linux/) && version[0] >= 1 && version[1] >= 5;
 
-        let stream;
-        if (isTarGz) {
-            let gulpFilter = filter(["VSCode-linux-x64/code", "VSCode-linux-x64/code-insiders", "VSCode-linux-x64/resources/app/node_modules*/vscode-ripgrep/**/rg"], { restore: true });
-            stream = request(shared.toRequestOptions(downloadUrl))
-                .pipe(source(path.basename(downloadUrl)))
-                .pipe(gunzip())
-                .pipe(untar())
-                .pipe(gulpFilter)
-                .pipe(chmod(493)) // 0o755
-                .pipe(gulpFilter.restore)
-                .pipe(vfs.dest(testRunFolder));
-        } else {
-            stream = remote("", { base: downloadUrl })
-                .pipe(vzip.src())
-                .pipe(vfs.dest(testRunFolder));
-        }
-        stream.on("end", () => {
-            resolve();
-        });
+            let stream;
+            if (isTarGz) {
+                let gulpFilter = filter(["VSCode-linux-x64/code", "VSCode-linux-x64/code-insiders", "VSCode-linux-x64/resources/app/node_modules*/vscode-ripgrep/**/rg"], { restore: true });
+                stream = request(shared.toRequestOptions(downloadUrl))
+                    .pipe(source(path.basename(downloadUrl)))
+                    .pipe(gunzip())
+                    .pipe(untar())
+                    .pipe(gulpFilter)
+                    .pipe(chmod(493)) // 0o755
+                    .pipe(gulpFilter.restore)
+                    .pipe(vfs.dest(testRunFolder));
+            } else {
+                stream = remote("", { base: downloadUrl })
+                    .pipe(vzip.src())
+                    .pipe(vfs.dest(testRunFolder));
+            }
+            stream.on("end", () => {
+                resolve();
+            });
 
         });
     });
