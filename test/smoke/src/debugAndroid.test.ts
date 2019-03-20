@@ -148,7 +148,7 @@ export function setup() {
             await app.workbench.debug.continue();
             await app.workbench.debug.continue(); // second continue() is needed because BP is being hit for two times for unknown reason
             // Wait for debug string to be rendered in debug console
-            await sleep(10000);
+            await sleep(10 * 1000);
             console.log("Android pure RN Expo test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
