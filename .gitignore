@@ -11,8 +11,6 @@ nls.*.json
 src/**/*.js
 !src/extension/appcenter/lib/**/*.js
 test/**/*.js
-test/smoke/resources/latestRNApp/**
-test/smoke/resources/latestExpoApp/**
 SmokeTestLogs
 **/*.js.map
 vscode-react-native-*.vsix

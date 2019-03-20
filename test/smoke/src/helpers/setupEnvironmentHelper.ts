@@ -19,6 +19,7 @@ import * as cp from "child_process";
 import { smokeTestsConstants } from "./smokeTestsConstants";
 import { appiumHelper } from "./appiumHelper";
 import * as kill from "tree-kill";
+import * as semver from "semver";
 
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
@@ -32,7 +33,7 @@ export async function downloadVSCodeExecutable(targetFolder: string): Promise<an
 
     const testRunFolder = path.join(targetFolder, ".vscode-test", isInsiders ? "insiders" : "stable");
 
-    return new Promise ((resolve, reject) => {
+    return new Promise ((resolve) => {
         getDownloadUrl((downloadUrl) => {
         console.log("*** Downloading VS Code into \"" + testRunFolder + "\" from: " + downloadUrl);
 
@@ -78,8 +79,11 @@ export async function fetchKeybindings(keybindingsPath: string) {
     });
 }
 
-export function prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
-    const command = `react-native init ${appName}`;
+export function prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, version?: string) {
+    let command = `react-native init ${appName}`;
+    if (version) {
+        command += ` --version ${version}`;
+    }
     console.log(`*** Creating RN app via '${command}' in ${workspacePath}...`);
     cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
@@ -250,6 +254,40 @@ export function cleanUp(testVSCodeExecutableFolder: string, workspacePaths: stri
     });
 }
 
+export async function getLatestRNVersionForExpo(): Promise<any> {
+    console.log("*** Getting latest React Native version supported by Expo...");
+    return new Promise((resolve, reject) => {
+        shared.getContents("https://exp.host/--/api/v2/versions", null, null, function (error, versionsContent) {
+            if (error) {
+                reject(error);
+            }
+            try {
+               const content = JSON.parse(versionsContent);
+               if (content.sdkVersions) {
+                   const maxSdkVersion = Object.keys(content.sdkVersions).sort((cp1, cp2) => {
+                       if (semver.lt(cp1, cp2)) {
+                           return 1;
+                       } else if (semver.gt(cp1, cp2)) {
+                           return -1;
+                       }
+                       return 0;
+                   })[0];
+                   if (content.sdkVersions[maxSdkVersion]) {
+                       if (content.sdkVersions[maxSdkVersion].facebookReactNativeVersion) {
+                           console.log(`*** Latest React Native version supported by Expo: ${content.sdkVersions[maxSdkVersion].facebookReactNativeVersion}`);
+                           resolve(content.sdkVersions[maxSdkVersion].facebookReactNativeVersion as string);
+                       }
+                   }
+               }
+               reject("Recieved object is incorrect");
+            } catch (error) {
+                reject(error);
+            }
+        });
+    });
+
+}
+
 function getKeybindingPlatform(): string {
     switch (process.platform) {
         case "darwin": return "osx";
@@ -259,7 +297,6 @@ function getKeybindingPlatform(): string {
 }
 
 function getDownloadUrl(cb) {
-
     getTag(function (tag) {
         return cb(["https://vscode-update.azurewebsites.net", tag, downloadPlatform, (isInsiders ? "insider" : "stable")].join("/"));
     });
