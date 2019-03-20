@@ -111,7 +111,7 @@ export function setup() {
             client.endAll();
         });
 
-        it.only("Android pure RN Expo test", async function () {
+        it("Android pure RN Expo test", async function () {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: pureRNWorkspacePath});
