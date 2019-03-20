@@ -125,11 +125,11 @@ export function prepareExpoApplication(workspaceFilePath: string, resourcesPath:
 }
 
 export function addExpoDependencyToRNProject(workspacePath: string) {
-    let yarnCmd = "yarn";
+    let npmCmd = "npm";
     if (process.platform === "win32") {
-        yarnCmd = "yarn.cmd";
+        npmCmd = "npm.cmd";
     }
-    const command = `${yarnCmd} add expo --dev`;
+    const command = `${npmCmd} install expo --no-save`;
 
     console.log(`*** Adding expo dependency to ${workspacePath} via '${command}' command...`);
     cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
