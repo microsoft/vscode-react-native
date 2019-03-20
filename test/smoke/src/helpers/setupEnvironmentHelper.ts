@@ -265,7 +265,7 @@ export function cleanUp(testVSCodeExecutableFolder: string, workspacePaths: stri
     });
 }
 
-export async function getLatestRNVersionForExpo(): Promise<any> {
+export async function getLatestSupportedRNVersionForExpo(): Promise<any> {
     console.log("*** Getting latest React Native version supported by Expo...");
     return new Promise((resolve, reject) => {
         shared.getContents("https://exp.host/--/api/v2/versions", null, null, function (error, versionsContent) {
