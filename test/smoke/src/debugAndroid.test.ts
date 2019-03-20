@@ -146,7 +146,7 @@ export function setup() {
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
             console.log("Android pure RN Expo test: stack frame found");
             await app.workbench.debug.continue();
-            await app.workbench.debug.continue();
+            await app.workbench.debug.continue(); // second continue() is needed because BP is being hit for two times for unknown reason
             // Wait for debug string to be rendered in debug console
             await sleep(10000);
             console.log("Android pure RN Expo test: Searching for \"Test output from debuggee\" string in console");
