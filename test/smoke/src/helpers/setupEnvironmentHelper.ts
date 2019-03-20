@@ -290,7 +290,7 @@ export async function getLatestSupportedRNVersionForExpo(): Promise<any> {
                        }
                    }
                }
-               reject("Recieved object is incorrect");
+               reject("Received object is incorrect");
             } catch (error) {
                 reject(error);
             }
