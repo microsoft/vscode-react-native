@@ -124,6 +124,7 @@ async function setup(): Promise<void> {
     setupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, ExpoAppName);
     const latestRNVersionExpo = await setupEnvironmentHelper.getLatestRNVersionForExpo();
     setupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, pureRNExpoApp, latestRNVersionExpo);
+    setupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
     await setupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
 
@@ -144,7 +145,7 @@ async function setup(): Promise<void> {
 
 before(async function () {
     this.timeout(smokeTestsConstants.smokeTestSetupAwaitTimeout);
-    setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), [workspacePath, ExpoWorkspacePath, pureRNExpoApp]);
+    setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), [workspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
     try {
         await setup();
     } catch (err) {
