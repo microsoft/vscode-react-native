@@ -47,9 +47,9 @@ export function setup() {
             let clientInited = client.init();
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
             await app.workbench.debug.waitForDebuggingToStart();
-            console.log("Android Debug test: debugging started");
+            console.log("Android Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");
-            console.log("Android Debug test: stack frame found");
+            console.log("Android Debug test: Stack frame found");
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console
             await sleep(500);
@@ -94,15 +94,15 @@ export function setup() {
             await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
             await app.workbench.debug.waitForDebuggingToStart();
-            console.log("Android Expo Debug test: debugging started");
+            console.log("Android Expo Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
-            console.log("Android Expo Debug test: stack frame found");
+            console.log("Android Expo Debug test: Stack frame found");
             await app.workbench.debug.continue();
-            await app.workbench.debug.continue();
+            await app.workbench.debug.continue(); // second continue() is needed because BP is being hit for two times for unknown reason
             // Wait for debug string to be rendered in debug console
-            await sleep(10000);
+            await sleep(10 * 1000);
             console.log("Android Expo Debug test: Searching for \"Test output from debuggee\" string in console");
-            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
+            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
@@ -142,9 +142,9 @@ export function setup() {
             await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
             await app.workbench.debug.waitForDebuggingToStart();
-            console.log("Android pure RN Expo test: debugging started");
+            console.log("Android pure RN Expo test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
-            console.log("Android pure RN Expo test: stack frame found");
+            console.log("Android pure RN Expo test: Stack frame found");
             await app.workbench.debug.continue();
             await app.workbench.debug.continue(); // second continue() is needed because BP is being hit for two times for unknown reason
             // Wait for debug string to be rendered in debug console
