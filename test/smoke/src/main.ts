@@ -137,6 +137,10 @@ async function setup(): Promise<void> {
 }
 
 before(async function () {
+    if (process.argv.includes("--skip-setup")) {
+        console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
+        return;
+    }
     this.timeout(smokeTestsConstants.smokeTestSetupAwaitTimeout);
     setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), [workspacePath, ExpoWorkspacePath]);
     try {
