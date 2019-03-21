@@ -76,7 +76,7 @@ export function setup() {
             await app.workbench.debug.openDebugViewlet();
             console.log(`Android Expo Debug test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
-            console.log("Android Expo Debug test: starting debugging");
+            console.log("Android Expo Debug test: Starting debugging");
             await app.workbench.debug.startDebugging();
             await app.workbench.waitForTab("Expo QR Code");
             await app.workbench.waitForActiveTab("Expo QR Code");
@@ -124,7 +124,7 @@ export function setup() {
             await app.workbench.debug.openDebugViewlet();
             console.log(`Android pure RN Expo test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
-            console.log("Android pure RN Expo test: starting debugging");
+            console.log("Android pure RN Expo test: Starting debugging");
             await app.workbench.debug.startDebugging();
             await app.workbench.waitForTab("Expo QR Code");
             await app.workbench.waitForActiveTab("Expo QR Code");
