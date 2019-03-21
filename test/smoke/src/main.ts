@@ -139,6 +139,8 @@ async function setup(): Promise<void> {
 before(async function () {
     if (process.argv.includes("--skip-setup")) {
         console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
+        // Assume that VS Code is already installed
+        executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
         return;
     }
     this.timeout(smokeTestsConstants.smokeTestSetupAwaitTimeout);
