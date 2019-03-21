@@ -143,7 +143,7 @@ export function setup() {
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android pure RN Expo test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");
             console.log("Android pure RN Expo test: Stack frame found");
             await app.workbench.debug.continue();
             await app.workbench.debug.continue(); // second continue() is needed because BP is being hit for two times for unknown reason
