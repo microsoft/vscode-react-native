@@ -203,6 +203,25 @@
             ],
             "sourceMaps": true,
             "preLaunchTask": "build-smoke-tests"
+        },
+        {
+			"type": "node",
+            "request": "launch",
+            "protocol": "inspector",
+			"name": "Launch Smoke Test (skip setup)",
+			"program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+            "cwd": "${workspaceFolder}/test/smoke",
+            "args": [
+                "--dont-delete-vsix",
+                "--skip-setup"
+            ],
+            "timeout": 240000,
+            "stopOnEntry": false,
+			"outFiles": [
+				"${workspaceRoot}/src/**/*.js"
+            ],
+            "sourceMaps": true,
+            "preLaunchTask": "build-smoke-tests"
 		}
     ],
     "compounds": [
