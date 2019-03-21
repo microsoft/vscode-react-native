@@ -25,7 +25,7 @@ export class appiumHelper {
         const appiumLogPath = path.join(appiumLogFolder, "appium.log");
         console.log(`*** Executing Appium with logging to ${appiumLogPath}`);
         let appiumCommand = process.platform === "win32" ? "appium.cmd" : "appium";
-        appiumProcess = cp.spawn(appiumCommand, ["--log", appiumLogPath]);
+        appiumProcess = cp.spawn(appiumCommand, ["--log", appiumLogPath, "--session-override"]);
         appiumProcess.on("close", () => {
             console.log("*** Appium terminated");
         });
