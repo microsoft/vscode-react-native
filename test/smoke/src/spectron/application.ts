@@ -208,7 +208,7 @@ export class SpectronApplication {
         const port = await findFreePort();
 
         const env = {
-            path: process.env.path
+            path: process.env.path,
         };
 
         const opts: any = {

@@ -201,7 +201,7 @@ export class Debug extends Viewlet {
             div => (Array.isArray(div) ? div : [div]).map(element => {
                 const name = element.querySelector(".file-name") as HTMLElement;
                 const line = element.querySelector(".line-number") as HTMLElement;
-                const lineNumber = line.textContent ? parseInt(line.textContent.split(":").shift() || "0") : 0;
+                const lineNumber = line.textContent ? parseInt(line.textContent.split(":").shift() || "0", 10) : 0;
 
                 return {
                     name: name.textContent,
