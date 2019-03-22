@@ -331,11 +331,11 @@ export class SpectronApplication {
      * https://w3c.github.io/webdriver/webdriver-spec.html#keyboard-actions
      */
     private transliterate(key: string): string {
-        // List of constants that webdriverio@4.14.* is used
-        // https://github.com/webdriverio/webdriverio/blob/6866934436a32d99aa5123d1f6e983e3d696f2aa/lib/helpers/constants.js#L147
         // This list includes only special cases that are not parsed properly by webdriverio@4.14
         // For example "Up" entry is would be parsed to the sequence "u", "p" but it's actually a "ArrowUp"
         // If Spectron changes major version of webdriverio it depends on then this list should be revisited and changed accordingly if needed!
+        // Full list of constants that webdriverio@4.14 uses:
+        // https://github.com/webdriverio/webdriverio/blob/6866934436a32d99aa5123d1f6e983e3d696f2aa/lib/helpers/constants.js#L147
         const VsCodeToWebDriverSpecialCharsMap = {
             "ctrl" : "Control",
             "cmd" : "Meta",
