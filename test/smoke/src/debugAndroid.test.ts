@@ -60,7 +60,6 @@ export function setup() {
             await app.workbench.debug.stopDebugging();
             console.log("Android Debug test: Debugging is stopped");
             client.closeApp();
-            client.endAll();
         });
 
         it("Android Expo Debug test", async function () {
@@ -108,7 +107,6 @@ export function setup() {
             await app.workbench.debug.stopDebugging();
             console.log("Android Debug test: Debugging is stopped");
             client.closeApp();
-            client.endAll();
         });
 
         it("Android pure RN Expo test", async function () {
