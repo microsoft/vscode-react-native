@@ -16,7 +16,7 @@ function fail(errorMessage): void {
     process.exit(1);
 }
 
-if (parseInt(process.version.substr(1)) < 8) {
+if (parseInt(process.version.substr(1), 10) < 8) {
     fail("Please update your Node version to greater than 8 to run the smoke test.");
 }
 
