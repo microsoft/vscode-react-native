@@ -103,11 +103,11 @@ export class appiumHelper {
         if (process.platform === "darwin") {
             // Longer way to open Expo app, but
             // it certainly works on Mac
-            this.openExpoAppViaExploreButton(client, expoURL);
+            return this.openExpoAppViaExploreButton(client, expoURL);
         } else {
             // The quickest way to open Expo app,
             // it doesn't work on Mac though
-            this.openExpoAppViaClipboard(client, expoURL);
+            return this.openExpoAppViaClipboard(client, expoURL);
         }
     }
 
