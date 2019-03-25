@@ -273,6 +273,11 @@
 									"type": "string"
 								},
 								"default": []
+							},
+							"debuggerWorkerUrlPath": {
+								"type": "string",
+								"description": "%reactNative.attach.debuggerWorkerUrlPath.description%",
+								"default": "debugger-ui/debuggerWorker.js"
 							}
 						}
 					},
@@ -380,6 +385,11 @@
 								],
 								"default": "log",
 								"description": "%reactNative.launch.trace.description%"
+							},
+							"debuggerWorkerUrlPath": {
+								"type": "string",
+								"description": "%reactNative.launch.debuggerWorkerUrlPath.description%",
+								"default": "debugger-ui/debuggerWorker.js"
 							}
 						}
 					}
@@ -569,5 +579,10 @@
 	},
 	"extensionDependencies": [
 		"ms-vscode.node-debug2"
-	]
+	],
+	"__metadata": {
+		"id": "b35cd5b4-18db-46f9-ba9e-06096c3b22d3",
+		"publisherDisplayName": "Visual Studio Mobile Tools",
+		"publisherId": "852b63c9-509c-44fb-a302-f04544c660ad"
+	}
 }
