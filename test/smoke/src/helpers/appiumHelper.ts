@@ -174,6 +174,7 @@ export class appiumHelper {
             .waitForExist(EXPLORE_ELEMENT, 30 * 1000)
             .click(EXPLORE_ELEMENT);
         console.log(`*** Pressing "Search" icon...`);
+
         // Elements hyerarchy:
         // Parent element
         // |- FeaturedProjects    <- where we start searching
@@ -183,17 +184,19 @@ export class appiumHelper {
         await client
             .waitForExist(FEATURED_PROJECTS_ELEMENT, 5 * 1000)
             .click(`${FEATURED_PROJECTS_ELEMENT}//../child::*[2]`);
-        console.log(`*** Pasting ${expoURL} to search text field...`);
+
+        console.log(`*** Pasting ${expoURL} to text field...`);
         const FIND_A_PROJECT_ELEMENT = "//*[@text=\"Find a project or enter a URL...\"]";
         await client
             .waitForExist(FIND_A_PROJECT_ELEMENT, 5 * 1000)
             .click(FIND_A_PROJECT_ELEMENT);
         client.keys(expoURL);
         sleep(2 * 1000);
+
         console.log(`*** Clicking on first found result to run the app`);
-        const TAP_TO_ATTEMPT_ELEMENT = "//*[@text=\"Find a project or enter a URL...\"]";
+        const TAP_TO_ATTEMPT_ELEMENT = "//*[@text=\"Tap to attempt to open project at\"]";
         await client
             .waitForExist(TAP_TO_ATTEMPT_ELEMENT, 10 * 1000)
-            .click(`${TAP_TO_ATTEMPT_ELEMENT}//..`);
+            .click(`${TAP_TO_ATTEMPT_ELEMENT}//..`); // parent element is the one we should click on
     }
 }

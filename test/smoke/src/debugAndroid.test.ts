@@ -90,8 +90,9 @@ export function setup() {
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
             let client = appiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
+            // TODO Add listener to trigger that main expo app has been ran
             await appiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
-            // TODO Add listener to trigger that expo app is installed instead of using timeout
+            // TODO Add listener to trigger that child expo app has been ran instead of using timeout
             console.log(`Android Expo Debug test: Waiting ${smokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
