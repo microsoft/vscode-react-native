@@ -100,16 +100,15 @@ export class appiumHelper {
     }
 
     public static async openExpoApplicationAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
-        // Expo application automatically detects Expo URLs in the clipboard
-        // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
-        console.log(`*** Copying ${expoURL} to system clipboard...`);
-        clipboardy.writeSync(expoURL);
-        console.log(`*** Searching for ${this.EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
-        // Run Expo app by expoURL
-        await client
-        .waitForExist(this.EXPO_OPEN_FROM_CLIPBOARD, 30000)
-        .click(this.EXPO_OPEN_FROM_CLIPBOARD);
-        console.log(`*** ${this.EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
+        if (process.platform === "darwin") {
+            // Longer way to open Expo app, but
+            // it certainly works on Mac
+            this.openExpoAppViaExploreButton(client, expoURL);
+        } else {
+            // The quickest way to open Expo app,
+            // it doesn't work on Mac though
+            this.openExpoAppViaClipboard(client, expoURL);
+        }
     }
 
     public static async reloadRNAppAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
@@ -151,5 +150,50 @@ export class appiumHelper {
             }
             return false;
         }, smokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${smokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
+    }
+
+    private static async openExpoAppViaClipboard(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
+        // Expo application automatically detects Expo URLs in the clipboard
+        // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
+        console.log(`*** Opening Expo app via clipboard`);
+        console.log(`*** Copying ${expoURL} to system clipboard...`);
+        clipboardy.writeSync(expoURL);
+        console.log(`*** Searching for ${this.EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
+        // Run Expo app by expoURL
+        await client
+            .waitForExist(this.EXPO_OPEN_FROM_CLIPBOARD, 30 * 1000)
+            .click(this.EXPO_OPEN_FROM_CLIPBOARD);
+        console.log(`*** ${this.EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
+    }
+
+    private static async openExpoAppViaExploreButton(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;, expoURL: string) {
+        console.log(`*** Opening Expo app via "Explore" button`);
+        console.log(`*** Pressing "Explore" button...`);
+        const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc=\"Explore\"]";
+        await client
+            .waitForExist(EXPLORE_ELEMENT, 30 * 1000)
+            .click(EXPLORE_ELEMENT);
+        console.log(`*** Pressing "Search" icon...`);
+        // Elements hyerarchy:
+        // Parent element
+        // |- FeaturedProjects    <- where we start searching
+        // |- "Search" button     <- what we are looking for
+        //
+        const FEATURED_PROJECTS_ELEMENT = "//*[@text=\"Featured Projects\"]";
+        await client
+            .waitForExist(FEATURED_PROJECTS_ELEMENT, 5 * 1000)
+            .click(`${FEATURED_PROJECTS_ELEMENT}//../child::*[2]`);
+        console.log(`*** Pasting ${expoURL} to search text field...`);
+        const FIND_A_PROJECT_ELEMENT = "//*[@text=\"Find a project or enter a URL...\"]";
+        await client
+            .waitForExist(FIND_A_PROJECT_ELEMENT, 5 * 1000)
+            .click(FIND_A_PROJECT_ELEMENT);
+        client.keys(expoURL);
+        sleep(2 * 1000);
+        console.log(`*** Clicking on first found result to run the app`);
+        const TAP_TO_ATTEMPT_ELEMENT = "//*[@text=\"Find a project or enter a URL...\"]";
+        await client
+            .waitForExist(TAP_TO_ATTEMPT_ELEMENT, 10 * 1000)
+            .click(`${TAP_TO_ATTEMPT_ELEMENT}//..`);
     }
 }

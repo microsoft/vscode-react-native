@@ -85,11 +85,13 @@ export function setup() {
             console.log("Android Expo Debug test: 'Expo QR Code' tab selected");
             let expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            expoURL = expoURL as string;
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
             let client = appiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
             await appiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
+            // TODO Add listener to trigger that expo app is installed instead of using timeout
             console.log(`Android Expo Debug test: Waiting ${smokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
             await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
