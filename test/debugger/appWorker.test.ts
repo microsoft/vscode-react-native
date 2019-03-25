@@ -232,6 +232,8 @@ suite("appWorker", function () {
             });
             test("prepareDebuggerWorkerURL should return correct URL when debuggerWorkerUrlPath is used", () => {
                 assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", ""), `http://localhost:8081/debuggerWorker.js`);
+                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", "new-debugger/"), `http://localhost:8081/new-debugger/debuggerWorker.js`);
+                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", undefined), `http://localhost:8081/debugger-ui/debuggerWorker.js`);
             });
         });
 
