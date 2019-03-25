@@ -273,6 +273,11 @@
 									"type": "string"
 								},
 								"default": []
+							},
+							"debuggerWorkerUrlPath": {
+								"type": "string",
+								"description": "%reactNative.attach.debuggerWorkerUrlPath.description%",
+								"default": "debugger-ui/"
 							}
 						}
 					},
@@ -380,6 +385,11 @@
 								],
 								"default": "log",
 								"description": "%reactNative.launch.trace.description%"
+							},
+							"debuggerWorkerUrlPath": {
+								"type": "string",
+								"description": "%reactNative.launch.debuggerWorkerUrlPath.description%",
+								"default": "debugger-ui/"
 							}
 						}
 					}
