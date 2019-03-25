@@ -36,8 +36,20 @@ export class appiumHelper {
 
     public static terminateAppium() {
         if (appiumProcess) {
-            console.log(`*** Terminating Appium`);
-            kill(appiumProcess.pid, "SIGINT");
+            console.log(`*** Terminating Appium with PID ${appiumProcess.pid}`);
+            const errorCallback = (err) => {
+                if (err) {
+                    console.log("Error occured while terminating Appium");
+                    throw err;
+                }
+            };
+            kill(appiumProcess.pid, "SIGINT", errorCallback);
+            sleep(10 * 1000);
+            // Try to kill again
+            // Explanation: https://github.com/appium/appium/issues/12297#issuecomment-472511676
+            if (!appiumProcess.killed) {
+                kill(appiumProcess.pid, "SIGINT", errorCallback);
+            }
         }
     }
 
