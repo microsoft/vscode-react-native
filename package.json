@@ -277,7 +277,7 @@
 							"debuggerWorkerUrlPath": {
 								"type": "string",
 								"description": "%reactNative.attach.debuggerWorkerUrlPath.description%",
-								"default": "debugger-ui/debuggerWorker.js"
+								"default": "debugger-ui/"
 							}
 						}
 					},
@@ -389,7 +389,7 @@
 							"debuggerWorkerUrlPath": {
 								"type": "string",
 								"description": "%reactNative.launch.debuggerWorkerUrlPath.description%",
-								"default": "debugger-ui/debuggerWorker.js"
+								"default": "debugger-ui/"
 							}
 						}
 					}
