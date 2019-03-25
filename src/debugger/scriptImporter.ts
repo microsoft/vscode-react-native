@@ -102,7 +102,8 @@ export class ScriptImporter {
     }
 
     public prepareDebuggerWorkerURL(rnVersion: string, debuggerWorkerUrlPath?: string): string {
-        let debuggerWorkerURL = "";
+        let debuggerWorkerURL: string;
+        // It can be empty string
         if (debuggerWorkerUrlPath !== undefined) {
             debuggerWorkerURL = `http://${this.packagerAddress}:${this.packagerPort}/${debuggerWorkerUrlPath}${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
         } else {
