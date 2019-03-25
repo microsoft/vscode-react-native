@@ -222,8 +222,13 @@ suite("appWorker", function () {
                     return waitForCheckingOutput.promise;
                 });
             });
+        });
 
-            const scriptImporter = new ScriptImporter("localhost", 8081, "sources");
+        suite("ScriptImporter", function () {
+            let scriptImporter: ScriptImporter;
+            setup(function () {
+                 scriptImporter = new ScriptImporter("localhost", 8081, "sources");
+            });
             test("prepareDebuggerWorkerURL should return correct URL for RN < 0.50.0", () => {
                 assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.49.0"), "http://localhost:8081/debuggerWorker.js");
             });
