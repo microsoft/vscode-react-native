@@ -52,7 +52,7 @@ export class Debug extends Viewlet {
         if (process.platform === "darwin") {
             await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX} option[value=\"${debugOption}\"]`);
         } else {
-            await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX} .monaco-select-box-dropdown-padding`);
+            await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX}.monaco-select-box-dropdown-padding`);
             await this.spectron.client.waitForElement(DEBUG_OPTIONS_COMBOBOX_OPENED);
             await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX_OPENED} option[value=\"${debugOption}\"]`);
         }
