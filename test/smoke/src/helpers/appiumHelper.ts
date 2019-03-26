@@ -44,11 +44,13 @@ export class appiumHelper {
                 }
             };
             kill(appiumProcess.pid, "SIGINT", errorCallback);
-            sleep(10 * 1000);
-            // Try to kill again
-            // Explanation: https://github.com/appium/appium/issues/12297#issuecomment-472511676
-            if (!appiumProcess.killed) {
-                kill(appiumProcess.pid, "SIGINT", errorCallback);
+            if (process.platform === "darwin") {
+                sleep(10 * 1000);
+                // Send a final kill signal to appium process
+                // Explanation: https://github.com/appium/appium/issues/12297#issuecomment-472511676
+                if (!appiumProcess.killed) {
+                    kill(appiumProcess.pid, "SIGINT", errorCallback);
+                }
             }
         }
     }
