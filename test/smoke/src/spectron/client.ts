@@ -103,7 +103,13 @@ export class SpectronClient {
 
     public async waitForActiveElement(selector: string): Promise<any> {
         return this.waitFor(
-            () => this.spectron.client.execute(s => document.activeElement.matches(s), selector),
+            () => this.spectron.client.execute(s => {
+                if (document.activeElement) {
+                    return document.activeElement.matches(s);
+                } else {
+                    throw new Error("Active element is null");
+                }
+            }, selector),
             r => r.value,
             `wait for active element: ${selector}`
         );
