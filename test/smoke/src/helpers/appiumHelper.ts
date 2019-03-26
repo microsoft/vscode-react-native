@@ -26,7 +26,7 @@ export class appiumHelper {
         console.log(`*** Executing Appium with logging to ${appiumLogPath}`);
         let appiumCommand = process.platform === "win32" ? "appium.cmd" : "appium";
         appiumProcess = cp.spawn(appiumCommand, ["--log", appiumLogPath]);
-        appiumProcess.on("close", () => {
+        appiumProcess.on("exit", () => {
             console.log("*** Appium terminated");
         });
         appiumProcess.on("error", (error) => {
@@ -37,6 +37,7 @@ export class appiumHelper {
     public static terminateAppium() {
         if (appiumProcess) {
             console.log(`*** Terminating Appium with PID ${appiumProcess.pid}`);
+            console.log(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
             const errorCallback = (err) => {
                 if (err) {
                     console.log("Error occured while terminating Appium");
@@ -48,6 +49,7 @@ export class appiumHelper {
                 sleep(10 * 1000);
                 // Send a final kill signal to appium process
                 // Explanation: https://github.com/appium/appium/issues/12297#issuecomment-472511676
+                console.log(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid} again`);
                 if (!appiumProcess.killed) {
                     kill(appiumProcess.pid, "SIGINT", errorCallback);
                 }
