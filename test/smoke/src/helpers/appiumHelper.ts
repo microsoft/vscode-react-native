@@ -189,7 +189,7 @@ export class appiumHelper {
             .click(EXPLORE_ELEMENT);
         console.log(`*** Pressing "Search" icon...`);
 
-        // Elements hyerarchy:
+        // Elements hierarchy:
         // Parent element
         // |- FeaturedProjects    <- where we start searching
         // |- "Search" button     <- what we are looking for
