@@ -191,9 +191,9 @@ export class appiumHelper {
             .click(EXPLORE_ELEMENT);
         console.log(`*** Pressing "Search" icon...`);
 
-        // Elements hyerarchy:
+        // Elements hierarchy:
         // Parent element
-        // |- FeaturedProjects    <- where we start searching
+        // |- Featured Projects    <- where we start searching
         // |- "Search" button     <- what we are looking for
         //
         const FEATURED_PROJECTS_ELEMENT = "//*[@text=\"Featured Projects\"]";
