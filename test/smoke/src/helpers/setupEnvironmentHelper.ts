@@ -19,6 +19,7 @@ import * as cp from "child_process";
 import { smokeTestsConstants } from "./smokeTestsConstants";
 import { appiumHelper } from "./appiumHelper";
 import * as kill from "tree-kill";
+import * as semver from "semver";
 
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
@@ -32,32 +33,32 @@ export async function downloadVSCodeExecutable(targetFolder: string): Promise<an
 
     const testRunFolder = path.join(targetFolder, ".vscode-test", isInsiders ? "insiders" : "stable");
 
-    return new Promise ((resolve, reject) => {
+    return new Promise ((resolve) => {
         getDownloadUrl((downloadUrl) => {
-        console.log("*** Downloading VS Code into \"" + testRunFolder + "\" from: " + downloadUrl);
+            console.log("*** Downloading VS Code into \"" + testRunFolder + "\" from: " + downloadUrl);
 
-        let version = downloadUrl.match(/\d+\.\d+\.\d+/)[0].split("\.");
-        let isTarGz = downloadUrl.match(/linux/) && version[0] >= 1 && version[1] >= 5;
+            let version = downloadUrl.match(/\d+\.\d+\.\d+/)[0].split("\.");
+            let isTarGz = downloadUrl.match(/linux/) && version[0] >= 1 && version[1] >= 5;
 
-        let stream;
-        if (isTarGz) {
-            let gulpFilter = filter(["VSCode-linux-x64/code", "VSCode-linux-x64/code-insiders", "VSCode-linux-x64/resources/app/node_modules*/vscode-ripgrep/**/rg"], { restore: true });
-            stream = request(shared.toRequestOptions(downloadUrl))
-                .pipe(source(path.basename(downloadUrl)))
-                .pipe(gunzip())
-                .pipe(untar())
-                .pipe(gulpFilter)
-                .pipe(chmod(493)) // 0o755
-                .pipe(gulpFilter.restore)
-                .pipe(vfs.dest(testRunFolder));
-        } else {
-            stream = remote("", { base: downloadUrl })
-                .pipe(vzip.src())
-                .pipe(vfs.dest(testRunFolder));
-        }
-        stream.on("end", () => {
-            resolve();
-        });
+            let stream;
+            if (isTarGz) {
+                let gulpFilter = filter(["VSCode-linux-x64/code", "VSCode-linux-x64/code-insiders", "VSCode-linux-x64/resources/app/node_modules*/vscode-ripgrep/**/rg"], { restore: true });
+                stream = request(shared.toRequestOptions(downloadUrl))
+                    .pipe(source(path.basename(downloadUrl)))
+                    .pipe(gunzip())
+                    .pipe(untar())
+                    .pipe(gulpFilter)
+                    .pipe(chmod(493)) // 0o755
+                    .pipe(gulpFilter.restore)
+                    .pipe(vfs.dest(testRunFolder));
+            } else {
+                stream = remote("", { base: downloadUrl })
+                    .pipe(vzip.src())
+                    .pipe(vfs.dest(testRunFolder));
+            }
+            stream.on("end", () => {
+                resolve();
+            });
 
         });
     });
@@ -78,8 +79,11 @@ export async function fetchKeybindings(keybindingsPath: string) {
     });
 }
 
-export function prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
-    const command = `react-native init ${appName}`;
+export function prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, version?: string) {
+    let command = `react-native init ${appName}`;
+    if (version) {
+        command += ` --version ${version}`;
+    }
     console.log(`*** Creating RN app via '${command}' in ${workspacePath}...`);
     cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
@@ -118,6 +122,17 @@ export function prepareExpoApplication(workspaceFilePath: string, resourcesPath:
 
     console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
     fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+}
+
+export function addExpoDependencyToRNProject(workspacePath: string) {
+    let npmCmd = "npm";
+    if (process.platform === "win32") {
+        npmCmd = "npm.cmd";
+    }
+    const command = `${npmCmd} install expo --no-save`;
+
+    console.log(`*** Adding expo dependency to ${workspacePath} via '${command}' command...`);
+    cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
 }
 
 // Installs Expo app on Android device via "expo android" command
@@ -250,6 +265,39 @@ export function cleanUp(testVSCodeExecutableFolder: string, workspacePaths: stri
     });
 }
 
+export async function getLatestSupportedRNVersionForExpo(): Promise<any> {
+    console.log("*** Getting latest React Native version supported by Expo...");
+    return new Promise((resolve, reject) => {
+        shared.getContents("https://exp.host/--/api/v2/versions", null, null, function (error, versionsContent) {
+            if (error) {
+                reject(error);
+            }
+            try {
+               const content = JSON.parse(versionsContent);
+               if (content.sdkVersions) {
+                   const maxSdkVersion = Object.keys(content.sdkVersions).sort((ver1, ver2) => {
+                       if (semver.lt(ver1, ver2)) {
+                           return 1;
+                       } else if (semver.gt(ver1, ver2)) {
+                           return -1;
+                       }
+                       return 0;
+                   })[0];
+                   if (content.sdkVersions[maxSdkVersion]) {
+                       if (content.sdkVersions[maxSdkVersion].facebookReactNativeVersion) {
+                           console.log(`*** Latest React Native version supported by Expo: ${content.sdkVersions[maxSdkVersion].facebookReactNativeVersion}`);
+                           resolve(content.sdkVersions[maxSdkVersion].facebookReactNativeVersion as string);
+                       }
+                   }
+               }
+               reject("Received object is incorrect");
+            } catch (error) {
+               reject(error);
+            }
+        });
+    });
+}
+
 function getKeybindingPlatform(): string {
     switch (process.platform) {
         case "darwin": return "osx";
@@ -259,7 +307,6 @@ function getKeybindingPlatform(): string {
 }
 
 function getDownloadUrl(cb) {
-
     getTag(function (tag) {
         return cb(["https://vscode-update.azurewebsites.net", tag, downloadPlatform, (isInsiders ? "insider" : "stable")].join("/"));
     });
