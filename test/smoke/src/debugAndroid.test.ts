@@ -133,6 +133,7 @@ export function setup() {
             console.log("Android pure RN Expo test: 'Expo QR Code' tab selected");
             let expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            expoUrl = <string>expoUrl;
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
             smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
             let client = appiumHelper.webdriverAttach(opts);
