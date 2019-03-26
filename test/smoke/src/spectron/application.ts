@@ -208,7 +208,7 @@ export class SpectronApplication {
         const port = await findFreePort();
 
         const env = {
-            path: process.env.path
+            path: process.env.path,
         };
 
         const opts: any = {
@@ -331,13 +331,42 @@ export class SpectronApplication {
      * https://w3c.github.io/webdriver/webdriver-spec.html#keyboard-actions
      */
     private transliterate(key: string): string {
-        switch (key) {
-            case "ctrl":
-                return "Control";
-            case "cmd":
-                return "Meta";
-            default:
-                return key.length === 1 ? key : key.charAt(0).toUpperCase() + key.slice(1);
+        // This list includes only special cases that are not parsed properly by webdriverio@4.14
+        // For example "Up" entry is would be parsed to the sequence "u", "p" but it's actually a "ArrowUp"
+        // If Spectron changes major version of webdriverio it depends on then this list should be revisited and changed accordingly if needed!
+        // Full list of constants that webdriverio@4.14 uses:
+        // https://github.com/webdriverio/webdriverio/blob/6866934436a32d99aa5123d1f6e983e3d696f2aa/lib/helpers/constants.js#L147
+        const VsCodeToWebDriverSpecialCharsMap = {
+            "ctrl" : "Control",
+            "cmd" : "Meta",
+            "left" : "ArrowLeft",
+            "up" : "ArrowUp",
+            "right" : "ArrowRight",
+            "down" : "ArrowDown",
+            ";" : "Semicolon",
+            "," : "Separator",
+            "=" : "Equals",
+            "numpad0" : "Numpad 0",
+            "numpad1" : "Numpad 1",
+            "numpad2" : "Numpad 2",
+            "numpad3" : "Numpad 3",
+            "numpad4" : "Numpad 4",
+            "numpad5" : "Numpad 5",
+            "numpad6" : "Numpad 6",
+            "numpad7" : "Numpad 7",
+            "numpad8" : "Numpad 8",
+            "numpad9" : "Numpad 9",
+            "*" : "Multiply",
+            "+" : "Add",
+            "-" : "Subtract",
+            "." : "Decimal",
+            "/" : "Divide",
+        };
+
+        if (VsCodeToWebDriverSpecialCharsMap[key]) {
+            return VsCodeToWebDriverSpecialCharsMap[key];
+        } else {
+            return key.length === 1 ? key : key.charAt(0).toUpperCase() + key.slice(1);
         }
     }
 }
