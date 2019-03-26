@@ -59,8 +59,8 @@ export function setup() {
             console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("Android Debug test: Debugging is stopped");
-            client.closeApp();
-            client.endAll();
+            clientInited.closeApp();
+            clientInited.endAll();
         });
 
         it("Android Expo Debug test", async function () {
@@ -107,8 +107,8 @@ export function setup() {
             console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("Android Debug test: Debugging is stopped");
-            client.closeApp();
-            client.endAll();
+            clientInited.closeApp();
+            clientInited.endAll();
         });
 
         it("Android pure RN Expo test", async function () {
@@ -154,8 +154,8 @@ export function setup() {
             console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("Android Debug test: Debugging is stopped");
-            client.closeApp();
-            client.endAll();
+            clientInited.closeApp();
+            clientInited.endAll();
         });
     });
 }
