@@ -104,9 +104,9 @@ export function setup() {
             console.log("Android Expo Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            console.log("Android Debug test: \"Test output from debuggee\" string is found");
+            console.log("Android Expo Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
-            console.log("Android Debug test: Debugging is stopped");
+            console.log("Android Expo Debug test: Debugging is stopped");
             clientInited.closeApp();
             clientInited.endAll();
         });
@@ -151,9 +151,9 @@ export function setup() {
             console.log("Android pure RN Expo test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            console.log("Android Debug test: \"Test output from debuggee\" string is found");
+            console.log("Android pure RN Expo test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
-            console.log("Android Debug test: Debugging is stopped");
+            console.log("Android pure RN Expo test: Debugging is stopped");
             clientInited.closeApp();
             clientInited.endAll();
         });
