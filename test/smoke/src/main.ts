@@ -107,6 +107,10 @@ const RNworkspaceFilePath = path.join(RNworkspacePath, "App.js");
 const ExpoAppName = "latestExpoApp";
 export const ExpoWorkspacePath = path.join(resourcesPath, ExpoAppName);
 const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, "App.js");
+const pureRNExpoApp = "pureRNExpoApp";
+export const pureRNWorkspacePath = path.join(resourcesPath, pureRNExpoApp);
+const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, "App.js");
+
 const userDataDir = path.join(testVSCodeDirectory, "userTmpFolder");
 const artifactsPath = path.join(repoRoot, "SmokeTestLogs");
 
@@ -142,6 +146,9 @@ async function setup(): Promise<void> {
     await setupEnvironmentHelper.runAndroidEmulator();
     setupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, RNAppName);
     setupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, ExpoAppName);
+    const latestRNVersionExpo = await setupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
+    setupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, pureRNExpoApp, latestRNVersionExpo);
+    setupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
     await setupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
 
@@ -168,7 +175,7 @@ before(async function () {
         return;
     }
     this.timeout(smokeTestsConstants.smokeTestSetupAwaitTimeout);
-    setupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory), [RNworkspacePath, ExpoWorkspacePath]);
+    setupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
     try {
         await setup();
     } catch (err) {

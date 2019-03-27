@@ -25,7 +25,9 @@ export class appiumHelper {
         const appiumLogPath = path.join(appiumLogFolder, "appium.log");
         console.log(`*** Executing Appium with logging to ${appiumLogPath}`);
         let appiumCommand = process.platform === "win32" ? "appium.cmd" : "appium";
-        appiumProcess = cp.spawn(appiumCommand, ["--log", appiumLogPath]);
+        // We need to inherit stdio streams because, otherwise, on Windows appium is stuck at the middle of the Expo test.
+        // We ignore stdout because --log already does the trick, but keeps stdin and stderr.
+        appiumProcess = cp.spawn(appiumCommand, ["--log", appiumLogPath], { stdio: ["inherit", "ignore", "inherit"] });
         appiumProcess.on("exit", () => {
             console.log("*** Appium terminated");
         });

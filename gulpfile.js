@@ -178,7 +178,8 @@ gulp.task("clean", () => {
         "!test/resources/sampleReactNative022Project/**/*.js",
         ".vscode-test/",
         "nls.*.json",
-        "!test/smoke/resources/App.js",
+        "!test/smoke/resources/ReactNativeSample/App.js",
+        "!test/smoke/resources/ExpoSample/App.js",
     ]
     return del(pathsToDelete, { force: true });
 });

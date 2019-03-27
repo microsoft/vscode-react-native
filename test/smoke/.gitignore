@@ -6,3 +6,6 @@ out/
 keybindings.*.json
 test_data/
 test-results.xml
+resources/latestRNApp/**
+resources/latestExpoApp/**
+resources/pureRNExpoApp/**
