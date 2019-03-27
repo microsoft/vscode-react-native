@@ -135,6 +135,7 @@ export class appiumHelper {
             cp.exec(devMenuCallCommand);
             await sleep(2500);
     }
+
     public static async reloadRNAppAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
         console.log("*** Reloading React Native application with DevMenu...");
         await client
