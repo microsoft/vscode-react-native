@@ -33,20 +33,46 @@ function getBuildElectronPath(root: string): string {
             return path.join(root, `${product.nameShort}.exe`);
         }
         default:
-            throw new Error("Unsupported platform.");
+            throw new Error(`Platform ${process.platform} isn't supported`)
     }
 }
+
+function getVSCodeExecutablePath(testVSCodeFolder: string, isInsiders: boolean) {
+    switch (process.platform) {
+        case "darwin":
+            return isInsiders
+                ?
+                path.join(testVSCodeFolder, "Visual Studio Code - Insiders.app", "Contents", "Resources", "app", "bin", "code")
+                :
+                path.join(testVSCodeFolder, "Visual Studio Code.app", "Contents", "Resources", "app", "bin", "code");
+        case "win32":
+            return isInsiders
+                ?
+                path.join(testVSCodeFolder, "bin", "code-insiders.cmd")
+                :
+                path.join(testVSCodeFolder, "bin", "code.cmd");
+        case "linux":
+            return isInsiders
+                ?
+                path.join(testVSCodeFolder, "bin", "code-insiders")
+                :
+                path.join(testVSCodeFolder, "bin", "code");
+        default:
+            throw new Error(`Platform ${process.platform} isn't supported`);
+    }
+}
+
 const repoRoot = path.join(__dirname, "..", "..", "..");
 const resourcesPath = path.join(__dirname, "..", "resources");
 const isInsiders = process.env.CODE_VERSION === "insiders";
-let testVSCodeExecutableFolder;
+let testVSCodeDirectory;
 if (!isInsiders) {
-     testVSCodeExecutableFolder = path.join(repoRoot, ".vscode-test", "stable");
+     testVSCodeDirectory = path.join(repoRoot, ".vscode-test", "stable");
 } else {
-    testVSCodeExecutableFolder = path.join(repoRoot, ".vscode-test", "insiders");
+    testVSCodeDirectory = path.join(repoRoot, ".vscode-test", "insiders");
 }
 
-let executablePath: string;
+let electronExecutablePath: string;
 
 let quality: Quality;
 if (isInsiders) {
@@ -76,8 +102,8 @@ console.warn = function suppressWebdriverWarnings(message) {
 };
 
 const RNAppName = "latestRNApp";
-const workspacePath = path.join(resourcesPath, RNAppName);
-const workspaceFilePath = path.join(workspacePath, "App.js");
+const RNworkspacePath = path.join(resourcesPath, RNAppName);
+const RNworkspaceFilePath = path.join(RNworkspacePath, "App.js");
 const ExpoAppName = "latestExpoApp";
 export const ExpoWorkspacePath = path.join(resourcesPath, ExpoAppName);
 const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, "App.js");
@@ -85,42 +111,40 @@ const pureRNExpoApp = "pureRNExpoApp";
 export const pureRNWorkspacePath = path.join(resourcesPath, pureRNExpoApp);
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, "App.js");
 
-const userDataDir = path.join(testVSCodeExecutableFolder, "userTmpFolder");
+const userDataDir = path.join(testVSCodeDirectory, "userTmpFolder");
 const artifactsPath = path.join(repoRoot, "SmokeTestLogs");
 
-const extensionsPath = path.join(testVSCodeExecutableFolder, "extensions");
-
+const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
 
-
 function createApp(quality: Quality): SpectronApplication | null {
 
-    if (!executablePath) {
+    if (!electronExecutablePath) {
         return null;
     }
 
-    console.log(`*** Executing ${executablePath} with Spectron`);
+    console.log(`*** Executing ${electronExecutablePath} with Spectron`);
     return new SpectronApplication({
         quality,
-        electronPath: executablePath,
-        workspacePath,
+        electronPath: electronExecutablePath,
+        workspacePath: RNworkspacePath,
         userDataDir,
         extensionsPath,
         artifactsPath,
-        workspaceFilePath,
+        workspaceFilePath: RNworkspaceFilePath,
         waitTime:  smokeTestsConstants.spectronElementResponseTimeout,
     });
 }
 
 async function setup(): Promise<void> {
-    console.log("*** Test VS Code executable folder:", testVSCodeExecutableFolder);
+    console.log("*** Test VS Code directory:", testVSCodeDirectory);
     console.log("*** Preparing smoke tests setup...");
     appiumHelper.runAppium();
 
     await setupEnvironmentHelper.runAndroidEmulator();
-    setupEnvironmentHelper.prepareReactNativeApplication(workspaceFilePath, resourcesPath, workspacePath, RNAppName);
+    setupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, RNAppName);
     setupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, ExpoAppName);
     const latestRNVersionExpo = await setupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
     setupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, pureRNExpoApp, latestRNVersionExpo);
@@ -128,12 +152,12 @@ async function setup(): Promise<void> {
     await setupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
     await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
 
-    executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
-    if (!fs.existsSync(testVSCodeExecutableFolder || "")) {
-        fail(`Can't find VS Code executable at ${testVSCodeExecutableFolder}.`);
+    electronExecutablePath = getBuildElectronPath(testVSCodeDirectory);
+    if (!fs.existsSync(testVSCodeDirectory || "")) {
+        fail(`Can't find VS Code executable at ${testVSCodeDirectory}.`);
     }
-
-    setupEnvironmentHelper.installExtensionFromVSIX(extensionsPath, path.join(testVSCodeExecutableFolder, "bin"), resourcesPath, isInsiders);
+    const testVSCodeExecutablePath = getVSCodeExecutablePath(testVSCodeDirectory, isInsiders);
+    setupEnvironmentHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath, isInsiders);
 
     if (!fs.existsSync(userDataDir)) {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
@@ -147,11 +171,11 @@ before(async function () {
     if (process.argv.includes("--skip-setup")) {
         console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
         // Assume that VS Code is already installed
-        executablePath = getBuildElectronPath(testVSCodeExecutableFolder);
+        electronExecutablePath = getBuildElectronPath(testVSCodeDirectory);
         return;
     }
     this.timeout(smokeTestsConstants.smokeTestSetupAwaitTimeout);
-    setupEnvironmentHelper.cleanUp(path.join(testVSCodeExecutableFolder, ".."), [workspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
+    setupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
     try {
         await setup();
     } catch (err) {

@@ -8,8 +8,8 @@ import * as clipboardy from "clipboardy";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
-const DEBUG_OPTIONS_COMBOBOX = "select[aria-label=\"Debug Launch Configurations\"].monaco-select-box.monaco-select-box-dropdown-padding";
-const DEBUG_OPTIONS_COMBOBOX_OPENED = "select[aria-label=\"Debug Launch Configurations\"].monaco-select-box.monaco-select-box-dropdown-padding.synthetic-focus";
+const DEBUG_OPTIONS_COMBOBOX = "select[aria-label=\"Debug Launch Configurations\"].monaco-select-box";
+const DEBUG_OPTIONS_COMBOBOX_OPENED = `${DEBUG_OPTIONS_COMBOBOX}.monaco-select-box-dropdown-padding.synthetic-focus`;
 const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .configure`;
 const START = `.icon[title="Start Debugging"]`;
 const STOP = `.debug-toolbar .debug-action.stop`;
@@ -49,9 +49,13 @@ export class Debug extends Viewlet {
     }
 
     public async chooseDebugConfiguration(debugOption: string) {
-        await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX}`);
-        await this.spectron.client.waitForElement(DEBUG_OPTIONS_COMBOBOX_OPENED);
-        await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX_OPENED} option[value=\"${debugOption}\"]`);
+        if (process.platform === "darwin") {
+            await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX} option[value=\"${debugOption}\"]`);
+        } else {
+            await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX}.monaco-select-box-dropdown-padding`);
+            await this.spectron.client.waitForElement(DEBUG_OPTIONS_COMBOBOX_OPENED);
+            await this.spectron.client.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX_OPENED} option[value=\"${debugOption}\"]`);
+        }
     }
 
     public async configure(): Promise<any> {
@@ -189,9 +193,9 @@ export class Debug extends Viewlet {
         await sleep(2000);
         let clipboard = clipboardy.readSync();
         console.log(`Expo QR Code tab text copied: \n ${clipboard}`);
-        clipboard = clipboard.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
-        if (!clipboard) return null;
-        let expoURL = clipboard[0];
+        const match = clipboard.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
+        if (!match) return null;
+        let expoURL = match[0];
         console.log(`Found Expo URL: ${expoURL}`);
         return expoURL;
     }

@@ -16,7 +16,6 @@ export class appiumHelper {
     public static RN_RELOAD_BUTTON = "//*[@text='Reload']";
     public static RN_ENABLE_REMOTE_DEBUGGING_BUTTON = "//*[@text='Debug JS Remotely']";
     public static RN_STOP_REMOTE_DEBUGGING_BUTTON = "//*[@text='Stop Remote JS Debugging']";
-    public static EXPO_OPEN_FROM_CLIPBOARD = "//*[@text='Open from Clipboard']";
     public static EXPO_ELEMENT_LOAD_TRIGGER = "//*[@text='Home']";
 
     public static runAppium() {
@@ -25,10 +24,10 @@ export class appiumHelper {
         const appiumLogPath = path.join(appiumLogFolder, "appium.log");
         console.log(`*** Executing Appium with logging to ${appiumLogPath}`);
         let appiumCommand = process.platform === "win32" ? "appium.cmd" : "appium";
-        // We need to inherit stdio streams because, otherwise, on Windows appium is stuck at the middle of the Expo test. 
+        // We need to inherit stdio streams because, otherwise, on Windows appium is stuck at the middle of the Expo test.
         // We ignore stdout because --log already does the trick, but keeps stdin and stderr.
-        appiumProcess = cp.spawn(appiumCommand, ["--log", appiumLogPath], {stdio:["inherit", "ignore", "inherit"]});
-        appiumProcess.on("close", () => {
+        appiumProcess = cp.spawn(appiumCommand, ["--log", appiumLogPath], { stdio: ["inherit", "ignore", "inherit"] });
+        appiumProcess.on("exit", () => {
             console.log("*** Appium terminated");
         });
         appiumProcess.on("error", (error) => {
@@ -38,8 +37,24 @@ export class appiumHelper {
 
     public static terminateAppium() {
         if (appiumProcess) {
-            console.log(`*** Terminating Appium`);
-            kill(appiumProcess.pid, "SIGINT");
+            console.log(`*** Terminating Appium with PID ${appiumProcess.pid}`);
+            console.log(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
+            const errorCallback = (err) => {
+                if (err) {
+                    console.log("Error occured while terminating Appium");
+                    throw err;
+                }
+            };
+            kill(appiumProcess.pid, "SIGINT", errorCallback);
+            if (process.platform === "darwin") {
+                sleep(10 * 1000);
+                // Send a final kill signal to appium process
+                // Explanation: https://github.com/appium/appium/issues/12297#issuecomment-472511676
+                console.log(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid} again`);
+                if (!appiumProcess.killed) {
+                    kill(appiumProcess.pid, "SIGINT", errorCallback);
+                }
+            }
         }
     }
 
@@ -102,16 +117,15 @@ export class appiumHelper {
     }
 
     public static async openExpoApplicationAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
-        // Expo application automatically detects Expo URLs in the clipboard
-        // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
-        console.log(`*** Copying ${expoURL} to system clipboard...`);
-        clipboardy.writeSync(expoURL);
-        console.log(`*** Searching for ${this.EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
-        // Run Expo app by expoURL
-        await client
-        .waitForExist(this.EXPO_OPEN_FROM_CLIPBOARD, 30000)
-        .click(this.EXPO_OPEN_FROM_CLIPBOARD);
-        console.log(`*** ${this.EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
+        if (process.platform === "darwin") {
+            // Longer way to open Expo app, but
+            // it certainly works on Mac
+            return this.openExpoAppViaExploreButton(client, expoURL);
+        } else {
+            // The quickest way to open Expo app,
+            // it doesn't work on Mac though
+            return this.openExpoAppViaClipboard(client, expoURL);
+        }
     }
 
     public static async reloadRNAppAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
@@ -153,5 +167,54 @@ export class appiumHelper {
             }
             return false;
         }, smokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${smokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
+    }
+
+    private static async openExpoAppViaClipboard(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
+        // Expo application automatically detects Expo URLs in the clipboard
+        // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
+        console.log(`*** Opening Expo app via clipboard`);
+        console.log(`*** Copying ${expoURL} to system clipboard...`);
+        clipboardy.writeSync(expoURL);
+        const EXPO_OPEN_FROM_CLIPBOARD = "//*[@text='Open from Clipboard']";
+        console.log(`*** Searching for ${EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
+        // Run Expo app by expoURL
+        await client
+            .waitForExist(EXPO_OPEN_FROM_CLIPBOARD, 30 * 1000)
+            .click(EXPO_OPEN_FROM_CLIPBOARD);
+        console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
+    }
+
+    private static async openExpoAppViaExploreButton(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
+        console.log(`*** Opening Expo app via "Explore" button`);
+        console.log(`*** Pressing "Explore" button...`);
+        const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc=\"Explore\"]";
+        await client
+            .waitForExist(EXPLORE_ELEMENT, 30 * 1000)
+            .click(EXPLORE_ELEMENT);
+        console.log(`*** Pressing "Search" icon...`);
+
+        // Elements hierarchy:
+        // Parent element
+        // |- Featured Projects    <- where we start searching
+        // |- "Search" button     <- what we are looking for
+        //
+        const FEATURED_PROJECTS_ELEMENT = "//*[@text=\"Featured Projects\"]";
+        await client
+            .waitForExist(FEATURED_PROJECTS_ELEMENT, 5 * 1000)
+            .click(`${FEATURED_PROJECTS_ELEMENT}//../child::*[2]`);
+
+        console.log(`*** Pasting ${expoURL} to text field...`);
+        const FIND_A_PROJECT_ELEMENT = "//*[@text=\"Find a project or enter a URL...\"]";
+        await client
+            .waitForExist(FIND_A_PROJECT_ELEMENT, 5 * 1000)
+            .click(FIND_A_PROJECT_ELEMENT);
+        client.keys(expoURL);
+        sleep(2 * 1000);
+
+        console.log(`*** Clicking on first found result to run the app`);
+        const TAP_TO_ATTEMPT_ELEMENT = "//*[@text=\"Tap to attempt to open project at\"]";
+        await client
+            .waitForExist(TAP_TO_ATTEMPT_ELEMENT, 10 * 1000)
+            .click(`${TAP_TO_ATTEMPT_ELEMENT}//..`); // parent element is the one we should click on
     }
 }

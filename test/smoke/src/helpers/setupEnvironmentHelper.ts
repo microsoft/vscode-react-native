@@ -19,6 +19,7 @@ import * as cp from "child_process";
 import { smokeTestsConstants } from "./smokeTestsConstants";
 import { appiumHelper } from "./appiumHelper";
 import * as kill from "tree-kill";
+import { spawnSync } from "../helpers/utilities";
 import * as semver from "semver";
 
 const version = process.env.CODE_VERSION || "*";
@@ -168,13 +169,9 @@ export function installExtensionFromVSIX(extensionDir: string, testVSCodeExecuta
 
     extensionFile = path.join(artifactPath, extensionFile);
     args.push(`--install-extension=${extensionFile}`);
-    const codeExecutableScript = isInsiders ? "code-insiders" : "code";
-    testVSCodeExecutablePath = path.join(testVSCodeExecutablePath, codeExecutableScript);
-    if (process.platform === "win32") {
-        testVSCodeExecutablePath += ".cmd";
-    }
-    console.log(`*** Installing ${extensionFile} into ${extensionDir} using ${testVSCodeExecutablePath} executable`);
-    cp.spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
+    console.log(`*** Installing extension to VS Code using command: ${testVSCodeExecutablePath} ${args.join(" ")}`);
+    spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
+
     if (!process.argv.includes("--dont-delete-vsix")) {
         console.log(`*** Deleting ${extensionFile} after installation`);
         rimraf.sync(extensionFile);
@@ -251,11 +248,11 @@ export async function sleep(time: number) {
     });
 }
 
-export function cleanUp(testVSCodeExecutableFolder: string, workspacePaths: string[]) {
+export function cleanUp(testVSCodeDirectory: string, workspacePaths: string[]) {
     console.log("\n*** Clean up...");
-    if (fs.existsSync(testVSCodeExecutableFolder)) {
-        console.log(`*** Deleting test VS Code directory: ${testVSCodeExecutableFolder}`);
-        rimraf.sync(testVSCodeExecutableFolder);
+    if (fs.existsSync(testVSCodeDirectory)) {
+        console.log(`*** Deleting test VS Code directory: ${testVSCodeDirectory}`);
+        rimraf.sync(testVSCodeDirectory);
     }
     workspacePaths.forEach(testAppFolder => {
         if (fs.existsSync(testAppFolder)) {
