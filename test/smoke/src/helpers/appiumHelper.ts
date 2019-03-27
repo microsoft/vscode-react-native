@@ -16,7 +16,6 @@ export class appiumHelper {
     public static RN_RELOAD_BUTTON = "//*[@text='Reload']";
     public static RN_ENABLE_REMOTE_DEBUGGING_BUTTON = "//*[@text='Debug JS Remotely']";
     public static RN_STOP_REMOTE_DEBUGGING_BUTTON = "//*[@text='Stop Remote JS Debugging']";
-    public static EXPO_OPEN_FROM_CLIPBOARD = "//*[@text='Open from Clipboard']";
     public static EXPO_ELEMENT_LOAD_TRIGGER = "//*[@text='Home']";
 
     public static runAppium() {
@@ -176,12 +175,13 @@ export class appiumHelper {
         console.log(`*** Opening Expo app via clipboard`);
         console.log(`*** Copying ${expoURL} to system clipboard...`);
         clipboardy.writeSync(expoURL);
-        console.log(`*** Searching for ${this.EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
+        const EXPO_OPEN_FROM_CLIPBOARD = "//*[@text='Open from Clipboard']";
+        console.log(`*** Searching for ${EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
         // Run Expo app by expoURL
         await client
-            .waitForExist(this.EXPO_OPEN_FROM_CLIPBOARD, 30 * 1000)
-            .click(this.EXPO_OPEN_FROM_CLIPBOARD);
-        console.log(`*** ${this.EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
+            .waitForExist(EXPO_OPEN_FROM_CLIPBOARD, 30 * 1000)
+            .click(EXPO_OPEN_FROM_CLIPBOARD);
+        console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
     private static async openExpoAppViaExploreButton(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
