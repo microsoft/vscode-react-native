@@ -1,5 +1,5 @@
 ## 0.9.1
-* Add debugger argument `debuggerWorkerUrlPath` that provides the ability to change path to the React Native `debuggerWorker.js` file [#947](https://github.com/Microsoft/vscode-react-native/issues/947)
+* Added debugger configuration parameter `debuggerWorkerUrlPath` that provides the ability to change path to the React Native `debuggerWorker.js` file [#947](https://github.com/Microsoft/vscode-react-native/issues/947)
 * Fix [js-yaml security vulnerability](https://www.npmjs.com/advisories/788)
 * Bumped debug core dependencies versions to the more recent ones
 
