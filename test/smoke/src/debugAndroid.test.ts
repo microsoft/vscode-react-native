@@ -26,7 +26,7 @@ export function setup() {
             app.suiteName = "Debugging Android";
         });
 
-        it("React Native app Debug test", async function () {
+        it("RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
             const app = this.app as SpectronApplication;
             await app.workbench.explorer.openExplorerView();
