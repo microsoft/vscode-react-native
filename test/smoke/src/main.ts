@@ -183,7 +183,7 @@ before(async function () {
     }
 });
 
-describe("Test React Native extension debug scenarios", () => {
+describe("Extension smoke tests", () => {
     before(async function () {
         const app = createApp(quality);
         await app!.start();
