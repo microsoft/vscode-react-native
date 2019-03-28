@@ -2,6 +2,7 @@
 * Added debugger configuration parameter `debuggerWorkerUrlPath` that provides the ability to change path to the React Native `debuggerWorker.js` file [#947](https://github.com/Microsoft/vscode-react-native/issues/947)
 * Fixed [js-yaml security vulnerability](https://www.npmjs.com/advisories/788)
 * Bumped debug core dependencies versions to the more recent ones
+* Fixed wording for "Run Android on Emulator" command, thanks to [Frieder Bluemle(@friederbluemle)](https://github.com/friederbluemle) 
 
 ## 0.9.0
 * Finished localization of the extension
