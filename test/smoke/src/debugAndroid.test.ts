@@ -20,13 +20,13 @@ const debugAndroidTestTime = smokeTestsConstants.androidAppBuildAndInstallTimeou
 const debugExpoTestTime = smokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
 
 export function setup() {
-    describe("Android debugging tests", () => {
+    describe("Debugging Android", () => {
         before(async function () {
             const app = this.app as SpectronApplication;
-            app.suiteName = "Android debugging tests";
+            app.suiteName = "Debugging Android";
         });
 
-        it("Android React Native Debug test", async function () {
+        it("React Native app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
             const app = this.app as SpectronApplication;
             await app.workbench.explorer.openExplorerView();
@@ -63,7 +63,7 @@ export function setup() {
             clientInited.endAll();
         });
 
-        it("Android Expo Debug test", async function () {
+        it("Expo app Debug test", async function () {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: ExpoWorkspacePath});
@@ -114,7 +114,7 @@ export function setup() {
             clientInited.endAll();
         });
 
-        it("Android pure RN Expo test", async function () {
+        it("Pure RN app Expo test", async function () {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: pureRNWorkspacePath});
