@@ -46,7 +46,7 @@ export class appiumHelper {
                 }
             };
             kill(appiumProcess.pid, "SIGINT", errorCallback);
-            if (process.platform === "darwin") {
+            if (process.platform !== "win32") {
                 sleep(10 * 1000);
                 // Send a final kill signal to appium process
                 // Explanation: https://github.com/appium/appium/issues/12297#issuecomment-472511676
