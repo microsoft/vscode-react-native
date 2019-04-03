@@ -9,9 +9,14 @@ import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test"
 import { appiumHelper } from "./helpers/appiumHelper";
 import { smokeTestsConstants } from "./helpers/smokeTestsConstants";
 
-function fail(errorMessage): void {
+async function fail(errorMessage) {
     console.error(errorMessage);
     setupEnvironmentHelper.terminateAndroidEmulator();
+    try {
+        await setupEnvironmentHelper.terminateiOSSimulator();
+    } catch (e) {
+        console.error(e)
+    }
     appiumHelper.terminateAppium();
     process.exit(1);
 }
@@ -33,7 +38,7 @@ function getBuildElectronPath(root: string): string {
             return path.join(root, `${product.nameShort}.exe`);
         }
         default:
-            throw new Error(`Platform ${process.platform} isn't supported`)
+            throw new Error(`Platform ${process.platform} isn't supported`);
     }
 }
 
@@ -143,7 +148,12 @@ async function setup(): Promise<void> {
     console.log("*** Preparing smoke tests setup...");
     appiumHelper.runAppium();
 
+    if (process.platform === "darwin") {
+        await setupEnvironmentHelper.runiOSSimmulator();
+    }
+
     await setupEnvironmentHelper.runAndroidEmulator();
+
     setupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, RNAppName);
     setupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, ExpoAppName);
     const latestRNVersionExpo = await setupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
@@ -154,7 +164,7 @@ async function setup(): Promise<void> {
 
     electronExecutablePath = getBuildElectronPath(testVSCodeDirectory);
     if (!fs.existsSync(testVSCodeDirectory || "")) {
-        fail(`Can't find VS Code executable at ${testVSCodeDirectory}.`);
+        await fail(`Can't find VS Code executable at ${testVSCodeDirectory}.`);
     }
     const testVSCodeExecutablePath = getVSCodeExecutablePath(testVSCodeDirectory, isInsiders);
     setupEnvironmentHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath, isInsiders);
@@ -179,7 +189,7 @@ before(async function () {
     try {
         await setup();
     } catch (err) {
-        fail(err);
+        await fail(err);
     }
 });
 
@@ -193,6 +203,11 @@ describe("Extension smoke tests", () => {
     after(async function () {
         await this.app.stop();
         setupEnvironmentHelper.terminateAndroidEmulator();
+        try {
+            await setupEnvironmentHelper.terminateiOSSimulator();
+        } catch (e) {
+            console.error(e);
+        }
         appiumHelper.terminateAppium();
     });
 
