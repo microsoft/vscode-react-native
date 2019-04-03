@@ -43,7 +43,7 @@ export async function downloadVSCodeExecutable(targetFolder: string): Promise<an
 
             let stream;
             if (isTarGz) {
-                let gulpFilter = filter(["VSCode-linux-x64/code", "VSCode-linux-x64/code-insiders", "VSCode-linux-x64/resources/app/node_modules*/vscode-ripgrep/**/rg"], { restore: true });
+                let gulpFilter = filter(["VSCode-linux-x64/bin/*", "VSCode-linux-x64/code", "VSCode-linux-x64/code-insiders", "VSCode-linux-x64/resources/app/node_modules*/vscode-ripgrep/**/rg"], { restore: true });
                 stream = request(shared.toRequestOptions(downloadUrl))
                     .pipe(source(path.basename(downloadUrl)))
                     .pipe(gunzip())
@@ -202,6 +202,10 @@ export async function runAndroidEmulator() {
         if (/boot completed/.test(chunk.toString().trim())) {
             started = true;
         }
+    });
+
+    proc.stderr.on("data", (chunk) => {
+        process.stderr.write(chunk);
     });
 
     console.log(`*** Waiting for emulator to load (timeout is ${smokeTestsConstants.emulatorLoadTimeout}ms)`);

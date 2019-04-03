@@ -46,7 +46,7 @@ export class appiumHelper {
                 }
             };
             kill(appiumProcess.pid, "SIGINT", errorCallback);
-            if (process.platform === "darwin") {
+            if (process.platform !== "win32") {
                 sleep(10 * 1000);
                 // Send a final kill signal to appium process
                 // Explanation: https://github.com/appium/appium/issues/12297#issuecomment-472511676
@@ -133,7 +133,7 @@ export class appiumHelper {
             // https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu
             const devMenuCallCommand = "adb shell input keyevent 82";
             cp.exec(devMenuCallCommand);
-            await sleep(2500);
+            await sleep(1000);
     }
 
     public static async reloadRNAppAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
