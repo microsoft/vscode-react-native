@@ -204,6 +204,10 @@ export async function runAndroidEmulator() {
         }
     });
 
+    proc.stderr.on("data", (chunk) => {
+        process.stderr.write(chunk);
+    });
+
     console.log(`*** Waiting for emulator to load (timeout is ${smokeTestsConstants.emulatorLoadTimeout}ms)`);
     let awaitRetries: number = smokeTestsConstants.emulatorLoadTimeout / 1000;
     let retry = 1;
