@@ -254,7 +254,7 @@ export async function runiOSSimmulator() {
     await IosSimulatorHelper.eraseSimulator(process.env.IOS_SIMULATOR);
     console.log(`*** Executing iOS simulator with 'xcrun simctl boot "${process.env.IOS_SIMULATOR}"' command...`);
     await IosSimulatorHelper.runSimulator(process.env.IOS_SIMULATOR);
-    sleep(15 * 1000);
+    await sleep(15 * 1000);
 }
 
 export async function terminateiOSSimulator() {
