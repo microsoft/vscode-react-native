@@ -12,10 +12,12 @@ import { smokeTestsConstants } from "./helpers/smokeTestsConstants";
 async function fail(errorMessage) {
     console.error(errorMessage);
     setupEnvironmentHelper.terminateAndroidEmulator();
-    try {
-        await setupEnvironmentHelper.terminateiOSSimulator();
-    } catch (e) {
-        console.error(e)
+    if (process.platform === "darwin") {
+        try {
+            await setupEnvironmentHelper.terminateiOSSimulator();
+        } catch (e) {
+            console.error(e);
+        }
     }
     appiumHelper.terminateAppium();
     process.exit(1);
@@ -203,10 +205,12 @@ describe("Extension smoke tests", () => {
     after(async function () {
         await this.app.stop();
         setupEnvironmentHelper.terminateAndroidEmulator();
-        try {
-            await setupEnvironmentHelper.terminateiOSSimulator();
-        } catch (e) {
-            console.error(e);
+        if (process.platform === "darwin") {
+            try {
+                await setupEnvironmentHelper.terminateiOSSimulator();
+            } catch (e) {
+                console.error(e);
+            }
         }
         appiumHelper.terminateAppium();
     });
