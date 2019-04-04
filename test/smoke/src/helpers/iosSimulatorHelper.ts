@@ -92,6 +92,6 @@ export class IosSimulatorHelper {
     }
 
     private static getRunError(command: string, failedState?: DeviceState) {
-        return new Error(`Couldn't ${command} simulator` + (failedState) ? `, because it in ${failedState}` : "");
+        return new Error(`Couldn't run ${command} simulator` + (failedState) ? `, because it in ${failedState}` : "");
     }
 }

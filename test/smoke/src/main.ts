@@ -28,12 +28,13 @@ if (parseInt(process.version.substr(1), 10) < 8) {
 }
 
 function getBuildElectronPath(root: string): string {
+
     switch (process.platform) {
         case "darwin":
             return path.join(root, "Visual Studio Code.app", "Contents", "MacOS", "Electron");
         case "linux": {
-            const product = require(path.join(root, "resources", "app", "product.json"));
-            return path.join(root, product.applicationName);
+            const product = require(path.join(root, "VSCode-linux-x64", "resources", "app", "product.json"));
+            return path.join(root, "VSCode-linux-x64", product.applicationName);
         }
         case "win32": {
             const product = require(path.join(root, "resources", "app", "product.json"));
@@ -61,9 +62,9 @@ function getVSCodeExecutablePath(testVSCodeFolder: string, isInsiders: boolean) 
         case "linux":
             return isInsiders
                 ?
-                path.join(testVSCodeFolder, "bin", "code-insiders")
+                path.join(testVSCodeFolder, "VSCode-linux-x64", "bin", "code-insiders")
                 :
-                path.join(testVSCodeFolder, "bin", "code");
+                path.join(testVSCodeFolder, "VSCode-linux-x64", "bin", "code");
         default:
             throw new Error(`Platform ${process.platform} isn't supported`);
     }

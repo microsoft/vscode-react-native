@@ -44,7 +44,7 @@ export async function downloadVSCodeExecutable(targetFolder: string): Promise<an
 
             let stream;
             if (isTarGz) {
-                let gulpFilter = filter(["VSCode-linux-x64/code", "VSCode-linux-x64/code-insiders", "VSCode-linux-x64/resources/app/node_modules*/vscode-ripgrep/**/rg"], { restore: true });
+                let gulpFilter = filter(["VSCode-linux-x64/bin/*", "VSCode-linux-x64/code", "VSCode-linux-x64/code-insiders", "VSCode-linux-x64/resources/app/node_modules*/vscode-ripgrep/**/rg"], { restore: true });
                 stream = request(shared.toRequestOptions(downloadUrl))
                     .pipe(source(path.basename(downloadUrl)))
                     .pipe(gunzip())
@@ -205,6 +205,10 @@ export async function runAndroidEmulator() {
         }
     });
 
+    proc.stderr.on("data", (chunk) => {
+        process.stderr.write(chunk);
+    });
+
     console.log(`*** Waiting for emulator to load (timeout is ${smokeTestsConstants.emulatorLoadTimeout}ms)`);
     let awaitRetries: number = smokeTestsConstants.emulatorLoadTimeout / 1000;
     let retry = 1;
@@ -250,7 +254,7 @@ export async function runiOSSimmulator() {
     await IosSimulatorHelper.eraseSimulator(process.env.IOS_SIMULATOR);
     console.log(`*** Executing iOS simulator with 'xcrun simctl boot "${process.env.IOS_SIMULATOR}"' command...`);
     await IosSimulatorHelper.runSimulator(process.env.IOS_SIMULATOR);
-    sleep(15 * 1000);
+    await sleep(15 * 1000);
 }
 
 export async function terminateiOSSimulator() {
