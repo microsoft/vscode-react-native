@@ -133,7 +133,7 @@ export class appiumHelper {
             // https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu
             const devMenuCallCommand = "adb shell input keyevent 82";
             cp.exec(devMenuCallCommand);
-            await sleep(1000);
+            await sleep(10 * 1000);
     }
 
     public static async reloadRNAppAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
