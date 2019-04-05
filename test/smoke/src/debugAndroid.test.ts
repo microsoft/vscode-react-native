@@ -84,7 +84,11 @@ export function setup() {
             console.log("Android Expo Debug test: 'Expo QR Code' tab found");
             await app.workbench.selectTab("Expo QR Code");
             console.log("Android Expo Debug test: 'Expo QR Code' tab selected");
-            let expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+            let expoURL;
+            for (let retries = 0; retries < 10; retries++) {
+                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+                if (expoURL) break;
+            }
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
@@ -136,7 +140,11 @@ export function setup() {
             console.log("Android pure RN Expo test: 'Expo QR Code' tab found");
             await app.workbench.selectTab("Expo QR Code");
             console.log("Android pure RN Expo test: 'Expo QR Code' tab selected");
-            let expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+            let expoURL;
+            for (let retries = 0; retries < 10; retries++) {
+                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+                if (expoURL) break;
+            }
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
