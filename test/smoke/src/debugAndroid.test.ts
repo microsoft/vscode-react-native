@@ -67,7 +67,7 @@ export function setup() {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: ExpoWorkspacePath});
-            console.log(`Android Expo Debug test: VS Code is opened in ${ExpoWorkspacePath} directory`);
+            console.log(`Android Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
@@ -123,7 +123,7 @@ export function setup() {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: pureRNWorkspacePath});
-            console.log(`Android pure RN Expo test: VS Code is opened in ${pureRNWorkspacePath} directory`);
+            console.log(`Android pure RN Expo test: ${pureRNWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
