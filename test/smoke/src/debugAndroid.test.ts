@@ -85,7 +85,7 @@ export function setup() {
             await app.workbench.selectTab("Expo QR Code");
             console.log("Android Expo Debug test: 'Expo QR Code' tab selected");
             let expoURL;
-            for (let retries = 0; retries < 10; retries++) {
+            for (let retries = 0; retries < 5; retries++) {
                 expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
                 if (expoURL) break;
             }
@@ -141,7 +141,7 @@ export function setup() {
             await app.workbench.selectTab("Expo QR Code");
             console.log("Android pure RN Expo test: 'Expo QR Code' tab selected");
             let expoURL;
-            for (let retries = 0; retries < 10; retries++) {
+            for (let retries = 0; retries < 5; retries++) {
                 expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
                 if (expoURL) break;
             }
