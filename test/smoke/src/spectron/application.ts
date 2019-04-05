@@ -116,9 +116,9 @@ export class SpectronApplication {
 
     public async restart(options: { workspaceOrFolder?: string, extraArgs?: string[] }): Promise<any> {
         await this.stop();
-        await sleep(1000);
+        await sleep(1 * 1000);
         await this._start(options.workspaceOrFolder, options.extraArgs);
-        await sleep(5000);
+        await sleep(5 * 1000);
     }
 
     public async reload(): Promise<any> {
