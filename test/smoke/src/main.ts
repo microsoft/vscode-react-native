@@ -151,7 +151,7 @@ async function setup(): Promise<void> {
     setupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, pureRNExpoApp, latestRNVersionExpo);
     setupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
     await setupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
-    await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
+    await setupEnvironmentHelper.downloadVSCodeExecutable(resourcesPath);
 
     electronExecutablePath = getBuildElectronPath(testVSCodeDirectory);
     if (!fs.existsSync(testVSCodeDirectory || "")) {
