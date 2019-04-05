@@ -10,6 +10,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
 import { sanitize } from "../helpers/utilities";
+import { sleep } from "../helpers/setupEnvironmentHelper";
 
 // Just hope random helps us here, cross your fingers!
 export async function findFreePort(): Promise<number> {
@@ -115,8 +116,9 @@ export class SpectronApplication {
 
     public async restart(options: { workspaceOrFolder?: string, extraArgs?: string[] }): Promise<any> {
         await this.stop();
-        await new Promise(c => setTimeout(c, 1000));
+        await sleep(1000);
         await this._start(options.workspaceOrFolder, options.extraArgs);
+        await sleep(5000);
     }
 
     public async reload(): Promise<any> {
