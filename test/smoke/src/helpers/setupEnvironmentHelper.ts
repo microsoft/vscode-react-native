@@ -252,11 +252,15 @@ export async function sleep(time: number) {
     });
 }
 
-export function cleanUp(testVSCodeDirectory: string, workspacePaths: string[]) {
+export function cleanUp(testVSCodeDirectory: string, testLogsFolder: string, workspacePaths: string[]) {
     console.log("\n*** Clean up...");
     if (fs.existsSync(testVSCodeDirectory)) {
         console.log(`*** Deleting test VS Code directory: ${testVSCodeDirectory}`);
         rimraf.sync(testVSCodeDirectory);
+    }
+    if (fs.existsSync(testLogsFolder)) {
+        console.log(`*** Deleting test logs directory: ${testLogsFolder}`);
+        rimraf.sync(testLogsFolder);
     }
     workspacePaths.forEach(testAppFolder => {
         if (fs.existsSync(testAppFolder)) {

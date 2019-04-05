@@ -176,7 +176,7 @@ before(async function () {
         return;
     }
     this.timeout(smokeTestsConstants.smokeTestSetupAwaitTimeout);
-    setupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
+    setupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath,[RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
     try {
         await setup();
     } catch (err) {
