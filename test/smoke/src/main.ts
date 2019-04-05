@@ -75,9 +75,9 @@ const resourcesPath = path.join(__dirname, "..", "resources");
 const isInsiders = process.env.CODE_VERSION === "insiders";
 let testVSCodeDirectory;
 if (!isInsiders) {
-     testVSCodeDirectory = path.join(repoRoot, ".vscode-test", "stable");
+     testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "stable");
 } else {
-    testVSCodeDirectory = path.join(repoRoot, ".vscode-test", "insiders");
+    testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "insiders");
 }
 
 let electronExecutablePath: string;
@@ -119,8 +119,8 @@ const pureRNExpoApp = "pureRNExpoApp";
 export const pureRNWorkspacePath = path.join(resourcesPath, pureRNExpoApp);
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, "App.js");
 
-const userDataDir = path.join(testVSCodeDirectory, "userTmpFolder");
 const artifactsPath = path.join(repoRoot, "SmokeTestLogs");
+const userDataDir = path.join(artifactsPath, "VSCodeUserData");
 
 const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 
@@ -163,7 +163,7 @@ async function setup(): Promise<void> {
     setupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, pureRNExpoApp, latestRNVersionExpo);
     setupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
     await setupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
-    await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
+    await setupEnvironmentHelper.downloadVSCodeExecutable(resourcesPath);
 
     electronExecutablePath = getBuildElectronPath(testVSCodeDirectory);
     if (!fs.existsSync(testVSCodeDirectory || "")) {
@@ -188,7 +188,7 @@ before(async function () {
         return;
     }
     this.timeout(smokeTestsConstants.smokeTestSetupAwaitTimeout);
-    setupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
+    setupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
     try {
         await setup();
     } catch (err) {

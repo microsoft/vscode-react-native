@@ -67,6 +67,7 @@ export function setup() {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: ExpoWorkspacePath});
+            console.log(`Android Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
@@ -83,7 +84,11 @@ export function setup() {
             console.log("Android Expo Debug test: 'Expo QR Code' tab found");
             await app.workbench.selectTab("Expo QR Code");
             console.log("Android Expo Debug test: 'Expo QR Code' tab selected");
-            let expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+            let expoURL;
+            for (let retries = 0; retries < 5; retries++) {
+                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+                if (expoURL) break;
+            }
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
@@ -118,6 +123,7 @@ export function setup() {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: pureRNWorkspacePath});
+            console.log(`Android pure RN Expo test: ${pureRNWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
@@ -134,7 +140,11 @@ export function setup() {
             console.log("Android pure RN Expo test: 'Expo QR Code' tab found");
             await app.workbench.selectTab("Expo QR Code");
             console.log("Android pure RN Expo test: 'Expo QR Code' tab selected");
-            let expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+            let expoURL;
+            for (let retries = 0; retries < 5; retries++) {
+                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+                if (expoURL) break;
+            }
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
             const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
