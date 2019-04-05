@@ -10,3 +10,4 @@ test-results.xml
 resources/latestRNApp/**
 resources/latestExpoApp/**
 resources/pureRNExpoApp/**
+resources/.vscode-test/**
