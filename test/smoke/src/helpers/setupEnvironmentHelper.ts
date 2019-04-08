@@ -17,7 +17,7 @@ import * as fs from "fs";
 import * as rimraf from "rimraf";
 import * as cp from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
-import { AppiumHelper } from "./AppiumHelper";
+import { AppiumHelper } from "./appiumHelper";
 import * as kill from "tree-kill";
 import { spawnSync } from "../helpers/utilities";
 import * as semver from "semver";
