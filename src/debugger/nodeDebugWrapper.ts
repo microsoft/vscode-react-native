@@ -102,7 +102,7 @@ export function makeSession(
         private attach(request: DebugProtocol.Request): void {
             this.requestSetup(request.arguments)
                 .then(() => {
-                    logger.verbose(`Handle attach request: ${request.arguments}`);
+                    logger.verbose(`Handle attach request: ${JSON.stringify(request.arguments, null , 2)}`);
                     return this.remoteExtension.getPackagerPort(request.arguments.program);
                 })
                 .then((packagerPort: number) => {
