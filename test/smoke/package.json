@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "tsc",
     "watch": "tsc --watch",
-    "mocha": "tsc && node ./node_modules/mocha/bin/_mocha --reporter mocha-junit-reporter"
+    "mocha": "tsc && node ./node_modules/tslint/bin/tslint -c tslint.json 'src/**' && node ./node_modules/mocha/bin/_mocha --reporter mocha-junit-reporter"
   },
   "devDependencies": {
     "@types/clipboardy": "^1.1.0",
@@ -35,6 +35,7 @@
     "rimraf": "^2.6.1",
     "spectron": "5.0.0",
     "tree-kill": "^1.2.1",
+    "tslint": "^5.15.0",
     "typescript": "2.8.3",
     "url-parse": "^1.4.3",
     "vinyl-fs": "^3.0.3",
