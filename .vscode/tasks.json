@@ -30,6 +30,8 @@
             "args": [
                 "-c",
                 "tslint.json",
+                "--project",
+                "tsconfig.json",
                 "'src/**'",
             ],
             "options": {
