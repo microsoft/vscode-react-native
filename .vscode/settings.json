@@ -6,12 +6,12 @@
     "editor.insertSpaces": true,
     "editor.tabSize": 4,
     "files.exclude": {
-        "**/node_modules": true,
+        // "**/node_modules": true,
         "nls.*.json": true,
         "**/*.js": {
             "when": "$(basename).ts"
         },
-        "**/out": true,
+        // "**/out": true,
         "**/*.js.map": true
     }
 ,
