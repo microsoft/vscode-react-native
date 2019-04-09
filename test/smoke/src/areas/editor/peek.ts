@@ -20,7 +20,7 @@ export class References {
     public async waitForReferencesCountInTitle(count: number): Promise<void> {
         await this.spectron.client.waitForText(References.REFERENCES_TITLE_COUNT, void 0, titleCount => {
             const matches = titleCount.match(/\d+/);
-            return matches ? parseInt(matches[0]) === count : false;
+            return matches ? parseInt(matches[0], 10) === count : false;
         });
     }
 

@@ -16,8 +16,8 @@ import * as https from "https";
 import * as fs from "fs";
 import * as rimraf from "rimraf";
 import * as cp from "child_process";
-import { smokeTestsConstants } from "./smokeTestsConstants";
-import { appiumHelper } from "./appiumHelper";
+import { SmokeTestsConstants } from "./smokeTestsConstants";
+import { AppiumHelper } from "./appiumHelper";
 import * as kill from "tree-kill";
 import { spawnSync } from "../helpers/utilities";
 import * as semver from "semver";
@@ -147,7 +147,7 @@ export async function installExpoAppOnAndroid(expoAppPath: string) {
     installerProcess.on("error", (error) => {
         console.log("Error occurred in expo-cli process: ", error);
     });
-    await appiumHelper.checkIfAppIsInstalled(expoPackageName, 100 * 1000);
+    await AppiumHelper.checkIfAppIsInstalled(expoPackageName, 100 * 1000);
     kill(installerProcess.pid, "SIGINT");
     await sleep(1000);
     const drawPermitCommand = `adb -s ${androidEmulatorName} shell appops set ${expoPackageName} SYSTEM_ALERT_WINDOW allow`;
@@ -208,8 +208,8 @@ export async function runAndroidEmulator() {
         process.stderr.write(chunk);
     });
 
-    console.log(`*** Waiting for emulator to load (timeout is ${smokeTestsConstants.emulatorLoadTimeout}ms)`);
-    let awaitRetries: number = smokeTestsConstants.emulatorLoadTimeout / 1000;
+    console.log(`*** Waiting for emulator to load (timeout is ${SmokeTestsConstants.emulatorLoadTimeout}ms)`);
+    let awaitRetries: number = SmokeTestsConstants.emulatorLoadTimeout / 1000;
     let retry = 1;
     await new Promise((resolve, reject) => {
         let check = setInterval(async () => {

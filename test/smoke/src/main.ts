@@ -6,13 +6,13 @@ import * as path from "path";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
-import { appiumHelper } from "./helpers/appiumHelper";
-import { smokeTestsConstants } from "./helpers/smokeTestsConstants";
+import { AppiumHelper } from "./helpers/appiumHelper";
+import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 
 function fail(errorMessage): void {
     console.error(errorMessage);
     setupEnvironmentHelper.terminateAndroidEmulator();
-    appiumHelper.terminateAppium();
+    AppiumHelper.terminateAppium();
     process.exit(1);
 }
 
@@ -34,7 +34,7 @@ function getBuildElectronPath(root: string): string {
             return path.join(root, `${product.nameShort}.exe`);
         }
         default:
-            throw new Error(`Platform ${process.platform} isn't supported`)
+            throw new Error(`Platform ${process.platform} isn't supported`);
     }
 }
 
@@ -135,14 +135,14 @@ function createApp(quality: Quality): SpectronApplication | null {
         extensionsPath,
         artifactsPath,
         workspaceFilePath: RNworkspaceFilePath,
-        waitTime:  smokeTestsConstants.spectronElementResponseTimeout,
+        waitTime:  SmokeTestsConstants.spectronElementResponseTimeout,
     });
 }
 
 async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
     console.log("*** Preparing smoke tests setup...");
-    appiumHelper.runAppium();
+    AppiumHelper.runAppium();
 
     await setupEnvironmentHelper.runAndroidEmulator();
     setupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, RNAppName);
@@ -175,7 +175,7 @@ before(async function () {
         electronExecutablePath = getBuildElectronPath(testVSCodeDirectory);
         return;
     }
-    this.timeout(smokeTestsConstants.smokeTestSetupAwaitTimeout);
+    this.timeout(SmokeTestsConstants.smokeTestSetupAwaitTimeout);
     setupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
     try {
         await setup();
@@ -194,7 +194,7 @@ describe("Extension smoke tests", () => {
     after(async function () {
         await this.app.stop();
         setupEnvironmentHelper.terminateAndroidEmulator();
-        appiumHelper.terminateAppium();
+        AppiumHelper.terminateAppium();
     });
 
     setupReactNativeDebugAndroidTests();
