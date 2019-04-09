@@ -83,18 +83,14 @@ export class ScriptImporter {
         });
     }
 
-    public downloadDebuggerWorker(sourcesStoragePath: string, projectRootPath: string): Q.Promise<void> {
+    public downloadDebuggerWorker(sourcesStoragePath: string, projectRootPath: string, debuggerWorkerUrlPath?: string): Q.Promise<void> {
         const errPackagerNotRunning = ErrorHelper.getInternalError(InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort, this.packagerPort);
         return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
             .then(() => {
                 return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath);
             })
             .then((rnVersion: string) => {
-                let newPackager = "";
-                if (!semver.valid(rnVersion) /*Custom RN implementations should support new packager*/ || (semver.gte(rnVersion, "0.50.0"))) {
-                    newPackager = "debugger-ui/";
-                }
-                let debuggerWorkerURL = `http://${this.packagerAddress}:${this.packagerPort}/${newPackager}${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
+                let debuggerWorkerURL = this.prepareDebuggerWorkerURL(rnVersion, debuggerWorkerUrlPath);
                 let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
                 logger.verbose("About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
 
@@ -103,6 +99,21 @@ export class ScriptImporter {
                         return new FileSystem().writeFile(debuggerWorkerLocalPath, body);
                     });
             });
+    }
+
+    public prepareDebuggerWorkerURL(rnVersion: string, debuggerWorkerUrlPath?: string): string {
+        let debuggerWorkerURL: string;
+        // It can be empty string
+        if (debuggerWorkerUrlPath !== undefined) {
+            debuggerWorkerURL = `http://${this.packagerAddress}:${this.packagerPort}/${debuggerWorkerUrlPath}${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
+        } else {
+            let newPackager = "";
+            if (!semver.valid(rnVersion) /*Custom RN implementations should support new packager*/ || (semver.gte(rnVersion, "0.50.0"))) {
+                newPackager = "debugger-ui/";
+            }
+            debuggerWorkerURL = `http://${this.packagerAddress}:${this.packagerPort}/${newPackager}${ScriptImporter.DEBUGGER_WORKER_FILENAME}`;
+        }
+        return debuggerWorkerURL;
     }
 
     /**

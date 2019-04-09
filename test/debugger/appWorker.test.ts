@@ -224,6 +224,25 @@ suite("appWorker", function () {
             });
         });
 
+        suite("ScriptImporter", function () {
+            let scriptImporter: ScriptImporter;
+            setup(function () {
+                 scriptImporter = new ScriptImporter("localhost", 8081, "sources");
+            });
+            test("prepareDebuggerWorkerURL should return correct URL for RN < 0.50.0", () => {
+                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.49.0"), "http://localhost:8081/debuggerWorker.js");
+            });
+            test("prepareDebuggerWorkerURL should return correct URL for RN >= 0.50.0", () => {
+                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.50.0"), "http://localhost:8081/debugger-ui/debuggerWorker.js");
+            });
+            test("prepareDebuggerWorkerURL should return correct URL when debuggerWorkerUrlPath is used", () => {
+                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", ""), "http://localhost:8081/debuggerWorker.js");
+                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", "new-debugger/"), "http://localhost:8081/new-debugger/debuggerWorker.js");
+                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", undefined), "http://localhost:8081/debugger-ui/debuggerWorker.js");
+                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.49.0", "debugger-ui/"), "http://localhost:8081/debugger-ui/debuggerWorker.js");
+            });
+        });
+
         suite("MultipleLifetimesAppWorker", function () {
             const sourcesStoragePath = path.resolve(__dirname, "assets");
 
