@@ -21,6 +21,7 @@ import { AppiumHelper } from "./appiumHelper";
 import * as kill from "tree-kill";
 import { spawnSync } from "../helpers/utilities";
 import * as semver from "semver";
+import { IosSimulatorHelper } from "./iosSimulatorHelper";
 
 const version = process.env.CODE_VERSION || "*";
 const isInsiders = version === "insiders";
@@ -234,14 +235,34 @@ export async function runAndroidEmulator() {
 // Terminates emulator "emulator-PORT" if it exists, where PORT is 5554 by default
 export function terminateAndroidEmulator() {
     let devices = cp.execSync("adb devices").toString().trim();
-    console.log("*** Checking for running emulators...");
+    console.log("*** Checking for running android emulators...");
     if (devices !== "List of devices attached") {
         // Check if we already have a running emulator, and terminate it if it so
         console.log(`Terminating Android '${androidEmulatorName}'...`);
         cp.execSync(`adb -s ${androidEmulatorName} emu kill`, {stdio: "inherit"});
+    } else {
+        console.log("*** No running android emulators found");
     }
 }
 
+export async function runiOSSimmulator() {
+    if (!process.env.IOS_SIMULATOR) {
+        throw new Error("Environment variable 'IOS_SIMULATOR' is not set. Exiting...");
+    }
+    await terminateiOSSimulator();
+    // Wipe data on simulator
+    await IosSimulatorHelper.eraseSimulator(process.env.IOS_SIMULATOR);
+    console.log(`*** Executing iOS simulator with 'xcrun simctl boot "${process.env.IOS_SIMULATOR}"' command...`);
+    await IosSimulatorHelper.runSimulator(process.env.IOS_SIMULATOR);
+    await sleep(15 * 1000);
+}
+
+export async function terminateiOSSimulator() {
+    if (!process.env.IOS_SIMULATOR) {
+        throw new Error("Environment variable 'IOS_SIMULATOR' is not set. Exiting...");
+    }
+    await IosSimulatorHelper.terminateSimulator(process.env.IOS_SIMULATOR);
+}
 // Await function
 export async function sleep(time: number) {
     await new Promise(resolve => {
