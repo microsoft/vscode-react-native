@@ -71,7 +71,7 @@ export class VSCodeHelper {
         });
     }
 
-    public static  installExtensionFromVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string) {
+    public static installExtensionFromVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string) {
         let args: string[] = [];
         args.push(`--extensions-dir=${extensionDir}`);
         const artifactPath = path.join(resourcesPath, this.artifactsFolderName);
