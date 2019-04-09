@@ -60,7 +60,6 @@ export class VSCodeHelper {
     public static async fetchKeybindings(keybindingsPath: string) {
         const keybindingsUrl = `https://raw.githubusercontent.com/Microsoft/vscode-docs/master/build/keybindings/doc.keybindings.${this.getKeybindingPlatform()}.json`;
         console.log(`*** Fetching keybindings into ${keybindingsPath}` );
-
         await new Promise((cb, err) => {
             https.get(keybindingsUrl, res => {
                 const output = fs.createWriteStream(keybindingsPath);
@@ -118,18 +117,19 @@ export class VSCodeHelper {
 
         shared.getContents("https://vscode-update.azurewebsites.net/api/releases/" + (this.isInsiders ? "insider/" : "stable/") + this.downloadPlatform, null, null, function (error, tagsRaw) {
             if (error) {
-                this.exitWithError(error);
+                VSCodeHelper.exitWithError(error);
             }
 
             try {
                 cb(JSON.parse(tagsRaw)[0]); // first one is latest
             } catch (error) {
-                this.exitWithError(error);
+                VSCodeHelper.exitWithError(error);
             }
         });
-
     }
 
-
-
+    private static exitWithError(error) {
+        console.error("Error while downloading VS Code: " + error.toString());
+        process.exit(1);
+    }
 }

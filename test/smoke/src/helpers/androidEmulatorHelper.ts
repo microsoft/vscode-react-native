@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { AppiumHelper } from "./appiumHelper";
 import * as kill from "tree-kill";
 import * as cp from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
@@ -23,7 +22,7 @@ export class AndroidEmulatorHelper {
         installerProcess.on("error", (error) => {
             console.log("Error occurred in expo-cli process: ", error);
         });
-        await AppiumHelper.checkIfAppIsInstalled(this.expoPackageName, 100 * 1000);
+        await this.checkIfAppIsInstalled(this.expoPackageName, 100 * 1000);
         kill(installerProcess.pid, "SIGINT");
         await sleep(1000);
         const drawPermitCommand = `adb -s ${this.androidEmulatorName} shell appops set ${this.expoPackageName} SYSTEM_ALERT_WINDOW allow`;
@@ -94,4 +93,36 @@ export class AndroidEmulatorHelper {
         }
     }
 
+    // Check if appPackage is installed on Android device for waitTime ms
+    public static async checkIfAppIsInstalled(appPackage: string, waitTime: number, waitInitTime?: number) {
+        let awaitRetries: number = waitTime / 1000;
+        let retry = 1;
+        await new Promise((resolve, reject) => {
+            let check = setInterval(async () => {
+                if (retry % 5 === 0) {
+                    console.log(`*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${retry} time`);
+                }
+                let result;
+                try {
+                    result = cp.execSync(`adb shell pm list packages ${appPackage}`).toString().trim();
+                } catch (e) {
+                    clearInterval(check);
+                    reject(`Error occured while check app is installed:\n ${e}`);
+                }
+                if (result) {
+                    clearInterval(check);
+                    const initTimeout = waitInitTime || 10000;
+                    console.log(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`);
+                    await sleep(initTimeout);
+                    resolve();
+                } else {
+                    retry++;
+                    if (retry >= awaitRetries) {
+                        clearInterval(check);
+                        reject(`${appPackage} not found after ${waitTime}ms`);
+                    }
+                }
+            }, 1000);
+        });
+    }
 }
