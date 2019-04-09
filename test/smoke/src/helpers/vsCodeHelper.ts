@@ -24,10 +24,10 @@ export class VSCodeHelper {
     private static artifactsFolderName = "drop-win";
 
     public static async downloadVSCodeExecutable(targetFolder: string): Promise<any> {
-        const testRunFolder = path.join(targetFolder, ".vscode-test", this.isInsiders ? "insiders" : "stable");
+        const testRunFolder = path.join(targetFolder, ".vscode-test", VSCodeHelper.isInsiders ? "insiders" : "stable");
 
         return new Promise ((resolve) => {
-            this.getDownloadUrl((downloadUrl) => {
+            VSCodeHelper.getDownloadUrl((downloadUrl) => {
                 console.log("*** Downloading VS Code into \"" + testRunFolder + "\" from: " + downloadUrl);
 
                 let version = downloadUrl.match(/\d+\.\d+\.\d+/)[0].split("\.");
@@ -58,7 +58,7 @@ export class VSCodeHelper {
     }
 
     public static async fetchKeybindings(keybindingsPath: string) {
-        const keybindingsUrl = `https://raw.githubusercontent.com/Microsoft/vscode-docs/master/build/keybindings/doc.keybindings.${this.getKeybindingPlatform()}.json`;
+        const keybindingsUrl = `https://raw.githubusercontent.com/Microsoft/vscode-docs/master/build/keybindings/doc.keybindings.${VSCodeHelper.getKeybindingPlatform()}.json`;
         console.log(`*** Fetching keybindings into ${keybindingsPath}` );
         await new Promise((cb, err) => {
             https.get(keybindingsUrl, res => {
@@ -74,7 +74,7 @@ export class VSCodeHelper {
     public static installExtensionFromVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string) {
         let args: string[] = [];
         args.push(`--extensions-dir=${extensionDir}`);
-        const artifactPath = path.join(resourcesPath, this.artifactsFolderName);
+        const artifactPath = path.join(resourcesPath, VSCodeHelper.artifactsFolderName);
         const dirFiles = fs.readdirSync(artifactPath);
         let extensionFile = dirFiles.find((elem) => {
             return /.*\.(vsix)/.test(elem);
@@ -105,17 +105,17 @@ export class VSCodeHelper {
     }
 
     private static getDownloadUrl(cb) {
-        this.getTag(function (tag) {
-            return cb(["https://vscode-update.azurewebsites.net", tag, this.downloadPlatform, (this.isInsiders ? "insider" : "stable")].join("/"));
+        VSCodeHelper.getTag(function (tag) {
+            return cb(["https://vscode-update.azurewebsites.net", tag, VSCodeHelper.downloadPlatform, (VSCodeHelper.isInsiders ? "insider" : "stable")].join("/"));
         });
     }
 
     private static getTag(cb) {
-        if (this.version !== "*" && this.version !== "insiders") {
-            return cb(this.version);
+        if (VSCodeHelper.version !== "*" && VSCodeHelper.version !== "insiders") {
+            return cb(VSCodeHelper.version);
         }
 
-        shared.getContents("https://vscode-update.azurewebsites.net/api/releases/" + (this.isInsiders ? "insider/" : "stable/") + this.downloadPlatform, null, null, function (error, tagsRaw) {
+        shared.getContents("https://vscode-update.azurewebsites.net/api/releases/" + (VSCodeHelper.isInsiders ? "insider/" : "stable/") + VSCodeHelper.downloadPlatform, null, null, function (error, tagsRaw) {
             if (error) {
                 VSCodeHelper.exitWithError(error);
             }
