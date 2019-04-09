@@ -8,10 +8,13 @@ import { SpectronApplication, Quality } from "./spectron/application";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
+import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
+import { VSCodeHelper } from "./helpers/vsCodeHelper";
+import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 
 async function fail(errorMessage) {
     console.error(errorMessage);
-    setupEnvironmentHelper.terminateAndroidEmulator();
+    AndroidEmulatorHelper.terminateAndroidEmulator();
     if (process.platform === "darwin") {
         try {
             await setupEnvironmentHelper.terminateiOSSimulator();
@@ -155,28 +158,28 @@ async function setup(): Promise<void> {
         await setupEnvironmentHelper.runiOSSimmulator();
     }
 
-    await setupEnvironmentHelper.runAndroidEmulator();
+    await AndroidEmulatorHelper.runAndroidEmulator();
 
-    setupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, RNAppName);
-    setupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, ExpoAppName);
-    const latestRNVersionExpo = await setupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
-    setupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, pureRNExpoApp, latestRNVersionExpo);
-    setupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
-    await setupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
-    await setupEnvironmentHelper.downloadVSCodeExecutable(resourcesPath);
+    SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, RNAppName);
+    SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, ExpoAppName);
+    const latestRNVersionExpo = await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
+    SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, pureRNExpoApp, latestRNVersionExpo);
+    SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
+    await AndroidEmulatorHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
+    await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);
 
     electronExecutablePath = getBuildElectronPath(testVSCodeDirectory);
     if (!fs.existsSync(testVSCodeDirectory || "")) {
         await fail(`Can't find VS Code executable at ${testVSCodeDirectory}.`);
     }
     const testVSCodeExecutablePath = getVSCodeExecutablePath(testVSCodeDirectory, isInsiders);
-    setupEnvironmentHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath, isInsiders);
+    VSCodeHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath);
 
     if (!fs.existsSync(userDataDir)) {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
         fs.mkdirSync(userDataDir);
     }
-    await setupEnvironmentHelper.fetchKeybindings(keybindingsPath);
+    await VSCodeHelper.fetchKeybindings(keybindingsPath);
     console.log("*** Smoke tests setup done!\n");
 }
 
@@ -188,7 +191,7 @@ before(async function () {
         return;
     }
     this.timeout(SmokeTestsConstants.smokeTestSetupAwaitTimeout);
-    setupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
+    SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
     try {
         await setup();
     } catch (err) {
@@ -205,7 +208,7 @@ describe("Extension smoke tests", () => {
 
     after(async function () {
         await this.app.stop();
-        setupEnvironmentHelper.terminateAndroidEmulator();
+        AndroidEmulatorHelper.terminateAndroidEmulator();
         if (process.platform === "darwin") {
             try {
                 await setupEnvironmentHelper.terminateiOSSimulator();
