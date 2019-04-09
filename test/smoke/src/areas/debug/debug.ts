@@ -12,11 +12,11 @@ const DEBUG_OPTIONS_COMBOBOX = "select[aria-label=\"Debug Launch Configurations\
 const DEBUG_OPTIONS_COMBOBOX_OPENED = `${DEBUG_OPTIONS_COMBOBOX}.monaco-select-box-dropdown-padding.synthetic-focus`;
 const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .configure`;
 const START = `.icon[title="Start Debugging"]`;
-const STOP = `.debug-toolbar .debug-action.stop`;
-const STEP_OVER = `.debug-toolbar .debug-action.step-over`;
-const STEP_IN = `.debug-toolbar .debug-action.step-into`;
-const STEP_OUT = `.debug-toolbar .debug-action.step-out`;
-const CONTINUE = `.debug-toolbar .debug-action.continue`;
+const STOP = `.debug-toolbar .action-label[title*=\"Stop\"]`;
+const STEP_OVER = `.debug-toolbar .action-label[title*=\"Step Over\"]`;
+const STEP_IN = `.debug-toolbar .action-label[title*=\"Step Into\"]`;
+const STEP_OUT = `.debug-toolbar .action-label[title*=\"Step Out\"]`;
+const CONTINUE = `.debug-toolbar .action-label[title*=\"Continue\"]`;
 const GLYPH_AREA = ".margin-view-overlays>:nth-child";
 const BREAKPOINT_GLYPH = ".debug-breakpoint";
 // const PAUSE = `.debug-toolbar .debug-action.pause`;

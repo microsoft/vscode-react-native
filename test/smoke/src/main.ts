@@ -6,8 +6,8 @@ import * as path from "path";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
-import { appiumHelper } from "./helpers/appiumHelper";
-import { smokeTestsConstants } from "./helpers/smokeTestsConstants";
+import { AppiumHelper } from "./helpers/appiumHelper";
+import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 
 async function fail(errorMessage) {
     console.error(errorMessage);
@@ -19,7 +19,7 @@ async function fail(errorMessage) {
             console.error(e);
         }
     }
-    appiumHelper.terminateAppium();
+    AppiumHelper.terminateAppium();
     process.exit(1);
 }
 
@@ -75,9 +75,9 @@ const resourcesPath = path.join(__dirname, "..", "resources");
 const isInsiders = process.env.CODE_VERSION === "insiders";
 let testVSCodeDirectory;
 if (!isInsiders) {
-     testVSCodeDirectory = path.join(repoRoot, ".vscode-test", "stable");
+     testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "stable");
 } else {
-    testVSCodeDirectory = path.join(repoRoot, ".vscode-test", "insiders");
+    testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "insiders");
 }
 
 let electronExecutablePath: string;
@@ -119,8 +119,8 @@ const pureRNExpoApp = "pureRNExpoApp";
 export const pureRNWorkspacePath = path.join(resourcesPath, pureRNExpoApp);
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, "App.js");
 
-const userDataDir = path.join(testVSCodeDirectory, "userTmpFolder");
 const artifactsPath = path.join(repoRoot, "SmokeTestLogs");
+const userDataDir = path.join(artifactsPath, "VSCodeUserData");
 
 const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 
@@ -142,14 +142,18 @@ function createApp(quality: Quality): SpectronApplication | null {
         extensionsPath,
         artifactsPath,
         workspaceFilePath: RNworkspaceFilePath,
-        waitTime:  smokeTestsConstants.spectronElementResponseTimeout,
+        waitTime:  SmokeTestsConstants.spectronElementResponseTimeout,
     });
 }
 
 async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
     console.log("*** Preparing smoke tests setup...");
-    appiumHelper.runAppium();
+    AppiumHelper.runAppium();
+
+    if (process.platform === "darwin") {
+        await setupEnvironmentHelper.runiOSSimmulator();
+    }
 
     if (process.platform === "darwin") {
         await setupEnvironmentHelper.runiOSSimmulator();
@@ -163,7 +167,7 @@ async function setup(): Promise<void> {
     setupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, pureRNExpoApp, latestRNVersionExpo);
     setupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
     await setupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
-    await setupEnvironmentHelper.downloadVSCodeExecutable(repoRoot);
+    await setupEnvironmentHelper.downloadVSCodeExecutable(resourcesPath);
 
     electronExecutablePath = getBuildElectronPath(testVSCodeDirectory);
     if (!fs.existsSync(testVSCodeDirectory || "")) {
@@ -187,8 +191,8 @@ before(async function () {
         electronExecutablePath = getBuildElectronPath(testVSCodeDirectory);
         return;
     }
-    this.timeout(smokeTestsConstants.smokeTestSetupAwaitTimeout);
-    setupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
+    this.timeout(SmokeTestsConstants.smokeTestSetupAwaitTimeout);
+    setupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
     try {
         await setup();
     } catch (err) {
@@ -213,7 +217,7 @@ describe("Extension smoke tests", () => {
                 console.error(e);
             }
         }
-        appiumHelper.terminateAppium();
+        AppiumHelper.terminateAppium();
     });
 
     setupReactNativeDebugAndroidTests();

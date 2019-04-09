@@ -133,6 +133,7 @@ postMessage({workerLoaded:true});`;
     private projectRootPath: string;
     private packagerRemoteRoot?: string;
     private packagerLocalRoot?: string;
+    private debuggerWorkerUrlPath?: string;
     private socketToApp: WebSocket;
     private singleLifetimeWorker: IDebuggeeWorker | null;
     private webSocketConstructor: (url: string) => WebSocket;
@@ -153,6 +154,7 @@ postMessage({workerLoaded:true});`;
         this.packagerPort = attachRequestArguments.port;
         this.packagerRemoteRoot = attachRequestArguments.remoteRoot;
         this.packagerLocalRoot = attachRequestArguments.localRoot;
+        this.debuggerWorkerUrlPath = attachRequestArguments.debuggerWorkerUrlPath;
         this.sourcesStoragePath = sourcesStoragePath;
         this.projectRootPath = projectRootPath;
         if (!this.sourcesStoragePath)
@@ -186,7 +188,7 @@ postMessage({workerLoaded:true});`;
 
     public downloadAndPatchDebuggerWorker(): Q.Promise<void> {
         let scriptToRunPath = path.resolve(this.sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
-        return this.scriptImporter.downloadDebuggerWorker(this.sourcesStoragePath, this.projectRootPath)
+        return this.scriptImporter.downloadDebuggerWorker(this.sourcesStoragePath, this.projectRootPath, this.debuggerWorkerUrlPath)
             .then(() => this.nodeFileSystem.readFile(scriptToRunPath, "utf8"))
             .then((workerContent: string) => {
                 const isHaulProject = ReactNativeProjectHelper.isHaulProject(this.projectRootPath);

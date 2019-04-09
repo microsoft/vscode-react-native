@@ -7,11 +7,11 @@ import * as path from "path";
 import * as mkdirp from "mkdirp";
 import * as kill from "tree-kill";
 import * as clipboardy from "clipboardy";
-import { smokeTestsConstants } from "./smokeTestsConstants";
+import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./setupEnvironmentHelper";
 let appiumProcess: null | cp.ChildProcess;
 
-export class appiumHelper {
+export class AppiumHelper {
     // Android UI elements
     public static RN_RELOAD_BUTTON = "//*[@text='Reload']";
     public static RN_ENABLE_REMOTE_DEBUGGING_BUTTON = "//*[@text='Debug JS Remotely']";
@@ -59,7 +59,7 @@ export class appiumHelper {
     }
 
     public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string,
-    platformVersion: string = smokeTestsConstants.defaultTargetAndroidPlatformVersion, deviceName: string = smokeTestsConstants.defaultTargetAndroidDeviceName) {
+                                                      platformVersion: string = SmokeTestsConstants.defaultTargetAndroidPlatformVersion, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName) {
         return {
             desiredCapabilities: {
                 browserName: "",
@@ -69,7 +69,7 @@ export class appiumHelper {
                 appActivity: applicationActivity,
                 appPackage: applicationPackage,
                 automationName: "UiAutomator2",
-                newCommandTimeout: 150
+                newCommandTimeout: 150,
             },
             port: 4723,
             host: "localhost",
@@ -94,15 +94,14 @@ export class appiumHelper {
                 let result;
                 try {
                     result = cp.execSync(`adb shell pm list packages ${appPackage}`).toString().trim();
-                }
-                catch (e) {
+                } catch (e) {
                     clearInterval(check);
                     reject(`Error occured while check app is installed:\n ${e}`);
                 }
                 if (result) {
                     clearInterval(check);
                     const initTimeout = waitInitTime || 10000;
-                    console.log(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`)
+                    console.log(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`);
                     await sleep(initTimeout);
                     resolve();
                 } else {
@@ -148,7 +147,7 @@ export class appiumHelper {
                 return true;
             }
             return false;
-        }, smokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${smokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
+        }, SmokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
     }
 
     public static async enableRemoteDebugJSForRNAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
@@ -166,7 +165,7 @@ export class appiumHelper {
                 return true;
             }
             return false;
-        }, smokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${smokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
+        }, SmokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
     }
 
     private static async openExpoAppViaClipboard(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {

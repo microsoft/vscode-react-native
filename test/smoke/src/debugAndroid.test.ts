@@ -3,9 +3,9 @@
 
 import { SpectronApplication } from "./spectron/application";
 import * as assert from "assert";
-import { appiumHelper } from "./helpers/appiumHelper";
+import { AppiumHelper } from "./helpers/appiumHelper";
 import { androidEmulatorName, sleep, expoPackageName } from "./helpers/setupEnvironmentHelper";
-import { smokeTestsConstants } from "./helpers/smokeTestsConstants";
+import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
@@ -15,9 +15,9 @@ const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity
 const RNDebugConfigName = "Debug Android";
 const ExpoDebugConfigName = "Debug in Exponent";
 // Time for Android Debug Test before it reaches timeout
-const debugAndroidTestTime = smokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
+const debugAndroidTestTime = SmokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
 // Time for Android Expo Debug Test before it reaches timeout
-const debugExpoTestTime = smokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
+const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
 
 export function setup() {
     describe("Debugging Android", () => {
@@ -40,12 +40,12 @@ export function setup() {
             console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             console.log("Android Debug test: Starting debugging");
             await app.workbench.debug.startDebugging();
-            const opts = appiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME,
-            smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
-            await appiumHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, smokeTestsConstants.androidAppBuildAndInstallTimeout);
-            let client = appiumHelper.webdriverAttach(opts);
+            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME,
+            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
+            await AppiumHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
+            let client = AppiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
-            await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
+            await AppiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");
@@ -67,6 +67,7 @@ export function setup() {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: ExpoWorkspacePath});
+            console.log(`Android Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
@@ -83,19 +84,24 @@ export function setup() {
             console.log("Android Expo Debug test: 'Expo QR Code' tab found");
             await app.workbench.selectTab("Expo QR Code");
             console.log("Android Expo Debug test: 'Expo QR Code' tab selected");
-            let expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+            let expoURL;
+            for (let retries = 0; retries < 5; retries++) {
+                await app.workbench.selectTab("Expo QR Code");
+                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+                if (expoURL) break;
+            }
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
-            const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
-            smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
-            let client = appiumHelper.webdriverAttach(opts);
+            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
+            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
+            let client = AppiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
             // TODO Add listener to trigger that main expo app has been ran
-            await appiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
+            await AppiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
             // TODO Add listener to trigger that child expo app has been ran instead of using timeout
-            console.log(`Android Expo Debug test: Waiting ${smokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
-            await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
-            await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
+            console.log(`Android Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
+            await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
+            await AppiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Expo Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
@@ -118,6 +124,7 @@ export function setup() {
             this.timeout(debugExpoTestTime);
             const app = this.app as SpectronApplication;
             await app.restart({workspaceOrFolder: pureRNWorkspacePath});
+            console.log(`Android pure RN Expo test: ${pureRNWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
@@ -134,17 +141,22 @@ export function setup() {
             console.log("Android pure RN Expo test: 'Expo QR Code' tab found");
             await app.workbench.selectTab("Expo QR Code");
             console.log("Android pure RN Expo test: 'Expo QR Code' tab selected");
-            let expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+            let expoURL;
+            for (let retries = 0; retries < 5; retries++) {
+                await app.workbench.selectTab("Expo QR Code");
+                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+                if (expoURL) break;
+            }
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
-            const opts = appiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
-            smokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
-            let client = appiumHelper.webdriverAttach(opts);
+            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
+            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
+            let client = AppiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
-            await appiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
-            console.log(`Android pure RN Expo test: Waiting ${smokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
-            await sleep(smokeTestsConstants.expoAppBuildAndInstallTimeout);
-            await appiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
+            await AppiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
+            console.log(`Android pure RN Expo test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
+            await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
+            await AppiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android pure RN Expo test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");

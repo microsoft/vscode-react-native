@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-export class smokeTestsConstants {
+export class SmokeTestsConstants {
 // Default code of android platform version which is being targeted during the tests.
 // 9 = Android Pie
 public static defaultTargetAndroidPlatformVersion = "9";
