@@ -1,7 +1,7 @@
 {
 	"name": "vscode-react-native",
 	"displayName": "React Native Tools",
-	"version": "0.9.0",
+	"version": "0.9.1",
 	"private": true,
 	"publisher": "vsmobile",
 	"icon": "images/icon.png",
@@ -273,6 +273,11 @@
 									"type": "string"
 								},
 								"default": []
+							},
+							"debuggerWorkerUrlPath": {
+								"type": "string",
+								"description": "%reactNative.attach.debuggerWorkerUrlPath.description%",
+								"default": "debugger-ui/"
 							}
 						}
 					},
@@ -380,6 +385,11 @@
 								],
 								"default": "log",
 								"description": "%reactNative.launch.trace.description%"
+							},
+							"debuggerWorkerUrlPath": {
+								"type": "string",
+								"description": "%reactNative.launch.debuggerWorkerUrlPath.description%",
+								"default": "debugger-ui/"
 							}
 						}
 					}
@@ -520,9 +530,9 @@
 		"strip-json-comments": "2.0.1",
 		"typechecker": "2.0.8",
 		"ultron": "1.0.2",
-		"vscode-chrome-debug-core": "^6.7.40",
-		"vscode-debugadapter": "^1.33.0",
-		"vscode-debugprotocol": "^1.33.0",
+		"vscode-chrome-debug-core": "^6.7.46",
+		"vscode-debugadapter": "^1.34.0",
+		"vscode-debugprotocol": "^1.34.0",
 		"vscode-extension-telemetry": "0.0.5",
 		"vscode-nls": "^3.2.2",
 		"ws": "^3.2.0"
