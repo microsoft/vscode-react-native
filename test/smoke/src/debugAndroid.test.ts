@@ -4,13 +4,14 @@
 import { SpectronApplication } from "./spectron/application";
 import * as assert from "assert";
 import { AppiumHelper } from "./helpers/appiumHelper";
-import { androidEmulatorName, sleep, expoPackageName } from "./helpers/setupEnvironmentHelper";
+import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
+import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
-const EXPO_APP_PACKAGE_NAME = expoPackageName;
+const EXPO_APP_PACKAGE_NAME = AndroidEmulatorHelper.expoPackageName;
 const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity`;
 const RNDebugConfigName = "Debug Android";
 const ExpoDebugConfigName = "Debug in Exponent";
@@ -41,8 +42,8 @@ export function setup() {
             console.log("Android Debug test: Starting debugging");
             await app.workbench.debug.startDebugging();
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME,
-            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
-            await AppiumHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
+            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, AndroidEmulatorHelper.androidEmulatorName);
+            await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = AppiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
             await AppiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
@@ -93,7 +94,7 @@ export function setup() {
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
-            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
+            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
             // TODO Add listener to trigger that main expo app has been ran
@@ -150,7 +151,7 @@ export function setup() {
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
-            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
+            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
             await AppiumHelper.openExpoApplicationAndroid(clientInited, expoURL);

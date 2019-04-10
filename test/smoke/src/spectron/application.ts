@@ -9,8 +9,7 @@ import { Workbench } from "../areas/workbench/workbench";
 import * as fs from "fs";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
-import { sanitize } from "../helpers/utilities";
-import { sleep } from "../helpers/setupEnvironmentHelper";
+import { sanitize, sleep } from "../helpers/utilities";
 
 // Just hope random helps us here, cross your fingers!
 export async function findFreePort(): Promise<number> {
