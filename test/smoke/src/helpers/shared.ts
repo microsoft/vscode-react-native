@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-"use strict";
-
-let request = require("request");
-let URL = require("url-parse");
+import * as request from "request";
+import * as URL from "url-parse";
 
 export function getContents(url, token, headers, callback) {
     request.get(toRequestOptions(url, token, headers), function (error, response, body) {
