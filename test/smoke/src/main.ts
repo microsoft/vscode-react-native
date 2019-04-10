@@ -112,18 +112,15 @@ console.warn = function suppressWebdriverWarnings(message) {
     warn.apply(console, arguments);
 };
 
-const RNAppName = "latestRNApp";
-const RNworkspacePath = path.join(resourcesPath, RNAppName);
-const RNworkspaceFilePath = path.join(RNworkspacePath, "App.js");
-const ExpoAppName = "latestExpoApp";
-export const ExpoWorkspacePath = path.join(resourcesPath, ExpoAppName);
-const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, "App.js");
-const pureRNExpoApp = "pureRNExpoApp";
-export const pureRNWorkspacePath = path.join(resourcesPath, pureRNExpoApp);
-const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, "App.js");
+const RNworkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNAppName);
+const RNworkspaceFilePath = path.join(RNworkspacePath, SmokeTestsConstants.AppjsFileName);
+export const ExpoWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.ExpoAppName);
+const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.AppjsFileName);
+export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.pureRNExpoApp);
+const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
 
-const artifactsPath = path.join(repoRoot, "SmokeTestLogs");
-const userDataDir = path.join(artifactsPath, "VSCodeUserData");
+const artifactsPath = path.join(repoRoot, SmokeTestsConstants.artifactsDir);
+const userDataDir = path.join(artifactsPath, SmokeTestsConstants.VSCodeUserDataDir);
 
 const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 
@@ -160,10 +157,10 @@ async function setup(): Promise<void> {
 
     await AndroidEmulatorHelper.runAndroidEmulator();
 
-    SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, RNAppName);
-    SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, ExpoAppName);
+    SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath,SmokeTestsConstants.RNAppName);
+    SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
     const latestRNVersionExpo = await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
-    SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, pureRNExpoApp, latestRNVersionExpo);
+    SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, latestRNVersionExpo);
     SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
     await AndroidEmulatorHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
     await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);

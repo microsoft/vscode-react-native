@@ -19,4 +19,16 @@ public static enableRemoteJSTimeout = 50 * 1000;
 public static androidAppBuildAndInstallTimeout = 300 * 1000;
 // Timeout for Expo app to execute
 public static expoAppBuildAndInstallTimeout = 60 * 1000;
+// Default React Native app name
+public static RNAppName = "latestRNApp";
+// Default Expo app name
+public static ExpoAppName = "latestExpoApp";
+// Default pure React Native for Expo test app name
+public static pureRNExpoApp = "pureRNExpoApp";
+// Name of artifacts (test logs) folder
+public static artifactsDir = "SmokeTestLogs";
+// Name of the VS Code user data directory
+public static VSCodeUserDataDir = "VSCodeUserData";
+// Name of application entry point file
+public static AppjsFileName = "App.js";
 }
