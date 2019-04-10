@@ -25,7 +25,7 @@ public static RNAppName = "latestRNApp";
 public static ExpoAppName = "latestExpoApp";
 // Default pure React Native for Expo test app name
 public static pureRNExpoApp = "pureRNExpoApp";
-// Name of artifacts (test logs) folder
+// Name of artifacts (test logs) directory
 public static artifactsDir = "SmokeTestLogs";
 // Name of the VS Code user data directory
 public static VSCodeUserDataDir = "VSCodeUserData";
