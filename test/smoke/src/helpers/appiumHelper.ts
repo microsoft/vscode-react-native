@@ -20,7 +20,7 @@ export class AppiumHelper {
     public static EXPO_ELEMENT_LOAD_TRIGGER = "//*[@text='Home']";
 
     public static runAppium() {
-        const appiumLogFolder = path.join(__dirname, "..", "..", "..", "..", "SmokeTestLogs");
+        const appiumLogFolder = path.join(__dirname, "..", "..", "..", "..", SmokeTestsConstants.artifactsDir);
         mkdirp.sync(appiumLogFolder);
         const appiumLogPath = path.join(appiumLogFolder, "appium.log");
         console.log(`*** Executing Appium with logging to ${appiumLogPath}`);
