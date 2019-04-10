@@ -10,6 +10,7 @@ import * as clipboardy from "clipboardy";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./setupEnvironmentHelper";
 let appiumProcess: null | cp.ChildProcess;
+type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
 
 export class AppiumHelper {
     // Android UI elements
@@ -82,7 +83,7 @@ export class AppiumHelper {
         return wdio.remote(attachArgs);
     }
 
-    public static async openExpoApplicationAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
+    public static async openExpoApplicationAndroid(client: AppiumClient, expoURL: string) {
         if (process.platform === "darwin") {
             // Longer way to open Expo app, but
             // it certainly works on Mac
@@ -102,7 +103,7 @@ export class AppiumHelper {
             await sleep(10 * 1000);
     }
 
-    public static async reloadRNAppAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
+    public static async reloadRNAppAndroid(client: AppiumClient) {
         console.log("*** Reloading React Native application with DevMenu...");
         await client
         .waitUntil(async () => {
@@ -117,7 +118,7 @@ export class AppiumHelper {
         }, SmokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
     }
 
-    public static async enableRemoteDebugJSForRNAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>) {
+    public static async enableRemoteDebugJSForRNAndroid(client: AppiumClient) {
         console.log("*** Enabling Remote JS Debugging for application with DevMenu...");
         await client
         .waitUntil(async () => {
@@ -135,7 +136,7 @@ export class AppiumHelper {
         }, SmokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
     }
 
-    private static async openExpoAppViaClipboard(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
+    private static async openExpoAppViaClipboard(client: AppiumClient, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
         console.log(`*** Opening Expo app via clipboard`);
@@ -150,7 +151,7 @@ export class AppiumHelper {
         console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
-    private static async openExpoAppViaExploreButton(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
+    private static async openExpoAppViaExploreButton(client: AppiumClient, expoURL: string) {
         console.log(`*** Opening Expo app via "Explore" button`);
         console.log(`*** Pressing "Explore" button...`);
         const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc=\"Explore\"]";

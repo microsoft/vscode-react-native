@@ -80,6 +80,7 @@ export class AndroidEmulatorHelper {
             }, 1000);
         });
     }
+
     // Terminates emulator "emulator-PORT" if it exists, where PORT is 5554 by default
     public static terminateAndroidEmulator() {
         let devices = cp.execSync("adb devices").toString().trim();
