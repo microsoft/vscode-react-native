@@ -35,7 +35,6 @@ export class AndroidEmulatorHelper {
             throw new Error("Environment variable 'ANDROID_EMULATOR' is not set. Exiting...");
         }
         this.terminateAndroidEmulator();
-        console.log(`*** Executing Android emulator with 'emulator -avd ${process.env.ANDROID_EMULATOR}' command...`);
         // Boot options for emulator - https://developer.android.com/studio/run/emulator-commandline
         const emulatorOpts = ["-avd",
          process.env.ANDROID_EMULATOR || "",
@@ -45,6 +44,7 @@ export class AndroidEmulatorHelper {
          "-no-snapshot",
          "-no-boot-anim",
          "-no-audio"];
+        console.log(`*** Executing Android emulator with 'emulator ${emulatorOpts.join(" ")}' command...`);
         const proc = cp.spawn("emulator", emulatorOpts, {stdio: "pipe"});
         let started = false;
         proc.stdout.on("data", (chunk) => {

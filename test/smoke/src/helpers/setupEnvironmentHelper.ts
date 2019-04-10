@@ -10,7 +10,6 @@ import * as semver from "semver";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
 
 export class SetupEnvironmentHelper {
-
     public static  prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, version?: string) {
         let command = `react-native init ${appName}`;
         if (version) {

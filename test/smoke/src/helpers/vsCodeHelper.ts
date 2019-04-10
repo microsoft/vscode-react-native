@@ -52,7 +52,6 @@ export class VSCodeHelper {
                 stream.on("end", () => {
                     resolve();
                 });
-
             });
         });
     }
