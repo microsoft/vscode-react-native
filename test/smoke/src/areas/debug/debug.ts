@@ -3,7 +3,7 @@
 
 import { SpectronApplication } from "../../spectron/application";
 import { Viewlet } from "../workbench/viewlet";
-import { sleep } from "../../helpers/setupEnvironmentHelper";
+import { sleep } from "../../helpers/utilities";
 import * as clipboardy from "clipboardy";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
