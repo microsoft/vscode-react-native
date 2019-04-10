@@ -2,12 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import * as shared from "./shared";
+import * as utilities from "./utilities";
 import * as fs from "fs";
 import * as rimraf from "rimraf";
 import * as cp from "child_process";
 import * as semver from "semver";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
+import { sleep } from "./utilities";
 
 export class SetupEnvironmentHelper {
     public static  prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, version?: string) {
@@ -87,7 +88,7 @@ export class SetupEnvironmentHelper {
     public static async getLatestSupportedRNVersionForExpo(): Promise<any> {
         console.log("*** Getting latest React Native version supported by Expo...");
         return new Promise((resolve, reject) => {
-            shared.getContents("https://exp.host/--/api/v2/versions", null, null, function (error, versionsContent) {
+            utilities.getContents("https://exp.host/--/api/v2/versions", null, null, function (error, versionsContent) {
                 if (error) {
                     reject(error);
                 }
@@ -116,16 +117,6 @@ export class SetupEnvironmentHelper {
             });
         });
     }
-}
-
-// Await function
-export async function sleep(time: number) {
-    await new Promise(resolve => {
-        const timer = setTimeout(() => {
-            clearTimeout(timer);
-            resolve();
-        }, time);
-    });
 }
 
 export async function runiOSSimmulator() {

@@ -5,7 +5,7 @@ import { SpectronApplication } from "./spectron/application";
 import * as assert from "assert";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
-import { sleep } from "./helpers/setupEnvironmentHelper";
+import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
 

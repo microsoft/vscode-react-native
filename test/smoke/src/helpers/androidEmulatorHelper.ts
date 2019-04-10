@@ -4,7 +4,7 @@
 import * as kill from "tree-kill";
 import * as cp from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
-import { sleep } from "./setupEnvironmentHelper";
+import { sleep } from "./utilities";
 
 export class AndroidEmulatorHelper {
     public static expoPackageName = "host.exp.exponent";

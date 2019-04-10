@@ -9,7 +9,7 @@ import * as gunzip from "gulp-gunzip";
 import * as chmod from "gulp-chmod";
 import * as filter from "gulp-filter";
 import * as path from "path";
-import * as shared from "./shared";
+import * as utilities from "./utilities";
 import * as request from "request";
 import * as source from "vinyl-source-stream";
 import * as https from "https";
@@ -36,7 +36,7 @@ export class VSCodeHelper {
                 let stream;
                 if (isTarGz) {
                     let gulpFilter = filter(["VSCode-linux-x64/bin/*", "VSCode-linux-x64/code", "VSCode-linux-x64/code-insiders", "VSCode-linux-x64/resources/app/node_modules*/vscode-ripgrep/**/rg"], { restore: true });
-                    stream = request(shared.toRequestOptions(downloadUrl))
+                    stream = request(utilities.toRequestOptions(downloadUrl))
                         .pipe(source(path.basename(downloadUrl)))
                         .pipe(gunzip())
                         .pipe(untar())
@@ -114,7 +114,7 @@ export class VSCodeHelper {
             return cb(VSCodeHelper.version);
         }
 
-        shared.getContents("https://vscode-update.azurewebsites.net/api/releases/" + (VSCodeHelper.isInsiders ? "insider/" : "stable/") + VSCodeHelper.downloadPlatform, null, null, function (error, tagsRaw) {
+        utilities.getContents("https://vscode-update.azurewebsites.net/api/releases/" + (VSCodeHelper.isInsiders ? "insider/" : "stable/") + VSCodeHelper.downloadPlatform, null, null, function (error, tagsRaw) {
             if (error) {
                 VSCodeHelper.exitWithError(error);
             }

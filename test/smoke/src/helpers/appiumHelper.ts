@@ -8,7 +8,7 @@ import * as mkdirp from "mkdirp";
 import * as kill from "tree-kill";
 import * as clipboardy from "clipboardy";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
-import { sleep } from "./setupEnvironmentHelper";
+import { sleep } from "./utilities";
 let appiumProcess: null | cp.ChildProcess;
 type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
 
