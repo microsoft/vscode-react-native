@@ -54,20 +54,23 @@ Object.defineProperty(global, "GLOBAL", {
     enumerable: true,
     value: global
 });
-// Redefine console.trace() because it using Node implementation
-// which is generating stderr after call. It causes errors in client's apps
+// Worker is ran as nodejs process, so console.trace() writes to stderr and it leads to error in native app
+// To avoid this console.trace() is overridden to print stacktrace via console.log()
+// Please, see Node JS implementation: https://github.com/nodejs/node/blob/master/lib/internal/console/constructor.js
 console.trace = (function() {
     return function() {
       try {
+        const util = require('util');
+        var formatFunc = util.format;
         const err = {
             name: 'Trace',
-            message: arguments[0]
+            message: formatFunc(...arguments)
           };
         Error.stackTraceLimit = 30;
         Error.captureStackTrace(err, console.trace);
         console.log(err.stack);
-      } catch {
-          // no action
+      } catch (e) {
+          console.error(e);
       }
     };
 })();
