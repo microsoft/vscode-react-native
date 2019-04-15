@@ -54,26 +54,6 @@ Object.defineProperty(global, "GLOBAL", {
     enumerable: true,
     value: global
 });
-// Worker is ran as nodejs process, so console.trace() writes to stderr and it leads to error in native app
-// To avoid this console.trace() is overridden to print stacktrace via console.log()
-// Please, see Node JS implementation: https://github.com/nodejs/node/blob/master/lib/internal/console/constructor.js
-console.trace = (function() {
-    return function() {
-      try {
-        const util = require('util');
-        var formatFunc = util.format;
-        const err = {
-            name: 'Trace',
-            message: formatFunc(...arguments)
-          };
-        Error.stackTraceLimit = 30;
-        Error.captureStackTrace(err, console.trace);
-        console.log(err.stack);
-      } catch (e) {
-          console.error(e);
-      }
-    };
-})();
 // Prevent leaking process.versions from debugger process to
 // worker because pure React Native doesn't do that and some packages as js-md5 rely on this behavior
 Object.defineProperty(process, "versions", {
@@ -118,6 +98,27 @@ var importScripts = (function(){
     return function(scriptUrl){
         var scriptCode = fs.readFileSync(scriptUrl, "utf8");
         vm.runInThisContext(scriptCode, {filename: scriptUrl});
+    };
+})();`;
+
+    public static CONSOLE_TRACE_PATCH = `// Worker is ran as nodejs process, so console.trace() writes to stderr and it leads to error in native app
+// To avoid this console.trace() is overridden to print stacktrace via console.log()
+// Please, see Node JS implementation: https://github.com/nodejs/node/blob/master/lib/internal/console/constructor.js
+const util = require('util');
+console.trace = (function() {
+    return function() {
+        try {
+        var formatFunc = util.format;
+        const err = {
+            name: 'Trace',
+            message: formatFunc(...arguments)
+            };
+        Error.stackTraceLimit = 30;
+        Error.captureStackTrace(err, console.trace);
+        console.log(err.stack);
+        } catch (e) {
+            console.error(e);
+        }
     };
 })();`;
 
@@ -216,6 +217,7 @@ postMessage({workerLoaded:true});`;
                 // in Node env and polyfill WebWorkers API over Node's IPC.
                 const modifiedDebuggeeContent = [
                     MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
+                    MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH,
                     isHaulProject ? MultipleLifetimesAppWorker.FETCH_STUB : null,
                     workerContent,
                     MultipleLifetimesAppWorker.WORKER_DONE,
