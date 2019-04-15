@@ -54,6 +54,23 @@ Object.defineProperty(global, "GLOBAL", {
     enumerable: true,
     value: global
 });
+// Redefine console.trace() because it using Node implementation
+// which is generating stderr after call. It causes errors in client's apps
+console.trace = (function() {
+    return function() {
+      try {
+        const err = {
+            name: 'Trace',
+            message: arguments[0]
+          };
+        Error.stackTraceLimit = 30;
+        Error.captureStackTrace(err, console.trace);
+        console.log(err.stack);
+      } catch {
+          // no action
+      }
+    };
+})();
 // Prevent leaking process.versions from debugger process to
 // worker because pure React Native doesn't do that and some packages as js-md5 rely on this behavior
 Object.defineProperty(process, "versions", {
