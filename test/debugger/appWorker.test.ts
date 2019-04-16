@@ -409,24 +409,29 @@ suite("appWorker", function () {
         suite("console.trace()", function () {
             const patch = MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH;
 
+            function validateTraceOutputs(script: string, traceAssertString: string, done: MochaDone): void {
+                const testProcess = child_process.spawn("node", ["-e", script]);
+                let procData: string = "";
+                testProcess.stdout.on("data", (data: Buffer) => {
+                    procData += data.toString();
+                });
+                testProcess.on("close", () => {
+                    const traceContent = procData.trim().split("\n");
+                    assert.strictEqual(traceContent[0], traceAssertString);
+                    traceContent.shift();
+                    traceContent.forEach(element => {
+                        assert.strictEqual(element.trim().startsWith("at"), true, `Trace content string ${element} doesn't starts with 'at'`);
+                    });
+                    done();
+                });
+            }
+
             test("console.trace() patch should produce a correct output without args", (done: MochaDone) => {
                 const args = `console.trace();`;
                 const script = [patch, args].join("\n");
+                const traceAssertString = "Trace";
                 try {
-                    const testProcess = child_process.spawn("node", ["-e", script]);
-                    let procData: string = "";
-                    testProcess.stdout.on("data", (data: Buffer) => {
-                        procData += data.toString();
-                    });
-                    testProcess.on("close", () => {
-                        const traceContent = procData.trim().split("\n");
-                        assert.strictEqual(traceContent[0], "Trace");
-                        traceContent.shift();
-                        traceContent.forEach(element => {
-                            assert.strictEqual(element.trim().startsWith("at"), true, `Trace content string ${element} doesn't starts with 'at'`);
-                        });
-                        done();
-                    });
+                    validateTraceOutputs(script, traceAssertString, done);
                 } catch (e) {
                     throw e;
                 }
@@ -435,21 +440,9 @@ suite("appWorker", function () {
             test("console.trace() patch should produce a correct output with simple args", (done: MochaDone) => {
                 const args = `console.trace(\"Simple string\", 1337);`;
                 const script = [patch, args].join("\n");
+                const traceAssertString = "Trace: Simple string 1337";
                 try {
-                    const testProcess = child_process.spawn("node", ["-e", script]);
-                    let procData: string = "";
-                    testProcess.stdout.on("data", (data: Buffer) => {
-                        procData += data.toString();
-                    });
-                    testProcess.on("close", () => {
-                        const traceContent = procData.trim().split("\n");
-                        assert.strictEqual(traceContent[0], "Trace: Simple string 1337");
-                        traceContent.shift();
-                        traceContent.forEach(element => {
-                            assert.strictEqual(element.trim().startsWith("at"), true, `Trace content string ${element} doesn't starts with 'at'`);
-                        });
-                        done();
-                    });
+                    validateTraceOutputs(script, traceAssertString, done);
                 } catch (e) {
                     throw e;
                 }
@@ -458,21 +451,9 @@ suite("appWorker", function () {
             test("console.trace() patch should produce a correct output for a formatted string", (done: MochaDone) => {
                 const args = `console.trace("%s: %d", "Format string prints", 42);`;
                 const script = [patch, args].join("\n");
+                const traceAssertString = "Trace: Format string prints: 42";
                 try {
-                    const testProcess = child_process.spawn("node", ["-e", script]);
-                    let procData: string = "";
-                    testProcess.stdout.on("data", (data: Buffer) => {
-                        procData += data.toString();
-                    });
-                    testProcess.on("close", () => {
-                        const traceContent = procData.trim().split("\n");
-                        assert.strictEqual(traceContent[0], "Trace: Format string prints: 42");
-                        traceContent.shift();
-                        traceContent.forEach(element => {
-                            assert.strictEqual(element.trim().startsWith("at"), true, `Trace content string ${element} doesn't starts with 'at'`);
-                        });
-                        done();
-                    });
+                    validateTraceOutputs(script, traceAssertString, done);
                 } catch (e) {
                     throw e;
                 }
