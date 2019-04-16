@@ -417,11 +417,11 @@ suite("appWorker", function () {
                     procErrData += data.toString();
                 });
                 testProcess.on("error", (err: Error) => {
-                    console.error(data.toString());
+                    console.error(err);
                 });
                 testProcess.on("close", (code: number) => {
                     assert.strictEqual(code, 0);
-                    if(procErrData !== "") {
+                    if (procErrData !== "") {
                         assert.fail(procErrData);
                     }
                     const traceContent = procData.trim().split("\n");
