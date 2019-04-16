@@ -111,7 +111,7 @@ console.trace = (function() {
             var formatFunc = util.format;
             const err = {
                 name: 'Trace',
-                message: formatFunc(...arguments)
+                message: formatFunc.apply(null, arguments)
                 };
             Error.stackTraceLimit = 30;
             Error.captureStackTrace(err, console.trace);
