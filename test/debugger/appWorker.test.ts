@@ -13,6 +13,7 @@ import { ForkedAppWorker } from "../../src/debugger/forkedAppWorker";
 import * as ForkedAppWorkerModule from "../../src/debugger/forkedAppWorker";
 import * as packagerStatus from "../../src/common/packagerStatus";
 import { ScriptImporter, DownloadedScript } from "../../src/debugger/scriptImporter";
+import * as fs from "fs";
 
 suite("appWorker", function () {
     suite("debuggerContext", function () {
@@ -84,7 +85,7 @@ suite("appWorker", function () {
 
                 const worker = workerWithScript(startScriptContents);
                 return worker.start().then(() => {
-                    assert(postReplyFunction.notCalled, "postRepyFunction called before message sent");
+                    assert(postReplyFunction.notCalled, "postReplyFunction called before message sent");
                     worker.postMessage(testMessage);
                     return Q.delay(1000);
                 }).then(() => {
@@ -402,6 +403,36 @@ suite("appWorker", function () {
                         assert(reason.message === `Cannot attach to packager. Are you sure there is a packager and it is running in the port ${packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
                     });
             });
+
+            test("console.trace() patch should produce a correct output", (done: MochaDone) => {
+                const tmpFilePath = path.join(__dirname, "traceTestTmp.js");
+                const patch = MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH;
+                const script = patch + "\nconsole.trace(\"%s: %d\", \"Format string prints\", 42);";
+                try {
+                    fs.writeFileSync(tmpFilePath, script);
+                    const testProcess = child_process.spawn("node", [tmpFilePath]);
+                    let procData: string = "";
+                    testProcess.stdout.on("data", (data: Buffer) => {
+                        procData += data.toString();
+                    });
+                    testProcess.on("close", () => {
+                        const traceContent = procData.split("\n");
+                        // last element is empty string because of \n at the end of the last line, so we dont need it
+                        const lastLine = traceContent.pop();
+                        assert.strictEqual(lastLine, "", "Last line doesn't equals empty string");
+                        assert.strictEqual(traceContent[0], "Trace: Format string prints: 42");
+                        traceContent.shift();
+                        traceContent.forEach(element => {
+                            assert.strictEqual(element.trim().startsWith("at"), true, `Trace content string ${element} doesn't starts with 'at'`);
+                        });
+                        fs.unlinkSync(tmpFilePath);
+                        done();
+                    });
+                } catch (e) {
+                    fs.unlinkSync(tmpFilePath);
+                    throw e;
+                }
+            }).timeout(5000);
         });
 
     });
