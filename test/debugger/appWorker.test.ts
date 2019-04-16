@@ -402,8 +402,6 @@ suite("appWorker", function () {
                         assert(reason.message === `Cannot attach to packager. Are you sure there is a packager and it is running in the port ${packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
                     });
             });
-
-
         });
 
         suite("console.trace()", function () {
