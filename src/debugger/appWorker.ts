@@ -108,14 +108,14 @@ const util = require('util');
 console.trace = (function() {
     return function() {
         try {
-        var formatFunc = util.format;
-        const err = {
-            name: 'Trace',
-            message: formatFunc(...arguments)
-            };
-        Error.stackTraceLimit = 30;
-        Error.captureStackTrace(err, console.trace);
-        console.log(err.stack);
+            var formatFunc = util.format;
+            const err = {
+                name: 'Trace',
+                message: formatFunc(...arguments)
+                };
+            Error.stackTraceLimit = 30;
+            Error.captureStackTrace(err, console.trace);
+            console.log(err.stack);
         } catch (e) {
             console.error(e);
         }
