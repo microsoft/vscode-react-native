@@ -540,7 +540,7 @@
 	"devDependencies": {
 		"@types/mocha": "^2.2.40",
 		"@types/mock-fs": "^3.6.30",
-		"@types/node": "^6.0.65",
+		"@types/node": "^10.14.4",
 		"@types/qr-image": "^3.2.0",
 		"@types/shelljs": "^0.7.0",
 		"@types/source-map": "0.5.2",
