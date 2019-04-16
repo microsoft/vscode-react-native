@@ -413,12 +413,13 @@ suite("appWorker", function () {
                     procData += data.toString();
                 });
                 testProcess.stderr.on("data", (data: Buffer) => {
-                    done(new Error(data.toString()));
+                    console.error(data.toString());
                 });
                 testProcess.on("error", (data: Buffer) => {
-                    done(new Error(data.toString()));
+                    console.error(data.toString());
                 });
-                testProcess.on("close", () => {
+                testProcess.on("close", (code: number) => {
+                    assert.strictEqual(code, 0);
                     const traceContent = procData.trim().split("\n");
                     assert.strictEqual(traceContent[0], expectedTraceMessage);
                     traceContent.shift();
