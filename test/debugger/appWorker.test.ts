@@ -13,7 +13,6 @@ import { ForkedAppWorker } from "../../src/debugger/forkedAppWorker";
 import * as ForkedAppWorkerModule from "../../src/debugger/forkedAppWorker";
 import * as packagerStatus from "../../src/common/packagerStatus";
 import { ScriptImporter, DownloadedScript } from "../../src/debugger/scriptImporter";
-import * as fs from "fs";
 
 suite("appWorker", function () {
     suite("debuggerContext", function () {
@@ -404,36 +403,80 @@ suite("appWorker", function () {
                     });
             });
 
-            test("console.trace() patch should produce a correct output", (done: MochaDone) => {
-                const tmpFilePath = path.join(__dirname, "traceTestTmp.js");
-                const patch = MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH;
-                const script = patch + "\nconsole.trace(\"%s: %d\", \"Format string prints\", 42);";
+
+        });
+
+        suite("console.trace()", function () {
+            const patch = MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH;
+
+            test("console.trace() patch should produce a correct output without args", (done: MochaDone) => {
+                const args = `console.trace();`;
+                const script = [patch, args].join("\n");
                 try {
-                    fs.writeFileSync(tmpFilePath, script);
-                    const testProcess = child_process.spawn("node", [tmpFilePath]);
+                    const testProcess = child_process.spawn("node", ["-e", script]);
                     let procData: string = "";
                     testProcess.stdout.on("data", (data: Buffer) => {
                         procData += data.toString();
                     });
                     testProcess.on("close", () => {
-                        const traceContent = procData.split("\n");
-                        // last element is empty string because of \n at the end of the last line, so we dont need it
-                        const lastLine = traceContent.pop();
-                        assert.strictEqual(lastLine, "", "Last line doesn't equals empty string");
+                        const traceContent = procData.trim().split("\n");
+                        assert.strictEqual(traceContent[0], "Trace");
+                        traceContent.shift();
+                        traceContent.forEach(element => {
+                            assert.strictEqual(element.trim().startsWith("at"), true, `Trace content string ${element} doesn't starts with 'at'`);
+                        });
+                        done();
+                    });
+                } catch (e) {
+                    throw e;
+                }
+            });
+
+            test("console.trace() patch should produce a correct output with simple args", (done: MochaDone) => {
+                const args = `console.trace(\"Simple string\", 1337);`;
+                const script = [patch, args].join("\n");
+                try {
+                    const testProcess = child_process.spawn("node", ["-e", script]);
+                    let procData: string = "";
+                    testProcess.stdout.on("data", (data: Buffer) => {
+                        procData += data.toString();
+                    });
+                    testProcess.on("close", () => {
+                        const traceContent = procData.trim().split("\n");
+                        assert.strictEqual(traceContent[0], "Trace: Simple string 1337");
+                        traceContent.shift();
+                        traceContent.forEach(element => {
+                            assert.strictEqual(element.trim().startsWith("at"), true, `Trace content string ${element} doesn't starts with 'at'`);
+                        });
+                        done();
+                    });
+                } catch (e) {
+                    throw e;
+                }
+            });
+
+            test("console.trace() patch should produce a correct output for a formatted string", (done: MochaDone) => {
+                const args = `console.trace("%s: %d", "Format string prints", 42);`;
+                const script = [patch, args].join("\n");
+                try {
+                    const testProcess = child_process.spawn("node", ["-e", script]);
+                    let procData: string = "";
+                    testProcess.stdout.on("data", (data: Buffer) => {
+                        procData += data.toString();
+                    });
+                    testProcess.on("close", () => {
+                        const traceContent = procData.trim().split("\n");
                         assert.strictEqual(traceContent[0], "Trace: Format string prints: 42");
                         traceContent.shift();
                         traceContent.forEach(element => {
                             assert.strictEqual(element.trim().startsWith("at"), true, `Trace content string ${element} doesn't starts with 'at'`);
                         });
-                        fs.unlinkSync(tmpFilePath);
                         done();
                     });
                 } catch (e) {
-                    fs.unlinkSync(tmpFilePath);
                     throw e;
                 }
-            }).timeout(5000);
+            });
         });
-
     });
 });
