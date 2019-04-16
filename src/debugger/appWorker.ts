@@ -104,15 +104,14 @@ var importScripts = (function(){
     public static CONSOLE_TRACE_PATCH = `// Worker is ran as nodejs process, so console.trace() writes to stderr and it leads to error in native app
 // To avoid this console.trace() is overridden to print stacktrace via console.log()
 // Please, see Node JS implementation: https://github.com/nodejs/node/blob/master/lib/internal/console/constructor.js
-const util = require('util');
 console.trace = (function() {
     return function() {
         try {
-            var formatFunc = util.format;
-            const err = {
+            var err = {
                 name: 'Trace',
-                message: formatFunc.apply(null, arguments)
+                message: require('util').format.apply(null, arguments)
                 };
+            // Node uses 10, but usually it's not enough for RN app trace
             Error.stackTraceLimit = 30;
             Error.captureStackTrace(err, console.trace);
             console.log(err.stack);
