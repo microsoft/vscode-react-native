@@ -409,40 +409,44 @@ suite("appWorker", function () {
                 const script = [MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH, consoleTraceCall].join("\n");
                 const testProcess = child_process.spawn("node", ["-e", script]);
                 let procData: string = "";
+                let procErrData: string = "";
                 testProcess.stdout.on("data", (data: Buffer) => {
                     procData += data.toString();
                 });
                 testProcess.stderr.on("data", (data: Buffer) => {
-                    console.error(data.toString());
+                    procErrData += data.toString();
                 });
-                testProcess.on("error", (data: Buffer) => {
+                testProcess.on("error", (err: Error) => {
                     console.error(data.toString());
                 });
                 testProcess.on("close", (code: number) => {
                     assert.strictEqual(code, 0);
+                    if(procErrData !== "") {
+                        assert.fail(procErrData);
+                    }
                     const traceContent = procData.trim().split("\n");
                     assert.strictEqual(traceContent[0], expectedTraceMessage);
                     traceContent.shift();
                     traceContent.forEach(element => {
-                        assert.strictEqual(element.trim().startsWith("at"), true, `Trace content string ${element} doesn't starts with 'at'`);
+                        assert.strictEqual(element.trim().startsWith("at"), true, `Stack frame ${element} isn't started with 'at'`);
                     });
                     done();
                 });
             }
 
-            test("console.trace() patch should produce a correct output without args", (done: MochaDone) => {
+            test("console.trace() patch should produce a correct output if called without args", (done: MochaDone) => {
                 const consoleTraceCall = `console.trace();`;
                 const expectedTraceMessage = "Trace";
                 runScriptAndCheckOutput(expectedTraceMessage, consoleTraceCall, done);
             });
 
-            test("console.trace() patch should produce a correct output with simple args", (done: MochaDone) => {
+            test("console.trace() patch should produce a correct output if called with simple args", (done: MochaDone) => {
                 const consoleTraceCall = `console.trace(\"Simple string\", 1337);`;
                 const expectedTraceMessage = "Trace: Simple string 1337";
                 runScriptAndCheckOutput(expectedTraceMessage, consoleTraceCall, done);
             });
 
-            test("console.trace() patch should produce a correct output for a formatted string", (done: MochaDone) => {
+            test("console.trace() patch should produce a correct output if called with formatted string", (done: MochaDone) => {
                 const consoleTraceCall = `console.trace("%s: %d", "Format string prints", 42);`;
                 const expectedTraceMessage = "Trace: Format string prints: 42";
                 runScriptAndCheckOutput(expectedTraceMessage, consoleTraceCall, done);
