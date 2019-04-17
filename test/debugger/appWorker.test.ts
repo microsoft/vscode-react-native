@@ -84,7 +84,7 @@ suite("appWorker", function () {
 
                 const worker = workerWithScript(startScriptContents);
                 return worker.start().then(() => {
-                    assert(postReplyFunction.notCalled, "postRepyFunction called before message sent");
+                    assert(postReplyFunction.notCalled, "postReplyFunction called before message sent");
                     worker.postMessage(testMessage);
                     return Q.delay(1000);
                 }).then(() => {
@@ -404,5 +404,53 @@ suite("appWorker", function () {
             });
         });
 
+        suite("console.trace()", function () {
+            function runScriptAndCheckOutput(expectedTraceMessage: string, consoleTraceCall: string, done: MochaDone): void {
+                const script = [MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH, consoleTraceCall].join("\n");
+                const testProcess = child_process.spawn("node", ["-e", script]);
+                let procData: string = "";
+                let procErrData: string = "";
+                testProcess.stdout.on("data", (data: Buffer) => {
+                    procData += data.toString();
+                });
+                testProcess.stderr.on("data", (data: Buffer) => {
+                    procErrData += data.toString();
+                });
+                testProcess.on("error", (err: Error) => {
+                    console.error(err);
+                });
+                testProcess.on("close", (code: number) => {
+                    assert.strictEqual(code, 0);
+                    if (procErrData !== "") {
+                        assert.fail(procErrData);
+                    }
+                    const traceContent = procData.trim().split("\n");
+                    assert.strictEqual(traceContent[0], expectedTraceMessage);
+                    traceContent.shift();
+                    traceContent.forEach(element => {
+                        assert.strictEqual(element.trim().startsWith("at"), true, `Stack frame ${element} isn't started with 'at'`);
+                    });
+                    done();
+                });
+            }
+
+            test("console.trace() patch should produce a correct output if called without args", (done: MochaDone) => {
+                const consoleTraceCall = `console.trace();`;
+                const expectedTraceMessage = "Trace";
+                runScriptAndCheckOutput(expectedTraceMessage, consoleTraceCall, done);
+            });
+
+            test("console.trace() patch should produce a correct output if called with simple args", (done: MochaDone) => {
+                const consoleTraceCall = `console.trace(\"Simple string\", 1337);`;
+                const expectedTraceMessage = "Trace: Simple string 1337";
+                runScriptAndCheckOutput(expectedTraceMessage, consoleTraceCall, done);
+            });
+
+            test("console.trace() patch should produce a correct output if called with formatted string", (done: MochaDone) => {
+                const consoleTraceCall = `console.trace("%s: %d", "Format string prints", 42);`;
+                const expectedTraceMessage = "Trace: Format string prints: 42";
+                runScriptAndCheckOutput(expectedTraceMessage, consoleTraceCall, done);
+            });
+        });
     });
 });
