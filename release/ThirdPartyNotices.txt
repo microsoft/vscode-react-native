@@ -920,7 +920,7 @@ THE SOFTWARE.
 
 -------------------------------------------------------------------
 
-vscode-debugadapter 1.34.0 - MIT
+vscode-debugadapter 1.34.0-pre.0 - MIT
 https://github.com/Microsoft/vscode-debugadapter-node#readme
 Copyright (c) Microsoft Corporation.
 
