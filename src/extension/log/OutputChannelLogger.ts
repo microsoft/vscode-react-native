@@ -6,9 +6,10 @@
  */
 
 import * as vscode from "vscode";
-import { ILogger, LogLevel, LogHelper } from "./LogHelper";
+import { ILogger, LogLevel, LogHelper, getLoggingDirectory } from "./LogHelper";
 import * as fs from "fs";
 import * as path from "path";
+
 
 const channels: { [channelName: string]: OutputChannelLogger } = {};
 
@@ -36,23 +37,10 @@ export class OutputChannelLogger implements ILogger {
         return channels[channelName];
     }
 
-    /**
-     * Directory in which the extension's log files will be saved
-     * if `env` variables `REACT_NATIVE_TOOLS_LOGS_DIR` and `REACT_NATIVE_TOOLS_LOGS_TIMESTAMP` is defined
-     * @param filename Name of the file to be added to the logs path
-     * @returns Path to the logs folder, or path to the log file, or null
-     */
-    public static getLoggingDirectory(filename?: string): string | null {
-        if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR && process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP) {
-            let dirPath = path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP);
-            dirPath = filename ? dirPath + filename : dirPath;
-            return dirPath;
-        }
-        return null;
-    }
+
 
     constructor(public readonly channelName: string, lazy: boolean = false, private preserveFocus: boolean = false) {
-        const channelLogFolder = OutputChannelLogger.getLoggingDirectory();
+        const channelLogFolder = getLoggingDirectory();
         if (channelLogFolder) {
             const filename = channelName.replace(OutputChannelLogger.forbiddenFileNameSymbols, "");
             this.channelLogPath = path.join(channelLogFolder, `${filename}.txt`);

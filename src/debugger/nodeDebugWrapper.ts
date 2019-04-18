@@ -20,7 +20,7 @@ import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
-import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
+import { getLoggingDirectory } from "../extension/log/LogHelper";
 const localize = nls.loadMessageBundle();
 
 export function makeSession(
@@ -137,7 +137,7 @@ export function makeSession(
         }
 
         private requestSetup(args: any): Q.Promise<void> {
-            let chromeDebugCoreLogs = OutputChannelLogger.getLoggingDirectory("ChromeDebugCoreLogs.txt");
+            let chromeDebugCoreLogs = getLoggingDirectory("ChromeDebugCoreLogs.txt");
             let logLevel: string = args.trace;
             if (logLevel) {
                 logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
