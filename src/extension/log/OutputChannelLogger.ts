@@ -15,13 +15,17 @@ const channels: { [channelName: string]: OutputChannelLogger } = {};
 
 export class OutputChannelLogger implements ILogger {
     public static MAIN_CHANNEL_NAME: string = "React Native";
-    private readonly channelLogPath: string | undefined;
+    private readonly channelLogFilePath: string | undefined;
+    private channelLogFileStream: fs.WriteStream;
     private outputChannel: vscode.OutputChannel;
     private static forbiddenFileNameSymbols: RegExp = /\W/gi;
 
     public static disposeChannel(channelName: string): void {
         if (channels[channelName]) {
             channels[channelName].getOutputChannel().dispose();
+            if (channels[channelName].channelLogFileStream) {
+                channels[channelName].channelLogFileStream.end();
+            }
             delete channels[channelName];
         }
     }
@@ -43,7 +47,8 @@ export class OutputChannelLogger implements ILogger {
         const channelLogFolder = getLoggingDirectory();
         if (channelLogFolder) {
             const filename = channelName.replace(OutputChannelLogger.forbiddenFileNameSymbols, "");
-            this.channelLogPath = path.join(channelLogFolder, `${filename}.txt`);
+            this.channelLogFilePath = path.join(channelLogFolder, `${filename}.txt`);
+            this.channelLogFileStream = fs.createWriteStream(this.channelLogFilePath);
         }
         if (!lazy) {
             this.channel = vscode.window.createOutputChannel(this.channelName);
@@ -59,8 +64,8 @@ export class OutputChannelLogger implements ILogger {
         if (level >= LogHelper.LOG_LEVEL) {
             message = OutputChannelLogger.getFormattedMessage(message, level);
             this.channel.appendLine(message);
-            if (this.channelLogPath) {
-                fs.appendFile(this.channelLogPath, message, () => {});
+            if (this.channelLogFilePath) {
+                this.channelLogFileStream.write(message);
             }
         }
     }
@@ -76,15 +81,15 @@ export class OutputChannelLogger implements ILogger {
     public error(errorMessage: string, error?: Error, logStack: boolean = true): void {
         const message = OutputChannelLogger.getFormattedMessage(errorMessage, LogLevel.Error);
         this.channel.appendLine(message);
-        if (this.channelLogPath) {
-            fs.appendFile(this.channelLogPath, message, () => {});
+        if (this.channelLogFilePath) {
+            this.channelLogFileStream.write(message);
         }
 
         // Print the error stack if necessary
         if (logStack && error && (<Error>error).stack) {
             this.channel.appendLine(`Stack: ${(<Error>error).stack}`);
-            if (this.channelLogPath) {
-                fs.appendFile(this.channelLogPath, `Stack: ${(<Error>error).stack}`, () => {});
+            if (this.channelLogFilePath) {
+                this.channelLogFileStream.write(`Stack: ${(<Error>error).stack}`);
             }
         }
     }
@@ -95,8 +100,8 @@ export class OutputChannelLogger implements ILogger {
 
     public logStream(data: Buffer | string) {
         this.channel.append(data.toString());
-        if (this.channelLogPath) {
-            fs.appendFile(this.channelLogPath, data.toString(), () => {});
+        if (this.channelLogFilePath) {
+            this.channelLogFileStream.write(data.toString());
         }
     }
 
