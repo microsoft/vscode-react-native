@@ -8,12 +8,13 @@
 import * as vscode from "vscode";
 import { ILogger, LogLevel, LogHelper } from "./LogHelper";
 import * as fs from "fs";
+import * as path from "path";
 
 const channels: { [channelName: string]: OutputChannelLogger } = {};
 
 export class OutputChannelLogger implements ILogger {
     public static MAIN_CHANNEL_NAME: string = "React Native";
-    private filename: string;
+    private readonly channelLogPath: string | undefined;
     private outputChannel: vscode.OutputChannel;
     private static forbiddenFileNameSymbols: RegExp = /\W/gi;
 
@@ -35,11 +36,30 @@ export class OutputChannelLogger implements ILogger {
         return channels[channelName];
     }
 
+    /**
+     * Directory in which the extension's log files will be saved
+     * if `env` variables `REACT_NATIVE_TOOLS_LOGS_DIR` and `REACT_NATIVE_TOOLS_LOGS_TIMESTAMP` is defined
+     * @param filename Name of the file to be added to the logs path
+     * @returns Path to the logs folder, or path to the log file, or null
+     */
+    public static getLoggingDirectory(filename?: string): string | null {
+        if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR && process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP) {
+            let dirPath = path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP);
+            dirPath = filename ? dirPath + filename : dirPath;
+            return dirPath;
+        }
+        return null;
+    }
+
     constructor(public readonly channelName: string, lazy: boolean = false, private preserveFocus: boolean = false) {
+        const channelLogFolder = OutputChannelLogger.getLoggingDirectory();
+        if (channelLogFolder) {
+            const filename = channelName.replace(OutputChannelLogger.forbiddenFileNameSymbols, "");
+            this.channelLogPath = path.join(channelLogFolder, `${filename}.txt`);
+        }
         if (!lazy) {
             this.channel = vscode.window.createOutputChannel(this.channelName);
             this.channel.show(this.preserveFocus);
-            this.filename = channelName.replace(OutputChannelLogger.forbiddenFileNameSymbols, "");
         }
     }
 
@@ -51,7 +71,9 @@ export class OutputChannelLogger implements ILogger {
         if (level >= LogHelper.LOG_LEVEL) {
             message = OutputChannelLogger.getFormattedMessage(message, level);
             this.channel.appendLine(message);
-            fs.writeFile(this.filename, message, {mode: "a"}, () => {});
+            if (this.channelLogPath) {
+                fs.appendFile(this.channelLogPath, message, () => {});
+            }
         }
     }
 
@@ -66,12 +88,16 @@ export class OutputChannelLogger implements ILogger {
     public error(errorMessage: string, error?: Error, logStack: boolean = true): void {
         const message = OutputChannelLogger.getFormattedMessage(errorMessage, LogLevel.Error);
         this.channel.appendLine(message);
-        fs.writeFile(this.filename, message, {mode: "a"}, () => {});
+        if (this.channelLogPath) {
+            fs.appendFile(this.channelLogPath, message, () => {});
+        }
 
         // Print the error stack if necessary
         if (logStack && error && (<Error>error).stack) {
             this.channel.appendLine(`Stack: ${(<Error>error).stack}`);
-            fs.writeFile(this.filename, `Stack: ${(<Error>error).stack}`, {mode: "a"}, () => {});
+            if (this.channelLogPath) {
+                fs.appendFile(this.channelLogPath, `Stack: ${(<Error>error).stack}`, () => {});
+            }
         }
     }
 
@@ -81,7 +107,9 @@ export class OutputChannelLogger implements ILogger {
 
     public logStream(data: Buffer | string) {
         this.channel.append(data.toString());
-        fs.writeFile(this.filename, data.toString(), {mode: "a"}, () => {});
+        if (this.channelLogPath) {
+            fs.appendFile(this.channelLogPath, data.toString(), () => {});
+        }
     }
 
     public setFocusOnLogChannel(): void {
