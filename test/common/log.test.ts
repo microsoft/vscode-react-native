@@ -20,13 +20,13 @@ suite("logHelper", function() {
             process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = REACT_NATIVE_TOOLS_LOGS_TIMESTAMP;
         });
 
-        test("getLoggingDirectory should return null if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP is not defined", (done: MochaDone) => {
+        test("getLoggingDirectory should return null if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP are not defined", (done: MochaDone) => {
             let loggingDir = getLoggingDirectory();
             assert.strictEqual(loggingDir, null);
             done();
         });
 
-        test("getLoggingDirectory should return null if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP is defined by relative path", (done: MochaDone) => {
+        test("getLoggingDirectory should return null if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP are defined by relative path", (done: MochaDone) => {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = "./logs";
             process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = "2019-04-19";
             let loggingDir = getLoggingDirectory();
@@ -34,7 +34,7 @@ suite("logHelper", function() {
             done();
         });
 
-        test("getLoggingDirectory should correct value if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP is defined by absolute path", (done: MochaDone) => {
+        test("getLoggingDirectory should return correct value if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP are defined by absolute path", (done: MochaDone) => {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = __dirname;
             process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = "2019-04-19";
             let loggingDir = getLoggingDirectory();
@@ -44,12 +44,11 @@ suite("logHelper", function() {
                 if (checkDir) {
                     fs.rmdirSync(loggingDir);
                 } else {
-                    assert.fail("getLoggingDirectory did not created a directory");
+                    assert.fail("getLoggingDirectory did not create a directory");
                 }
             } else {
                 assert.fail("loggingDir does not have a proper value");
             }
-
             done();
         });
     });

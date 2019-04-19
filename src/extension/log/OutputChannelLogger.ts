@@ -46,10 +46,9 @@ export class OutputChannelLogger implements ILogger {
         if (channelLogFolder) {
             const filename = channelName.replace(OutputChannelLogger.forbiddenFileNameSymbols, "");
             this.channelLogFilePath = path.join(channelLogFolder, `${filename}.txt`);
-
             this.channelLogFileStream = fs.createWriteStream(this.channelLogFilePath);
             this.channelLogFileStream.on("error", err => {
-                this.error(`Error creating log file at path: ${this.channelLogFilePath}. Error: ${err.toString()}\n`);
+                this.error(`Error writing to log file at path: ${this.channelLogFilePath}. Error: ${err.toString()}\n`);
             });
         }
         if (!lazy) {
@@ -103,7 +102,7 @@ export class OutputChannelLogger implements ILogger {
     public logStream(data: Buffer | string) {
         this.channel.append(data.toString());
         if (this.channelLogFilePath) {
-            this.channelLogFileStream.write(data.toString());
+            this.channelLogFileStream.write(data);
         }
     }
 
