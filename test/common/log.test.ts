@@ -10,12 +10,12 @@ suite("logHelper", function() {
     suite("commonContext", function() {
         const REACT_NATIVE_TOOLS_LOGS_DIR = process.env.REACT_NATIVE_TOOLS_LOGS_DIR;
         const REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP;
-        setup(() => {
+        suiteSetup(() => {
             delete process.env.REACT_NATIVE_TOOLS_LOGS_DIR;
             delete process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP;
         });
 
-        teardown(() => {
+        suiteTeardown(() => {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = REACT_NATIVE_TOOLS_LOGS_DIR;
             process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = REACT_NATIVE_TOOLS_LOGS_TIMESTAMP;
         });
