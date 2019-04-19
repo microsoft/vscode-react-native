@@ -207,9 +207,13 @@ export class SpectronApplication {
         // This works, but when one of the instances quits, it takes down
         // chrome driver with it, leaving the other instance in DISPAIR!!! :(
         const port = await findFreePort();
-
+        let extensionLogsDir: string | undefined;
+        if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+            extensionLogsDir = path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, new Date().toISOString());
+        }
         const env = {
             path: process.env.path,
+            REACT_NATIVE_TOOLS_LOGS_DIR: extensionLogsDir
         };
 
         const opts: any = {
