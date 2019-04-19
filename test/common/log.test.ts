@@ -3,6 +3,7 @@
 
 import * as assert from "assert";
 import * as fs from "fs";
+import * as path from "path";
 import { getLoggingDirectory } from "../../src/extension/log/LogHelper";
 
 suite("logHelper", function() {
@@ -30,7 +31,7 @@ suite("logHelper", function() {
         });
 
         test("getLoggingDirectory should return correct value if env variable REACT_NATIVE_TOOLS_LOGS_DIR is defined by absolute path", (done: MochaDone) => {
-            process.env.REACT_NATIVE_TOOLS_LOGS_DIR = __dirname;
+            process.env.REACT_NATIVE_TOOLS_LOGS_DIR = path.join(__dirname, "testFolder");
             let loggingDir = getLoggingDirectory();
             assert.strictEqual(loggingDir, process.env.REACT_NATIVE_TOOLS_LOGS_DIR);
             if (loggingDir) {
