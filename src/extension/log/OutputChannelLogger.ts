@@ -41,8 +41,6 @@ export class OutputChannelLogger implements ILogger {
         return channels[channelName];
     }
 
-
-
     constructor(public readonly channelName: string, lazy: boolean = false, private preserveFocus: boolean = false) {
         const channelLogFolder = getLoggingDirectory(true);
         if (channelLogFolder) {
