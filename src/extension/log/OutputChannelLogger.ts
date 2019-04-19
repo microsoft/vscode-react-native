@@ -65,7 +65,7 @@ export class OutputChannelLogger implements ILogger {
         if (level >= LogHelper.LOG_LEVEL) {
             message = OutputChannelLogger.getFormattedMessage(message, level);
             this.channel.appendLine(message);
-            if (this.channelLogFilePath) {
+            if (this.channelLogFileStream) {
                 this.channelLogFileStream.write(message);
             }
         }
@@ -82,14 +82,14 @@ export class OutputChannelLogger implements ILogger {
     public error(errorMessage: string, error?: Error, logStack: boolean = true): void {
         const message = OutputChannelLogger.getFormattedMessage(errorMessage, LogLevel.Error);
         this.channel.appendLine(message);
-        if (this.channelLogFilePath) {
+        if (this.channelLogFileStream) {
             this.channelLogFileStream.write(message);
         }
 
         // Print the error stack if necessary
         if (logStack && error && (<Error>error).stack) {
             this.channel.appendLine(`Stack: ${(<Error>error).stack}`);
-            if (this.channelLogFilePath) {
+            if (this.channelLogFileStream) {
                 this.channelLogFileStream.write(`Stack: ${(<Error>error).stack}`);
             }
         }
@@ -101,7 +101,7 @@ export class OutputChannelLogger implements ILogger {
 
     public logStream(data: Buffer | string) {
         this.channel.append(data.toString());
-        if (this.channelLogFilePath) {
+        if (this.channelLogFileStream) {
             this.channelLogFileStream.write(data);
         }
     }

@@ -31,14 +31,14 @@ export class LogHelper {
 }
 
 export interface DevLogToFileSettings {
-    REACT_NATIVE_TOOLS_LOGS_DIR: string | undefined;
-    REACT_NATIVE_TOOLS_LOGS_TIMESTAMP: string | undefined;
+    LogsDirectory: string | undefined;
+    Timestamp: string | undefined;
 }
 
 export function getLoggingOptions(): DevLogToFileSettings {
     return {
-        REACT_NATIVE_TOOLS_LOGS_DIR: process.env.REACT_NATIVE_TOOLS_LOGS_DIR,
-        REACT_NATIVE_TOOLS_LOGS_TIMESTAMP: process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP,
+        LogsDirectory: process.env.REACT_NATIVE_TOOLS_LOGS_DIR,
+        Timestamp: process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP,
     };
 }
 /**
@@ -49,8 +49,8 @@ export function getLoggingOptions(): DevLogToFileSettings {
  */
 export function getLoggingDirectory(): string | null {
     const loggingOptions = getLoggingOptions();
-    if (loggingOptions.REACT_NATIVE_TOOLS_LOGS_DIR && loggingOptions.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP) {
-        let dirPath = path.join(loggingOptions.REACT_NATIVE_TOOLS_LOGS_DIR, loggingOptions.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP);
+    if (loggingOptions.LogsDirectory && loggingOptions.Timestamp) {
+        let dirPath = path.join(loggingOptions.LogsDirectory, loggingOptions.Timestamp);
         if (!path.isAbsolute(dirPath)) {
             return null;
         }
