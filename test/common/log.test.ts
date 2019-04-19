@@ -47,7 +47,7 @@ suite("logHelper", function() {
                     assert.fail("getLoggingDirectory did not create a directory");
                 }
             } else {
-                assert.fail("loggingDir does not have a proper value");
+                assert.fail(`${loggingDir} is not a correct path`);
             }
             done();
         });
