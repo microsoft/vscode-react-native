@@ -42,7 +42,7 @@ export function getLoggingDirectory(): string | null {
         if (!path.isAbsolute(dirPath)) {
             return null;
         }
-        mkdirp(dirPath, () => {});
+        mkdirp.sync(dirPath);
         return dirPath;
    }
    return null;
