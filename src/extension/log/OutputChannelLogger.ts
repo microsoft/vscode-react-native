@@ -44,11 +44,15 @@ export class OutputChannelLogger implements ILogger {
 
 
     constructor(public readonly channelName: string, lazy: boolean = false, private preserveFocus: boolean = false) {
-        const channelLogFolder = getLoggingDirectory();
+        const channelLogFolder = getLoggingDirectory(true);
         if (channelLogFolder) {
             const filename = channelName.replace(OutputChannelLogger.forbiddenFileNameSymbols, "");
             this.channelLogFilePath = path.join(channelLogFolder, `${filename}.txt`);
+
             this.channelLogFileStream = fs.createWriteStream(this.channelLogFilePath);
+            this.channelLogFileStream.on("error", err => {
+                this.error(`Error creating log file at path: ${this.channelLogFilePath}. Error: ${err.toString()}\n`);
+            });
         }
         if (!lazy) {
             this.channel = vscode.window.createOutputChannel(this.channelName);

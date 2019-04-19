@@ -19,21 +19,32 @@ suite("logHelper", function() {
             process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = REACT_NATIVE_TOOLS_LOGS_TIMESTAMP;
         });
 
-        test("getLoggingDirectory should correctly work if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP is not defined", (done: MochaDone) => {
+        test("getLoggingDirectory should return null if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP is not defined", (done: MochaDone) => {
             let loggingDir = getLoggingDirectory();
             assert.strictEqual(loggingDir, null);
-            loggingDir = getLoggingDirectory("someFile.txt");
+            loggingDir = getLoggingDirectory(false, "someFile.txt");
             assert.strictEqual(loggingDir, null);
             done();
         });
 
-        test("getLoggingDirectory should correctly work if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP is defined", (done: MochaDone) => {
+        test("getLoggingDirectory should return null if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP is defined by relative path", (done: MochaDone) => {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = "./logs";
             process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = "2019-04-19";
             const fileName = "someFile.txt";
             let loggingDir = getLoggingDirectory();
+            assert.strictEqual(loggingDir, null);
+            loggingDir = getLoggingDirectory(false, fileName);
+            assert.strictEqual(loggingDir, null);
+            done();
+        });
+
+        test("getLoggingDirectory should correct value if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP is defined by absolute path", (done: MochaDone) => {
+            process.env.REACT_NATIVE_TOOLS_LOGS_DIR = __dirname;
+            process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = "2019-04-19";
+            const fileName = "someFile.txt";
+            let loggingDir = getLoggingDirectory();
             assert.strictEqual(loggingDir, path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP));
-            loggingDir = getLoggingDirectory(fileName);
+            loggingDir = getLoggingDirectory(false, fileName);
             assert.strictEqual(loggingDir, path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP, fileName));
             done();
         });

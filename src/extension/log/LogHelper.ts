@@ -34,14 +34,20 @@ export class LogHelper {
  * Returns directory in which the extension's log files will be saved
  * if `env` variables `REACT_NATIVE_TOOLS_LOGS_DIR` and `REACT_NATIVE_TOOLS_LOGS_TIMESTAMP` is defined
  * @param filename Name of the file to be added to the logs path
+ * @param createDir If true the directory will be created, if the returned directory path is correct. If it already exists - no action
  * @returns Path to the logs folder, or path to the log file, or null
  */
-export function getLoggingDirectory(filename?: string): string | null {
+export function getLoggingDirectory(createDir?: boolean, filename?: string): string | null {
    if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR && process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP) {
-       let dirPath = path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP);
-       mkdirp(dirPath, () => {});
-       dirPath = filename ? path.join(dirPath, filename) : dirPath;
-       return dirPath;
+        let dirPath = path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP);
+        if (!path.isAbsolute(dirPath)) {
+            return null;
+        }
+        if (createDir) {
+            mkdirp(dirPath, () => {});
+        }
+        dirPath = filename ? path.join(dirPath, filename) : dirPath;
+        return dirPath;
    }
    return null;
 }
