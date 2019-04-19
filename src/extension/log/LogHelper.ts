@@ -4,7 +4,8 @@
 /**
  * Logging utility class.
  */
-
+import * as path from "path";
+import * as mkdirp from "mkdirp";
 export enum LogLevel {
     Trace = 0,
     Debug = 1,
@@ -27,6 +28,34 @@ export class LogHelper {
     public static get LOG_LEVEL(): LogLevel {
         return getLogLevel();
     }
+}
+
+export interface DevLogToFileSettings {
+    LogsDirectory: string | undefined;
+}
+
+export function getLoggingOptions(): DevLogToFileSettings {
+    return {
+        LogsDirectory: process.env.REACT_NATIVE_TOOLS_LOGS_DIR,
+    };
+}
+/**
+ * Returns directory in which the extension's log files will be saved
+ * if `env` variables `REACT_NATIVE_TOOLS_LOGS_DIR` is defined.
+ * Also, checks that path is a correct absolute path. Creates new folder if not exists yet.
+ * @returns Path to the logs folder or null
+ */
+export function getLoggingDirectory(): string | null {
+    const loggingOptions = getLoggingOptions();
+    if (loggingOptions.LogsDirectory) {
+        let dirPath = loggingOptions.LogsDirectory;
+        if (!path.isAbsolute(dirPath)) {
+            return null;
+        }
+        mkdirp.sync(dirPath);
+        return dirPath;
+    }
+    return null;
 }
 
 function getLogLevel() {
