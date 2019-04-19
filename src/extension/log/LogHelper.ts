@@ -30,6 +30,17 @@ export class LogHelper {
     }
 }
 
+export interface DevLogToFileSettings {
+    REACT_NATIVE_TOOLS_LOGS_DIR: string | undefined;
+    REACT_NATIVE_TOOLS_LOGS_TIMESTAMP: string | undefined;
+}
+
+export function getLoggingOptions(): DevLogToFileSettings {
+    return {
+        REACT_NATIVE_TOOLS_LOGS_DIR: process.env.REACT_NATIVE_TOOLS_LOGS_DIR,
+        REACT_NATIVE_TOOLS_LOGS_TIMESTAMP: process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP,
+    };
+}
 /**
  * Returns directory in which the extension's log files will be saved
  * if `env` variables `REACT_NATIVE_TOOLS_LOGS_DIR` and `REACT_NATIVE_TOOLS_LOGS_TIMESTAMP` are defined.
@@ -37,15 +48,16 @@ export class LogHelper {
  * @returns Path to the logs folder or null
  */
 export function getLoggingDirectory(): string | null {
-   if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR && process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP) {
-        let dirPath = path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP);
+    const loggingOptions = getLoggingOptions();
+    if (loggingOptions.REACT_NATIVE_TOOLS_LOGS_DIR && loggingOptions.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP) {
+        let dirPath = path.join(loggingOptions.REACT_NATIVE_TOOLS_LOGS_DIR, loggingOptions.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP);
         if (!path.isAbsolute(dirPath)) {
             return null;
         }
         mkdirp.sync(dirPath);
         return dirPath;
-   }
-   return null;
+    }
+    return null;
 }
 
 function getLogLevel() {
