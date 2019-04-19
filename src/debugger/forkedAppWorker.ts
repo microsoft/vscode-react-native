@@ -111,12 +111,8 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             this.logWriteStream.on("error", err => {
                 logger.error(`Error creating log file at path: ${this.logDirectory}. Error: ${err.toString()}\n`);
             });
-            this.debuggeeProcess.stdout.on("data", (data: Buffer) => {
-                this.logWriteStream.write(data.toString());
-            });
-            this.debuggeeProcess.stderr.on("data", (data: Buffer) => {
-                this.logWriteStream.write(data.toString());
-            });
+            this.debuggeeProcess.stdout.pipe(this.logWriteStream);
+            this.debuggeeProcess.stderr.pipe(this.logWriteStream);
             this.debuggeeProcess.on("close", () => {
                 this.logWriteStream.end();
             });
