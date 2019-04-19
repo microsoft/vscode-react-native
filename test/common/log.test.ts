@@ -16,20 +16,20 @@ suite("logHelper", function() {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = REACT_NATIVE_TOOLS_LOGS_DIR;
         });
 
-        test("getLoggingDirectory should return null if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP are not defined", (done: MochaDone) => {
+        test("getLoggingDirectory should return null if env variable REACT_NATIVE_TOOLS_LOGS_DIR is not defined", (done: MochaDone) => {
             let loggingDir = getLoggingDirectory();
             assert.strictEqual(loggingDir, null);
             done();
         });
 
-        test("getLoggingDirectory should return null if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP are defined by relative path", (done: MochaDone) => {
+        test("getLoggingDirectory should return null if env variable REACT_NATIVE_TOOLS_LOGS_DIR is defined by relative path", (done: MochaDone) => {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = "./logs";
             let loggingDir = getLoggingDirectory();
             assert.strictEqual(loggingDir, null);
             done();
         });
 
-        test("getLoggingDirectory should return correct value if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP are defined by absolute path", (done: MochaDone) => {
+        test("getLoggingDirectory should return correct value if env variable REACT_NATIVE_TOOLS_LOGS_DIR is defined by absolute path", (done: MochaDone) => {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = __dirname;
             let loggingDir = getLoggingDirectory();
             assert.strictEqual(loggingDir, process.env.REACT_NATIVE_TOOLS_LOGS_DIR);
