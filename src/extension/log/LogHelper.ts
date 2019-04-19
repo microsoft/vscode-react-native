@@ -33,7 +33,7 @@ export class LogHelper {
 /**
  * Returns directory in which the extension's log files will be saved
  * if `env` variables `REACT_NATIVE_TOOLS_LOGS_DIR` and `REACT_NATIVE_TOOLS_LOGS_TIMESTAMP` are defined.
- * Also checks that path is a correct absolute path. Creates new folder if not exists yet.
+ * Also, checks that path is a correct absolute path. Creates new folder if not exists yet.
  * @returns Path to the logs folder or null
  */
 export function getLoggingDirectory(): string | null {
