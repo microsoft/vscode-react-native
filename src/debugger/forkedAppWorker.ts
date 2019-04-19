@@ -5,6 +5,7 @@ import * as Q from "q";
 import * as path from "path";
 import * as url from "url";
 import * as child_process from "child_process";
+import * as fs from "fs";
 import {ScriptImporter, DownloadedScript}  from "./scriptImporter";
 
 import { logger } from "vscode-chrome-debug-core";
@@ -12,6 +13,7 @@ import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 import { RemoteExtension } from "../common/remoteExtension";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { getLoggingDirectory } from "../extension/log/LogHelper";
 
 function printDebuggingError(error: Error, reason: any) {
     const nestedError = ErrorHelper.getNestedError(error, InternalErrorCode.DebuggingWontWorkReloadJSAndReconnect, reason);
@@ -34,6 +36,8 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     protected workerLoaded = Q.defer<void>();
     private bundleLoaded: Q.Deferred<void>;
     private remoteExtension: RemoteExtension;
+    private logWriteStream: fs.WriteStream;
+    private logDirectory: string | null;
 
     constructor(
         private packagerAddress: string,
@@ -98,6 +102,22 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         .on("error", (error: Error) => {
             printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWorkerProcessThrownAnError), error);
         });
+
+        // If special env variables is defined writing all process output to file
+        this.logDirectory = getLoggingDirectory("nodeProcessLog.txt");
+
+        if (this.logDirectory) {
+            this.logWriteStream = fs.createWriteStream(this.logDirectory);
+            this.debuggeeProcess.stdout.on("data", (data: Buffer) => {
+                this.logWriteStream.write(data.toString());
+            });
+            this.debuggeeProcess.stderr.on("data", (data: Buffer) => {
+                this.logWriteStream.write(data.toString());
+            });
+            this.debuggeeProcess.on("close", () => {
+                this.logWriteStream.end();
+            });
+        }
 
         // Resolve with port debugger server is listening on
         // This will be sent to subscribers of MLAppWorker in "connected" event
