@@ -32,25 +32,23 @@ export class LogHelper {
 
 export interface DevLogToFileSettings {
     LogsDirectory: string | undefined;
-    Timestamp: string | undefined;
 }
 
 export function getLoggingOptions(): DevLogToFileSettings {
     return {
         LogsDirectory: process.env.REACT_NATIVE_TOOLS_LOGS_DIR,
-        Timestamp: process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP,
     };
 }
 /**
  * Returns directory in which the extension's log files will be saved
- * if `env` variables `REACT_NATIVE_TOOLS_LOGS_DIR` and `REACT_NATIVE_TOOLS_LOGS_TIMESTAMP` are defined.
+ * if `env` variables `REACT_NATIVE_TOOLS_LOGS_DIR` is defined.
  * Also, checks that path is a correct absolute path. Creates new folder if not exists yet.
  * @returns Path to the logs folder or null
  */
 export function getLoggingDirectory(): string | null {
     const loggingOptions = getLoggingOptions();
-    if (loggingOptions.LogsDirectory && loggingOptions.Timestamp) {
-        let dirPath = path.join(loggingOptions.LogsDirectory, loggingOptions.Timestamp);
+    if (loggingOptions.LogsDirectory) {
+        let dirPath = path.join(loggingOptions.LogsDirectory);
         if (!path.isAbsolute(dirPath)) {
             return null;
         }

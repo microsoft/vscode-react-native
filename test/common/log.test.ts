@@ -2,22 +2,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
-import * as path from "path";
 import * as fs from "fs";
 import { getLoggingDirectory } from "../../src/extension/log/LogHelper";
 
 suite("logHelper", function() {
     suite("commonContext", function() {
         const REACT_NATIVE_TOOLS_LOGS_DIR = process.env.REACT_NATIVE_TOOLS_LOGS_DIR;
-        const REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP;
         suiteSetup(() => {
             delete process.env.REACT_NATIVE_TOOLS_LOGS_DIR;
-            delete process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP;
         });
 
         suiteTeardown(() => {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = REACT_NATIVE_TOOLS_LOGS_DIR;
-            process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = REACT_NATIVE_TOOLS_LOGS_TIMESTAMP;
         });
 
         test("getLoggingDirectory should return null if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP are not defined", (done: MochaDone) => {
@@ -28,7 +24,6 @@ suite("logHelper", function() {
 
         test("getLoggingDirectory should return null if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP are defined by relative path", (done: MochaDone) => {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = "./logs";
-            process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = "2019-04-19";
             let loggingDir = getLoggingDirectory();
             assert.strictEqual(loggingDir, null);
             done();
@@ -36,9 +31,8 @@ suite("logHelper", function() {
 
         test("getLoggingDirectory should return correct value if env variables REACT_NATIVE_TOOLS_LOGS_DIR and REACT_NATIVE_TOOLS_LOGS_TIMESTAMP are defined by absolute path", (done: MochaDone) => {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = __dirname;
-            process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP = "2019-04-19";
             let loggingDir = getLoggingDirectory();
-            assert.strictEqual(loggingDir, path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, process.env.REACT_NATIVE_TOOLS_LOGS_TIMESTAMP));
+            assert.strictEqual(loggingDir, process.env.REACT_NATIVE_TOOLS_LOGS_DIR);
             if (loggingDir) {
                 const checkDir = fs.existsSync(loggingDir);
                 if (checkDir) {
