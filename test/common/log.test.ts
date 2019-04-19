@@ -49,7 +49,6 @@ suite("logHelper", function() {
             } else {
                 assert.fail("loggingDir does not have a proper value");
             }
-
             done();
         });
     });
