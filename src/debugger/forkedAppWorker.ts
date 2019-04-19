@@ -104,10 +104,10 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         });
 
         // If special env variables is defined writing all process output to file
-        this.logDirectory = getLoggingDirectory(true, "nodeProcessLog.txt");
+        this.logDirectory = getLoggingDirectory();
 
         if (this.logDirectory) {
-            this.logWriteStream = fs.createWriteStream(this.logDirectory);
+            this.logWriteStream = fs.createWriteStream(path.join(this.logDirectory, "nodeProcessLog.txt"));
             this.logWriteStream.on("error", err => {
                 logger.error(`Error creating log file at path: ${this.logDirectory}. Error: ${err.toString()}\n`);
             });

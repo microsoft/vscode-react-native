@@ -138,7 +138,10 @@ export function makeSession(
 
         private requestSetup(args: any): Q.Promise<void> {
             // If special env variables is defined writing all process output to file
-            let chromeDebugCoreLogs = getLoggingDirectory(true, "ChromeDebugCoreLogs.txt");
+            let chromeDebugCoreLogs = getLoggingDirectory();
+            if (chromeDebugCoreLogs) {
+                chromeDebugCoreLogs = path.join(chromeDebugCoreLogs, "ChromeDebugCoreLogs.txt");
+            }
             let logLevel: string = args.trace;
             if (logLevel) {
                 logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());

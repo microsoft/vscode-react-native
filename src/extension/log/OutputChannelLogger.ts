@@ -42,7 +42,7 @@ export class OutputChannelLogger implements ILogger {
     }
 
     constructor(public readonly channelName: string, lazy: boolean = false, private preserveFocus: boolean = false) {
-        const channelLogFolder = getLoggingDirectory(true);
+        const channelLogFolder = getLoggingDirectory();
         if (channelLogFolder) {
             const filename = channelName.replace(OutputChannelLogger.forbiddenFileNameSymbols, "");
             this.channelLogFilePath = path.join(channelLogFolder, `${filename}.txt`);
