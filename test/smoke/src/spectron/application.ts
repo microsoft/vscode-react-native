@@ -10,6 +10,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
 import { sanitize, sleep } from "../helpers/utilities";
+import { artifactsPath } from "../main";
 
 // Just hope random helps us here, cross your fingers!
 export async function findFreePort(): Promise<number> {
@@ -207,10 +208,8 @@ export class SpectronApplication {
         // This works, but when one of the instances quits, it takes down
         // chrome driver with it, leaving the other instance in DISPAIR!!! :(
         const port = await findFreePort();
-        let extensionLogsDir: string | undefined;
-        if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-            extensionLogsDir = path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, new Date().toISOString());
-        }
+        const extensionLogsDir = path.join(artifactsPath, "extensionLogs", new Date().toISOString());
+
         const env = {
             path: process.env.path,
             REACT_NATIVE_TOOLS_LOGS_DIR: extensionLogsDir,
