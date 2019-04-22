@@ -120,7 +120,7 @@ export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
 
 export const artifactsPath = path.join(repoRoot, SmokeTestsConstants.artifactsDir);
-const userDataDir = path.join(artifactsPath, SmokeTestsConstants.VSCodeUserDataDir);
+const userDataDir = path.join(testVSCodeDirectory, SmokeTestsConstants.VSCodeUserDataDir);
 
 const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 
