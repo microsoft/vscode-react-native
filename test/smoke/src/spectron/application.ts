@@ -209,6 +209,7 @@ export class SpectronApplication {
         // chrome driver with it, leaving the other instance in DISPAIR!!! :(
         const port = await findFreePort();
         const extensionLogsDir = path.join(artifactsPath, "extensionLogs", new Date().toISOString());
+        console.log(`*** Extension log files path: ${extensionLogsDir}`);
 
         const env = {
             path: process.env.path,
