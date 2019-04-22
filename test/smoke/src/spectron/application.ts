@@ -208,7 +208,7 @@ export class SpectronApplication {
         // This works, but when one of the instances quits, it takes down
         // chrome driver with it, leaving the other instance in DISPAIR!!! :(
         const port = await findFreePort();
-        const extensionLogsDir = path.join(artifactsPath, "extensionLogs", new Date().toISOString());
+        const extensionLogsDir = path.join(artifactsPath, "extensionLogs", new Date().toISOString().replace(/\W/gi, "_"));
         console.log(`*** Extension log files path: ${extensionLogsDir}`);
 
         const env = {
