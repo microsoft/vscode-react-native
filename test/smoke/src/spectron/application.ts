@@ -208,8 +208,12 @@ export class SpectronApplication {
         // This works, but when one of the instances quits, it takes down
         // chrome driver with it, leaving the other instance in DISPAIR!!! :(
         const port = await findFreePort();
-        const extensionLogsDir = path.join(artifactsPath, "extensionLogs", new Date().toISOString().replace(/\W/gi, "_"));
 
+        const runName = String(SpectronApplication.count++);
+        let testsuiteRootPath: string | undefined = undefined;
+        let screenshotsDirPath: string | undefined = undefined;
+
+        const extensionLogsDir = path.join(artifactsPath, sanitize(runName), "extensionLogs");
 
         const env = {
             path: process.env.path,
@@ -225,10 +229,6 @@ export class SpectronApplication {
             startTimeout: 10000,
             requireName: "nodeRequire",
         };
-
-        const runName = String(SpectronApplication.count++);
-        let testsuiteRootPath: string | undefined = undefined;
-        let screenshotsDirPath: string | undefined = undefined;
 
         console.log(`*** Extension log files path for VS Code run #${runName}: ${extensionLogsDir}`);
         if (this.options.artifactsPath) {
