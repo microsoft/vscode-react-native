@@ -209,7 +209,7 @@ export class SpectronApplication {
         // chrome driver with it, leaving the other instance in DISPAIR!!! :(
         const port = await findFreePort();
         const extensionLogsDir = path.join(artifactsPath, "extensionLogs", new Date().toISOString().replace(/\W/gi, "_"));
-        console.log(`*** Extension log files path: ${extensionLogsDir}`);
+
 
         const env = {
             path: process.env.path,
@@ -230,6 +230,7 @@ export class SpectronApplication {
         let testsuiteRootPath: string | undefined = undefined;
         let screenshotsDirPath: string | undefined = undefined;
 
+        console.log(`*** Extension log files path for VS Code run #${runName}: ${extensionLogsDir}`);
         if (this.options.artifactsPath) {
             testsuiteRootPath = path.join(this.options.artifactsPath, sanitize(runName));
             mkdirp.sync(testsuiteRootPath);
