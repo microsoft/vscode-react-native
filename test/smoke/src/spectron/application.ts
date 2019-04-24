@@ -172,7 +172,6 @@ export class SpectronApplication {
     private async startApplication(workspaceOrFolder: string, extraArgs: string[] = []): Promise<any> {
 
         let args: string[] = [];
-        let chromeDriverArgs: string[] = [];
 
         args.push(workspaceOrFolder);
 
@@ -199,9 +198,12 @@ export class SpectronApplication {
         // Ensure that running over custom extensions directory, rather than picking up the one that was used by a tester previously
         args.push(`--extensions-dir=${this.options.extensionsPath}`);
 
+        // Define a custom directory for VS Code temporary data
+        args.push(`--user-data-dir=${this.options.userDataDir}`);
+
         args.push(...extraArgs);
 
-        chromeDriverArgs.push(`--user-data-dir=${this.options.userDataDir}`);
+
 
         // Spectron always uses the same port number for the chrome driver
         // and it handles gracefully when two instances use the same port number
@@ -222,7 +224,6 @@ export class SpectronApplication {
             port,
             args,
             env,
-            chromeDriverArgs,
             startTimeout: 10000,
             requireName: "nodeRequire",
         };
