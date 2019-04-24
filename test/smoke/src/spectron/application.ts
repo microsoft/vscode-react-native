@@ -213,7 +213,7 @@ export class SpectronApplication {
         const extensionLogsDir = path.join(artifactsPath, runName, "extensionLogs");
 
         const env = {
-            path: process.env.path,
+            path: process.env.path || process.env.PATH,
             REACT_NATIVE_TOOLS_LOGS_DIR: extensionLogsDir,
         };
 
