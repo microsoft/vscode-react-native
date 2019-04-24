@@ -249,7 +249,7 @@ export class SpectronApplication {
         }
 
         this.spectron = new Application(opts);
-        console.log(`Starting VS Code with options:\n ${JSON.stringify(opts)}`);
+        console.log(`Starting VS Code with options:\n${JSON.stringify(opts, null, 2)}`);
         await this.spectron.start();
 
         if (testsuiteRootPath) {
