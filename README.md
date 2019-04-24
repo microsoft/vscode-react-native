@@ -82,8 +82,7 @@ Debugger doesn't stop at breakpoints | Breakpoints require sourcemaps to be corr
 'adb: command not found'             | If you receive an error `adb: command not found`, you need to update your system Path to include the location of your *ADB* executable.The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
 Targeting iPhone 6 doesn't work      | There was a known issue with React Native ([#5850](https://github.com/facebook/react-native/issues/5850)) but it was fixed. Please upgrade your version of React Native.
 Can't communicate with socket pipe    | (Linux only) If you have two workspaces open that only differ in casing, the extension will fail to communicate effectively.
-"Add configuration" button doesn't work when trying to add debug configuration to `launch.json` | You may need to have to add in some json to `launch.json` manually. Please, see ([#985](https://github.com/Microsoft/vscode-react-native/issues/985)
-doesn't work                          
+"Add configuration" button doesn't work when trying to add debug configuration to `launch.json` | You may need to have to add in some json to `launch.json` manually. Please, see ([#985](https://github.com/Microsoft/vscode-react-native/issues/985))                         
 
 [Known-Issues](https://github.com/Microsoft/vscode-react-native/issues?q=is%3Aissue+label%3Aknown-issues) provides a complete list of active and resolved issues.
 
