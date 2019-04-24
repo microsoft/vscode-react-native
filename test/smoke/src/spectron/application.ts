@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { Application, SpectronClient as WebClient } from "spectron";
+import { Application, SpectronClient as WebClient, AppConstructorOptions } from "spectron";
 import { test as testPort } from "portastic";
 import { SpectronClient } from "./client";
 import { ScreenCapturer } from "../helpers/screenshot";
@@ -220,7 +220,7 @@ export class SpectronApplication {
             REACT_NATIVE_TOOLS_LOGS_DIR: extensionLogsDir,
         };
 
-        const opts: any = {
+        const opts: AppConstructorOptions = {
             path: this.options.electronPath,
             port,
             args,
