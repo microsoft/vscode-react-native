@@ -210,10 +210,7 @@ export class SpectronApplication {
         const port = await findFreePort();
 
         const runName = String(SpectronApplication.count++);
-        let testsuiteRootPath: string | undefined = undefined;
-        let screenshotsDirPath: string | undefined = undefined;
-
-        const extensionLogsDir = path.join(artifactsPath, sanitize(runName), "extensionLogs");
+        const extensionLogsDir = path.join(artifactsPath, runName, "extensionLogs");
 
         const env = {
             path: process.env.path,
@@ -230,6 +227,8 @@ export class SpectronApplication {
             requireName: "nodeRequire",
         };
 
+        let testsuiteRootPath: string | undefined = undefined;
+        let screenshotsDirPath: string | undefined = undefined;
         console.log(`*** Extension log files path for VS Code run #${runName}: ${extensionLogsDir}`);
         if (this.options.artifactsPath) {
             testsuiteRootPath = path.join(this.options.artifactsPath, sanitize(runName));
@@ -250,6 +249,7 @@ export class SpectronApplication {
         }
 
         this.spectron = new Application(opts);
+        console.log(`Starting VS Code with options:\n ${JSON.stringify(opts)}`);
         await this.spectron.start();
 
         if (testsuiteRootPath) {
