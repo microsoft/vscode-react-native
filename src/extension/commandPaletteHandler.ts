@@ -197,9 +197,12 @@ export class CommandPaletteHandler {
                 const androidPlatform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform);
                 androidPlatform.showDevMenu()
                     .catch(() => { }); // Ignore any errors
+
+                if (process.platform === "darwin") {
                 const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
                 iosPlatform.showDevMenu()
                     .catch(() => { }); // Ignore any errors
+                }
                 return Q.resolve(void 0);
             });
     }
@@ -210,9 +213,12 @@ export class CommandPaletteHandler {
                 const androidPlatform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform);
                 androidPlatform.reloadApp()
                     .catch(() => { }); // Ignore any errors
-                const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
-                iosPlatform.reloadApp()
-                    .catch(() => { }); // Ignore any errors
+
+                if (process.platform === "darwin") {
+                    const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
+                    iosPlatform.reloadApp()
+                        .catch(() => { }); // Ignore any errors
+                }
                 return Q.resolve(void 0);
             });
     }
