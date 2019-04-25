@@ -4,12 +4,12 @@
 import { SpectronApplication } from "./spectron/application";
 import * as assert from "assert";
 import { AppiumHelper, Platform } from "./helpers/appiumHelper";
-import { sleep, addIosTargetToLaunchJson } from "./helpers/setupEnvironmentHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { RNworkspacePath, RNAppName } from "./main";
+import { RNworkspacePath } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
 import { Client, RawResult } from "webdriverio";
-import { runInParallel } from "./helpers/utilities";
+import { sleep, runInParallel } from "./helpers/utilities";
+import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 
 const RN_APP_BUNDLE_ID = "org.reactjs.native.example.latestRNApp";
 const RNDebugConfigName = "Debug iOS";
@@ -47,7 +47,7 @@ export function setup() {
             await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
             console.log(`iOS Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
-            addIosTargetToLaunchJson(RNworkspacePath);
+            SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
             const waitUntilIosAppIsInstalled = AppiumHelper.waitUntilIosAppIsInstalled(RN_APP_BUNDLE_ID, SmokeTestsConstants.iosAppBuildAndInstallTimeout, 40 * 1000);
             const startDebugging = async () => {
                 console.log("iOS Debug test: Starting debugging");
@@ -59,7 +59,7 @@ export function setup() {
             // Sometimes by this moment iOS app already have remote js debugging enabled so we don't need to enable it manually
             if (!await app.workbench.debug.areStackFramesExist()) {
                 const device = <string>IosSimulatorHelper.getDevice();
-                const appPath = `${RNworkspacePath}/ios/build/${RNAppName}/Build/Products/Debug-iphonesimulator/${RNAppName}.app`;
+                const appPath = `${RNworkspacePath}/ios/build/${SmokeTestsConstants.RNAppName}/Build/Products/Debug-iphonesimulator/${SmokeTestsConstants.RNAppName}.app`;
                 const opts = AppiumHelper.prepareAttachOptsForiOSApp(device, appPath);
                 let client = AppiumHelper.webdriverAttach(opts);
                 let clientInited = client.init();

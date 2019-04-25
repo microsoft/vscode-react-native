@@ -3,7 +3,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
+
 import { SpectronApplication, Quality } from "./spectron/application";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";

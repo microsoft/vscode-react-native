@@ -118,6 +118,23 @@ export class SetupEnvironmentHelper {
         });
     }
 
+    public static addIosTargetToLaunchJson(workspacePath: string) {
+        let launchJsonPath = path.join(workspacePath, ".vscode", "launch.json");
+        console.log(`*** Implicitly adding target to "Debug iOS" config for ${launchJsonPath}`);
+        let content = JSON.parse(fs.readFileSync(launchJsonPath).toString());
+        let found = false;
+        for (let i = 0; i < content.configurations.length; i++) {
+            if (content.configurations[i].name === "Debug iOS") {
+                found = true;
+                content.configurations[i].target = IosSimulatorHelper.getDevice();
+            }
+        }
+        if (!found) {
+            throw new Error("Couldn't find \"Debug iOS\" configuration");
+        }
+        fs.writeFileSync(launchJsonPath, JSON.stringify(content, undefined, 4)); // Adds indentations
+    }
+
     public static async runiOSSimulator() {
         const device = <string>IosSimulatorHelper.getDevice();
         await this.terminateiOSSimulator();
