@@ -16,7 +16,7 @@ const RNDebugConfigName = "Debug iOS";
 // const ExpoDebugConfigName = "Debug in Exponent";
 // Time for OS Debug Test before it reaches timeout
 const debugIosTestTime = SmokeTestsConstants.iosAppBuildAndInstallTimeout + 100 * 1000;
-// Time for Android Expo Debug Test before it reaches timeout
+// Time for iOS Expo Debug Test before it reaches timeout
 // const debugExpoTestTime = smokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
 export function setup() {
     describe("Debugging iOS", () => {
