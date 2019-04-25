@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { Application, SpectronClient as WebClient } from "spectron";
+import { Application, SpectronClient as WebClient, AppConstructorOptions } from "spectron";
 import { test as testPort } from "portastic";
 import { SpectronClient } from "./client";
 import { ScreenCapturer } from "../helpers/screenshot";
@@ -9,8 +9,8 @@ import { Workbench } from "../areas/workbench/workbench";
 import * as fs from "fs";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
-import { sanitize } from "../helpers/utilities";
-import { sleep } from "../helpers/setupEnvironmentHelper";
+import { sanitize, sleep } from "../helpers/utilities";
+import { artifactsPath } from "../main";
 
 // Just hope random helps us here, cross your fingers!
 export async function findFreePort(): Promise<number> {
@@ -201,19 +201,22 @@ export class SpectronApplication {
 
         args.push(...extraArgs);
 
-        chromeDriverArgs.push(`--user-data-dir=${this.options.userDataDir}`);
-
         // Spectron always uses the same port number for the chrome driver
         // and it handles gracefully when two instances use the same port number
         // This works, but when one of the instances quits, it takes down
         // chrome driver with it, leaving the other instance in DISPAIR!!! :(
         const port = await findFreePort();
 
+        const runName = String(SpectronApplication.count++);
+        const extensionLogsDir = path.join(artifactsPath, runName, "extensionLogs");
+        chromeDriverArgs.push(`--user-data-dir=${path.join(this.options.userDataDir, runName)}`);
+
         const env = {
-            path: process.env.path,
+            path: process.env.path || process.env.PATH,
+            REACT_NATIVE_TOOLS_LOGS_DIR: extensionLogsDir,
         };
 
-        const opts: any = {
+        const opts: AppConstructorOptions = {
             path: this.options.electronPath,
             port,
             args,
@@ -223,10 +226,9 @@ export class SpectronApplication {
             requireName: "nodeRequire",
         };
 
-        const runName = String(SpectronApplication.count++);
         let testsuiteRootPath: string | undefined = undefined;
         let screenshotsDirPath: string | undefined = undefined;
-
+        console.log(`*** Extension log files path for VS Code run #${runName}: ${extensionLogsDir}`);
         if (this.options.artifactsPath) {
             testsuiteRootPath = path.join(this.options.artifactsPath, sanitize(runName));
             mkdirp.sync(testsuiteRootPath);
@@ -246,6 +248,7 @@ export class SpectronApplication {
         }
 
         this.spectron = new Application(opts);
+        console.log(`Starting VS Code with options:\n${JSON.stringify(opts, null, 2)}`);
         await this.spectron.start();
 
         if (testsuiteRootPath) {

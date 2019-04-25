@@ -101,6 +101,26 @@ var importScripts = (function(){
     };
 })();`;
 
+    public static CONSOLE_TRACE_PATCH = `// Worker is ran as nodejs process, so console.trace() writes to stderr and it leads to error in native app
+// To avoid this console.trace() is overridden to print stacktrace via console.log()
+// Please, see Node JS implementation: https://github.com/nodejs/node/blob/master/lib/internal/console/constructor.js
+console.trace = (function() {
+    return function() {
+        try {
+            var err = {
+                name: 'Trace',
+                message: require('util').format.apply(null, arguments)
+                };
+            // Node uses 10, but usually it's not enough for RN app trace
+            Error.stackTraceLimit = 30;
+            Error.captureStackTrace(err, console.trace);
+            console.log(err.stack);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+})();`;
+
     public static WORKER_DONE = `// Notify debugger that we're done with loading
 // and started listening for IPC messages
 postMessage({workerLoaded:true});`;
@@ -196,6 +216,7 @@ postMessage({workerLoaded:true});`;
                 // in Node env and polyfill WebWorkers API over Node's IPC.
                 const modifiedDebuggeeContent = [
                     MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
+                    MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH,
                     isHaulProject ? MultipleLifetimesAppWorker.FETCH_STUB : null,
                     workerContent,
                     MultipleLifetimesAppWorker.WORKER_DONE,

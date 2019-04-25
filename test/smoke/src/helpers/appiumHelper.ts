@@ -8,9 +8,8 @@ import * as mkdirp from "mkdirp";
 import * as kill from "tree-kill";
 import * as clipboardy from "clipboardy";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
-import { sleep } from "./setupEnvironmentHelper";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
-
+import { sleep } from "./utilities";
 let appiumProcess: null | cp.ChildProcess;
 type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
 export enum Platform {
@@ -19,6 +18,7 @@ export enum Platform {
 }
 type XPathSelector = { [TKey in Platform]: string };
 type XPathSelectors = { [key: string]: XPathSelector };
+
 
 export class AppiumHelper {
     // Paths for searching UI elements
@@ -46,7 +46,7 @@ export class AppiumHelper {
     };
 
     public static runAppium() {
-        const appiumLogFolder = path.join(__dirname, "..", "..", "..", "..", "SmokeTestLogs");
+        const appiumLogFolder = path.join(__dirname, "..", "..", "..", "..", SmokeTestsConstants.artifactsDir);
         mkdirp.sync(appiumLogFolder);
         const appiumLogPath = path.join(appiumLogFolder, "appium.log");
         console.log(`*** Executing Appium with logging to ${appiumLogPath}`);
@@ -209,7 +209,7 @@ export class AppiumHelper {
         });
     }
 
-    public static async openExpoApplicationAndroid(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
+    public static async openExpoApplicationAndroid(client: AppiumClient, expoURL: string) {
         if (process.platform === "darwin") {
             // Longer way to open Expo app, but
             // it certainly works on Mac
@@ -284,7 +284,7 @@ export class AppiumHelper {
         }, SmokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
     }
 
-    private static async openExpoAppViaClipboard(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
+    private static async openExpoAppViaClipboard(client: AppiumClient, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
         console.log(`*** Opening Expo app via clipboard`);
@@ -299,7 +299,7 @@ export class AppiumHelper {
         console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
-    private static async openExpoAppViaExploreButton(client: WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>, expoURL: string) {
+    private static async openExpoAppViaExploreButton(client: AppiumClient, expoURL: string) {
         console.log(`*** Opening Expo app via "Explore" button`);
         console.log(`*** Pressing "Explore" button...`);
         const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc=\"Explore\"]";
