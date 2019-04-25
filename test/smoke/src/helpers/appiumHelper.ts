@@ -103,12 +103,12 @@ export class AppiumHelper {
         };
     }
 
-    public static prepareAttachOptsForiOSApp(deviceName: string, appPath: string, platformVersion: string = SmokeTestsConstants.defaultTargetIosPlatformVersion) {
+    public static prepareAttachOptsForIosApp(deviceName: string, appPath: string) {
             return {
                 desiredCapabilities: {
                     browserName: "",
                     platformName: "iOS",
-                    platformVersion: platformVersion,
+                    platformVersion: this.getiOSPlatformVersion(),
                     deviceName: deviceName,
                     app: appPath,
                     automationName: "XCUITest",
@@ -282,6 +282,10 @@ export class AppiumHelper {
             }
             return false;
         }, SmokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
+    }
+
+    public static getiOSPlatformVersion() {
+        return process.env.IOS_VERSION || SmokeTestsConstants.defaultTargetIosPlatformVersion;
     }
 
     private static async openExpoAppViaClipboard(client: AppiumClient, expoURL: string) {

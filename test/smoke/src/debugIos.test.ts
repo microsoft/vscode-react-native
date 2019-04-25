@@ -60,7 +60,7 @@ export function setup() {
             if (!await app.workbench.debug.areStackFramesExist()) {
                 const device = <string>IosSimulatorHelper.getDevice();
                 const appPath = `${RNworkspacePath}/ios/build/${SmokeTestsConstants.RNAppName}/Build/Products/Debug-iphonesimulator/${SmokeTestsConstants.RNAppName}.app`;
-                const opts = AppiumHelper.prepareAttachOptsForiOSApp(device, appPath);
+                const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
                 let client = AppiumHelper.webdriverAttach(opts);
                 let clientInited = client.init();
                 await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS);
