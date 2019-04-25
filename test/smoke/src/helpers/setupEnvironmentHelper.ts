@@ -124,12 +124,12 @@ export class SetupEnvironmentHelper {
         // Wipe data on simulator
         await IosSimulatorHelper.eraseSimulator(device);
         console.log(`*** Executing iOS simulator with 'xcrun simctl boot "${device}"' command...`);
-        await IosSimulatorHelper.runSimulator(device);
+        await IosSimulatorHelper.bootSimulator(device);
         await sleep(15 * 1000);
     }
 
     public static async terminateiOSSimulator() {
         const device = <string>IosSimulatorHelper.getDevice();
-        await IosSimulatorHelper.terminateSimulator(device);
+        await IosSimulatorHelper.shutdownSimulator(device);
     }
 }

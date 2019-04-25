@@ -22,7 +22,7 @@ export class IosSimulatorHelper {
         return process.env.IOS_SIMULATOR;
     }
 
-    public static async runSimulator(device: string) {
+    public static async bootSimulator(device: string) {
         const cmd = "boot";
         const result = await this.runSimCtlCommand([cmd, device]);
         if (!result.Successful) {
@@ -34,7 +34,7 @@ export class IosSimulatorHelper {
         }
     }
 
-    public static async terminateSimulator(device: string) {
+    public static async shutdownSimulator(device: string) {
         const cmd = "shutdown";
         const result = await this.runSimCtlCommand([cmd, device]);
         if (!result.Successful) {
