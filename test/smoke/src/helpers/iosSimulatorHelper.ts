@@ -12,11 +12,22 @@ enum DeviceState {
 }
 
 export class IosSimulatorHelper {
+    public static getDevice(): string | undefined {
+        if (!process.env.IOS_SIMULATOR) {
+            throw new Error("Environment variable 'IOS_SIMULATOR' is not set. Exiting...");
+        }
+        return process.env.IOS_SIMULATOR;
+    }
+
     public static async runSimulator(device: string) {
         const cmd = "boot";
         const result = await this.runSimCtlCommand([cmd, device]);
         if (!result.Successful) {
-            throw this.getRunError(cmd, result.FailedState);
+            if (result.FailedState === DeviceState.Booted) {
+                // That's okay, it means simulator is already booted
+            } else {
+                throw this.getRunError(cmd, result.FailedState);
+            }
         }
     }
 
@@ -92,6 +103,6 @@ export class IosSimulatorHelper {
     }
 
     private static getRunError(command: string, failedState?: DeviceState) {
-        return new Error(`Couldn't run ${command} simulator` + (failedState) ? `, because it in ${failedState}` : "");
+        return new Error(`Couldn't run ${command} simulator` + (failedState) ? `, because it in ${failedState} state` : "");
     }
 }

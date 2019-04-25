@@ -11,3 +11,4 @@ resources/latestRNApp/**
 resources/latestExpoApp/**
 resources/pureRNExpoApp/**
 resources/.vscode-test/**
+yarn-error.log

@@ -5,9 +5,10 @@ import * as fs from "fs";
 import * as path from "path";
 import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
 import { SpectronApplication, Quality } from "./spectron/application";
-import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
+import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
+import { setup as setupReactNativeDebugiOSTests } from "./debugIos.test";
 
 async function fail(errorMessage) {
     console.error(errorMessage);
@@ -109,13 +110,13 @@ console.warn = function suppressWebdriverWarnings(message) {
     warn.apply(console, arguments);
 };
 
-const RNAppName = "latestRNApp";
-const RNworkspacePath = path.join(resourcesPath, RNAppName);
+export const RNAppName = "latestRNApp";
+export const RNworkspacePath = path.join(resourcesPath, RNAppName);
 const RNworkspaceFilePath = path.join(RNworkspacePath, "App.js");
-const ExpoAppName = "latestExpoApp";
+export const ExpoAppName = "latestExpoApp";
 export const ExpoWorkspacePath = path.join(resourcesPath, ExpoAppName);
 const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, "App.js");
-const pureRNExpoApp = "pureRNExpoApp";
+export const pureRNExpoApp = "pureRNExpoApp";
 export const pureRNWorkspacePath = path.join(resourcesPath, pureRNExpoApp);
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, "App.js");
 
@@ -152,11 +153,7 @@ async function setup(): Promise<void> {
     AppiumHelper.runAppium();
 
     if (process.platform === "darwin") {
-        await setupEnvironmentHelper.runiOSSimmulator();
-    }
-
-    if (process.platform === "darwin") {
-        await setupEnvironmentHelper.runiOSSimmulator();
+        await setupEnvironmentHelper.runiOSSimulator();
     }
 
     await setupEnvironmentHelper.runAndroidEmulator();
@@ -219,6 +216,20 @@ describe("Extension smoke tests", () => {
         }
         AppiumHelper.terminateAppium();
     });
-
-    setupReactNativeDebugAndroidTests();
+    if (process.platform === "darwin") {
+        const noSelectArgs = !process.argv.includes("--android") && !process.argv.includes("--ios");
+        if (noSelectArgs) {
+            console.log("*** Android and iOS tests will be ran");
+            setupReactNativeDebugAndroidTests();
+            setupReactNativeDebugiOSTests();
+        } else if (process.argv.includes("--android")) {
+            console.log("*** --android parameter is set, Android tests will be ran");
+            setupReactNativeDebugAndroidTests();
+        } else if (process.argv.includes("--ios")) {
+            console.log("*** --ios parameter is set, iOS tests will be ran");
+            setupReactNativeDebugiOSTests();
+        }
+    } else {
+        setupReactNativeDebugAndroidTests();
+    }
 });

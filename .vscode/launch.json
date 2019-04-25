@@ -192,7 +192,7 @@
 			"type": "node",
             "request": "launch",
             "protocol": "inspector",
-			"name": "Launch Smoke Test",
+			"name": "Launch All Smoke Tests",
 			"program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke",
             "args": [ "--dont-delete-vsix" ],
@@ -208,7 +208,45 @@
 			"type": "node",
             "request": "launch",
             "protocol": "inspector",
-			"name": "Launch Smoke Test (skip setup)",
+			"name": "Launch Android Smoke Tests",
+			"program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+            "cwd": "${workspaceFolder}/test/smoke",
+            "args": [
+                "--dont-delete-vsix",
+                "--android"
+            ],
+            "timeout": 240000,
+            "stopOnEntry": false,
+			"outFiles": [
+				"${workspaceRoot}/src/**/*.js"
+            ],
+            "sourceMaps": true,
+            "preLaunchTask": "Build Smoke Tests"
+        },
+        {
+			"type": "node",
+            "request": "launch",
+            "protocol": "inspector",
+			"name": "Launch iOS Smoke Tests",
+			"program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+            "cwd": "${workspaceFolder}/test/smoke",
+            "args": [
+                "--dont-delete-vsix",
+                "--ios"
+            ],
+            "timeout": 240000,
+            "stopOnEntry": false,
+			"outFiles": [
+				"${workspaceRoot}/src/**/*.js"
+            ],
+            "sourceMaps": true,
+            "preLaunchTask": "Build Smoke Tests"
+        },
+        {
+			"type": "node",
+            "request": "launch",
+            "protocol": "inspector",
+			"name": "Launch All Smoke Tests (skip setup)",
 			"program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke",
             "args": [
@@ -222,7 +260,47 @@
             ],
             "sourceMaps": true,
             "preLaunchTask": "Build Smoke Tests"
-		}
+		},
+        {
+			"type": "node",
+            "request": "launch",
+            "protocol": "inspector",
+			"name": "Launch Android Smoke Tests (skip setup)",
+			"program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+            "cwd": "${workspaceFolder}/test/smoke",
+            "args": [
+                "--dont-delete-vsix",
+                "--skip-setup",
+                "--android"
+            ],
+            "timeout": 240000,
+            "stopOnEntry": false,
+			"outFiles": [
+				"${workspaceRoot}/src/**/*.js"
+            ],
+            "sourceMaps": true,
+            "preLaunchTask": "Build Smoke Tests"
+		},
+        {
+			"type": "node",
+            "request": "launch",
+            "protocol": "inspector",
+			"name": "Launch iOS Smoke Tests (skip setup)",
+			"program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+            "cwd": "${workspaceFolder}/test/smoke",
+            "args": [
+                "--dont-delete-vsix",
+                "--skip-setup",
+                "--ios"
+            ],
+            "timeout": 240000,
+            "stopOnEntry": false,
+			"outFiles": [
+				"${workspaceRoot}/src/**/*.js"
+            ],
+            "sourceMaps": true,
+            "preLaunchTask": "Build Smoke Tests"
+		},
     ],
     "compounds": [
         {

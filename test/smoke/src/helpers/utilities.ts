@@ -64,3 +64,29 @@ export function spawnSync(command: string, args?: string[], options?: SpawnSyncO
         throw result.error;
     }
 }
+/**
+ * Runs array of promises in parallel. Returns array of resolved results.
+ * If any promise was rejected then the whole chain will be rejected.
+ * @param promises Array of promises to run
+ */
+export function runInParallel(promises: Promise<any>[]): Promise<any[]> {
+    return new Promise<any[]>((resolve, reject) => {
+        let total = promises.length;
+        let count = 0;
+        let results: any[] = [];
+        const saveResult = (result: any) => {
+            results.push(result);
+            ++count;
+            if (count === total) {
+                resolve(results);
+            }
+        };
+        promises.forEach((promise) => {
+            promise.then((result) => {
+                saveResult(result);
+            }).catch((e) => {
+                reject(e);
+            });
+        });
+    });
+}

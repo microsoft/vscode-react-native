@@ -3,10 +3,10 @@
 
 import { SpectronApplication } from "./spectron/application";
 import * as assert from "assert";
-import { AppiumHelper } from "./helpers/appiumHelper";
+import { AppiumHelper, Platform } from "./helpers/appiumHelper";
 import { androidEmulatorName, sleep, expoPackageName } from "./helpers/setupEnvironmentHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
+import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath } from "./main";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -29,6 +29,7 @@ export function setup() {
         it("RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
             const app = this.app as SpectronApplication;
+            await app.restart({workspaceOrFolder: RNworkspacePath});
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
@@ -42,10 +43,10 @@ export function setup() {
             await app.workbench.debug.startDebugging();
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME,
             SmokeTestsConstants.defaultTargetAndroidPlatformVersion, androidEmulatorName);
-            await AppiumHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
+            await AppiumHelper.checkIfAndroidAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = AppiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
-            await AppiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
+            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");
@@ -101,7 +102,7 @@ export function setup() {
             // TODO Add listener to trigger that child expo app has been ran instead of using timeout
             console.log(`Android Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
-            await AppiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
+            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Expo Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
@@ -156,7 +157,7 @@ export function setup() {
             await AppiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
             console.log(`Android pure RN Expo test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
-            await AppiumHelper.enableRemoteDebugJSForRNAndroid(clientInited);
+            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android pure RN Expo test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");

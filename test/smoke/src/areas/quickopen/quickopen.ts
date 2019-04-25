@@ -5,11 +5,12 @@ import { SpectronApplication } from "../../spectron/application";
 
 export class QuickOpen {
 
+    public static QUICK_OPEN = "div.monaco-quick-open-widget";
     public static QUICK_OPEN_HIDDEN = "div.monaco-quick-open-widget[aria-hidden=\"true\"]";
-    public static QUICK_OPEN = "div.monaco-quick-open-widget[aria-hidden=\"false\"]";
     public static QUICK_OPEN_INPUT = `${QuickOpen.QUICK_OPEN} .quick-open-input input`;
     public static QUICK_OPEN_FOCUSED_ELEMENT = `${QuickOpen.QUICK_OPEN} .quick-open-tree .monaco-tree-row.focused .monaco-highlighted-label`;
     public static QUICK_OPEN_ENTRY_SELECTOR = "div[aria-label=\"Quick Picker\"] .monaco-tree-rows.show-twisties .monaco-tree-row .quick-open-entry";
+    public static QUICK_OPEN_ENTRY_LABEL_SELECTOR = "div[aria-label=\"Quick Picker\"] .monaco-tree-rows.show-twisties .monaco-tree-row .quick-open-entry .label-name";
 
     constructor(readonly spectron: SpectronApplication) { }
 

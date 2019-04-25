@@ -73,6 +73,10 @@ export class Debug extends Viewlet {
         await this.spectron.client.waitAndClick(START);
     }
 
+    public async areStackFramesExist(): Promise<boolean>  {
+        return await this.spectron.webclient.isExisting(STACK_FRAME);
+    }
+
     public async waitForDebuggingToStart(): Promise<void> {
         await this.spectron.client.waitForElement(DEBUG_STATUS_BAR);
     }

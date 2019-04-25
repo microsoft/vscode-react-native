@@ -148,7 +148,7 @@ export async function installExpoAppOnAndroid(expoAppPath: string) {
     installerProcess.on("error", (error) => {
         console.log("Error occurred in expo-cli process: ", error);
     });
-    await AppiumHelper.checkIfAppIsInstalled(expoPackageName, 100 * 1000);
+    await AppiumHelper.checkIfAndroidAppIsInstalled(expoPackageName, 100 * 1000);
     kill(installerProcess.pid, "SIGINT");
     await sleep(1000);
     const drawPermitCommand = `adb -s ${androidEmulatorName} shell appops set ${expoPackageName} SYSTEM_ALERT_WINDOW allow`;
@@ -245,23 +245,19 @@ export function terminateAndroidEmulator() {
     }
 }
 
-export async function runiOSSimmulator() {
-    if (!process.env.IOS_SIMULATOR) {
-        throw new Error("Environment variable 'IOS_SIMULATOR' is not set. Exiting...");
-    }
+export async function runiOSSimulator() {
+    const device = <string>IosSimulatorHelper.getDevice();
     await terminateiOSSimulator();
     // Wipe data on simulator
-    await IosSimulatorHelper.eraseSimulator(process.env.IOS_SIMULATOR);
-    console.log(`*** Executing iOS simulator with 'xcrun simctl boot "${process.env.IOS_SIMULATOR}"' command...`);
-    await IosSimulatorHelper.runSimulator(process.env.IOS_SIMULATOR);
+    await IosSimulatorHelper.eraseSimulator(device);
+    console.log(`*** Executing iOS simulator with 'xcrun simctl boot "${device}"' command...`);
+    await IosSimulatorHelper.runSimulator(device);
     await sleep(15 * 1000);
 }
 
 export async function terminateiOSSimulator() {
-    if (!process.env.IOS_SIMULATOR) {
-        throw new Error("Environment variable 'IOS_SIMULATOR' is not set. Exiting...");
-    }
-    await IosSimulatorHelper.terminateSimulator(process.env.IOS_SIMULATOR);
+    const device = <string>IosSimulatorHelper.getDevice();
+    await IosSimulatorHelper.terminateSimulator(device);
 }
 // Await function
 export async function sleep(time: number) {
@@ -322,6 +318,23 @@ export async function getLatestSupportedRNVersionForExpo(): Promise<any> {
             }
         });
     });
+}
+
+export function addIosTargetToLaunchJson(workspacePath: string) {
+    let launchJsonPath = path.join(workspacePath, ".vscode", "launch.json");
+    console.log(`*** Implicitly adding target to "Debug iOS" config for ${launchJsonPath}`);
+    let content = JSON.parse(fs.readFileSync(launchJsonPath).toString());
+    let found = false;
+    for (let i = 0; i < content.configurations.length; i++) {
+        if (content.configurations[i].name === "Debug iOS") {
+            found = true;
+            content.configurations[i].target = IosSimulatorHelper.getDevice();
+        }
+    }
+    if (!found) {
+        throw new Error("Couldn't find \"Debug iOS\" configuration");
+    }
+    fs.writeFileSync(launchJsonPath, JSON.stringify(content, undefined, 4)); // Adds indentations
 }
 
 function getKeybindingPlatform(): string {

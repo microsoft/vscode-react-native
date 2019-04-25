@@ -5,6 +5,8 @@ export class SmokeTestsConstants {
 // Default code of android platform version which is being targeted during the tests.
 // 9 = Android Pie
 public static defaultTargetAndroidPlatformVersion = "9";
+// Default code of iOS platform version which is being targeted during the tests.
+public static defaultTargetIosPlatformVersion = "12.2";
 // Default target emulator name "emulator-" + port
 public static defaultTargetAndroidDeviceName = "emulator-5554";
 // Timeout for smoke tests setup
@@ -17,6 +19,8 @@ public static spectronElementResponseTimeout = 250;
 public static enableRemoteJSTimeout = 50 * 1000;
 // Timeout for Android app to build and to install
 public static androidAppBuildAndInstallTimeout = 300 * 1000;
+// Timeout for iOS app to build and to install
+public static iosAppBuildAndInstallTimeout = 600 * 1000;
 // Timeout for Expo app to execute
 public static expoAppBuildAndInstallTimeout = 60 * 1000;
 }
