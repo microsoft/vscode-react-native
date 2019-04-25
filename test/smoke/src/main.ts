@@ -30,11 +30,14 @@ if (parseInt(process.version.substr(1), 10) < 8) {
     fail("Please update your Node version to greater than 8 to run the smoke test.");
 }
 
-function getBuildElectronPath(root: string): string {
-
+function getBuildElectronPath(root: string, isInsiders: boolean): string {
     switch (process.platform) {
         case "darwin":
-            return path.join(root, "Visual Studio Code.app", "Contents", "MacOS", "Electron");
+            return isInsiders
+            ?
+            path.join(root, "Visual Studio Code - Insiders.app", "Contents", "MacOS", "Electron")
+            :
+            path.join(root, "Visual Studio Code.app", "Contents", "MacOS", "Electron");
         case "linux": {
             const product = require(path.join(root, "VSCode-linux-x64", "resources", "app", "product.json"));
             return path.join(root, "VSCode-linux-x64", product.applicationName);
@@ -119,8 +122,8 @@ const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.A
 export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.pureRNExpoApp);
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
 
-const artifactsPath = path.join(repoRoot, SmokeTestsConstants.artifactsDir);
-const userDataDir = path.join(artifactsPath, SmokeTestsConstants.VSCodeUserDataDir);
+export const artifactsPath = path.join(repoRoot, SmokeTestsConstants.artifactsDir);
+const userDataDir = path.join(testVSCodeDirectory, SmokeTestsConstants.VSCodeUserDataDir);
 
 const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 
@@ -165,7 +168,7 @@ async function setup(): Promise<void> {
     await AndroidEmulatorHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
     await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);
 
-    electronExecutablePath = getBuildElectronPath(testVSCodeDirectory);
+    electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
     if (!fs.existsSync(testVSCodeDirectory || "")) {
         await fail(`Can't find VS Code executable at ${testVSCodeDirectory}.`);
     }
@@ -184,7 +187,7 @@ before(async function () {
     if (process.argv.includes("--skip-setup")) {
         console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
         // Assume that VS Code is already installed
-        electronExecutablePath = getBuildElectronPath(testVSCodeDirectory);
+        electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
         return;
     }
     this.timeout(SmokeTestsConstants.smokeTestSetupAwaitTimeout);
