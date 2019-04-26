@@ -18,7 +18,7 @@ async function fail(errorMessage) {
     AndroidEmulatorHelper.terminateAndroidEmulator();
     if (process.platform === "darwin") {
         try {
-            await SetupEnvironmentHelper.terminateiOSSimulator();
+            await SetupEnvironmentHelper.terminateIosSimulator();
         } catch (e) {
             console.error(e);
         }
@@ -131,7 +131,7 @@ const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
 
-function createApp(quality: Quality): SpectronApplication | null {
+function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplication | null {
 
     if (!electronExecutablePath) {
         return null;
@@ -141,11 +141,11 @@ function createApp(quality: Quality): SpectronApplication | null {
     return new SpectronApplication({
         quality,
         electronPath: electronExecutablePath,
-        workspacePath: RNworkspacePath,
+        workspacePath: workspaceOrFolder,
         userDataDir,
         extensionsPath,
         artifactsPath,
-        workspaceFilePath: RNworkspaceFilePath,
+        workspaceFilePath: "",
         waitTime:  SmokeTestsConstants.spectronElementResponseTimeout,
     });
 }
@@ -156,7 +156,7 @@ async function setup(): Promise<void> {
     AppiumHelper.runAppium();
 
     if (process.platform === "darwin") {
-        await SetupEnvironmentHelper.runiOSSimulator();
+        await SetupEnvironmentHelper.runIosSimulator();
     }
 
     await AndroidEmulatorHelper.runAndroidEmulator();
@@ -184,6 +184,12 @@ async function setup(): Promise<void> {
     console.log("*** Smoke tests setup done!\n");
 }
 
+export async function runVSCode(workspaceOrFolder: string): Promise<SpectronApplication> {
+    const app = createApp(quality, workspaceOrFolder);
+    await app!.start();
+    return app!;
+}
+
 before(async function () {
     if (process.argv.includes("--skip-setup")) {
         console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
@@ -201,18 +207,11 @@ before(async function () {
 });
 
 describe("Extension smoke tests", () => {
-    before(async function () {
-        const app = createApp(quality);
-        await app!.start();
-        this.app = app;
-    });
-
     after(async function () {
-        await this.app.stop();
         AndroidEmulatorHelper.terminateAndroidEmulator();
         if (process.platform === "darwin") {
             try {
-                await SetupEnvironmentHelper.terminateiOSSimulator();
+                await SetupEnvironmentHelper.terminateIosSimulator();
             } catch (e) {
                 console.error(e);
             }

@@ -135,9 +135,9 @@ export class SetupEnvironmentHelper {
         fs.writeFileSync(launchJsonPath, JSON.stringify(content, undefined, 4)); // Adds indentations
     }
 
-    public static async runiOSSimulator() {
+    public static async runIosSimulator() {
         const device = <string>IosSimulatorHelper.getDevice();
-        await this.terminateiOSSimulator();
+        await this.terminateIosSimulator();
         // Wipe data on simulator
         await IosSimulatorHelper.eraseSimulator(device);
         console.log(`*** Executing iOS simulator with 'xcrun simctl boot "${device}"' command...`);
@@ -145,7 +145,7 @@ export class SetupEnvironmentHelper {
         await sleep(15 * 1000);
     }
 
-    public static async terminateiOSSimulator() {
+    public static async terminateIosSimulator() {
         const device = <string>IosSimulatorHelper.getDevice();
         await IosSimulatorHelper.shutdownSimulator(device);
     }

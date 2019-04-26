@@ -5,7 +5,7 @@ import { SpectronApplication } from "./spectron/application";
 import * as assert from "assert";
 import { AppiumHelper, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { RNworkspacePath } from "./main";
+import { RNworkspacePath, runVSCode } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
 import { Client, RawResult } from "webdriverio";
 import { sleep } from "./helpers/utilities";
@@ -20,13 +20,11 @@ const debugIosTestTime = SmokeTestsConstants.iosAppBuildAndInstallTimeout + 100 
 // const debugExpoTestTime = smokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
 export function setup() {
     describe("Debugging iOS", () => {
+        let app: SpectronApplication;
         let clientInited: Client<RawResult<null>> & RawResult<null>;
-        before(async function () {
-            const app = this.app as SpectronApplication;
-            app.suiteName = "Debugging iOS";
-        });
 
-        afterEach(() => {
+        afterEach(async () => {
+            await app.stop();
             if (clientInited) {
                 clientInited.closeApp();
                 clientInited.endAll();
@@ -35,7 +33,7 @@ export function setup() {
 
         it("RN app Debug test", async function () {
             this.timeout(debugIosTestTime);
-            const app = this.app as SpectronApplication;
+            app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
