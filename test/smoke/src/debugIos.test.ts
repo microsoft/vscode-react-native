@@ -8,7 +8,7 @@ import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { RNworkspacePath } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
 import { Client, RawResult } from "webdriverio";
-import { sleep, runInParallel } from "./helpers/utilities";
+import { sleep } from "./helpers/utilities";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 
 const RN_APP_BUNDLE_ID = "org.reactjs.native.example.latestRNApp";
@@ -26,7 +26,7 @@ export function setup() {
             app.suiteName = "Debugging iOS";
         });
 
-        after(() => {
+        afterEach(() => {
             if (clientInited) {
                 clientInited.closeApp();
                 clientInited.endAll();
@@ -36,7 +36,6 @@ export function setup() {
         it("RN app Debug test", async function () {
             this.timeout(debugIosTestTime);
             const app = this.app as SpectronApplication;
-            await app.restart({workspaceOrFolder: RNworkspacePath});
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
@@ -48,14 +47,9 @@ export function setup() {
             console.log(`iOS Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
             SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
-            const waitUntilIosAppIsInstalled = AppiumHelper.waitUntilIosAppIsInstalled(RN_APP_BUNDLE_ID, SmokeTestsConstants.iosAppBuildAndInstallTimeout, 40 * 1000);
-            const startDebugging = async () => {
-                console.log("iOS Debug test: Starting debugging");
-                await app.workbench.debug.startDebugging();
-            };
-            // We run these in parallel to avoid race condition
-            await runInParallel([waitUntilIosAppIsInstalled, startDebugging()]);
-
+            console.log("iOS Debug test: Starting debugging");
+            await app.workbench.debug.startDebugging();
+            await AppiumHelper.waitUntilIosAppIsInstalled(RN_APP_BUNDLE_ID, SmokeTestsConstants.iosAppBuildAndInstallTimeout, 40 * 1000);
             // Sometimes by this moment iOS app already have remote js debugging enabled so we don't need to enable it manually
             if (!await app.workbench.debug.areStackFramesExist()) {
                 const device = <string>IosSimulatorHelper.getDevice();

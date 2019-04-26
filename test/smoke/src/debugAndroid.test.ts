@@ -7,7 +7,7 @@ import { AppiumHelper, Platform } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath } from "./main";
+import { ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -30,7 +30,6 @@ export function setup() {
         it("RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
             const app = this.app as SpectronApplication;
-            await app.restart({workspaceOrFolder: RNworkspacePath});
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
