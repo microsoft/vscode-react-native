@@ -224,8 +224,8 @@ export class AppiumHelper {
     /**
      * Enables RN Dev Menu on native app
      * See https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu
-     * @param client
-     * @param platform
+     * @param client - Initialized Appium client
+     * @param platform - Android or iOS
      */
     public static async callRNDevMenu(client: AppiumClient, platform: Platform) {
         switch (platform) {
