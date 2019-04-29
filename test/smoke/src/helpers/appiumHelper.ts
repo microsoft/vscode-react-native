@@ -11,7 +11,7 @@ import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
 import { sleep } from "./utilities";
 let appiumProcess: null | cp.ChildProcess;
-type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
+export type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
 export enum Platform {
     Android,
     iOS,

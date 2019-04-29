@@ -3,11 +3,10 @@
 
 import { SpectronApplication } from "./spectron/application";
 import * as assert from "assert";
-import { AppiumHelper, Platform } from "./helpers/appiumHelper";
+import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { RNworkspacePath, runVSCode } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
-import { Client, RawResult } from "webdriverio";
 import { sleep } from "./helpers/utilities";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 
@@ -18,10 +17,11 @@ const RNDebugConfigName = "Debug iOS";
 const debugIosTestTime = SmokeTestsConstants.iosAppBuildAndInstallTimeout + 100 * 1000;
 // Time for iOS Expo Debug Test before it reaches timeout
 // const debugExpoTestTime = smokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
+
 export function setup() {
     describe("Debugging iOS", () => {
         let app: SpectronApplication;
-        let clientInited: Client<RawResult<null>> & RawResult<null>;
+        let clientInited: AppiumClient;
 
         afterEach(async () => {
             await app.stop();

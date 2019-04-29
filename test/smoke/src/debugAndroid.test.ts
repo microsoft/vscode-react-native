@@ -3,12 +3,11 @@
 
 import { SpectronApplication } from "./spectron/application";
 import * as assert from "assert";
-import { AppiumHelper, Platform } from "./helpers/appiumHelper";
+import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, runVSCode } from "./main";
-import { Client, RawResult } from "webdriverio";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -24,7 +23,7 @@ const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 40
 export function setup() {
     describe("Debugging Android", () => {
         let app: SpectronApplication;
-        let clientInited: Client<RawResult<null>> & RawResult<null>;
+        let clientInited: AppiumClient;
 
         afterEach(async () => {
             await app.stop();
