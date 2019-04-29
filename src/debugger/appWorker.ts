@@ -63,7 +63,7 @@ Object.defineProperty(process, "versions", {
 function getNativeModules() {
     var NativeModules;
     try {
-        // This method for old RN versions
+        // This approach is for old RN versions
         NativeModules = global.require('NativeModules');
     } catch (err) {
         // ignore error and try another way for more recent RN versions
@@ -75,13 +75,13 @@ function getNativeModules() {
               if (modules[i].verboseName) {
                  var packagePath = new String(modules[i].verboseName);
                  if (packagePath.indexOf("react-native/Libraries/BatchedBridge/NativeModules.js") > 0) {
-                   nativeModuleId  = parseInt(i, 10);
+                   nativeModuleId = parseInt(i, 10);
                    break;
                  }
               }
             }
           if (nativeModuleId) {
-            NativeModules = global.__r(nativeModuleId)
+            NativeModules = global.__r(nativeModuleId);
           }
         }
         catch (err) {
@@ -91,6 +91,7 @@ function getNativeModules() {
     return NativeModules;
 }
 
+// Originally, this was made for iOS only
 var vscodeHandlers = {
     'vscode_reloadApp': function () {
         var NativeModules = getNativeModules();
