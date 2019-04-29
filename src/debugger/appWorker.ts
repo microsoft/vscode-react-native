@@ -69,13 +69,13 @@ function getNativeModules() {
         // ignore error and try another way for more recent RN versions
         try {
             var nativeModuleId;
-            var modules = Object.entries(global.__r.getModules());
-            for (var i = 0; i < modules.length; i++) {
-              var [id, module] = modules[i];
-              if (module.verboseName) {
-                 var packagePath = new String(module.verboseName);
-                 if (packagePath.indexOf("NativeModules.js") > 0) {
-                   nativeModuleId  = parseInt(id, 10);
+            var modules = global.__r.getModules();
+            var ids = Object.keys(modules);
+            for (var i = 0; i < ids.length; i++) {
+              if (modules[i].verboseName) {
+                 var packagePath = new String(modules[i].verboseName);
+                 if (packagePath.indexOf("/NativeModules.js") > 0) {
+                   nativeModuleId  = parseInt(i, 10);
                    break;
                  }
               }
