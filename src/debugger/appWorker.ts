@@ -74,7 +74,7 @@ function getNativeModules() {
             for (var i = 0; i < ids.length; i++) {
               if (modules[i].verboseName) {
                  var packagePath = new String(modules[i].verboseName);
-                 if (packagePath.indexOf("/NativeModules.js") > 0) {
+                 if (packagePath.indexOf("react-native/Libraries/BatchedBridge/NativeModules.js") > 0) {
                    nativeModuleId  = parseInt(i, 10);
                    break;
                  }
