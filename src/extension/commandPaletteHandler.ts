@@ -199,9 +199,9 @@ export class CommandPaletteHandler {
                     .catch(() => { }); // Ignore any errors
 
                 if (process.platform === "darwin") {
-                const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
-                iosPlatform.showDevMenu()
-                    .catch(() => { }); // Ignore any errors
+                    const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
+                    iosPlatform.showDevMenu()
+                        .catch(() => { }); // Ignore any errors
                 }
                 return Q.resolve(void 0);
             });
