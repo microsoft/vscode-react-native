@@ -8,16 +8,42 @@ import * as mkdirp from "mkdirp";
 import * as kill from "tree-kill";
 import * as clipboardy from "clipboardy";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
+import { IosSimulatorHelper } from "./iosSimulatorHelper";
 import { sleep } from "./utilities";
 let appiumProcess: null | cp.ChildProcess;
 type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
+export enum Platform {
+    Android,
+    iOS,
+}
+type XPathSelector = { [TKey in Platform]: string };
+type XPathSelectors = { [key: string]: XPathSelector };
+
 
 export class AppiumHelper {
-    // Android UI elements
-    public static RN_RELOAD_BUTTON = "//*[@text='Reload']";
-    public static RN_ENABLE_REMOTE_DEBUGGING_BUTTON = "//*[@text='Debug JS Remotely']";
-    public static RN_STOP_REMOTE_DEBUGGING_BUTTON = "//*[@text='Stop Remote JS Debugging']";
-    public static EXPO_ELEMENT_LOAD_TRIGGER = "//*[@text='Home']";
+    // Paths for searching UI elements
+    public static XPATH: XPathSelectors = {
+        RN_RELOAD_BUTTON: {
+            [Platform.Android]: "//*[@text='Reload']",
+            [Platform.iOS]: "//XCUIElementTypeButton[@name='Reload']",
+        },
+        RN_ENABLE_REMOTE_DEBUGGING_BUTTON: {
+            [Platform.Android]:  "//*[@text='Debug JS Remotely']",
+            [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely']",
+        },
+        RN_STOP_REMOTE_DEBUGGING_BUTTON: {
+            [Platform.Android]: "//*[@text='Stop Remote JS Debugging']",
+            [Platform.iOS]: "//XCUIElementTypeButton[@name='Stop Remote JS Debugging']",
+        },
+        RN_DEV_MENU_CANCEL: {
+            [Platform.Android]: "//*[@text='Cancel']",
+            [Platform.iOS]: "//XCUIElementTypeButton[@name='Cancel']",
+        },
+        EXPO_ELEMENT_LOAD_TRIGGER: {
+            [Platform.Android]: "//*[@text='Home']",
+            [Platform.iOS]: "", // todo
+        },
+    };
 
     public static runAppium() {
         const appiumLogFolder = path.join(__dirname, "..", "..", "..", "..", SmokeTestsConstants.artifactsDir);
@@ -77,10 +103,110 @@ export class AppiumHelper {
         };
     }
 
+    public static prepareAttachOptsForIosApp(deviceName: string, appPath: string) {
+            return {
+                desiredCapabilities: {
+                    browserName: "",
+                    platformName: "iOS",
+                    platformVersion: this.getiOSPlatformVersion(),
+                    deviceName: deviceName,
+                    app: appPath,
+                    automationName: "XCUITest",
+                    newCommandTimeout: 150,
+                },
+                port: 4723,
+                host: "localhost",
+            };
+        }
 
     public static webdriverAttach(attachArgs: any) {
         // Connect to the emulator with predefined opts
         return wdio.remote(attachArgs);
+    }
+
+    // Check if appPackage is installed on Android device for waitTime ms
+    public static async checkIfAndroidAppIsInstalled(appPackage: string, waitTime: number, waitInitTime?: number) {
+        let awaitRetries: number = waitTime / 1000;
+        let retry = 1;
+        await new Promise((resolve, reject) => {
+            let check = setInterval(async () => {
+                if (retry % 5 === 0) {
+                    console.log(`*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${retry} time`);
+                }
+                let result;
+                try {
+                    result = cp.execSync(`adb shell pm list packages ${appPackage}`).toString().trim();
+                } catch (e) {
+                    clearInterval(check);
+                    reject(`Error occured while check app is installed:\n ${e}`);
+                }
+                if (result) {
+                    clearInterval(check);
+                    const initTimeout = waitInitTime || 10000;
+                    console.log(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`);
+                    await sleep(initTimeout);
+                    resolve();
+                } else {
+                    retry++;
+                    if (retry >= awaitRetries) {
+                        clearInterval(check);
+                        reject(`${appPackage} not found after ${waitTime}ms`);
+                    }
+                }
+            }, 1000);
+        });
+    }
+
+    public static async waitUntilIosAppIsInstalled(appBundleId: string, waitTime: number, waitInitTime?: number) {
+        // Start watcher for launch events console logs in simulator and wait until needed app is launched
+        // TODO is not compatible with parallel test run (race condition)
+        let launched = false;
+        const predicate = `eventMessage contains "Launch successful for '${appBundleId}'"`;
+        const args = ["simctl", "spawn", <string>IosSimulatorHelper.getDevice(), "log", "stream", "--predicate", predicate];
+        const proc = cp.spawn("xcrun", args, {stdio: "pipe"});
+        proc.stdout.on("data", (data: string) => {
+            data = data.toString();
+            console.log(data);
+            if (data.startsWith("Filtering the log data")) {
+                return;
+            }
+            const regexp = new RegExp(`Launch successful for '${appBundleId}'`);
+            if (regexp.test(data)) {
+                launched = true;
+            }
+        });
+        proc.stderr.on("error", (data: string) => {
+            console.error(data.toString());
+        });
+        proc.on("error", (err) => {
+            console.error(err);
+            kill(proc.pid);
+        });
+
+        let awaitRetries: number = waitTime / 1000;
+        let retry = 1;
+        await new Promise((resolve, reject) => {
+            const check = setInterval(async () => {
+                if (retry % 5 === 0) {
+                    console.log(`*** Check if app with bundleId ${appBundleId} is installed, ${retry} attempt`);
+                }
+                if (launched) {
+                    clearInterval(check);
+                    const initTimeout = waitInitTime || 10000;
+                    console.log(`*** Installed ${appBundleId} app found, await ${initTimeout}ms for initializing...`);
+                    await sleep(initTimeout);
+                    resolve();
+                } else {
+                    retry++;
+                    if (retry >= awaitRetries) {
+                        clearInterval(check);
+                        kill(proc.pid, () => {
+                            reject(`${appBundleId} not found after ${waitTime}ms`);
+                        });
+                    }
+                }
+            }, 1000);
+        });
     }
 
     public static async openExpoApplicationAndroid(client: AppiumClient, expoURL: string) {
@@ -95,22 +221,37 @@ export class AppiumHelper {
         }
     }
 
-    public static async callRNDevMenuAndroid() {
-            // This command enables RN Dev Menu
-            // https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu
-            const devMenuCallCommand = "adb shell input keyevent 82";
-            cp.exec(devMenuCallCommand);
-            await sleep(10 * 1000);
+    /**
+     * Enables RN Dev Menu on native app
+     * @see https://facebook.github.io/react-native/docs/debugging#accessing-the-in-app-developer-menu
+     * @param client - Initialized Appium client
+     * @param platform - Android or iOS
+     */
+    public static async callRNDevMenu(client: AppiumClient, platform: Platform) {
+        switch (platform) {
+            case Platform.Android:
+                const devMenuCallCommand = "adb shell input keyevent 82";
+                cp.exec(devMenuCallCommand);
+                await sleep(10 * 1000);
+                break;
+            case Platform.iOS:
+                // Sending Cmd+D doesn't work sometimes but shake gesture works flawlessly
+                client.shake();
+                await sleep(2 * 1000);
+                break;
+            default:
+                throw new Error("Unknown platform");
+        }
     }
 
-    public static async reloadRNAppAndroid(client: AppiumClient) {
+    public static async reloadRNApp(client: AppiumClient, platform: Platform) {
         console.log("*** Reloading React Native application with DevMenu...");
         await client
         .waitUntil(async () => {
-            await this.callRNDevMenuAndroid();
-            if (client.isExisting(this.RN_RELOAD_BUTTON)) {
+            await this.callRNDevMenu(client, platform);
+            if (await client.isExisting(this.XPATH.RN_RELOAD_BUTTON[platform])) {
                 console.log("*** Reload button found...");
-                client.click(this.RN_RELOAD_BUTTON);
+                await client.click(this.XPATH.RN_RELOAD_BUTTON[platform]);
                 console.log("*** Reload button clicked...");
                 return true;
             }
@@ -118,22 +259,33 @@ export class AppiumHelper {
         }, SmokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
     }
 
-    public static async enableRemoteDebugJSForRNAndroid(client: AppiumClient) {
+    public static async enableRemoteDebugJS(client: AppiumClient, platform: Platform) {
         console.log("*** Enabling Remote JS Debugging for application with DevMenu...");
         await client
         .waitUntil(async () => {
-            await this.callRNDevMenuAndroid();
-            if (client.isExisting(this.RN_ENABLE_REMOTE_DEBUGGING_BUTTON)) {
+            await this.callRNDevMenu(client, platform);
+            if (await client.isExisting(this.XPATH.RN_ENABLE_REMOTE_DEBUGGING_BUTTON[platform])) {
                 console.log("*** Debug JS Remotely button found...");
-                client.click(this.RN_ENABLE_REMOTE_DEBUGGING_BUTTON);
+                await client.click(this.XPATH.RN_ENABLE_REMOTE_DEBUGGING_BUTTON[platform]);
                 console.log("*** Debug JS Remotely button clicked...");
                 return true;
-            } else if (client.isExisting(this.RN_STOP_REMOTE_DEBUGGING_BUTTON)) {
-                console.log("*** Stop Remote JS Debugging button found...");
-                return true;
+            } else if (await client.isExisting(this.XPATH.RN_STOP_REMOTE_DEBUGGING_BUTTON[platform])) {
+                console.log("*** Stop Remote JS Debugging button found, closing Dev Menu...");
+                if (await client.isExisting(this.XPATH.RN_DEV_MENU_CANCEL[platform])) {
+                    console.log("*** Cancel button found...");
+                    await client.click(this.XPATH.RN_DEV_MENU_CANCEL[platform]);
+                    console.log("*** Cancel button clicked...");
+                    return true;
+                } else {
+                    return false;
+                }
             }
             return false;
         }, SmokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
+    }
+
+    public static getiOSPlatformVersion() {
+        return process.env.IOS_VERSION || SmokeTestsConstants.defaultTargetIosPlatformVersion;
     }
 
     private static async openExpoAppViaClipboard(client: AppiumClient, expoURL: string) {

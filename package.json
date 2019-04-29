@@ -520,6 +520,7 @@
 		"extract-opts": "2.2.0",
 		"flatten-source-map": "0.0.2",
 		"glob": "^7.1.2",
+		"mkdirp": "^0.5.1",
 		"noice-json-rpc": "^1.0.2",
 		"options": "0.0.6",
 		"q": "1.4.1",
@@ -538,6 +539,7 @@
 		"ws": "^3.2.0"
 	},
 	"devDependencies": {
+		"@types/mkdirp": "^0.5.2",
 		"@types/mocha": "^2.2.40",
 		"@types/mock-fs": "^3.6.30",
 		"@types/node": "^10.14.4",

@@ -3,11 +3,12 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import * as setupEnvironmentHelper from "./helpers/setupEnvironmentHelper";
+
 import { SpectronApplication, Quality } from "./spectron/application";
-import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
+import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
+import { setup as setupReactNativeDebugiOSTests } from "./debugIos.test";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
@@ -17,7 +18,7 @@ async function fail(errorMessage) {
     AndroidEmulatorHelper.terminateAndroidEmulator();
     if (process.platform === "darwin") {
         try {
-            await setupEnvironmentHelper.terminateiOSSimulator();
+            await SetupEnvironmentHelper.terminateIosSimulator();
         } catch (e) {
             console.error(e);
         }
@@ -115,7 +116,7 @@ console.warn = function suppressWebdriverWarnings(message) {
     warn.apply(console, arguments);
 };
 
-const RNworkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNAppName);
+export const RNworkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNAppName);
 const RNworkspaceFilePath = path.join(RNworkspacePath, SmokeTestsConstants.AppjsFileName);
 export const ExpoWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.ExpoAppName);
 const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.AppjsFileName);
@@ -130,7 +131,7 @@ const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
 
-function createApp(quality: Quality): SpectronApplication | null {
+function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplication | null {
 
     if (!electronExecutablePath) {
         return null;
@@ -140,11 +141,11 @@ function createApp(quality: Quality): SpectronApplication | null {
     return new SpectronApplication({
         quality,
         electronPath: electronExecutablePath,
-        workspacePath: RNworkspacePath,
+        workspacePath: workspaceOrFolder,
         userDataDir,
         extensionsPath,
         artifactsPath,
-        workspaceFilePath: RNworkspaceFilePath,
+        workspaceFilePath: "",
         waitTime:  SmokeTestsConstants.spectronElementResponseTimeout,
     });
 }
@@ -155,7 +156,7 @@ async function setup(): Promise<void> {
     AppiumHelper.runAppium();
 
     if (process.platform === "darwin") {
-        await setupEnvironmentHelper.runiOSSimmulator();
+        await SetupEnvironmentHelper.runIosSimulator();
     }
 
     await AndroidEmulatorHelper.runAndroidEmulator();
@@ -183,6 +184,12 @@ async function setup(): Promise<void> {
     console.log("*** Smoke tests setup done!\n");
 }
 
+export async function runVSCode(workspaceOrFolder: string): Promise<SpectronApplication> {
+    const app = createApp(quality, workspaceOrFolder);
+    await app!.start();
+    return app!;
+}
+
 before(async function () {
     if (process.argv.includes("--skip-setup")) {
         console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
@@ -200,24 +207,31 @@ before(async function () {
 });
 
 describe("Extension smoke tests", () => {
-    before(async function () {
-        const app = createApp(quality);
-        await app!.start();
-        this.app = app;
-    });
-
     after(async function () {
-        await this.app.stop();
         AndroidEmulatorHelper.terminateAndroidEmulator();
         if (process.platform === "darwin") {
             try {
-                await setupEnvironmentHelper.terminateiOSSimulator();
+                await SetupEnvironmentHelper.terminateIosSimulator();
             } catch (e) {
                 console.error(e);
             }
         }
         AppiumHelper.terminateAppium();
     });
-
-    setupReactNativeDebugAndroidTests();
+    if (process.platform === "darwin") {
+        const noSelectArgs = !process.argv.includes("--android") && !process.argv.includes("--ios");
+        if (noSelectArgs) {
+            console.log("*** Android and iOS tests will be ran");
+            setupReactNativeDebugAndroidTests();
+            setupReactNativeDebugiOSTests();
+        } else if (process.argv.includes("--android")) {
+            console.log("*** --android parameter is set, Android tests will be ran");
+            setupReactNativeDebugAndroidTests();
+        } else if (process.argv.includes("--ios")) {
+            console.log("*** --ios parameter is set, iOS tests will be ran");
+            setupReactNativeDebugiOSTests();
+        }
+    } else {
+        setupReactNativeDebugAndroidTests();
+    }
 });

@@ -117,26 +117,36 @@ export class SetupEnvironmentHelper {
             });
         });
     }
-}
 
-export async function runiOSSimmulator() {
-    if (!process.env.IOS_SIMULATOR) {
-        throw new Error("Environment variable 'IOS_SIMULATOR' is not set. Exiting...");
+    public static addIosTargetToLaunchJson(workspacePath: string) {
+        let launchJsonPath = path.join(workspacePath, ".vscode", "launch.json");
+        console.log(`*** Implicitly adding target to "Debug iOS" config for ${launchJsonPath}`);
+        let content = JSON.parse(fs.readFileSync(launchJsonPath).toString());
+        let found = false;
+        for (let i = 0; i < content.configurations.length; i++) {
+            if (content.configurations[i].name === "Debug iOS") {
+                found = true;
+                content.configurations[i].target = IosSimulatorHelper.getDevice();
+            }
+        }
+        if (!found) {
+            throw new Error("Couldn't find \"Debug iOS\" configuration");
+        }
+        fs.writeFileSync(launchJsonPath, JSON.stringify(content, undefined, 4)); // Adds indentations
     }
-    await terminateiOSSimulator();
-    // Wipe data on simulator
-    await IosSimulatorHelper.eraseSimulator(process.env.IOS_SIMULATOR);
-    console.log(`*** Executing iOS simulator with 'xcrun simctl boot "${process.env.IOS_SIMULATOR}"' command...`);
-    await IosSimulatorHelper.runSimulator(process.env.IOS_SIMULATOR);
-    await sleep(15 * 1000);
-}
 
-export async function terminateiOSSimulator() {
-    if (!process.env.IOS_SIMULATOR) {
-        throw new Error("Environment variable 'IOS_SIMULATOR' is not set. Exiting...");
+    public static async runIosSimulator() {
+        const device = <string>IosSimulatorHelper.getDevice();
+        await this.terminateIosSimulator();
+        // Wipe data on simulator
+        await IosSimulatorHelper.eraseSimulator(device);
+        console.log(`*** Executing iOS simulator with 'xcrun simctl boot "${device}"' command...`);
+        await IosSimulatorHelper.bootSimulator(device);
+        await sleep(15 * 1000);
     }
-    await IosSimulatorHelper.terminateSimulator(process.env.IOS_SIMULATOR);
+
+    public static async terminateIosSimulator() {
+        const device = <string>IosSimulatorHelper.getDevice();
+        await IosSimulatorHelper.shutdownSimulator(device);
+    }
 }
-
-
-
