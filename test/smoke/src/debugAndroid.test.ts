@@ -8,6 +8,7 @@ import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, runVSCode } from "./main";
+import { Client, RawResult } from "webdriverio";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -23,9 +24,14 @@ const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 40
 export function setup() {
     describe("Debugging Android", () => {
         let app: SpectronApplication;
+        let clientInited: Client<RawResult<null>> & RawResult<null>;
 
         afterEach(async () => {
             await app.stop();
+            if (clientInited) {
+                clientInited.closeApp();
+                clientInited.endAll();
+            }
         });
 
         it("RN app Debug test", async function () {
@@ -45,7 +51,7 @@ export function setup() {
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = AppiumHelper.webdriverAttach(opts);
-            let clientInited = client.init();
+            clientInited = client.init();
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Debug test: Debugging started");
@@ -60,8 +66,6 @@ export function setup() {
             console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("Android Debug test: Debugging is stopped");
-            clientInited.closeApp();
-            clientInited.endAll();
         });
 
         it("Expo app Debug test", async function () {
@@ -94,7 +98,7 @@ export function setup() {
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
-            let clientInited = client.init();
+            clientInited = client.init();
             // TODO Add listener to trigger that main expo app has been ran
             await AppiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
             // TODO Add listener to trigger that child expo app has been ran instead of using timeout
@@ -115,8 +119,6 @@ export function setup() {
             console.log("Android Expo Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("Android Expo Debug test: Debugging is stopped");
-            clientInited.closeApp();
-            clientInited.endAll();
         });
 
         it("Pure RN app Expo test", async function () {
@@ -149,7 +151,7 @@ export function setup() {
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
-            let clientInited = client.init();
+            clientInited = client.init();
             await AppiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
             console.log(`Android pure RN Expo test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
@@ -167,8 +169,6 @@ export function setup() {
             console.log("Android pure RN Expo test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("Android pure RN Expo test: Debugging is stopped");
-            clientInited.closeApp();
-            clientInited.endAll();
         });
     });
 }
