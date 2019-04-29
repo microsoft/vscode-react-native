@@ -60,19 +60,48 @@ Object.defineProperty(process, "versions", {
     value: undefined
 });
 
+function getNativeModules() {
+    var NativeModules;
+    try {
+        // This method for old RN versions
+        NativeModules = global.require('NativeModules').DevMenu.reload();
+    } catch (err) {
+        // ignore error and try another way for more recent RN versions
+        try {
+            var nativeModuleId;
+            var modules = Object.entries(global.__r.getModules());
+            for (var i = 0; i < modules.length; i++) {
+              var [id, module] = modules[i];
+              if (module.verboseName) {
+                 var packagePath = new String(module.verboseName);
+                 if (packagePath.indexOf("NativeModules.js") > 0) {
+                   nativeModuleId  = parseInt(id, 10);
+                   break;
+                 }
+              }
+            }
+          if (nativeModuleId) {
+            NativeModules = global.__r(nativeModuleId)
+          }
+        }
+        catch (err) {
+            // suppress errors
+        }
+    }
+    return NativeModules;
+}
+
 var vscodeHandlers = {
     'vscode_reloadApp': function () {
-        try {
-            global.require('NativeModules').DevMenu.reload();
-        } catch (err) {
-            // ignore
+        var NativeModules = getNativeModules();
+        if (NativeModules) {
+            NativeModules.DevMenu.reload();
         }
     },
     'vscode_showDevMenu': function () {
-        try {
-            var DevMenu = global.require('NativeModules').DevMenu.show();
-        } catch (err) {
-            // ignore
+        var NativeModules = getNativeModules();
+        if (NativeModules) {
+            NativeModules.DevMenu.show();
         }
     }
 };
