@@ -5,6 +5,7 @@ import * as Q from "q";
 import * as path from "path";
 import * as url from "url";
 import * as child_process from "child_process";
+import * as fs from "fs";
 import {ScriptImporter, DownloadedScript}  from "./scriptImporter";
 
 import { logger } from "vscode-chrome-debug-core";
@@ -12,6 +13,7 @@ import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 import { RemoteExtension } from "../common/remoteExtension";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { getLoggingDirectory } from "../extension/log/LogHelper";
 
 function printDebuggingError(error: Error, reason: any) {
     const nestedError = ErrorHelper.getNestedError(error, InternalErrorCode.DebuggingWontWorkReloadJSAndReconnect, reason);
@@ -34,6 +36,8 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     protected workerLoaded = Q.defer<void>();
     private bundleLoaded: Q.Deferred<void>;
     private remoteExtension: RemoteExtension;
+    private logWriteStream: fs.WriteStream;
+    private logDirectory: string | null;
 
     constructor(
         private packagerAddress: string,
@@ -98,6 +102,21 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         .on("error", (error: Error) => {
             printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWorkerProcessThrownAnError), error);
         });
+
+        // If special env variables are defined, then write process outputs to file
+        this.logDirectory = getLoggingDirectory();
+
+        if (this.logDirectory) {
+            this.logWriteStream = fs.createWriteStream(path.join(this.logDirectory, "nodeProcessLog.txt"));
+            this.logWriteStream.on("error", err => {
+                logger.error(`Error creating log file at path: ${this.logDirectory}. Error: ${err.toString()}\n`);
+            });
+            this.debuggeeProcess.stdout.pipe(this.logWriteStream);
+            this.debuggeeProcess.stderr.pipe(this.logWriteStream);
+            this.debuggeeProcess.on("close", () => {
+                this.logWriteStream.end();
+            });
+        }
 
         // Resolve with port debugger server is listening on
         // This will be sent to subscribers of MLAppWorker in "connected" event
