@@ -64,7 +64,7 @@ function getNativeModules() {
     var NativeModules;
     try {
         // This method for old RN versions
-        NativeModules = global.require('NativeModules').DevMenu.reload();
+        NativeModules = global.require('NativeModules');
     } catch (err) {
         // ignore error and try another way for more recent RN versions
         try {
