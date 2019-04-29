@@ -11,7 +11,7 @@ import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
 import { sleep } from "./utilities";
 let appiumProcess: null | cp.ChildProcess;
-type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
+export type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
 export enum Platform {
     Android,
     iOS,
@@ -85,13 +85,12 @@ export class AppiumHelper {
         }
     }
 
-    public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string,
-                                                      platformVersion: string = SmokeTestsConstants.defaultTargetAndroidPlatformVersion, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName) {
+    public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName) {
         return {
             desiredCapabilities: {
                 browserName: "",
                 platformName: "Android",
-                platformVersion: platformVersion,
+                platformVersion: this.getAndroidPlatformVersion(),
                 deviceName: deviceName,
                 appActivity: applicationActivity,
                 appPackage: applicationPackage,
@@ -104,20 +103,20 @@ export class AppiumHelper {
     }
 
     public static prepareAttachOptsForIosApp(deviceName: string, appPath: string) {
-            return {
-                desiredCapabilities: {
-                    browserName: "",
-                    platformName: "iOS",
-                    platformVersion: this.getiOSPlatformVersion(),
-                    deviceName: deviceName,
-                    app: appPath,
-                    automationName: "XCUITest",
-                    newCommandTimeout: 150,
-                },
-                port: 4723,
-                host: "localhost",
-            };
-        }
+        return {
+            desiredCapabilities: {
+                browserName: "",
+                platformName: "iOS",
+                platformVersion: this.getIosPlatformVersion(),
+                deviceName: deviceName,
+                app: appPath,
+                automationName: "XCUITest",
+                newCommandTimeout: 150,
+            },
+            port: 4723,
+            host: "localhost",
+        };
+    }
 
     public static webdriverAttach(attachArgs: any) {
         // Connect to the emulator with predefined opts
@@ -284,8 +283,12 @@ export class AppiumHelper {
         }, SmokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
     }
 
-    public static getiOSPlatformVersion() {
+    public static getIosPlatformVersion() {
         return process.env.IOS_VERSION || SmokeTestsConstants.defaultTargetIosPlatformVersion;
+    }
+
+    public static getAndroidPlatformVersion() {
+        return process.env.ANDROID_VERSION || SmokeTestsConstants.defaultTargetAndroidPlatformVersion;
     }
 
     private static async openExpoAppViaClipboard(client: AppiumClient, expoURL: string) {
