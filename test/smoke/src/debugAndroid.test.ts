@@ -42,8 +42,7 @@ export function setup() {
             console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             console.log("Android Debug test: Starting debugging");
             await app.workbench.debug.startDebugging();
-            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME,
-            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, AndroidEmulatorHelper.androidEmulatorName);
+            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = AppiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
@@ -93,8 +92,7 @@ export function setup() {
             }
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
-            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
-            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, AndroidEmulatorHelper.androidEmulatorName);
+            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
             // TODO Add listener to trigger that main expo app has been ran
@@ -149,8 +147,7 @@ export function setup() {
             }
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
-            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME,
-            SmokeTestsConstants.defaultTargetAndroidPlatformVersion, AndroidEmulatorHelper.androidEmulatorName);
+            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
             let clientInited = client.init();
             await AppiumHelper.openExpoApplicationAndroid(clientInited, expoURL);

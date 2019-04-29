@@ -11,6 +11,13 @@ export class AndroidEmulatorHelper {
     public static androidEmulatorPort = 5554;
     public static androidEmulatorName = `emulator-${AndroidEmulatorHelper.androidEmulatorPort}`;
 
+    public static getDevice(): string | undefined {
+        if (!process.env.ANDROID_EMULATOR) {
+            throw new Error("Environment variable 'ANDROID_EMULATOR' is not set. Exiting...");
+        }
+        return process.env.ANDROID_EMULATOR;
+    }
+
     // Installs Expo app on Android device via "expo android" command
     public static async installExpoAppOnAndroid(expoAppPath: string) {
         console.log(`*** Installing Expo app (${this.expoPackageName}) on android device with 'expo-cli android' command`);
@@ -31,13 +38,10 @@ export class AndroidEmulatorHelper {
     }
 
     public static async runAndroidEmulator() {
-        if (!process.env.ANDROID_EMULATOR) {
-            throw new Error("Environment variable 'ANDROID_EMULATOR' is not set. Exiting...");
-        }
         this.terminateAndroidEmulator();
         // Boot options for emulator - https://developer.android.com/studio/run/emulator-commandline
         const emulatorOpts = ["-avd",
-         process.env.ANDROID_EMULATOR || "",
+        <string>this.getDevice(),
          "-gpu", "swiftshader_indirect",
          "-wipe-data",
          "-port", this.androidEmulatorPort.toString(),
