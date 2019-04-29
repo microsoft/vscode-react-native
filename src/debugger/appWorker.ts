@@ -72,10 +72,10 @@ function getNativeModules() {
             var modules = global.__r.getModules();
             var ids = Object.keys(modules);
             for (var i = 0; i < ids.length; i++) {
-              if (modules[i].verboseName) {
-                 var packagePath = new String(modules[i].verboseName);
+              if (modules[ids[i]].verboseName) {
+                 var packagePath = new String(modules[ids[i]].verboseName);
                  if (packagePath.indexOf("react-native/Libraries/BatchedBridge/NativeModules.js") > 0) {
-                   nativeModuleId = parseInt(i, 10);
+                   nativeModuleId = parseInt(ids[i], 10);
                    break;
                  }
               }
