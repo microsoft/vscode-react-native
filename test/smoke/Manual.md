@@ -46,7 +46,7 @@ refreshenv
    **Linux**: `/home/<username>/Android/sdk`
 1. Add android environment variables to path:
    * **Windows**:
-    ```ps
+    ```ps1
     [Environment]::SetEnvironmentVariable("ANDROID_HOME", "C:\Users\<username>\Android\sdk",
     [System.EnvironmentVariableTarget]::Machine)
     [Environment]::SetEnvironmentVariable("ANDROID_SDK_ROOT", "%ANDROID_HOME%",
@@ -79,7 +79,7 @@ Add these lines to `~/.bash_profile` (create one if you haven't it):
 1. Create new android virtual device using **x86** image with the parameters you need for testing.
 1. You need to create environmental variable with your device name:
    * **Windows**:
-    ```ps
+    ```ps1
     [Environment]::SetEnvironmentVariable("ANDROID_EMULATOR", <device_name>, [System.EnvironmentVariableTarget]::Machine)
     ```
    * **Mac/Linux**:
