@@ -3,14 +3,14 @@ Tests can be ran on **Windows 10**, **MacOS Mojave** and **Ubuntu** machines. Us
 ## Prerequisites
 
 ### Windows
-   1. Open Powershell and install [Chocolatey](https://chocolatey.org/):
+   * Open Powershell and install [Chocolatey](https://chocolatey.org/):
 ```ps
 Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 refreshenv
 ```
 
 ### Mac
-1. [Install Homebrew](https://docs.brew.sh/Installation)
+   * [Install Homebrew](https://docs.brew.sh/Installation)
 
 ## Set up Android SDK environment
 
