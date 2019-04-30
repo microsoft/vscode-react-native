@@ -4,7 +4,7 @@ Tests can be ran on **Windows 10**, **MacOS Mojave** and **Ubuntu** machines. Us
 
 ### Windows
    * Open Powershell and install [Chocolatey](https://chocolatey.org/):
-```ps
+```ps1
 Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 refreshenv
 ```
@@ -17,7 +17,7 @@ refreshenv
 1. Install `Java Developement Kit 8`, `Android Studio` and `Git`
 
    * **Windows**:
-    ```ps
+    ```ps1
     choco install jdk8 -y
     choco install androidstudio -y
     choco install git -y
