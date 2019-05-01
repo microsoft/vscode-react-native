@@ -64,7 +64,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
         }
 
         this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
-        this.iosDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot, this.runOptions.scheme);
+        const schemeFromArgs = IOSPlatform.getOptFromRunArgs(this.runArguments, "--scheme", false);
+        this.iosDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot, schemeFromArgs ? schemeFromArgs : this.runOptions.scheme);
 
         if (this.runArguments && this.runArguments.length > 0) {
             this.targetType = (this.runArguments.indexOf(`--${IOSPlatform.deviceString}`) >= 0) ?
@@ -163,6 +164,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
             runArguments = this.runOptions.runArguments;
+            if (this.runOptions.scheme) {
+                const schemeFromArgs = IOSPlatform.getOptFromRunArgs(runArguments, "--scheme", false);
+                if (!schemeFromArgs) {
+                    runArguments.push("--scheme", this.runOptions.scheme);
+                } else {
+                    this.logger.warning(localize("iosSchemeParameterAlreadySetInRunArguments", "'--scheme' is set as 'runArguments' configuration parameter value, 'scheme' configuration parameter value will be omitted"));
+                }
+            }
         } else {
             if (this.runOptions.target) {
                 if (this.runOptions.target === IOSPlatform.deviceString ||
@@ -196,11 +205,18 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private getConfiguration(): string {
-        return this.getOptFromRunArgs(this.configurationArgumentName) || this.defaultConfiguration;
+        return IOSPlatform.getOptFromRunArgs(this.runArguments, this.configurationArgumentName) || this.defaultConfiguration;
     }
 
     private getBundleId(): Q.Promise<string> {
-        return this.plistBuddy.getBundleId(this.iosProjectRoot, true, this.runOptions.configuration, this.runOptions.productName, this.runOptions.scheme);
+        let scheme = this.runOptions.scheme;
+        if (scheme) {
+            const schemeFromArgs = IOSPlatform.getOptFromRunArgs(this.runArguments, "--scheme", false);
+            if (schemeFromArgs) {
+                scheme = schemeFromArgs;
+            }
+        }
+        return this.plistBuddy.getBundleId(this.iosProjectRoot, true, this.runOptions.configuration, this.runOptions.productName, scheme);
     }
 
     private static remote(fsPath: string): RemoteExtension {

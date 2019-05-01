@@ -20,6 +20,18 @@ For example:
 ```
 See more about source map overrides [here](https://github.com/Microsoft/vscode-node-debug2#sourcemappathoverrides)
 
+## Specifying scheme for iOS app
+
+If you want to use custom scheme for your application you can either pass it as part of `runArguments` parameter arguments or set `scheme` configuration parameter as shown below:
+```js
+"runArguments": ["--scheme", "customScheme", ...]
+// or
+"runArguments": ["--scheme=customScheme", ...]
+// or
+"scheme" : "customScheme"
+```
+Please be aware, specifying scheme value as a part of `runArguments` parameter arguments will override `scheme` configuration parameter value if it set.
+
 ## Debugging on iOS device
 
 Debugging on an iOS device require following manual steps:
