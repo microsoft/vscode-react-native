@@ -74,10 +74,7 @@ export class VSCodeHelper {
         let args: string[] = [];
         args.push(`--extensions-dir=${extensionDir}`);
         const artifactPath = path.join(resourcesPath, VSCodeHelper.artifactsFolderName);
-        const dirFiles = fs.readdirSync(artifactPath);
-        let extensionFile = dirFiles.find((elem) => {
-            return /.*\.(vsix)/.test(elem);
-        });
+        let extensionFile = utilities.findFile(artifactPath, /.*\.(vsix)/);
         if (!extensionFile) {
             throw new Error(`React Native extension .vsix is not found in ${resourcesPath}`);
         }

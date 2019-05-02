@@ -166,7 +166,11 @@ async function setup(): Promise<void> {
     const latestRNVersionExpo = await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
     SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, latestRNVersionExpo);
     SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
-    await AndroidEmulatorHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
+    await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
+    if (process.platform === "darwin") {
+        // We need only to download expo app, but this is the quickest way of doing it
+        await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);
+    }
     await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);
 
     electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
@@ -198,7 +202,7 @@ before(async function () {
         return;
     }
     this.timeout(SmokeTestsConstants.smokeTestSetupAwaitTimeout);
-    SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
+    SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath], SetupEnvironmentHelper.iOSExpoAppsCacheDir);
     try {
         await setup();
     } catch (err) {
