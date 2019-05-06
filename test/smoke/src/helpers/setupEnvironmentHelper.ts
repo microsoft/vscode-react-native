@@ -133,7 +133,21 @@ export class SetupEnvironmentHelper {
     public static async installExpoAppOnAndroid(expoAppPath: string) {
         console.log(`*** Installing Expo app (${this.expoPackageName}) on android emulator with 'expo-cli android' command`);
         let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
-        let installerProcess = cp.spawn(expoCliCommand, ["android"], {cwd: expoAppPath, stdio: "inherit"});
+        let installerProcess = cp.spawn(expoCliCommand, ["android"], {cwd: expoAppPath, stdio: "pipe"});
+        installerProcess.stdout.on("data", (data) => {
+            const string = data.toString().trim();
+            // filter |/-\ progress bar chars
+            if (!/\||\/|\-|\\/.test(string) && string !== "") {
+                console.log(`stdout: ${data.toString().trim()}`);
+            }
+        });
+        installerProcess.stderr.on("data", (data) => {
+            const string = data.toString().trim();
+            // filter |/-\ progress bar chars
+            if (!/\||\/|\-|\\/.test(string) && string !== "") {
+                console.error(`stderr: ${string}`);
+            }
+        });
         installerProcess.on("close", () => {
             console.log("*** expo-cli terminated");
         });
@@ -146,28 +160,27 @@ export class SetupEnvironmentHelper {
         AndroidEmulatorHelper.enableDrawPermitForApp(this.expoPackageName);
     }
 
-    // Installs Expo app on Android device via "expo android" command
+    // Installs Expo app on iOS device via "expo install:ios" command
     public static async installExpoAppOnIos(expoAppPath: string) {
         return new Promise((resolve, reject) => {
             console.log(`*** Installing Expo app on iOS simulator with 'expo-cli install:ios' command`);
             let installerProcess = cp.spawn("expo-cli", ["install:ios"], {cwd: expoAppPath, stdio: "pipe"});
-            let errString = "";
             installerProcess.stdout.on("data", (data) => {
-                console.log(`stdout: ${data.toString().trim()}`);
+                const string = data.toString().trim();
+                // filter |/-\ progress bar chars
+                if (!/\||\/|\-|\\/.test(string) && string !== "") {
+                    console.log(`stdout: ${string}`);
+                }
             });
             installerProcess.stderr.on("data", (data) => {
                 const string = data.toString().trim();
                 // filter |/-\ progress bar chars
                 if (!/\||\/|\-|\\/.test(string) && string !== "") {
                     console.error(`stderr: ${string}`);
-                    errString += string;
                 }
             });
             installerProcess.on("close", () => {
                 console.log("*** expo-cli terminated");
-                if (errString !== "") {
-                    reject(new Error("Error occurred in expo-cli process"));
-                }
                 resolve();
             });
             installerProcess.on("error", (error) => {
