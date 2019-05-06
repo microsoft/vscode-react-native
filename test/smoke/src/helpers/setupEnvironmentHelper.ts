@@ -10,7 +10,7 @@ import * as semver from "semver";
 import * as kill from "tree-kill";
 import * as os from "os";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
-import { sleep } from "./utilities";
+import { sleep, filterProgressBarChars } from "./utilities";
 import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
 
 export class SetupEnvironmentHelper {
@@ -135,16 +135,16 @@ export class SetupEnvironmentHelper {
         let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
         let installerProcess = cp.spawn(expoCliCommand, ["android"], {cwd: expoAppPath, stdio: "pipe"});
         installerProcess.stdout.on("data", (data) => {
-            const string = data.toString().trim();
+            const string = filterProgressBarChars(data.toString().trim());
             // filter |/-\ progress bar chars
-            if (!/\||\/|\-|\\/.test(string) && string !== "") {
+            if (string !== "") {
                 console.log(`stdout: ${data.toString().trim()}`);
             }
         });
         installerProcess.stderr.on("data", (data) => {
-            const string = data.toString().trim();
+            const string = filterProgressBarChars(data.toString().trim());
             // filter |/-\ progress bar chars
-            if (!/\||\/|\-|\\/.test(string) && string !== "") {
+            if (string !== "") {
                 console.error(`stderr: ${string}`);
             }
         });
@@ -166,16 +166,16 @@ export class SetupEnvironmentHelper {
             console.log(`*** Installing Expo app on iOS simulator with 'expo-cli install:ios' command`);
             let installerProcess = cp.spawn("expo-cli", ["install:ios"], {cwd: expoAppPath, stdio: "pipe"});
             installerProcess.stdout.on("data", (data) => {
-                const string = data.toString().trim();
+                const string = filterProgressBarChars(data.toString().trim());
                 // filter |/-\ progress bar chars
-                if (!/\||\/|\-|\\/.test(string) && string !== "") {
+                if (string !== "") {
                     console.log(`stdout: ${string}`);
                 }
             });
             installerProcess.stderr.on("data", (data) => {
-                const string = data.toString().trim();
+                const string = filterProgressBarChars(data.toString().trim());
                 // filter |/-\ progress bar chars
-                if (!/\||\/|\-|\\/.test(string) && string !== "") {
+                if (string !== "") {
                     console.error(`stderr: ${string}`);
                 }
             });
