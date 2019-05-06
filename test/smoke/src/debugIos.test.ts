@@ -92,7 +92,6 @@ export function setup() {
             console.log("iOS Expo Debug test: Starting debugging");
             await app.workbench.debug.startDebugging();
             const device = <string>IosSimulatorHelper.getDevice();
-            await IosSimulatorHelper.launchApplication(device, SetupEnvironmentHelper.expoBundleId);
             await sleep(5 * 1000);
             await app.workbench.waitForTab("Expo QR Code");
             await app.workbench.waitForActiveTab("Expo QR Code");
