@@ -74,7 +74,7 @@ export function setup() {
             console.log("iOS Debug test: Debugging is stopped");
         });
 
-        it.only("Expo app Debug test", async function () {
+        it("Expo app Debug test", async function () {
             this.timeout(debugExpoTestTime);
             app = await runVSCode(ExpoWorkspacePath);
             console.log(`iOS Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
@@ -126,6 +126,7 @@ export function setup() {
             console.log("iOS Expo Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
             console.log("iOS Expo Debug test: Stack frame found");
+            await app.workbench.debug.continue();
             await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console
             await sleep(500);
