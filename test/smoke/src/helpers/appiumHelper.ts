@@ -14,7 +14,7 @@ export type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & Web
 export enum Platform {
     Android,
     iOS,
-    iOS_Expo
+    iOS_Expo,
 }
 type XPathSelector = { [TKey in Platform]: string };
 type XPathSelectors = { [key: string]: XPathSelector };
@@ -40,7 +40,7 @@ export class AppiumHelper {
         RN_DEV_MENU_CANCEL: {
             [Platform.Android]: "//*[@text='Cancel']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Cancel']",
-            [Platform.iOS_Expo]: "(//XCUIElementTypeOther[@name='Cancel'])[1]"
+            [Platform.iOS_Expo]: "(//XCUIElementTypeOther[@name='Cancel'])[1]",
         },
         EXPO_ELEMENT_LOAD_TRIGGER: {
             [Platform.Android]: "//*[@text='Home']",
