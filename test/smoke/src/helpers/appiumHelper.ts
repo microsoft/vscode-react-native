@@ -162,7 +162,8 @@ export class AppiumHelper {
                 cp.exec(devMenuCallCommand);
                 await sleep(10 * 1000);
                 break;
-            case Platform.iOS || Platform.iOS_Expo:
+            case Platform.iOS:
+            case Platform.iOS_Expo:
                 // Sending Cmd+D doesn't work sometimes but shake gesture works flawlessly
                 client.shake();
                 await sleep(2 * 1000);
@@ -250,7 +251,7 @@ export class AppiumHelper {
         await client
             .waitForExist(FIND_A_PROJECT_ELEMENT, 30 * 1000)
             .click(FIND_A_PROJECT_ELEMENT);
-        console.log(`*** ${FIND_A_PROJECT_ELEMENT} clicked...`);
+
         console.log(`*** Pasting ${expoURL} to search field...`);
         client.keys(expoURL);
         sleep(2 * 1000);
