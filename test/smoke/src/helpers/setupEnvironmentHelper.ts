@@ -136,14 +136,12 @@ export class SetupEnvironmentHelper {
         let installerProcess = cp.spawn(expoCliCommand, ["android"], {cwd: expoAppPath, stdio: "pipe"});
         installerProcess.stdout.on("data", (data) => {
             const string = filterProgressBarChars(data.toString().trim());
-            // filter |/-\ progress bar chars
             if (string !== "") {
                 console.log(`stdout: ${data.toString().trim()}`);
             }
         });
         installerProcess.stderr.on("data", (data) => {
             const string = filterProgressBarChars(data.toString().trim());
-            // filter |/-\ progress bar chars
             if (string !== "") {
                 console.error(`stderr: ${string}`);
             }
@@ -167,14 +165,12 @@ export class SetupEnvironmentHelper {
             let installerProcess = cp.spawn("expo-cli", ["install:ios"], {cwd: expoAppPath, stdio: "pipe"});
             installerProcess.stdout.on("data", (data) => {
                 const string = filterProgressBarChars(data.toString().trim());
-                // filter |/-\ progress bar chars
                 if (string !== "") {
                     console.log(`stdout: ${string}`);
                 }
             });
             installerProcess.stderr.on("data", (data) => {
                 const string = filterProgressBarChars(data.toString().trim());
-                // filter |/-\ progress bar chars
                 if (string !== "") {
                     console.error(`stderr: ${string}`);
                 }

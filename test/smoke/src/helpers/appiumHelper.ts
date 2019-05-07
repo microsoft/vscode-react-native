@@ -137,7 +137,7 @@ export class AppiumHelper {
             }
         } else if (platform === Platform.iOS) {
             // TODO may not work, so consider fallback to Explore Button approach
-            return this.openExpoAppViaClipboardIos(client, expoURL);
+            return this.openExpoAppViaExploreButtonIos(client, expoURL);
         } else {
             throw new Error(`Unknown platform ${platform}`);
         }
@@ -229,24 +229,27 @@ export class AppiumHelper {
         console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
-    private static async openExpoAppViaClipboardIos(client: AppiumClient, expoURL: string) {
-        // Expo application automatically detects Expo URLs in the clipboard
-        // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
-        console.log(`*** Opening Expo app via clipboard`);
-        console.log(`*** Copying ${expoURL} to system clipboard...`);
-        clipboardy.writeSync(expoURL);
-        const EXPO_PROJECTS_BUTTON = "//XCUIElementTypeOther[@name='Projects']";
+    private static async openExpoAppViaExploreButtonIos(client: AppiumClient, expoURL: string) {
+        const EXPO_EXPLORE_BUTTON = "//XCUIElementTypeOther[@name='Explore']";
         await client
-            .waitForExist(EXPO_PROJECTS_BUTTON, 30 * 1000)
-            .click(EXPO_PROJECTS_BUTTON);
-        client.keys(["Meta", "v"]);
-        const EXPO_OPEN_FROM_CLIPBOARD = `(//XCUIElementTypeOther[@name=' Open from Clipboard ${expoURL}])[2]`;
-        console.log(`*** Searching for ${EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
+            .waitForExist(EXPO_EXPLORE_BUTTON, 30 * 1000)
+            .click(EXPO_EXPLORE_BUTTON);
+
+        const FIND_A_PROJECT_ELEMENT = `(//XCUIElementTypeOther[@name='Find a project or enter a URL... '])[3]`;
+
+        console.log(`*** Searching for ${FIND_A_PROJECT_ELEMENT} element for click...`);
         // Run Expo app by expoURL
         await client
-            .waitForExist(EXPO_OPEN_FROM_CLIPBOARD, 30 * 1000)
-            .click(EXPO_OPEN_FROM_CLIPBOARD);
-        console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
+            .waitForExist(FIND_A_PROJECT_ELEMENT, 30 * 1000)
+            .click(FIND_A_PROJECT_ELEMENT);
+        console.log(`*** ${FIND_A_PROJECT_ELEMENT} clicked...`);
+        console.log(`*** Pasting ${expoURL} to search field...`);
+        client.keys(expoURL);
+        sleep(2 * 1000);
+        const TAP_TO_ATTEMPT_ELEMENT = `//XCUIElementTypeOther[@name='Tap to attempt to open project at ${expoURL}']`;
+        await client
+            .waitForExist(TAP_TO_ATTEMPT_ELEMENT, 10 * 1000)
+            .click(`${TAP_TO_ATTEMPT_ELEMENT}//..`); // parent element is the one we should click on
     }
 
     private static async openExpoAppViaExploreButtonAndroid(client: AppiumClient, expoURL: string) {
