@@ -230,6 +230,8 @@ export class AppiumHelper {
     }
 
     private static async openExpoAppViaExploreButtonIos(client: AppiumClient, expoURL: string) {
+        console.log(`*** Opening Expo app via "Explore" button`);
+        console.log(`*** Pressing "Explore" button...`);
         const EXPO_EXPLORE_BUTTON = "//XCUIElementTypeOther[@name='Explore']";
         await client
             .waitForExist(EXPO_EXPLORE_BUTTON, 30 * 1000)
@@ -237,7 +239,7 @@ export class AppiumHelper {
 
         const FIND_A_PROJECT_ELEMENT = `(//XCUIElementTypeOther[@name='Find a project or enter a URL... '])[3]`;
 
-        console.log(`*** Searching for ${FIND_A_PROJECT_ELEMENT} element for click...`);
+        console.log(`*** Pasting ${expoURL} to text field...`);
         // Run Expo app by expoURL
         await client
             .waitForExist(FIND_A_PROJECT_ELEMENT, 30 * 1000)
@@ -246,6 +248,8 @@ export class AppiumHelper {
         console.log(`*** Pasting ${expoURL} to search field...`);
         client.keys(expoURL);
         sleep(2 * 1000);
+
+        console.log(`*** Clicking on first found result to run the app`);
         const TAP_TO_ATTEMPT_ELEMENT = `//XCUIElementTypeOther[@name='Tap to attempt to open project at ${expoURL}']`;
         await client
             .waitForExist(TAP_TO_ATTEMPT_ELEMENT, 10 * 1000)
