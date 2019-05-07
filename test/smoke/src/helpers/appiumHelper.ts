@@ -14,6 +14,7 @@ export type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & Web
 export enum Platform {
     Android,
     iOS,
+    iOS_Expo
 }
 type XPathSelector = { [TKey in Platform]: string };
 type XPathSelectors = { [key: string]: XPathSelector };
@@ -24,22 +25,27 @@ export class AppiumHelper {
         RN_RELOAD_BUTTON: {
             [Platform.Android]: "//*[@text='Reload']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Reload']",
+            [Platform.iOS_Expo]: "//XCUIElementTypeButton[@name='Reload JS Bundle']",
         },
         RN_ENABLE_REMOTE_DEBUGGING_BUTTON: {
             [Platform.Android]:  "//*[@text='Debug JS Remotely']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely']",
+            [Platform.iOS_Expo]: "//XCUIElementTypeButton[@name='Debug Remote JS']",
         },
         RN_STOP_REMOTE_DEBUGGING_BUTTON: {
             [Platform.Android]: "//*[@text='Stop Remote JS Debugging']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Stop Remote JS Debugging']",
+            [Platform.iOS_Expo]: "//XCUIElementTypeButton[@name='Stop Remote JS Debugging']",
         },
         RN_DEV_MENU_CANCEL: {
             [Platform.Android]: "//*[@text='Cancel']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Cancel']",
+            [Platform.iOS_Expo]: "(//XCUIElementTypeOther[@name='Cancel'])[1]"
         },
         EXPO_ELEMENT_LOAD_TRIGGER: {
             [Platform.Android]: "//*[@text='Home']",
             [Platform.iOS]: "", // todo
+            [Platform.iOS_Expo]: "", // todo
         },
     };
 
@@ -156,7 +162,7 @@ export class AppiumHelper {
                 cp.exec(devMenuCallCommand);
                 await sleep(10 * 1000);
                 break;
-            case Platform.iOS:
+            case Platform.iOS || Platform.iOS_Expo:
                 // Sending Cmd+D doesn't work sometimes but shake gesture works flawlessly
                 client.shake();
                 await sleep(2 * 1000);
