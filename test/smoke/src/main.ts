@@ -12,6 +12,7 @@ import { setup as setupReactNativeDebugiOSTests } from "./debugIos.test";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
+import { sleep } from "./helpers/utilities";
 
 async function fail(errorMessage) {
     console.error(errorMessage);
@@ -191,6 +192,7 @@ async function setup(): Promise<void> {
 export async function runVSCode(workspaceOrFolder: string): Promise<SpectronApplication> {
     const app = createApp(quality, workspaceOrFolder);
     await app!.start();
+    sleep(10000);
     return app!;
 }
 
