@@ -223,7 +223,7 @@ export class AppiumHelper {
     }
 
     // Expo 32 has an error on iOS application start up
-    // it is not breaking the app, but may broke the tests, so need to click Dismiss in the RN Red Box to proceed further
+    // it is not breaking the app, but may broke the tests, so need to click Dismiss button in the RN Red Box to proceed further
     public static async disableExpoErrorRedBox(client: AppiumClient) {
         const DISMISS_BUTTON = "//XCUIElementTypeButton[@name='redbox-dismiss']";
         if (await client.isExisting(DISMISS_BUTTON)) {
