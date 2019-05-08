@@ -74,7 +74,7 @@ export function setup() {
             console.log("iOS Debug test: Debugging is stopped");
         });
 
-        it("Expo app Debug test", async function () {
+        it.only("Expo app Debug test", async function () {
             this.timeout(debugExpoTestTime);
             app = await runVSCode(ExpoWorkspacePath);
             console.log(`iOS Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
