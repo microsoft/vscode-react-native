@@ -153,7 +153,7 @@ export function setup() {
             console.log(`iOS pure RN Expo test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
-            SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
+            SetupEnvironmentHelper.addIosTargetToLaunchJson(pureRNWorkspacePath);
             console.log("iOS pure RN Expo test: Starting debugging");
             await app.workbench.debug.startDebugging();
             const device = <string>IosSimulatorHelper.getDevice();
