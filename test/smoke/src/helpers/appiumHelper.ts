@@ -142,7 +142,8 @@ export class AppiumHelper {
                 return this.openExpoAppViaClipboardAndroid(client, expoURL);
             }
         } else if (platform === Platform.iOS) {
-            // TODO may not work, so consider fallback to Explore Button approach
+            // Similar to openExpoAppViaClipboardAndroid approach
+            // but uses different XPath selectors
             return this.openExpoAppViaExploreButtonIos(client, expoURL);
         } else {
             throw new Error(`Unknown platform ${platform}`);
@@ -219,6 +220,15 @@ export class AppiumHelper {
 
     public static getAndroidPlatformVersion() {
         return process.env.ANDROID_VERSION || SmokeTestsConstants.defaultTargetAndroidPlatformVersion;
+    }
+
+    // Expo 32 has an error on iOS application start up
+    // it not breaking the app, but may broke the tests, so need to click Dismiss in the RN Red Box to proceed further
+    public static async disableExpoErrorRedBox(client: AppiumClient) {
+        const DISMISS_BUTTON = "//XCUIElementTypeButton[@name='Dismiss (ESC)']"
+        if (await client.isExisting(DISMISS_BUTTON)) {
+            await client.click(DISMISS_BUTTON);
+        }
     }
 
     private static async openExpoAppViaClipboardAndroid(client: AppiumClient, expoURL: string) {
