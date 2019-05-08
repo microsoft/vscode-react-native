@@ -12,6 +12,7 @@ import { setup as setupReactNativeDebugiOSTests } from "./debugIos.test";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
+import { sleep } from "./helpers/utilities";
 
 async function fail(errorMessage) {
     console.error(errorMessage);
