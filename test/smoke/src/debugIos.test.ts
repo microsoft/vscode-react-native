@@ -128,6 +128,7 @@ export function setup() {
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
             console.log("iOS Expo Debug test: Stack frame found");
             await app.workbench.debug.continue();
+            await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console
             await sleep(500);
             console.log("iOS Expo Debug test: Searching for \"Test output from debuggee\" string in console");
@@ -191,7 +192,6 @@ export function setup() {
             console.log("iOS pure RN Expo test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");
             console.log("iOS pure RN Expo test: Stack frame found");
-            await app.workbench.debug.continue();
             await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console
             await sleep(500);
