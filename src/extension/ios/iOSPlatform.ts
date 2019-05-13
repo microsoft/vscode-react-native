@@ -210,7 +210,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private getBundleId(): Q.Promise<string> {
         let scheme = this.runOptions.scheme;
-        if (scheme) {
+        if (!scheme) {
             const schemeFromArgs = IOSPlatform.getOptFromRunArgs(this.runArguments, "--scheme", false);
             if (schemeFromArgs) {
                 scheme = schemeFromArgs;
