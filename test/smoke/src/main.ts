@@ -3,7 +3,6 @@
 
 import * as fs from "fs";
 import * as path from "path";
-
 import { SpectronApplication, Quality } from "./spectron/application";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
@@ -12,6 +11,7 @@ import { setup as setupReactNativeDebugiOSTests } from "./debugIos.test";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
+import { TestConfigurator } from "./helpers/configHelper";
 
 async function fail(errorMessage) {
     console.error(errorMessage);
@@ -190,8 +190,9 @@ export async function runVSCode(workspaceOrFolder: string): Promise<SpectronAppl
     return app!;
 }
 
+const testParams = TestConfigurator.parseTestArguments();
 before(async function () {
-    if (process.argv.includes("--skip-setup")) {
+    if (testParams.SkipTestsSetup) {
         console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
         // Assume that VS Code is already installed
         electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
@@ -219,15 +220,15 @@ describe("Extension smoke tests", () => {
         AppiumHelper.terminateAppium();
     });
     if (process.platform === "darwin") {
-        const noSelectArgs = !process.argv.includes("--android") && !process.argv.includes("--ios");
+        const noSelectArgs = !testParams.RunAndroidTests && !testParams.RuniOSTests;
         if (noSelectArgs) {
             console.log("*** Android and iOS tests will be ran");
             setupReactNativeDebugAndroidTests();
             setupReactNativeDebugiOSTests();
-        } else if (process.argv.includes("--android")) {
+        } else if (testParams.RunAndroidTests) {
             console.log("*** --android parameter is set, Android tests will be ran");
             setupReactNativeDebugAndroidTests();
-        } else if (process.argv.includes("--ios")) {
+        } else if (testParams.RuniOSTests) {
             console.log("*** --ios parameter is set, iOS tests will be ran");
             setupReactNativeDebugiOSTests();
         }
