@@ -78,7 +78,7 @@ function getVSCodeExecutablePath(testVSCodeFolder: string, isInsiders: boolean) 
 }
 
 const repoRoot = path.join(__dirname, "..", "..", "..");
-const envConfigPath = path.join(__dirname, "..", "..", SmokeTestsConstants.testsConfigFileName);
+const envConfigPath = path.join(__dirname, "..", SmokeTestsConstants.testsConfigFileName);
 const resourcesPath = path.join(__dirname, "..", "resources");
 const isInsiders = process.env.CODE_VERSION === "insiders";
 let testVSCodeDirectory;
