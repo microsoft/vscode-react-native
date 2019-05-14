@@ -4,17 +4,17 @@
 import * as fs from "fs";
 
 export interface TestRunArguments {
-    RunAndroidTests: boolean,
-    RuniOSTests: boolean,
-    SkipTestsSetup: boolean
+    RunAndroidTests: boolean;
+    RuniOSTests: boolean;
+    SkipTestsSetup: boolean;
 }
 
 export interface TestEnvVariables {
-    ANDROID_EMULATOR: string,
-    IOS_SIMULATOR: string,
-    ANDROID_VERSION: string,
-    IOS_VERSION: string,
-    CODE_VERSION: string
+    ANDROID_EMULATOR: string;
+    IOS_SIMULATOR: string;
+    ANDROID_VERSION: string;
+    IOS_VERSION: string;
+    CODE_VERSION: string;
 }
 
 export class TestConfigurator {
@@ -43,17 +43,17 @@ export class TestConfigurator {
         return {
             RunAndroidTests: process.argv.includes("--android"),
             RuniOSTests: process.argv.includes("--ios"),
-            SkipTestsSetup: process.argv.includes("--skip-setup")
-        }
+            SkipTestsSetup: process.argv.includes("--skip-setup"),
+        };
     }
 
     private static printEnvVariableConfiguration() {
         let initLog: string = "";
-        initLog += `ANDROID_EMULATOR = ${process.env.ANDROID_EMULATOR}\n`
-        initLog += `IOS_SIMULATOR = ${process.env.IOS_SIMULATOR}\n`
-        initLog += `ANDROID_VERSION = ${process.env.ANDROID_VERSION}\n`
-        initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`
-        initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`
+        initLog += `ANDROID_EMULATOR = ${process.env.ANDROID_EMULATOR}\n`;
+        initLog += `IOS_SIMULATOR = ${process.env.IOS_SIMULATOR}\n`;
+        initLog += `ANDROID_VERSION = ${process.env.ANDROID_VERSION}\n`;
+        initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
+        initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
         console.log(initLog);
     }
 
@@ -65,8 +65,8 @@ export class TestConfigurator {
                 IOS_SIMULATOR: config.IOS_SIMULATOR,
                 ANDROID_VERSION: config.ANDROID_VERSION,
                 IOS_VERSION: config.IOS_VERSION,
-                CODE_VERSION: config.CODE_VERSION
-            }
+                CODE_VERSION: config.CODE_VERSION,
+            };
         } else {
             throw new Error("Config file is not found");
         }
