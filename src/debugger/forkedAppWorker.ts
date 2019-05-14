@@ -101,7 +101,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         })
         .on("error", (error: Error) => {
             printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWorkerProcessThrownAnError), error);
-        })
+        });
 
         // If special env variables are defined, then write process outputs to file
         this.logDirectory = getLoggingDirectory();
