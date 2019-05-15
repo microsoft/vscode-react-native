@@ -52,9 +52,11 @@ export class TestConfigurator {
     private static printEnvVariableConfiguration() {
         let initLog: string = "";
         initLog += `ANDROID_EMULATOR = ${process.env.ANDROID_EMULATOR}\n`;
-        initLog += `IOS_SIMULATOR = ${process.env.IOS_SIMULATOR}\n`;
         initLog += `ANDROID_VERSION = ${process.env.ANDROID_VERSION}\n`;
-        initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
+        if (process.platform === "darwin") {
+            initLog += `IOS_SIMULATOR = ${process.env.IOS_SIMULATOR}\n`;
+            initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
+        }
         initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
         console.log(initLog);
     }
