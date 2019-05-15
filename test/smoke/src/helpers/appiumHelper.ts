@@ -264,6 +264,7 @@ export class AppiumHelper {
             .waitForExist(FIND_A_PROJECT_ELEMENT, 30 * 1000)
             .click(FIND_A_PROJECT_ELEMENT);
 
+        await sleep(5 * 1000);
         client.keys(expoURL);
         await sleep(2 * 1000);
 
