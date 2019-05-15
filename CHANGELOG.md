@@ -1,3 +1,9 @@
+## 0.9.3
+* Fixed `Show Dev Menu` and `Reload App` Command Pallette commands for iOS ([#978](https://github.com/microsoft/vscode-react-native/pull/992))
+* Fixed debugging functionality on Node.js 12 due to deprecating of Node cli argument `--debug-brk` ([#1000](https://github.com/microsoft/vscode-react-native/issues/1000))
+* Fixed scheme configuration variable handling for iOS native apps, added instruction for using `scheme` variable ([#989](https://github.com/microsoft/vscode-react-native/issues/989))
+* Added debug configuration setup instruction[(#986)](https://github.com/Microsoft/vscode-react-native/pull/986), thanks to [Peadar Coyle(@springcoil)](https://github.com/springcoil)
+
 ## 0.9.2
 * Fixed issue when using `console.trace()` caused error on native app [#974](https://github.com/Microsoft/vscode-react-native/issues/974)
 * Fixed [tar security vulnerabilities](https://www.npmjs.com/advisories/803)
