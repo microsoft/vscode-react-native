@@ -14,11 +14,11 @@ export interface TestEnvVariables {
     android: {
         ANDROID_EMULATOR: string;
         ANDROID_VERSION: string;
-    }
+    };
     ios?: {
         IOS_SIMULATOR: string;
         IOS_VERSION: string;
-    }
+    };
     CODE_VERSION: string;
 }
 
@@ -73,7 +73,7 @@ export class TestConfigurator {
                     android = {
                         ANDROID_EMULATOR: config.ANDROID_EMULATOR,
                         ANDROID_VERSION: config.ANDROID_VERSION,
-                    }
+                    };
                 } else {
                     throw new Error("Incorrect test config: missing ANDROID_VERSION");
                 }
@@ -88,7 +88,7 @@ export class TestConfigurator {
                         ios = {
                             IOS_SIMULATOR: config.IOS_SIMULATOR,
                             IOS_VERSION: config.IOS_VERSION,
-                        }
+                        };
                     } else {
                         throw new Error("Incorrect config: missing IOS_VERSION");
                     }
