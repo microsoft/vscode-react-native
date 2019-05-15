@@ -1,7 +1,0 @@
-{
-    "ANDROID_EMULATOR": "test",
-    "IOS_SIMULATOR"   : "iPhone 5s",
-    "ANDROID_VERSION" : "9",
-    "IOS_VERSION"     : "12.2",
-    "CODE_VERSION"    : "*"
-}
