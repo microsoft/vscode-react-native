@@ -156,7 +156,7 @@ async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
     console.log("*** Preparing smoke tests setup...");
 
-    console.log(`*** Reading environment variables from ${envConfigPath}`);
+    console.log(`*** Reading environment variables from "${envConfigPath}"`);
     TestConfigurator.readTestEnvVariables(envConfigPath);
 
     AppiumHelper.runAppium();
