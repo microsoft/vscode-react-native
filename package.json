@@ -1,9 +1,9 @@
 {
 	"name": "vscode-react-native",
 	"displayName": "React Native Tools",
-	"version": "0.9.2",
+	"version": "0.9.3",
 	"private": true,
-	"publisher": "vsmobile",
+	"publisher": "msjsdiag",
 	"icon": "images/icon.png",
 	"galleryBanner": {
 		"color": "#3B3738",
