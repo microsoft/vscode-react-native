@@ -12,6 +12,7 @@ import { setup as setupReactNativeDebugiOSTests } from "./debugIos.test";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
+import { sleep } from "./helpers/utilities";
 
 async function fail(errorMessage) {
     console.error(errorMessage);
@@ -166,7 +167,11 @@ async function setup(): Promise<void> {
     const latestRNVersionExpo = await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
     SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, latestRNVersionExpo);
     SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
-    await AndroidEmulatorHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
+    await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
+    if (process.platform === "darwin") {
+        // We need only to download expo app, but this is the quickest way of doing it
+        await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);
+    }
     await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);
 
     electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
@@ -187,6 +192,7 @@ async function setup(): Promise<void> {
 export async function runVSCode(workspaceOrFolder: string): Promise<SpectronApplication> {
     const app = createApp(quality, workspaceOrFolder);
     await app!.start();
+    await sleep(10000);
     return app!;
 }
 
@@ -198,7 +204,7 @@ before(async function () {
         return;
     }
     this.timeout(SmokeTestsConstants.smokeTestSetupAwaitTimeout);
-    SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
+    SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath], SetupEnvironmentHelper.iOSExpoAppsCacheDir);
     try {
         await setup();
     } catch (err) {
