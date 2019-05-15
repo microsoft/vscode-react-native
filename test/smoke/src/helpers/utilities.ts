@@ -144,3 +144,20 @@ export async function sleep(time: number) {
         }, time);
     });
 }
+
+export function findFile(directoryToSearch: string, filePattern: RegExp): string | null {
+    const dirFiles = fs.readdirSync(directoryToSearch);
+    let extensionFile = dirFiles.find((elem) => {
+        return filePattern.test(elem);
+    });
+    if (extensionFile) {
+        return extensionFile;
+    }
+    return null;
+}
+
+export function filterProgressBarChars(str: string) {
+    const filterRegExp = /\||\/|\-|\\/;
+    str = str.replace(filterRegExp, "");
+    return str;
+}

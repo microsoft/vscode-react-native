@@ -8,17 +8,16 @@ import * as mkdirp from "mkdirp";
 import * as kill from "tree-kill";
 import * as clipboardy from "clipboardy";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
-import { IosSimulatorHelper } from "./iosSimulatorHelper";
 import { sleep } from "./utilities";
 let appiumProcess: null | cp.ChildProcess;
 export type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
 export enum Platform {
     Android,
     iOS,
+    iOS_Expo,
 }
 type XPathSelector = { [TKey in Platform]: string };
 type XPathSelectors = { [key: string]: XPathSelector };
-
 
 export class AppiumHelper {
     // Paths for searching UI elements
@@ -26,22 +25,27 @@ export class AppiumHelper {
         RN_RELOAD_BUTTON: {
             [Platform.Android]: "//*[@text='Reload']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Reload']",
+            [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Reload JS Bundle']",
         },
         RN_ENABLE_REMOTE_DEBUGGING_BUTTON: {
             [Platform.Android]:  "//*[@text='Debug JS Remotely']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely']",
+            [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Debug Remote JS']",
         },
         RN_STOP_REMOTE_DEBUGGING_BUTTON: {
             [Platform.Android]: "//*[@text='Stop Remote JS Debugging']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Stop Remote JS Debugging']",
+            [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Stop Remote JS Debugging']",
         },
         RN_DEV_MENU_CANCEL: {
             [Platform.Android]: "//*[@text='Cancel']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Cancel']",
+            [Platform.iOS_Expo]: "(//XCUIElementTypeOther[@name='Cancel'])[1]",
         },
         EXPO_ELEMENT_LOAD_TRIGGER: {
             [Platform.Android]: "//*[@text='Home']",
             [Platform.iOS]: "", // todo
+            [Platform.iOS_Expo]: "", // todo
         },
     };
 
@@ -123,100 +127,26 @@ export class AppiumHelper {
         return wdio.remote(attachArgs);
     }
 
-    // Check if appPackage is installed on Android device for waitTime ms
-    public static async checkIfAndroidAppIsInstalled(appPackage: string, waitTime: number, waitInitTime?: number) {
-        let awaitRetries: number = waitTime / 1000;
-        let retry = 1;
-        await new Promise((resolve, reject) => {
-            let check = setInterval(async () => {
-                if (retry % 5 === 0) {
-                    console.log(`*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${retry} time`);
-                }
-                let result;
-                try {
-                    result = cp.execSync(`adb shell pm list packages ${appPackage}`).toString().trim();
-                } catch (e) {
-                    clearInterval(check);
-                    reject(`Error occured while check app is installed:\n ${e}`);
-                }
-                if (result) {
-                    clearInterval(check);
-                    const initTimeout = waitInitTime || 10000;
-                    console.log(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`);
-                    await sleep(initTimeout);
-                    resolve();
-                } else {
-                    retry++;
-                    if (retry >= awaitRetries) {
-                        clearInterval(check);
-                        reject(`${appPackage} not found after ${waitTime}ms`);
-                    }
-                }
-            }, 1000);
-        });
-    }
-
-    public static async waitUntilIosAppIsInstalled(appBundleId: string, waitTime: number, waitInitTime?: number) {
-        // Start watcher for launch events console logs in simulator and wait until needed app is launched
-        // TODO is not compatible with parallel test run (race condition)
-        let launched = false;
-        const predicate = `eventMessage contains "Launch successful for '${appBundleId}'"`;
-        const args = ["simctl", "spawn", <string>IosSimulatorHelper.getDevice(), "log", "stream", "--predicate", predicate];
-        const proc = cp.spawn("xcrun", args, {stdio: "pipe"});
-        proc.stdout.on("data", (data: string) => {
-            data = data.toString();
-            console.log(data);
-            if (data.startsWith("Filtering the log data")) {
-                return;
+    public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string) {
+        // There are two ways to run app in Expo app:
+        // - via clipboard
+        // - via Explore button
+        if (platform === Platform.Android) {
+            if (process.platform === "darwin") {
+                // Longer way to open Expo app, but
+                // it certainly works on Mac
+                return this.openExpoAppViaExploreButtonAndroid(client, expoURL);
+            } else {
+                // The quickest way to open Expo app,
+                // it doesn't work on Mac though
+                return this.openExpoAppViaClipboardAndroid(client, expoURL);
             }
-            const regexp = new RegExp(`Launch successful for '${appBundleId}'`);
-            if (regexp.test(data)) {
-                launched = true;
-            }
-        });
-        proc.stderr.on("error", (data: string) => {
-            console.error(data.toString());
-        });
-        proc.on("error", (err) => {
-            console.error(err);
-            kill(proc.pid);
-        });
-
-        let awaitRetries: number = waitTime / 1000;
-        let retry = 1;
-        await new Promise((resolve, reject) => {
-            const check = setInterval(async () => {
-                if (retry % 5 === 0) {
-                    console.log(`*** Check if app with bundleId ${appBundleId} is installed, ${retry} attempt`);
-                }
-                if (launched) {
-                    clearInterval(check);
-                    const initTimeout = waitInitTime || 10000;
-                    console.log(`*** Installed ${appBundleId} app found, await ${initTimeout}ms for initializing...`);
-                    await sleep(initTimeout);
-                    resolve();
-                } else {
-                    retry++;
-                    if (retry >= awaitRetries) {
-                        clearInterval(check);
-                        kill(proc.pid, () => {
-                            reject(`${appBundleId} not found after ${waitTime}ms`);
-                        });
-                    }
-                }
-            }, 1000);
-        });
-    }
-
-    public static async openExpoApplicationAndroid(client: AppiumClient, expoURL: string) {
-        if (process.platform === "darwin") {
-            // Longer way to open Expo app, but
-            // it certainly works on Mac
-            return this.openExpoAppViaExploreButton(client, expoURL);
+        } else if (platform === Platform.iOS) {
+            // Similar to openExpoAppViaClipboardAndroid approach
+            // but uses different XPath selectors
+            return this.openExpoAppViaExploreButtonIos(client, expoURL);
         } else {
-            // The quickest way to open Expo app,
-            // it doesn't work on Mac though
-            return this.openExpoAppViaClipboard(client, expoURL);
+            throw new Error(`Unknown platform ${platform}`);
         }
     }
 
@@ -234,6 +164,7 @@ export class AppiumHelper {
                 await sleep(10 * 1000);
                 break;
             case Platform.iOS:
+            case Platform.iOS_Expo:
                 // Sending Cmd+D doesn't work sometimes but shake gesture works flawlessly
                 client.shake();
                 await sleep(2 * 1000);
@@ -291,7 +222,17 @@ export class AppiumHelper {
         return process.env.ANDROID_VERSION || SmokeTestsConstants.defaultTargetAndroidPlatformVersion;
     }
 
-    private static async openExpoAppViaClipboard(client: AppiumClient, expoURL: string) {
+    // Expo 32 has an error on iOS application start up
+    // it is not breaking the app, but may broke the tests, so need to click Dismiss button in the RN Red Box to proceed further
+    public static async disableExpoErrorRedBox(client: AppiumClient) {
+        const DISMISS_BUTTON = "//XCUIElementTypeButton[@name='redbox-dismiss']";
+        if (await client.isExisting(DISMISS_BUTTON)) {
+            console.log("*** React Native Red Box found, disabling...");
+            await client.click(DISMISS_BUTTON);
+        }
+    }
+
+    private static async openExpoAppViaClipboardAndroid(client: AppiumClient, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
         console.log(`*** Opening Expo app via clipboard`);
@@ -306,7 +247,34 @@ export class AppiumHelper {
         console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
-    private static async openExpoAppViaExploreButton(client: AppiumClient, expoURL: string) {
+    private static async openExpoAppViaExploreButtonIos(client: AppiumClient, expoURL: string) {
+        console.log(`*** Opening Expo app via "Explore" button`);
+        console.log(`*** Pressing "Explore" button...`);
+        const EXPO_EXPLORE_BUTTON = "//XCUIElementTypeOther[@name='Explore']";
+        await client
+            .waitForExist(EXPO_EXPLORE_BUTTON, 30 * 1000)
+            .click(EXPO_EXPLORE_BUTTON);
+
+        const FIND_A_PROJECT_ELEMENT = `(//XCUIElementTypeOther[@name='Find a project or enter a URL... '])[3]`;
+
+        console.log(`*** Pasting ${expoURL} to text field...`);
+        // Run Expo app by expoURL
+        await client
+            .waitForExist(FIND_A_PROJECT_ELEMENT, 30 * 1000)
+            .click(FIND_A_PROJECT_ELEMENT);
+
+        console.log(`*** Pasting ${expoURL} to search field...`);
+        client.keys(expoURL);
+        sleep(2 * 1000);
+
+        console.log(`*** Clicking on first found result to run the app`);
+        const TAP_TO_ATTEMPT_ELEMENT = `//XCUIElementTypeOther[@name='Tap to attempt to open project at ${expoURL}']`;
+        await client
+            .waitForExist(TAP_TO_ATTEMPT_ELEMENT, 10 * 1000)
+            .click(`${TAP_TO_ATTEMPT_ELEMENT}//..`); // parent element is the one we should click on
+    }
+
+    private static async openExpoAppViaExploreButtonAndroid(client: AppiumClient, expoURL: string) {
         console.log(`*** Opening Expo app via "Explore" button`);
         console.log(`*** Pressing "Explore" button...`);
         const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc=\"Explore\"]";
