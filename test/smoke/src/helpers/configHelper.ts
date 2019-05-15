@@ -34,7 +34,7 @@ export class TestConfigurator {
             process.env.ANDROID_VERSION = config.android.ANDROID_VERSION;
             process.env.CODE_VERSION = config.CODE_VERSION;
         } else {
-            console.log(`*** Config file "${configFilePath}" is not exists, using environment variables from process context...`);
+            console.log(`*** Config file "${configFilePath}" doesn't exist, looking at environment variables from process context...`);
         }
 
         // If config file is absent - use standard env variables if defined
