@@ -152,6 +152,7 @@ function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplica
     });
 }
 
+const testParams = TestConfigurator.parseTestArguments();
 async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
     console.log("*** Preparing smoke tests setup...");
@@ -184,7 +185,7 @@ async function setup(): Promise<void> {
         await fail(`Can't find VS Code executable at ${testVSCodeDirectory}.`);
     }
     const testVSCodeExecutablePath = getVSCodeExecutablePath(testVSCodeDirectory, isInsiders);
-    VSCodeHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath);
+    VSCodeHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath, testParams.DontDeleteVSIX);
 
     if (!fs.existsSync(userDataDir)) {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
@@ -201,7 +202,6 @@ export async function runVSCode(workspaceOrFolder: string): Promise<SpectronAppl
     return app!;
 }
 
-const testParams = TestConfigurator.parseTestArguments();
 before(async function () {
     if (testParams.SkipTestsSetup) {
         console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");

@@ -7,6 +7,7 @@ export interface TestRunArguments {
     RunAndroidTests: boolean;
     RuniOSTests: boolean;
     SkipTestsSetup: boolean;
+    DontDeleteVSIX: boolean;
 }
 
 export interface TestEnvVariables {
@@ -46,6 +47,7 @@ export class TestConfigurator {
             RunAndroidTests: process.argv.includes("--android"),
             RuniOSTests: process.argv.includes("--ios"),
             SkipTestsSetup: process.argv.includes("--skip-setup"),
+            DontDeleteVSIX: process.argv.includes("--dont-delete-vsix"),
         };
     }
 
