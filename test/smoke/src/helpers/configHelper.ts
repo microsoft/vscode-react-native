@@ -66,24 +66,32 @@ export class TestConfigurator {
             const config = JSON.parse(fs.readFileSync(configFilePath).toString());
 
             let android;
-            if (config.ANDROID_EMULATOR && config.ANDROID_VERSION) {
-                android = {
-                    ANDROID_EMULATOR: config.ANDROID_EMULATOR,
-                    ANDROID_VERSION: config.ANDROID_VERSION,
+            if (config.ANDROID_EMULATOR) {
+                if (config.ANDROID_VERSION) {
+                    android = {
+                        ANDROID_EMULATOR: config.ANDROID_EMULATOR,
+                        ANDROID_VERSION: config.ANDROID_VERSION,
+                    }
+                } else {
+                    throw new Error("Incorrect test config: missing ANDROID_VERSION");
                 }
             } else {
-                throw "Incorrect config: absent Android fields"
+                throw new Error("Incorrect test config: missing ANDROID_EMULATOR");
             }
 
             let ios;
             if (process.platform === "darwin") {
-                if (config.IOS_SIMULATOR && config.IOS_VERSION) {
-                    ios = {
-                        IOS_SIMULATOR: config.IOS_SIMULATOR,
-                        IOS_VERSION: config.IOS_VERSION,
+                if (config.IOS_SIMULATOR) {
+                    if (config.IOS_VERSION) {
+                        ios = {
+                            IOS_SIMULATOR: config.IOS_SIMULATOR,
+                            IOS_VERSION: config.IOS_VERSION,
+                        }
+                    } else {
+                        throw new Error("Incorrect config: missing IOS_VERSION");
                     }
                 } else {
-                    throw "Incorrect config: absent iOS fields"
+                    throw new Error("Incorrect config: missing IOS_SIMULATOR");
                 }
             }
 
@@ -91,7 +99,7 @@ export class TestConfigurator {
             if (config.CODE_VERSION) {
                 CODE_VERSION = config.CODE_VERSION;
             } else {
-                throw "Incorrect config: absent VS Code version field"
+                throw new Error("Incorrect tests config: missing CODE_VERSION");
             }
 
             return {
