@@ -257,15 +257,15 @@ export class AppiumHelper {
 
         const FIND_A_PROJECT_ELEMENT = `(//XCUIElementTypeOther[@name='Find a project or enter a URL... '])[3]`;
 
-        console.log(`*** Pasting ${expoURL} to text field...`);
+
+        console.log(`*** Pasting ${expoURL} to search field...`);
         // Run Expo app by expoURL
         await client
             .waitForExist(FIND_A_PROJECT_ELEMENT, 30 * 1000)
             .click(FIND_A_PROJECT_ELEMENT);
 
-        console.log(`*** Pasting ${expoURL} to search field...`);
         client.keys(expoURL);
-        sleep(2 * 1000);
+        await sleep(2 * 1000);
 
         console.log(`*** Clicking on first found result to run the app`);
         const TAP_TO_ATTEMPT_ELEMENT = `//XCUIElementTypeOther[@name='Tap to attempt to open project at ${expoURL}']`;
@@ -299,7 +299,7 @@ export class AppiumHelper {
             .waitForExist(FIND_A_PROJECT_ELEMENT, 5 * 1000)
             .click(FIND_A_PROJECT_ELEMENT);
         client.keys(expoURL);
-        sleep(2 * 1000);
+        await sleep(2 * 1000);
 
         console.log(`*** Clicking on first found result to run the app`);
         const TAP_TO_ATTEMPT_ELEMENT = "//*[@text=\"Tap to attempt to open project at\"]";
