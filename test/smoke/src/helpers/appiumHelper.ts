@@ -270,7 +270,7 @@ export class AppiumHelper {
         console.log(`*** Clicking on first found result to run the app`);
         const TAP_TO_ATTEMPT_ELEMENT = `//XCUIElementTypeOther[@name='Tap to attempt to open project at ${expoURL}']`;
         await client
-            .waitForExist(TAP_TO_ATTEMPT_ELEMENT, 10 * 1000)
+            .waitForExist(TAP_TO_ATTEMPT_ELEMENT, 30 * 1000)
             .click(`${TAP_TO_ATTEMPT_ELEMENT}//..`); // parent element is the one we should click on
     }
 
