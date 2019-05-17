@@ -186,7 +186,7 @@ async function setup(): Promise<void> {
         await fail(`Can't find VS Code executable at ${testVSCodeDirectory}.`);
     }
     const testVSCodeExecutablePath = getVSCodeExecutablePath(testVSCodeDirectory, isInsiders);
-    VSCodeHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath, testParams.DontDeleteVSIX);
+    VSCodeHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath, !testParams.DontDeleteVSIX);
 
     if (!fs.existsSync(userDataDir)) {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
@@ -204,7 +204,7 @@ export async function runVSCode(workspaceOrFolder: string): Promise<SpectronAppl
 }
 
 before(async function () {
-    if (testParams.Skip\Setup) {
+    if (testParams.SkipSetup) {
         console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
         // Assume that VS Code is already installed
         electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
