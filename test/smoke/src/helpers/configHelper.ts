@@ -2,115 +2,84 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
+import { EnvConfigFilePath } from "../main";
 
 export interface TestRunArguments {
     RunAndroidTests: boolean;
-    RuniOSTests: boolean;
-    SkipTestsSetup: boolean;
+    RunIosTests: boolean;
+    SkipSetup: boolean;
     DontDeleteVSIX: boolean;
 }
 
 export interface TestEnvVariables {
-    android: {
-        ANDROID_EMULATOR: string;
-        ANDROID_VERSION: string;
-    };
-    ios?: {
-        IOS_SIMULATOR: string;
-        IOS_VERSION: string;
-    };
-    CODE_VERSION: string;
+    ANDROID_EMULATOR?: string;
+    ANDROID_VERSION?: string;
+    IOS_SIMULATOR?: string;
+    IOS_VERSION?: string;
+    CODE_VERSION?: string;
 }
 
 export class TestConfigurator {
-    // Read json file with env variables for the test
-    public static readTestEnvVariables(configFilePath: string) {
-        const config = this.parseConfigFile(configFilePath);
-        if (config) {
-            if (config.ios) {
-                process.env.IOS_SIMULATOR = config.ios.IOS_SIMULATOR;
-                process.env.IOS_VERSION = config.ios.IOS_VERSION;
+
+    public static verifyEnvVariables(variables: TestEnvVariables) {
+        if (!variables.ANDROID_EMULATOR) {
+            throw new Error(`Missing ANDROID_EMULATOR variable`);
+        }
+        if (!variables.ANDROID_VERSION) {
+            throw new Error(`Missing ANDROID_VERSION variable`);
+        }
+        if (process.platform === "darwin") {
+            if (!variables.IOS_SIMULATOR) {
+                throw new Error(`Missing IOS_SIMULATOR variable`);
             }
-            process.env.ANDROID_EMULATOR = config.android.ANDROID_EMULATOR;
-            process.env.ANDROID_VERSION = config.android.ANDROID_VERSION;
-            process.env.CODE_VERSION = config.CODE_VERSION;
+            if (!variables.IOS_VERSION) {
+                throw new Error(`Missing IOS_VERSION variable`);
+            }
+        }
+        if (!variables.CODE_VERSION) {
+            throw new Error(`Missing CODE_VERSION variable`);
+        }
+    }
+
+    public static passEnvVariablesToProcessEnv(variables: TestEnvVariables) {
+        const entries = Object.entries(variables);
+        for (const entry of entries) {
+            const variableName = entry[0];
+            const variableValue = entry[1];
+            process.env[variableName] = variableValue;
+        }
+    }
+
+    public static setUpEnvVariables() {
+        let variables;
+        if (fs.existsSync(EnvConfigFilePath)) {
+            console.log(`*** Config file "${EnvConfigFilePath}" is found, reading variables from there`);
+            variables = JSON.parse(fs.readFileSync(EnvConfigFilePath).toString());
         } else {
-            console.log(`*** Config file "${configFilePath}" doesn't exist, looking at environment variables from process context...`);
+            console.log(`*** Config file "${EnvConfigFilePath}" doesn't exist, looking at environment variables from process context...`);
+            variables = process.env;
         }
 
-        // If config file is absent - use standard env variables if defined
-        this.printEnvVariableConfiguration();
+        this.verifyEnvVariables(variables);
+        this.passEnvVariablesToProcessEnv(variables);
+    }
+
+    public static printEnvVariableConfiguration() {
+        let initLog: string = "";
+        initLog += `ANDROID_EMULATOR = ${process.env.ANDROID_EMULATOR}\n`;
+        initLog += `ANDROID_VERSION = ${process.env.ANDROID_VERSION}\n`;
+        initLog += `IOS_SIMULATOR = ${process.env.IOS_SIMULATOR}\n`;
+        initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
+        initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
+        console.log(initLog);
     }
 
     public static parseTestArguments(): TestRunArguments {
         return {
             RunAndroidTests: process.argv.includes("--android"),
-            RuniOSTests: process.argv.includes("--ios"),
-            SkipTestsSetup: process.argv.includes("--skip-setup"),
+            RunIosTests: process.argv.includes("--ios"),
+            SkipSetup: process.argv.includes("--skip-setup"),
             DontDeleteVSIX: process.argv.includes("--dont-delete-vsix"),
         };
-    }
-
-    private static printEnvVariableConfiguration() {
-        let initLog: string = "";
-        initLog += `ANDROID_EMULATOR = ${process.env.ANDROID_EMULATOR}\n`;
-        initLog += `ANDROID_VERSION = ${process.env.ANDROID_VERSION}\n`;
-        if (process.platform === "darwin") {
-            initLog += `IOS_SIMULATOR = ${process.env.IOS_SIMULATOR}\n`;
-            initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
-        }
-        initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
-        console.log(initLog);
-    }
-
-    private static parseConfigFile(configFilePath: string): TestEnvVariables | null {
-        if (fs.existsSync(configFilePath)) {
-            const config = JSON.parse(fs.readFileSync(configFilePath).toString());
-
-            let android;
-            if (config.ANDROID_EMULATOR) {
-                if (config.ANDROID_VERSION) {
-                    android = {
-                        ANDROID_EMULATOR: config.ANDROID_EMULATOR,
-                        ANDROID_VERSION: config.ANDROID_VERSION,
-                    };
-                } else {
-                    throw new Error("Incorrect test config: missing ANDROID_VERSION");
-                }
-            } else {
-                throw new Error("Incorrect test config: missing ANDROID_EMULATOR");
-            }
-
-            let ios;
-            if (process.platform === "darwin") {
-                if (config.IOS_SIMULATOR) {
-                    if (config.IOS_VERSION) {
-                        ios = {
-                            IOS_SIMULATOR: config.IOS_SIMULATOR,
-                            IOS_VERSION: config.IOS_VERSION,
-                        };
-                    } else {
-                        throw new Error("Incorrect config: missing IOS_VERSION");
-                    }
-                } else {
-                    throw new Error("Incorrect config: missing IOS_SIMULATOR");
-                }
-            }
-
-            let CODE_VERSION;
-            if (config.CODE_VERSION) {
-                CODE_VERSION = config.CODE_VERSION;
-            } else {
-                throw new Error("Incorrect tests config: missing CODE_VERSION");
-            }
-
-            return {
-                android: android,
-                ios: ios,
-                CODE_VERSION: CODE_VERSION,
-            };
-        } else {
-            return null;
-        }
     }
 }

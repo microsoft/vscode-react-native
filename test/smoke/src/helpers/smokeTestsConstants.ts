@@ -36,5 +36,5 @@ export class SmokeTestsConstants {
     // Name of application entry point file
     public static AppjsFileName = "App.js";
     // Name of file where tests environment variables stores
-    public static testsConfigFileName = "config.json";
+    public static EnvConfigFileName = "config.json";
 }

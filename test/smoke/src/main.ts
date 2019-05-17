@@ -79,7 +79,6 @@ function getVSCodeExecutablePath(testVSCodeFolder: string, isInsiders: boolean) 
 }
 
 const repoRoot = path.join(__dirname, "..", "..", "..");
-const envConfigPath = path.join(__dirname, "..", SmokeTestsConstants.testsConfigFileName);
 const resourcesPath = path.join(__dirname, "..", "resources");
 const isInsiders = process.env.CODE_VERSION === "insiders";
 let testVSCodeDirectory;
@@ -133,6 +132,8 @@ const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
 
+export const EnvConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
+
 function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplication | null {
 
     if (!electronExecutablePath) {
@@ -156,9 +157,9 @@ const testParams = TestConfigurator.parseTestArguments();
 async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
     console.log("*** Preparing smoke tests setup...");
-
-    console.log(`*** Reading configuration variables`);
-    TestConfigurator.readTestEnvVariables(envConfigPath);
+    console.log(`*** Setting up configuration variables`);
+    TestConfigurator.setUpEnvVariables();
+    TestConfigurator.printEnvVariableConfiguration();
 
     AppiumHelper.runAppium();
 
@@ -203,7 +204,7 @@ export async function runVSCode(workspaceOrFolder: string): Promise<SpectronAppl
 }
 
 before(async function () {
-    if (testParams.SkipTestsSetup) {
+    if (testParams.Skip\Setup) {
         console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
         // Assume that VS Code is already installed
         electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
@@ -231,7 +232,7 @@ describe("Extension smoke tests", () => {
         AppiumHelper.terminateAppium();
     });
     if (process.platform === "darwin") {
-        const noSelectArgs = !testParams.RunAndroidTests && !testParams.RuniOSTests;
+        const noSelectArgs = !testParams.RunAndroidTests && !testParams.RunIosTests;
         if (noSelectArgs) {
             console.log("*** Android and iOS tests will be ran");
             setupReactNativeDebugAndroidTests();
@@ -239,7 +240,7 @@ describe("Extension smoke tests", () => {
         } else if (testParams.RunAndroidTests) {
             console.log("*** --android parameter is set, Android tests will be ran");
             setupReactNativeDebugAndroidTests();
-        } else if (testParams.RuniOSTests) {
+        } else if (testParams.RunIosTests) {
             console.log("*** --ios parameter is set, iOS tests will be ran");
             setupReactNativeDebugiOSTests();
         }
