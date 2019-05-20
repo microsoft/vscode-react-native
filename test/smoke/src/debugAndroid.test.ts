@@ -8,10 +8,11 @@ import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, runVSCode } from "./main";
+import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
-const EXPO_APP_PACKAGE_NAME = AndroidEmulatorHelper.expoPackageName;
+const EXPO_APP_PACKAGE_NAME = SetupEnvironmentHelper.expoPackageName;
 const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity`;
 const RNDebugConfigName = "Debug Android";
 const ExpoDebugConfigName = "Debug in Exponent";
@@ -99,7 +100,7 @@ export function setup() {
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
             // TODO Add listener to trigger that main expo app has been ran
-            await AppiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
+            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL);
             // TODO Add listener to trigger that child expo app has been ran instead of using timeout
             console.log(`Android Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
@@ -151,7 +152,7 @@ export function setup() {
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
-            await AppiumHelper.openExpoApplicationAndroid(clientInited, expoURL);
+            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL);
             console.log(`Android pure RN Expo test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);

@@ -7,10 +7,17 @@ import * as fs from "fs";
 import * as rimraf from "rimraf";
 import * as cp from "child_process";
 import * as semver from "semver";
+import * as kill from "tree-kill";
+import * as os from "os";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
-import { sleep } from "./utilities";
+import { sleep, filterProgressBarChars } from "./utilities";
+import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
 
 export class SetupEnvironmentHelper {
+    public static expoPackageName = "host.exp.exponent";
+    public static expoBundleId = "host.exp.Exponent";
+    public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
+
     public static  prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, version?: string) {
         let command = `react-native init ${appName}`;
         if (version) {
@@ -67,7 +74,7 @@ export class SetupEnvironmentHelper {
         cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
     }
 
-    public static cleanUp(testVSCodeDirectory: string, testLogsDirectory: string, workspacePaths: string[]) {
+    public static cleanUp(testVSCodeDirectory: string, testLogsDirectory: string, workspacePaths: string[], iOSExpoAppsCacheDirectory: string) {
         console.log("\n*** Clean up...");
         if (fs.existsSync(testVSCodeDirectory)) {
             console.log(`*** Deleting test VS Code directory: ${testVSCodeDirectory}`);
@@ -83,6 +90,10 @@ export class SetupEnvironmentHelper {
                 rimraf.sync(testAppFolder);
             }
         });
+        if (fs.existsSync(iOSExpoAppsCacheDirectory)) {
+            console.log(`*** Deleting iOS expo app cache directory: ${iOSExpoAppsCacheDirectory}`);
+            rimraf.sync(iOSExpoAppsCacheDirectory);
+        }
     }
 
     public static async getLatestSupportedRNVersionForExpo(): Promise<any> {
@@ -114,6 +125,63 @@ export class SetupEnvironmentHelper {
                 } catch (error) {
                    reject(error);
                 }
+            });
+        });
+    }
+
+    // Installs Expo app on Android device via "expo android" command
+    public static async installExpoAppOnAndroid(expoAppPath: string) {
+        console.log(`*** Installing Expo app (${this.expoPackageName}) on android emulator with 'expo-cli android' command`);
+        let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
+        let installerProcess = cp.spawn(expoCliCommand, ["android"], {cwd: expoAppPath, stdio: "pipe"});
+        installerProcess.stdout.on("data", (data) => {
+            const string = filterProgressBarChars(data.toString().trim());
+            if (string !== "") {
+                console.log(`stdout: ${data.toString().trim()}`);
+            }
+        });
+        installerProcess.stderr.on("data", (data) => {
+            const string = filterProgressBarChars(data.toString().trim());
+            if (string !== "") {
+                console.error(`stderr: ${string}`);
+            }
+        });
+        installerProcess.on("close", () => {
+            console.log("*** expo-cli terminated");
+        });
+        installerProcess.on("error", (error) => {
+            console.log("Error occurred in expo-cli process: ", error);
+        });
+        await AndroidEmulatorHelper.checkIfAppIsInstalled(this.expoPackageName, 100 * 1000);
+        kill(installerProcess.pid, "SIGINT");
+        await sleep(1000);
+        AndroidEmulatorHelper.enableDrawPermitForApp(this.expoPackageName);
+    }
+
+    // Installs Expo app on iOS device via "expo install:ios" command
+    public static async installExpoAppOnIos(expoAppPath: string) {
+        return new Promise((resolve, reject) => {
+            console.log(`*** Installing Expo app on iOS simulator with 'expo-cli install:ios' command`);
+            let installerProcess = cp.spawn("expo-cli", ["install:ios"], {cwd: expoAppPath, stdio: "pipe"});
+            installerProcess.stdout.on("data", (data) => {
+                const string = filterProgressBarChars(data.toString().trim());
+                if (string !== "") {
+                    console.log(`stdout: ${string}`);
+                }
+            });
+            installerProcess.stderr.on("data", (data) => {
+                const string = filterProgressBarChars(data.toString().trim());
+                if (string !== "") {
+                    console.error(`stderr: ${string}`);
+                }
+            });
+            installerProcess.on("close", () => {
+                console.log("*** expo-cli terminated");
+                resolve();
+            });
+            installerProcess.on("error", (error) => {
+                console.log("Error occurred in expo-cli process: ", error);
+                reject(error);
             });
         });
     }
