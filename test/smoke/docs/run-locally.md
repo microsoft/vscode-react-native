@@ -182,9 +182,6 @@ Also, it supports the following parameters:
 
 > Notice: if `--dont-delete-vsix` is not set, then extension will be deleted after execution of the tests.
 
-
-
-
 ## Troubleshooting
 
 Several diagnostic logs are written during tests run. `SmokeTestLogs` directory is created on each tests run and contains
