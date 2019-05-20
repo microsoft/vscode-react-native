@@ -81,31 +81,45 @@ export class GeneralMobilePlatform {
         return Q.resolve<void>(void 0);
     }
 
-    protected getOptFromRunArgs(optName: string, binary: boolean = false): any {
-        if (this.runArguments.length > 0) {
-            const optIdx = this.runArguments.indexOf(optName);
-            let result: any = false;
+    public static getOptFromRunArgs(runArguments: any[], optName: string, binary: boolean = false): any {
+        if (runArguments.length > 0) {
+            const optIdx = runArguments.indexOf(optName);
+            let result: any = undefined;
 
             if (optIdx > -1) {
-                result = binary ? true : this.runArguments[optIdx + 1];
+                result = binary ? true : runArguments[optIdx + 1];
             } else {
-                for (let i = 0; i < this.runArguments.length; i++) {
-                    const arg = this.runArguments[i];
+                for (let i = 0; i < runArguments.length; i++) {
+                    const arg = runArguments[i];
                     if (arg.indexOf(optName) > -1) {
-                        result = binary ? true : arg.split("=")[1].trim();
+                        if (binary) {
+                            result = true;
+                        } else {
+                            const tokens = arg.split("=");
+                            if (tokens.length > 1) {
+                                result = tokens[1].trim();
+                            } else {
+                                result = undefined;
+                            }
+                        }
                     }
                 }
             }
 
+            // Binary parameters can either exists (e.g. be true) or be absent. You can not pass false binary parameter.
             if (binary) {
-                return !!result;
+                if (result === undefined) {
+                    return undefined;
+                } else {
+                    return true;
+                }
             }
 
             if (result) {
                 try {
                     return JSON.parse(result);
                 } catch (err) {
-                    // sipmle string value, return as is
+                    // simple string value, return as is
                     return result;
                 }
             }
