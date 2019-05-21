@@ -304,11 +304,13 @@ export class SpectronApplication {
             await this.webclient.windowByIndex(i);
 
             if (/bootstrap\/index\.html/.test(await this.webclient.getUrl())) {
+                console.log("Window is found");
                 break;
             }
         }
 
         await this.client.waitForElement(".monaco-workbench");
+        sleep(1 * 1000);
     }
 
     private async waitForWelcome(): Promise<any> {
