@@ -1,4 +1,4 @@
-# Running smoke tests in Azure DevOps
+# Running automated smoke tests in Azure DevOps
 
 ## Setting up Azure DevOps agent for running smoke tests
 
