@@ -98,7 +98,6 @@ Add these lines to `~/.bash_profile` (create one if you haven't it):
 1. Launch Xcode and install additional required components when prompted.
 1. Run `sudo xcode-select -s /Applications/Xcode.app` in terminal
 1. Run `brew install carthage` in terminal (*required by Appium*)
-1. When the tests are being ran for the first time, you need to give permissions for `runsvc.sh` agent process for System Events. Request for the permissions will appear automatically during the tests, so you need to just press `Allow` button. This is required for `expo ios:install` command which runs graphical iOS simulator.
 
 ## Set up tests
 
@@ -142,13 +141,16 @@ Tests requires several environment variables to be set up before starting:
 
 To create environment variable you can use this commands:
    * **Windows** (Powershell):
-    ```ps1
-    [Environment]::SetEnvironmentVariable("YOUR_VARIABLE", VALUE, [System.EnvironmentVariableTarget]::Machine)
-    ```
+   
+   ```ps1
+   [Environment]::SetEnvironmentVariable("YOUR_VARIABLE", VALUE, [System.EnvironmentVariableTarget]::Machine)
+   ```
+    
    * **Mac/Linux**: Add these lines to `~/.bash_profile`:
-    ```bash
-    export YOUR_VARIABLE=VALUE
-    ```
+   
+   ```bash
+   export YOUR_VARIABLE=VALUE
+   ```
 
 This approach would be more suited for CI.
 
@@ -168,6 +170,8 @@ To run tests simply go to smoke tests directory and run command:
 yarn mocha
 ```
 These command will perform pre-tests setup (creating applications, downloading VS Code, cleaning up, etc) and then run android and iOS tests.
+
+> Notice (**Mac only**): when the tests are being ran for the first time, you need to give permissions for `runsvc.sh` agent process for System Events. Request for the permissions will appear automatically during the tests, so you need to just press `Allow` button. This is required for `expo ios:install` command which runs graphical iOS simulator.
 
 Also, it supports the following parameters:
 
