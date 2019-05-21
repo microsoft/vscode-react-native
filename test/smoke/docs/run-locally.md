@@ -1,4 +1,4 @@
-# Running smoke tests locally
+# Running automated smoke tests locally
 
 Tests supports running on **Windows 10**, **MacOS Mojave** and **Ubuntu 18.04** machines. Use instructions respected to your machine type.
 
