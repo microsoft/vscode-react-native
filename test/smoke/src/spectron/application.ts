@@ -138,6 +138,7 @@ export class SpectronApplication {
             await this.spectron.stop();
             this.spectron = undefined;
         }
+        await sleep(1 * 1000);
     }
 
     /**
