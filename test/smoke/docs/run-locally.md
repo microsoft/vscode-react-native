@@ -78,17 +78,6 @@ Add these lines to `~/.bash_profile` (create one if you haven't it):
 
 1. Open Android studio for any workspace and open **Android Virtual Device Manager(AVD Manager)** at the right top of the window.
 1. Create new android virtual device using **x86** image with the parameters you need for testing.
-1. You need to create environmental variable with your device name:
-   * **Windows** (Powershell):
-    ```ps1
-    [Environment]::SetEnvironmentVariable("ANDROID_EMULATOR", <device_name>, [System.EnvironmentVariableTarget]::Machine)
-    ```
-   * **Mac/Linux**:
-Add these lines to `~/.bash_profile`:
-    ```bash
-    export ANDROID_EMULATOR=<device_name>
-    ```
-
 1. Run this command and if emulator starts - you are all set with Android!
     ```bash
     emulator -avd <device_name>
@@ -142,6 +131,7 @@ Add these lines to `~/.bash_profile`:
 ## Running tests
 
 Tests requires several environment variables to be set up before starting:
+
 |Variable|Examples|Explanation|
 |---|---|---|
 |ANDROID_EMULATOR|Nexus_5X_API_28|Name of the emulated device|
@@ -150,9 +140,19 @@ Tests requires several environment variables to be set up before starting:
 |IOS_VERSION|12.2|(**Only for iOS tests**) Version of iOS on the simulated device|
 |CODE_VERSION|`*`, `1.34.1`|Version of VS Code to download and run while running tests|
 
+To create environment variable you can use this commands:
+   * **Windows** (Powershell):
+    ```ps1
+    [Environment]::SetEnvironmentVariable("YOUR_VARIABLE", VALUE, [System.EnvironmentVariableTarget]::Machine)
+    ```
+   * **Mac/Linux**: Add these lines to `~/.bash_profile`:
+    ```bash
+    export YOUR_VARIABLE=VALUE
+    ```
+
 This approach would be more suited for CI.
 
-For local runs more suitable to create file `config.json` inside `test/smoke` directory and specify variables there. Example:
+For local runs is more convenient to create file `config.json` inside `test/smoke` directory and specify variables there. Example:
 ```js
 {
     "ANDROID_EMULATOR": "Nexus_5X_API_28_x86",
