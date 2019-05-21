@@ -1,6 +1,7 @@
 # Running automated smoke tests locally
 
 Tests supports running on **Windows 10**, **MacOS Mojave** and **Ubuntu 18.04** machines. Use instructions respected to your machine type.
+Please, be aware that automated tests doesn't cover debugging cases on a real devices - only emulators/simulators.
 
 ## Prerequisites
 
@@ -141,13 +142,13 @@ Tests requires several environment variables to be set up before starting:
 
 To create environment variable you can use this commands:
    * **Windows** (Powershell):
-   
+
    ```ps1
    [Environment]::SetEnvironmentVariable("YOUR_VARIABLE", VALUE, [System.EnvironmentVariableTarget]::Machine)
    ```
-    
+
    * **Mac/Linux**: Add these lines to `~/.bash_profile`:
-   
+
    ```bash
    export YOUR_VARIABLE=VALUE
    ```
