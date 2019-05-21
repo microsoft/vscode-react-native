@@ -70,14 +70,11 @@ export class VSCodeHelper {
         });
     }
 
-    public static installExtensionFromVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string) {
+    public static installExtensionFromVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string, deleteVSIX: boolean) {
         let args: string[] = [];
         args.push(`--extensions-dir=${extensionDir}`);
         const artifactPath = path.join(resourcesPath, VSCodeHelper.artifactsFolderName);
-        const dirFiles = fs.readdirSync(artifactPath);
-        let extensionFile = dirFiles.find((elem) => {
-            return /.*\.(vsix)/.test(elem);
-        });
+        let extensionFile = utilities.findFile(artifactPath, /.*\.(vsix)/);
         if (!extensionFile) {
             throw new Error(`React Native extension .vsix is not found in ${resourcesPath}`);
         }
@@ -87,7 +84,7 @@ export class VSCodeHelper {
         console.log(`*** Installing extension to VS Code using command: ${testVSCodeExecutablePath} ${args.join(" ")}`);
         spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
 
-        if (!process.argv.includes("--dont-delete-vsix")) {
+        if (deleteVSIX) {
             console.log(`*** Deleting ${extensionFile} after installation`);
             rimraf.sync(extensionFile);
         } else {

@@ -156,6 +156,7 @@ export class Debug extends Viewlet {
         await new Promise((resolve) => {
             let check = setInterval(async () => {
                 let result = await this.getConsoleOutput();
+                result = result.map(value => value.trim());
                 let testOutputIndex = result.indexOf(stringToFind);
                 if (testOutputIndex !== -1) {
                     clearInterval(check);
