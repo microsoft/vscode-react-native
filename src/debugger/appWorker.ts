@@ -60,19 +60,49 @@ Object.defineProperty(process, "versions", {
     value: undefined
 });
 
+function getNativeModules() {
+    var NativeModules;
+    try {
+        // This approach is for old RN versions
+        NativeModules = global.require('NativeModules');
+    } catch (err) {
+        // ignore error and try another way for more recent RN versions
+        try {
+            var nativeModuleId;
+            var modules = global.__r.getModules();
+            var ids = Object.keys(modules);
+            for (var i = 0; i < ids.length; i++) {
+              if (modules[ids[i]].verboseName) {
+                 var packagePath = new String(modules[ids[i]].verboseName);
+                 if (packagePath.indexOf("react-native/Libraries/BatchedBridge/NativeModules.js") > 0) {
+                   nativeModuleId = parseInt(ids[i], 10);
+                   break;
+                 }
+              }
+            }
+          if (nativeModuleId) {
+            NativeModules = global.__r(nativeModuleId);
+          }
+        }
+        catch (err) {
+            // suppress errors
+        }
+    }
+    return NativeModules;
+}
+
+// Originally, this was made for iOS only
 var vscodeHandlers = {
     'vscode_reloadApp': function () {
-        try {
-            global.require('NativeModules').DevMenu.reload();
-        } catch (err) {
-            // ignore
+        var NativeModules = getNativeModules();
+        if (NativeModules) {
+            NativeModules.DevMenu.reload();
         }
     },
     'vscode_showDevMenu': function () {
-        try {
-            var DevMenu = global.require('NativeModules').DevMenu.show();
-        } catch (err) {
-            // ignore
+        var NativeModules = getNativeModules();
+        if (NativeModules) {
+            NativeModules.DevMenu.show();
         }
     }
 };
