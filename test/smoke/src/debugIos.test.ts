@@ -114,7 +114,7 @@ export function setup() {
             const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
-            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL);
+            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, app.client.spectron.electron.clipboard, expoURL);
             console.log(`iOS Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
             // Sometimes by this moment iOS app already have remote js debugging enabled so we don't need to enable it manually
@@ -179,7 +179,7 @@ export function setup() {
             const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
-            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL);
+            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, app.client.spectron.electron.clipboard, expoURL);
             console.log(`iOS pure RN Expo test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
             // Sometimes by this moment iOS app already have remote js debugging enabled so we don't need to enable it manually

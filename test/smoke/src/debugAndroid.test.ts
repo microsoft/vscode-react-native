@@ -100,7 +100,7 @@ export function setup() {
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
             // TODO Add listener to trigger that main expo app has been ran
-            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL);
+            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, app.client.spectron.electron.clipboard, expoURL);
             // TODO Add listener to trigger that child expo app has been ran instead of using timeout
             console.log(`Android Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
@@ -152,7 +152,7 @@ export function setup() {
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
-            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL);
+            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, app.client.spectron.electron.clipboard, expoURL);
             console.log(`Android pure RN Expo test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
