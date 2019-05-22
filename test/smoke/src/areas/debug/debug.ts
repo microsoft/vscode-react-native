@@ -4,7 +4,7 @@
 import { SpectronApplication } from "../../spectron/application";
 import { Viewlet } from "../workbench/viewlet";
 import { sleep } from "../../helpers/utilities";
-import * as clipboardy from "clipboardy";
+import { clipboard } from "electron";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
@@ -196,9 +196,9 @@ export class Debug extends Viewlet {
         await sleep(1000);
         this.spectron.runCommand("editor.action.clipboardCopyAction");
         await sleep(2000);
-        let clipboard = clipboardy.readSync();
-        console.log(`Expo QR Code tab text copied: \n ${clipboard}`);
-        const match = clipboard.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
+        let copiedText = clipboard.readText();
+        console.log(`Expo QR Code tab text copied: \n ${copiedText}`);
+        const match = copiedText.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
         if (!match) return null;
         let expoURL = match[0];
         console.log(`Found Expo URL: ${expoURL}`);

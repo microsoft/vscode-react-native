@@ -6,7 +6,7 @@ import * as wdio from "webdriverio";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
 import * as kill from "tree-kill";
-import * as clipboardy from "clipboardy";
+import { clipboard } from "electron";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./utilities";
 let appiumProcess: null | cp.ChildProcess;
@@ -237,7 +237,7 @@ export class AppiumHelper {
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
         console.log(`*** Opening Expo app via clipboard`);
         console.log(`*** Copying ${expoURL} to system clipboard...`);
-        clipboardy.writeSync(expoURL);
+        clipboard.writeText(expoURL);
         const EXPO_OPEN_FROM_CLIPBOARD = "//*[@text='Open from Clipboard']";
         console.log(`*** Searching for ${EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
         // Run Expo app by expoURL
