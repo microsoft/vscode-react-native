@@ -6,7 +6,6 @@ import * as wdio from "webdriverio";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
 import * as kill from "tree-kill";
-import * as clipboardy from "clipboardy";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./utilities";
 let appiumProcess: null | cp.ChildProcess;
@@ -127,7 +126,7 @@ export class AppiumHelper {
         return wdio.remote(attachArgs);
     }
 
-    public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string) {
+    public static async openExpoApplication(platform: Platform, client: AppiumClient, clipboard: Electron.Clipboard, expoURL: string) {
         // There are two ways to run app in Expo app:
         // - via clipboard
         // - via Explore button
@@ -139,7 +138,7 @@ export class AppiumHelper {
             } else {
                 // The quickest way to open Expo app,
                 // it doesn't work on Mac though
-                return this.openExpoAppViaClipboardAndroid(client, expoURL);
+                return this.openExpoAppViaClipboardAndroid(client, clipboard, expoURL);
             }
         } else if (platform === Platform.iOS) {
             // Similar to openExpoAppViaClipboardAndroid approach
@@ -232,12 +231,12 @@ export class AppiumHelper {
         }
     }
 
-    private static async openExpoAppViaClipboardAndroid(client: AppiumClient, expoURL: string) {
+    private static async openExpoAppViaClipboardAndroid(client: AppiumClient, clipboard: Electron.Clipboard, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
         console.log(`*** Opening Expo app via clipboard`);
         console.log(`*** Copying ${expoURL} to system clipboard...`);
-        clipboardy.writeSync(expoURL);
+        await clipboard.writeText(expoURL);
         const EXPO_OPEN_FROM_CLIPBOARD = "//*[@text='Open from Clipboard']";
         console.log(`*** Searching for ${EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
         // Run Expo app by expoURL
