@@ -236,7 +236,7 @@ export class AppiumHelper {
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
         console.log(`*** Opening Expo app via clipboard`);
         console.log(`*** Copying ${expoURL} to system clipboard...`);
-        clipboard.writeText(expoURL);
+        await clipboard.writeText(expoURL);
         const EXPO_OPEN_FROM_CLIPBOARD = "//*[@text='Open from Clipboard']";
         console.log(`*** Searching for ${EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
         // Run Expo app by expoURL
