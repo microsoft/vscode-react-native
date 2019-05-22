@@ -164,6 +164,14 @@ export class SpectronApplication {
         return this.client.keys(keysToPress);
     }
 
+    /**
+     * Before running any tests we need to hide any panels to avoid test getting stuck because needed DOM elements are not rendered
+     */
+    public async prepareMainWindow() {
+        // Outline window blocks App.js selector on Mac
+        await this.workbench.explorer.collapseOutlineView();
+    }
+
     private async _start(workspaceOrFolder = this.options.workspacePath, extraArgs: string[] = []): Promise<any> {
         await this.retrieveKeybindings();
         await this.startApplication(workspaceOrFolder, extraArgs);
