@@ -199,7 +199,8 @@ async function setup(): Promise<void> {
 export async function runVSCode(workspaceOrFolder: string): Promise<SpectronApplication> {
     const app = createApp(quality, workspaceOrFolder);
     await app!.start();
-    await sleep(10000);
+    await sleep(5000);
+    await app!.prepareMainWindow();
     return app!;
 }
 
