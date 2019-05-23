@@ -1,22 +1,54 @@
 {
-    "version": "0.1.0",
-    "command": "gulp",
-    "isShellCommand": true,
+    "version": "2.0.0",
     "tasks": [
         {
-            "taskName": "watch",
-            "isBuildCommand": true,
-            "isBackground": true,
-            "problemMatcher": "$gulp-tsc"
+            "label": "compile-smoke-tests",
+            "type": "process",
+            "command": ["./node_modules/.bin/tsc"],
+            "windows": {
+                "command": ".\\node_modules\\.bin\\tsc.cmd",
+            },
+            "options": {
+                "cwd": "${workspaceRoot}/test/smoke"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
         },
         {
-            "taskName": "build",
-            "isBuildCommand": true,
-            "problemMatcher": "$gulp-tsc"
+            "label": "tslint-smoke-tests",
+            "type": "process",
+            "command": ["./node_modules/.bin/tslint"],
+            "windows": {
+                "command": ".\\node_modules\\.bin\\tslint.cmd",
+            },
+            "args": [
+                "-c",
+                "tslint.json",
+                "--project",
+                "tsconfig.json",
+                "'src/**'",
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}/test/smoke"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
         },
         {
-            "taskName": "tslint",
-            "problemMatcher": "$tslint5"
+            "label": "Build Smoke Tests",
+            "dependsOn": ["tslint-smoke-tests", "compile-smoke-tests"]
         }
-    ]
+    ],
 }

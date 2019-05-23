@@ -60,7 +60,9 @@ const options = minimist(process.argv.slice(2), knownOptions);
 let lintSources = [srcPath, testPath].map((tsFolder) => tsFolder + "/**/*.ts");
 lintSources = lintSources.concat([
     "!src/typings/**",
-    "!test/resources/sampleReactNative022Project/**"
+    "!test/resources/sampleReactNative022Project/**",
+    "!test/smoke/**",
+    "!/SmokeTestLogs/**"
 ]);
 
 function build(failOnError, buildNls) {
@@ -123,7 +125,9 @@ gulp.task("check-copyright", () => {
         "!node_modules/**",
         "!test/**/*.js",
         "!SampleApplication/**",
-        "!test/resources/sampleReactNative022Project/**/*.js"
+        "!test/resources/sampleReactNative022Project/**/*.js",
+        "!test/smoke/node_modules/**",
+        "!test/smoke/resources/**"
     ])
         .pipe(copyright());
 });
@@ -173,6 +177,8 @@ gulp.task("clean", () => {
         "!test/resources/sampleReactNative022Project/**/*.js",
         ".vscode-test/",
         "nls.*.json",
+        "!test/smoke/resources/ReactNativeSample/App.js",
+        "!test/smoke/resources/ExpoSample/App.js",
     ]
     return del(pathsToDelete, { force: true });
 });
