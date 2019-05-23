@@ -102,6 +102,7 @@ export class VSCodeHelper {
 
     private static getDownloadUrl(cb) {
         VSCodeHelper.getTag(function (tag) {
+            // TODO: Update download endpoint azurewebsites.net -> visualstudio.com (https://github.com/microsoft/vscode-test/blob/b8813110b229fa1a524650c16ec521df42b7893d/lib/util.ts#L23)
             return cb(["https://vscode-update.azurewebsites.net", tag, VSCodeHelper.downloadPlatform, (VSCodeHelper.isInsiders ? "insider" : "stable")].join("/"));
         });
     }
