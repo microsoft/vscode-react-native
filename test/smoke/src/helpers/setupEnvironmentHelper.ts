@@ -186,6 +186,7 @@ export class SetupEnvironmentHelper {
         });
     }
 
+    // TODO: refactor this function to make it capable to accept debug configuration as a parameter
     public static addIosTargetToLaunchJson(workspacePath: string) {
         let launchJsonPath = path.join(workspacePath, ".vscode", "launch.json");
         console.log(`*** Implicitly adding target to "Debug iOS" config for ${launchJsonPath}`);
