@@ -212,7 +212,7 @@ export class SpectronApplication {
         // Spectron always uses the same port number for the chrome driver
         // and it handles gracefully when two instances use the same port number
         // This works, but when one of the instances quits, it takes down
-        // chrome driver with it, leaving the other instance in DISPAIR!!! :(
+        // chrome driver with it, leaving the other instance in DESPAIR!!! :(
         const port = await findFreePort();
 
         const runName = String(SpectronApplication.count++);
