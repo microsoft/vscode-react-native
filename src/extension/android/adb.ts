@@ -119,13 +119,8 @@ export class AdbHelper {
     }
 
     public reloadApp(deviceId?: string): Q.Promise<void> {
-        let commands = [
-            `${this.adbExecutable} ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_MENU}`,
-            `${this.adbExecutable} ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_DPAD_UP}`,
-            `${this.adbExecutable} ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_DPAD_CENTER}`,
-        ];
-
-        return this.executeChain(commands);
+        let command = `${this.adbExecutable} ${deviceId ? "-s " + deviceId : ""} shell input text "RR"`;
+        return this.commandExecutor.execute(command);
     }
 
     public getOnlineDevices(): Q.Promise<IDevice[]> {
