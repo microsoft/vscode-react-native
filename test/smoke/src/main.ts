@@ -170,14 +170,16 @@ async function setup(): Promise<void> {
     await AndroidEmulatorHelper.runAndroidEmulator();
 
     SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName);
-    SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
-    const latestRNVersionExpo = await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
-    SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, latestRNVersionExpo);
-    SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
-    await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
-    if (process.platform === "darwin") {
-        // We need only to download expo app, but this is the quickest way of doing it
-        await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);
+    if (!testParams.RunNativeTests) {
+        SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
+        const latestRNVersionExpo = await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
+        SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, latestRNVersionExpo);
+        SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
+        await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
+        if (process.platform === "darwin") {
+            // We need only to download expo app, but this is the quickest way of doing it
+            await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);
+        }
     }
     await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);
 
@@ -233,11 +235,15 @@ describe("Extension smoke tests", () => {
         AppiumHelper.terminateAppium();
     });
     if (process.platform === "darwin") {
-        const noSelectArgs = !testParams.RunAndroidTests && !testParams.RunIosTests;
+        const noSelectArgs = !testParams.RunAndroidTests && !testParams.RunIosTests && !testParams.RunNativeTests;
         if (noSelectArgs) {
             console.log("*** Android and iOS tests will be ran");
             setupReactNativeDebugAndroidTests();
             setupReactNativeDebugiOSTests();
+        } else if (testParams.RunNativeTests) {
+            console.log("*** --native-only parameter is set, Android and iOS native tests will be ran");
+            setupReactNativeDebugAndroidTests(testParams);
+            setupReactNativeDebugiOSTests(testParams);
         } else if (testParams.RunAndroidTests) {
             console.log("*** --android parameter is set, Android tests will be ran");
             setupReactNativeDebugAndroidTests();
@@ -246,6 +252,10 @@ describe("Extension smoke tests", () => {
             setupReactNativeDebugiOSTests();
         }
     } else {
+        if (testParams.RunNativeTests) {
+            console.log("*** --native-only parameter is set, Android native tests will be ran");
+            setupReactNativeDebugAndroidTests(testParams);
+        }
         setupReactNativeDebugAndroidTests();
     }
 });

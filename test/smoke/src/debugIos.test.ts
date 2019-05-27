@@ -10,6 +10,7 @@ import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
 import { sleep, findFile } from "./helpers/utilities";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import * as path from "path";
+import { TestRunArguments } from "./helpers/configHelper";
 
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const RNDebugConfigName = "Debug iOS";
@@ -19,7 +20,7 @@ const debugIosTestTime = SmokeTestsConstants.iosAppBuildAndInstallTimeout + 100 
 // Time for iOS Expo Debug Test before it reaches timeout
 const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
 
-export function setup() {
+export function setup(testParameters?: TestRunArguments) {
     describe("Debugging iOS", () => {
         let app: SpectronApplication;
         let clientInited: AppiumClient;
@@ -75,6 +76,9 @@ export function setup() {
         });
 
         it("Expo app Debug test", async function () {
+            if (testParameters!.RunNativeTests) {
+                this.skip();
+            }
             this.timeout(debugExpoTestTime);
             app = await runVSCode(ExpoWorkspacePath);
             console.log(`iOS Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
@@ -140,6 +144,9 @@ export function setup() {
         });
 
         it("Pure RN app Expo test", async function () {
+            if (testParameters!.RunNativeTests) {
+                this.skip();
+            }
             this.timeout(debugExpoTestTime);
             app = await runVSCode(pureRNWorkspacePath);
             console.log(`iOS pure RN Expo test: ${pureRNWorkspacePath} directory is opened in VS Code`);

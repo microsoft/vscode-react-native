@@ -9,6 +9,7 @@ import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, runVSCode } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
+import { TestRunArguments } from "./helpers/configHelper";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -21,7 +22,7 @@ const debugAndroidTestTime = SmokeTestsConstants.androidAppBuildAndInstallTimeou
 // Time for Android Expo Debug Test before it reaches timeout
 const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
 
-export function setup() {
+export function setup(testParameters?: TestRunArguments) {
     describe("Debugging Android", () => {
         let app: SpectronApplication;
         let clientInited: AppiumClient;
@@ -69,6 +70,9 @@ export function setup() {
         });
 
         it("Expo app Debug test", async function () {
+            if (testParameters!.RunNativeTests) {
+                this.skip();
+            }
             this.timeout(debugExpoTestTime);
             app = await runVSCode(ExpoWorkspacePath);
             console.log(`Android Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
@@ -122,6 +126,9 @@ export function setup() {
         });
 
         it("Pure RN app Expo test", async function () {
+            if (testParameters!.RunNativeTests) {
+                this.skip();
+            }
             this.timeout(debugExpoTestTime);
             app = await runVSCode(pureRNWorkspacePath);
             console.log(`Android pure RN Expo test: ${pureRNWorkspacePath} directory is opened in VS Code`);
