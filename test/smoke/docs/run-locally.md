@@ -178,12 +178,13 @@ Also, it supports the following parameters:
 
 |Parameter|Explanation|
 |---|---|
-|--skip-setup|Skip pre-tests setup|
-|--ios|Run iOS tests only|
-|--android|Run Android tests only|
-|--dont-delete-vsix|Do not delete extension VSIX at the end of the tests execution|
+|`--skip-setup`|Skip pre-tests setup|
+|`--ios`|Run iOS tests only|
+|`--android`|Run Android tests only|
+|`--basic-only`|Run basic tests only (Debug Android, Debug iOS)|
+|`--dont-delete-vsix`|Do not delete extension VSIX at the end of the tests execution|
 
-> Notice: if both `--ios` and `--android` parameters are not set, both iOS and Android tests will be executed.
+> Notice: if `--ios`, `--android` and `--basic-only` parameters are not set, all iOS and Android tests will be executed.
 
 > Notice: if `--dont-delete-vsix` is not set, then extension will be deleted after execution of the tests.
 
