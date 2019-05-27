@@ -76,7 +76,7 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("Expo app Debug test", async function () {
-            if (testParameters!.RunNativeTests) {
+            if (testParameters!.RunBasicTests) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
@@ -144,7 +144,7 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("Pure RN app Expo test", async function () {
-            if (testParameters!.RunNativeTests) {
+            if (testParameters!.RunBasicTests) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);

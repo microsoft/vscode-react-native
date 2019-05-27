@@ -170,7 +170,7 @@ async function setup(): Promise<void> {
     await AndroidEmulatorHelper.runAndroidEmulator();
 
     SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName);
-    if (!testParams.RunNativeTests) {
+    if (!testParams.RunBasicTests) {
         SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
         const latestRNVersionExpo = await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, latestRNVersionExpo);
@@ -235,12 +235,12 @@ describe("Extension smoke tests", () => {
         AppiumHelper.terminateAppium();
     });
     if (process.platform === "darwin") {
-        const noSelectArgs = !testParams.RunAndroidTests && !testParams.RunIosTests && !testParams.RunNativeTests;
+        const noSelectArgs = !testParams.RunAndroidTests && !testParams.RunIosTests && !testParams.RunBasicTests;
         if (noSelectArgs) {
             console.log("*** Android and iOS tests will be ran");
             setupReactNativeDebugAndroidTests();
             setupReactNativeDebugiOSTests();
-        } else if (testParams.RunNativeTests) {
+        } else if (testParams.RunBasicTests) {
             console.log("*** --native-only parameter is set, Android and iOS native tests will be ran");
             setupReactNativeDebugAndroidTests(testParams);
             setupReactNativeDebugiOSTests(testParams);
@@ -252,7 +252,7 @@ describe("Extension smoke tests", () => {
             setupReactNativeDebugiOSTests();
         }
     } else {
-        if (testParams.RunNativeTests) {
+        if (testParams.RunBasicTests) {
             console.log("*** --native-only parameter is set, Android native tests will be ran");
             setupReactNativeDebugAndroidTests(testParams);
         }
