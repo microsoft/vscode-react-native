@@ -241,7 +241,7 @@ describe("Extension smoke tests", () => {
             setupReactNativeDebugAndroidTests();
             setupReactNativeDebugiOSTests();
         } else if (testParams.RunBasicTests) {
-            console.log("*** --basic-only parameter is set, Android and iOS native tests will be ran");
+            console.log("*** --basic-only parameter is set, basic Android and iOS tests will be ran");
             setupReactNativeDebugAndroidTests(testParams);
             setupReactNativeDebugiOSTests(testParams);
         } else if (testParams.RunAndroidTests) {
@@ -253,7 +253,7 @@ describe("Extension smoke tests", () => {
         }
     } else {
         if (testParams.RunBasicTests) {
-            console.log("*** --basic-only parameter is set, Android native tests will be ran");
+            console.log("*** --basic-only parameter is set, basic Android tests will be ran");
             setupReactNativeDebugAndroidTests(testParams);
         } else {
             setupReactNativeDebugAndroidTests();
