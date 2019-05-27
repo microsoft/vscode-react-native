@@ -106,7 +106,12 @@ function test() {
             ui: "tdd",
             useColors: true,
             invert: !options.pattern,
-            grep: options.pattern || "(extensionContext|localizationContext)"
+            grep: options.pattern || "(extensionContext|localizationContext)",
+            reporter: "mocha-multi-reporters",
+            reporterOptions: {
+                mochaFile: "DebuggerTests.xml",
+                reporterEnabled: "spec, mocha-junit-reporter",
+            },
         }));
 }
 

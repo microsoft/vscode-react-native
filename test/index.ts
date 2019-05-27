@@ -12,12 +12,12 @@ let mochaOptions: any = {
     useColors: true,
     invert: true,
     grep: "(debuggerContext|localizationContext)", // Do not run tests intended for the debuggerContext and localizationContext
+    reporter: "mocha-multi-reporters",
+    reporterOptions: {
+        mochaFile: "ExtensionTests.xml",
+        reporterEnabled: "spec, mocha-junit-reporter",
+    },
 };
-
-// Look for the env variable to decide wheter to use the TeamCity reporter or not
-if (process.env.VSCODE_REACT_NATIVE_TEAMCITY_TEST) {
-    mochaOptions.reporter = "mocha-teamcity-reporter";
-}
 
 // Register Mocha options
 testRunner.configure(mochaOptions);
