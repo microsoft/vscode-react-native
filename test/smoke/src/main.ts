@@ -255,7 +255,9 @@ describe("Extension smoke tests", () => {
         if (testParams.RunBasicTests) {
             console.log("*** --basic-only parameter is set, Android native tests will be ran");
             setupReactNativeDebugAndroidTests(testParams);
+        } else {
+            setupReactNativeDebugAndroidTests();
         }
-        setupReactNativeDebugAndroidTests();
+
     }
 });
