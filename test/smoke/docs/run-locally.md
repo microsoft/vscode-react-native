@@ -134,11 +134,11 @@ Tests requires several environment variables to be set up before starting:
 
 |Variable|Examples|Explanation|
 |---|---|---|
-|ANDROID_EMULATOR|`Nexus_5X_API_28`|Name of the emulated device|
-|ANDROID_VERSION|9|Version of android installed on emulated device|
-|IOS_SIMULATOR|`iPhone 5s`|(**Only for iOS tests**) Name of the simulated device|
-|IOS_VERSION|12.2|(**Only for iOS tests**) Version of iOS on the simulated device|
-|CODE_VERSION|`*`, `1.34.1`, `insiders`|Version of VS Code to download and run while running tests|
+|`ANDROID_EMULATOR`|`Nexus_5X_API_28`|Name of the emulated device|
+|`ANDROID_VERSION`|9|Version of android installed on emulated device|
+|`IOS_SIMULATOR`|`iPhone 5s`|(**Only for iOS tests**) Name of the simulated device|
+|`IOS_VERSION`|12.2|(**Only for iOS tests**) Version of iOS on the simulated device|
+|`CODE_VERSION`|`*`, `1.34.1`, `insiders`|Version of VS Code to download and run while running tests|
 
 To create environment variable you can use this commands:
    * **Windows** (Powershell):
