@@ -102,6 +102,7 @@ function test() {
     }
 
     const testResultsPath = path.join(__dirname, "test", "DebuggerTests.xml");
+    process.env.MOCHA_FILE = testResultsPath;
     return gulp.src(["test/**/*.test.js", "!test/extension/**"])
         .pipe(mocha({
             ui: "tdd",
@@ -110,10 +111,7 @@ function test() {
             grep: options.pattern || "(extensionContext|localizationContext)",
             reporter: "mocha-multi-reporters",
             reporterOptions: {
-                reporterEnabled: "spec, mocha-junit-reporter",
-                mochaJunitReporterReporterOptions: {
-                    mochaFile: testResultsPath,
-                },
+                configFile: path.resolve("test/smoke/mochaReporterConfig.json"),
             },
         }));
 }
@@ -191,7 +189,7 @@ gulp.task("clean", () => {
     return del(pathsToDelete, { force: true });
 });
 
-gulp.task("default", gulp.series("clean", "build"));
+
 
 gulp.task("test", gulp.series("build", "tslint", test));
 
@@ -227,7 +225,7 @@ gulp.task("coverage:remap", () => {
 });
 
 gulp.task("test-no-build", test);
-
+gulp.task("default", gulp.series( "test-no-build"));
 gulp.task("test:coverage", gulp.series("quick-build", "coverage:instrument", "test-no-build", "coverage:report", "coverage:remap"));
 
 gulp.task("watch-build-test", gulp.series("build", "test", function runWatch() {
