@@ -134,11 +134,11 @@ Tests requires several environment variables to be set up before starting:
 
 |Variable|Examples|Explanation|
 |---|---|---|
-|ANDROID_EMULATOR|`Nexus_5X_API_28`|Name of the emulated device|
-|ANDROID_VERSION|9|Version of android installed on emulated device|
-|IOS_SIMULATOR|`iPhone 5s`|(**Only for iOS tests**) Name of the simulated device|
-|IOS_VERSION|12.2|(**Only for iOS tests**) Version of iOS on the simulated device|
-|CODE_VERSION|`*`, `1.34.1`, `insiders`|Version of VS Code to download and run while running tests|
+|`ANDROID_EMULATOR`|`Nexus_5X_API_28`|Name of the emulated device|
+|`ANDROID_VERSION`|9|Version of android installed on emulated device|
+|`IOS_SIMULATOR`|`iPhone 5s`|(**Only for iOS tests**) Name of the simulated device|
+|`IOS_VERSION`|12.2|(**Only for iOS tests**) Version of iOS on the simulated device|
+|`CODE_VERSION`|`*`, `1.34.1`, `insiders`|Version of VS Code to download and run while running tests|
 
 To create environment variable you can use this commands:
    * **Windows** (Powershell):
@@ -178,12 +178,13 @@ Also, it supports the following parameters:
 
 |Parameter|Explanation|
 |---|---|
-|--skip-setup|Skip pre-tests setup|
-|--ios|Run iOS tests only|
-|--android|Run Android tests only|
-|--dont-delete-vsix|Do not delete extension VSIX at the end of the tests execution|
+|`--skip-setup`|Skip pre-tests setup|
+|`--ios`|Run iOS tests only|
+|`--android`|Run Android tests only|
+|`--basic-only`|Run basic tests only (Debug Android, Debug iOS)|
+|`--dont-delete-vsix`|Do not delete extension VSIX at the end of the tests execution|
 
-> Notice: if both `--ios` and `--android` parameters are not set, both iOS and Android tests will be executed.
+> Notice: if `--ios`, `--android` and `--basic-only` parameters are not set, all iOS and Android tests will be executed.
 
 > Notice: if `--dont-delete-vsix` is not set, then extension will be deleted after execution of the tests.
 
