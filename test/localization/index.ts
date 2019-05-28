@@ -6,17 +6,20 @@
 /* tslint:disable:no-var-keyword no-var-requires */
 var testRunner = require("vscode/lib/testrunner");
 /* tslint:enable:no-var-keyword no-var-requires */
+import * as path from "path";
 
 let mochaOption: any = {
     ui: "tdd",
     useColors: true,
     grep: "localizationContext",
+    reporter: "mocha-multi-reporters",
+    reporterOptions: {
+        reporterEnabled: "spec, mocha-junit-reporter",
+        mochaJunitReporterReporterOptions: {
+            mochaFile: path.join(__dirname, "..", "LocalizationTests.xml"),
+        },
+    },
 };
-
-// Look for the env variable to decide wheter to use the TeamCity reporter or not
-if (process.env.VSCODE_REACT_NATIVE_TEAMCITY_TEST) {
-    mochaOption.reporter = "mocha-teamcity-reporter";
-}
 
 // Register Mocha options
 testRunner.configure(mochaOption);

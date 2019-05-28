@@ -98,15 +98,21 @@ function test() {
     if (options.pattern) {
         log(`\nTesting cases that match pattern: ${options.pattern}`);
     } else {
-        log("\nTesting cases that don't match pattern: extensionContext");
+        log("\nTesting cases that don't match pattern: extensionContext|localizationContext");
     }
 
+    const testResultsPath = path.join(__dirname, "test", "DebuggerTests.xml");
+    process.env.MOCHA_FILE = testResultsPath;
     return gulp.src(["test/**/*.test.js", "!test/extension/**"])
         .pipe(mocha({
             ui: "tdd",
             useColors: true,
             invert: !options.pattern,
-            grep: options.pattern || "(extensionContext|localizationContext)"
+            grep: options.pattern || "(extensionContext|localizationContext)",
+            reporter: "mocha-multi-reporters",
+            reporterOptions: {
+                configFile: path.resolve("test/mochaReporterConfig.json"),
+            },
         }));
 }
 

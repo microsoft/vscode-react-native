@@ -7,6 +7,7 @@ import { EnvConfigFilePath } from "../main";
 export interface TestRunArguments {
     RunAndroidTests: boolean;
     RunIosTests: boolean;
+    RunBasicTests: boolean;
     SkipSetup: boolean;
     DontDeleteVSIX: boolean;
 }
@@ -78,6 +79,7 @@ export class TestConfigurator {
         return {
             RunAndroidTests: process.argv.includes("--android"),
             RunIosTests: process.argv.includes("--ios"),
+            RunBasicTests: process.argv.includes("--basic-only"),
             SkipSetup: process.argv.includes("--skip-setup"),
             DontDeleteVSIX: process.argv.includes("--dont-delete-vsix"),
         };
