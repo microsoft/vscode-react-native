@@ -15,7 +15,7 @@ let mochaOptions: any = {
     grep: "(debuggerContext|localizationContext)", // Do not run tests intended for the debuggerContext and localizationContext
     reporter: "mocha-multi-reporters",
     reporterOptions: {
-        reporterEnabled: "spec, mocha-junit-reporter",
+        configFile: path.resolve("mochaReporterConfig.json"),
         mochaJunitReporterReporterOptions: {
             mochaFile: path.join(__dirname, "ExtensionTests.xml"),
         },
