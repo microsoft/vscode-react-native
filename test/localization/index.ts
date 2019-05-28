@@ -14,7 +14,6 @@ let mochaOption: any = {
     grep: "localizationContext",
     reporter: "mocha-multi-reporters",
     reporterOptions: {
-        configFile: path.resolve(__dirname, "..", "mochaReporterConfig.json"),
         reporterEnabled: "spec, mocha-junit-reporter",
         mochaJunitReporterReporterOptions: {
             mochaFile: path.join(__dirname, "..", "LocalizationTests.xml"),
