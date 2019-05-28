@@ -6,6 +6,7 @@
 /* tslint:disable:no-var-keyword no-var-requires */
 var testRunner = require("vscode/lib/testrunner");
 /* tslint:enable:no-var-keyword no-var-requires */
+import * as path from "path";
 
 let mochaOptions: any = {
     ui: "tdd",
@@ -14,8 +15,10 @@ let mochaOptions: any = {
     grep: "(debuggerContext|localizationContext)", // Do not run tests intended for the debuggerContext and localizationContext
     reporter: "mocha-multi-reporters",
     reporterOptions: {
-        mochaFile: "ExtensionTests.xml",
         reporterEnabled: "spec, mocha-junit-reporter",
+        mochaJunitReporterReporterOptions: {
+            mochaFile: path.join(__dirname, "ExtensionTests.xml"),
+        },
     },
 };
 

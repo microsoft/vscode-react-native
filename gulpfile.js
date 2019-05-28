@@ -101,6 +101,7 @@ function test() {
         log("\nTesting cases that don't match pattern: extensionContext");
     }
 
+    const testResultsPath = path.join(__dirname, "test", "DebuggerTests.xml");
     return gulp.src(["test/**/*.test.js", "!test/extension/**"])
         .pipe(mocha({
             ui: "tdd",
@@ -109,8 +110,10 @@ function test() {
             grep: options.pattern || "(extensionContext|localizationContext)",
             reporter: "mocha-multi-reporters",
             reporterOptions: {
-                mochaFile: "DebuggerTests.xml",
                 reporterEnabled: "spec, mocha-junit-reporter",
+                mochaJunitReporterReporterOptions: {
+                    mochaFile: testResultsPath,
+                },
             },
         }));
 }

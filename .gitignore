@@ -6,6 +6,7 @@ coverage/
 out
 src/**/nodeDebugLocation.json
 nls.*.json
+test/*.xml
 
 # Compiled files
 src/**/*.js
