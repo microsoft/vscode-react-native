@@ -180,12 +180,6 @@ export class AdbHelper {
         return this.commandExecutor.execute(this.generateCommandForDevice(deviceId, command));
     }
 
-    private executeChain(commands: string[]): Q.Promise<any> {
-        return commands.reduce((promise, command) => {
-            return promise.then(() => this.commandExecutor.execute(command));
-        }, Q(void 0));
-    }
-
     private generateCommandForDevice(deviceId: string, adbCommand: string): string {
         return `${this.adbExecutable} -s "${deviceId}" ${adbCommand}`;
     }
