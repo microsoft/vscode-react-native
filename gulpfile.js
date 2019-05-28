@@ -98,7 +98,7 @@ function test() {
     if (options.pattern) {
         log(`\nTesting cases that match pattern: ${options.pattern}`);
     } else {
-        log("\nTesting cases that don't match pattern: extensionContext");
+         log("\nTesting cases that don't match pattern: extensionContext|localizationContext");
     }
 
     const testResultsPath = path.join(__dirname, "test", "DebuggerTests.xml");
