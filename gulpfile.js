@@ -111,7 +111,7 @@ function test() {
             grep: options.pattern || "(extensionContext|localizationContext)",
             reporter: "mocha-multi-reporters",
             reporterOptions: {
-                configFile: path.resolve("test/smoke/mochaReporterConfig.json"),
+                configFile: path.resolve("test/mochaReporterConfig.json"),
             },
         }));
 }
