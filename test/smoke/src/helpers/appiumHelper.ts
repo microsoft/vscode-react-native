@@ -231,6 +231,16 @@ export class AppiumHelper {
         }
     }
 
+    // New Expo versions shows DevMenu on iOS at first launch with informational message,
+    // it is better to disable this message and then call DevMenu ourselves
+    public static async disableDevMenuInformationalMsg(client: AppiumClient) {
+        const GOT_IT_BUTTON = "//XCUIElementTypeOther[@name='Got it']";
+        if (await client.isExisting(GOT_IT_BUTTON)) {
+            console.log("*** Expo DevMenu informational message found, disabling...");
+            await client.click(GOT_IT_BUTTON);
+        }
+    }
+
     private static async openExpoAppViaClipboardAndroid(client: AppiumClient, clipboard: Electron.Clipboard, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
