@@ -123,8 +123,12 @@ export module Telemetry {
             if (!this.endTime) {
                 this.endTime = process.hrtime(this.startTime);
 
-                // convert [seconds, nanoseconds] to milliseconds and include as property
-                this.properties["reserved.activity.duration"] = this.endTime[0] * 1000 + this.endTime[1] / 1000000;
+                if (this.name) {
+                    const durationProperty = this.name + ".time";
+                    // convert [seconds, nanoseconds] to milliseconds and include as property
+                    this.properties[durationProperty] = this.endTime[0] * 1000 + this.endTime[1] / 1000000;
+                }
+
             }
         }
     }

@@ -23,8 +23,13 @@ export class TelemetryHelper {
         const event = TelemetryHelper.createTelemetryEvent(eventName, properties);
         Telemetry.send(event);
     }
+
     public static createTelemetryEvent(eventName: string, properties?: Telemetry.ITelemetryProperties): Telemetry.TelemetryEvent {
         return new Telemetry.TelemetryEvent(eventName, properties);
+    }
+
+    public static createTelemetryActivity(eventName: string, properties?: Telemetry.ITelemetryProperties): Telemetry.TelemetryActivity {
+        return new Telemetry.TelemetryActivity(eventName, properties);
     }
 
     public static telemetryProperty(propertyValue: any, pii?: boolean): ITelemetryPropertyInfo {

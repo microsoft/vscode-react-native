@@ -46,6 +46,7 @@ interface ISetupableDisposable extends vscode.Disposable {
 }
 
 export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
+    const activateExtensionEvent = TelemetryHelper.createTelemetryActivity("activate");
     outputChannelLogger.debug("Begin to activate...");
     const appVersion = require(path.resolve(__dirname, "../../package.json")).version;
     outputChannelLogger.debug(`Extension version: ${appVersion}`);
@@ -54,10 +55,6 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
     return entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, function activateRunApp() {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
-
-        let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
-        Telemetry.send(activateExtensionEvent);
-
         const workspaceFolders: vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
         let promises: any = [];
         if (workspaceFolders) {
@@ -70,7 +67,8 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
         }
 
         return Q.all(promises).then(() => {
-            return registerReactNativeCommands(context);
+            registerReactNativeCommands(context);
+            return Telemetry.send(activateExtensionEvent);
         });
     });
 }
