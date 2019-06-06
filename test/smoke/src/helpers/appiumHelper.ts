@@ -249,7 +249,7 @@ export class AppiumHelper {
     private static async openExpoAppViaExploreButtonIos(client: AppiumClient, expoURL: string) {
         console.log(`*** Opening Expo app via "Explore" button`);
         console.log(`*** Pressing "Explore" button...`);
-        const EXPO_EXPLORE_BUTTON = "//XCUIElementTypeOther[@name='Explore' or @name=\"Explore, tab, 2 of 3\"]";
+        const EXPO_EXPLORE_BUTTON = "//XCUIElementTypeOther[@name='Explore' or @name='Explore, tab, 2 of 3']";
         await client
             .waitForExist(EXPO_EXPLORE_BUTTON, 30 * 1000)
             .click(EXPO_EXPLORE_BUTTON);
@@ -277,7 +277,7 @@ export class AppiumHelper {
     private static async openExpoAppViaExploreButtonAndroid(client: AppiumClient, expoURL: string) {
         console.log(`*** Opening Expo app via "Explore" button`);
         console.log(`*** Pressing "Explore" button...`);
-        const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc=\"Explore\" or @content-desc=\"Explore, tab, 2 of 3\"]";
+        const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc='Explore' or @content-desc='Explore, tab, 2 of 3']";
         await client
             .waitForExist(EXPLORE_ELEMENT, 30 * 1000)
             .click(EXPLORE_ELEMENT);
