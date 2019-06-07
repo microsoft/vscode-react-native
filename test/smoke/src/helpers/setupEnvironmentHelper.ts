@@ -68,7 +68,7 @@ export class SetupEnvironmentHelper {
         if (process.platform === "win32") {
             npmCmd = "npm.cmd";
         }
-        const command = `${npmCmd} install expo --no-save`;
+        const command = `${npmCmd} install expo --save-dev`;
 
         console.log(`*** Adding expo dependency to ${workspacePath} via '${command}' command...`);
         cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
