@@ -144,7 +144,8 @@ export class ExponentHelper {
         ]).spread((expoInstalled, expoRNSDKInstalled) => {
             if (showProgress) this.logger.logStream(".");
             return expoInstalled && expoRNSDKInstalled;
-        }).catch(() => {
+        }).catch((e) => {
+                this.logger.error(e.message, e, e.stack);
                 if (showProgress) {
                     this.logger.logStream(".");
                 }
@@ -338,7 +339,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
     }
 
     private getAppPackageInformation(): Q.Promise<IPackageInformation> {
-        return new Package(this.projectRootPath).parsePackageInformation();
+        return new Package(this.projectRootPath, { fileSystem: this.fs }).parsePackageInformation();
     }
 
     /**
