@@ -124,6 +124,7 @@ export function setup(testParameters?: TestRunArguments) {
             // Sometimes by this moment iOS app already have remote js debugging enabled so we don't need to enable it manually
             if (!await app.workbench.debug.areStackFramesExist()) {
                 await AppiumHelper.disableExpoErrorRedBox(clientInited);
+                await AppiumHelper.disableDevMenuInformationalMsg(clientInited);
                 await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS_Expo);
                 await sleep(5 * 1000);
             }
@@ -131,7 +132,6 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS Expo Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
             console.log("iOS Expo Debug test: Stack frame found");
-            await app.workbench.debug.continue();
             await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console
             await sleep(500);
