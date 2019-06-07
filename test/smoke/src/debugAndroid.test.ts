@@ -114,9 +114,8 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
             console.log("Android Expo Debug test: Stack frame found");
             await app.workbench.debug.continue();
-            await app.workbench.debug.continue(); // second continue() is needed because BP is being hit for two times for unknown reason
             // Wait for debug string to be rendered in debug console
-            await sleep(10 * 1000);
+            await sleep(500);
             console.log("Android Expo Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
@@ -169,7 +168,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android pure RN Expo test: Stack frame found");
             await app.workbench.debug.continue();
             // Wait for debug string to be rendered in debug console
-            await sleep(10 * 1000);
+            await sleep(500);
             console.log("Android pure RN Expo test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
