@@ -96,7 +96,7 @@ export class VSCodeHelper {
     public static setMaximizedAtStart(chromeUserDataDir: string) {
         const userDir = path.join(chromeUserDataDir, "User");
         mkdirp.sync(userDir);
-        fs.writeFileSync(path.join(userDir, "settings.json"), JSON.stringify({"window.newWindowDimensions": "maximized"}, null, 2))
+        fs.writeFileSync(path.join(userDir, "settings.json"), JSON.stringify({"window.newWindowDimensions": "maximized"}, null, 2));
     }
 
     private static getKeybindingPlatform(): string {
