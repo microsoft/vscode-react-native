@@ -23,6 +23,8 @@ export class SmokeTestsConstants {
     public static iosAppBuildAndInstallTimeout = 600 * 1000;
     // Timeout for Expo app to execute
     public static expoAppBuildAndInstallTimeout = 60 * 1000;
+    // Timeout before search string in debug console
+    public static debugConsoleSearchTimeout = 3 * 1000;
     // Default React Native app name
     public static RNAppName = "latestRNApp";
     // Default Expo app name
