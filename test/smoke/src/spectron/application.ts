@@ -11,6 +11,7 @@ import * as path from "path";
 import * as mkdirp from "mkdirp";
 import { sanitize, sleep } from "../helpers/utilities";
 import { artifactsPath } from "../main";
+import { VSCodeHelper } from "../helpers/vsCodeHelper";
 
 // Just hope random helps us here, cross your fingers!
 export async function findFreePort(): Promise<number> {
@@ -217,7 +218,11 @@ export class SpectronApplication {
 
         const runName = String(SpectronApplication.count++);
         const extensionLogsDir = path.join(artifactsPath, runName, "extensionLogs");
-        chromeDriverArgs.push(`--user-data-dir=${path.join(this.options.userDataDir, runName)}`);
+        const userDataDir = path.join(this.options.userDataDir, runName);
+        chromeDriverArgs.push(`--user-data-dir=${userDataDir}`);
+
+        // Start maximized to avoid any problems with adaptive markup
+        VSCodeHelper.setMaximizedAtStart(userDataDir);
 
         const env = {
             path: process.env.path || process.env.PATH,
