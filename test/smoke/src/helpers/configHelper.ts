@@ -67,7 +67,7 @@ export class TestConfigurator {
 
         // Hack for Azure DevOps, because it doesn't implicitly support optional parameters for task group
         if (variables.EXPO_XDL_VERSION === "skip") {
-            variables.EXPO_XDL_VERSION = null;
+            delete variables.EXPO_XDL_VERSION;
         }
 
         this.verifyEnvVariables(variables);
