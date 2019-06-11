@@ -16,7 +16,7 @@ import * as https from "https";
 import * as fs from "fs";
 import * as rimraf from "rimraf";
 import { spawnSync } from "../helpers/utilities";
-import mkdirp = require("mkdirp");
+import * as mkdirp from "mkdirp";
 
 export class VSCodeHelper {
     private static version = process.env.CODE_VERSION || "*";
