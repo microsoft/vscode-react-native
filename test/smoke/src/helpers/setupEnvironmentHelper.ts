@@ -14,6 +14,7 @@ import { sleep, filterProgressBarChars } from "./utilities";
 import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
 
 export class SetupEnvironmentHelper {
+
     public static expoPackageName = "host.exp.exponent";
     public static expoBundleId = "host.exp.Exponent";
     public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
@@ -217,5 +218,16 @@ export class SetupEnvironmentHelper {
     public static async terminateIosSimulator() {
         const device = <string>IosSimulatorHelper.getDevice();
         await IosSimulatorHelper.shutdownSimulator(device);
+    }
+
+    public static installExpoXdlPackageToExtensionDir(extensionDir: any, packageVersion: string) {
+        let npmCmd = "npm";
+        if (process.platform === "win32") {
+            npmCmd = "npm.cmd";
+        }
+        const command = `${npmCmd} install @expo/xdl@${packageVersion} --no-save`;
+
+        console.log(`*** Adding @expo/xdl dependency to ${extensionDir} via '${command}' command...`);
+        cp.execSync(command, { cwd: extensionDir, stdio: "inherit" });
     }
 }

@@ -18,6 +18,7 @@ export interface TestEnvVariables {
     IOS_SIMULATOR?: string;
     IOS_VERSION?: string;
     CODE_VERSION?: string;
+    EXPO_XDL_VERSION?: string;
 }
 
 export class TestConfigurator {
@@ -39,6 +40,9 @@ export class TestConfigurator {
         }
         if (!variables.CODE_VERSION) {
             throw new Error(`Missing CODE_VERSION variable`);
+        }
+        if (!variables.EXPO_XDL_VERSION) {
+            console.warn("Optional EXPO_XDL_VERSION variable is not set");
         }
     }
 
@@ -72,6 +76,7 @@ export class TestConfigurator {
         initLog += `IOS_SIMULATOR = ${process.env.IOS_SIMULATOR}\n`;
         initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
         initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
+        initLog += `EXPO_XDL_VERSION = ${process.env.EXPO_XDL_VERSION}\n`;
         console.log(initLog);
     }
 
