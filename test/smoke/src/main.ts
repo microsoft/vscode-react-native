@@ -176,6 +176,7 @@ async function setup(): Promise<void> {
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, latestRNVersionExpo);
         SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
         await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
+        await SetupEnvironmentHelper.patchExpoApp(ExpoWorkspacePath);
         if (process.platform === "darwin") {
             // We need only to download expo app, but this is the quickest way of doing it
             await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);

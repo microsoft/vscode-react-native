@@ -187,6 +187,63 @@ export class SetupEnvironmentHelper {
         });
     }
 
+    public static addAdditionalPackagesToExpoApp(expoAppPath: string) {
+        return new Promise((resolve, reject) => {
+            console.log(`*** Installing additional packages to app ${expoAppPath} with 'expo-cli install @expo/vector-icons expo-asset expo-font' command`);
+            let installerProcess = cp.spawn("expo-cli", [
+                "install",
+                "@expo/vector-icons",
+                "expo-asset",
+                "expo-font",
+            ], {cwd: expoAppPath, stdio: "pipe"});
+            installerProcess.stdout.on("data", (data) => {
+                const string = filterProgressBarChars(data.toString().trim());
+                if (string !== "") {
+                    console.log(`stdout: ${string}`);
+                }
+            });
+            installerProcess.stderr.on("data", (data) => {
+                const string = filterProgressBarChars(data.toString().trim());
+                if (string !== "") {
+                    console.error(`stderr: ${string}`);
+                }
+            });
+            installerProcess.on("close", () => {
+                console.log("*** expo-cli terminated");
+                resolve();
+            });
+            installerProcess.on("error", (error) => {
+                console.log("Error occurred in expo-cli process: ", error);
+                reject(error);
+            });
+        });
+    }
+
+    public static patchAppJsForExpoApp(expoAppPath: string) {
+        // import { AppLoading, Asset, Font, Icon } from 'expo';
+
+        const oldString = "import { AppLoading, Asset, Font, Icon } from 'expo';";
+        const newString = `import { AppLoading } from 'expo';
+import { Asset } from 'expo-asset';
+import * as Font from 'expo-font';
+import * as Icon from '@expo/vector-icons';
+`;
+        const appJSPath = path.join(expoAppPath, "App.js");
+        const content: string = fs.readFileSync(appJSPath).toString();
+        if (content.indexOf(oldString) === -1) {
+            throw new Error("Nothing to patch in App.js, looks like expo team already fixed it. Please check!");
+        }
+        const updatedContent = content.replace(oldString, newString);
+        fs.writeFileSync(appJSPath, updatedContent);
+    }
+
+        // For some reason expo app generated with "expo init" doesn't contain the following changes
+    // so we have to apply them manually
+    public static async patchExpoApp(expoAppPath) {
+        await this.addAdditionalPackagesToExpoApp(expoAppPath);
+        await this.patchAppJsForExpoApp(expoAppPath);
+    }
+
     // TODO: refactor this function to make it capable to accept debug configuration as a parameter
     public static addIosTargetToLaunchJson(workspacePath: string) {
         let launchJsonPath = path.join(workspacePath, ".vscode", "launch.json");
