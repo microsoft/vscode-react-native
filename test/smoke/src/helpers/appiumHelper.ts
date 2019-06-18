@@ -98,7 +98,7 @@ export class AppiumHelper {
                 appActivity: applicationActivity,
                 appPackage: applicationPackage,
                 automationName: "UiAutomator2",
-                newCommandTimeout: 150,
+                newCommandTimeout: 300,
             },
             port: 4723,
             host: "localhost",
@@ -114,7 +114,7 @@ export class AppiumHelper {
                 deviceName: deviceName,
                 app: appPath,
                 automationName: "XCUITest",
-                newCommandTimeout: 150,
+                newCommandTimeout: 300,
             },
             port: 4723,
             host: "localhost",
@@ -158,6 +158,7 @@ export class AppiumHelper {
     public static async callRNDevMenu(client: AppiumClient, platform: Platform) {
         switch (platform) {
             case Platform.Android:
+                console.log("*** Opening DevMenu by calling 'adb shell input keyevent 82'...");
                 const devMenuCallCommand = "adb shell input keyevent 82";
                 cp.exec(devMenuCallCommand);
                 await sleep(10 * 1000);
@@ -165,6 +166,7 @@ export class AppiumHelper {
             case Platform.iOS:
             case Platform.iOS_Expo:
                 // Sending Cmd+D doesn't work sometimes but shake gesture works flawlessly
+                console.log("*** Opening DevMenu by sending shake gesture...");
                 client.shake();
                 await sleep(2 * 1000);
                 break;

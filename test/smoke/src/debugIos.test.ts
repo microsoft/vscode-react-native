@@ -86,7 +86,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
             console.log("iOS Expo Debug test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(12);
+            await app.workbench.debug.setBreakpointOnLine(16);
             console.log("iOS Expo Debug test: Breakpoint is set on line 12");
             await app.workbench.debug.openDebugViewlet();
             console.log(`iOS Expo Debug test: Chosen debug configuration: ${ExpoDebugConfigName}`);
@@ -130,7 +130,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("iOS Expo Debug test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 16, "looking for App.js and line 16");
             console.log("iOS Expo Debug test: Stack frame found");
             await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console

@@ -220,8 +220,6 @@ export class SetupEnvironmentHelper {
     }
 
     public static patchAppJsForExpoApp(expoAppPath: string) {
-        // import { AppLoading, Asset, Font, Icon } from 'expo';
-
         const oldString = "import { AppLoading, Asset, Font, Icon } from 'expo';";
         const newString = `import { AppLoading } from 'expo';
 import { Asset } from 'expo-asset';
@@ -229,6 +227,7 @@ import * as Font from 'expo-font';
 import * as Icon from '@expo/vector-icons';
 `;
         const appJSPath = path.join(expoAppPath, "App.js");
+        console.log(`*** Patching ${appJSPath}`);
         const content: string = fs.readFileSync(appJSPath).toString();
         if (content.indexOf(oldString) === -1) {
             throw new Error("Nothing to patch in App.js, looks like expo team already fixed it. Please check!");
