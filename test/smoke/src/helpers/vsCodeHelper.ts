@@ -16,7 +16,6 @@ import * as https from "https";
 import * as fs from "fs";
 import * as rimraf from "rimraf";
 import { spawnSync } from "../helpers/utilities";
-import * as mkdirp from "mkdirp";
 
 export class VSCodeHelper {
     private static version = process.env.CODE_VERSION || "*";
@@ -93,11 +92,6 @@ export class VSCodeHelper {
         }
     }
 
-    public static setMaximizedAtStart(chromeUserDataDir: string) {
-        const userDir = path.join(chromeUserDataDir, "User");
-        mkdirp.sync(userDir);
-        fs.writeFileSync(path.join(userDir, "settings.json"), JSON.stringify({"window.newWindowDimensions": "maximized"}, null, 2));
-    }
 
     private static getKeybindingPlatform(): string {
         switch (process.platform) {

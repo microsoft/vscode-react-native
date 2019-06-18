@@ -175,6 +175,7 @@ export class Debug extends Viewlet {
         return found;
     }
 
+    // Returns only visible output
     public async getConsoleOutput(): Promise<string[]> {
         const result = await this.spectron.webclient.selectorExecute(CONSOLE_OUTPUT,
             div => (Array.isArray(div) ? div : [div]).map(element => {
