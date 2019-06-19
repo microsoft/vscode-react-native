@@ -145,6 +145,8 @@ export class Debug extends Viewlet {
     public async focusDebugConsole() {
         await this.spectron.client.waitAndClick(DEBUG_CONSOLE_AREA);
         await sleep(300);
+        await this.spectron.client.waitAndClick(DEBUG_CONSOLE_AREA);
+        await sleep(300);
     }
 
     public async findStringInConsole(stringToFind: string, timeout: number): Promise<boolean> {
