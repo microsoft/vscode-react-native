@@ -114,7 +114,7 @@ export class AppiumHelper {
                 deviceName: deviceName,
                 app: appPath,
                 automationName: "XCUITest",
-                newCommandTimeout: 300,
+                newCommandTimeout: 500,
             },
             port: 4723,
             host: "localhost",
