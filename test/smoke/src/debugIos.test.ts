@@ -192,6 +192,7 @@ export function setup(testParameters?: TestRunArguments) {
             // Sometimes by this moment iOS app already have remote js debugging enabled so we don't need to enable it manually
             if (!await app.workbench.debug.areStackFramesExist()) {
                 await AppiumHelper.disableExpoErrorRedBox(clientInited);
+                await AppiumHelper.disableDevMenuInformationalMsg(clientInited);
                 await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS_Expo);
                 await sleep(5 * 1000);
             }
