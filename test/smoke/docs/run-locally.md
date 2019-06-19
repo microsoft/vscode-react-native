@@ -132,14 +132,14 @@ Add these lines to `~/.bash_profile` (create one if you haven't it):
 
 Tests requires several environment variables to be set up before starting:
 
-|Variable|Examples|Is mandatory|Explanation|
+|Variable|Examples|Explanation|
 |---|---|---|
-|`ANDROID_EMULATOR`|`Nexus_5X_API_28`|yes|Name of the emulated device|
-|`ANDROID_VERSION`|9|yes|Version of android installed on emulated device|
-|`IOS_SIMULATOR`|`iPhone 5s`|yes|(**Only for iOS tests**) Name of the simulated device|
-|`IOS_VERSION`|12.2|yes|(**Only for iOS tests**) Version of iOS on the simulated device|
-|`CODE_VERSION`|`*`, `1.34.1`, `insiders`|yes|Version of VS Code to download and run while running tests|
-|`EXPO_XDL_VERSION`|`54.1.4`|yes|Version of @expo/xdl package to install to the extension directory. If not set package installation will be skipped|
+|`ANDROID_EMULATOR`|`Nexus_5X_API_28`|Name of the emulated device|
+|`ANDROID_VERSION`|9|Version of android installed on emulated device|
+|`IOS_SIMULATOR`|`iPhone 5s`|(**Only for iOS tests**) Name of the simulated device|
+|`IOS_VERSION`|12.2|(**Only for iOS tests**) Version of iOS on the simulated device|
+|`CODE_VERSION`|`*`, `1.34.1`, `insiders`|Version of VS Code to download and run while running tests|
+|`EXPO_XDL_VERSION`|`54.1.4`, `skip`|Version of @expo/xdl package to install to the extension directory. If set to "skip" then package installation will be skipped|
 
 To create environment variable you can use this commands:
    * **Windows** (Powershell):

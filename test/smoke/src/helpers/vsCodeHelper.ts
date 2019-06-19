@@ -92,7 +92,6 @@ export class VSCodeHelper {
         }
     }
 
-
     private static getKeybindingPlatform(): string {
         switch (process.platform) {
             case "darwin": return "osx";

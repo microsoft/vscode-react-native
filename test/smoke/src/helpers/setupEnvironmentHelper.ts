@@ -190,7 +190,8 @@ export class SetupEnvironmentHelper {
     public static addAdditionalPackagesToExpoApp(expoAppPath: string) {
         return new Promise((resolve, reject) => {
             console.log(`*** Installing additional packages to app ${expoAppPath} with 'expo-cli install @expo/vector-icons expo-asset expo-font' command`);
-            let installerProcess = cp.spawn("expo-cli", [
+            let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
+            let installerProcess = cp.spawn(expoCliCommand, [
                 "install",
                 "@expo/vector-icons",
                 "expo-asset",
@@ -236,7 +237,7 @@ import * as Icon from '@expo/vector-icons';
         fs.writeFileSync(appJSPath, updatedContent);
     }
 
-        // For some reason expo app generated with "expo init" doesn't contain the following changes
+    // For some reason expo app generated with "expo init" doesn't contain the following changes
     // so we have to apply them manually
     public static async patchExpoApp(expoAppPath) {
         await this.addAdditionalPackagesToExpoApp(expoAppPath);
