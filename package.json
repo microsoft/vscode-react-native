@@ -563,7 +563,7 @@
 		"gulp-typescript": "^4.0.2",
 		"isparta": "^4.1.1",
 		"minimist": "^1.2.0",
-		"mocha": "^5.2.0",
+		"mocha": "^6.1.4",
 		"mocha-junit-reporter": "^1.22.0",
 		"mocha-multi-reporters": "^1.1.7",
 		"mock-fs": "^4.4.1",
