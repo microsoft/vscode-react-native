@@ -27,7 +27,7 @@ import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {Telemetry} from "../common/telemetry";
-import {TelemetryHelper} from "../common/telemetryHelper";
+import {TelemetryHelper, ICommandTelemetryProperties} from "../common/telemetryHelper";
 import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ExponentHelper} from "./exponent/exponentHelper";
@@ -51,6 +51,14 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
     outputChannelLogger.debug(`Extension version: ${appVersion}`);
     const ExtensionTelemetryReporter = require("vscode-extension-telemetry").default;
     const reporter = new ExtensionTelemetryReporter(APP_NAME, appVersion, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY);
+    const workspaceFolders: vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
+    let extProps: ICommandTelemetryProperties = {};
+    if (workspaceFolders) {
+        extProps = {
+            ["workspaceFoldersCount"]: {value: workspaceFolders.length, isPii: false},
+        };
+    }
+
     return entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, function activateRunApp() {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
@@ -58,7 +66,7 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
 
-        const workspaceFolders: vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
+
         let promises: any = [];
         if (workspaceFolders) {
             outputChannelLogger.debug(`Projects found: ${workspaceFolders.length}`);
@@ -72,7 +80,7 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
         return Q.all(promises).then(() => {
             return registerReactNativeCommands(context);
         });
-    });
+    }, extProps);
 }
 
 export function deactivate(): Q.Promise<void> {
