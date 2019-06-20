@@ -12,7 +12,7 @@ import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestConfigurator } from "./helpers/configHelper";
-import { sleep } from "./helpers/utilities";
+import { sleep, findFile } from "./helpers/utilities";
 
 async function fail(errorMessage) {
     console.error(errorMessage);
@@ -36,10 +36,10 @@ function getBuildElectronPath(root: string, isInsiders: boolean): string {
     switch (process.platform) {
         case "darwin":
             return isInsiders
-            ?
-            path.join(root, "Visual Studio Code - Insiders.app", "Contents", "MacOS", "Electron")
-            :
-            path.join(root, "Visual Studio Code.app", "Contents", "MacOS", "Electron");
+                ?
+                path.join(root, "Visual Studio Code - Insiders.app", "Contents", "MacOS", "Electron")
+                :
+                path.join(root, "Visual Studio Code.app", "Contents", "MacOS", "Electron");
         case "linux": {
             const product = require(path.join(root, "VSCode-linux-x64", "resources", "app", "product.json"));
             return path.join(root, "VSCode-linux-x64", product.applicationName);
@@ -83,7 +83,7 @@ const resourcesPath = path.join(__dirname, "..", "resources");
 const isInsiders = process.env.CODE_VERSION === "insiders";
 let testVSCodeDirectory;
 if (!isInsiders) {
-     testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "stable");
+    testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "stable");
 } else {
     testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "insiders");
 }
@@ -149,7 +149,7 @@ function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplica
         extensionsPath,
         artifactsPath,
         workspaceFilePath: "",
-        waitTime:  SmokeTestsConstants.spectronElementResponseTimeout,
+        waitTime: SmokeTestsConstants.spectronElementResponseTimeout,
     });
 }
 
@@ -176,6 +176,7 @@ async function setup(): Promise<void> {
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, latestRNVersionExpo);
         SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
         await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
+        await SetupEnvironmentHelper.patchExpoApp(ExpoWorkspacePath);
         if (process.platform === "darwin") {
             // We need only to download expo app, but this is the quickest way of doing it
             await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);
@@ -189,6 +190,18 @@ async function setup(): Promise<void> {
     }
     const testVSCodeExecutablePath = getVSCodeExecutablePath(testVSCodeDirectory, isInsiders);
     VSCodeHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath, !testParams.DontDeleteVSIX);
+
+    if (process.env.EXPO_XDL_VERSION) {
+        // msjsdiag.vscode-react-native-0.9.3
+        const extensionDirName = findFile(extensionsPath, /msjsdiag\.vscode-react-native.*/);
+        if (!extensionDirName) {
+            throw new Error("Couldn't find extension directory");
+        }
+        const extensionFullPath = path.join(extensionsPath, extensionDirName);
+        SetupEnvironmentHelper.installExpoXdlPackageToExtensionDir(extensionFullPath, process.env.EXPO_XDL_VERSION);
+    } else {
+        console.log(`*** EXPO_XDL_VERSION variable is not set, skipping installation of @expo/xdl package to the extension directory`);
+    }
 
     if (!fs.existsSync(userDataDir)) {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);

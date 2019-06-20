@@ -11,8 +11,9 @@ import * as Q from "q";
 
 const logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
+const XDL_PACKAGE = "@expo/xdl";
 const EXPO_DEPS: string[] = [
-    "xdl",
+    XDL_PACKAGE,
     "@expo/ngrok", // devDependencies for xdl
 ];
 
@@ -25,7 +26,7 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
     // Don't do the require if we don't actually need it
     try {
         logger.debug("Getting exponent dependency.");
-        const xdl = require("xdl");
+        const xdl = require(XDL_PACKAGE);
         xdlPackage = Q(xdl);
         return xdlPackage;
     } catch (e) {
@@ -40,7 +41,7 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
         ["install", ...EXPO_DEPS, "--verbose", "--no-save"],
         { verbosity: CommandVerbosity.PROGRESS })
         .then((): typeof XDLPackage => {
-            return require("xdl");
+            return require(XDL_PACKAGE);
         });
     return xdlPackage;
 }

@@ -139,6 +139,7 @@ Tests requires several environment variables to be set up before starting:
 |`IOS_SIMULATOR`|`iPhone 5s`|(**Only for iOS tests**) Name of the simulated device|
 |`IOS_VERSION`|12.2|(**Only for iOS tests**) Version of iOS on the simulated device|
 |`CODE_VERSION`|`*`, `1.34.1`, `insiders`|Version of VS Code to download and run while running tests|
+|`EXPO_XDL_VERSION`|`54.1.4`, `skip`|Version of @expo/xdl package to install to the extension directory. If set to "skip" then package installation will be skipped|
 
 To create environment variable you can use this commands:
    * **Windows** (Powershell):
