@@ -66,7 +66,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS Debug test: Stack frame found");
             await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console
-            await sleep(500);
+            await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("iOS Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
@@ -86,7 +86,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
             console.log("iOS Expo Debug test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(12);
+            await app.workbench.debug.setBreakpointOnLine(16);
             console.log("iOS Expo Debug test: Breakpoint is set on line 12");
             await app.workbench.debug.openDebugViewlet();
             console.log(`iOS Expo Debug test: Chosen debug configuration: ${ExpoDebugConfigName}`);
@@ -130,11 +130,11 @@ export function setup(testParameters?: TestRunArguments) {
             }
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("iOS Expo Debug test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 12, "looking for App.js and line 12");
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 16, "looking for App.js and line 16");
             console.log("iOS Expo Debug test: Stack frame found");
             await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console
-            await sleep(500);
+            await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("iOS Expo Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
@@ -192,6 +192,7 @@ export function setup(testParameters?: TestRunArguments) {
             // Sometimes by this moment iOS app already have remote js debugging enabled so we don't need to enable it manually
             if (!await app.workbench.debug.areStackFramesExist()) {
                 await AppiumHelper.disableExpoErrorRedBox(clientInited);
+                await AppiumHelper.disableDevMenuInformationalMsg(clientInited);
                 await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS_Expo);
                 await sleep(5 * 1000);
             }
@@ -201,7 +202,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS pure RN Expo test: Stack frame found");
             await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console
-            await sleep(500);
+            await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("iOS pure RN Expo test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");

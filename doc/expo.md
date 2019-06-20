@@ -25,7 +25,7 @@ To start debugging in Expo follow these steps:
 
 ## Configuring Expo
 
-The extension supports running through Exponent not just the applications created with Expo but even pure React Native applications (in that case you may need to add `expo` package to `node_modules` in order to make it work with Expo: `npm install expo --no-save`. Do not add it to `package.json`, because otherwise extension won't be able to distinguish your React Native project from expo ones!). In either cases it uses `app.json` configuration file in the root of the project.
+The extension supports running through Exponent not just the applications created with Expo but even pure React Native applications (in that case you need to add `expo` package to `node_modules` in order to make it work with Expo: `npm install expo --save-dev`. In either cases it uses `app.json` configuration file in the root of the project.
 
 If you are running `Debug in Exponent` configuration or any of pallette commands like `Run in Exponent`, `Publish to Exponent` then this file will be created automatically if absent or updated with the following basic configuration section:
 
@@ -34,8 +34,9 @@ If you are running `Debug in Exponent` configuration or any of pallette commands
     "slug": "MyApp", // Project slug
     "name": "MyApp", // Project name
     "sdkVersion": "31.0.0", // Expo SDK version
-    "entryPoint": "<Path to your project>\\.vscode\\exponentIndex.js" // Entrypoint for the project
-  }
+    "entryPoint": ".vscode\\exponentIndex.js" // Entrypoint for the project
+  },
+  "name": "MyApp", // Project name
 ```
 
 Full list of configurational parameters for `expo` section in `app.json` may be found on [official Expo documentation page](https://docs.expo.io/versions/latest/workflow/configuration).
