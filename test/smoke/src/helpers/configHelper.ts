@@ -18,6 +18,7 @@ export interface TestEnvVariables {
     IOS_SIMULATOR?: string;
     IOS_VERSION?: string;
     CODE_VERSION?: string;
+    EXPO_XDL_VERSION?: string;
 }
 
 export class TestConfigurator {
@@ -40,6 +41,9 @@ export class TestConfigurator {
         if (!variables.CODE_VERSION) {
             throw new Error(`Missing CODE_VERSION variable`);
         }
+        if (!variables.EXPO_XDL_VERSION) {
+            console.warn("Optional EXPO_XDL_VERSION variable is not set");
+        }
     }
 
     public static passEnvVariablesToProcessEnv(variables: TestEnvVariables) {
@@ -61,6 +65,11 @@ export class TestConfigurator {
             variables = process.env;
         }
 
+        // Hack for Azure DevOps, because it doesn't implicitly support optional parameters for task group
+        if (variables.EXPO_XDL_VERSION === "skip") {
+            delete variables.EXPO_XDL_VERSION;
+        }
+
         this.verifyEnvVariables(variables);
         this.passEnvVariablesToProcessEnv(variables);
     }
@@ -72,6 +81,7 @@ export class TestConfigurator {
         initLog += `IOS_SIMULATOR = ${process.env.IOS_SIMULATOR}\n`;
         initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
         initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
+        initLog += `EXPO_XDL_VERSION = ${process.env.EXPO_XDL_VERSION}\n`;
         console.log(initLog);
     }
 

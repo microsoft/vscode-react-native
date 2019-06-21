@@ -169,6 +169,9 @@ export class SpectronApplication {
     public async prepareMainWindow() {
         // Outline window blocks App.js selector on Mac
         await this.workbench.explorer.collapseOutlineView();
+
+        // Maximize window to avoid any markup changes during the tests
+        await this.client.spectron.browserWindow.maximize();
     }
 
     private async _start(workspaceOrFolder = this.options.workspacePath, extraArgs: string[] = []): Promise<any> {
@@ -217,7 +220,9 @@ export class SpectronApplication {
 
         const runName = String(SpectronApplication.count++);
         const extensionLogsDir = path.join(artifactsPath, runName, "extensionLogs");
-        chromeDriverArgs.push(`--user-data-dir=${path.join(this.options.userDataDir, runName)}`);
+        const userDataDir = path.join(this.options.userDataDir, runName);
+        chromeDriverArgs.push(`--user-data-dir=${userDataDir}`);
+
 
         const env = {
             path: process.env.path || process.env.PATH,

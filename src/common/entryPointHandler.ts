@@ -26,8 +26,8 @@ export class EntryPointHandler {
     }
 
     /* This method should wrap any async entry points to the code, so we handle telemetry and error reporting properly */
-    public runFunction(taskName: string, error: InternalError, codeToRun: (telemetry: TelemetryGenerator) => Q.Promise<void> | void, errorsAreFatal: boolean = false): Q.Promise<void> {
-        return this.runFunctionWExtProps(taskName, {}, error, codeToRun, errorsAreFatal);
+    public runFunction(taskName: string, error: InternalError, codeToRun: (telemetry: TelemetryGenerator) => Q.Promise<void> | void, errorsAreFatal: boolean = false, extProps?: ICommandTelemetryProperties): Q.Promise<void> {
+        return this.runFunctionWExtProps(taskName, extProps || {}, error, codeToRun, errorsAreFatal);
     }
 
     public runFunctionWExtProps(taskName: string, extProps: ICommandTelemetryProperties, error: InternalError, codeToRun: (telemetry: TelemetryGenerator) => Q.Promise<void> | void, errorsAreFatal: boolean = false): Q.Promise<void> {
@@ -35,10 +35,10 @@ export class EntryPointHandler {
     }
 
     // This method should wrap the entry point of the whole app, so we handle telemetry and error reporting properly
-    public runApp(appName: string, appVersion: string, error: InternalError, reporter: Telemetry.ITelemetryReporter, codeToRun: () => Q.Promise<void> | void): Q.Promise<void>  {
+    public runApp(appName: string, appVersion: string, error: InternalError, reporter: Telemetry.ITelemetryReporter, codeToRun: () => Q.Promise<void> | void, extProps?: ICommandTelemetryProperties): Q.Promise<void>  {
         try {
             Telemetry.init(appName, appVersion, reporter);
-            return this.runFunction(appName, error, codeToRun, true);
+            return this.runFunction(appName, error, codeToRun, true, extProps);
         } catch (error) {
             this.logger.error(error);
             throw error;
