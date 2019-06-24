@@ -78,13 +78,13 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
                 Telemetry.send(chosenConfigsEvent);
                 const launchConfig = this.gatherDebugScenarios(selected);
                 disposables.forEach(d => d.dispose());
-                configPicker.dispose();
                 resolve(launchConfig);
             };
 
             disposables.push(
                 configPicker.onDidAccept(pickHandler),
-                configPicker.onDidHide(pickHandler)
+                configPicker.onDidHide(pickHandler),
+                configPicker
             );
 
         });
@@ -93,9 +93,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
     private gatherDebugScenarios(selectedItems: string[]): vscode.DebugConfiguration[] {
         let launchConfig: vscode.DebugConfiguration[] = [];
         if (selectedItems) {
-            selectedItems.forEach(element => {
-                launchConfig.push(this.debugConfigurations[element]);
-            });
+            selectedItems.map(element => launchConfig.push(this.debugConfigurations[element]));
         }
         return launchConfig;
     }
