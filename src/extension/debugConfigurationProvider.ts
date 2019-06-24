@@ -110,6 +110,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         debugConfigPicker.title = localize("DebugConfigQuickPickLabel", "Pick debug configurations");
         debugConfigPicker.items = this.pickConfig;
         // QuickPickItem property `picked` doesn't work, so this line will check first item in the list
+        // which is supposed to be Debug Android
         debugConfigPicker.selectedItems = [this.pickConfig[0]];
         return debugConfigPicker;
     }
