@@ -73,10 +73,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
 
             const pickHandler = () => {
                 let chosenConfigsEvent = TelemetryHelper.createTelemetryEvent("ChosenDebugConfigurations");
-                let selected: string[] = [];
-                configPicker.selectedItems.forEach((element) => {
-                    selected.push(element.label);
-                });
+                let selected: string[] = configPicker.selectedItems.map(element => element.label);
                 chosenConfigsEvent.properties["SelectedItems"] = selected;
                 Telemetry.send(chosenConfigsEvent);
                 const launchConfig = this.gatherDebugScenarios(selected);
