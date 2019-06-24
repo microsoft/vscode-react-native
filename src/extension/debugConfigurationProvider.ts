@@ -48,24 +48,20 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
     private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
         {
             label: "Debug Android",
-            description: localize("DebugAndroidConfigDesc", "Debug React Native Android apps"),
-            detail: localize("DebugAndroidConfigDesc", "Debug React Native Android apps"),
+            description: localize("DebugAndroidConfigDesc", "Run and debug Android application"),
             picked: true,
         },
         {
             label: "Debug iOS",
-            description: localize("DebugiOSConfigDesc", "Debug React Native iOS apps"),
-            detail: localize("DebugiOSConfigDesc", "Debug React Native iOS apps"),
+            description: localize("DebugiOSConfigDesc", "Run and debug iOS application"),
         },
         {
             label: "Attach to packager",
-            description: localize("AttachToPackagerConfigDesc", "Attach React Native debugger to already working application packager"),
-            detail: localize("AttachToPackagerConfigDesc", "Attach React Native debugger to already working application packager"),
+            description: localize("AttachToPackagerConfigDesc", "Attach to already working application packager"),
         },
         {
             label: "Debug in Exponent",
-            description: localize("DebugExpoConfigDesc", "Debug with Expo"),
-            detail: localize("DebugExpoConfigDesc", "Debug with Expo"),
+            description: localize("DebugExpoConfigDesc", "Debug Expo application or React Native application in Expo"),
         },
     ];
 
