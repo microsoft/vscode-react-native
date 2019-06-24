@@ -31,8 +31,8 @@ import {TelemetryHelper, ICommandTelemetryProperties} from "../common/telemetryH
 import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ExponentHelper} from "./exponent/exponentHelper";
-import * as nls from "vscode-nls";
 import { ReactNativeDebugConfigProvider } from "./debugConfigurationProvider";
+import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
 /* all components use the same packager instance */
@@ -66,7 +66,6 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
 
         vscode.debug.registerDebugConfigurationProvider("reactnative", configProvider);
-
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
 

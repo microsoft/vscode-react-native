@@ -4,6 +4,8 @@
 import * as vscode from "vscode";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { Telemetry } from "../common/telemetry";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export class ReactNativeDebugConfigProvider implements vscode.DebugConfigurationProvider {
     private debugConfigurations = {
@@ -46,20 +48,20 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
             {
                 label: "Debug Android",
-                description: "Debug React Native Android apps",
+                description: localize("DebugAndroidConfigDesc", "Debug React Native Android apps"),
                 picked: true,
             },
             {
                 label: "Debug iOS",
-                description: "Debug React Native iOS apps",
+                description: localize("DebugiOSConfigDesc", "Debug React Native iOS apps"),
             },
             {
                 label: "Attach to packager",
-                description: "Attach React Native debugger to already working application packager",
+                description: localize("AttachToPackagerConfigDesc", "Attach React Native debugger to already working application packager"),
             },
             {
                 label: "Debug in Exponent",
-                description: "Debug through Expo",
+                description: localize("DebugExpoConfigDesc", "Debug with Expo"),
             },
         ];
 
@@ -99,7 +101,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         const debugConfigPicker = vscode.window.createQuickPick();
         debugConfigPicker.canSelectMany = true;
         debugConfigPicker.ignoreFocusOut = true;
-        debugConfigPicker.title = "Pick debug configurations";
+        debugConfigPicker.title = localize("DebugConfigQuickPickLabel", "Pick debug configurations");
         debugConfigPicker.items = this.pickConfig;
         debugConfigPicker.selectedItems = [this.pickConfig[0]];
         return debugConfigPicker;
