@@ -49,7 +49,6 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         {
             label: "Debug Android",
             description: localize("DebugAndroidConfigDesc", "Run and debug Android application"),
-            picked: true,
         },
         {
             label: "Debug iOS",
