@@ -66,10 +66,11 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
     ];
 
     public async provideDebugConfigurations(folder: vscode.WorkspaceFolder | undefined, token?: vscode.CancellationToken): Promise<vscode.DebugConfiguration[]> {
-        const configPicker = this.prepareDebugConfigPicker();
-        configPicker.show();
-        const disposables: vscode.Disposable[] = [];
         return new Promise<vscode.DebugConfiguration[]>((resolve) => {
+            const configPicker = this.prepareDebugConfigPicker();
+            configPicker.show();
+            const disposables: vscode.Disposable[] = [];
+
             const pickHandler = () => {
                 let chosenConfigsEvent = TelemetryHelper.createTelemetryEvent("ChosenDebugConfigurations");
                 let selected: string[] = [];
@@ -109,6 +110,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         debugConfigPicker.ignoreFocusOut = true;
         debugConfigPicker.title = localize("DebugConfigQuickPickLabel", "Pick debug configurations");
         debugConfigPicker.items = this.pickConfig;
+        // QuickPickItem property `picked` doesn't work, so this line will check first item in the list
         debugConfigPicker.selectedItems = [this.pickConfig[0]];
         return debugConfigPicker;
     }
