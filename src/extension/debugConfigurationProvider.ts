@@ -68,9 +68,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
     public async provideDebugConfigurations(folder: vscode.WorkspaceFolder | undefined, token?: vscode.CancellationToken): Promise<vscode.DebugConfiguration[]> {
         return new Promise<vscode.DebugConfiguration[]>((resolve) => {
             const configPicker = this.prepareDebugConfigPicker();
-            configPicker.show();
             const disposables: vscode.Disposable[] = [];
-
             const pickHandler = () => {
                 let chosenConfigsEvent = TelemetryHelper.createTelemetryEvent("ChosenDebugConfigurations");
                 let selected: string[] = configPicker.selectedItems.map(element => element.label);
@@ -87,6 +85,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
                 configPicker
             );
 
+            configPicker.show();
         });
     }
 
