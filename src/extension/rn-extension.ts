@@ -39,6 +39,7 @@ const localize = nls.loadMessageBundle();
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
 const fsUtil = new FileSystem();
+let debugConfigProvider: vscode.Disposable;
 
 const APP_NAME = "react-native-tools";
 
@@ -65,7 +66,8 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
 
-        vscode.debug.registerDebugConfigurationProvider("reactnative", configProvider);
+        debugConfigProvider = vscode.debug.registerDebugConfigurationProvider("reactnative", configProvider);
+
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
 
@@ -92,6 +94,7 @@ export function deactivate(): Q.Promise<void> {
         entryPointHandler.runFunction("extension.deactivate",
             ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
             () => {
+                debugConfigProvider.dispose();
                 CommandPaletteHandler.stopAllPackagers()
                 .then(() => {
                     return CommandPaletteHandler.stopElementInspector();
