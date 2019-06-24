@@ -91,10 +91,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
     }
 
     private gatherDebugScenarios(selectedItems: string[]): vscode.DebugConfiguration[] {
-        let launchConfig: vscode.DebugConfiguration[] = [];
-        if (selectedItems) {
-            selectedItems.map(element => launchConfig.push(this.debugConfigurations[element]));
-        }
+        let launchConfig: vscode.DebugConfiguration[] = selectedItems.map(element => this.debugConfigurations[element]);
         return launchConfig;
     }
 
