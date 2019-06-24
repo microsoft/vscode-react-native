@@ -45,29 +45,34 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "outDir": "${workspaceRoot}/.vscode/.react",
         }};
 
-        private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
-            {
-                label: "Debug Android",
-                description: localize("DebugAndroidConfigDesc", "Debug React Native Android apps"),
-                picked: true,
-            },
-            {
-                label: "Debug iOS",
-                description: localize("DebugiOSConfigDesc", "Debug React Native iOS apps"),
-            },
-            {
-                label: "Attach to packager",
-                description: localize("AttachToPackagerConfigDesc", "Attach React Native debugger to already working application packager"),
-            },
-            {
-                label: "Debug in Exponent",
-                description: localize("DebugExpoConfigDesc", "Debug with Expo"),
-            },
-        ];
+    private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
+        {
+            label: "Debug Android",
+            description: localize("DebugAndroidConfigDesc", "Debug React Native Android apps"),
+            detail: localize("DebugAndroidConfigDesc", "Debug React Native Android apps"),
+            picked: true,
+        },
+        {
+            label: "Debug iOS",
+            description: localize("DebugiOSConfigDesc", "Debug React Native iOS apps"),
+            detail: localize("DebugiOSConfigDesc", "Debug React Native iOS apps"),
+        },
+        {
+            label: "Attach to packager",
+            description: localize("AttachToPackagerConfigDesc", "Attach React Native debugger to already working application packager"),
+            detail: localize("AttachToPackagerConfigDesc", "Attach React Native debugger to already working application packager"),
+        },
+        {
+            label: "Debug in Exponent",
+            description: localize("DebugExpoConfigDesc", "Debug with Expo"),
+            detail: localize("DebugExpoConfigDesc", "Debug with Expo"),
+        },
+    ];
 
     public async provideDebugConfigurations(folder: vscode.WorkspaceFolder | undefined, token?: vscode.CancellationToken): Promise<vscode.DebugConfiguration[]> {
         const configPicker = this.prepareDebugConfigPicker();
         configPicker.show();
+        const disposables: vscode.Disposable[] = [];
         return new Promise<vscode.DebugConfiguration[]>((resolve) => {
             const pickHandler = () => {
                 let chosenConfigsEvent = TelemetryHelper.createTelemetryEvent("ChosenDebugConfigurations");
@@ -75,14 +80,19 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
                 configPicker.selectedItems.forEach((element) => {
                     selected.push(element.label);
                 });
-                chosenConfigsEvent.properties["config"] = selected;
+                chosenConfigsEvent.properties["SelectedItems"] = selected;
                 Telemetry.send(chosenConfigsEvent);
                 const launchConfig = this.gatherDebugScenarios(selected);
+                disposables.forEach(d => d.dispose());
                 configPicker.dispose();
                 resolve(launchConfig);
             };
-            configPicker.onDidAccept(pickHandler);
-            configPicker.onDidHide(pickHandler);
+
+            disposables.push(
+            configPicker.onDidAccept(pickHandler),
+            configPicker.onDidHide(pickHandler)
+            );
+
         });
     }
 
