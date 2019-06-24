@@ -43,7 +43,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "platform": "exponent",
             "sourceMaps": true,
             "outDir": "${workspaceRoot}/.vscode/.react",
-        }
+        },
     };
 
     private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
