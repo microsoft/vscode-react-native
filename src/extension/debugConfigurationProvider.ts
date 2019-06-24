@@ -43,7 +43,8 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "platform": "exponent",
             "sourceMaps": true,
             "outDir": "${workspaceRoot}/.vscode/.react",
-        }};
+        }
+    };
 
     private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
         {
@@ -85,8 +86,8 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             };
 
             disposables.push(
-            configPicker.onDidAccept(pickHandler),
-            configPicker.onDidHide(pickHandler)
+                configPicker.onDidAccept(pickHandler),
+                configPicker.onDidHide(pickHandler)
             );
 
         });
