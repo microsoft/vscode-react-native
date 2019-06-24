@@ -2,10 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
+import { TelemetryHelper } from "../common/telemetryHelper";
+import { Telemetry } from "../common/telemetry";
 
 export class ReactNativeDebugConfigProvider implements vscode.DebugConfigurationProvider {
-
-    public configurations = {
+    private debugConfigurations = {
         "Debug Android": {
             "name": "Debug Android",
             "program": "${workspaceRoot}/.vscode/launchReactNative.js",
@@ -42,16 +43,65 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "outDir": "${workspaceRoot}/.vscode/.react",
         }};
 
-    public async provideDebugConfigurations(folder: vscode.WorkspaceFolder | undefined, token?: vscode.CancellationToken): Promise<vscode.DebugConfiguration[]> {
-        const pickedConfigs = await vscode.window.showQuickPick(["Debug Android", "Debug iOS", "Attach to packager", "Debug in Exponent"], {canPickMany: true}, token);
-        let launchConfig: vscode.DebugConfiguration[] = [];
-        if (pickedConfigs) {
+        private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
+            {
+                label: "Debug Android",
+                description: "Debug React Native Android apps",
+                picked: true,
+            },
+            {
+                label: "Debug iOS",
+                description: "Debug React Native iOS apps",
+            },
+            {
+                label: "Attach to packager",
+                description: "Attach React Native debugger to already working application packager",
+            },
+            {
+                label: "Debug in Exponent",
+                description: "Debug through Expo",
+            },
+        ];
 
+    public async provideDebugConfigurations(folder: vscode.WorkspaceFolder | undefined, token?: vscode.CancellationToken): Promise<vscode.DebugConfiguration[]> {
+        const configPicker = this.prepareDebugConfigPicker();
+        configPicker.show();
+        return new Promise<vscode.DebugConfiguration[]>((resolve) => {
+            const pickHandler = () => {
+                let chosenConfigsEvent = TelemetryHelper.createTelemetryEvent("ChosenDebugConfigurations");
+                let selected: string[] = [];
+                configPicker.selectedItems.forEach((element) => {
+                    selected.push(element.label);
+                });
+                chosenConfigsEvent.properties["config"] = selected;
+                Telemetry.send(chosenConfigsEvent);
+                const launchConfig = this.gatherDebugScenarios(selected);
+                configPicker.dispose();
+                resolve(launchConfig);
+            };
+            configPicker.onDidAccept(pickHandler);
+            configPicker.onDidHide(pickHandler);
+        });
+    }
+
+    private gatherDebugScenarios(selectedItems: string[]): vscode.DebugConfiguration[] {
+        let launchConfig: vscode.DebugConfiguration[] = [];
+        const pickedConfigs = selectedItems;
+        if (pickedConfigs) {
             pickedConfigs.forEach(element => {
-                launchConfig.push(this.configurations[element]);
+                launchConfig.push(this.debugConfigurations[element]);
             });
         }
-
         return launchConfig;
+    }
+
+    private prepareDebugConfigPicker(): vscode.QuickPick<vscode.QuickPickItem> {
+        const debugConfigPicker = vscode.window.createQuickPick();
+        debugConfigPicker.canSelectMany = true;
+        debugConfigPicker.ignoreFocusOut = true;
+        debugConfigPicker.title = "Pick debug configurations";
+        debugConfigPicker.items = this.pickConfig;
+        debugConfigPicker.selectedItems = [this.pickConfig[0]];
+        return debugConfigPicker;
     }
 }
