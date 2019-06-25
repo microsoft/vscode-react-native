@@ -19,7 +19,6 @@
     "reactNative.snippets.debugExpo.description":"A new configuration for launching Expo app",
     "reactNative.attach.program.description":"The path to launchReactNative.js in the vscode folder",
     "reactNative.attach.sourceMaps.description":"Whether to use JavaScript source maps to map the generated bundled code back to its original sources",
-    "reactNative.attach.outDir.description":"The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
     "reactNative.attach.sourceMapsPathOverrides.description":"A set of mappings for rewriting the locations of source files from what the source map says, to their locations on disk. See https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul for details",
     "reactNative.attach.trace.description":"Setup logging level in debugger.",
     "reactNative.attach.address.description":"TCP/IP address of debug port. Default is 'localhost'.",
