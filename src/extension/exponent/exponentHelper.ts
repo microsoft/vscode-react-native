@@ -6,7 +6,7 @@
 import * as path from "path";
 import * as Q from "q";
 import * as XDL from "./xdlInterface";
-import { Package } from "../../common/node/package";
+import { Package, IPackageInformation } from "../../common/node/package";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
 import { FileSystem } from "../../common/node/fileSystem";
 import {OutputChannelLogger} from "../log/OutputChannelLogger";
@@ -48,8 +48,23 @@ export class ExponentHelper {
         this.lazilyInitialize();
         this.logger.info(localize("MakingSureYourProjectUsesCorrectExponentDependencies", "Making sure your project uses the correct dependencies for Expo. This may take a while..."));
         this.logger.logStream(localize("CheckingIfThisIsExpoApp", "Checking if this is Expo app."));
-        return this.isExpoApp(true, true)
-            .then(isExpo => {
+        let isExpo: boolean;
+        return this.isExpoApp(true)
+            .then(result => {
+                isExpo = result;
+                if (!isExpo) {
+                    return this.appHasExpoInstalled().then((expoInstalled) => {
+                        if (!expoInstalled) {
+                            // Expo requires expo package to be installed inside RN application in order to be able to run it
+                            // https://github.com/expo/expo-cli/issues/255#issuecomment-453214632
+                            this.logger.logStream("\n");
+                            this.logger.logStream(localize("ExpoPackageIsNotInstalled", "[Warning] Please make sure that expo package is installed locally for your project, otherwise further errors may occur. Please, run \"npm install expo --save-dev\" inside your project to install it."));
+                            this.logger.logStream("\n");
+                        }
+                    });
+                }
+                return;
+            }).then(() => {
                 this.logger.logStream(".\n");
                 return this.patchAppJson(isExpo);
             });
@@ -90,27 +105,47 @@ export class ExponentHelper {
             .then(opts => opts || {});
     }
 
-    public isExpoApp(showProgress: boolean = false, logIfExpoIsNotInstalled: boolean = false): Q.Promise<boolean> {
+    public appHasExpoInstalled(): Q.Promise<boolean> {
+        return this.getAppPackageInformation()
+            .then((packageJson: IPackageInformation) => {
+                if (packageJson.dependencies && packageJson.dependencies.expo) {
+                    this.logger.debug("'expo' package is found in 'dependencies' section of package.json");
+                    return true;
+                } else if (packageJson.devDependencies && packageJson.devDependencies.expo) {
+                    this.logger.debug("'expo' package is found in 'devDependencies' section of package.json");
+                    return true;
+                }
+                return false;
+            });
+    }
+
+    public appHasExpoRNSDKInstalled(): Q.Promise<boolean> {
+        return this.getAppPackageInformation()
+            .then((packageJson: IPackageInformation) => {
+                const reactNativeValue: string | undefined = packageJson.dependencies && packageJson.dependencies["react-native"];
+                if (reactNativeValue) {
+                    this.logger.debug(`'react-native' package with value '${reactNativeValue}' is found in 'dependencies' section of package.json`);
+                    if (reactNativeValue.startsWith("https://github.com/expo/react-native/archive/sdk")) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+    }
+
+    public isExpoApp(showProgress: boolean = false): Q.Promise<boolean> {
         if (showProgress) {
             this.logger.logStream("...");
         }
 
-        const packageJsonPath = this.pathToFileInWorkspace("package.json");
-        return this.fs.readFile(packageJsonPath)
-            .then(content => {
-                const packageJson = JSON.parse(content);
-                let isExp = (packageJson.dependencies && packageJson.dependencies.expo) || (packageJson.devDependencies && packageJson.devDependencies.expo);
-                isExp = !!isExp;
-                if (showProgress) this.logger.logStream(".");
-                if (!isExp && logIfExpoIsNotInstalled) {
-                    // Expo requires expo package to be installed inside RN application in order to be able to run it
-                    // https://github.com/expo/expo-cli/issues/255#issuecomment-453214632
-                    this.logger.logStream("\n");
-                    this.logger.logStream(localize("ExpoPackageIsNotInstalled", "[Warning] Please make sure that expo package is installed locally for your project, otherwise further errors may occur. Please, run \"npm install expo --no-save\" inside your project to install it. Do not add it to `package.json`, because otherwise extension won't be able to distinguish your React Native project from expo ones!"));
-                    this.logger.logStream("\n");
-                }
-                return isExp;
-            }).catch(() => {
+        return Q.all([
+            this.appHasExpoInstalled(),
+            this.appHasExpoRNSDKInstalled(),
+        ]).spread((expoInstalled, expoRNSDKInstalled) => {
+            if (showProgress) this.logger.logStream(".");
+            return expoInstalled && expoRNSDKInstalled;
+        }).catch((e) => {
+                this.logger.error(e.message, e, e.stack);
                 if (showProgress) {
                     this.logger.logStream(".");
                 }
@@ -122,8 +157,12 @@ export class ExponentHelper {
     /**
      * Path to a given file inside the .vscode directory
      */
-    private dotvscodePath(filename: string): string {
-        return path.join(this.workspaceRootPath, ".vscode", filename);
+    private dotvscodePath(filename: string, isAbsolute: boolean): string {
+        let paths = [".vscode", filename];
+        if (isAbsolute) {
+            paths = [this.workspaceRootPath].concat(...paths);
+        }
+        return path.join(...paths);
     }
 
     private createExpoEntry(name: string): Q.Promise<void> {
@@ -131,7 +170,7 @@ export class ExponentHelper {
         return this.detectEntry()
             .then((entryPoint: string) => {
                 const content = this.generateFileContent(name, entryPoint);
-                return this.fs.writeFile(this.dotvscodePath(EXPONENT_INDEX), content);
+                return this.fs.writeFile(this.dotvscodePath(EXPONENT_INDEX, true), content);
             });
 
     }
@@ -184,6 +223,17 @@ AppRegistry.registerRunnable('main', function(appParameters) {
                 return config;
             })
             .then((config: AppJson) => {
+                if (!config.name) {
+                    return this.getPackageName()
+                        .then((name: string) => {
+                            config.name = name;
+                            return config;
+                        });
+                }
+
+                return config;
+            })
+            .then((config: AppJson) => {
                 if (!config.expo.sdkVersion) {
                     return this.exponentSdk(true)
                         .then(sdkVersion => {
@@ -191,11 +241,14 @@ AppRegistry.registerRunnable('main', function(appParameters) {
                             return config;
                         });
                 }
+
                 return config;
             })
             .then((config: AppJson) => {
                 if (!isExpo) {
-                    config.expo.entryPoint = this.dotvscodePath(EXPONENT_INDEX);
+                    // entryPoint must be relative
+                    // https://docs.expo.io/versions/latest/workflow/configuration/#entrypoint
+                    config.expo.entryPoint = this.dotvscodePath(EXPONENT_INDEX, false);
                 }
 
                 return config;
@@ -283,6 +336,10 @@ AppRegistry.registerRunnable('main', function(appParameters) {
         const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
         return this.fs.writeFile(appJsonPath, JSON.stringify(config, null, 2))
             .then(() => config);
+    }
+
+    private getAppPackageInformation(): Q.Promise<IPackageInformation> {
+        return new Package(this.projectRootPath, { fileSystem: this.fs }).parsePackageInformation();
     }
 
     /**

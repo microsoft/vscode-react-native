@@ -163,6 +163,17 @@ export class SpectronApplication {
         return this.client.keys(keysToPress);
     }
 
+    /**
+     * Before running any tests we need to hide any panels to avoid test getting stuck because needed DOM elements are not rendered
+     */
+    public async prepareMainWindow() {
+        // Outline window blocks App.js selector on Mac
+        await this.workbench.explorer.collapseOutlineView();
+
+        // Maximize window to avoid any markup changes during the tests
+        await this.client.spectron.browserWindow.maximize();
+    }
+
     private async _start(workspaceOrFolder = this.options.workspacePath, extraArgs: string[] = []): Promise<any> {
         await this.retrieveKeybindings();
         await this.startApplication(workspaceOrFolder, extraArgs);
@@ -204,12 +215,14 @@ export class SpectronApplication {
         // Spectron always uses the same port number for the chrome driver
         // and it handles gracefully when two instances use the same port number
         // This works, but when one of the instances quits, it takes down
-        // chrome driver with it, leaving the other instance in DISPAIR!!! :(
+        // chrome driver with it, leaving the other instance in DESPAIR!!! :(
         const port = await findFreePort();
 
         const runName = String(SpectronApplication.count++);
         const extensionLogsDir = path.join(artifactsPath, runName, "extensionLogs");
-        chromeDriverArgs.push(`--user-data-dir=${path.join(this.options.userDataDir, runName)}`);
+        const userDataDir = path.join(this.options.userDataDir, runName);
+        chromeDriverArgs.push(`--user-data-dir=${userDataDir}`);
+
 
         const env = {
             path: process.env.path || process.env.PATH,

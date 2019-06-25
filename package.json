@@ -21,7 +21,7 @@
 		"url": "https://github.com/Microsoft/vscode-react-native"
 	},
 	"engines": {
-		"vscode": "^1.24.0"
+		"vscode": "^1.26.0"
 	},
 	"categories": [
 		"Debuggers",
@@ -120,43 +120,6 @@
 						"typescriptreact"
 					]
 				},
-				"initialConfigurations": [
-					{
-						"name": "Debug Android",
-						"program": "${workspaceRoot}/.vscode/launchReactNative.js",
-						"type": "reactnative",
-						"request": "launch",
-						"platform": "android",
-						"sourceMaps": true,
-						"outDir": "${workspaceRoot}/.vscode/.react"
-					},
-					{
-						"name": "Debug iOS",
-						"program": "${workspaceRoot}/.vscode/launchReactNative.js",
-						"type": "reactnative",
-						"request": "launch",
-						"platform": "ios",
-						"sourceMaps": true,
-						"outDir": "${workspaceRoot}/.vscode/.react"
-					},
-					{
-						"name": "Attach to packager",
-						"program": "${workspaceRoot}/.vscode/launchReactNative.js",
-						"type": "reactnative",
-						"request": "attach",
-						"sourceMaps": true,
-						"outDir": "${workspaceRoot}/.vscode/.react"
-					},
-					{
-						"name": "Debug in Exponent",
-						"program": "${workspaceRoot}/.vscode/launchReactNative.js",
-						"type": "reactnative",
-						"request": "launch",
-						"platform": "exponent",
-						"sourceMaps": true,
-						"outDir": "${workspaceRoot}/.vscode/.react"
-					}
-				],
 				"configurationSnippets": [
 					{
 						"label": "React Native: Debug Android",
@@ -166,9 +129,7 @@
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
 							"type": "reactnative",
 							"request": "launch",
-							"platform": "android",
-							"sourceMaps": true,
-							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+							"platform": "android"
 						}
 					},
 					{
@@ -179,9 +140,7 @@
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
 							"type": "reactnative",
 							"request": "launch",
-							"platform": "ios",
-							"sourceMaps": true,
-							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+							"platform": "ios"
 						}
 					},
 					{
@@ -191,9 +150,7 @@
 							"name": "Attach to packager",
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
 							"type": "reactnative",
-							"request": "attach",
-							"sourceMaps": true,
-							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+							"request": "attach"
 						}
 					},
 					{
@@ -204,9 +161,7 @@
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
 							"type": "reactnative",
 							"request": "launch",
-							"platform": "exponent",
-							"sourceMaps": true,
-							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+							"platform": "exponent"
 						}
 					}
 				],
@@ -224,11 +179,6 @@
 								"type": "boolean",
 								"description": "%reactNative.attach.sourceMaps.description%",
 								"default": false
-							},
-							"outDir": {
-								"type": "string",
-								"description": "%reactNative.attach.outDir.description%",
-								"default": null
 							},
 							"sourceMapPathOverrides": {
 								"type": "object",
@@ -331,11 +281,6 @@
 									"ReactNative:V",
 									"ReactNativeJS:V"
 								]
-							},
-							"outDir": {
-								"type": "string",
-								"description": "%reactNative.launch.outDir.description%",
-								"default": null
 							},
 							"runArguments": {
 								"type": "array",
@@ -564,7 +509,8 @@
 		"isparta": "^4.1.1",
 		"minimist": "^1.2.0",
 		"mocha": "^4.1.0",
-		"mocha-teamcity-reporter": "^2.5.1",
+		"mocha-junit-reporter": "^1.22.0",
+		"mocha-multi-reporters": "^1.1.7",
 		"mock-fs": "^4.4.1",
 		"plugin-error": "^1.0.1",
 		"remap-istanbul": "^0.9.5",

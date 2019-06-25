@@ -4,7 +4,6 @@
 import { SpectronApplication } from "../../spectron/application";
 import { Viewlet } from "../workbench/viewlet";
 import { sleep } from "../../helpers/utilities";
-import * as clipboardy from "clipboardy";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
@@ -144,7 +143,7 @@ export class Debug extends Viewlet {
     }
 
     public async focusDebugConsole() {
-        await this.spectron.client.waitAndClick(DEBUG_CONSOLE_AREA);
+        await this.spectron.client.doubleClickAndWait(DEBUG_CONSOLE_AREA);
         await sleep(300);
     }
 
@@ -156,6 +155,7 @@ export class Debug extends Viewlet {
         await new Promise((resolve) => {
             let check = setInterval(async () => {
                 let result = await this.getConsoleOutput();
+                result = result.map(value => value.trim());
                 let testOutputIndex = result.indexOf(stringToFind);
                 if (testOutputIndex !== -1) {
                     clearInterval(check);
@@ -175,6 +175,7 @@ export class Debug extends Viewlet {
         return found;
     }
 
+    // Returns only visible output
     public async getConsoleOutput(): Promise<string[]> {
         const result = await this.spectron.webclient.selectorExecute(CONSOLE_OUTPUT,
             div => (Array.isArray(div) ? div : [div]).map(element => {
@@ -195,9 +196,9 @@ export class Debug extends Viewlet {
         await sleep(1000);
         this.spectron.runCommand("editor.action.clipboardCopyAction");
         await sleep(2000);
-        let clipboard = clipboardy.readSync();
-        console.log(`Expo QR Code tab text copied: \n ${clipboard}`);
-        const match = clipboard.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
+        let copiedText = await this.spectron.client.spectron.electron.clipboard.readText();
+        console.log(`Expo QR Code tab text copied: \n ${copiedText}`);
+        const match = copiedText.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
         if (!match) return null;
         let expoURL = match[0];
         console.log(`Found Expo URL: ${expoURL}`);

@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { spawn } from "child_process";
+import * as kill from "tree-kill";
+import { sleep } from "./utilities";
 
 interface RunResult {
     Successful: boolean;
@@ -52,6 +54,66 @@ export class IosSimulatorHelper {
         if (!result.Successful) {
             throw this.getRunError(cmd, result.FailedState);
         }
+    }
+
+    public static async launchApplication(device: string, bundleId: string) {
+        const cmd = "launch";
+        const result = await this.runSimCtlCommand([cmd, device, bundleId]);
+        if (!result.Successful) {
+            throw this.getRunError(cmd, result.FailedState);
+        }
+    }
+
+    public static async waitUntilIosAppIsInstalled(appBundleId: string, waitTime: number, waitInitTime?: number) {
+        // Start watcher for launch events console logs in simulator and wait until needed app is launched
+        // TODO is not compatible with parallel test run (race condition)
+        let launched = false;
+        const predicate = `eventMessage contains "Launch successful for '${appBundleId}'"`;
+        const args = ["simctl", "spawn", <string>IosSimulatorHelper.getDevice(), "log", "stream", "--predicate", predicate];
+        const proc = spawn("xcrun", args, {stdio: "pipe"});
+        proc.stdout.on("data", (data: string) => {
+            data = data.toString();
+            console.log(data);
+            if (data.startsWith("Filtering the log data")) {
+                return;
+            }
+            const regexp = new RegExp(`Launch successful for '${appBundleId}'`);
+            if (regexp.test(data)) {
+                launched = true;
+            }
+        });
+        proc.stderr.on("error", (data: string) => {
+            console.error(data.toString());
+        });
+        proc.on("error", (err) => {
+            console.error(err);
+            kill(proc.pid);
+        });
+
+        let awaitRetries: number = waitTime / 1000;
+        let retry = 1;
+        await new Promise((resolve, reject) => {
+            const check = setInterval(async () => {
+                if (retry % 5 === 0) {
+                    console.log(`*** Check if app with bundleId ${appBundleId} is installed, ${retry} attempt`);
+                }
+                if (launched) {
+                    clearInterval(check);
+                    const initTimeout = waitInitTime || 10000;
+                    console.log(`*** Installed ${appBundleId} app found, await ${initTimeout}ms for initializing...`);
+                    await sleep(initTimeout);
+                    resolve();
+                } else {
+                    retry++;
+                    if (retry >= awaitRetries) {
+                        clearInterval(check);
+                        kill(proc.pid, () => {
+                            reject(`${appBundleId} not found after ${waitTime}ms`);
+                        });
+                    }
+                }
+            }, 1000);
+        });
     }
 
     private static async runSimCtlCommand(args: string[]): Promise<RunResult> {

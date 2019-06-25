@@ -9,6 +9,8 @@ export class Explorer extends Viewlet {
 
     private static readonly EXPLORER_VIEWLET = "div[id=\"workbench.view.explorer\"]";
     private static readonly OPEN_EDITORS_VIEW = `${Explorer.EXPLORER_VIEWLET} .split-view-view:nth-child(1) .title`;
+    private static readonly OUTLINE_VIEW_EXPANDED = `${Explorer.EXPLORER_VIEWLET} .split-view-view:nth-child(3) .expanded .title`;
+    private static readonly OUTLINE_VIEW = `${Explorer.EXPLORER_VIEWLET} .split-view-view:nth-child(3) .title`;
 
     constructor(spectron: SpectronApplication) {
         super(spectron);
@@ -39,4 +41,10 @@ export class Explorer extends Viewlet {
         throw new Error("No class defined for this file extension");
     }
 
+    public async collapseOutlineView() {
+        await this.spectron.client.waitForElement(Explorer.OUTLINE_VIEW);
+        if (await this.spectron.webclient.isExisting(Explorer.OUTLINE_VIEW_EXPANDED)) {
+            await this.spectron.client.click(Explorer.OUTLINE_VIEW_EXPANDED);
+        }
+    }
 }

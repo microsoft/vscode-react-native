@@ -7,10 +7,18 @@ import * as fs from "fs";
 import * as rimraf from "rimraf";
 import * as cp from "child_process";
 import * as semver from "semver";
+import * as kill from "tree-kill";
+import * as os from "os";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
-import { sleep } from "./utilities";
+import { sleep, filterProgressBarChars } from "./utilities";
+import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
 
 export class SetupEnvironmentHelper {
+
+    public static expoPackageName = "host.exp.exponent";
+    public static expoBundleId = "host.exp.Exponent";
+    public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
+
     public static  prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, version?: string) {
         let command = `react-native init ${appName}`;
         if (version) {
@@ -61,13 +69,13 @@ export class SetupEnvironmentHelper {
         if (process.platform === "win32") {
             npmCmd = "npm.cmd";
         }
-        const command = `${npmCmd} install expo --no-save`;
+        const command = `${npmCmd} install expo --save-dev`;
 
         console.log(`*** Adding expo dependency to ${workspacePath} via '${command}' command...`);
         cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
     }
 
-    public static cleanUp(testVSCodeDirectory: string, testLogsDirectory: string, workspacePaths: string[]) {
+    public static cleanUp(testVSCodeDirectory: string, testLogsDirectory: string, workspacePaths: string[], iOSExpoAppsCacheDirectory: string) {
         console.log("\n*** Clean up...");
         if (fs.existsSync(testVSCodeDirectory)) {
             console.log(`*** Deleting test VS Code directory: ${testVSCodeDirectory}`);
@@ -83,6 +91,10 @@ export class SetupEnvironmentHelper {
                 rimraf.sync(testAppFolder);
             }
         });
+        if (fs.existsSync(iOSExpoAppsCacheDirectory)) {
+            console.log(`*** Deleting iOS expo app cache directory: ${iOSExpoAppsCacheDirectory}`);
+            rimraf.sync(iOSExpoAppsCacheDirectory);
+        }
     }
 
     public static async getLatestSupportedRNVersionForExpo(): Promise<any> {
@@ -118,6 +130,121 @@ export class SetupEnvironmentHelper {
         });
     }
 
+    // Installs Expo app on Android device via "expo android" command
+    public static async installExpoAppOnAndroid(expoAppPath: string) {
+        console.log(`*** Installing Expo app (${this.expoPackageName}) on android emulator with 'expo-cli android' command`);
+        let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
+        let installerProcess = cp.spawn(expoCliCommand, ["android"], {cwd: expoAppPath, stdio: "pipe"});
+        installerProcess.stdout.on("data", (data) => {
+            const string = filterProgressBarChars(data.toString().trim());
+            if (string !== "") {
+                console.log(`stdout: ${data.toString().trim()}`);
+            }
+        });
+        installerProcess.stderr.on("data", (data) => {
+            const string = filterProgressBarChars(data.toString().trim());
+            if (string !== "") {
+                console.error(`stderr: ${string}`);
+            }
+        });
+        installerProcess.on("close", () => {
+            console.log("*** expo-cli terminated");
+        });
+        installerProcess.on("error", (error) => {
+            console.log("Error occurred in expo-cli process: ", error);
+        });
+        await AndroidEmulatorHelper.checkIfAppIsInstalled(this.expoPackageName, 100 * 1000);
+        kill(installerProcess.pid, "SIGINT");
+        await sleep(1000);
+        AndroidEmulatorHelper.enableDrawPermitForApp(this.expoPackageName);
+    }
+
+    // Installs Expo app on iOS device via "expo install:ios" command
+    public static async installExpoAppOnIos(expoAppPath: string) {
+        return new Promise((resolve, reject) => {
+            console.log(`*** Installing Expo app on iOS simulator with 'expo-cli install:ios' command`);
+            let installerProcess = cp.spawn("expo-cli", ["install:ios"], {cwd: expoAppPath, stdio: "pipe"});
+            installerProcess.stdout.on("data", (data) => {
+                const string = filterProgressBarChars(data.toString().trim());
+                if (string !== "") {
+                    console.log(`stdout: ${string}`);
+                }
+            });
+            installerProcess.stderr.on("data", (data) => {
+                const string = filterProgressBarChars(data.toString().trim());
+                if (string !== "") {
+                    console.error(`stderr: ${string}`);
+                }
+            });
+            installerProcess.on("close", () => {
+                console.log("*** expo-cli terminated");
+                resolve();
+            });
+            installerProcess.on("error", (error) => {
+                console.log("Error occurred in expo-cli process: ", error);
+                reject(error);
+            });
+        });
+    }
+
+    public static addAdditionalPackagesToExpoApp(expoAppPath: string) {
+        return new Promise((resolve, reject) => {
+            console.log(`*** Installing additional packages to app ${expoAppPath} with 'expo-cli install @expo/vector-icons expo-asset expo-font' command`);
+            let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
+            let installerProcess = cp.spawn(expoCliCommand, [
+                "install",
+                "@expo/vector-icons",
+                "expo-asset",
+                "expo-font",
+            ], {cwd: expoAppPath, stdio: "pipe"});
+            installerProcess.stdout.on("data", (data) => {
+                const string = filterProgressBarChars(data.toString().trim());
+                if (string !== "") {
+                    console.log(`stdout: ${string}`);
+                }
+            });
+            installerProcess.stderr.on("data", (data) => {
+                const string = filterProgressBarChars(data.toString().trim());
+                if (string !== "") {
+                    console.error(`stderr: ${string}`);
+                }
+            });
+            installerProcess.on("close", () => {
+                console.log("*** expo-cli terminated");
+                resolve();
+            });
+            installerProcess.on("error", (error) => {
+                console.log("Error occurred in expo-cli process: ", error);
+                reject(error);
+            });
+        });
+    }
+
+    public static patchAppJsForExpoApp(expoAppPath: string) {
+        const oldString = "import { AppLoading, Asset, Font, Icon } from 'expo';";
+        const newString = `import { AppLoading } from 'expo';
+import { Asset } from 'expo-asset';
+import * as Font from 'expo-font';
+import * as Icon from '@expo/vector-icons';
+`;
+        const appJSPath = path.join(expoAppPath, "App.js");
+        console.log(`*** Patching ${appJSPath}`);
+        const content: string = fs.readFileSync(appJSPath).toString();
+        if (content.indexOf(oldString) === -1) {
+            throw new Error("Nothing to patch in App.js, looks like expo team already fixed it. Please check!");
+        }
+        const updatedContent = content.replace(oldString, newString);
+        fs.writeFileSync(appJSPath, updatedContent);
+    }
+
+    // For some reason expo app generated with "expo init" doesn't contain the following changes
+    // so we have to apply them manually
+    public static async patchExpoApp(expoAppPath) {
+        await this.addAdditionalPackagesToExpoApp(expoAppPath);
+        await this.patchAppJsForExpoApp(expoAppPath);
+    }
+
+    // TODO: refactor this function to make it capable to accept debug configuration as a parameter
     public static addIosTargetToLaunchJson(workspacePath: string) {
         let launchJsonPath = path.join(workspacePath, ".vscode", "launch.json");
         console.log(`*** Implicitly adding target to "Debug iOS" config for ${launchJsonPath}`);
@@ -148,5 +275,16 @@ export class SetupEnvironmentHelper {
     public static async terminateIosSimulator() {
         const device = <string>IosSimulatorHelper.getDevice();
         await IosSimulatorHelper.shutdownSimulator(device);
+    }
+
+    public static installExpoXdlPackageToExtensionDir(extensionDir: any, packageVersion: string) {
+        let npmCmd = "npm";
+        if (process.platform === "win32") {
+            npmCmd = "npm.cmd";
+        }
+        const command = `${npmCmd} install @expo/xdl@${packageVersion} --no-save`;
+
+        console.log(`*** Adding @expo/xdl dependency to ${extensionDir} via '${command}' command...`);
+        cp.execSync(command, { cwd: extensionDir, stdio: "inherit" });
     }
 }

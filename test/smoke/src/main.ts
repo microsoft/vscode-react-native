@@ -3,7 +3,6 @@
 
 import * as fs from "fs";
 import * as path from "path";
-
 import { SpectronApplication, Quality } from "./spectron/application";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
@@ -12,6 +11,8 @@ import { setup as setupReactNativeDebugiOSTests } from "./debugIos.test";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
+import { TestConfigurator } from "./helpers/configHelper";
+import { sleep, findFile } from "./helpers/utilities";
 
 async function fail(errorMessage) {
     console.error(errorMessage);
@@ -35,10 +36,10 @@ function getBuildElectronPath(root: string, isInsiders: boolean): string {
     switch (process.platform) {
         case "darwin":
             return isInsiders
-            ?
-            path.join(root, "Visual Studio Code - Insiders.app", "Contents", "MacOS", "Electron")
-            :
-            path.join(root, "Visual Studio Code.app", "Contents", "MacOS", "Electron");
+                ?
+                path.join(root, "Visual Studio Code - Insiders.app", "Contents", "MacOS", "Electron")
+                :
+                path.join(root, "Visual Studio Code.app", "Contents", "MacOS", "Electron");
         case "linux": {
             const product = require(path.join(root, "VSCode-linux-x64", "resources", "app", "product.json"));
             return path.join(root, "VSCode-linux-x64", product.applicationName);
@@ -82,7 +83,7 @@ const resourcesPath = path.join(__dirname, "..", "resources");
 const isInsiders = process.env.CODE_VERSION === "insiders";
 let testVSCodeDirectory;
 if (!isInsiders) {
-     testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "stable");
+    testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "stable");
 } else {
     testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "insiders");
 }
@@ -131,6 +132,8 @@ const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
 
+export const EnvConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
+
 function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplication | null {
 
     if (!electronExecutablePath) {
@@ -146,13 +149,18 @@ function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplica
         extensionsPath,
         artifactsPath,
         workspaceFilePath: "",
-        waitTime:  SmokeTestsConstants.spectronElementResponseTimeout,
+        waitTime: SmokeTestsConstants.spectronElementResponseTimeout,
     });
 }
 
+const testParams = TestConfigurator.parseTestArguments();
 async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
     console.log("*** Preparing smoke tests setup...");
+    console.log(`*** Setting up configuration variables`);
+    TestConfigurator.setUpEnvVariables();
+    TestConfigurator.printEnvVariableConfiguration();
+
     AppiumHelper.runAppium();
 
     if (process.platform === "darwin") {
@@ -162,11 +170,18 @@ async function setup(): Promise<void> {
     await AndroidEmulatorHelper.runAndroidEmulator();
 
     SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName);
-    SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
-    const latestRNVersionExpo = await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
-    SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, latestRNVersionExpo);
-    SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
-    await AndroidEmulatorHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
+    if (!testParams.RunBasicTests) {
+        SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
+        const latestRNVersionExpo = await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
+        SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, latestRNVersionExpo);
+        SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
+        await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
+        await SetupEnvironmentHelper.patchExpoApp(ExpoWorkspacePath);
+        if (process.platform === "darwin") {
+            // We need only to download expo app, but this is the quickest way of doing it
+            await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);
+        }
+    }
     await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);
 
     electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
@@ -174,7 +189,19 @@ async function setup(): Promise<void> {
         await fail(`Can't find VS Code executable at ${testVSCodeDirectory}.`);
     }
     const testVSCodeExecutablePath = getVSCodeExecutablePath(testVSCodeDirectory, isInsiders);
-    VSCodeHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath);
+    VSCodeHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath, !testParams.DontDeleteVSIX);
+
+    if (process.env.EXPO_XDL_VERSION) {
+        // msjsdiag.vscode-react-native-0.9.3
+        const extensionDirName = findFile(extensionsPath, /msjsdiag\.vscode-react-native.*/);
+        if (!extensionDirName) {
+            throw new Error("Couldn't find extension directory");
+        }
+        const extensionFullPath = path.join(extensionsPath, extensionDirName);
+        SetupEnvironmentHelper.installExpoXdlPackageToExtensionDir(extensionFullPath, process.env.EXPO_XDL_VERSION);
+    } else {
+        console.log(`*** EXPO_XDL_VERSION variable is not set, skipping installation of @expo/xdl package to the extension directory`);
+    }
 
     if (!fs.existsSync(userDataDir)) {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
@@ -187,18 +214,20 @@ async function setup(): Promise<void> {
 export async function runVSCode(workspaceOrFolder: string): Promise<SpectronApplication> {
     const app = createApp(quality, workspaceOrFolder);
     await app!.start();
+    await sleep(5000);
+    await app!.prepareMainWindow();
     return app!;
 }
 
 before(async function () {
-    if (process.argv.includes("--skip-setup")) {
+    if (testParams.SkipSetup) {
         console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
         // Assume that VS Code is already installed
         electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
         return;
     }
     this.timeout(SmokeTestsConstants.smokeTestSetupAwaitTimeout);
-    SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath]);
+    SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath], SetupEnvironmentHelper.iOSExpoAppsCacheDir);
     try {
         await setup();
     } catch (err) {
@@ -219,19 +248,29 @@ describe("Extension smoke tests", () => {
         AppiumHelper.terminateAppium();
     });
     if (process.platform === "darwin") {
-        const noSelectArgs = !process.argv.includes("--android") && !process.argv.includes("--ios");
+        const noSelectArgs = !testParams.RunAndroidTests && !testParams.RunIosTests && !testParams.RunBasicTests;
         if (noSelectArgs) {
-            console.log("*** Android and iOS tests will be ran");
+            console.log("*** Android and iOS tests will be run");
             setupReactNativeDebugAndroidTests();
             setupReactNativeDebugiOSTests();
-        } else if (process.argv.includes("--android")) {
-            console.log("*** --android parameter is set, Android tests will be ran");
+        } else if (testParams.RunBasicTests) {
+            console.log("*** --basic-only parameter is set, basic Android and iOS tests will be run");
+            setupReactNativeDebugAndroidTests(testParams);
+            setupReactNativeDebugiOSTests(testParams);
+        } else if (testParams.RunAndroidTests) {
+            console.log("*** --android parameter is set, Android tests will be run");
             setupReactNativeDebugAndroidTests();
-        } else if (process.argv.includes("--ios")) {
-            console.log("*** --ios parameter is set, iOS tests will be ran");
+        } else if (testParams.RunIosTests) {
+            console.log("*** --ios parameter is set, iOS tests will be run");
             setupReactNativeDebugiOSTests();
         }
     } else {
-        setupReactNativeDebugAndroidTests();
+        if (testParams.RunBasicTests) {
+            console.log("*** --basic-only parameter is set, basic Android tests will be run");
+            setupReactNativeDebugAndroidTests(testParams);
+        } else {
+            setupReactNativeDebugAndroidTests();
+        }
+
     }
 });

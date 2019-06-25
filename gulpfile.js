@@ -61,7 +61,6 @@ let lintSources = [srcPath, testPath].map((tsFolder) => tsFolder + "/**/*.ts");
 lintSources = lintSources.concat([
     "!src/typings/**",
     "!test/resources/sampleReactNative022Project/**",
-    // TODO Fix lint issues in smoke tests
     "!test/smoke/**",
     "!/SmokeTestLogs/**"
 ]);
@@ -80,7 +79,7 @@ function build(failOnError, buildNls) {
     return tsResult.js
         .pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
         .pipe(buildNls ? nls.createAdditionalLanguageFiles(defaultLanguages, "i18n", ".") : es.through())
-        .pipe(buildNls ? nls.bundleMetaDataFiles("vsmobile.vscode-react-native", ".") : es.through())
+        .pipe(buildNls ? nls.bundleMetaDataFiles("msjsdiag.vscode-react-native", ".") : es.through())
         .pipe(buildNls ? nls.bundleLanguageFiles() : es.through())
         .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: "." }))
         .pipe(gulp.dest((file) => file.cwd))
@@ -99,15 +98,21 @@ function test() {
     if (options.pattern) {
         log(`\nTesting cases that match pattern: ${options.pattern}`);
     } else {
-        log("\nTesting cases that don't match pattern: extensionContext");
+        log("\nTesting cases that don't match pattern: extensionContext|localizationContext");
     }
 
+    const testResultsPath = path.join(__dirname, "test", "DebuggerTests.xml");
+    process.env.MOCHA_FILE = testResultsPath;
     return gulp.src(["test/**/*.test.js", "!test/extension/**"])
         .pipe(mocha({
             ui: "tdd",
             useColors: true,
             invert: !options.pattern,
-            grep: options.pattern || "(extensionContext|localizationContext)"
+            grep: options.pattern || "(extensionContext|localizationContext)",
+            reporter: "mocha-multi-reporters",
+            reporterOptions: {
+                configFile: path.resolve("test/mochaReporterConfig.json"),
+            },
         }));
 }
 
