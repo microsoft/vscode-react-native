@@ -150,6 +150,9 @@ export function makeSession(
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
             }
 
+            if (!args.sourceMaps) {
+                args.sourceMaps = true;
+            }
             const projectRootPath = getProjectRoot(args);
             return ReactNativeProjectHelper.isReactNativeProject(projectRootPath)
                 .then((result) => {

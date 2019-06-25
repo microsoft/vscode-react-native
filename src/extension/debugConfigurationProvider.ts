@@ -15,8 +15,6 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "type": "reactnative",
             "request": "launch",
             "platform": "android",
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/.vscode/.react",
         },
         "Debug iOS": {
             "name": "Debug iOS",
@@ -24,16 +22,12 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "type": "reactnative",
             "request": "launch",
             "platform": "ios",
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/.vscode/.react",
         },
         "Attach to packager": {
             "name": "Attach to packager",
             "program": "${workspaceRoot}/.vscode/launchReactNative.js",
             "type": "reactnative",
             "request": "attach",
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/.vscode/.react",
         },
         "Debug in Exponent": {
             "name": "Debug in Exponent",
@@ -41,8 +35,6 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "type": "reactnative",
             "request": "launch",
             "platform": "exponent",
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/.vscode/.react",
         },
     };
 
