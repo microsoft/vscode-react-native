@@ -26,6 +26,7 @@ import { InternalErrorCode } from "../common/error/internalErrorCode";
 const localize = nls.loadMessageBundle();
 
 interface IReactNativeStuff {
+    // test comment
     packager: Packager;
     exponentHelper: ExponentHelper;
     reactDirManager: ReactDirManager;
