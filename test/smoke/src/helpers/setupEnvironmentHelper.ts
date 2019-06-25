@@ -41,6 +41,8 @@ export class SetupEnvironmentHelper {
 
         console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
         fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+
+        SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
     public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
@@ -62,6 +64,8 @@ export class SetupEnvironmentHelper {
 
         console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
         fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+
+        SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
     public static addExpoDependencyToRNProject(workspacePath: string) {
@@ -286,5 +290,27 @@ import * as Icon from '@expo/vector-icons';
 
         console.log(`*** Adding @expo/xdl dependency to ${extensionDir} via '${command}' command...`);
         cp.execSync(command, { cwd: extensionDir, stdio: "inherit" });
+    }
+
+    public static async patchMetroConfig(appPath: string) {
+        const metroConfigPath = path.join(appPath, "metro.config.js");
+        console.log(`*** Patching  ${metroConfigPath}`);
+        const patchContent = `
+// Redirect Metro cache
+module.exports.cacheStores = [
+    new (require('metro-cache')).FileStore({
+        root: require('path').join(".cache", 'metro-cache'),
+    }),
+];
+// Reset Haste Map cache
+module.exports.resetCache = true
+
+// This ^ hack should be removed as soon as this PR is merged
+// https://github.com/facebook/metro/pull/424,
+// and should be replaced with this one \/
+
+// Redirect Haste Map cache
+// module.exports.hasteMapCacheDirectory = ".cache";`;
+        fs.appendFileSync(metroConfigPath, patchContent);
     }
 }
