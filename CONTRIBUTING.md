@@ -1,7 +1,7 @@
 ## Development setup
 We welcome any quality bugfixes or contributions!
 
-To avoid a conflicts with your existing installation, delete the installed extension at `~/.vscode/extensions/vsmobile.vscode-react-native`.
+To avoid a conflicts with your existing installation, delete the installed extension at `~/.vscode/extensions/msjsdiag.vscode-react-native`.
 
 ### Windows
 * In `C:/Users/<username>/.vscode/extensions/`, `git clone` this repository
