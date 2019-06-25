@@ -11,30 +11,30 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
     private debugConfigurations = {
         "Debug Android": {
             "name": "Debug Android",
+            "program": "${workspaceRoot}/.vscode/launchReactNative.js",
             "type": "reactnative",
             "request": "launch",
             "platform": "android",
-            "outDir": "${workspaceRoot}/.vscode/.react",
         },
         "Debug iOS": {
             "name": "Debug iOS",
+            "program": "${workspaceRoot}/.vscode/launchReactNative.js",
             "type": "reactnative",
             "request": "launch",
             "platform": "ios",
-            "outDir": "${workspaceRoot}/.vscode/.react",
         },
         "Attach to packager": {
             "name": "Attach to packager",
+            "program": "${workspaceRoot}/.vscode/launchReactNative.js",
             "type": "reactnative",
             "request": "attach",
-            "outDir": "${workspaceRoot}/.vscode/.react",
         },
         "Debug in Exponent": {
             "name": "Debug in Exponent",
+            "program": "${workspaceRoot}/.vscode/launchReactNative.js",
             "type": "reactnative",
             "request": "launch",
             "platform": "exponent",
-            "outDir": "${workspaceRoot}/.vscode/.react",
         },
     };
 

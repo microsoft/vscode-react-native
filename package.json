@@ -129,8 +129,7 @@
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
 							"type": "reactnative",
 							"request": "launch",
-							"platform": "android",
-							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+							"platform": "android"
 						}
 					},
 					{
@@ -141,8 +140,7 @@
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
 							"type": "reactnative",
 							"request": "launch",
-							"platform": "ios",
-							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+							"platform": "ios"
 						}
 					},
 					{
@@ -152,8 +150,7 @@
 							"name": "Attach to packager",
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
 							"type": "reactnative",
-							"request": "attach",
-							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+							"request": "attach"
 						}
 					},
 					{
@@ -164,8 +161,7 @@
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
 							"type": "reactnative",
 							"request": "launch",
-							"platform": "exponent",
-							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
+							"platform": "exponent"
 						}
 					}
 				],
@@ -183,11 +179,6 @@
 								"type": "boolean",
 								"description": "%reactNative.attach.sourceMaps.description%",
 								"default": false
-							},
-							"outDir": {
-								"type": "string",
-								"description": "%reactNative.attach.outDir.description%",
-								"default": null
 							},
 							"sourceMapPathOverrides": {
 								"type": "object",
@@ -290,11 +281,6 @@
 									"ReactNative:V",
 									"ReactNativeJS:V"
 								]
-							},
-							"outDir": {
-								"type": "string",
-								"description": "%reactNative.launch.outDir.description%",
-								"default": null
 							},
 							"runArguments": {
 								"type": "array",
