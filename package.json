@@ -21,7 +21,7 @@
 		"url": "https://github.com/Microsoft/vscode-react-native"
 	},
 	"engines": {
-		"vscode": "^1.24.0"
+		"vscode": "^1.26.0"
 	},
 	"categories": [
 		"Debuggers",
@@ -120,43 +120,6 @@
 						"typescriptreact"
 					]
 				},
-				"initialConfigurations": [
-					{
-						"name": "Debug Android",
-						"program": "${workspaceRoot}/.vscode/launchReactNative.js",
-						"type": "reactnative",
-						"request": "launch",
-						"platform": "android",
-						"sourceMaps": true,
-						"outDir": "${workspaceRoot}/.vscode/.react"
-					},
-					{
-						"name": "Debug iOS",
-						"program": "${workspaceRoot}/.vscode/launchReactNative.js",
-						"type": "reactnative",
-						"request": "launch",
-						"platform": "ios",
-						"sourceMaps": true,
-						"outDir": "${workspaceRoot}/.vscode/.react"
-					},
-					{
-						"name": "Attach to packager",
-						"program": "${workspaceRoot}/.vscode/launchReactNative.js",
-						"type": "reactnative",
-						"request": "attach",
-						"sourceMaps": true,
-						"outDir": "${workspaceRoot}/.vscode/.react"
-					},
-					{
-						"name": "Debug in Exponent",
-						"program": "${workspaceRoot}/.vscode/launchReactNative.js",
-						"type": "reactnative",
-						"request": "launch",
-						"platform": "exponent",
-						"sourceMaps": true,
-						"outDir": "${workspaceRoot}/.vscode/.react"
-					}
-				],
 				"configurationSnippets": [
 					{
 						"label": "React Native: Debug Android",
