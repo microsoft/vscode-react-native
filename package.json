@@ -130,7 +130,6 @@
 							"type": "reactnative",
 							"request": "launch",
 							"platform": "android",
-							"sourceMaps": true,
 							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
 						}
 					},
@@ -143,7 +142,6 @@
 							"type": "reactnative",
 							"request": "launch",
 							"platform": "ios",
-							"sourceMaps": true,
 							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
 						}
 					},
@@ -155,7 +153,6 @@
 							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
 							"type": "reactnative",
 							"request": "attach",
-							"sourceMaps": true,
 							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
 						}
 					},
@@ -168,7 +165,6 @@
 							"type": "reactnative",
 							"request": "launch",
 							"platform": "exponent",
-							"sourceMaps": true,
 							"outDir": "^\"\\${workspaceRoot}/.vscode/.react\""
 						}
 					}

@@ -67,11 +67,8 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
 
         debugConfigProvider = vscode.debug.registerDebugConfigurationProvider("reactnative", configProvider);
-
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
-
-
         let promises: any = [];
         if (workspaceFolders) {
             outputChannelLogger.debug(`Projects found: ${workspaceFolders.length}`);

@@ -84,7 +84,7 @@ export function makeSession(
                     return this.remoteExtension.launch(request);
                 })
                 .then(() => {
-                    return this.remoteExtension.getPackagerPort(request.arguments.program);
+                    return this.remoteExtension.getPackagerPort();
                 })
                 .then((packagerPort: number) => {
                     this.attachRequest({
@@ -104,7 +104,7 @@ export function makeSession(
             this.requestSetup(request.arguments)
                 .then(() => {
                     logger.verbose(`Handle attach request: ${JSON.stringify(request.arguments, null , 2)}`);
-                    return this.remoteExtension.getPackagerPort(request.arguments.program);
+                    return this.remoteExtension.getPackagerPort();
                 })
                 .then((packagerPort: number) => {
                     this.attachRequest({
@@ -150,6 +150,9 @@ export function makeSession(
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
             }
 
+            if (!args.sourceMaps) {
+                args.sourceMaps = true;
+            }
             const projectRootPath = getProjectRoot(args);
             return ReactNativeProjectHelper.isReactNativeProject(projectRootPath)
                 .then((result) => {
