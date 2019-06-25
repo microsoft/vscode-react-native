@@ -84,7 +84,7 @@ export function makeSession(
                     return this.remoteExtension.launch(request);
                 })
                 .then(() => {
-                    return this.remoteExtension.getPackagerPort();
+                    return this.remoteExtension.getPackagerPort(request.arguments.program);
                 })
                 .then((packagerPort: number) => {
                     this.attachRequest({
@@ -104,7 +104,7 @@ export function makeSession(
             this.requestSetup(request.arguments)
                 .then(() => {
                     logger.verbose(`Handle attach request: ${JSON.stringify(request.arguments, null , 2)}`);
-                    return this.remoteExtension.getPackagerPort();
+                    return this.remoteExtension.getPackagerPort(request.arguments.program);
                 })
                 .then((packagerPort: number) => {
                     this.attachRequest({

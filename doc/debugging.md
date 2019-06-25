@@ -51,9 +51,7 @@ For UWP apps use `windows` target platform in `launch.json` configuration, e.g.:
     "program": "${workspaceRoot}/.vscode/launchReactNative.js",
     "type": "reactnative",
     "request": "launch",
-    "platform": "windows",
-    "sourceMaps": true,
-    "outDir": "${workspaceRoot}/.vscode/.react"
+    "platform": "windows"
 }
 ```
 
@@ -65,8 +63,6 @@ For WPF apps use `wpf`, e.g.(WPF debugging available only for react-native-windo
     "program": "${workspaceRoot}/.vscode/launchReactNative.js",
     "type": "reactnative",
     "request": "launch",
-    "platform": "wpf",
-    "sourceMaps": true,
-    "outDir": "${workspaceRoot}/.vscode/.react"
+    "platform": "wpf"
 }
 ```
