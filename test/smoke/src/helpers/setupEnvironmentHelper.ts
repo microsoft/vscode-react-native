@@ -312,5 +312,7 @@ module.exports.resetCache = true
 // Redirect Haste Map cache
 // module.exports.hasteMapCacheDirectory = ".cache";`;
         fs.appendFileSync(metroConfigPath, patchContent);
+        const contentAfterPatching = fs.readlinkSync(metroConfigPath);
+        console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
     }
 }
