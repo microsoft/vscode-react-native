@@ -1,3 +1,10 @@
+## 0.10.0
+* Added support for Expo SDK 33 [#1025](https://github.com/microsoft/vscode-react-native/pull/1025)
+* Simplified `launch.json` debug configuration file generation, added UI debug configuration provider which allows to choose needed debug configurations ([#830](https://github.com/microsoft/vscode-react-native/issues/830))
+* `outDir` debug configuration property was removed, `sourceMaps` property was excluded from initial debug configurations and set to `true` if not specified explicitly ([#1033](https://github.com/microsoft/vscode-react-native/pull/1033))
+* Changed `Reload App` Command Pallete command approach ([#1016](https://github.com/microsoft/vscode-react-native/pull/1016)), thanks to [Alter Code(@muhamad-rizki)](https://github.com/muhamad-rizki)
+* Fixed some logging typos[#1018](https://github.com/microsoft/vscode-react-native/pull/1018), thanks to [Adam Krantz(akrantz)](https://github.com/akrantz)
+
 ## 0.9.3
 * Fixed `Show Dev Menu` and `Reload App` Command Pallette commands for iOS ([#978](https://github.com/microsoft/vscode-react-native/issues/978))
 * Fixed debugging functionality on Node.js 12 due to deprecating of Node cli argument `--debug-brk` ([#1000](https://github.com/microsoft/vscode-react-native/issues/1000))
