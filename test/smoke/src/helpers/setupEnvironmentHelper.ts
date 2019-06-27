@@ -302,12 +302,9 @@ module.exports.cacheStores = [
         root: require('path').join(".cache", 'metro-cache'),
     }),
 ];
-// Reset Haste Map cache
-// module.exports.resetCache = true
 
-// This ^ hack should be removed as soon as this PR is merged
+// This \/ should be uncommented as soon as this PR is merged
 // https://github.com/facebook/metro/pull/424,
-// and should be replaced with this one \/
 
 // Redirect Haste Map cache
 // module.exports.hasteMapCacheDirectory = ".cache";`;
