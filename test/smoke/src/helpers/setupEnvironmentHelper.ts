@@ -303,7 +303,7 @@ module.exports.cacheStores = [
     }),
 ];
 // Reset Haste Map cache
-module.exports.resetCache = true
+// module.exports.resetCache = true
 
 // This ^ hack should be removed as soon as this PR is merged
 // https://github.com/facebook/metro/pull/424,
