@@ -269,7 +269,7 @@ suite("appWorker", function () {
                 webSocketConstructor = sinon.stub();
                 webSocketConstructor.returns(webSocket);
                 packagerIsRunning = sinon.stub(packagerStatus, "ensurePackagerRunning");
-                packagerIsRunning.returns(Q.resolve(true));
+                packagerIsRunning.returns(Q.resolve(void 0));
                 const attachRequestArguments = {
                     address: "localhost",
                     port: packagerPort,
@@ -310,7 +310,7 @@ suite("appWorker", function () {
                 return multipleLifetimesWorker.start().then(() => {
                     // Forget previous invocations
                     startWorker.reset();
-                    packagerIsRunning.returns(Q.resolve(true));
+                    packagerIsRunning.returns(Q.resolve(void 0));
 
                     clock = sinon.useFakeTimers();
 
@@ -393,13 +393,13 @@ suite("appWorker", function () {
             });
 
             test("without packager running should not start if there is no packager running", () => {
-                packagerIsRunning.returns(Q.reject(false));
+                packagerIsRunning.returns(Q.reject(void 0));
 
                 return multipleLifetimesWorker.start()
                     .done(() => {
+                        assert(!webSocketConstructor.notCalled, "socket should be created");
+                    }, () => {
                         assert(webSocketConstructor.notCalled, "socket should not be created");
-                    }, reason => {
-                        assert(reason.message === `Cannot attach to packager. Are you sure there is a packager and it is running in the port ${packagerPort}? If your packager is configured to run in another port make sure to add that to the setting.json.`);
                     });
             });
         });
