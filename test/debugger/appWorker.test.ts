@@ -393,12 +393,10 @@ suite("appWorker", function () {
             });
 
             test("without packager running should not start if there is no packager running", () => {
-                packagerIsRunning.returns(Q.reject(void 0));
+                packagerIsRunning.returns(Q.reject(new Error()));
 
                 return multipleLifetimesWorker.start()
-                    .done(() => {
-                        assert(!webSocketConstructor.notCalled, "socket should be created");
-                    }, () => {
+                    .done(() => {}, () => {
                         assert(webSocketConstructor.notCalled, "socket should not be created");
                     });
             });
