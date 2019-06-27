@@ -136,8 +136,8 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Message handler for GET_PACKAGER_PORT.
      */
-    private getPackagerPort(program: string): number {
-        return SettingsHelper.getPackagerPort(program);
+    private getPackagerPort(projectFolder: string): number {
+        return SettingsHelper.getPackagerPort(projectFolder);
     }
 
     /**
@@ -201,7 +201,7 @@ export class ExtensionServer implements vscode.Disposable {
             mobilePlatformOptions.productName = request.arguments.productName;
         }
 
-        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(request.arguments.program);
+        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(request.arguments.cwd || request.arguments.program);
         const platformDeps: MobilePlatformDeps = {
             packager: this.reactNativePackager,
         };
@@ -266,7 +266,7 @@ function isNullOrUndefined(value: any): boolean {
 }
 
 function requestSetup(args: any): any {
-    const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.program));
+    const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program));
     const projectRootPath = getProjectRoot(args);
     let mobilePlatformOptions: any = {
         workspaceRoot: workspaceFolder.uri.fsPath,
@@ -288,5 +288,5 @@ function requestSetup(args: any): any {
 }
 
 function getProjectRoot(args: any): string {
-    return SettingsHelper.getReactNativeProjectRoot(args.program);
+    return SettingsHelper.getReactNativeProjectRoot(args.cwd || args.program);
 }

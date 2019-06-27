@@ -84,7 +84,7 @@ export function makeSession(
                     return this.remoteExtension.launch(request);
                 })
                 .then(() => {
-                    return this.remoteExtension.getPackagerPort(request.arguments.program);
+                    return this.remoteExtension.getPackagerPort(request.arguments.cwd || request.arguments.program);
                 })
                 .then((packagerPort: number) => {
                     this.attachRequest({
@@ -104,7 +104,7 @@ export function makeSession(
             this.requestSetup(request.arguments)
                 .then(() => {
                     logger.verbose(`Handle attach request: ${JSON.stringify(request.arguments, null , 2)}`);
-                    return this.remoteExtension.getPackagerPort(request.arguments.program);
+                    return this.remoteExtension.getPackagerPort(request.arguments.cwd || request.arguments.program);
                 })
                 .then((packagerPort: number) => {
                     this.attachRequest({
@@ -149,6 +149,10 @@ export function makeSession(
             } else {
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
             }
+            if (args.program) {
+                // Remove this warning when program property will be completely removed
+                logger.warn(localize("ProgramPropertyDeprecationWarning", "Launched debug configuration contains 'program' property which is deprecated and will be removed soon. Please replace it by: \"cwd\": \"${workspaceFolder}\""));
+            }
 
             if (!args.sourceMaps) {
                 args.sourceMaps = true;
@@ -189,7 +193,7 @@ export function makeSession(
                         logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
                         // TODO: remove dependency on args.program - "program" property is technically
                         // no more required in launch configuration and could be removed
-                        const workspaceRootPath = path.resolve(path.dirname(request.arguments.program), "..");
+                        const workspaceRootPath = request.arguments.cwd ? path.resolve(request.arguments.cwd) : path.resolve(path.dirname(request.arguments.program), "..");
                         const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
 
                         // If launch is invoked first time, appWorker is undefined, so create it here
@@ -263,7 +267,7 @@ export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeo
  */
 function getProjectRoot(args: any): string {
     try {
-        let vsCodeRoot = path.resolve(args.program, "../..");
+        let vsCodeRoot = args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
         let settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
         let settingsContent = fs.readFileSync(settingsPath, "utf8");
         settingsContent = stripJsonComments(settingsContent);
@@ -271,6 +275,6 @@ function getProjectRoot(args: any): string {
         let projectRootPath = parsedSettings["react-native-tools.projectRoot"] || parsedSettings["react-native-tools"].projectRoot;
         return path.resolve(vsCodeRoot, projectRootPath);
     } catch (e) {
-        return path.resolve(args.program, "../..");
+        return args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
     }
 }
