@@ -31,6 +31,7 @@ import {TelemetryHelper, ICommandTelemetryProperties} from "../common/telemetryH
 import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ExponentHelper} from "./exponent/exponentHelper";
+import { ReactNativeDebugConfigProvider } from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -38,6 +39,7 @@ const localize = nls.loadMessageBundle();
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
 const fsUtil = new FileSystem();
+let debugConfigProvider: vscode.Disposable;
 
 const APP_NAME = "react-native-tools";
 
@@ -51,6 +53,7 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
     outputChannelLogger.debug(`Extension version: ${appVersion}`);
     const ExtensionTelemetryReporter = require("vscode-extension-telemetry").default;
     const reporter = new ExtensionTelemetryReporter(APP_NAME, appVersion, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY);
+    const configProvider = new ReactNativeDebugConfigProvider();
     const workspaceFolders: vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
     let extProps: ICommandTelemetryProperties = {};
     if (workspaceFolders) {
@@ -63,10 +66,9 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
 
+        debugConfigProvider = vscode.debug.registerDebugConfigurationProvider("reactnative", configProvider);
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
-
-
         let promises: any = [];
         if (workspaceFolders) {
             outputChannelLogger.debug(`Projects found: ${workspaceFolders.length}`);
@@ -89,6 +91,7 @@ export function deactivate(): Q.Promise<void> {
         entryPointHandler.runFunction("extension.deactivate",
             ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
             () => {
+                debugConfigProvider.dispose();
                 CommandPaletteHandler.stopAllPackagers()
                 .then(() => {
                     return CommandPaletteHandler.stopElementInspector();
