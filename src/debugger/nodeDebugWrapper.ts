@@ -154,7 +154,7 @@ export function makeSession(
                 Telemetry.send(useProgramEvent);
             }
             if (args.cwd) {
-                // To match count of 'cwd' users with 'program' users. Remove when program property will be removed
+                // To match count of 'cwd' users with 'program' users. TODO: Remove when program property will be removed
                 const useCwdEvent = TelemetryHelper.createTelemetryEvent("useCwdProperty");
                 Telemetry.send(useCwdEvent);
             }
