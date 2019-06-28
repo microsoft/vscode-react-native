@@ -146,11 +146,17 @@ export function makeSession(
             } else {
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
             }
+
             if (args.program) {
                 // Remove this warning when program property will be completely removed
                 logger.warn(localize("ProgramPropertyDeprecationWarning", "Launched debug configuration contains 'program' property which is deprecated and will be removed soon. Please replace it by: \"cwd\": \"${workspaceFolder}\""));
                 const useProgramEvent = TelemetryHelper.createTelemetryEvent("useProgramProperty");
                 Telemetry.send(useProgramEvent);
+            }
+            if (args.cwd) {
+                // To match count of 'cwd' users with 'program' users. Remove when program property will be removed
+                const useCwdEvent = TelemetryHelper.createTelemetryEvent("useCwdProperty");
+                Telemetry.send(useCwdEvent);
             }
 
             if (!args.sourceMaps) {
