@@ -47,18 +47,18 @@ See [Setting up debug environment](doc/debugging.md) for more details.
 ## React Native debug configuration properties
 Name |Description|Type|Defaults|
 |---|---|---|---|
-|`cwd`|The path to project root folder|`string`|`${workspaceFolder}`|
+|`cwd`|The path to the project root folder|`string`|`${workspaceFolder}`|
 |`sourceMaps`|Whether to use JavaScript source maps to map the generated bundled code back to its original sources|`boolean`|`true`|
-|`sourceMapPathOverrides`|A set of mappings for rewriting the locations of source files from what the source map says, to their locations on disk. See https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul for details|`object`|n/a|
+|`sourceMapPathOverrides`|A set of mappings for rewriting the locations of source files from what the source map says, to their locations on disk. See [Debugging with TypeScript and Haul](https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul) for details|`object`|n/a|
 |`trace`|Logging level in debugger process. May be useful for diagnostics. If set to "Trace" all debugger process logs will be available in `Debug Console` output window|`string`|`log`|
-|`address`|TCP/IP address of debug server|`string`|`localhost`|
+|`address`|TCP/IP address of debug server/packager|`string`|`localhost`|
 |`port`|Debug port to attach to|`string`|`8081`|
 |`remoteRoot`|The source root of the remote host|`string`|`null`|
 |`localRoot`|The local source root that corresponds to the 'remoteRoot'|`string`|`${workspaceFolder}`|
 |`skipFiles`|An array of file or folder names, or glob patterns, to skip when debugging|`array`|`[]`|
 |`debuggerWorkerUrlPath`|Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide)|`string`|`debugger-ui/`|
 |`platform`|The platform to target. Possible values: `android`, `ios`, `exponent`, `windows`, `wpf`|`string`|n/a|
-|`target`|Target to run on. Possible values: `simulator`, `device`, `<Android device/emulator id>`, `<iOS simulator/device name>`|`string`|`simulator`|
+|`target`|Target to run on. Possible values: `simulator`, `device`, `<Android emulator/device id>`, `<iOS simulator/device name>`|`string`|`simulator`|
 |`logCatArguments`|Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can be an array such as: `[":S", "ReactNative:V", "ReactNativeJS:V"]`|`array`|`["*:S", "ReactNative:V", "ReactNativeJS:V"]`|
 |`runArguments`|Run arguments to be passed to `react-native run-<platform>` command (override all other configuration params)|`array`|n/a|
 |`env`|Environment variables passed to the debugger and `react-native run-<platform>` command|`object`|`{}`|
