@@ -59,7 +59,7 @@ Name |Description|Type|Defaults|
 |`debuggerWorkerUrlPath`|Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide)|`string`|`debugger-ui/`|
 |`platform`|The platform to target. Possible values: `android`, `ios`, `exponent`, `windows`, `wpf`|`string`|n/a|
 |`target`|Target to run on. Possible values: `simulator`, `device`, `<Android device/emulator id>`, `<iOS simulator/device name>`|`string`|`simulator`|
-|`logCatArguments`|Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can either be an array such as: `[\":S\", \"ReactNative:V\", \"ReactNativeJS:V\"]` or a string such as `\":S ReactNative:V ReactNativeJS:V\"`|`array`|`["*:S", "ReactNative:V", "ReactNativeJS:V"]`|
+|`logCatArguments`|Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can either be an array such as: `[":S", "ReactNative:V", "ReactNativeJS:V"]`|`array`|`["*:S", "ReactNative:V", "ReactNativeJS:V"]`|
 |`runArguments`|Run arguments to be passed to `react-native run-<platform>` command (override all other configuration params)|`array`|n/a|
 |`env`|Environment variables passed to the program|`object`|`{}`|
 |`envFile`|Absolute path to a file containing environment variable definitions|`string`|`${workspaceFolder}/.env`|
