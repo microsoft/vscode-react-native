@@ -65,7 +65,7 @@ Name |Description|Type|Defaults|
 |`envFile`|Absolute path to a file containing environment variable definitions|`string`|`${workspaceFolder}/.env`|
 |`variant`|A variant to be passed to `react-native run-android`, e.g. use `devDebug` to specify `--variant=devDebug`|`string`|n/a|
 |`scheme`|A scheme name to be passed to `react-native run-ios`, e.g. `devDebug` to specify `--scheme=devDebug`|`string`|n/a|
-|`productName`|iOS bundle display name e.g. `AwesomeProject` value means that extension will search `AwesomeProject.app` bundle|`string`|n/a|
+|`productName`|iOS bundle display name e.g. `AwesomeProject` value means that extension will search for `AwesomeProject.app` bundle|`string`|n/a|
 
 ## Using React Native commands in the Command Palette
 
