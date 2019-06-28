@@ -51,7 +51,7 @@ Name |Description|Type|Defaults|
 |`sourceMaps`|Whether to use JavaScript source maps to map the generated bundled code back to its original sources|`boolean`|`true`|
 |`sourceMapPathOverrides`|A set of mappings for rewriting the locations of source files from what the source map says, to their locations on disk. See https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul for details|`object`|n/a|
 |`trace`|Logging level in debugger process. May be useful for diagnostics. If set to "Trace" all debugger process logs will be available in `Debug Console` output window|`string`|`log`|
-|`address`|TCP/IP address of debug port|`string`|`localhost`|
+|`address`|TCP/IP address of debug server|`string`|`localhost`|
 |`port`|Debug port to attach to|`string`|`8081`|
 |`remoteRoot`|The source root of the remote host|`string`|`null`|
 |`localRoot`|The local source root that corresponds to the 'remoteRoot'|`string`|`${workspaceFolder}`|
