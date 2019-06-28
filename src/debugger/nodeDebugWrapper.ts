@@ -5,7 +5,6 @@ import * as Q from "q";
 import * as path from "path";
 import * as fs from "fs";
 import stripJsonComments = require("strip-json-comments");
-
 import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { RemoteExtension } from "../common/remoteExtension";
@@ -13,9 +12,7 @@ import { RemoteTelemetryReporter, ReassignableTelemetryReporter } from "../commo
 import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger } from "vscode-chrome-debug-core";
 import { ContinuedEvent, TerminatedEvent, Logger, Response } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
-
 import { MultipleLifetimesAppWorker } from "./appWorker";
-
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
@@ -152,6 +149,8 @@ export function makeSession(
             if (args.program) {
                 // Remove this warning when program property will be completely removed
                 logger.warn(localize("ProgramPropertyDeprecationWarning", "Launched debug configuration contains 'program' property which is deprecated and will be removed soon. Please replace it by: \"cwd\": \"${workspaceFolder}\""));
+                const useProgramEvent = TelemetryHelper.createTelemetryEvent("useProgramProperty");
+                Telemetry.send(useProgramEvent);
             }
 
             if (!args.sourceMaps) {
