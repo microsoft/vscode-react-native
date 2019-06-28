@@ -126,7 +126,7 @@
 						"description": "%reactNative.snippets.debugAndroid.description%",
 						"body": {
 							"name": "Debug Android",
-							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
+							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnative",
 							"request": "launch",
 							"platform": "android"
@@ -137,7 +137,7 @@
 						"description": "%reactNative.snippets.debugiOS.description%",
 						"body": {
 							"name": "Debug iOS",
-							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
+							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnative",
 							"request": "launch",
 							"platform": "ios"
@@ -148,7 +148,7 @@
 						"description": "%reactNative.snippets.attachPackager.description%",
 						"body": {
 							"name": "Attach to packager",
-							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
+							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnative",
 							"request": "attach"
 						}
@@ -158,7 +158,7 @@
 						"description": "%reactNative.snippets.debugExpo.description%",
 						"body": {
 							"name": "Debug in Exponent",
-							"program": "^\"\\${workspaceRoot}/.vscode/launchReactNative.js\"",
+							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnative",
 							"request": "launch",
 							"platform": "exponent"
@@ -168,12 +168,17 @@
 				"configurationAttributes": {
 					"attach": {
 						"required": [
-							"program"
+							"cwd"
 						],
 						"properties": {
 							"program": {
 								"type": "string",
 								"description": "%reactNative.attach.program.description%"
+							},
+							"cwd": {
+								"type": "string",
+								"description": "%reactNative.attach.cwd.description%",
+								"default": "${workspaceFolder}"
 							},
 							"sourceMaps": {
 								"type": "boolean",
@@ -233,7 +238,7 @@
 					},
 					"launch": {
 						"required": [
-							"program",
+							"cwd",
 							"platform"
 						],
 						"properties": {
@@ -251,6 +256,11 @@
 							"program": {
 								"type": "string",
 								"description": "%reactNative.launch.program.description%"
+							},
+							"cwd": {
+								"type": "string",
+								"description": "%reactNative.launch.cwd.description%",
+								"default": "${workspaceFolder}"
 							},
 							"target": {
 								"anyOf": [

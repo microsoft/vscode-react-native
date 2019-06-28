@@ -31,7 +31,7 @@ import {TelemetryHelper, ICommandTelemetryProperties} from "../common/telemetryH
 import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ExponentHelper} from "./exponent/exponentHelper";
-import { ReactNativeDebugConfigProvider } from "./debugConfigurationProvider";
+import {ReactNativeDebugConfigProvider} from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
