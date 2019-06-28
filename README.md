@@ -54,7 +54,7 @@ Name |Description|Defaults|
 |`address`|TCP/IP address of debug port|`localhost`|
 |`port`|Debug port to attach to|`8081`|
 |`remoteRoot`|The source root of the remote host|`null`|
-|`localRoot`|The local source root that corresponds to the 'remoteRoot'|`${workspaceRoot}`|
+|`localRoot`|The local source root that corresponds to the 'remoteRoot'|`${workspaceFolder}`|
 |`skipFiles`|An array of file or folder names, or glob patterns, to skip when debugging|`[]`|
 |`debuggerWorkerUrlPath`|Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide)|`debugger-ui/`|
 |`platform`|The platform to target|n/a|
@@ -105,7 +105,7 @@ Debugger doesn't stop at breakpoints | Breakpoints require sourcemaps to be corr
 'adb: command not found'             | If you receive an error `adb: command not found`, you need to update your system Path to include the location of your *ADB* executable.The *ADB* executable file is located in a subdirectory along with your other Android SDK files.
 Targeting iPhone 6 doesn't work      | There was a known issue with React Native ([#5850](https://github.com/facebook/react-native/issues/5850)) but it was fixed. Please upgrade your version of React Native.
 Can't communicate with socket pipe    | (Linux only) If you have two workspaces open that only differ in casing, the extension will fail to communicate effectively.
-"Add configuration" button doesn't work when trying to add debug configuration to `launch.json` | You may need to have to add in some json to `launch.json` manually. Please, see ([#985](https://github.com/Microsoft/vscode-react-native/issues/985))                         
+"Add configuration" button doesn't work when trying to add debug configuration to `launch.json` | You may need to have to add in some json to `launch.json` manually. Please, see ([#985](https://github.com/Microsoft/vscode-react-native/issues/985))
 
 [Known-Issues](https://github.com/Microsoft/vscode-react-native/issues?q=is%3Aissue+label%3Aknown-issues) provides a complete list of active and resolved issues.
 
