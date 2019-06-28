@@ -148,7 +148,7 @@ export function makeSession(
             }
 
             if (args.program) {
-                // Remove this warning when program property will be completely removed
+                // TODO: Remove this warning when program property will be completely removed
                 logger.warn(localize("ProgramPropertyDeprecationWarning", "Launched debug configuration contains 'program' property which is deprecated and will be removed soon. Please replace it by: \"cwd\": \"${workspaceFolder}\""));
                 const useProgramEvent = TelemetryHelper.createTelemetryEvent("useProgramProperty");
                 Telemetry.send(useProgramEvent);
