@@ -45,27 +45,27 @@ More information about debugging using VS Code can be found in this [guide](http
 See [Setting up debug environment](doc/debugging.md) for more details.
 
 ## React Native debug configuration properties
-Name |Description|Defaults|
-|---|---|---|
-|`cwd`|The path to project root folder|`${workspaceFolder}`|
-|`sourceMaps`|Whether to use JavaScript source maps to map the generated bundled code back to its original sources|`true` if not defined explicitly|
-|`sourceMapPathOverrides`|A set of mappings for rewriting the locations of source files from what the source map says, to their locations on disk. See https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul for details|n/a|
-|`trace`|Setup logging level in debugger|`log`|
-|`address`|TCP/IP address of debug port|`localhost`|
-|`port`|Debug port to attach to|`8081`|
-|`remoteRoot`|The source root of the remote host|`null`|
-|`localRoot`|The local source root that corresponds to the 'remoteRoot'|`${workspaceFolder}`|
-|`skipFiles`|An array of file or folder names, or glob patterns, to skip when debugging|`[]`|
-|`debuggerWorkerUrlPath`|Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide)|`debugger-ui/`|
-|`platform`|The platform to target|n/a|
-|`target`|Device target to run on (either device or simulator)|`simulator`|
-|`logCatArguments`|Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can either be an array such as: [\":S\", \"ReactNative:V\", \"ReactNativeJS:V\"] or a string such as \":S ReactNative:V ReactNativeJS:V\"|`["*:S", "ReactNative:V", "ReactNativeJS:V"]`|
-|`runArguments`|Run arguments to be passed to `react-native run-<platform>` command(Override all other configuration params)|n/a|
-|`env`|Environment variables passed to the program|`{}`|
-|`envFile`|Absolute path to a file containing environment variable definitions|`${workspaceFolder}/.env`|
-|`variant`|A variant to be passed to react-native run-android, e.g. 'devDebug' to specify `--variant=devDebug`|n/a|
-|`scheme`|A scheme name to be passed to react-native run-ios, e.g. 'devDebug' to specify `--scheme=devDebug`|n/a|
-|`productName`|Bundle display name e.g 'AwesomeProject'|n/a|
+Name |Description|Type|Defaults|
+|---|---|---|---|
+|`cwd`|The path to project root folder|`string`|`${workspaceFolder}`|
+|`sourceMaps`|Whether to use JavaScript source maps to map the generated bundled code back to its original sources|`boolean`|`true`|
+|`sourceMapPathOverrides`|A set of mappings for rewriting the locations of source files from what the source map says, to their locations on disk. See https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul for details|`object`|n/a|
+|`trace`|Setup logging level in debugger|`string`|`log`|
+|`address`|TCP/IP address of debug port|`string`|`localhost`|
+|`port`|Debug port to attach to|`string`|`8081`|
+|`remoteRoot`|The source root of the remote host|`string`|`null`|
+|`localRoot`|The local source root that corresponds to the 'remoteRoot'|`string`|`${workspaceFolder}`|
+|`skipFiles`|An array of file or folder names, or glob patterns, to skip when debugging|`array`|`[]`|
+|`debuggerWorkerUrlPath`|Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide)|`string`|`debugger-ui/`|
+|`platform`|The platform to target|`string`|n/a|
+|`target`|Device target to run on (either device or simulator)|`string`|`simulator`|
+|`logCatArguments`|Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can either be an array such as: [\":S\", \"ReactNative:V\", \"ReactNativeJS:V\"] or a string such as \":S ReactNative:V ReactNativeJS:V\"|`array`|`["*:S", "ReactNative:V", "ReactNativeJS:V"]`|
+|`runArguments`|Run arguments to be passed to `react-native run-<platform>` command(Override all other configuration params)|`array`|n/a|
+|`env`|Environment variables passed to the program|`object`|`{}`|
+|`envFile`|Absolute path to a file containing environment variable definitions|`string`|`${workspaceFolder}/.env`|
+|`variant`|A variant to be passed to react-native run-android, e.g. 'devDebug' to specify `--variant=devDebug`|`string`|n/a|
+|`scheme`|A scheme name to be passed to react-native run-ios, e.g. 'devDebug' to specify `--scheme=devDebug`|`string`|n/a|
+|`productName`|Bundle display name e.g 'AwesomeProject'|`string`|n/a|
 
 ## Using React Native commands in the Command Palette
 
