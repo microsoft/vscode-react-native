@@ -60,7 +60,7 @@ Name |Description|Defaults|
 |`platform`|The platform to target|n/a|
 |`target`|Device target to run on (either device or simulator)|`simulator`|
 |`logCatArguments`|Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can either be an array such as: [\":S\", \"ReactNative:V\", \"ReactNativeJS:V\"] or a string such as \":S ReactNative:V ReactNativeJS:V\"|`["*:S", "ReactNative:V", "ReactNativeJS:V"]`|
-|`runArguments`|Run arguments to be passed to 'react-native run-<platform>' command(Override all other configuration params)|n/a|
+|`runArguments`|Run arguments to be passed to `react-native run-<platform>` command(Override all other configuration params)|n/a|
 |`env`|Environment variables passed to the program|`{}`|
 |`envFile`|Absolute path to a file containing environment variable definitions|`${workspaceFolder}/.env`|
 |`variant`|A variant to be passed to react-native run-android, e.g. 'devDebug' to specify `--variant=devDebug`|n/a|
