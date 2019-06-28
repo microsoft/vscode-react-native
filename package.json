@@ -219,7 +219,7 @@
 							"localRoot": {
 								"type": "string",
 								"description": "%reactNative.attach.localRoot.description%",
-								"default": "${workspaceRoot}"
+								"default": "${workspaceFolder}"
 							},
 							"skipFiles": {
 								"type": "array",
