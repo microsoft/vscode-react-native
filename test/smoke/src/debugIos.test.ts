@@ -15,6 +15,8 @@ import { TestRunArguments } from "./helpers/configHelper";
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const RNDebugConfigName = "Debug iOS";
 const ExpoDebugConfigName = "Debug in Exponent";
+const RNSetBreakpointOnLine = 28;
+const ExpoSetBreakpointOnLine = 12;
 // Time for OS Debug Test before it reaches timeout
 const debugIosTestTime = SmokeTestsConstants.iosAppBuildAndInstallTimeout + 100 * 1000;
 // Time for iOS Expo Debug Test before it reaches timeout
@@ -35,14 +37,13 @@ export function setup(testParameters?: TestRunArguments) {
 
         it("RN app Debug test", async function () {
             this.timeout(debugIosTestTime);
-            const BreakpointOnLine = 28;
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
             console.log("iOS Debug test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(BreakpointOnLine);
-            console.log(`iOS Debug test: Breakpoint is set on line ${BreakpointOnLine}`);
+            await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
+            console.log(`iOS Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
             console.log(`iOS Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
@@ -63,7 +64,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("iOS Debug test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === BreakpointOnLine, `looking for App.js and line ${BreakpointOnLine}`);
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
             console.log("iOS Debug test: Stack frame found");
             await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console
@@ -81,15 +82,14 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            const BreakpointOnLine = 16;
             app = await runVSCode(ExpoWorkspacePath);
             console.log(`iOS Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
             console.log("iOS Expo Debug test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(BreakpointOnLine);
-            console.log(`iOS Expo Debug test: Breakpoint is set on line ${BreakpointOnLine}`);
+            await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
+            console.log(`iOS Expo Debug test: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             console.log(`iOS Expo Debug test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
@@ -132,7 +132,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("iOS Expo Debug test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === BreakpointOnLine, `looking for App.js and line ${BreakpointOnLine}`);
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for App.js and line ${ExpoSetBreakpointOnLine}`);
             console.log("iOS Expo Debug test: Stack frame found");
             await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console
@@ -150,15 +150,14 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            const BreakpointOnLine = 28;
             app = await runVSCode(pureRNWorkspacePath);
             console.log(`iOS pure RN Expo test: ${pureRNWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
             console.log("iOS pure RN Expo test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(BreakpointOnLine);
-            console.log(`iOS pure RN Expo test: Breakpoint is set on line ${BreakpointOnLine}`);
+            await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
+            console.log(`iOS pure RN Expo test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             console.log(`iOS pure RN Expo test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
@@ -201,7 +200,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("iOS pure RN Expo test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === BreakpointOnLine, `looking for App.js and line ${BreakpointOnLine}`);
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
             console.log("iOS pure RN Expo test: Stack frame found");
             await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console
