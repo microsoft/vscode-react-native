@@ -96,8 +96,7 @@ export class PlistBuddy {
         let iOSCliFolderName: string;
         if (semver.gte(rnVersion, "0.60.0")) {
             iOSCliFolderName = "cli-platform-ios";
-        }
-        else {
+        } else {
             iOSCliFolderName = "cli";
         }
         const findXcodeProject = require(path.join(projectRoot, `node_modules/@react-native-community/${iOSCliFolderName}/build/commands/runIOS/findXcodeProject`)).default;
