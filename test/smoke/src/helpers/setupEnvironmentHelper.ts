@@ -19,7 +19,7 @@ export class SetupEnvironmentHelper {
     public static expoBundleId = "host.exp.Exponent";
     public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
 
-    public static  prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, version?: string) {
+    public static  prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string,version?: string) {
         let command = `react-native init ${appName}`;
         if (version) {
             command += ` --version ${version}`;
@@ -27,7 +27,7 @@ export class SetupEnvironmentHelper {
         console.log(`*** Creating RN app via '${command}' in ${workspacePath}...`);
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
-        let customEntryPointFile = path.join(resourcesPath, "ReactNativeSample", "App.js");
+        let customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
         let launchConfigFile = path.join(resourcesPath, "launch.json");
         let vsCodeConfigPath = path.join(workspacePath, ".vscode");
 
