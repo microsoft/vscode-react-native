@@ -16,7 +16,7 @@ const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const RNDebugConfigName = "Debug iOS";
 const ExpoDebugConfigName = "Debug in Exponent";
 const RNSetBreakpointOnLine = 28;
-const ExpoSetBreakpointOnLine = 12;
+const ExpoSetBreakpointOnLine = 16;
 const PureRNExpoSetBreakpointOnLine = 23;
 // Time for OS Debug Test before it reaches timeout
 const debugIosTestTime = SmokeTestsConstants.iosAppBuildAndInstallTimeout + 100 * 1000;

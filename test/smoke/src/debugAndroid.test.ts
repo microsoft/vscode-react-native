@@ -18,7 +18,7 @@ const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity
 const RNDebugConfigName = "Debug Android";
 const ExpoDebugConfigName = "Debug in Exponent";
 const RNSetBreakpointOnLine = 28;
-const ExpoSetBreakpointOnLine = 12;
+const ExpoSetBreakpointOnLine = 16;
 const PureRNExpoSetBreakpointOnLine = 23;
 // Time for Android Debug Test before it reaches timeout
 const debugAndroidTestTime = SmokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
