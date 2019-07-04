@@ -17,6 +17,7 @@ const RNDebugConfigName = "Debug iOS";
 const ExpoDebugConfigName = "Debug in Exponent";
 const RNSetBreakpointOnLine = 28;
 const ExpoSetBreakpointOnLine = 12;
+const PureRNExpoSetBreakpointOnLine = 23;
 // Time for OS Debug Test before it reaches timeout
 const debugIosTestTime = SmokeTestsConstants.iosAppBuildAndInstallTimeout + 100 * 1000;
 // Time for iOS Expo Debug Test before it reaches timeout
@@ -156,8 +157,8 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
             console.log("iOS pure RN Expo test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
-            console.log(`iOS pure RN Expo test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
+            await app.workbench.debug.setBreakpointOnLine(PureRNExpoSetBreakpointOnLine);
+            console.log(`iOS pure RN Expo test: Breakpoint is set on line ${PureRNExpoSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             console.log(`iOS pure RN Expo test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
@@ -200,7 +201,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("iOS pure RN Expo test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === PureRNExpoSetBreakpointOnLine, `looking for App.js and line ${PureRNExpoSetBreakpointOnLine}`);
             console.log("iOS pure RN Expo test: Stack frame found");
             await app.workbench.debug.continue();
             // Wait for our debug string to render in debug console
