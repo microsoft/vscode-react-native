@@ -185,6 +185,7 @@ gulp.task("clean", () => {
         "nls.*.json",
         "!test/smoke/resources/ReactNativeSample/App.js",
         "!test/smoke/resources/ExpoSample/App.js",
+        "!test/smoke/resources/PureRNExpoSample/App.js",
     ]
     return del(pathsToDelete, { force: true });
 });
