@@ -19,7 +19,7 @@ export class SetupEnvironmentHelper {
     public static expoBundleId = "host.exp.Exponent";
     public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
 
-    public static  prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string,version?: string) {
+    public static  prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
         let command = `react-native init ${appName}`;
         if (version) {
             command += ` --version ${version}`;
