@@ -202,18 +202,27 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private generateSuccessPatterns(version: string): Q.Promise<string[]> {
-        return this.targetType === IOSPlatform.deviceString ?
-            Q(IOSPlatform.RUN_IOS_SUCCESS_PATTERNS.concat("INSTALLATION SUCCEEDED")) :
-            this.getBundleId()
-                .then(bundleId => {
-                    let successPatterns = IOSPlatform.RUN_IOS_SUCCESS_PATTERNS;
-                    if (semver.gte(version, "0.60.0")) {
-                        successPatterns.push(`Launching "${bundleId}"\nsuccess Successfully launched the app `);
-                    } else {
-                        successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
-                    }
-                    return successPatterns;
-                });
+        let successPatterns = IOSPlatform.RUN_IOS_SUCCESS_PATTERNS;
+        if (this.targetType === IOSPlatform.deviceString) {
+            if (semver.gte(version, "0.60.0")) {
+                successPatterns.push("success Installed the app on the device")
+            } else {
+                successPatterns.push("INSTALLATION SUCCEEDED");
+            }
+            return Q(successPatterns);
+        }
+        else {
+            return this.getBundleId()
+            .then(bundleId => {
+                if (semver.gte(version, "0.60.0")) {
+                    successPatterns.push(`Launching "${bundleId}"\nsuccess Successfully launched the app `);
+                } else {
+                    successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
+                }
+                return successPatterns;
+            });
+        }
+
     }
 
     private getConfiguration(): string {
