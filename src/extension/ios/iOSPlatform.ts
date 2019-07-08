@@ -106,7 +106,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                         this.runArguments.push("--verbose");
                     }
                     const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", this.runArguments, {env});
-                    return new OutputVerifier(() => this.generateSuccessPatterns(), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
+                    return new OutputVerifier(() => this.generateSuccessPatterns(version), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
                         .process(runIosSpawn);
                 });
         });
@@ -201,12 +201,19 @@ export class IOSPlatform extends GeneralMobilePlatform {
         return runArguments;
     }
 
-    private generateSuccessPatterns(): Q.Promise<string[]> {
+    private generateSuccessPatterns(version: string): Q.Promise<string[]> {
         return this.targetType === IOSPlatform.deviceString ?
             Q(IOSPlatform.RUN_IOS_SUCCESS_PATTERNS.concat("INSTALLATION SUCCEEDED")) :
             this.getBundleId()
-                .then(bundleId => IOSPlatform.RUN_IOS_SUCCESS_PATTERNS
-                    .concat([`Launching ${bundleId}\n${bundleId}: `]));
+                .then(bundleId => {
+                    let successPatterns = IOSPlatform.RUN_IOS_SUCCESS_PATTERNS;
+                    if (semver.gte(version, "0.60.0")) {
+                        successPatterns.push(`Launching ${bundleId}\nSuccessfully launched the app `);
+                    } else {
+                        successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
+                    }
+                    return successPatterns;
+                });
     }
 
     private getConfiguration(): string {
