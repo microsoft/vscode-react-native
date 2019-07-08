@@ -319,11 +319,10 @@ export class Packager {
                 let JS_INJECTOR_FILENAME: string;
                 if (semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)) {
                     JS_INJECTOR_FILENAME = Packager.JS_INJECTOR_FILENAME.new;
-                    JS_INJECTOR_FILEPATH = path.resolve(Packager.JS_INJECTOR_DIRPATH, JS_INJECTOR_FILENAME);
                 } else {
                     JS_INJECTOR_FILENAME = Packager.JS_INJECTOR_FILENAME.old;
-                    JS_INJECTOR_FILEPATH = path.resolve(Packager.JS_INJECTOR_DIRPATH, JS_INJECTOR_FILENAME);
                 }
+                JS_INJECTOR_FILEPATH = path.resolve(Packager.JS_INJECTOR_DIRPATH, JS_INJECTOR_FILENAME);
                 if (packageJson.main !== JS_INJECTOR_FILENAME) {
                     // Copy over the patched 'opn' main file
                     return new Node.FileSystem().copyFile(JS_INJECTOR_FILEPATH, path.resolve(path.dirname(destnFilePath), JS_INJECTOR_FILENAME))
