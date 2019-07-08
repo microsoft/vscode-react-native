@@ -205,7 +205,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         let successPatterns = IOSPlatform.RUN_IOS_SUCCESS_PATTERNS;
         if (this.targetType === IOSPlatform.deviceString) {
             if (semver.gte(version, "0.60.0")) {
-                successPatterns.push("success Installed the app on the device")
+                successPatterns.push("success Installed the app on the device");
             } else {
                 successPatterns.push("INSTALLATION SUCCEEDED");
             }
