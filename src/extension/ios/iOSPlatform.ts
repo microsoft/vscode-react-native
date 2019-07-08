@@ -100,6 +100,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
                         this.runArguments.push("--no-packager");
                     }
+                    // Since @react-native-community/cli@2.1.0 XCode outputs are hidden by default
+                    // we are using `--verbose` to show them as they contains `BUILD SUCCESSFUL` pattern
+                    if (semver.gte(version, "0.60.0")) {
+                        this.runArguments.push("--verbose");
+                    }
                     const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", this.runArguments, {env});
                     return new OutputVerifier(() => this.generateSuccessPatterns(), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
                         .process(runIosSpawn);
