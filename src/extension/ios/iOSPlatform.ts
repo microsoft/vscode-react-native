@@ -208,7 +208,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 .then(bundleId => {
                     let successPatterns = IOSPlatform.RUN_IOS_SUCCESS_PATTERNS;
                     if (semver.gte(version, "0.60.0")) {
-                        successPatterns.push(`Launching ${bundleId}\nSuccessfully launched the app `);
+                        successPatterns.push(`Launching "${bundleId}"\nSuccessfully launched the app `);
                     } else {
                         successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
                     }
