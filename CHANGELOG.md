@@ -1,3 +1,9 @@
+## 0.10.1
+* Added support for React Native 0.60 ([#1043](https://github.com/microsoft/vscode-react-native/pull/1043))
+* Fixed diff security vulnerability ([#1029](https://github.com/microsoft/vscode-react-native/pull/1029))
+* `program` debug configuration property is deprecated and will be removed in future, please remove it from debug configurations and replace it by `"cwd": "${workspaceFolder}"`
+* Added documentation for debug configurations properties ([#1040](https://github.com/microsoft/vscode-react-native/pull/1040))
+
 ## 0.10.0
 * Added support for Expo SDK 33 ([#1025](https://github.com/microsoft/vscode-react-native/pull/1025))
 * Simplified `launch.json` debug configuration file generation, added debug configuration provider UI which allows to choose needed debug configurations ([#830](https://github.com/microsoft/vscode-react-native/issues/830))
