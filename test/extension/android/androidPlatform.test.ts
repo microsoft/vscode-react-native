@@ -130,7 +130,7 @@ suite("androidPlatform", function () {
             ], () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return Q(void 0)
+                return Q({})
                     .then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
@@ -144,7 +144,7 @@ suite("androidPlatform", function () {
             ["react-native/run-android/win10-rn0.21.0/succeedsWithTwoVSEmulators"], () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6"]);
 
-                return Q(void 0)
+                return Q({})
                     .then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
@@ -161,7 +161,7 @@ suite("androidPlatform", function () {
         testWithRecordings("runApp launches the app when three emulators are connected",
             ["react-native/run-android/win10-rn0.21.0/succeedsWithThreeVSEmulators"], () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6", "Nexus_7"]);
-                return Q(void 0)
+                return Q({})
                     .then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
@@ -178,7 +178,7 @@ suite("androidPlatform", function () {
 
         testWithRecordings("runApp fails if no devices are connected",
             ["react-native/run-android/win10-rn0.21.0/failsDueToNoDevicesConnected"], () => {
-                return Q(void 0)
+                return Q({})
                     .then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
@@ -207,7 +207,7 @@ suite("androidPlatform", function () {
             ["react-native/run-android/win10-rn0.21.0/succeedsWithFiveVSEmulators"], () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6", "Nexus_10", "Nexus_11", "Nexus_12"]);
 
-                return Q(void 0)
+                return Q({})
                     .then(() => {
                         const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
                         const platform = createAndroidPlatform(runOptions);
@@ -230,7 +230,7 @@ suite("androidPlatform", function () {
                 devices[2].isOnline = false;
                 devices[3].isOnline = false;
 
-                return Q(void 0)
+                return Q({})
                     .then(() => {
                         const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
                         const platform = createAndroidPlatform(runOptions);
@@ -252,7 +252,7 @@ suite("androidPlatform", function () {
             ], () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return Q(void 0)
+                return Q({})
                     .then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
@@ -269,7 +269,7 @@ suite("androidPlatform", function () {
             ], () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return Q(void 0)
+                return Q({})
                     .then(() => {
                         return fileSystem.rmdir(androidProjectPath);
                     }).then(() => {
@@ -289,7 +289,7 @@ suite("androidPlatform", function () {
             ["react-native/run-android/osx10.10-rn0.21.0/failsDueToAdbCommandTimeout"], () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return Q(void 0)
+                return Q({})
                     .then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
