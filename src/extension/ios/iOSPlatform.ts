@@ -210,8 +210,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 successPatterns.push("INSTALLATION SUCCEEDED");
             }
             return Q(successPatterns);
-        }
-        else {
+        } else {
             return this.getBundleId()
             .then(bundleId => {
                 if (semver.gte(version, "0.60.0")) {
