@@ -361,6 +361,7 @@ export class SpectronApplication {
             "up" : "ArrowUp",
             "right" : "ArrowRight",
             "down" : "ArrowDown",
+            "home": "Home",
             ";" : "Semicolon",
             "," : "Separator",
             "=" : "Equals",

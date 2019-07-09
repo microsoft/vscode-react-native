@@ -14,7 +14,6 @@ import {Request} from "./node/request";
 import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
 import {PackagerStatusIndicator, PackagerStatus} from "../extension/packagerStatusIndicator";
 import {SettingsHelper} from "../extension/settingsHelper";
-
 import * as Q from "q";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
@@ -30,10 +29,18 @@ export class Packager {
     private packagerStatusIndicator: PackagerStatusIndicator;
     private logger: OutputChannelLogger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
 
-    private static JS_INJECTOR_FILENAME = "opn-main.js";
-    private static JS_INJECTOR_FILEPATH = path.resolve(path.dirname(path.dirname(__dirname)), "js-patched", Packager.JS_INJECTOR_FILENAME);
+    // old name for RN < 0.60.0, new for versions >= 0.60.0
+    private static JS_INJECTOR_FILENAME = {
+        new: "open-main.js",
+        old: "opn-main.js",
+    };
+    private static RN_VERSION_WITH_OPEN_PKG = "0.60.0";
+    private static JS_INJECTOR_DIRPATH = path.resolve(path.dirname(path.dirname(__dirname)), "js-patched");
     private static NODE_MODULES_FODLER_NAME = "node_modules";
-    private static OPN_PACKAGE_NAME = "opn";
+    private static OPN_PACKAGE_NAME = {
+        new: "open",
+        old: "opn",
+    };
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
     private static fs: FileSystem = new Node.FileSystem();
@@ -111,12 +118,12 @@ export class Packager {
 
             executedStartPackagerCmd = true;
 
-            return this.monkeyPatchOpnForRNPackager()
-            .then(() => {
-                return ReactNativeProjectHelper.getReactNativeVersion(this.projectPath);
-            })
+            return ReactNativeProjectHelper.getReactNativeVersion(this.projectPath)
             .then((version) => {
                 rnVersion = version;
+                return this.monkeyPatchOpnForRNPackager(rnVersion);
+            })
+            .then((version) => {
                 return this.getPackagerArgs(rnVersion, resetCache);
             })
             .then((args) => {
@@ -267,13 +274,19 @@ export class Packager {
         return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, localize("CouldNotStartPackager", "Could not start the packager."));
     }
 
-    private findOpnPackage(): Q.Promise<string> {
+    private findOpnPackage(ReactNativeVersion: string): Q.Promise<string> {
         try {
+            let OPN_PACKAGE_NAME: string;
+            if (semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)) {
+                OPN_PACKAGE_NAME = Packager.OPN_PACKAGE_NAME.new;
+            } else {
+                OPN_PACKAGE_NAME = Packager.OPN_PACKAGE_NAME.old;
+            }
             let flatDependencyPackagePath = path.resolve(this.projectPath, Packager.NODE_MODULES_FODLER_NAME,
-                Packager.OPN_PACKAGE_NAME, Packager.OPN_PACKAGE_MAIN_FILENAME);
+                OPN_PACKAGE_NAME, Packager.OPN_PACKAGE_MAIN_FILENAME);
 
             let nestedDependencyPackagePath = path.resolve(this.projectPath, Packager.NODE_MODULES_FODLER_NAME,
-                Packager.REACT_NATIVE_PACKAGE_NAME, Packager.NODE_MODULES_FODLER_NAME, Packager.OPN_PACKAGE_NAME, Packager.OPN_PACKAGE_MAIN_FILENAME);
+                Packager.REACT_NATIVE_PACKAGE_NAME, Packager.NODE_MODULES_FODLER_NAME, OPN_PACKAGE_NAME, Packager.OPN_PACKAGE_MAIN_FILENAME);
 
             let fsHelper = new Node.FileSystem();
 
@@ -290,24 +303,32 @@ export class Packager {
         }
     }
 
-    private monkeyPatchOpnForRNPackager(): Q.Promise<void> {
+    private monkeyPatchOpnForRNPackager(ReactNativeVersion: string): Q.Promise<void> {
         let opnPackage: Package;
         let destnFilePath: string;
 
-        // Finds the 'opn' package
-        return this.findOpnPackage()
+        // Finds the 'opn' or 'open' package
+        return this.findOpnPackage(ReactNativeVersion)
             .then((opnIndexFilePath) => {
                 destnFilePath = opnIndexFilePath;
                 // Read the package's "package.json"
                 opnPackage = new Package(path.resolve(path.dirname(destnFilePath)));
                 return opnPackage.parsePackageInformation();
             }).then((packageJson) => {
-                if (packageJson.main !== Packager.JS_INJECTOR_FILENAME) {
+                let JS_INJECTOR_FILEPATH: string;
+                let JS_INJECTOR_FILENAME: string;
+                if (semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)) {
+                    JS_INJECTOR_FILENAME = Packager.JS_INJECTOR_FILENAME.new;
+                } else {
+                    JS_INJECTOR_FILENAME = Packager.JS_INJECTOR_FILENAME.old;
+                }
+                JS_INJECTOR_FILEPATH = path.resolve(Packager.JS_INJECTOR_DIRPATH, JS_INJECTOR_FILENAME);
+                if (packageJson.main !== JS_INJECTOR_FILENAME) {
                     // Copy over the patched 'opn' main file
-                    return new Node.FileSystem().copyFile(Packager.JS_INJECTOR_FILEPATH, path.resolve(path.dirname(destnFilePath), Packager.JS_INJECTOR_FILENAME))
+                    return new Node.FileSystem().copyFile(JS_INJECTOR_FILEPATH, path.resolve(path.dirname(destnFilePath), JS_INJECTOR_FILENAME))
                         .then(() => {
                             // Write/over-write the "main" attribute with the new file
-                            return opnPackage.setMainFile(Packager.JS_INJECTOR_FILENAME);
+                            return opnPackage.setMainFile(JS_INJECTOR_FILENAME);
                         });
                 }
                 return Q.resolve(void 0);

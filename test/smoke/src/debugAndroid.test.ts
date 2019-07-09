@@ -17,6 +17,9 @@ const EXPO_APP_PACKAGE_NAME = SetupEnvironmentHelper.expoPackageName;
 const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity`;
 const RNDebugConfigName = "Debug Android";
 const ExpoDebugConfigName = "Debug in Exponent";
+const RNSetBreakpointOnLine = 14;
+const ExpoSetBreakpointOnLine = 16;
+const PureRNExpoSetBreakpointOnLine = 23;
 // Time for Android Debug Test before it reaches timeout
 const debugAndroidTestTime = SmokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
 // Time for Android Expo Debug Test before it reaches timeout
@@ -42,8 +45,8 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
             console.log("Android Debug test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(23);
-            console.log("Android Debug test: Breakpoint is set on line 23");
+            await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
+            console.log(`Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
             console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
@@ -56,7 +59,7 @@ export function setup(testParameters?: TestRunArguments) {
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Debug test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
             console.log("Android Debug test: Stack frame found");
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console
@@ -80,8 +83,8 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
             console.log("Android Expo Debug test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(16);
-            console.log("Android Expo Debug test: Breakpoint is set on line 12");
+            await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
+            console.log(`Android Expo Debug test: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             console.log(`Android Expo Debug test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
@@ -111,7 +114,7 @@ export function setup(testParameters?: TestRunArguments) {
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Expo Debug test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 16, "looking for App.js and line 16");
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for App.js and line ${ExpoSetBreakpointOnLine}`);
             console.log("Android Expo Debug test: Stack frame found");
             await app.workbench.debug.continue();
             // Wait for debug string to be rendered in debug console
@@ -135,8 +138,8 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
             console.log("Android pure RN Expo test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(23);
-            console.log("Android pure RN Expo test: Breakpoint is set on line 23");
+            await app.workbench.debug.setBreakpointOnLine(PureRNExpoSetBreakpointOnLine);
+            console.log(`Android pure RN Expo test: Breakpoint is set on line ${PureRNExpoSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             console.log(`Android pure RN Expo test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
@@ -164,7 +167,7 @@ export function setup(testParameters?: TestRunArguments) {
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android pure RN Expo test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === 23, "looking for App.js and line 23");
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === PureRNExpoSetBreakpointOnLine, `looking for App.js and line ${PureRNExpoSetBreakpointOnLine}`);
             console.log("Android pure RN Expo test: Stack frame found");
             await app.workbench.debug.continue();
             // Wait for debug string to be rendered in debug console

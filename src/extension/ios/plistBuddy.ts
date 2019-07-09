@@ -32,7 +32,7 @@ export class PlistBuddy {
             if (semver.gte(rnVersion, "0.59.0")) {
                 if (!scheme) {
                     // If no scheme were provided via runOptions.scheme or via runArguments then try to get scheme using the way RN CLI does.
-                    scheme = this.getInferredScheme(projectRoot);
+                    scheme = this.getInferredScheme(projectRoot, rnVersion);
                 }
                 productsFolder = path.join(iosProjectRoot, "build", scheme, "Build", "Products");
             } else {
@@ -81,8 +81,8 @@ export class PlistBuddy {
         return this.invokePlistBuddy(`Print ${property}`, plistFile);
     }
 
-    public getInferredScheme(projectRoot: string) {
-        // Portion of code was taken from https://github.com/react-native-community/react-native-cli/blob/master/packages/cli/src/commands/runIOS/runIOS.js
+    public getInferredScheme(projectRoot: string, rnVersion: string) {
+        // Portion of code was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.js
         // and modified a little bit
         /**
          * Copyright (c) Facebook, Inc. and its affiliates.
@@ -93,7 +93,13 @@ export class PlistBuddy {
          * @flow
          * @format
          */
-        const findXcodeProject = require(path.join(projectRoot, "node_modules/@react-native-community/cli/build/commands/runIOS/findXcodeProject")).default;
+        let iOSCliFolderName: string;
+        if (semver.gte(rnVersion, "0.60.0")) {
+            iOSCliFolderName = "cli-platform-ios";
+        } else {
+            iOSCliFolderName = "cli";
+        }
+        const findXcodeProject = require(path.join(projectRoot, `node_modules/@react-native-community/${iOSCliFolderName}/build/commands/runIOS/findXcodeProject`)).default;
         const xcodeProject = findXcodeProject(fs.readdirSync(`${projectRoot}/ios`));
         if (!xcodeProject) {
             throw new Error(

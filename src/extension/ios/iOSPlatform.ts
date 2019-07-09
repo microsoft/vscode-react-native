@@ -44,7 +44,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         errorCode: InternalErrorCode.IOSDeployNotFound,
     }];
 
-    private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
+    private static readonly RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
     public showDevMenu(deviceId?: string): Q.Promise<void> {
         return IOSPlatform.remote(this.runOptions.projectRoot).showDevMenu(deviceId);
@@ -100,8 +100,13 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
                         this.runArguments.push("--no-packager");
                     }
+                    // Since @react-native-community/cli@2.1.0 build output are hidden by default
+                    // we are using `--verbose` to show it as it contains `BUILD SUCCESSFUL` and other patterns
+                    if (semver.gte(version, "0.60.0")) {
+                        this.runArguments.push("--verbose");
+                    }
                     const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", this.runArguments, {env});
-                    return new OutputVerifier(() => this.generateSuccessPatterns(), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
+                    return new OutputVerifier(() => this.generateSuccessPatterns(version), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
                         .process(runIosSpawn);
                 });
         });
@@ -196,12 +201,28 @@ export class IOSPlatform extends GeneralMobilePlatform {
         return runArguments;
     }
 
-    private generateSuccessPatterns(): Q.Promise<string[]> {
-        return this.targetType === IOSPlatform.deviceString ?
-            Q(IOSPlatform.RUN_IOS_SUCCESS_PATTERNS.concat("INSTALLATION SUCCEEDED")) :
-            this.getBundleId()
-                .then(bundleId => IOSPlatform.RUN_IOS_SUCCESS_PATTERNS
-                    .concat([`Launching ${bundleId}\n${bundleId}: `]));
+    private generateSuccessPatterns(version: string): Q.Promise<string[]> {
+        // Clone RUN_IOS_SUCCESS_PATTERNS to avoid its runtime mutation
+        let successPatterns = [...IOSPlatform.RUN_IOS_SUCCESS_PATTERNS];
+        if (this.targetType === IOSPlatform.deviceString) {
+            if (semver.gte(version, "0.60.0")) {
+                successPatterns.push("success Installed the app on the device");
+            } else {
+                successPatterns.push("INSTALLATION SUCCEEDED");
+            }
+            return Q(successPatterns);
+        } else {
+            return this.getBundleId()
+            .then(bundleId => {
+                if (semver.gte(version, "0.60.0")) {
+                    successPatterns.push(`Launching "${bundleId}"\nsuccess Successfully launched the app `);
+                } else {
+                    successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
+                }
+                return successPatterns;
+            });
+        }
+
     }
 
     private getConfiguration(): string {
