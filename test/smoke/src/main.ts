@@ -169,11 +169,11 @@ async function setup(): Promise<void> {
 
     await AndroidEmulatorHelper.runAndroidEmulator();
 
-    SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName);
+    SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName, "ReactNativeSample");
     if (!testParams.RunBasicTests) {
         SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
         const latestRNVersionExpo = await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
-        SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, latestRNVersionExpo);
+        SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", latestRNVersionExpo);
         SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
         await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
         await SetupEnvironmentHelper.patchExpoApp(ExpoWorkspacePath);
