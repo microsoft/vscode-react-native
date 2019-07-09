@@ -100,8 +100,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
                         this.runArguments.push("--no-packager");
                     }
-                    // Since @react-native-community/cli@2.1.0 XCode outputs are hidden by default
-                    // we are using `--verbose` to show them as they contains `BUILD SUCCESSFUL` pattern
+                    // Since @react-native-community/cli@2.1.0 build output are hidden by default
+                    // we are using `--verbose` to show it as it contains `BUILD SUCCESSFUL` and other patterns
                     if (semver.gte(version, "0.60.0")) {
                         this.runArguments.push("--verbose");
                     }
@@ -202,7 +202,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private generateSuccessPatterns(version: string): Q.Promise<string[]> {
-        // due to nature of JS arrays we need to copy RUN_IOS_SUCCESS_PATTERNS to avoid runtime mutations
+        // Clone RUN_IOS_SUCCESS_PATTERNS to avoid its runtime mutation
         let successPatterns = [...IOSPlatform.RUN_IOS_SUCCESS_PATTERNS];
         if (this.targetType === IOSPlatform.deviceString) {
             if (semver.gte(version, "0.60.0")) {
