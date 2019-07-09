@@ -44,7 +44,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         errorCode: InternalErrorCode.IOSDeployNotFound,
     }];
 
-    private static RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
+    private static readonly RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
     public showDevMenu(deviceId?: string): Q.Promise<void> {
         return IOSPlatform.remote(this.runOptions.projectRoot).showDevMenu(deviceId);
@@ -202,7 +202,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private generateSuccessPatterns(version: string): Q.Promise<string[]> {
-        let successPatterns = IOSPlatform.RUN_IOS_SUCCESS_PATTERNS;
+        // due to nature of JS arrays we need to copy RUN_IOS_SUCCESS_PATTERNS to avoid runtime mutations
+        let successPatterns = [...IOSPlatform.RUN_IOS_SUCCESS_PATTERNS];
         if (this.targetType === IOSPlatform.deviceString) {
             if (semver.gte(version, "0.60.0")) {
                 successPatterns.push("success Installed the app on the device");
