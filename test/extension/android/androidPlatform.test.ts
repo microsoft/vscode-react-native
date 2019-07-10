@@ -4,7 +4,6 @@
 import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
-import * as mockFs from "mock-fs";
 import * as assert from "assert";
 
 import {AndroidPlatform} from "../../../src/extension/android/androidPlatform";
@@ -15,7 +14,7 @@ import * as adb from "../../../src/extension/android/adb";
 import {RecordingsHelper} from "../../resources/recordingsHelper";
 import {CommandExecutor} from "../../../src/common/commandExecutor";
 import * as rnHelper from "../../../src/common/reactNativeProjectHelper";
-
+import * as rimraf from "rimraf";
 import "should";
 import * as sinon from "sinon";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
@@ -24,7 +23,8 @@ import { SettingsHelper } from "../../../src/extension/settingsHelper";
 
 suite("androidPlatform", function () {
     suite("extensionContext", function () {
-        const projectRoot = "C:/projects/SampleApplication_21/";
+        const projectRoot = path.join(__dirname, "..", "..", "resources", "projects", "SampleApplication_21");
+        const projectsFolder = path.join(projectRoot, "..");
         const androidProjectPath = path.join(projectRoot, "android");
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
@@ -44,7 +44,6 @@ suite("androidPlatform", function () {
         }
 
         setup(() => {
-            mockFs();
             sandbox = sinon.sandbox.create();
 
             // Configure all the dependencies we'll use in our tests
@@ -108,6 +107,8 @@ suite("androidPlatform", function () {
                 return Q.resolve(void 0);
             });
 
+            // Delete existing React Native project before creating
+            rimraf.sync(projectsFolder);
             // Create a React-Native project we'll use in our tests
             return reactNative
                 .fromProjectFileContent(rnProjectContent)
@@ -115,7 +116,8 @@ suite("androidPlatform", function () {
         });
 
         teardown(() => {
-            mockFs.restore();
+            // Delete existing React Native project after each test
+            rimraf.sync(projectsFolder);
             sandbox.restore();
             devices = [];
         });
