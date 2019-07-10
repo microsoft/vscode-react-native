@@ -183,6 +183,8 @@ suite("appWorker", function () {
 
                 return testWorker.start().then((port: number) => {
                     let output: string = "";
+                    let debugOutput: string = "";
+                    let isAlreadySending = false;
                     debuggeeProcess = testWorker.getDebuggeeProcess() as child_process.ChildProcess;
                     debuggeeProcess.stderr.on("data", (data: string) => {
                         // Two notices:
@@ -190,11 +192,16 @@ suite("appWorker", function () {
                         //    but for some reason sometimes it returns ECONNRESET, so we have to find it in debug logs produced by debuggee
                         // 2. Debuggee process writes debug logs in stderr for some reasons
                         data = data.toString();
+                        debugOutput += data;
                         console.log(data);
                         // Looking for websocket url
+
                         // 1. Node v8+: ws://127.0.0.1:31732/7dd4c075-3222-4f31-8fb5-50cc5705dd21
-                        let found = data.match(/(ws:\/\/.+$)/gm);
-                        if (found) {
+                        const guidPattern = "[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}";
+                        const finalPattern = new RegExp(`(ws:\/\/127.0.0.1:[0-9]+\/${guidPattern}$)`, "gm");
+                        let found = debugOutput.match(finalPattern);
+                        if (found && !isAlreadySending) {
+                            isAlreadySending = true;
                             // Debuggee process which has been ran with --debug-brk will be stopped at 0 line,
                             // so we have to send it a command to continue execution of the script via websocket.
                             sendContinueToDebuggee(found[0], waitForContinue.resolve, waitForContinue.reject);
@@ -202,7 +209,7 @@ suite("appWorker", function () {
                         }
 
                         // 2. Node v6: ws=127.0.0.1:31732/7dd4c075-3222-4f31-8fb5-50cc5705dd21
-                        found = data.match(/(ws=.+$)/gm);
+                        found = debugOutput.match(/(ws=.+$)/gm);
                         if (found) {
                             sendContinueToDebuggee(found[0].replace("ws=", "ws:\\\\"), waitForContinue.resolve, waitForContinue.reject);
                             return;
@@ -221,7 +228,7 @@ suite("appWorker", function () {
                     debuggeeProcess.kill();
                     return waitForCheckingOutput.promise;
                 });
-            });
+            }).timeout(5000);
         });
 
         suite("ScriptImporter", function () {
