@@ -1,4 +1,5 @@
 # React Native Tools
+
 [![Build status](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_apis/build/status/vscode-react-native%20%5Bmaster%5D)](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_build/latest?definitionId=2)
 
 This extension provides a development environment for React Native projects.
@@ -15,7 +16,7 @@ Using this extension, you can debug your code and quickly run `react-native` com
   3. For more guidance view [VS Code Extension Gallery](https://code.visualstudio.com/docs/editor/extension-gallery)
 * If you haven't already, install React Native:
   1. Run `npm install -g react-native-cli` to install React Native CLI
-  2. Set up React Native using the steps detailed on the React Native [getting started documentation ](https://facebook.github.io/react-native/docs/getting-started.html)
+  2. Set up React Native using the steps detailed on the React Native [getting started documentation](https://facebook.github.io/react-native/docs/getting-started.html)
 * Open your React Native project root folder in VS Code.
 
 Please notice that the extension uses `.vscode/.react` directory at the project root to store intermediate files required for debugging. Although these files usually get removed after debug session ends, you may want to add this directory to your project's `.gitignore` file.
@@ -45,7 +46,8 @@ More information about debugging using VS Code can be found in this [guide](http
 See [Setting up debug environment](doc/debugging.md) for more details.
 
 ## React Native debug configuration properties
-Name |Description|Type|Defaults|
+
+|Name |Description|Type|Defaults|
 |---|---|---|---|
 |`cwd`|The path to the project root folder|`string`|`${workspaceFolder}`|
 |`sourceMaps`|Whether to use JavaScript source maps to map the generated bundled code back to its original sources|`boolean`|`true`|
@@ -110,9 +112,11 @@ Can't communicate with socket pipe    | (Linux only) If you have two workspaces 
 [Known-Issues](https://github.com/Microsoft/vscode-react-native/issues?q=is%3Aissue+label%3Aknown-issues) provides a complete list of active and resolved issues.
 
 ## Telemetry reporting
+
 VS Code React Native extension collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://www.visualstudio.com/en-us/dn948229) to learn more.
 
 If you don’t wish to send usage data to Microsoft, edit `VSCodeTelemetrySettings.json` file at `~/.vscode-react-native` and add `optIn:false`.
 
 ## Code of conduct
+
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
