@@ -223,7 +223,6 @@ export class SpectronApplication {
         const userDataDir = path.join(this.options.userDataDir, runName);
         chromeDriverArgs.push(`--user-data-dir=${userDataDir}`);
 
-
         const env = {
             path: process.env.path || process.env.PATH,
             REACT_NATIVE_TOOLS_LOGS_DIR: extensionLogsDir,
