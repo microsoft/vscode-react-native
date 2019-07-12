@@ -23,11 +23,6 @@
   resolved "https://registry.yarnpkg.com/@types/caseless/-/caseless-0.12.2.tgz#f65d3d6389e01eeb458bd54dc8f52b95a9463bc8"
   integrity sha512-6ckxMjBBD8URvjB6J3NcnuAn5Pkl7t3TizAg+xdlzzQGSPSmBcXf8KoIH0ua/i+tio+ZRUHEXp0HEmvaR4kt0w==
 
-"@types/clipboardy@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@types/clipboardy/-/clipboardy-1.1.0.tgz#316fe1a3ed71b1a51becb925e7e0497986c6a85c"
-  integrity sha512-KOxf4ah9diZWmREM5jCupx2+pZaBPwKk5d5jeNK2+TY6IgEO35uhG55NnDT4cdXeRX8irDSHQPtdRrr0JOTQIw==
-
 "@types/events@*":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
@@ -71,32 +66,27 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
-"@types/mkdirp@0.5.1":
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/@types/mkdirp/-/mkdirp-0.5.1.tgz#ea887cd024f691c1ca67cce20b7606b053e43b0f"
-  integrity sha512-XA4vNO6GCBz8Smq0hqSRo4yRWMqr4FPQrWjhJt6nKskzly4/p87SfuJMFYGRyYb6jo2WNIQU2FDBsY5r1BibUA==
+"@types/mkdirp@^0.5.2":
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/@types/mkdirp/-/mkdirp-0.5.2.tgz#503aacfe5cc2703d5484326b1b27efa67a339c1f"
+  integrity sha512-U5icWpv7YnZYGsN4/cmh3WD2onMY0aJIiTE6+51TwJCttdHvtCYmkBNOobHlXwrJRL0nkH9jH4kD+1FAdMN4Tg==
   dependencies:
     "@types/node" "*"
 
-"@types/mocha@2.2.41":
-  version "2.2.41"
-  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-2.2.41.tgz#e27cf0817153eb9f2713b2d3f6c68f1e1c3ca608"
-  integrity sha1-4nzwgXFT658nE7LT9saPHhw8pgg=
+"@types/mocha@^5.2.7":
+  version "5.2.7"
+  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-5.2.7.tgz#315d570ccb56c53452ff8638738df60726d5b6ea"
+  integrity sha512-NYrtPht0wGzhwe9+/idPaBB+TqkY9AhTvOLMkThm0IoEfLaiVQZwBwyJ5puCkO3AUCWrmcoePjp2mbFocKy4SQ==
 
 "@types/node@*":
   version "12.0.4"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.0.4.tgz#46832183115c904410c275e34cf9403992999c32"
   integrity sha512-j8YL2C0fXq7IONwl/Ud5Kt0PeXw22zGERt+HSSnwbKOJVsAGkEz3sFCYwaF9IOuoG1HOtE0vKCj6sXF7Q0+Vaw==
 
-"@types/node@8.0.33":
-  version "8.0.33"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-8.0.33.tgz#1126e94374014e54478092830704f6ea89df04cd"
-  integrity sha512-vmCdO8Bm1ExT+FWfC9sd9r4jwqM7o97gGy2WBshkkXbf/2nLAJQUrZfIhw27yVOtLUev6kSZc4cav/46KbDd8A==
-
-"@types/node@^8.0.24":
-  version "8.10.49"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-8.10.49.tgz#f331afc5efed0796798e5591d6e0ece636969b7b"
-  integrity sha512-YX30JVx0PvSmJ3Eqr74fYLGeBxD+C7vIL20ek+GGGLJeUbVYRUW3EzyAXpIRA0K8c8o0UWqR/GwEFYiFoz1T8w==
+"@types/node@^10.12.18", "@types/node@^10.14.4":
+  version "10.14.12"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.14.12.tgz#0eec3155a46e6c4db1f27c3e588a205f767d622f"
+  integrity sha512-QcAKpaO6nhHLlxWBvpc4WeLrTvPqlHOvaj0s5GriKkA1zq+bsFBPpfYCvQhLqLgYlIko8A9YrPdaMHCo5mBcpg==
 
 "@types/request@^2.48.1":
   version "2.48.1"
@@ -786,10 +776,10 @@ ejs@~2.5.6:
   resolved "https://registry.yarnpkg.com/ejs/-/ejs-2.5.9.tgz#7ba254582a560d267437109a68354112475b0ce5"
   integrity sha512-GJCAeDBKfREgkBtgrYSf9hQy9kTb3helv0zGdzqhM7iAkW8FA/ZF97VQDbwFiwIT8MQLLOe5VlPZOEvZAqtUAQ==
 
-electron-chromedriver@~3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/electron-chromedriver/-/electron-chromedriver-3.0.0.tgz#ec0a17badb6c3529813c660bf91a43fb91407674"
-  integrity sha512-xWivZRiPTtDFJt+qXv7Ax/Dmhxj0iqESOxoLZ2szu3fv6k1vYDUDJUMHfdfVAke9D2gBRIgChuGb5j3YEt6hxQ==
+electron-chromedriver@~4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/electron-chromedriver/-/electron-chromedriver-4.0.0.tgz#064fa2f0d5a97998eeff3258575b90bac8d436da"
+  integrity sha512-CeeAr4QVtsxkEpDWvFLzhdtgDVLQt32RBWjEJ4WxkIPNj0MX5D8gzli2djEPnnLUOX19vcBgs/CW7WBB/O3JIg==
   dependencies:
     electron-download "^4.1.0"
     extract-zip "^1.6.5"
@@ -809,12 +799,12 @@ electron-download@^4.1.0:
     semver "^5.4.1"
     sumchecker "^2.0.2"
 
-electron@3.1.6:
-  version "3.1.6"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-3.1.6.tgz#f6222e1964838b31c5806dd041b1b58a941998f6"
-  integrity sha512-elEKKlFMnR0bhR/Uttk0TI496ZadxYsecyKgj2tZgrWx/F/anzfxbEYNcv134vT+qMFC/BXvoaeaIIj2YYdVuA==
+electron@4.2.5:
+  version "4.2.5"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-4.2.5.tgz#1d1432c38e2b2190318f7ca30897cdfdcf942e5a"
+  integrity sha512-P132MXzTtyn2ZaekhKi5JeHzmTAMuR/uQt4hrg3vfJV7fpncx9SL6UFwHAK1DU13iiyZJqqIziNUu+o8nODHsA==
   dependencies:
-    "@types/node" "^8.0.24"
+    "@types/node" "^10.12.18"
     electron-download "^4.1.0"
     extract-zip "^1.0.3"
 
@@ -2514,13 +2504,13 @@ spdx-license-ids@^3.0.0:
   resolved "https://registry.yarnpkg.com/spdx-license-ids/-/spdx-license-ids-3.0.4.tgz#75ecd1a88de8c184ef015eafb51b5b48bfd11bb1"
   integrity sha512-7j8LYJLeY/Yb6ACbQ7F76qy5jHkp0U6jgBfJsk97bwWlVUnUWsAgpyaCvo17h0/RQGnQ036tVDomiwoI4pDkQA==
 
-spectron@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/spectron/-/spectron-5.0.0.tgz#602440da0c892f8d73471652ae68000b98d7769c"
-  integrity sha512-wJrFe8EZ7xvarYawBPd1pDegmSz81U1jG0rSCx+yXqD1TISUH9ASB21KysLXkPylAnc2vhbpGiWQxrqVFtsiJg==
+spectron@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/spectron/-/spectron-6.0.0.tgz#b6ead4735837f36b4be05afa29094460666e61d8"
+  integrity sha512-YQnQgdlpdPU572YhyX1hcDT40Q+5D0hkH4hM3jYy8HLHU1+6z4WTRQkjYdCBcYHE/3fHIQdPeaI+9DUzupQZtw==
   dependencies:
     dev-null "^0.1.1"
-    electron-chromedriver "~3.0.0"
+    electron-chromedriver "~4.0.0"
     request "^2.87.0"
     split "^1.0.0"
     webdriverio "^4.13.0"
