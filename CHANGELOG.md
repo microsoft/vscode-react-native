@@ -1,3 +1,7 @@
+## 0.10.2
+* Fixed security vulnerabilities ([#1050](https://github.com/microsoft/vscode-react-native/pull/1050), [#1052](https://github.com/microsoft/vscode-react-native/pull/1052))
+* Fixed readme markup ([#1051](https://github.com/microsoft/vscode-react-native/pull/1051))
+
 ## 0.10.1
 * Added support for React Native 0.60 ([#1043](https://github.com/microsoft/vscode-react-native/pull/1043))
 * Fixed `diff` security vulnerability ([#1029](https://github.com/microsoft/vscode-react-native/pull/1029))
