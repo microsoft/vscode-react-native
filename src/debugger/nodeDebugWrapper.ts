@@ -147,17 +147,6 @@ export function makeSession(
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
             }
 
-            if (args.program) {
-                // TODO: Remove this warning when program property will be completely removed
-                logger.warn(localize("ProgramPropertyDeprecationWarning", "Launched debug configuration contains 'program' property which is deprecated and will be removed soon. Please replace it with: \"cwd\": \"${workspaceFolder}\""));
-                const useProgramEvent = TelemetryHelper.createTelemetryEvent("useProgramProperty");
-                Telemetry.send(useProgramEvent);
-            }
-            if (args.cwd) {
-                // To match count of 'cwd' users with 'program' users. TODO: Remove when program property will be removed
-                const useCwdEvent = TelemetryHelper.createTelemetryEvent("useCwdProperty");
-                Telemetry.send(useCwdEvent);
-            }
 
             if (!args.sourceMaps) {
                 args.sourceMaps = true;
@@ -174,6 +163,18 @@ export function makeSession(
                     // Start to send telemetry
                     telemetryReporter.reassignTo(new RemoteTelemetryReporter(
                         appName, version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
+
+                    if (args.program) {
+                        // TODO: Remove this warning when program property will be completely removed
+                        logger.warn(localize("ProgramPropertyDeprecationWarning", "Launched debug configuration contains 'program' property which is deprecated and will be removed soon. Please replace it with: \"cwd\": \"${workspaceFolder}\""));
+                        const useProgramEvent = TelemetryHelper.createTelemetryEvent("useProgramProperty");
+                        Telemetry.send(useProgramEvent);
+                    }
+                    if (args.cwd) {
+                        // To match count of 'cwd' users with 'program' users. TODO: Remove when program property will be removed
+                        const useCwdEvent = TelemetryHelper.createTelemetryEvent("useCwdProperty");
+                        Telemetry.send(useCwdEvent);
+                    }
                     return void 0;
                 });
         }
