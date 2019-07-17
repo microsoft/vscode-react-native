@@ -28,6 +28,8 @@ export class SetupEnvironmentHelper {
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
         let customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
+        // TODO: Temporary workaround for RN 0.60.3 is added to launch.json
+        // https://github.com/facebook/react-native/issues/25667
         let launchConfigFile = path.join(resourcesPath, "launch.json");
         let vsCodeConfigPath = path.join(workspacePath, ".vscode");
 

@@ -7,8 +7,6 @@
             "type": "reactnative",
             "request": "launch",
             "platform": "android",
-            // Temporary workaround for RN 0.60.3
-            // https://github.com/facebook/react-native/issues/25667
             "runArguments": ["--no-jetifier"]
         },
         {
