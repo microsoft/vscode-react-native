@@ -26,7 +26,7 @@ import { InternalErrorCode } from "../common/error/internalErrorCode";
 const localize = nls.loadMessageBundle();
 
 interface IReactNativeStuff {
-    // test comment
+    //
     packager: Packager;
     exponentHelper: ExponentHelper;
     reactDirManager: ReactDirManager;
@@ -34,6 +34,7 @@ interface IReactNativeStuff {
 }
 
 interface IReactNativeProject extends IReactNativeStuff {
+    //
     workspaceFolder: vscode.WorkspaceFolder;
 }
 
@@ -99,6 +100,7 @@ export class CommandPaletteHandler {
      * Restarts the React Native packager
      */
     public static restartPackager(): Q.Promise<void> {
+        //
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 return this.executeCommandInContext("restartPackager", project.workspaceFolder, () =>
