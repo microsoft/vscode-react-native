@@ -13,6 +13,8 @@ export class QRCodeContentProvider implements TextDocumentContentProvider {
 
     public provideTextDocumentContent(uri: Uri): string {
 
+        let unusedVariable = 0;
+
         let stringUri = uri.toString();
 
         if (!this.cache[stringUri]) {
