@@ -10,6 +10,7 @@ import {Packager} from "../common/packager";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
+//
 import {Telemetry} from "../common/telemetry";
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
@@ -74,6 +75,7 @@ export class ExtensionServer implements vscode.Disposable {
             done(void 0);
         };
 
+        //
         this.serverInstance = new WebSocketServer({port: <any>this.pipePath});
         this.api = new rpc.Server(this.serverInstance).api();
         this.serverInstance.on("listening", launchCallback.bind(this, resolve));
@@ -205,6 +207,7 @@ export class ExtensionServer implements vscode.Disposable {
         const platformDeps: MobilePlatformDeps = {
             packager: this.reactNativePackager,
         };
+        //
         const mobilePlatform = new PlatformResolver()
             .resolveMobilePlatform(request.arguments.platform, mobilePlatformOptions, platformDeps);
         return new Promise((resolve, reject) => {
