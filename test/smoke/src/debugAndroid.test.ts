@@ -33,7 +33,7 @@ export function setup(testParameters?: TestRunArguments) {
 
         beforeEach(() => {
             VSCodeHelper.killCodeExe(VSCodeExePath!);
-        })
+        });
 
         afterEach(async () => {
             await app.stop();
