@@ -15,6 +15,8 @@ import * as source from "vinyl-source-stream";
 import * as https from "https";
 import * as fs from "fs";
 import * as rimraf from "rimraf";
+import * as cp from "child_process";
+
 import { spawnSync } from "../helpers/utilities";
 
 export class VSCodeHelper {
@@ -89,6 +91,21 @@ export class VSCodeHelper {
             rimraf.sync(extensionFile);
         } else {
             console.log("*** --dont-delete-vsix parameter is set, skipping deleting of VSIX");
+        }
+    }
+
+    public static killCodeExe(codeExePath: string): void {
+        if (process.platform !== "win32") {
+            return;
+        }
+        try {
+            console.log("*** Killing any running Code.exe instances");
+            const result = cp.execSync(`taskkill /f /t /fi "WINDOWTITLE eq ${codeExePath}"`);
+            console.log(result.toString());
+        } catch (e) {
+            // Do not throw error, just print it to avoid any build failures
+            // Sometimes taskkill process throws error but tasks are already killed so error is pointless
+            console.error(e);
         }
     }
 

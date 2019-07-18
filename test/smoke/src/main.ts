@@ -52,6 +52,22 @@ function getBuildElectronPath(root: string, isInsiders: boolean): string {
             throw new Error(`Platform ${process.platform} isn't supported`);
     }
 }
+/**
+ * Path to the Code.exe (Windows only)
+ * @param testVSCodeFolder
+ * @param isInsiders
+ */
+function getVSCodeExePath(testVSCodeFolder: string, isInsiders: boolean) {
+    if (process.platform !== "win32") {
+        return null;
+    }
+
+    return isInsiders
+    ?
+    path.join(testVSCodeFolder, "Code - Insiders.exe")
+    :
+    path.join(testVSCodeFolder, "Code.exe");
+}
 
 function getVSCodeExecutablePath(testVSCodeFolder: string, isInsiders: boolean) {
     switch (process.platform) {
@@ -87,6 +103,8 @@ if (!isInsiders) {
 } else {
     testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "insiders");
 }
+
+export const VSCodeExePath = getVSCodeExePath(testVSCodeDirectory, isInsiders);
 
 let electronExecutablePath: string;
 
