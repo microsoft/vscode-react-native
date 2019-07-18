@@ -6,6 +6,7 @@ import { TextDocumentContentProvider, Uri } from "vscode";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
+//
 export class QRCodeContentProvider implements TextDocumentContentProvider {
 
     private cache: { [uri: string]: string } = {};
