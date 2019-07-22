@@ -3,6 +3,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import * as cp from "child_process";
 import { SpectronApplication, Quality } from "./spectron/application";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
@@ -102,7 +103,12 @@ if (isInsiders) {
 } else {
     quality = Quality.Stable;
 }
-export const winTaskKillCommands: string[] = VSCodeHelper.getTaskKillCommands(testVSCodeDirectory, isInsiders, process.env.WIN_USERNAME!);
+
+export let winTaskKillCommands: string[] = [];
+if(process.platform === "win32") {
+    const userName = cp.execSync("whoami").toString().trim();
+    winTaskKillCommands = VSCodeHelper.getTaskKillCommands(testVSCodeDirectory, isInsiders, userName);
+}
 
 /**
  * WebDriverIO 4.8.0 outputs all kinds of "deprecation" warnings
