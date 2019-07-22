@@ -121,16 +121,16 @@ export class VSCodeHelper {
             return [];
         }
 
-        let filters: string[] = [];
+        let commands: string[] = [];
         // conhost.exe with path\to\Code.exe
         const exeName = isInsiders ? "Code - Insiders.exe" : "Code.exe";
         const codeExePath = path.join(testVSCodeFolder, exeName);
-        filters.push(`taskkill /f /t /fi "WINDOWTITLE eq ${codeExePath}" /fi "USERNAME eq ${userName}"`);
+        commands.push(`taskkill /f /t /fi "WINDOWTITLE eq ${codeExePath}" /fi "USERNAME eq ${userName}"`);
         // Code.exe (or Code - Insiders.exe) windows
-        filters.push(`taskkill /f /t /fi "IMAGENAME eq ${exeName}" /fi "USERNAME eq ${userName}`);
+        commands.push(`taskkill /f /t /fi "IMAGENAME eq ${exeName}" /fi "USERNAME eq ${userName}`);
         // CodeHelper.exe window
-        filters.push(`taskkill /f /t /fi "IMAGENAME eq CodeHelper.exe" /fi "USERNAME eq ${userName}`);
-        return filters;
+        commands.push(`taskkill /f /t /fi "IMAGENAME eq CodeHelper.exe" /fi "USERNAME eq ${userName}`);
+        return commands;
     }
 
     private static getKeybindingPlatform(): string {
