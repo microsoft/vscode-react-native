@@ -94,19 +94,43 @@ export class VSCodeHelper {
         }
     }
 
-    public static killCodeExe(codeExePath: string): void {
+    public static killCodeExe(taskKillCommands: string[]): void {
         if (process.platform !== "win32") {
             return;
         }
         try {
             console.log("*** Killing any running Code.exe instances");
-            const result = cp.execSync(`taskkill /f /t /fi "WINDOWTITLE eq ${codeExePath}"`);
-            console.log(result.toString());
+            taskKillCommands.forEach(cmd => {
+                const result = cp.execSync(cmd);
+                console.log(result.toString());
+            });
         } catch (e) {
             // Do not throw error, just print it to avoid any build failures
             // Sometimes taskkill process throws error but tasks are already killed so error is pointless
             console.error(e);
         }
+    }
+
+    /**
+     * Commands to kill all VS Code instances
+     * @param testVSCodeFolder
+     * @param isInsiders
+     */
+    public static getTaskKillCommands(testVSCodeFolder: string, isInsiders: boolean, userName: string): string[] {
+        if (process.platform !== "win32") {
+            return [];
+        }
+
+        let filters: string[] = [];
+        // conhost.exe with path\to\Code.exe
+        const exeName = isInsiders ? "Code - Insiders.exe" : "Code.exe";
+        const codeExePath = path.join(testVSCodeFolder, exeName);
+        filters.push(`taskkill /f /t /fi "WINDOWTITLE eq ${codeExePath}" /fi "USERNAME eq ${userName}"`);
+        // Code.exe (or Code - Insiders.exe) windows
+        filters.push(`taskkill /f /t /fi "IMAGENAME eq ${exeName}" /fi "USERNAME eq ${userName}`);
+        // CodeHelper.exe window
+        filters.push(`taskkill /f /t /fi "IMAGENAME eq CodeHelper.exe" /fi "USERNAME eq ${userName}`);
+        return filters;
     }
 
     private static getKeybindingPlatform(): string {

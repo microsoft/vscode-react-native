@@ -14,6 +14,11 @@ import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestConfigurator } from "./helpers/configHelper";
 import { sleep, findFile } from "./helpers/utilities";
 
+//TODO Incapsulate main.ts (get rid of function(), local variables, etc)
+console.log(`*** Setting up configuration variables`);
+TestConfigurator.setUpEnvVariables();
+TestConfigurator.printEnvVariableConfiguration();
+
 async function fail(errorMessage) {
     console.error(errorMessage);
     AndroidEmulatorHelper.terminateAndroidEmulator();
@@ -52,22 +57,6 @@ function getBuildElectronPath(root: string, isInsiders: boolean): string {
             throw new Error(`Platform ${process.platform} isn't supported`);
     }
 }
-/**
- * Path to the Code.exe (Windows only)
- * @param testVSCodeFolder
- * @param isInsiders
- */
-function getVSCodeExePath(testVSCodeFolder: string, isInsiders: boolean) {
-    if (process.platform !== "win32") {
-        return null;
-    }
-
-    return isInsiders
-    ?
-    path.join(testVSCodeFolder, "Code - Insiders.exe")
-    :
-    path.join(testVSCodeFolder, "Code.exe");
-}
 
 function getVSCodeExecutablePath(testVSCodeFolder: string, isInsiders: boolean) {
     switch (process.platform) {
@@ -104,8 +93,6 @@ if (!isInsiders) {
     testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "insiders");
 }
 
-export const VSCodeExePath = getVSCodeExePath(testVSCodeDirectory, isInsiders);
-
 let electronExecutablePath: string;
 
 let quality: Quality;
@@ -114,6 +101,7 @@ if (isInsiders) {
 } else {
     quality = Quality.Stable;
 }
+export const winTaskKillCommands: string[] = VSCodeHelper.getTaskKillCommands(testVSCodeDirectory, isInsiders, process.env.WIN_USERNAME!);
 
 /**
  * WebDriverIO 4.8.0 outputs all kinds of "deprecation" warnings
@@ -175,9 +163,6 @@ const testParams = TestConfigurator.parseTestArguments();
 async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
     console.log("*** Preparing smoke tests setup...");
-    console.log(`*** Setting up configuration variables`);
-    TestConfigurator.setUpEnvVariables();
-    TestConfigurator.printEnvVariableConfiguration();
 
     AppiumHelper.runAppium();
 

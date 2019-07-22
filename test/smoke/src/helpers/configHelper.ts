@@ -19,6 +19,7 @@ export interface TestEnvVariables {
     IOS_VERSION?: string;
     CODE_VERSION?: string;
     EXPO_XDL_VERSION?: string;
+    WIN_USERNAME?: string;
 }
 
 export class TestConfigurator {
@@ -44,6 +45,11 @@ export class TestConfigurator {
         if (!variables.EXPO_XDL_VERSION) {
             console.warn("Optional EXPO_XDL_VERSION variable is not set");
         }
+        if (process.platform === "win32") {
+            if (!variables.WIN_USERNAME) {
+                throw new Error(`Missing WIN_USERNAME variable`);
+            }
+        }
     }
 
     public static passEnvVariablesToProcessEnv(variables: TestEnvVariables) {
@@ -56,7 +62,7 @@ export class TestConfigurator {
     }
 
     public static setUpEnvVariables() {
-        let variables;
+        let variables: any;
         if (fs.existsSync(EnvConfigFilePath)) {
             console.log(`*** Config file "${EnvConfigFilePath}" is found, reading variables from there`);
             variables = JSON.parse(fs.readFileSync(EnvConfigFilePath).toString());
@@ -68,6 +74,10 @@ export class TestConfigurator {
         // Hack for Azure DevOps, because it doesn't implicitly support optional parameters for task group
         if (variables.EXPO_XDL_VERSION === "skip") {
             delete variables.EXPO_XDL_VERSION;
+        }
+
+        if (variables.WIN_USERNAME === "skip") {
+            delete variables.WIN_USERNAME;
         }
 
         this.verifyEnvVariables(variables);
@@ -82,6 +92,7 @@ export class TestConfigurator {
         initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
         initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
         initLog += `EXPO_XDL_VERSION = ${process.env.EXPO_XDL_VERSION}\n`;
+        initLog += `WIN_USERNAME = ${process.env.WIN_USERNAME}\n`;
         console.log(initLog);
     }
 
