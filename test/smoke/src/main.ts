@@ -15,7 +15,7 @@ import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestConfigurator } from "./helpers/configHelper";
 import { sleep, findFile } from "./helpers/utilities";
 
-//TODO Incapsulate main.ts (get rid of function(), local variables, etc)
+// TODO Incapsulate main.ts (get rid of function(), local variables, etc)
 console.log(`*** Setting up configuration variables`);
 const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
 TestConfigurator.setUpEnvVariables(envConfigFilePath);
@@ -105,7 +105,7 @@ if (isInsiders) {
 }
 
 export let winTaskKillCommands: string[] = [];
-if(process.platform === "win32") {
+if (process.platform === "win32") {
     const userName = cp.execSync("whoami").toString().trim();
     winTaskKillCommands = VSCodeHelper.getTaskKillCommands(testVSCodeDirectory, isInsiders, userName);
 }

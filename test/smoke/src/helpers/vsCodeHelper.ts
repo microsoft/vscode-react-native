@@ -101,6 +101,7 @@ export class VSCodeHelper {
         try {
             console.log("*** Killing any running Code.exe instances");
             taskKillCommands.forEach(cmd => {
+                console.log(`*** Running ${cmd}`);
                 const result = cp.execSync(cmd);
                 console.log(result.toString());
             });
