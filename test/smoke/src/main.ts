@@ -16,7 +16,8 @@ import { sleep, findFile } from "./helpers/utilities";
 
 //TODO Incapsulate main.ts (get rid of function(), local variables, etc)
 console.log(`*** Setting up configuration variables`);
-TestConfigurator.setUpEnvVariables();
+const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
+TestConfigurator.setUpEnvVariables(envConfigFilePath);
 TestConfigurator.printEnvVariableConfiguration();
 
 async function fail(errorMessage) {
@@ -137,8 +138,6 @@ const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
-
-export const EnvConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
 
 function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplication | null {
 
