@@ -7,7 +7,7 @@ import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, runVSCode, VSCodeExePath } from "./main";
+import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, runVSCode, winTaskKillCommands } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
@@ -32,7 +32,7 @@ export function setup(testParameters?: TestRunArguments) {
         let clientInited: AppiumClient;
 
         beforeEach(() => {
-            VSCodeHelper.killCodeExe(VSCodeExePath!);
+            VSCodeHelper.killCodeExe(winTaskKillCommands);
         });
 
         afterEach(async () => {
