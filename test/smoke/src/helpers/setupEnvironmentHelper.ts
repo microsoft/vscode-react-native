@@ -296,6 +296,13 @@ import * as Icon from '@expo/vector-icons';
         const metroConfigPath = path.join(appPath, "metro.config.js");
         console.log(`*** Patching  ${metroConfigPath}`);
         const patchContent = `
+// To avoid EPERM errors on Windows
+if (process.platform === "win32") {
+    module.exports.resolver = {
+        blacklistRE: /.*\.vscode\\\.react.*/
+    };
+}
+
 // Redirect Metro cache
 module.exports.cacheStores = [
     new (require('metro-cache')).FileStore({
