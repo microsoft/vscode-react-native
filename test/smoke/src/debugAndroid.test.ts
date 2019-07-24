@@ -31,9 +31,10 @@ export function setup(testParameters?: TestRunArguments) {
         let app: SpectronApplication;
         let clientInited: AppiumClient;
 
-        beforeEach(function () {
+        beforeEach(function (done) {
             this.timeout(120 * 1000); // Sometimes killing processes takes a while
             VSCodeHelper.killWinCodeProcesses(winTaskKillCommands);
+            done();
         });
 
         afterEach(async () => {
