@@ -94,7 +94,7 @@ export class VSCodeHelper {
         }
     }
 
-    public static killCodeExe(taskKillCommands: string[]): void {
+    public static killWinCodeProcesses(taskKillCommands: string[]): void {
         if (process.platform !== "win32") {
             return;
         }

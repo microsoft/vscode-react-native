@@ -32,7 +32,8 @@ export function setup(testParameters?: TestRunArguments) {
         let clientInited: AppiumClient;
 
         beforeEach(() => {
-            VSCodeHelper.killCodeExe(winTaskKillCommands);
+            this.timeout(120 * 1000); // Sometimes killing processes takes a while
+            VSCodeHelper.killWinCodeProcesses(winTaskKillCommands);
         });
 
         afterEach(async () => {
