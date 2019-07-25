@@ -46,7 +46,6 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("RN app Debug test", async function () {
-            this.skip();
             this.timeout(debugAndroidTestTime);
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
@@ -126,7 +125,7 @@ export function setup(testParameters?: TestRunArguments) {
 
             };
 
-            // When trying to debug Expo App sometimes it crashes on WIndows just after clicking on "Debug Remotely"
+            // When trying to debug Expo App sometimes it crashes just after clicking on "Debug Remotely"
             // So to workaround it we forcely close the app and repeat process again
             await tryToOpenExpoApp();
             sleep(2 * 1000);
@@ -151,7 +150,6 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("Pure RN app Expo test", async function () {
-            this.skip();
             if (testParameters && testParameters.RunBasicTests) {
                 this.skip();
             }
