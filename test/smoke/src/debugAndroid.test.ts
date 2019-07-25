@@ -131,6 +131,7 @@ export function setup(testParameters?: TestRunArguments) {
             sleep(2 * 1000);
             await client.closeApp();
             sleep(2 * 1000);
+            await client.startActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME);
             await tryToOpenExpoApp();
 
             console.log("Android Expo Debug test: Trying again...");
