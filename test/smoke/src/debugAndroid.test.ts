@@ -80,7 +80,6 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("Expo app Debug test", async function () {
-
             if (testParameters && testParameters.RunBasicTests) {
                 this.skip();
             }
@@ -120,7 +119,6 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`Android Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
-            console.log("Android Expo Debug test: Trying again...");
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Expo Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for App.js and line ${ExpoSetBreakpointOnLine}`);
