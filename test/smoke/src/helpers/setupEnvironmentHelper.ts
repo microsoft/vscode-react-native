@@ -101,8 +101,10 @@ export class SetupEnvironmentHelper {
         }
     }
 
-    public static async getLatestSupportedRNVersionForExpo(): Promise<any> {
-        console.log("*** Getting latest React Native version supported by Expo...");
+    // Check if the provided version argument is a valid RN version for Expo
+    // If invalid or undefined - use the latest version
+    public static async getSupportedRNVersionForExpo(version?: string): Promise<any> {
+        console.log(`*** Check if [${version}] React Native version is supported by Expo...`);
         return new Promise((resolve, reject) => {
             utilities.getContents("https://exp.host/--/api/v2/versions", null, null, function (error, versionsContent) {
                 if (error) {
@@ -111,6 +113,10 @@ export class SetupEnvironmentHelper {
                 try {
                    const content = JSON.parse(versionsContent);
                    if (content.sdkVersions) {
+                       if (version && content.sdkVersions[version]) {
+                            resolve(content.sdkVersions[version].facebookReactNativeVersion as string);
+                       }
+                       console.log(`*** React Native version [${version}] is not defined or not supported by Expo, getting the latest one...`);
                        const maxSdkVersion = Object.keys(content.sdkVersions).sort((ver1, ver2) => {
                            if (semver.lt(ver1, ver2)) {
                                return 1;
