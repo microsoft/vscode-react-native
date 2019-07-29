@@ -296,7 +296,8 @@ import * as Icon from '@expo/vector-icons';
         const metroConfigPath = path.join(appPath, "metro.config.js");
         console.log(`*** Patching  ${metroConfigPath}`);
         const patchContent = `
-// To avoid EPERM errors on Windows
+// Sometimes on Windows Metro fails to resolve files located at .vscode\.react directory and throws EPERM errors
+// To avoid it this directory is added to black list for resolving by Metro
 if (process.platform === "win32") {
     module.exports.resolver = {
         blacklistRE: /.*\.vscode\\\.react.*/
