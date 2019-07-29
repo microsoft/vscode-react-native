@@ -222,12 +222,6 @@ export class SpectronApplication {
         const extensionLogsDir = path.join(artifactsPath, runName, "extensionLogs");
         const userDataDir = path.join(this.options.userDataDir, runName);
         chromeDriverArgs.push(`--user-data-dir=${userDataDir}`);
-        if (process.platform === "win32") {
-            // Chrome throws an error "Lost UI Context" on Windows
-            // This arg forces Chrome to use SwiftShader rendering to avoid errors during headless testing
-            // https://bugs.chromium.org/p/chromium/issues/detail?id=729961
-            chromeDriverArgs.push("--use-gl=swiftshader");
-        }
 
         const env = {
             path: process.env.path || process.env.PATH,
