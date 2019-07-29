@@ -224,9 +224,9 @@ export class SpectronApplication {
         chromeDriverArgs.push(`--user-data-dir=${userDataDir}`);
         if (process.platform === "win32") {
             // Chrome throws an error "Lost UI Context" on Windows
-            // This arg forces Chrome to use SwiftShader rendering while testing is headless
+            // This arg forces Chrome to use SwiftShader rendering to avoid errors during headless testing
             // https://bugs.chromium.org/p/chromium/issues/detail?id=729961
-            chromeDriverArgs.push("--disable-gpu");
+            chromeDriverArgs.push("--use-gl=swiftshader");
         }
 
         const env = {
