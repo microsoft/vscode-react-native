@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
-import { EnvConfigFilePath } from "../main";
 
 export interface TestRunArguments {
     RunAndroidTests: boolean;
@@ -55,13 +54,13 @@ export class TestConfigurator {
         }
     }
 
-    public static setUpEnvVariables() {
-        let variables;
-        if (fs.existsSync(EnvConfigFilePath)) {
-            console.log(`*** Config file "${EnvConfigFilePath}" is found, reading variables from there`);
-            variables = JSON.parse(fs.readFileSync(EnvConfigFilePath).toString());
+    public static setUpEnvVariables(envConfigFilePath: string) {
+        let variables: any;
+        if (fs.existsSync(envConfigFilePath)) {
+            console.log(`*** Config file "${envConfigFilePath}" is found, reading variables from there`);
+            variables = JSON.parse(fs.readFileSync(envConfigFilePath).toString());
         } else {
-            console.log(`*** Config file "${EnvConfigFilePath}" doesn't exist, looking at environment variables from process context...`);
+            console.log(`*** Config file "${envConfigFilePath}" doesn't exist, looking at environment variables from process context...`);
             variables = process.env;
         }
 

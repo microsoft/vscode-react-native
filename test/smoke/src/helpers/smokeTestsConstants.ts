@@ -10,7 +10,7 @@ export class SmokeTestsConstants {
     // Default target emulator name "emulator-" + port
     public static defaultTargetAndroidDeviceName = "emulator-5554";
     // Timeout for smoke tests setup
-    public static smokeTestSetupAwaitTimeout = 15 * 60 * 1000;
+    public static smokeTestSetupAwaitTimeout = 30 * 60 * 1000;
     // Timeout for emulator boot
     public static emulatorLoadTimeout = 90 * 1000;
     // Timeout for Spectron to wait for UI elements response to interaction (in seconds)

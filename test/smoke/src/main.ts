@@ -3,6 +3,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import * as cp from "child_process";
 import { SpectronApplication, Quality } from "./spectron/application";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
@@ -13,6 +14,12 @@ import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestConfigurator } from "./helpers/configHelper";
 import { sleep, findFile } from "./helpers/utilities";
+
+// TODO Incapsulate main.ts (get rid of function(), local variables, etc)
+console.log(`*** Setting up configuration variables`);
+const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
+TestConfigurator.setUpEnvVariables(envConfigFilePath);
+TestConfigurator.printEnvVariableConfiguration();
 
 async function fail(errorMessage) {
     console.error(errorMessage);
@@ -97,6 +104,12 @@ if (isInsiders) {
     quality = Quality.Stable;
 }
 
+export let winTaskKillCommands: string[] = [];
+if (process.platform === "win32") {
+    const userName = cp.execSync("whoami").toString().trim();
+    winTaskKillCommands = VSCodeHelper.getTaskKillCommands(testVSCodeDirectory, isInsiders, userName);
+}
+
 /**
  * WebDriverIO 4.8.0 outputs all kinds of "deprecation" warnings
  * for common commands like `keys` and `moveToObject`.
@@ -132,8 +145,6 @@ const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
 
-export const EnvConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
-
 function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplication | null {
 
     if (!electronExecutablePath) {
@@ -157,9 +168,6 @@ const testParams = TestConfigurator.parseTestArguments();
 async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
     console.log("*** Preparing smoke tests setup...");
-    console.log(`*** Setting up configuration variables`);
-    TestConfigurator.setUpEnvVariables();
-    TestConfigurator.printEnvVariableConfiguration();
 
     AppiumHelper.runAppium();
 

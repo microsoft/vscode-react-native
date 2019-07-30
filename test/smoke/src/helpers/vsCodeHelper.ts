@@ -15,6 +15,8 @@ import * as source from "vinyl-source-stream";
 import * as https from "https";
 import * as fs from "fs";
 import * as rimraf from "rimraf";
+import * as cp from "child_process";
+
 import { spawnSync } from "../helpers/utilities";
 
 export class VSCodeHelper {
@@ -90,6 +92,46 @@ export class VSCodeHelper {
         } else {
             console.log("*** --dont-delete-vsix parameter is set, skipping deleting of VSIX");
         }
+    }
+
+    public static killWinCodeProcesses(taskKillCommands: string[]): void {
+        if (process.platform !== "win32") {
+            return;
+        }
+        try {
+            console.log("*** Killing any running Code.exe instances");
+            taskKillCommands.forEach(cmd => {
+                console.log(`*** Running ${cmd}`);
+                const result = cp.execSync(cmd);
+                console.log(result.toString());
+            });
+        } catch (e) {
+            // Do not throw error, just print it to avoid any build failures
+            // Sometimes taskkill process throws error but tasks are already killed so error is pointless
+            console.error(e);
+        }
+    }
+
+    /**
+     * Commands to kill all VS Code instances
+     * @param testVSCodeFolder
+     * @param isInsiders
+     */
+    public static getTaskKillCommands(testVSCodeFolder: string, isInsiders: boolean, userName: string): string[] {
+        if (process.platform !== "win32") {
+            return [];
+        }
+
+        let commands: string[] = [];
+        // conhost.exe with path\to\Code.exe
+        const exeName = isInsiders ? "Code - Insiders.exe" : "Code.exe";
+        const codeExePath = path.join(testVSCodeFolder, exeName);
+        commands.push(`taskkill /f /t /fi "WINDOWTITLE eq ${codeExePath}" /fi "USERNAME eq ${userName}"`);
+        // Code.exe (or Code - Insiders.exe) windows
+        commands.push(`taskkill /f /t /fi "IMAGENAME eq ${exeName}" /fi "USERNAME eq ${userName}`);
+        // CodeHelper.exe window
+        commands.push(`taskkill /f /t /fi "IMAGENAME eq CodeHelper.exe" /fi "USERNAME eq ${userName}`);
+        return commands;
     }
 
     private static getKeybindingPlatform(): string {
