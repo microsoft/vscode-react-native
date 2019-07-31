@@ -18,6 +18,9 @@ export interface TestEnvVariables {
     IOS_VERSION?: string;
     CODE_VERSION?: string;
     EXPO_XDL_VERSION?: string;
+    RN_VERSION?: string;
+    PURE_RN_VERSION?: string;
+    PURE_EXPO_VERSION?: string;
 }
 
 export class TestConfigurator {
@@ -42,6 +45,15 @@ export class TestConfigurator {
         }
         if (!variables.EXPO_XDL_VERSION) {
             console.warn("Optional EXPO_XDL_VERSION variable is not set");
+        }
+        if (!variables.RN_VERSION) {
+            console.warn("Optional RN_VERSION variable is not set");
+        }
+        if (!variables.PURE_RN_VERSION) {
+            console.warn("Optional PURE_RN_VERSION variable is not set");
+        }
+        if (!variables.PURE_EXPO_VERSION) {
+            console.warn("Optional PURE_EXPO_VERSION variable is not set");
         }
     }
 
@@ -68,6 +80,15 @@ export class TestConfigurator {
         if (variables.EXPO_XDL_VERSION === "skip") {
             delete variables.EXPO_XDL_VERSION;
         }
+        if (variables.RN_VERSION === "skip") {
+            delete variables.RN_VERSION;
+        }
+        if (variables.PURE_RN_VERSION === "skip") {
+            delete variables.PURE_RN_VERSION;
+        }
+        if (variables.PURE_EXPO_VERSION === "skip") {
+            delete variables.PURE_EXPO_VERSION;
+        }
 
         this.verifyEnvVariables(variables);
         this.passEnvVariablesToProcessEnv(variables);
@@ -81,6 +102,9 @@ export class TestConfigurator {
         initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
         initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
         initLog += `EXPO_XDL_VERSION = ${process.env.EXPO_XDL_VERSION}\n`;
+        initLog += `RN_VERSION = ${process.env.RN_VERSION}\n`;
+        initLog += `PURE_RN_VERSION = ${process.env.PURE_RN_VERSION}\n`;
+        initLog += `PURE_EXPO_VERSION = ${process.env.PURE_EXPO_VERSION}\n`;
         console.log(initLog);
     }
 
