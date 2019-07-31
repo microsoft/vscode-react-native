@@ -103,7 +103,7 @@ export class SetupEnvironmentHelper {
         }
     }
 
-    public static async getSupportedRNVersionForExpo(): Promise<any> {
+    public static async getLatestSupportedRNVersionForExpo(): Promise<any> {
         console.log("*** Getting latest React Native version supported by Expo...");
         return new Promise((resolve, reject) => {
             utilities.getContents("https://exp.host/--/api/v2/versions", null, null, function (error, versionsContent) {

@@ -180,7 +180,7 @@ async function setup(): Promise<void> {
     SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName, "ReactNativeSample", process.env.RN_VERSION);
     if (!testParams.RunBasicTests) {
         SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
-        const PureRNVersionExpo = process.env.PURE_RN_VERSION || await SetupEnvironmentHelper.getSupportedRNVersionForExpo();
+        const PureRNVersionExpo = process.env.PURE_RN_VERSION || await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", PureRNVersionExpo);
         SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath, process.env.PURE_EXPO_VERSION);
         await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
