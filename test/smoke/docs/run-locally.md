@@ -139,10 +139,10 @@ Tests requires several environment variables to be set up before starting:
 |`IOS_SIMULATOR`|`iPhone 5s`|(**Only for iOS tests**) Name of the simulated device|
 |`IOS_VERSION`|12.2|(**Only for iOS tests**) Version of iOS on the simulated device|
 |`CODE_VERSION`|`*`, `1.34.1`, `insiders`|Version of VS Code to download and run while running tests|
-|`EXPO_XDL_VERSION`|`54.1.4`, `skip`|Version of @expo/xdl package to install to the extension directory. If set to "skip" then package installation will be skipped|
-|`RN_VERSION`|`0.60.0`, `skip`|Version of React Native application to debug while running tests. If set to "skip" then the latest version will be installed|
-|`PURE_RN_VERSION`|`0.59.8`, `skip`|Version of React Native while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
-|`PURE_EXPO_VERSION`|`34.0.2`, `skip`|Version of Expo while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
+|`EXPO_XDL_VERSION` (optional)|`54.1.4`, `skip`|Version of @expo/xdl package to install to the extension directory. If set to "skip" then package installation will be skipped|
+|`RN_VERSION` (optional)|`0.60.0`, `skip`|Version of React Native application to debug while running tests. If set to "skip" then the latest version will be installed|
+|`PURE_RN_VERSION` (optional)|`0.59.8`, `skip`|Version of React Native while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
+|`PURE_EXPO_VERSION` (optional)|`34.0.2`, `skip`|Version of Expo while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
 
 To create environment variable you can use this commands:
    * **Windows** (Powershell):
