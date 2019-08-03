@@ -7,5 +7,5 @@
 	"ReactNativeToolsRequiresMoreRecentVersionThan019": "O React Native Tools precisa do React Native versão 0.19.0 ou posterior para ser instalado em <PROJECT_ROOT>/node_modules/",
 	"ReactNativeShowDevMenu": "React Native: mostrar o Menu do Desenvolvedor do aplicativo",
 	"ReactNativeReloadApp": "React Native: recarregar Aplicativo",
-	"ReactNativeRunElementInspector": "React Native: executar Inspetor de Elemento"
+	"ReactNativeRunElementInspector": "React Native: executar Inspetor de Elementos"
 }

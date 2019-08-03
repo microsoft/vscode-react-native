@@ -13,7 +13,7 @@
 	"PackagerIsNotRunning": "Paketleyici çalışmıyor",
 	"EntryPointDoesntExist": "Giriş noktası ne index.js ne de index.{0}.js konumunda yok. Önceden hazırlamayı atlayın...",
 	"AboutToGetURL": "Şu alınmak üzere: {0}",
-	"BundleCacheWasPrewarmed": "Paket Önbelleği önceden hazırlandı.",
+	"BundleCacheWasPrewarmed": "Toplu Paket Önbelleği önceden hazırlandı.",
 	"CouldNotStartPackager": "Paketleyici başlatılamadı.",
 	"StoppingPackager": "Paketleyici durduruluyor"
 }

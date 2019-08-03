@@ -13,7 +13,7 @@
 	"PackagerIsNotRunning": "Balíčkovač není spuštěný.",
 	"EntryPointDoesntExist": "Vstupní bod neexistuje v souboru index.js ani v souboru index.{0}.js. Předběžná příprava se vynechává...",
 	"AboutToGetURL": "Chystá se načtení: {0}",
-	"BundleCacheWasPrewarmed": "Mezipaměť sady prostředků byla předběžně připravena.",
+	"BundleCacheWasPrewarmed": "Skupinová mezipaměť byla předběžně připravena.",
 	"CouldNotStartPackager": "Nepodařilo se spustit balíčkovač.",
 	"StoppingPackager": "Balíčkovač se zastavuje."
 }

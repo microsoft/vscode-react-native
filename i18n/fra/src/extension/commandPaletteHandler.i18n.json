@@ -8,5 +8,5 @@
 	"AnotherElementInspectorAlreadyRun": "Un autre inspecteur d'élément a déjà été exécuté",
 	"PublishingAppToExponentServer": "Publication de l'application sur le serveur Expo. L'opération peut prendre un certain temps.",
 	"ExpoAppSuccessfullyPublishedTo": "Application Expo publiée correctement sur {0}",
-	"ExpoErrorOccuredMakeSureYouAreLoggedIn": "Une erreur s'est produite. Vérifiez que vous êtes connecté à Expo, que votre projet est correctement configuré pour la publication et que votre outil de création de package s'exécute en tant qu'Expo."
+	"ExpoErrorOccuredMakeSureYouAreLoggedIn": "Une erreur s'est produite. Vérifiez que vous êtes connecté à Expo, que votre projet est correctement configuré pour la publication et que votre packager s'exécute en tant qu'Expo."
 }

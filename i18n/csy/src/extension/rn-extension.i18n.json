@@ -7,5 +7,5 @@
 	"ReactNativeToolsRequiresMoreRecentVersionThan019": "Rozšíření React Native Tools vyžaduje, aby ve složce <PROJECT_ROOT>/node_modules/ byla nainstalovaná verze React Native 0.19.0 nebo novější.",
 	"ReactNativeShowDevMenu": "React Native: Zobrazit nabídku pro vývojáře aplikace",
 	"ReactNativeReloadApp": "React Native: Znovu načíst aplikaci",
-	"ReactNativeRunElementInspector": "React Native: Spustit Element Inspector"
+	"ReactNativeRunElementInspector": "React Native: Spustit inspektor elementů"
 }
