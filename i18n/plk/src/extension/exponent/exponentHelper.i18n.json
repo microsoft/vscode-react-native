@@ -6,8 +6,8 @@
 {
 	"MakingSureYourProjectUsesCorrectExponentDependencies": "Upewnianie się, że projekt używa prawidłowych zależności dla środowiska Expo. Może to chwilę potrwać...",
 	"CheckingIfThisIsExpoApp": "Sprawdzanie, czy to jest aplikacja środowiska Expo.",
+	"ExpoPackageIsNotInstalled": "[Ostrzeżenie] Upewnij się, że pakiet środowiska Expo został zainstalowany lokalnie dla projektu, w przeciwnym razie mogą wystąpić dalsze błędy. Uruchom polecenie „npm install expo --save-dev” wewnątrz projektu w celu jego zainstalowania.",
 	"YouNeedToLoginToExpo": "Musisz się zalogować w środowisku Expo. Podaj nazwę konta użytkownika środowiska Expo i hasło w polach wejściowych po zamknięciu tego okna. Jeśli nie masz konta, przejdź na stronę https://expo.io, aby je utworzyć.",
 	"ExpoUsername": "Nazwa użytkownika środowiska Expo",
-	"ExpoPassword": "Hasło środowiska Expo",
-	"ExpoPackageIsNotInstalled": "[Ostrzeżenie] Pakiet środowiska Expo nie został zainstalowany lokalnie dla projektu — mogą wystąpić dalsze błędy. Uruchom polecenie „npm install expo --save-dev” wewnątrz projektu."
+	"ExpoPassword": "Hasło środowiska Expo"
 }

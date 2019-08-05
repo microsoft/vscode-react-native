@@ -7,5 +7,5 @@
 	"ReactNativeToolsRequiresMoreRecentVersionThan019": "React Native Tools nécessite l'installation de React Native version 0.19.0 ou ultérieure dans <RACINE_PROJET>/node_modules/",
 	"ReactNativeShowDevMenu": "React Native : afficher le menu du développeur pour l'application",
 	"ReactNativeReloadApp": "React Native : recharger l'application",
-	"ReactNativeRunElementInspector": "React Native : exécuter l'inspecteur d'éléments"
+	"ReactNativeRunElementInspector": "React Native : exécuter l'inspecteur d'élément"
 }

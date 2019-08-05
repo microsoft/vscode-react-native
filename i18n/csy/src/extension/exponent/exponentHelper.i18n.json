@@ -6,8 +6,8 @@
 {
 	"MakingSureYourProjectUsesCorrectExponentDependencies": "Ověřuje se, jestli projekt používá správné závislosti pro Expo. Může to chvíli trvat...",
 	"CheckingIfThisIsExpoApp": "Kontroluje se, jestli se jedná o aplikaci Expo.",
+	"ExpoPackageIsNotInstalled": "[Upozornění] Ujistěte se prosím, že daný balíček Expo je pro váš projekt nainstalovaný místně, jinak může docházet k dalším chybám. Nainstalujte ho prosím tak, že v projektu spustíte příkaz npm install expo --save-dev.",
 	"YouNeedToLoginToExpo": "Je potřeba, abyste se přihlásili k Expo. Po zavření tohoto okna zadejte do vstupních polí uživatelské jméno a heslo pro Expo. Pokud nemáte účet, přejděte prosím na https://expo.io a vytvořte si ho.",
 	"ExpoUsername": "Uživatelské jméno pro Expo",
-	"ExpoPassword": "Heslo pro Expo",
-	"ExpoPackageIsNotInstalled": "[Upozornění] Balíček Expo pro váš projekt není nainstalovaný místně, může dojít k dalším chybám. Z prostředí projektu spusťte příkaz npm install expo --save-dev."
+	"ExpoPassword": "Heslo pro Expo"
 }
