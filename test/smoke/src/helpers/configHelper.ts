@@ -76,17 +76,21 @@ export class TestConfigurator {
             variables = process.env;
         }
 
+        if (process.env.NIGHTLY) {
+            console.log("*** This is nightly build, only the latest software versions will be used");
+            variables.CODE_VERSION = "*";
+        }
         // Hack for Azure DevOps, because it doesn't implicitly support optional parameters for task group
-        if (variables.EXPO_XDL_VERSION === "skip") {
+        if (variables.EXPO_XDL_VERSION === "skip" || process.env.NIGHTLY) {
             delete variables.EXPO_XDL_VERSION;
         }
-        if (variables.RN_VERSION === "skip") {
+        if (variables.RN_VERSION === "skip" || process.env.NIGHTLY) {
             delete variables.RN_VERSION;
         }
-        if (variables.PURE_RN_VERSION === "skip") {
+        if (variables.PURE_RN_VERSION === "skip" || process.env.NIGHTLY) {
             delete variables.PURE_RN_VERSION;
         }
-        if (variables.PURE_EXPO_VERSION === "skip") {
+        if (variables.PURE_EXPO_VERSION === "skip" || process.env.NIGHTLY) {
             delete variables.PURE_EXPO_VERSION;
         }
 
