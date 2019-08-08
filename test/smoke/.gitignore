@@ -6,7 +6,6 @@ out/
 keybindings.*.json
 test_data/
 test-results.xml
-config.json
 *SmokeTests.xml
 resources/latestRNApp/**
 resources/latestExpoApp/**
