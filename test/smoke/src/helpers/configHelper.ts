@@ -81,7 +81,7 @@ export class TestConfigurator {
             variables.CODE_VERSION = "*";
         }
         // Hack for Azure DevOps, because it doesn't implicitly support optional parameters for task group
-        if (variables.EXPO_XDL_VERSION === "skip" || process.env.NIGHTLY) {
+        if (variables.EXPO_XDL_VERSION === "skip") {
             delete variables.EXPO_XDL_VERSION;
         }
         if (variables.RN_VERSION === "skip" || process.env.NIGHTLY) {
