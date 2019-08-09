@@ -50,13 +50,15 @@ export class AdbHelper {
     private childProcess: ChildProcess = new ChildProcess();
     private commandExecutor: CommandExecutor = new CommandExecutor();
     private adbExecutable: string = "";
+    private launchActivity: string;
 
-    constructor(projectRoot: string, logger?: ILogger) {
+    constructor(projectRoot: string, logger?: ILogger, launchActivity: string = "MainActivity") {
 
         // Trying to read sdk location from local.properties file and if we succueded then
         // we would run adb from inside it, otherwise we would rely to PATH
         const sdkLocation = this.getSdkLocationFromLocalPropertiesFile(projectRoot, logger);
         this.adbExecutable = sdkLocation ? `${path.join(sdkLocation, "platform-tools", "adb")}` : "adb";
+        this.launchActivity = launchActivity;
     }
 
     /**
@@ -95,7 +97,7 @@ export class AdbHelper {
      * Sends an intent which launches the main activity of the application.
      */
     public launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
-        let launchAppCommand = `${this.adbExecutable} ${debugTarget ? "-s " + debugTarget : ""} shell am start -n ${packageName}/.MainActivity`;
+        let launchAppCommand = `${this.adbExecutable} ${debugTarget ? "-s " + debugTarget : ""} shell am start -n ${packageName}/.${this.launchActivity}`;
         return new CommandExecutor(projectRoot).execute(launchAppCommand);
     }
 

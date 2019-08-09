@@ -18,6 +18,7 @@ import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 import * as nls from "vscode-nls";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
+import { isNullOrUndefined } from "util";
 const localize = nls.loadMessageBundle();
 
 /**
@@ -65,7 +66,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
     constructor(protected runOptions: IAndroidRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
-        this.adbHelper = new AdbHelper(this.runOptions.projectRoot, this.logger);
+        this.adbHelper = new AdbHelper(this.runOptions.projectRoot, this.logger, this.runOptions.launchActivity);
     }
 
     // TODO: remove this method when sinon will be updated to upper version. Now it is used for tests only.
@@ -88,6 +89,11 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 .then(version => {
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, AndroidPlatform.NO_PACKAGER_VERSION)) {
                         this.runArguments.push("--no-packager");
+                    }
+
+                    if (!isNullOrUndefined(this.runOptions.launchActivity) && (this.runArguments.indexOf("--main-activity") == -1)) {
+                        this.runArguments.push("--main-activity");
+                        this.runArguments.push(this.runOptions.launchActivity);
                     }
 
                     const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", this.runArguments, {env});
