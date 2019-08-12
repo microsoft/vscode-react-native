@@ -91,14 +91,12 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         this.runArguments.push("--no-packager");
                     }
 
-                    let mainActivityIndex = this.runArguments.indexOf("--main-activity");
+                    let mainActivity = GeneralMobilePlatform.getOptFromRunArgs(this.runArguments, "--main-activity");
 
-                    if (mainActivityIndex != -1) {
-                        this.adbHelper.setLaunchActivity(this.runArguments[mainActivityIndex + 1])
-                    }
-                    else if (!isNullOrUndefined(this.runOptions.debugLaunchActivity)) {
-                        this.runArguments.push("--main-activity");
-                        this.runArguments.push(this.runOptions.debugLaunchActivity);
+                    if (mainActivity && mainActivity !== '') {
+                        this.adbHelper.setLaunchActivity(mainActivity)
+                    } else if (!isNullOrUndefined(this.runOptions.debugLaunchActivity)) {
+                        this.runArguments.push("--main-activity", this.runOptions.debugLaunchActivity);
                         this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity)
                     }
 

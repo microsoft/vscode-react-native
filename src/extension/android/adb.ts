@@ -71,7 +71,7 @@ export class AdbHelper {
             });
     }
 
-    public setLaunchActivity(launchActivity: string): void{
+    public setLaunchActivity(launchActivity: string): void {
         this.launchActivity = launchActivity;
     }
 

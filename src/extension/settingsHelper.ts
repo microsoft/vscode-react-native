@@ -5,6 +5,7 @@ import * as path from "path";
 import {ConfigurationReader} from "../common/configurationReader";
 import {Packager} from "../common/packager";
 import {LogLevel} from "./log/LogHelper";
+import { GeneralMobilePlatform } from "./generalMobilePlatform";
 
 export class SettingsHelper {
     /**
@@ -59,19 +60,23 @@ export class SettingsHelper {
         const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("react-native", uri);
         const configKey: string = `${platform}.runArguments.${target}`;
         const launchActivityKey: string = `${platform}.launchActivity`;
+        const runArgs: string[] = [];
+
         if (workspaceConfiguration.has(configKey)) {
-            const runArgs: string[] = [...ConfigurationReader.readArray(workspaceConfiguration.get(configKey))];
-            if (runArgs.indexOf("--main-activity") == -1 && workspaceConfiguration.has(launchActivityKey) && platform == "android") {
-                const launchActivity: string = ConfigurationReader.readString(workspaceConfiguration.get(launchActivityKey));
-                if (launchActivity !== ""){
-                    runArgs.push("--main-activity");
-                    runArgs.push(launchActivity);
-                }
+            runArgs.push(...ConfigurationReader.readArray(workspaceConfiguration.get(configKey)));
+        }
+        if (
+            !GeneralMobilePlatform.getOptFromRunArgs(runArgs, "--main-activity", true)
+            && workspaceConfiguration.has(launchActivityKey)
+            && platform === "android"
+          ) {
+            const launchActivity: string = ConfigurationReader.readString(workspaceConfiguration.get(launchActivityKey));
+            if (launchActivity !== "") {
+                runArgs.push("--main-activity", launchActivity);
             }
-            return runArgs;
         }
 
-        return [];
+        return runArgs;
     }
 
     public static getEnvArgs(platform: string, target: "device" | "simulator", uri: vscode.Uri): any {
