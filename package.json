@@ -417,6 +417,11 @@
 					"default": [],
 					"scope": "resource"
 				},
+				"react-native.android.launchActivity": {
+					"description": "%reactNative.configuration.properties.react-native.android.launchActivity.description%",
+					"type": "string",
+					"scope": "resource"
+				},
 				"react-native.android.env.simulator": {
 					"type": "object",
 					"additionalProperties": {

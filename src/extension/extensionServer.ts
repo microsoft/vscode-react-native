@@ -202,7 +202,7 @@ export class ExtensionServer implements vscode.Disposable {
         }
 
         if (!isNullOrUndefined(request.arguments.launchActivity)) {
-            mobilePlatformOptions.launchActivity = request.arguments.launchActivity;
+            mobilePlatformOptions.debugLaunchActivity = request.arguments.launchActivity;
         }
 
         mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(request.arguments.cwd || request.arguments.program);

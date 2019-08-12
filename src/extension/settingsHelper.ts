@@ -58,8 +58,17 @@ export class SettingsHelper {
     public static getRunArgs(platform: string, target: "device" | "simulator", uri: vscode.Uri): string[] {
         const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("react-native", uri);
         const configKey: string = `${platform}.runArguments.${target}`;
+        const launchActivityKey: string = `${platform}.launchActivity`;
         if (workspaceConfiguration.has(configKey)) {
-            return ConfigurationReader.readArray(workspaceConfiguration.get(configKey));
+            const runArgs: string[] = [...ConfigurationReader.readArray(workspaceConfiguration.get(configKey))];
+            if (runArgs.indexOf("--main-activity") == -1 && workspaceConfiguration.has(launchActivityKey) && platform == "android") {
+                const launchActivity: string = ConfigurationReader.readString(workspaceConfiguration.get(launchActivityKey));
+                if (launchActivity !== ""){
+                    runArgs.push("--main-activity");
+                    runArgs.push(launchActivity);
+                }
+            }
+            return runArgs;
         }
 
         return [];

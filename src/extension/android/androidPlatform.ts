@@ -66,7 +66,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
     constructor(protected runOptions: IAndroidRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
-        this.adbHelper = new AdbHelper(this.runOptions.projectRoot, this.logger, this.runOptions.launchActivity);
+        this.adbHelper = new AdbHelper(this.runOptions.projectRoot, this.logger);
     }
 
     // TODO: remove this method when sinon will be updated to upper version. Now it is used for tests only.
@@ -91,9 +91,15 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         this.runArguments.push("--no-packager");
                     }
 
-                    if (!isNullOrUndefined(this.runOptions.launchActivity) && (this.runArguments.indexOf("--main-activity") == -1)) {
+                    let mainActivityIndex = this.runArguments.indexOf("--main-activity");
+
+                    if (mainActivityIndex != -1) {
+                        this.adbHelper.setLaunchActivity(this.runArguments[mainActivityIndex + 1])
+                    }
+                    else if (!isNullOrUndefined(this.runOptions.debugLaunchActivity)) {
                         this.runArguments.push("--main-activity");
-                        this.runArguments.push(this.runOptions.launchActivity);
+                        this.runArguments.push(this.runOptions.debugLaunchActivity);
+                        this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity)
                     }
 
                     const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", this.runArguments, {env});

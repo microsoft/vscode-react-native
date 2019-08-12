@@ -71,6 +71,10 @@ export class AdbHelper {
             });
     }
 
+    public setLaunchActivity(launchActivity: string): void{
+        this.launchActivity = launchActivity;
+    }
+
     /**
      * Broadcasts an intent to reload the application in debug mode.
      */
