@@ -8,5 +8,5 @@
 	"AnotherElementInspectorAlreadyRun": "已运行另一个元素检查器",
 	"PublishingAppToExponentServer": "将应用发布到 Expo 服务器。这可能需要一些时间。",
 	"ExpoAppSuccessfullyPublishedTo": "Expo 应用已成功发布到 {0}",
-	"ExpoErrorOccuredMakeSureYouAreLoggedIn": "发生错误。请确保你已登录到 Expo、你的项目已正确设置为用于发布且包装工具正作为 Expo 运行。"
+	"ExpoErrorOccuredMakeSureYouAreLoggedIn": "发生错误。请确保你已登录到 Expo、你的项目已正确设置为用于发布且包生成工具正作为 Expo 运行。"
 }

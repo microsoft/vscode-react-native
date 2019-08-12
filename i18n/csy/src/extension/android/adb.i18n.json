@@ -7,6 +7,6 @@
 	"NoSdkDirFoundInLocalPropertiesFile": "V souboru local.properties nebyla nalezena žádná hodnota sdk.dir. Použije se umístění sady Android SDK z cesty.",
 	"UsindAndroidSDKLocationDefinedInLocalPropertiesFile": "Použije se umístění sady Android SDK definované v souboru android/local.properties: {0}.",
 	"LocalPropertiesFileDoesNotExist": "Soubor local.properties neexistuje. Použije se umístění sady Android SDK z cesty.",
-	"CouldNotReadFrom": "Nelze číst z {0}.",
+	"CouldNotReadFrom": "Nejde číst z {0}.",
 	"UsingAndroidSDKLocationFromPATH": "Použije se umístění sady Android SDK z cesty."
 }

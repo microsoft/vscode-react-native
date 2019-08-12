@@ -13,7 +13,7 @@
 	"PackagerIsNotRunning": "El empaquetador no se está ejecutando.",
 	"EntryPointDoesntExist": "El punto de entrada no existe en index.js ni en index.{0}.js. Omitir la preparación...",
 	"AboutToGetURL": "Descarga que se va a obtener: {0}",
-	"BundleCacheWasPrewarmed": "La memoria caché del paquete se ha preparado.",
+	"BundleCacheWasPrewarmed": "El conjunto en caché se ha preparado.",
 	"CouldNotStartPackager": "No se pudo iniciar el empaquetador.",
 	"StoppingPackager": "Deteniendo el empaquetador"
 }

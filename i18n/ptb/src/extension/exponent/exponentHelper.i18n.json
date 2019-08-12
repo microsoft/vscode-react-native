@@ -6,8 +6,8 @@
 {
 	"MakingSureYourProjectUsesCorrectExponentDependencies": "Verifique se o projeto usa as dependências corretas para Expo. Isso pode demorar um pouco...",
 	"CheckingIfThisIsExpoApp": "Verificando se esse é um aplicativo Expo.",
+	"ExpoPackageIsNotInstalled": "[Aviso] Verifique se esse pacote expo está instalado localmente no seu projeto. Caso contrário, poderão ocorrer mais erros. Execute \"npm install expo --save-dev\" dentro do projeto para instalá-lo.",
 	"YouNeedToLoginToExpo": "Você deve entrar no Expo. Forneça o nome de usuário e a senha da conta do Expo nas caixas de entrada depois de fechar esta janela. Se você não tiver uma conta, acesse https://expo.io para criar uma.",
 	"ExpoUsername": "Nome de usuário do Expo",
-	"ExpoPassword": "Senha do Expo",
-	"ExpoPackageIsNotInstalled": "[Aviso] O pacote expo não está instalado localmente para o projeto, poderão ocorrer mais erros. Execute \"npm install expo --save-dev\" dentro do projeto."
+	"ExpoPassword": "Senha do Expo"
 }
