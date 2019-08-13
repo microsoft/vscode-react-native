@@ -93,11 +93,11 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
                     let mainActivity = GeneralMobilePlatform.getOptFromRunArgs(this.runArguments, "--main-activity");
 
-                    if (mainActivity && mainActivity !== '') {
-                        this.adbHelper.setLaunchActivity(mainActivity)
+                    if (mainActivity && mainActivity !== "") {
+                        this.adbHelper.setLaunchActivity(mainActivity);
                     } else if (!isNullOrUndefined(this.runOptions.debugLaunchActivity)) {
                         this.runArguments.push("--main-activity", this.runOptions.debugLaunchActivity);
-                        this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity)
+                        this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity);
                     }
 
                     const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", this.runArguments, {env});
