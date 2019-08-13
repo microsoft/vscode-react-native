@@ -177,12 +177,12 @@ async function setup(): Promise<void> {
 
     await AndroidEmulatorHelper.runAndroidEmulator();
 
-    SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName, "ReactNativeSample");
+    SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName, "ReactNativeSample", process.env.RN_VERSION);
     if (!testParams.RunBasicTests) {
         SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
-        const latestRNVersionExpo = await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
-        SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", latestRNVersionExpo);
-        SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath);
+        const PureRNVersionExpo = process.env.PURE_RN_VERSION || await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
+        SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", PureRNVersionExpo);
+        SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath, process.env.PURE_EXPO_VERSION);
         await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
         await SetupEnvironmentHelper.patchExpoApp(ExpoWorkspacePath);
         if (process.platform === "darwin") {

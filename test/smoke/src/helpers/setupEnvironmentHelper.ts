@@ -68,12 +68,14 @@ export class SetupEnvironmentHelper {
         SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
-    public static addExpoDependencyToRNProject(workspacePath: string) {
+    public static addExpoDependencyToRNProject(workspacePath: string, version?: string) {
         let npmCmd = "npm";
         if (process.platform === "win32") {
             npmCmd = "npm.cmd";
         }
-        const command = `${npmCmd} install expo --save-dev`;
+
+        let expoPackage: string = version ? `expo@${version}` : "expo";
+        const command = `${npmCmd} install ${expoPackage} --save-dev`;
 
         console.log(`*** Adding expo dependency to ${workspacePath} via '${command}' command...`);
         cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
