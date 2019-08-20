@@ -18,6 +18,7 @@ import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { getLoggingDirectory } from "../extension/log/LogHelper";
+import * as mkdirp from "mkdirp";
 const localize = nls.loadMessageBundle();
 
 export function makeSession(
@@ -201,6 +202,9 @@ export function makeSession(
                         // no more required in launch configuration and could be removed
                         const workspaceRootPath = request.arguments.cwd ? path.resolve(request.arguments.cwd) : path.resolve(path.dirname(request.arguments.program), "..");
                         const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
+                        // Create folder if not exist to avoid problems if
+                        // RN project root is not a ${workspaceFolder}
+                        mkdirp.sync(sourcesStoragePath);
 
                         // If launch is invoked first time, appWorker is undefined, so create it here
                         this.appWorker = new MultipleLifetimesAppWorker(
