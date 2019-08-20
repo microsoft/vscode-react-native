@@ -1,5 +1,5 @@
 {
-    "ANDROID_EMULATOR": "test",
+    "ANDROID_EMULATOR": "Nexus_5X_API_28",
     "ANDROID_VERSION": "9",
     "IOS_SIMULATOR": "iPhone 5s",
     "IOS_VERSION": "12.4",
