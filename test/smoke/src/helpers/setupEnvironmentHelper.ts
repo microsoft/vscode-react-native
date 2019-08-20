@@ -313,11 +313,8 @@ module.exports.cacheStores = [
     }),
 ];
 
-// This \/ should be uncommented as soon as this PR is merged
-// https://github.com/facebook/metro/pull/424,
-
 // Redirect Haste Map cache
-// module.exports.hasteMapCacheDirectory = ".cache";`;
+module.exports.hasteMapCacheDirectory = ".cache";`;
         fs.appendFileSync(metroConfigPath, patchContent);
         const contentAfterPatching = fs.readFileSync(metroConfigPath);
         console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
