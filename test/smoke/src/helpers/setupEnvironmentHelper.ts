@@ -46,7 +46,7 @@ export class SetupEnvironmentHelper {
     }
 
     public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
-        const command = `echo -ne '\\n' | expo init -t tabs --name ${appName}  --workflow managed ${appName}`;
+        const command = `echo -ne '\\n' | expo init -t tabs --name ${appName} ${appName}`;
         console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
@@ -138,9 +138,9 @@ export class SetupEnvironmentHelper {
 
     // Installs Expo app on Android device via "expo android" command
     public static async installExpoAppOnAndroid(expoAppPath: string) {
-        console.log(`*** Installing Expo app (${this.expoPackageName}) on android emulator with 'expo-cli client:install:android' command`);
+        console.log(`*** Installing Expo app (${this.expoPackageName}) on android emulator with 'expo-cli android' command`);
         let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
-        let installerProcess = cp.spawn(expoCliCommand, ["client:install:android"], {cwd: expoAppPath, stdio: "pipe"});
+        let installerProcess = cp.spawn(expoCliCommand, ["android"], {cwd: expoAppPath, stdio: "pipe"});
         installerProcess.stdout.on("data", (data) => {
             const string = filterProgressBarChars(data.toString().trim());
             if (string !== "") {
