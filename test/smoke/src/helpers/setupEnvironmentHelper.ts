@@ -138,9 +138,9 @@ export class SetupEnvironmentHelper {
 
     // Installs Expo app on Android device via "expo android" command
     public static async installExpoAppOnAndroid(expoAppPath: string) {
-        console.log(`*** Installing Expo app (${this.expoPackageName}) on android emulator with 'expo-cli android' command`);
+        console.log(`*** Installing Expo app (${this.expoPackageName}) on android emulator with 'expo-cli client:install:android' command`);
         let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
-        let installerProcess = cp.spawn(expoCliCommand, ["android"], {cwd: expoAppPath, stdio: "pipe"});
+        let installerProcess = cp.spawn(expoCliCommand, ["client:install:android"], {cwd: expoAppPath, stdio: "pipe"});
         installerProcess.stdout.on("data", (data) => {
             const string = filterProgressBarChars(data.toString().trim());
             if (string !== "") {
@@ -169,7 +169,7 @@ export class SetupEnvironmentHelper {
     public static async installExpoAppOnIos(expoAppPath: string) {
         return new Promise((resolve, reject) => {
             console.log(`*** Installing Expo app on iOS simulator with 'expo-cli install:ios' command`);
-            let installerProcess = cp.spawn("expo-cli", ["install:ios"], {cwd: expoAppPath, stdio: "pipe"});
+            let installerProcess = cp.spawn("expo-cli", ["client:install:ios"], {cwd: expoAppPath, stdio: "pipe"});
             installerProcess.stdout.on("data", (data) => {
                 const string = filterProgressBarChars(data.toString().trim());
                 if (string !== "") {
