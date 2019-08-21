@@ -248,8 +248,13 @@ import * as Icon from '@expo/vector-icons';
     public static patchExpoSettingsFile(expoAppPath: string) {
         const settingsJsonPath = path.join(expoAppPath, ".expo", "settings.json");
         if (fs.existsSync(settingsJsonPath)) {
+            console.log(`*** Patching ${settingsJsonPath}...`);
             let content = JSON.parse(fs.readFileSync(settingsJsonPath).toString());
-            delete content.https;
+            if (content.https) {
+                console.log(`*** Deleting https: ${content.https} line...`);
+                delete content.https;
+            }
+
             content = JSON.stringify(content, null, 2);
             fs.writeFileSync(settingsJsonPath, content);
         }
