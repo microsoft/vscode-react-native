@@ -78,9 +78,6 @@ export class TestConfigurator {
         } else if (fs.existsSync(envConfigFilePath)) {
             console.log(`*** Config file "${envConfigFilePath}" is found, reading variables from there`);
             variables = JSON.parse(fs.readFileSync(envConfigFilePath).toString());
-        } else {
-            console.log(`*** Config file "${envConfigFilePath}" doesn't exist, looking at environment variables from process context...`);
-            variables = process.env;
         }
 
         if (process.env.NIGHTLY) {
