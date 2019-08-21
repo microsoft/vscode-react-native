@@ -253,19 +253,17 @@ import * as Icon from '@expo/vector-icons';
             if (content.https) {
                 console.log(`*** Deleting https: ${content.https} line...`);
                 delete content.https;
+                content = JSON.stringify(content, null, 2);
+                fs.writeFileSync(settingsJsonPath, content);
             }
-
-            content = JSON.stringify(content, null, 2);
-            fs.writeFileSync(settingsJsonPath, content);
         }
     }
 
     // For some reason expo app generated with "expo init" doesn't contain the following changes
     // so we have to apply them manually
     public static async patchExpoApp(expoAppPath: string) {
-        await this.patchExpoSettingsFile(expoAppPath);
-        // await this.addAdditionalPackagesToExpoApp(expoAppPath);
-        // await this.patchAppJsForExpoApp(expoAppPath);
+        await this.addAdditionalPackagesToExpoApp(expoAppPath);
+        await this.patchAppJsForExpoApp(expoAppPath);
     }
 
     // TODO: refactor this function to make it capable to accept debug configuration as a parameter
