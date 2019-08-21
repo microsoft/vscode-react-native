@@ -243,11 +243,24 @@ import * as Icon from '@expo/vector-icons';
         fs.writeFileSync(appJSPath, updatedContent);
     }
 
+    // Fix for https://github.com/expo/expo-cli/issues/951
+    // delete when bug will be fixed
+    public static patchExpoSettingsFile(expoAppPath: string) {
+        const settingsJsonPath = path.join(expoAppPath, ".expo", "settings.json");
+        if (fs.existsSync(settingsJsonPath)) {
+            let content = JSON.parse(fs.readFileSync(settingsJsonPath).toString());
+            delete content.https;
+            content = JSON.stringify(content, null, 2);
+            fs.writeFileSync(settingsJsonPath, content);
+        }
+    }
+
     // For some reason expo app generated with "expo init" doesn't contain the following changes
     // so we have to apply them manually
-    public static async patchExpoApp(expoAppPath) {
-        await this.addAdditionalPackagesToExpoApp(expoAppPath);
-        await this.patchAppJsForExpoApp(expoAppPath);
+    public static async patchExpoApp(expoAppPath: string) {
+        await this.patchExpoSettingsFile(expoAppPath);
+        // await this.addAdditionalPackagesToExpoApp(expoAppPath);
+        // await this.patchAppJsForExpoApp(expoAppPath);
     }
 
     // TODO: refactor this function to make it capable to accept debug configuration as a parameter
