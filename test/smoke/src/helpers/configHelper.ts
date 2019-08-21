@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
+import * as path from "path";
+import { SmokeTestsConstants } from "./smokeTestsConstants";
 
 export interface TestRunArguments {
     RunAndroidTests: boolean;
@@ -68,7 +70,12 @@ export class TestConfigurator {
 
     public static setUpEnvVariables(envConfigFilePath: string) {
         let variables: any;
-        if (fs.existsSync(envConfigFilePath)) {
+        // Assume that config.dev.json stores in the same folder as original config.json
+        const envConfigFilePathDev = path.join(envConfigFilePath, "..", SmokeTestsConstants.EnvDevConfigFileName);
+        if (fs.existsSync(envConfigFilePathDev)) {
+            console.log(`*** Development config file "${envConfigFilePathDev}" is found, reading variables from there`);
+            variables = JSON.parse(fs.readFileSync(envConfigFilePathDev).toString());
+        } else if (fs.existsSync(envConfigFilePath)) {
             console.log(`*** Config file "${envConfigFilePath}" is found, reading variables from there`);
             variables = JSON.parse(fs.readFileSync(envConfigFilePath).toString());
         } else {
