@@ -244,7 +244,7 @@ import * as Icon from '@expo/vector-icons';
     }
 
     // Fix for https://github.com/expo/expo-cli/issues/951
-    // delete when bug will be fixed
+    // TODO: Delete when bug will be fixed
     public static patchExpoSettingsFile(expoAppPath: string) {
         const settingsJsonPath = path.join(expoAppPath, ".expo", "settings.json");
         if (fs.existsSync(settingsJsonPath)) {
