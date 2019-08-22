@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
-import * as path from "path";
-import { SmokeTestsConstants } from "./smokeTestsConstants";
 
 export interface TestRunArguments {
     RunAndroidTests: boolean;
