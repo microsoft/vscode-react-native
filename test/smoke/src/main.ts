@@ -18,7 +18,10 @@ import { sleep, findFile } from "./helpers/utilities";
 // TODO Incapsulate main.ts (get rid of function(), local variables, etc)
 console.log(`*** Setting up configuration variables`);
 const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
-TestConfigurator.setUpEnvVariables(envConfigFilePath);
+// Assume that config.dev.json are stored in the same folder as original config.json
+const envConfigFilePathDev = path.resolve(__dirname, "..", SmokeTestsConstants.EnvDevConfigFileName);
+
+TestConfigurator.setUpEnvVariables(fs.existsSync(envConfigFilePathDev) ? envConfigFilePathDev : envConfigFilePath);
 TestConfigurator.printEnvVariableConfiguration();
 
 async function fail(errorMessage) {
@@ -184,7 +187,7 @@ async function setup(): Promise<void> {
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", PureRNVersionExpo);
         SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath, process.env.PURE_EXPO_VERSION);
         await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
-        await SetupEnvironmentHelper.patchExpoApp(ExpoWorkspacePath);
+        SetupEnvironmentHelper.patchExpoSettingsFile(ExpoWorkspacePath);
         if (process.platform === "darwin") {
             // We need only to download expo app, but this is the quickest way of doing it
             await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);

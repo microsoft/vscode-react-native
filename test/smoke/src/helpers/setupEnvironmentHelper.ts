@@ -46,7 +46,7 @@ export class SetupEnvironmentHelper {
     }
 
     public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
-        const command = `echo -ne '\\n' | expo init -t tabs --name ${appName}  --workflow managed ${appName}`;
+        const command = `echo -ne '\\n' | expo init -t tabs --name ${appName} ${appName}`;
         console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
@@ -169,7 +169,7 @@ export class SetupEnvironmentHelper {
     public static async installExpoAppOnIos(expoAppPath: string) {
         return new Promise((resolve, reject) => {
             console.log(`*** Installing Expo app on iOS simulator with 'expo-cli install:ios' command`);
-            let installerProcess = cp.spawn("expo-cli", ["install:ios"], {cwd: expoAppPath, stdio: "pipe"});
+            let installerProcess = cp.spawn("expo-cli", ["client:install:ios"], {cwd: expoAppPath, stdio: "pipe"});
             installerProcess.stdout.on("data", (data) => {
                 const string = filterProgressBarChars(data.toString().trim());
                 if (string !== "") {
@@ -243,9 +243,25 @@ import * as Icon from '@expo/vector-icons';
         fs.writeFileSync(appJSPath, updatedContent);
     }
 
+    // Fix for https://github.com/expo/expo-cli/issues/951
+    // TODO: Delete when bug will be fixed
+    public static patchExpoSettingsFile(expoAppPath: string) {
+        const settingsJsonPath = path.join(expoAppPath, ".expo", "settings.json");
+        if (fs.existsSync(settingsJsonPath)) {
+            console.log(`*** Patching ${settingsJsonPath}...`);
+            let content = JSON.parse(fs.readFileSync(settingsJsonPath).toString());
+            if (content.https === false) {
+                console.log(`*** Deleting https: ${content.https} line...`);
+                delete content.https;
+                content = JSON.stringify(content, null, 2);
+                fs.writeFileSync(settingsJsonPath, content);
+            }
+        }
+    }
+
     // For some reason expo app generated with "expo init" doesn't contain the following changes
     // so we have to apply them manually
-    public static async patchExpoApp(expoAppPath) {
+    public static async patchExpoApp(expoAppPath: string) {
         await this.addAdditionalPackagesToExpoApp(expoAppPath);
         await this.patchAppJsForExpoApp(expoAppPath);
     }
@@ -313,11 +329,8 @@ module.exports.cacheStores = [
     }),
 ];
 
-// This \/ should be uncommented as soon as this PR is merged
-// https://github.com/facebook/metro/pull/424,
-
 // Redirect Haste Map cache
-// module.exports.hasteMapCacheDirectory = ".cache";`;
+module.exports.hasteMapCacheDirectory = ".cache";`;
         fs.appendFileSync(metroConfigPath, patchContent);
         const contentAfterPatching = fs.readFileSync(metroConfigPath);
         console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
