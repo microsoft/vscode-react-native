@@ -250,7 +250,7 @@ import * as Icon from '@expo/vector-icons';
         if (fs.existsSync(settingsJsonPath)) {
             console.log(`*** Patching ${settingsJsonPath}...`);
             let content = JSON.parse(fs.readFileSync(settingsJsonPath).toString());
-            if (content.https) {
+            if (content.https === false) {
                 console.log(`*** Deleting https: ${content.https} line...`);
                 delete content.https;
                 content = JSON.stringify(content, null, 2);
