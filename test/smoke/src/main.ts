@@ -18,7 +18,7 @@ import { sleep, findFile } from "./helpers/utilities";
 // TODO Incapsulate main.ts (get rid of function(), local variables, etc)
 console.log(`*** Setting up configuration variables`);
 const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
-// Assume that config.dev.json stores in the same folder as original config.json
+// Assume that config.dev.json are stored in the same folder as original config.json
 const envConfigFilePathDev = path.resolve(__dirname, "..", SmokeTestsConstants.EnvDevConfigFileName);
 
 TestConfigurator.setUpEnvVariables(fs.existsSync(envConfigFilePathDev) ? envConfigFilePathDev : envConfigFilePath);
