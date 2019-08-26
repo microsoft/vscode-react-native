@@ -77,6 +77,10 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
             });
         } else {
             outputChannelLogger.warning("Could not find workspace while activating");
+            TelemetryHelper.sendErrorEvent(
+                "ActivateCouldNotFindWorkspace",
+                ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindWorkspace)
+                );
         }
 
         return Q.all(promises).then(() => {
@@ -156,6 +160,10 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                     }));
             } else {
                 outputChannelLogger.debug(`react-native@${version} isn't supported`);
+                TelemetryHelper.sendErrorEvent(
+                    "AddProjectReactNativeVersionIsEmpty",
+                    ErrorHelper.getInternalError(InternalErrorCode.ProjectVersionUnsupported)
+                );
             }
 
             return Q.all(promises).then(() => {});
