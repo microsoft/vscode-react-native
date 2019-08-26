@@ -37,7 +37,7 @@ export enum CommandStatus {
 export class CommandExecutor {
 
     private static ReactNativeCommand = "react-native";
-    private static ReactNativeVersionCommand = "-v";
+    private static ReactNativeVersionCommand = "--version";
     private childProcess = new Node.ChildProcess();
 
     constructor(
@@ -75,7 +75,7 @@ export class CommandExecutor {
     }
 
     /**
-     * Uses the `react-native -v` command to get the version used on the project.
+     * Uses the `react-native --version` command to get the version used on the project.
      * Returns null if the workspace is not a react native project
      */
     public getReactNativeVersion(): Q.Promise<string> {

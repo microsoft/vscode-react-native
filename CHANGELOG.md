@@ -1,3 +1,9 @@
+## 0.11.0
+* Fixed the folder `.vscode/.react` isn't created when opening directory with nested RN project
+* Fixed usage of removed `-v` option for `react-native` command from @react-native-community/cli
+* Updated extension translation
+* [Internal] Improved smoke tests workflow
+
 ## 0.10.2
 * Fixed security vulnerabilities ([#1050](https://github.com/microsoft/vscode-react-native/pull/1050), [#1052](https://github.com/microsoft/vscode-react-native/pull/1052)), [#1055](https://github.com/microsoft/vscode-react-native/pull/1055))
 * Fixed readme markup ([#1051](https://github.com/microsoft/vscode-react-native/pull/1051))
