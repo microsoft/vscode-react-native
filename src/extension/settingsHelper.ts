@@ -60,7 +60,7 @@ export class SettingsHelper {
         const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("react-native", uri);
         const configKey: string = `${platform}.runArguments.${target}`;
         const launchActivityKey: string = `${platform}.launchActivity`;
-        const runArgs: string[] = [];
+        let runArgs: string[] = [];
 
         if (workspaceConfiguration.has(configKey)) {
             runArgs.push(...ConfigurationReader.readArray(workspaceConfiguration.get(configKey)));
