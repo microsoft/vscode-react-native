@@ -3,7 +3,7 @@
 
 import * as Q from "q";
 import {Telemetry} from "./telemetry";
-import {TelemetryGenerator} from "./telemetryGenerators";
+import {TelemetryGenerator, IHasErrorCode} from "./telemetryGenerators";
 
 export interface ITelemetryPropertyInfo {
     value: any;
@@ -39,6 +39,18 @@ export class TelemetryHelper {
         Object.keys(properties).forEach(function (propertyName: string): void {
             TelemetryHelper.addTelemetryEventProperty(event, propertyName, properties[propertyName].value, properties[propertyName].isPii);
         });
+    }
+
+    public static sendErrorEvent(eventName: string, error: Error) {
+        const event = TelemetryHelper.createTelemetryEvent(eventName);
+        let errorWithErrorCode: IHasErrorCode = <IHasErrorCode> <Object> error;
+        if (errorWithErrorCode.errorCode) {
+            this.addTelemetryEventProperty(event, "error.message", errorWithErrorCode.errorCode, false);
+
+        } else {
+            this.addTelemetryEventProperty(event, "error.code", error.message, true);
+        }
+        Telemetry.send(event);
     }
 
     public static sendCommandSuccessTelemetry(commandName: string, commandProperties: ICommandTelemetryProperties, args: string[] = []): void {

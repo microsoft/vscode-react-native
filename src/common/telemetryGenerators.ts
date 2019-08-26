@@ -9,7 +9,7 @@ interface IDictionary<T> {
     [key: string]: T;
 }
 
-interface IHasErrorCode {
+export interface IHasErrorCode {
     errorCode: number;
 }
 
