@@ -82,13 +82,3 @@ To specify a subfolder in which the react-native project is located, set `react-
   }
 }
 ```
-
-## Specifying custom Android launch activity
-
-To specify the custom Android activity name for launching:
-
-```
-{
-  "react-native.android.launchActivity": "YourActivityName"
-}
-```

@@ -5,7 +5,6 @@ import * as path from "path";
 import {ConfigurationReader} from "../common/configurationReader";
 import {Packager} from "../common/packager";
 import {LogLevel} from "./log/LogHelper";
-import { GeneralMobilePlatform } from "./generalMobilePlatform";
 
 export class SettingsHelper {
     /**
@@ -59,24 +58,11 @@ export class SettingsHelper {
     public static getRunArgs(platform: string, target: "device" | "simulator", uri: vscode.Uri): string[] {
         const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("react-native", uri);
         const configKey: string = `${platform}.runArguments.${target}`;
-        const launchActivityKey: string = `${platform}.launchActivity`;
-        const runArgs: string[] = [];
-
         if (workspaceConfiguration.has(configKey)) {
-            runArgs.push(...ConfigurationReader.readArray(workspaceConfiguration.get(configKey)));
-        }
-        if (
-            !GeneralMobilePlatform.getOptFromRunArgs(runArgs, "--main-activity", true)
-            && workspaceConfiguration.has(launchActivityKey)
-            && platform === "android"
-          ) {
-            const launchActivity: string = ConfigurationReader.readString(workspaceConfiguration.get(launchActivityKey));
-            if (launchActivity) {
-                runArgs.push("--main-activity", launchActivity);
-            }
+            return ConfigurationReader.readArray(workspaceConfiguration.get(configKey));
         }
 
-        return runArgs;
+        return [];
     }
 
     public static getEnvArgs(platform: string, target: "device" | "simulator", uri: vscode.Uri): any {
