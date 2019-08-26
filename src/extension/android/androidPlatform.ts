@@ -93,7 +93,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
                     let mainActivity = GeneralMobilePlatform.getOptFromRunArgs(this.runArguments, "--main-activity");
 
-                    if (mainActivity && mainActivity !== "") {
+                    if (mainActivity) {
                         this.adbHelper.setLaunchActivity(mainActivity);
                     } else if (!isNullOrUndefined(this.runOptions.debugLaunchActivity)) {
                         this.runArguments.push("--main-activity", this.runOptions.debugLaunchActivity);

@@ -71,7 +71,7 @@ export class SettingsHelper {
             && platform === "android"
           ) {
             const launchActivity: string = ConfigurationReader.readString(workspaceConfiguration.get(launchActivityKey));
-            if (launchActivity !== "") {
+            if (launchActivity) {
                 runArgs.push("--main-activity", launchActivity);
             }
         }
