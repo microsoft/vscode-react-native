@@ -45,10 +45,10 @@ export class TelemetryHelper {
         const event = TelemetryHelper.createTelemetryEvent(eventName);
         let errorWithErrorCode: IHasErrorCode = <IHasErrorCode> <Object> error;
         if (errorWithErrorCode.errorCode) {
-            this.addTelemetryEventProperty(event, "error.message", errorWithErrorCode.errorCode, false);
+            this.addTelemetryEventProperty(event, "error.code", errorWithErrorCode.errorCode, false);
 
         } else {
-            this.addTelemetryEventProperty(event, "error.code", error.message, true);
+            this.addTelemetryEventProperty(event, "error.message", error.message, true);
         }
         Telemetry.send(event);
     }

@@ -159,10 +159,10 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                         return configureNodeDebuggerLocation();
                     }));
             } else {
-                outputChannelLogger.debug(`react-native@${version} isn't supported`);
+                outputChannelLogger.debug("react-native version is empty");
                 TelemetryHelper.sendErrorEvent(
                     "AddProjectReactNativeVersionIsEmpty",
-                    ErrorHelper.getInternalError(InternalErrorCode.ProjectVersionUnsupported)
+                    ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion)
                 );
             }
 
@@ -210,7 +210,10 @@ function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T
 
 function isSupportedVersion(version: string): boolean {
     if (!!semver.valid(version) && !semver.gte(version, "0.19.0")) {
-        TelemetryHelper.sendSimpleEvent("unsupportedRNVersion", { rnVersion: version });
+        TelemetryHelper.sendErrorEvent(
+            "AddProjectReactNativeVersionUnsupported",
+            ErrorHelper.getInternalError(InternalErrorCode.ProjectVersionUnsupported)
+        );
         const shortMessage = localize("ReactNativeToolsRequiresMoreRecentVersionThan019", "React Native Tools need React Native version 0.19.0 or later to be installed in <PROJECT_ROOT>/node_modules/");
         const longMessage = `${shortMessage}: ${version}`;
         vscode.window.showWarningMessage(shortMessage);
