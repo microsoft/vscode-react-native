@@ -21,7 +21,7 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.PlatformNotSupported]: localize("PlatformNotSupported", "Platform '{0}' is not supported on host platform: {1}"),
     [InternalErrorCode.ProjectVersionNotParsable]: localize("ProjectVersionNotParsable", "Couldn't parse the version component of the package at {0}: version = {1}"),
     [InternalErrorCode.ProjectVersionUnsupported]: localize("ProjectVersionUnsupported", "Project version = {0}"),
-    [InternalErrorCode.CouldNotFindProjectVersion]: localize("CouldNotFindProjectVersion", "Couldn't find React Native version into the current workspace or folder"),
+    [InternalErrorCode.CouldNotFindProjectVersion]: localize("CouldNotFindProjectVersion", "Couldn't find React Native version in the current workspace or folder"),
     [InternalErrorCode.ProjectVersionNotReadable]: localize("ProjectVersionNotReadable", "Unable to read version = {0}"),
     [InternalErrorCode.TelemetryInitializationFailed]: localize("TelemetryInitializationFailed", "{0}. Couldn't initialize telemetry"),
     [InternalErrorCode.ExtensionActivationFailed]: localize("ExtensionActivationFailed", "Failed to activate the React Native Tools extension"),

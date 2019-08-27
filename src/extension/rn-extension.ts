@@ -134,7 +134,13 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
         .then(version => {
             outputChannelLogger.debug(`React Native version: ${version}`);
             let promises = [];
-            if (version && isSupportedVersion(version)) {
+            if (!version) {
+                outputChannelLogger.debug("react-native version is empty");
+                TelemetryHelper.sendErrorEvent(
+                    "AddProjectReactNativeVersionIsEmpty",
+                    ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion)
+                );
+            } else if (isSupportedVersion(version)) {
                 promises.push(entryPointHandler.runFunction("debugger.setupLauncherStub", ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () => {
                     let reactDirManager = new ReactDirManager(rootPath);
                     return setupAndDispose(reactDirManager, context)
@@ -159,11 +165,7 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                         return configureNodeDebuggerLocation();
                     }));
             } else {
-                outputChannelLogger.debug("react-native version is empty");
-                TelemetryHelper.sendErrorEvent(
-                    "AddProjectReactNativeVersionIsEmpty",
-                    ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion)
-                );
+                outputChannelLogger.debug(`react-native@${version} isn't supported`);
             }
 
             return Q.all(promises).then(() => {});
@@ -210,10 +212,7 @@ function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T
 
 function isSupportedVersion(version: string): boolean {
     if (!!semver.valid(version) && !semver.gte(version, "0.19.0")) {
-        TelemetryHelper.sendErrorEvent(
-            "AddProjectReactNativeVersionUnsupported",
-            ErrorHelper.getInternalError(InternalErrorCode.ProjectVersionUnsupported)
-        );
+        TelemetryHelper.sendSimpleEvent("unsupportedRNVersion", { rnVersion: version });
         const shortMessage = localize("ReactNativeToolsRequiresMoreRecentVersionThan019", "React Native Tools need React Native version 0.19.0 or later to be installed in <PROJECT_ROOT>/node_modules/");
         const longMessage = `${shortMessage}: ${version}`;
         vscode.window.showWarningMessage(shortMessage);
