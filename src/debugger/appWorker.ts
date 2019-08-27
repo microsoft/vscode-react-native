@@ -162,7 +162,7 @@ Object.prototype.toString = function() {
         return nativeObjectToString.call(this);
     }
 }
-`
+`;
 
     public static WORKER_DONE = `// Notify debugger that we're done with loading
 // and started listening for IPC messages
