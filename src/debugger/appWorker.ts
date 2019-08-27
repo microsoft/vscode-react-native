@@ -151,7 +151,7 @@ console.trace = (function() {
     };
 })();`;
 
-    public static NODE_PROCESS_FINDING_PATCH = `// As worker is ran in node, it breaks broadcast-channels package approach of identifying if it’s ran in node:
+    public static PROCESS_TO_STRING_PATCH = `// As worker is ran in node, it breaks broadcast-channels package approach of identifying if it’s ran in node:
 // https://github.com/pubkey/broadcast-channel/blob/master/src/util.js#L64
 // To avoid it if process.toString() is called if will return empty string instead of [object process].
 var nativeObjectToString = Object.prototype.toString;
