@@ -24,6 +24,7 @@ export interface ILaunchArgs {
 export interface IAndroidRunOptions extends ILaunchArgs {
     variant?: string;
     logCatArguments?: any;
+    debugLaunchActivity?: string;
 }
 
 export interface IIOSRunOptions extends ILaunchArgs {
