@@ -18,6 +18,7 @@ import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 import * as nls from "vscode-nls";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
+import { isNullOrUndefined } from "util";
 const localize = nls.loadMessageBundle();
 
 /**
@@ -88,6 +89,15 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 .then(version => {
                     if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, AndroidPlatform.NO_PACKAGER_VERSION)) {
                         this.runArguments.push("--no-packager");
+                    }
+
+                    let mainActivity = GeneralMobilePlatform.getOptFromRunArgs(this.runArguments, "--main-activity");
+
+                    if (mainActivity) {
+                        this.adbHelper.setLaunchActivity(mainActivity);
+                    } else if (!isNullOrUndefined(this.runOptions.debugLaunchActivity)) {
+                        this.runArguments.push("--main-activity", this.runOptions.debugLaunchActivity);
+                        this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity);
                     }
 
                     const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", this.runArguments, {env});
