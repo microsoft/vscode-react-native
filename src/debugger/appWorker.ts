@@ -151,6 +151,18 @@ console.trace = (function() {
     };
 })();`;
 
+    public static NODE_PROCESS_FINDING_PATCH = `// Worker is ran as nodejs process, so in some cases it tries to run metroRequire in nodejs context and it leads to error in native app
+// To avoid this need to hide an attributes which can issue a nodejs process in debugger worker
+var objectToString = Object.prototype.toString;
+Object.prototype.toString = function() {
+    if (this === process) {
+        return '';
+    } else {
+        return objectToString.call(this);
+    }
+}
+`
+
     public static WORKER_DONE = `// Notify debugger that we're done with loading
 // and started listening for IPC messages
 postMessage({workerLoaded:true});`;
@@ -247,6 +259,7 @@ postMessage({workerLoaded:true});`;
                 const modifiedDebuggeeContent = [
                     MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
                     MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH,
+                    MultipleLifetimesAppWorker.NODE_PROCESS_FINDING_PATCH,
                     isHaulProject ? MultipleLifetimesAppWorker.FETCH_STUB : null,
                     workerContent,
                     MultipleLifetimesAppWorker.WORKER_DONE,
