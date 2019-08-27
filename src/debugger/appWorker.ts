@@ -260,7 +260,7 @@ postMessage({workerLoaded:true});`;
                 const modifiedDebuggeeContent = [
                     MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
                     MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH,
-                    MultipleLifetimesAppWorker.NODE_PROCESS_FINDING_PATCH,
+                    MultipleLifetimesAppWorker.PROCESS_TO_STRING_PATCH,
                     isHaulProject ? MultipleLifetimesAppWorker.FETCH_STUB : null,
                     workerContent,
                     MultipleLifetimesAppWorker.WORKER_DONE,
