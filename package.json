@@ -406,15 +406,6 @@
 								"description": "%reactNative.attach.cwd.description%",
 								"default": "${workspaceFolder}"
 							},
-							"sourceMaps": {
-								"type": "boolean",
-								"description": "%reactNative.attach.sourceMaps.description%",
-								"default": false
-							},
-							"sourceMapPathOverrides": {
-								"type": "object",
-								"description": "%reactNative.attach.sourceMapsPathOverrides.description%"
-							},
 							"trace": {
 								"type": "string",
 								"enum": [
@@ -437,16 +428,6 @@
 								"description": "%reactNative.attach.port.description%",
 								"default": "8081"
 							},
-							"remoteRoot": {
-								"type": "string",
-								"description": "%reactNative.attach.remoteRoot.description%",
-								"default": null
-							},
-							"localRoot": {
-								"type": "string",
-								"description": "%reactNative.attach.localRoot.description%",
-								"default": "${workspaceFolder}"
-							},
 							"skipFiles": {
 								"type": "array",
 								"description": "%reactNative.attach.skipFiles.description%",
@@ -454,16 +435,6 @@
 									"type": "string"
 								},
 								"default": []
-							},
-							"debuggerWorkerUrlPath": {
-								"type": "string",
-								"description": "%reactNative.attach.debuggerWorkerUrlPath.description%",
-								"default": "debugger-ui/"
-							},
-							"launchActivity": {
-								"type": "string",
-								"description": "%reactNative.attach.launchActivity.description%",
-								"default": "MainActivity"
 							}
 						}
 					},
@@ -476,16 +447,9 @@
 							"platform": {
 								"type": "string",
 								"enum": [
-									"android",
-									"exponent",
-									"windows",
-									"wpf"
+									"android"
 								],
 								"description": "%reactNative.launch.platform.description%"
-							},
-							"program": {
-								"type": "string",
-								"description": "%reactNative.launch.program.description%"
 							},
 							"cwd": {
 								"type": "string",
@@ -507,11 +471,6 @@
 								],
 								"default": "simulator",
 								"description": "%reactNative.launch.target.description%"
-							},
-							"sourceMaps": {
-								"type": "boolean",
-								"description": "%reactNative.launch.sourceMaps.description%",
-								"default": false
 							},
 							"logCatArguments": {
 								"type": "array",
@@ -543,14 +502,6 @@
 								"type": "string",
 								"description": "%reactNative.launch.variant.description%"
 							},
-							"scheme": {
-								"type": "string",
-								"description": "%reactNative.launch.scheme.description%"
-							},
-							"productName": {
-								"type": "string",
-								"description": "%reactNative.launch.productName.description%"
-							},
 							"skipFiles": {
 								"type": "array",
 								"description": "%reactNative.launch.skipFiles.description%",
@@ -570,11 +521,6 @@
 								],
 								"default": "log",
 								"description": "%reactNative.launch.trace.description%"
-							},
-							"debuggerWorkerUrlPath": {
-								"type": "string",
-								"description": "%reactNative.launch.debuggerWorkerUrlPath.description%",
-								"default": "debugger-ui/"
 							},
 							"launchActivity": {
 								"type": "string",
