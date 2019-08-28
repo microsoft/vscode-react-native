@@ -41,6 +41,8 @@ Once app is loaded and ran, [open Developer Menu](https://facebook.github.io/rea
 
 You can debug your app on an Android emulator, Android device or iOS simulator. This extension provides [experimental support](doc/debugging.md#debugging-on-ios-device) for iOS devices.
 
+You can debug your Hermes app on an Android emulator. This extension provides [experimental support](doc/debugging.md#debugging-react-native-hermes) for debugging React Native Hermes applications on Android.
+
 More information about debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging).
 
 See [Setting up debug environment](doc/debugging.md) for more details.

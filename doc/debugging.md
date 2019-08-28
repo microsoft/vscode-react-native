@@ -66,3 +66,31 @@ For WPF apps use `wpf`, e.g.(WPF debugging available only for react-native-windo
     "platform": "wpf"
 }
 ```
+
+## Debugging React Native Hermes
+
+If you use Hermes engine, you must choose one of the following configurations:
+ - React Native Direct: Debug Android
+
+```
+{
+    "name": "Debug Android directly",
+    "cwd": "${workspaceFolder}",
+    "type": "reactnativedirect",
+    "request": "launch",
+    "platform": "android"
+}
+```
+
+ - React Native Direct: Attach to packager
+
+ ```
+{
+    "name": "Attach to packager directly",
+    "cwd": "${workspaceFolder}",
+    "type": "reactnativedirect",
+    "request": "attach"
+}
+```
+
+See more about Hermes usage [here](https://facebook.github.io/react-native/docs/hermes/)
