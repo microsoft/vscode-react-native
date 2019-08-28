@@ -42,6 +42,7 @@ export enum InternalErrorCode {
         ProjectVersionUnsupported = 602,
         ProjectVersionNotReadable = 603,
         NotInReactNativeFolderError = 604,
+        CouldNotFindProjectVersion = 605,
 
         // Miscellaneous errors
         TelemetryInitializationFailed = 701,
@@ -62,6 +63,7 @@ export enum InternalErrorCode {
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,
+        CouldNotFindWorkspace = 802,
 
         // Inter Process Communication errors
         ErrorWhileProcessingMessageInIPMSServer = 901,
