@@ -240,11 +240,15 @@ export class ExtensionServer implements vscode.Disposable {
                         return mobilePlatform.runApp();
                     })
                     .then(() => {
-                        generator.step("mobilePlatform.enableJSDebuggingMode");
-                        this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
                         if (request.arguments.type === "reactnativedirect") {
+                            generator.step("mobilePlatform.disableJSDebuggingMode");
+                            generator.add("isDirect", true, false);
+                            this.logger.info(localize("DisableJSDebugging", "Disable JS Debugging"));
                             return mobilePlatform.disableJSDebuggingMode();
                         }
+                        generator.step("mobilePlatform.enableJSDebuggingMode");
+                        this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
+
                         return mobilePlatform.enableJSDebuggingMode();
                     })
                     .then(() => {

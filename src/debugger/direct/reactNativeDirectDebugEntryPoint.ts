@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-// import * as os from "os";
 import * as fs from "fs";
 import * as path from "path";
+import { Telemetry } from "../../common/telemetry";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { EntryPointHandler, ProcessType } from "../../common/entryPointHandler";
 import { ErrorHelper } from "../../common/error/errorHelper";
@@ -23,7 +23,8 @@ const telemetryReporter = new ReassignableTelemetryReporter(new NullTelemetryRep
 
 function bailOut(reason: string): void {
     // Things have gone wrong in initialization: Report the error to telemetry and exit
-    TelemetryHelper.sendSimpleEvent(reason);
+    const errorEvent = TelemetryHelper.createTelemetryEvent(reason);
+    Telemetry.sendDirect(errorEvent);
     process.exit(1);
 }
 

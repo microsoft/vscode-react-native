@@ -170,18 +170,6 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 (this._session as any).getTelemetryReporter().reassignTo(new RemoteTelemetryReporter(
                     "react-native-tools", version, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY, this.projectRootPath));
 
-                if (args.program) {
-                    // TODO: Remove this warning when program property will be completely removed
-                    logger.warn(localize("ProgramPropertyDeprecationWarning", "Launched debug configuration contains 'program' property which is deprecated and will be removed soon. Please replace it with: \"cwd\": \"${workspaceFolder}\""));
-                    const useProgramEvent = TelemetryHelper.createTelemetryEvent("useProgramProperty");
-                    Telemetry.sendDirect(useProgramEvent);
-                }
-                if (args.cwd) {
-                    // To match count of 'cwd' users with 'program' users. TODO: Remove when program property will be removed
-                    const useCwdEvent = TelemetryHelper.createTelemetryEvent("useCwdProperty");
-                    Telemetry.sendDirect(useCwdEvent);
-                }
-
                 this.isSettingsInitialized = true;
 
                 return void 0;
