@@ -365,10 +365,10 @@
 				},
 				"configurationSnippets": [
 					{
-						"label": "React Native Direct: Debug Android",
+						"label": "React Native (Hermes): Debug Android",
 						"description": "%reactNative.snippets.debugAndroid.description%",
 						"body": {
-							"name": "Debug Android directly",
+							"name": "Debug Android (Hermes)",
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect",
 							"request": "launch",
@@ -376,10 +376,10 @@
 						}
 					},
 					{
-						"label": "React Native Direct: Attach to packager",
+						"label": "React Native (Hermes): Attach to packager",
 						"description": "%reactNative.snippets.attachPackager.description%",
 						"body": {
-							"name": "Attach to packager directly",
+							"name": "Attach to packager (Hermes)",
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect",
 							"request": "attach"
