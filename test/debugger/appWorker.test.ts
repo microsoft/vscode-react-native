@@ -457,5 +457,36 @@ suite("appWorker", function () {
                 runScriptAndCheckOutput(expectedTraceMessage, consoleTraceCall, done);
             });
         });
+
+        suite("process.toString()", function() {
+            test("process.toString() should return empty string to avoid errors in native app", (done: MochaDone) => {
+                const nodeProcessCheckToStringReturnCommand = "console.log(process.toString());";
+                const nodeProcessCheckCommand = "console.log(Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]');";
+                const script = [MultipleLifetimesAppWorker.PROCESS_TO_STRING_PATCH, nodeProcessCheckToStringReturnCommand, nodeProcessCheckCommand].join("\n");
+
+                const testProcess = child_process.spawn("node", ["-e", script]);
+                let procData: string = "";
+                let procErrData: string = "";
+                testProcess.stdout.on("data", (data: Buffer) => {
+                    procData += data.toString();
+                });
+                testProcess.stderr.on("data", (data: Buffer) => {
+                    procErrData += data.toString();
+                });
+                testProcess.on("error", (err: Error) => {
+                    console.error(err);
+                });
+                testProcess.on("close", (code: number) => {
+                    assert.strictEqual(code, 0);
+                    if (procErrData !== "") {
+                        assert.fail(procErrData);
+                    }
+                    const output = procData.split("\n");
+                    assert.strictEqual(output[0].trim(), "");
+                    assert.strictEqual(output[1].trim(), "false");
+                    done();
+                });
+            });
+        })
     });
 });
