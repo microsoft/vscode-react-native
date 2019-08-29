@@ -47,13 +47,6 @@ export class MultipleLifetimesAppWorker extends EventEmitter {
 var onmessage=null, self=global;
 // Cache Node's original require as __debug__.require
 global.__debug__={require: require};
-// avoid Node's GLOBAL deprecation warning
-Object.defineProperty(global, "GLOBAL", {
-    configurable: true,
-    writable: true,
-    enumerable: true,
-    value: global
-});
 // Prevent leaking process.versions from debugger process to
 // worker because pure React Native doesn't do that and some packages as js-md5 rely on this behavior
 Object.defineProperty(process, "versions", {
