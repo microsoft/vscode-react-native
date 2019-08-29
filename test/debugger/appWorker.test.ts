@@ -488,5 +488,42 @@ suite("appWorker", function () {
                 });
             });
         });
+
+        suite("node --no-deprecation tests", function() {
+            test("node process should work with --no-deprecation flag and produce no deprecation warnings for Buffer function and GLOBAL variable", (done: MochaDone) => {
+                const globalVariableCheck = "GLOBAL.toString();";
+                const bufferCommand = "Buffer('TestString');";
+                const script = [globalVariableCheck, bufferCommand].join("\n");
+
+                const testProcess = child_process.spawn("node", ["--no-deprecation", "-e", script]);
+                let procData: string = "";
+                let procErrData: string = "";
+                testProcess.stdout.on("data", (data: Buffer) => {
+                    procData += data.toString();
+                });
+                testProcess.stderr.on("data", (data: Buffer) => {
+                    procErrData += data.toString();
+                });
+                testProcess.on("error", (err: Error) => {
+                    console.error(err);
+                });
+                testProcess.on("close", (code: number) => {
+                    assert.strictEqual(code, 0);
+                    if (procErrData !== "") {
+                        if (procErrData.indexOf("DeprecationWarning") !== -1 || procErrData.indexOf("DEP") !== -1) {
+                            assert.fail(`Deprecation messages has found in stderr:\n ${procErrData}`);
+                        } else {
+                            assert.fail(procErrData);
+                        }
+                    }
+                    if (procData !== "") {
+                        if (procData.indexOf("DeprecationWarning") !== -1 || procData.indexOf("DEP") !== -1) {
+                            assert.fail(`Deprecation messages has found in stdout:\n ${procData}`);
+                        }
+                    }
+                    done();
+                });
+            });
+        });
     });
 });
