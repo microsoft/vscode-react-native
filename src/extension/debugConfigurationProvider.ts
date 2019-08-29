@@ -74,7 +74,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         },
         {
             label: "Attach to packager (Hermes)",
-            description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working Hermes application packager"),
+            description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working Android Hermes application packager"),
         },
     ];
 

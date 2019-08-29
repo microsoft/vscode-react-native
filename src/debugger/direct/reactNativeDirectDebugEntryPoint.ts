@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as fs from "fs";
-import * as path from "path";
 import { Telemetry } from "../../common/telemetry";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { EntryPointHandler, ProcessType } from "../../common/entryPointHandler";
+import { getExtensionVersion } from "../../common/extensionHelper";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { NullTelemetryReporter, ReassignableTelemetryReporter } from "../../common/telemetryReporters";
@@ -16,8 +15,7 @@ import { DebugSession, OutputEvent, TerminatedEvent } from "vscode-debugadapter"
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
-const projectRoot = path.join(__dirname, "..", "..", "..");
-const version = JSON.parse(fs.readFileSync(path.join(projectRoot, "package.json"), "utf-8")).version;
+const version = getExtensionVersion();
 const extensionName = "react-native-tools";
 const telemetryReporter = new ReassignableTelemetryReporter(new NullTelemetryReporter());
 

@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import * as fs from "fs";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../../common/error/errorHelper";
+import { getExtensionVersion } from "../../common/extensionHelper";
 import { ILaunchArgs } from "../../extension/launchArgs";
 import { getProjectRoot } from "../nodeDebugWrapper";
 import { Telemetry } from "../../common/telemetry";
@@ -65,6 +65,10 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 value: true,
                 isPii: false,
             },
+            isHermes: {
+                value: true,
+                isPii: false,
+            },
         };
 
         return new Promise<void>((resolve, reject) => this.initializeSettings(launchArgs)
@@ -97,6 +101,10 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 isPii: false,
             },
             isDirect: {
+                value: true,
+                isPii: false,
+            },
+            isHermes: {
                 value: true,
                 isPii: false,
             },
@@ -164,7 +172,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 }
                 this.projectRootPath = projectRootPath;
                 this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
-                const version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "..", "package.json"), "utf-8")).version;
+                const version = getExtensionVersion();
 
                 // Start to send telemetry
                 (this._session as any).getTelemetryReporter().reassignTo(new RemoteTelemetryReporter(

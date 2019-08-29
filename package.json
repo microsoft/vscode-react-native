@@ -498,10 +498,6 @@
 								"description": "%reactNative.launch.envFile.description%",
 								"default": "${workspaceFolder}/.env"
 							},
-							"variant": {
-								"type": "string",
-								"description": "%reactNative.launch.variant.description%"
-							},
 							"skipFiles": {
 								"type": "array",
 								"description": "%reactNative.launch.skipFiles.description%",
