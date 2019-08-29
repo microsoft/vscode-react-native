@@ -345,6 +345,11 @@
 								"type": "string",
 								"description": "%reactNative.launch.debuggerWorkerUrlPath.description%",
 								"default": "debugger-ui/"
+							},
+							"launchActivity": {
+								"type": "string",
+								"description": "%reactNative.launch.launchActivity.description%",
+								"default": "MainActivity"
 							}
 						}
 					}
