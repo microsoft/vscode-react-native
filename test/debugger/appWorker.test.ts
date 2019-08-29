@@ -511,14 +511,14 @@ suite("appWorker", function () {
                     assert.strictEqual(code, 0);
                     if (procErrData !== "") {
                         if (procErrData.indexOf("DeprecationWarning") !== -1 || procErrData.indexOf("DEP") !== -1) {
-                            assert.fail(`Deprecation messages has found in stderr:\n ${procErrData}`);
+                            assert.fail(`Deprecation messages found in stderr:\n ${procErrData}`);
                         } else {
                             assert.fail(procErrData);
                         }
                     }
                     if (procData !== "") {
                         if (procData.indexOf("DeprecationWarning") !== -1 || procData.indexOf("DEP") !== -1) {
-                            assert.fail(`Deprecation messages has found in stdout:\n ${procData}`);
+                            assert.fail(`Deprecation messages found in stdout:\n ${procData}`);
                         }
                     }
                     done();
