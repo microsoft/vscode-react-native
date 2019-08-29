@@ -65,10 +65,6 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 value: true,
                 isPii: false,
             },
-            isHermes: {
-                value: true,
-                isPii: false,
-            },
         };
 
         return new Promise<void>((resolve, reject) => this.initializeSettings(launchArgs)
@@ -101,10 +97,6 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 isPii: false,
             },
             isDirect: {
-                value: true,
-                isPii: false,
-            },
-            isHermes: {
                 value: true,
                 isPii: false,
             },
