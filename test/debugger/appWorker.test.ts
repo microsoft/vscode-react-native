@@ -487,6 +487,6 @@ suite("appWorker", function () {
                     done();
                 });
             });
-        })
+        });
     });
 });
