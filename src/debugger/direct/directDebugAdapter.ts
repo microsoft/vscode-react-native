@@ -31,7 +31,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
     private outputLogger: (message: string, error?: boolean | string) => void;
     private projectRootPath: string;
     private remoteExtension: RemoteExtension;
-    private isSettingsInitialized: boolean; // used to prevent parameters' reinstallation when attach is called from launch
+    private isSettingsInitialized: boolean; // used to prevent parameters reinstallation when attach is called from launch
     private previousAttachArgs: IDirectAttachRequestArgs;
 
     public constructor(opts: IChromeDebugSessionOpts, debugSession: ChromeDebugSession) {
