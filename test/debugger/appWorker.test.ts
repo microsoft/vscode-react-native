@@ -490,7 +490,7 @@ suite("appWorker", function () {
         });
 
         suite("node --no-deprecation tests", function() {
-            test("node process should work with --no-deprecation flag and produce no deprecation warnings for Buffer function and GLOBAL", (done: MochaDone) => {
+            test("node process should work with --no-deprecation flag and produce no deprecation warnings for Buffer function and GLOBAL variable usage", (done: MochaDone) => {
                 const globalVariableCheck = "GLOBAL.toString();";
                 const bufferCommandCheck = "Buffer('TestString');";
                 const script = [globalVariableCheck, bufferCommandCheck].join("\n");
