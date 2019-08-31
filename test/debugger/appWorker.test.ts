@@ -457,5 +457,73 @@ suite("appWorker", function () {
                 runScriptAndCheckOutput(expectedTraceMessage, consoleTraceCall, done);
             });
         });
+
+        suite("process.toString()", function() {
+            test("process.toString() should return empty string to avoid errors in native app", (done: MochaDone) => {
+                const nodeProcessCheckToStringReturnCommand = "console.log(process.toString());";
+                const nodeProcessCheckCommand = "console.log(Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]');";
+                const script = [MultipleLifetimesAppWorker.PROCESS_TO_STRING_PATCH, nodeProcessCheckToStringReturnCommand, nodeProcessCheckCommand].join("\n");
+
+                const testProcess = child_process.spawn("node", ["-e", script]);
+                let procData: string = "";
+                let procErrData: string = "";
+                testProcess.stdout.on("data", (data: Buffer) => {
+                    procData += data.toString();
+                });
+                testProcess.stderr.on("data", (data: Buffer) => {
+                    procErrData += data.toString();
+                });
+                testProcess.on("error", (err: Error) => {
+                    console.error(err);
+                });
+                testProcess.on("close", (code: number) => {
+                    assert.strictEqual(code, 0);
+                    if (procErrData !== "") {
+                        assert.fail(procErrData);
+                    }
+                    const output = procData.split("\n");
+                    assert.strictEqual(output[0].trim(), "");
+                    assert.strictEqual(output[1].trim(), "false");
+                    done();
+                });
+            });
+        });
+
+        suite("node --no-deprecation tests", function() {
+            test("node process should work with --no-deprecation flag and produce no deprecation warnings for Buffer function and GLOBAL variable usage", (done: MochaDone) => {
+                const globalVariableCheck = "GLOBAL.toString();";
+                const bufferCommandCheck = "Buffer('TestString');";
+                const script = [globalVariableCheck, bufferCommandCheck].join("\n");
+
+                const testProcess = child_process.spawn("node", ["--no-deprecation", "-e", script]);
+                let procData: string = "";
+                let procErrData: string = "";
+                testProcess.stdout.on("data", (data: Buffer) => {
+                    procData += data.toString();
+                });
+                testProcess.stderr.on("data", (data: Buffer) => {
+                    procErrData += data.toString();
+                });
+                testProcess.on("error", (err: Error) => {
+                    console.error(err);
+                });
+                testProcess.on("close", (code: number) => {
+                    assert.strictEqual(code, 0);
+                    if (procErrData !== "") {
+                        if (procErrData.indexOf("DeprecationWarning") !== -1 || procErrData.indexOf("DEP") !== -1) {
+                            assert.fail(`Deprecation messages found in stderr:\n ${procErrData}`);
+                        } else {
+                            assert.fail(procErrData);
+                        }
+                    }
+                    if (procData !== "") {
+                        if (procData.indexOf("DeprecationWarning") !== -1 || procData.indexOf("DEP") !== -1) {
+                            assert.fail(`Deprecation messages found in stdout:\n ${procData}`);
+                        }
+                    }
+                    done();
+                });
+            });
+        });
     });
 });
