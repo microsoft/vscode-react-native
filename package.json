@@ -233,6 +233,11 @@
 								"type": "string",
 								"description": "%reactNative.attach.debuggerWorkerUrlPath.description%",
 								"default": "debugger-ui/"
+							},
+							"useGlobalReactNativeCLI": {
+								"type": "boolean",
+								"description": "test",
+								"default": true
 							}
 						}
 					},
@@ -345,6 +350,11 @@
 								"type": "string",
 								"description": "%reactNative.launch.debuggerWorkerUrlPath.description%",
 								"default": "debugger-ui/"
+							},
+							"useGlobalReactNativeCLI": {
+								"type": "boolean",
+								"description": "test",
+								"default": true
 							}
 						}
 					}

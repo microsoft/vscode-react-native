@@ -20,6 +20,7 @@ import * as rpc from "noice-json-rpc";
 import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
 import * as nls from "vscode-nls";
+import { CommandExecutor } from "../common/commandExecutor";
 const localize = nls.loadMessageBundle();
 
 export class ExtensionServer implements vscode.Disposable {
@@ -276,6 +277,12 @@ function requestSetup(args: any): any {
         envFile: args.envFile,
         target: args.target || "simulator",
     };
+
+    if (!isNullOrUndefined(args.useGlobalReactNativeCLI)) {
+        CommandExecutor.setUseGlobalReactNativeCLI(args.useGlobalReactNativeCLI);
+    } else {
+        CommandExecutor.setUseGlobalReactNativeCLI(true);
+    }
 
     if (!args.runArguments) {
         let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", workspaceFolder.uri);

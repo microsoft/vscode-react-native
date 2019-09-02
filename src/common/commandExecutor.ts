@@ -39,16 +39,20 @@ export enum CommandStatus {
 export class CommandExecutor {
 
     private static ReactNativeCommand = "react-native";
-    // private static CommandLauncher = "node";
-    // private static ReactNativeVersionCommand = "-v";
+    private static CommandLauncher = "node";
     private childProcess = new Node.ChildProcess();
-    private package: Package;
+    private static UseGlobalReactNativeCLI: boolean = true;
 
     constructor(
         private currentWorkingDirectory: string = process.cwd(),
         private logger: ILogger = new NullLogger()
     ) {
-        this.package = new Package(this.currentWorkingDirectory);
+        if (!CommandExecutor.UseGlobalReactNativeCLI)
+            CommandExecutor.ReactNativeCommand = `${this.currentWorkingDirectory}/node_modules/.bin/react-native`;
+    }
+
+    public static setUseGlobalReactNativeCLI(setUseGlobalReactNativeCLI: boolean) {
+        CommandExecutor.UseGlobalReactNativeCLI = setUseGlobalReactNativeCLI;
     }
 
     public execute(command: string, options: Options = {}): Q.Promise<void> {
@@ -81,9 +85,10 @@ export class CommandExecutor {
     }
 
     public getReactNativeVersion(): Q.Promise<string> {
-        return this.package.dependencyPackage("react-native").version()
+        let curPackage = new Package(this.currentWorkingDirectory);
+        return curPackage.dependencyPackage("react-native").version()
             .catch(err => {
-                return this.package.dependencies()
+                return curPackage.dependencies()
                     .then(dependencies => {
                         if (dependencies["react-native"] && dependencies["react-native"].match(/[\d\.]+/)) {
                             this.logger.error("It seems that 'react-native' package is not installed. Please run 'npm install' to install the package.");
@@ -119,8 +124,13 @@ export class CommandExecutor {
      * Executes a react native command and waits for its completion.
      */
     public spawnReactCommand(command: string, args: string[] = [], options: Options = {}): ISpawnResult {
-        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
-        return this.spawnChildProcess(reactCommand, [command, ...args], options);
+        if (CommandExecutor.UseGlobalReactNativeCLI) {
+            const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
+            return this.spawnChildProcess(reactCommand, [command, ...args], options);
+        } else {
+            const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
+            return this.spawnChildProcess(CommandExecutor.CommandLauncher, [reactCommand, command, ...args], options);
+        }
     }
 
     /**
@@ -132,7 +142,7 @@ export class CommandExecutor {
      */
     public spawnWithProgress(command: string, args: string[], options: Options = { verbosity: CommandVerbosity.OUTPUT }): Q.Promise<void> {
         let deferred = Q.defer<void>();
-        const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
+        const spawnOptions = Object.assign({}, options);
         const commandWithArgs = command + " " + args.join(" ");
         const timeBetweenDots = 1500;
         let lastDotTime = 0;
