@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+// import * as os from "os";
+import { Package } from "./node/package";
 import * as Q from "q";
 import {ChildProcess} from "child_process";
 import {ILogger} from "../extension/log/LogHelper";
@@ -37,13 +39,17 @@ export enum CommandStatus {
 export class CommandExecutor {
 
     private static ReactNativeCommand = "react-native";
-    private static ReactNativeVersionCommand = "-v";
+    // private static CommandLauncher = "node";
+    // private static ReactNativeVersionCommand = "-v";
     private childProcess = new Node.ChildProcess();
+    private package: Package;
 
     constructor(
         private currentWorkingDirectory: string = process.cwd(),
         private logger: ILogger = new NullLogger()
-    ) { }
+    ) {
+        this.package = new Package(this.currentWorkingDirectory);
+    }
 
     public execute(command: string, options: Options = {}): Q.Promise<void> {
         this.logger.debug(CommandExecutor.getCommandStatusString(command, CommandStatus.Start));
@@ -74,29 +80,17 @@ export class CommandExecutor {
         return this.spawnReactCommand("start", args, options);
     }
 
-    /**
-     * Uses the `react-native -v` command to get the version used on the project.
-     * Returns null if the workspace is not a react native project
-     */
     public getReactNativeVersion(): Q.Promise<string> {
-        let deferred = Q.defer<string>();
-        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
-        let output = "";
-
-        const result = this.childProcess.spawn(reactCommand,
-            [CommandExecutor.ReactNativeVersionCommand],
-            { cwd: this.currentWorkingDirectory });
-
-        result.stdout.on("data", (data: Buffer) => {
-            output += data.toString();
-        });
-
-        result.stdout.on("end", () => {
-            const match = output.match(/react-native: ([\d\.]+)/);
-            deferred.resolve(match && match[1] || "");
-        });
-
-        return deferred.promise;
+        return this.package.dependencyPackage("react-native").version()
+            .catch(err => {
+                return this.package.dependencies()
+                    .then(dependencies => {
+                        if (dependencies["react-native"] && dependencies["react-native"].match(/[\d\.]+/)) {
+                            this.logger.error("It seems that 'react-native' package is not installed. Please run 'npm install' to install the package.");
+                        }
+                        return "";
+                    });
+            });
     }
 
     /**
