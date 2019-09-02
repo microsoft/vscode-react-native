@@ -5,6 +5,7 @@ import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
 import {CommandExecutor} from "./commandExecutor";
+import {ILogger} from "../extension/log/LogHelper";
 
 export class ReactNativeProjectHelper {
 
@@ -13,8 +14,8 @@ export class ReactNativeProjectHelper {
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
 
-    public static getReactNativeVersion(projectRoot: string) {
-        return new CommandExecutor(projectRoot).getReactNativeVersion();
+    public static getReactNativeVersion(projectRoot: string, logger?: ILogger) {
+        return new CommandExecutor(projectRoot, logger).getReactNativeVersion();
     }
 
     /**

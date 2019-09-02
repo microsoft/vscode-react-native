@@ -126,7 +126,7 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
     let rootPath = folder.uri.fsPath;
     let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
-    return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath)
+    return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath, outputChannelLogger)
         .then(version => {
             outputChannelLogger.debug(`React Native version: ${version}`);
             let promises = [];
