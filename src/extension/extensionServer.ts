@@ -281,7 +281,7 @@ function requestSetup(args: any): any {
     if (!isNullOrUndefined(args.useGlobalReactNativeCLI)) {
         CommandExecutor.setUseGlobalReactNativeCLI(args.useGlobalReactNativeCLI);
     } else {
-        CommandExecutor.setUseGlobalReactNativeCLI(true);
+        CommandExecutor.setUseGlobalReactNativeCLI(false);
     }
 
     if (!args.runArguments) {
