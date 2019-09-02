@@ -80,7 +80,9 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         // Note that we set --inspect-brk flag to pause the process on the first line - this is
         // required for debug adapter to set the breakpoints BEFORE the debuggee has started.
         // The adapter will continue execution once it's done with breakpoints.
-        const nodeArgs = [`--inspect-brk=${port}`, scriptToRunPath];
+        // --no-deprecation flag disables deprecation warnings like "[DEP0005] DeprecationWarning: Buffer() is deprecated..." and so on that leads to errors in native app
+        // https://nodejs.org/dist/latest-v7.x/docs/api/cli.html
+        const nodeArgs = [`--inspect-brk=${port}`, "--no-deprecation", scriptToRunPath];
         // Start child Node process in debugging mode
         // Using fork instead of spawn causes breakage of piping between app worker and VS Code debug console, e.g. console.log() in application
         // wouldn't work. Please see https://github.com/Microsoft/vscode-react-native/issues/758
