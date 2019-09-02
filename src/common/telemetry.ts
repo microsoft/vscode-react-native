@@ -5,7 +5,6 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
 import { HostPlatform } from "./hostPlatform";
-import { TelemetryHelper } from "./telemetryHelper";
 
 /**
  * Telemetry module specialized for vscode integration.
@@ -137,11 +136,6 @@ export module Telemetry {
         } catch (err) {
             console.error(err);
         }
-    }
-
-    export function sendDirect(event: TelemetryEvent, ignoreOptIn: boolean = false): void {
-        TelemetryHelper.addTelemetryEventProperty(event, "isDirect", true, false);
-        send(event, ignoreOptIn);
     }
 
     export function send(event: TelemetryEvent, ignoreOptIn: boolean = false): void {

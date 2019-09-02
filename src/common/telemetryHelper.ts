@@ -52,6 +52,13 @@ export class TelemetryHelper {
         Telemetry.send(event);
     }
 
+    public static sendDirect(eventName: string, properties?: Telemetry.ITelemetryProperties): void {
+        const event = TelemetryHelper.createTelemetryEvent(eventName, {isDirect: true});
+        if (properties)
+            TelemetryHelper.addTelemetryEventProperties(event, properties);
+        Telemetry.send(event);
+    }
+
     public static sendCommandSuccessTelemetry(commandName: string, commandProperties: ICommandTelemetryProperties, args: string[] = []): void {
         let successEvent: Telemetry.TelemetryEvent = TelemetryHelper.createBasicCommandTelemetry(commandName, args);
 
