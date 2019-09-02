@@ -243,7 +243,7 @@ export class ExtensionServer implements vscode.Disposable {
                         if (request.arguments.type === "reactnativedirect") {
                             generator.step("mobilePlatform.enableDirectDebuggingMode");
                             generator.add("isDirect", true, false);
-                            this.logger.info(localize("EnableDirectDebugging", "Enable Direct Debugging"));
+                            this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes Debugging"));
                             return mobilePlatform.disableJSDebuggingMode();
                         }
                         generator.step("mobilePlatform.enableJSDebuggingMode");
