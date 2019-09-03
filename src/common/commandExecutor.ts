@@ -94,7 +94,7 @@ export class CommandExecutor {
                 return curPackage.dependencies()
                     .then(dependencies => {
                         if (dependencies["react-native"] && dependencies["react-native"].match(/[\d\.]+/)) {
-                            this.logger.error("It seems that 'react-native' package is not installed. Please run 'npm install' to install the package.");
+                            this.logger.debug("It seems that 'react-native' package is not installed. Please run 'npm install' to install the package.");
                         }
                         return "";
                     });
