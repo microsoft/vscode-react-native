@@ -52,7 +52,7 @@ export class CommandExecutor {
         } else {
             CommandExecutor.ReactNativeCommand = "react-native";
         }
-    }
+    }+
 
     public static setUseGlobalReactNativeCLI(setUseGlobalReactNativeCLI: boolean) {
         CommandExecutor.UseGlobalReactNativeCLI = setUseGlobalReactNativeCLI;

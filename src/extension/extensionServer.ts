@@ -202,6 +202,10 @@ export class ExtensionServer implements vscode.Disposable {
             mobilePlatformOptions.productName = request.arguments.productName;
         }
 
+        if (!isNullOrUndefined(request.arguments.launchActivity)) {
+            mobilePlatformOptions.debugLaunchActivity = request.arguments.launchActivity;
+        }
+
         mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(request.arguments.cwd || request.arguments.program);
         const platformDeps: MobilePlatformDeps = {
             packager: this.reactNativePackager,

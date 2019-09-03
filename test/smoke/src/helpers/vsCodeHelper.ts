@@ -20,12 +20,14 @@ import * as cp from "child_process";
 import { spawnSync } from "../helpers/utilities";
 
 export class VSCodeHelper {
-    private static version = process.env.CODE_VERSION || "*";
-    private static isInsiders = VSCodeHelper.version === "insiders";
+    private static version;
+    private static isInsiders;
     private static downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-x64-archive" : "linux-x64";
     private static artifactsFolderName = "drop-win";
 
     public static async downloadVSCodeExecutable(targetFolder: string): Promise<any> {
+        VSCodeHelper.version = process.env.CODE_VERSION || "*";
+        VSCodeHelper.isInsiders = VSCodeHelper.version === "insiders";
         const testRunFolder = path.join(targetFolder, ".vscode-test", VSCodeHelper.isInsiders ? "insiders" : "stable");
 
         return new Promise ((resolve) => {
