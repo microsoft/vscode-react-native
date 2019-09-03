@@ -54,8 +54,9 @@ export class TelemetryHelper {
 
     public static sendDirect(eventName: string, properties?: Telemetry.ITelemetryProperties): void {
         const event = TelemetryHelper.createTelemetryEvent(eventName, {isDirect: true});
-        if (properties)
+        if (properties) {
             TelemetryHelper.addTelemetryEventProperties(event, properties);
+        }
         Telemetry.send(event);
     }
 

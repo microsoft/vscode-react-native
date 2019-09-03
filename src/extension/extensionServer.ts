@@ -248,7 +248,6 @@ export class ExtensionServer implements vscode.Disposable {
                         }
                         generator.step("mobilePlatform.enableJSDebuggingMode");
                         this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
-
                         return mobilePlatform.enableJSDebuggingMode();
                     })
                     .then(() => {
