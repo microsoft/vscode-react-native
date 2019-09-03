@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as os from "os";
 import { Package } from "./node/package";
 import * as Q from "q";
 import {ChildProcess} from "child_process";
@@ -39,7 +38,6 @@ export enum CommandStatus {
 export class CommandExecutor {
 
     private static ReactNativeCommand = "react-native";
-    private static CommandLauncher = "node";
     private childProcess = new Node.ChildProcess();
     private static UseGlobalReactNativeCLI: boolean = false;
 
@@ -127,13 +125,8 @@ export class CommandExecutor {
      * Executes a react native command and waits for its completion.
      */
     public spawnReactCommand(command: string, args: string[] = [], options: Options = {}): ISpawnResult {
-        if (CommandExecutor.UseGlobalReactNativeCLI || os.platform() === "win32") {
-            const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
-            return this.spawnChildProcess(reactCommand, [command, ...args], options);
-        } else {
-            const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
-            return this.spawnChildProcess(CommandExecutor.CommandLauncher, [reactCommand, command, ...args], options);
-        }
+        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
+        return this.spawnChildProcess(reactCommand, [command, ...args], options);
     }
 
     /**
