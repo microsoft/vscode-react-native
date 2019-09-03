@@ -351,11 +351,11 @@
 								"description": "%reactNative.launch.launchActivity.description%",
 								"default": "MainActivity"
 							},
-              "useGlobalReactNativeCLI": {
+              				"useGlobalReactNativeCLI": {
 								"type": "boolean",
 								"description": "%reactNative.launch.useGlobalReactNativeCLI.description%",
 								"default": true
-              }
+              				}
 						}
 					}
 				}
