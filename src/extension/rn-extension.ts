@@ -130,17 +130,11 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
     let rootPath = folder.uri.fsPath;
     let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
-    return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath, outputChannelLogger)
+    return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath)
         .then(version => {
             outputChannelLogger.debug(`React Native version: ${version}`);
             let promises = [];
-            if (!version) {
-                outputChannelLogger.debug("react-native version is empty");
-                TelemetryHelper.sendErrorEvent(
-                    "AddProjectReactNativeVersionIsEmpty",
-                    ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion)
-                );
-            } else if (isSupportedVersion(version)) {
+            if (isSupportedVersion(version)) {
                 promises.push(entryPointHandler.runFunction("debugger.setupLauncherStub", ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () => {
                     let reactDirManager = new ReactDirManager(rootPath);
                     return setupAndDispose(reactDirManager, context)
@@ -169,6 +163,19 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
             }
 
             return Q.all(promises).then(() => {});
+        })
+        .catch(versionErr => {
+            if (versionErr.errorCode === InternalErrorCode.CouldNotFindProjectVersion) {
+                outputChannelLogger.warning("react-native version is empty");
+            } else if (versionErr.errorCode === InternalErrorCode.ReactNativeDependencyIsNotInstalled) {
+                outputChannelLogger.warning("It seems that 'react-native' package is not installed. Please run 'npm install' to install the package.");
+            }
+            TelemetryHelper.sendErrorEvent(
+                "AddProjectReactNativeVersionIsEmpty",
+                ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion)
+            );
+
+            return void 0;
         });
 }
 

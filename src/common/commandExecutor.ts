@@ -91,11 +91,17 @@ export class CommandExecutor {
             .catch(err => {
                 return curPackage.dependencies()
                     .then(dependencies => {
-                        if (dependencies["react-native"] && dependencies["react-native"].match(/[\d\.]+/)) {
-                            this.logger.debug("It seems that 'react-native' package is not installed. Please run 'npm install' to install the package.");
+                        if (dependencies["react-native"]) {
+                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeDependencyIsNotInstalled);
                         }
-                        return "";
-                    });
+                        return curPackage.devDependencies();
+                    })
+                    .then(devDependencies => {
+                        if (devDependencies["react-native"]) {
+                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeDependencyIsNotInstalled);
+                        }
+                        throw ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion);
+                    })
             });
     }
 
