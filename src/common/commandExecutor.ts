@@ -101,7 +101,7 @@ export class CommandExecutor {
                             throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeDependencyIsNotInstalled);
                         }
                         throw ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion);
-                    })
+                    });
             });
     }
 
