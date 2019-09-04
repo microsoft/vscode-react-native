@@ -20,7 +20,7 @@ const telemetryReporter = new ReassignableTelemetryReporter(new NullTelemetryRep
 
 function bailOut(reason: string): void {
     // Things have gone wrong in initialization: Report the error to telemetry and exit
-    TelemetryHelper.sendDirect(reason);
+    TelemetryHelper.sendHermes(reason);
     process.exit(1);
 }
 

@@ -37,14 +37,14 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "platform": "exponent",
         },
         "Debug Android (Hermes)": {
-            "name": "Debug Android (Hermes)",
+            "name": "Debug Android (Hermes) - Experimental",
             "cwd": "${workspaceFolder}",
             "type": "reactnativedirect",
             "request": "launch",
             "platform": "android",
         },
         "Attach to packager (Hermes)": {
-            "name": "Attach to packager (Hermes)",
+            "name": "Attach to packager (Hermes) - Experimental",
             "cwd": "${workspaceFolder}",
             "type": "reactnativedirect",
             "request": "attach",

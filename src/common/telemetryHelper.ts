@@ -52,8 +52,8 @@ export class TelemetryHelper {
         Telemetry.send(event);
     }
 
-    public static sendDirect(eventName: string, properties?: Telemetry.ITelemetryProperties): void {
-        const event = TelemetryHelper.createTelemetryEvent(eventName, {isDirect: true});
+    public static sendHermes(eventName: string, properties?: Telemetry.ITelemetryProperties): void {
+        const event = TelemetryHelper.createTelemetryEvent(eventName, {isHermes: true});
         if (properties) {
             TelemetryHelper.addTelemetryEventProperties(event, properties);
         }

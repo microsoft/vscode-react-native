@@ -61,7 +61,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 value: launchArgs.platform,
                 isPii: false,
             },
-            isDirect: {
+            isHermes: {
                 value: true,
                 isPii: false,
             },
@@ -86,6 +86,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 .catch((err) => {
                     this.outputLogger("An error occurred while launching the application. " + err.message || err, true);
                     this.cleanUp();
+                    reject(err);
                 });
         }));
     }
@@ -96,7 +97,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 value: attachArgs.platform,
                 isPii: false,
             },
-            isDirect: {
+            isHermes: {
                 value: true,
                 isPii: false,
             },
@@ -129,6 +130,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
             .catch((err) => {
                 this.outputLogger("An error occurred while attaching to the debugger. " + err.message || err, true);
                 this.cleanUp();
+                reject(err);
             });
         }));
     }

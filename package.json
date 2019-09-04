@@ -373,7 +373,7 @@
 						"label": "React Native (Hermes): Debug Android",
 						"description": "%reactNative.snippets.debugAndroidHermes.description%",
 						"body": {
-							"name": "Debug Android (Hermes)",
+							"name": "Debug Android (Hermes) - Experimental",
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect",
 							"request": "launch",
@@ -384,7 +384,7 @@
 						"label": "React Native (Hermes): Attach to packager",
 						"description": "%reactNative.snippets.attachPackagerHermes.description%",
 						"body": {
-							"name": "Attach to packager (Hermes)",
+							"name": "Attach to packager (Hermes) - Experimental",
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect",
 							"request": "attach"
