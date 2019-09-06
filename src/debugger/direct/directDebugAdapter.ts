@@ -61,7 +61,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 value: launchArgs.platform,
                 isPii: false,
             },
-            isHermes: {
+            isDirect: {
                 value: true,
                 isPii: false,
             },
@@ -97,7 +97,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 value: attachArgs.platform,
                 isPii: false,
             },
-            isHermes: {
+            isDirect: {
                 value: true,
                 isPii: false,
             },

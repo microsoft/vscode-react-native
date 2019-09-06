@@ -75,12 +75,19 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {
-        const extProps = {
+        let extProps: any = {
             platform: {
                 value: "android",
                 isPii: false,
             },
         };
+
+        if (this.runOptions.isDirect) {
+            extProps.isDirect = {
+                value: true,
+                isPii: false,
+            };
+        }
 
         return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
             const env = this.getEnvArgument();
