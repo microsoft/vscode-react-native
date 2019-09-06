@@ -76,7 +76,7 @@ Click [here](https://facebook.github.io/react-native/docs/hermes/) to learn more
 Debugging apps with Hermes enabled is currently experimental. Please, see [this issue](https://github.com/microsoft/vscode-react-native/issues/1073) for current known issues on Hermes support.
 
 To debug while using Hermes engine, please choose one of the following debug configurations:
- - React Native (Hermes): Debug Android
+ - React Native (Hermes): Debug Android - Experimental
 
 ```
 {
@@ -88,7 +88,7 @@ To debug while using Hermes engine, please choose one of the following debug con
 }
 ```
 
- - React Native (Hermes): Attach to packager
+ - React Native (Hermes): Attach to packager - Experimental
 
  ```
 {

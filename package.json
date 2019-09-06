@@ -357,7 +357,7 @@
 			},
 			{
 				"type": "reactnativedirect",
-				"label": "React Native Direct",
+				"label": "React Native Direct - Experimental",
 				"program": "./src/debugger/direct/reactNativeDirectDebugEntryPoint.js",
 				"runtime": "node",
 				"enableBreakpointsFor": {
@@ -370,7 +370,7 @@
 				},
 				"configurationSnippets": [
 					{
-						"label": "React Native (Hermes): Debug Android",
+						"label": "React Native (Hermes): Debug Android - Experimental",
 						"description": "%reactNative.snippets.debugAndroidHermes.description%",
 						"body": {
 							"name": "Debug Android (Hermes) - Experimental",
@@ -381,7 +381,7 @@
 						}
 					},
 					{
-						"label": "React Native (Hermes): Attach to packager",
+						"label": "React Native (Hermes): Attach to packager - Experimental",
 						"description": "%reactNative.snippets.attachPackagerHermes.description%",
 						"body": {
 							"name": "Attach to packager (Hermes) - Experimental",
