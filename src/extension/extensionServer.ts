@@ -254,7 +254,7 @@ export class ExtensionServer implements vscode.Disposable {
                         if (mobilePlatformOptions.isDirect) {
                             generator.step("mobilePlatform.enableDirectDebuggingMode");
                             if (request.arguments.platform === "android") {
-                                this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging"));
+                                this.logger.info(localize("PrepareExperimentalHermesDebugging", "Prepare Experimental Hermes debugging"));
                             }
                             return mobilePlatform.disableJSDebuggingMode();
                         }
