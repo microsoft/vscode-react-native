@@ -355,7 +355,12 @@
 								"type": "boolean",
 								"description": "%reactNative.launch.useGlobalReactNativeCLI.description%",
 								"default": true
-              				}
+							},
+							"customReactNativeCLIPath": {
+								"type": "string",
+								"description": "%reactNative.launch.customReactNativeCLIPath.description%",
+								"default": ""
+							}
 						}
 					}
 				}

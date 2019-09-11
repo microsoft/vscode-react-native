@@ -40,20 +40,27 @@ export class CommandExecutor {
     private static ReactNativeCommand = "react-native";
     private childProcess = new Node.ChildProcess();
     private static UseGlobalReactNativeCLI: boolean = false;
+    private static ReactNativeCLIPath = "";
 
     constructor(
         private currentWorkingDirectory: string = process.cwd(),
         private logger: ILogger = new NullLogger()
     ) {
-        if (!CommandExecutor.UseGlobalReactNativeCLI) {
+        if (CommandExecutor.ReactNativeCLIPath) {
+            CommandExecutor.ReactNativeCommand = CommandExecutor.ReactNativeCLIPath;
+        } else if (!CommandExecutor.UseGlobalReactNativeCLI) {
             CommandExecutor.ReactNativeCommand = `${this.currentWorkingDirectory}/node_modules/.bin/react-native`;
         } else {
             CommandExecutor.ReactNativeCommand = "react-native";
         }
     }
 
-    public static setUseGlobalReactNativeCLI(setUseGlobalReactNativeCLI: boolean) {
-        CommandExecutor.UseGlobalReactNativeCLI = setUseGlobalReactNativeCLI;
+    public static setUseGlobalReactNativeCLI(UseGlobalReactNativeCLI: boolean) {
+        CommandExecutor.UseGlobalReactNativeCLI = UseGlobalReactNativeCLI;
+    }
+
+    public static setReactNativeCLIPath(ReactNativeCLIPath: string) {
+        CommandExecutor.ReactNativeCLIPath = ReactNativeCLIPath;
     }
 
     public execute(command: string, options: Options = {}): Q.Promise<void> {

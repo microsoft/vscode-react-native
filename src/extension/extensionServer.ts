@@ -288,6 +288,12 @@ function requestSetup(args: any): any {
         CommandExecutor.setUseGlobalReactNativeCLI(false);
     }
 
+    if (!isNullOrUndefined(args.customReactNativeCLIPath)) {
+        CommandExecutor.setReactNativeCLIPath(args.customReactNativeCLIPath);
+    } else {
+        CommandExecutor.setReactNativeCLIPath("");
+    }
+
     if (!args.runArguments) {
         let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", workspaceFolder.uri);
         mobilePlatformOptions.runArguments = runArgs;
