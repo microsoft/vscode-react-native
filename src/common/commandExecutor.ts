@@ -3,6 +3,7 @@
 
 import { Package } from "./node/package";
 import * as Q from "q";
+import * as path from "path";
 import {ChildProcess} from "child_process";
 import {ILogger} from "../extension/log/LogHelper";
 import { NullLogger } from "../extension/log/NullLogger";
@@ -39,28 +40,21 @@ export class CommandExecutor {
 
     private static ReactNativeCommand = "react-native";
     private childProcess = new Node.ChildProcess();
-    private static UseGlobalReactNativeCLI: boolean = false;
-    private static ReactNativeCLIPath = "";
+    private static ReactNativeGlobalCommandName = "";
 
     constructor(
         private currentWorkingDirectory: string = process.cwd(),
         private logger: ILogger = new NullLogger()
     ) {
-        if (CommandExecutor.ReactNativeCLIPath) {
-            CommandExecutor.ReactNativeCommand = CommandExecutor.ReactNativeCLIPath;
-        } else if (!CommandExecutor.UseGlobalReactNativeCLI) {
-            CommandExecutor.ReactNativeCommand = `${this.currentWorkingDirectory}/node_modules/.bin/react-native`;
+        if (!CommandExecutor.ReactNativeGlobalCommandName) {
+            CommandExecutor.ReactNativeCommand = path.resolve(this.currentWorkingDirectory, "node_modules", ".bin", "react-native");
         } else {
-            CommandExecutor.ReactNativeCommand = "react-native";
+            CommandExecutor.ReactNativeCommand = CommandExecutor.ReactNativeGlobalCommandName;
         }
     }
 
-    public static setUseGlobalReactNativeCLI(UseGlobalReactNativeCLI: boolean) {
-        CommandExecutor.UseGlobalReactNativeCLI = UseGlobalReactNativeCLI;
-    }
-
-    public static setReactNativeCLIPath(ReactNativeCLIPath: string) {
-        CommandExecutor.ReactNativeCLIPath = ReactNativeCLIPath;
+    public static setReactNativeGlobalCommandName(reactNativeGlobalCommandName: string) {
+        CommandExecutor.ReactNativeGlobalCommandName = reactNativeGlobalCommandName;
     }
 
     public execute(command: string, options: Options = {}): Q.Promise<void> {
@@ -99,15 +93,15 @@ export class CommandExecutor {
                 return curPackage.dependencies()
                     .then(dependencies => {
                         if (dependencies["react-native"]) {
-                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeDependencyIsNotInstalled);
+                            return dependencies["react-native"];
                         }
-                        return curPackage.devDependencies();
-                    })
-                    .then(devDependencies => {
-                        if (devDependencies["react-native"]) {
-                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeDependencyIsNotInstalled);
-                        }
-                        throw ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion);
+                        return curPackage.devDependencies()
+                            .then(devDependencies => {
+                                if (devDependencies["react-native"]) {
+                                    return devDependencies["react-native"];
+                                }
+                                return "";
+                        });
                     });
             });
     }

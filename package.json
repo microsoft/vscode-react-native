@@ -351,15 +351,10 @@
 								"description": "%reactNative.launch.launchActivity.description%",
 								"default": "MainActivity"
 							},
-              				"useGlobalReactNativeCLI": {
-								"type": "boolean",
-								"description": "%reactNative.launch.useGlobalReactNativeCLI.description%",
-								"default": true
-							},
-							"customReactNativeCLIPath": {
+							"reactNativeGlobalCommandName": {
 								"type": "string",
-								"description": "%reactNative.launch.customReactNativeCLIPath.description%",
-								"default": ""
+								"description": "%reactNative.launch.reactNativeGlobalCommandName.description%",
+								"default": "react-native"
 							}
 						}
 					}

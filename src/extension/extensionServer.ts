@@ -21,6 +21,8 @@ import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
 import * as nls from "vscode-nls";
 import { CommandExecutor } from "../common/commandExecutor";
+import {InternalError} from "../common/error/internalError";
+import {InternalErrorCode} from "../common/error/internalErrorCode";
 const localize = nls.loadMessageBundle();
 
 export class ExtensionServer implements vscode.Disposable {
@@ -250,6 +252,13 @@ export class ExtensionServer implements vscode.Disposable {
                     })
                     .catch(error => {
                         this.logger.error(error);
+                        if (error instanceof InternalError && error.errorCode === InternalErrorCode.ReactNativeDependencyIsNotInstalled) {
+                            this.logger.warning("It seems that 'react-native' package is not installed. Please run 'npm install' to install the package.");
+                            TelemetryHelper.sendErrorEvent(
+                                "NodeModulesAreNotInstalled",
+                                error
+                            );
+                        }
                         reject(error);
                     });
             });
@@ -282,16 +291,10 @@ function requestSetup(args: any): any {
         target: args.target || "simulator",
     };
 
-    if (!isNullOrUndefined(args.useGlobalReactNativeCLI)) {
-        CommandExecutor.setUseGlobalReactNativeCLI(args.useGlobalReactNativeCLI);
+    if (!isNullOrUndefined(args.reactNativeGlobalCommandName)) {
+        CommandExecutor.setReactNativeGlobalCommandName(args.reactNativeGlobalCommandName);
     } else {
-        CommandExecutor.setUseGlobalReactNativeCLI(false);
-    }
-
-    if (!isNullOrUndefined(args.customReactNativeCLIPath)) {
-        CommandExecutor.setReactNativeCLIPath(args.customReactNativeCLIPath);
-    } else {
-        CommandExecutor.setReactNativeCLIPath("");
+        CommandExecutor.setReactNativeGlobalCommandName("");
     }
 
     if (!args.runArguments) {
