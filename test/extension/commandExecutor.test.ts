@@ -7,12 +7,12 @@ import { ConsoleLogger } from "../../src/extension/log/ConsoleLogger";
 import { Node } from "../../src/common/node/node";
 import { ChildProcess } from "../../src/common/node/childProcess";
 
-
 import { EventEmitter } from "events";
 import * as assert from "assert";
 import * as semver from "semver";
 import * as sinon from "sinon";
 import * as Q from "q";
+import * as path from "path";
 
 suite("commandExecutor", function() {
     suite("extensionContext", function () {
@@ -124,6 +124,18 @@ suite("commandExecutor", function() {
                 .then(done, err => {
                     assert.fail(null, null, "react-native command was not expected to fail");
                 });
+        });
+
+        test("getReactNativeVersion should return verson string if there is react-native package in node_modules", (done: MochaDone) => {
+            let commandExecutor: CommandExecutor = new CommandExecutor(path.join(__dirname, "..", "resources", "sampleReactNative022Project"));
+
+            Q({})
+            .then(function() {
+                return commandExecutor.getReactNativeVersion();
+            })
+            .then(function(version) {
+                assert.equal(version, "^0.22.2");
+            }).done(() => done(), done);
         });
     });
 });
