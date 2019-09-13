@@ -350,11 +350,6 @@
 								"type": "string",
 								"description": "%reactNative.launch.launchActivity.description%",
 								"default": "MainActivity"
-							},
-							"reactNativeGlobalCommandName": {
-								"type": "string",
-								"description": "%reactNative.launch.reactNativeGlobalCommandName.description%",
-								"default": "react-native"
 							}
 						}
 					}
@@ -449,6 +444,11 @@
 					"description": "%reactNative.configuration.properties.react-native.packager.port.description%",
 					"type": "number",
 					"default": 8081,
+					"scope": "resource"
+				},
+				"react-native-tools.reactNativeGlobalCommandName": {
+					"description": "%reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description%",
+					"type": "string",
 					"scope": "resource"
 				},
 				"react-native-tools.projectRoot": {

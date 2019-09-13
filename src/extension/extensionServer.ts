@@ -282,6 +282,7 @@ function isNullOrUndefined(value: any): boolean {
 function requestSetup(args: any): any {
     const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program));
     const projectRootPath = getProjectRoot(args);
+    const reactNativeGlobalCommandName = SettingsHelper.getReactNativeGlobalCommandName(workspaceFolder.uri);
     let mobilePlatformOptions: any = {
         workspaceRoot: workspaceFolder.uri.fsPath,
         projectRoot: projectRootPath,
@@ -291,8 +292,8 @@ function requestSetup(args: any): any {
         target: args.target || "simulator",
     };
 
-    if (!isNullOrUndefined(args.reactNativeGlobalCommandName)) {
-        CommandExecutor.setReactNativeGlobalCommandName(args.reactNativeGlobalCommandName);
+    if (reactNativeGlobalCommandName) {
+        CommandExecutor.setReactNativeGlobalCommandName(reactNativeGlobalCommandName);
     } else {
         CommandExecutor.setReactNativeGlobalCommandName("");
     }

@@ -20,6 +20,7 @@ import {IAndroidRunOptions, IIOSRunOptions} from "./launchArgs";
 import {ExponentPlatform} from "./exponent/exponentPlatform";
 import {spawn, ChildProcess} from "child_process";
 import {HostPlatform} from "../common/hostPlatform";
+import {CommandExecutor} from "../common/commandExecutor";
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
@@ -394,6 +395,7 @@ export class CommandPaletteHandler {
         const envArgs = SettingsHelper.getEnvArgs(platform, target, project.workspaceFolder.uri);
         const envFile = SettingsHelper.getEnvFile(platform, target, project.workspaceFolder.uri);
         const projectRoot = SettingsHelper.getReactNativeProjectRoot(project.workspaceFolder.uri.fsPath);
+        const reactNativeGlobalCommandName = SettingsHelper.getReactNativeGlobalCommandName(project.workspaceFolder.uri);
         const runOptions: IAndroidRunOptions | IIOSRunOptions = {
             platform: platform,
             workspaceRoot: project.workspaceFolder.uri.fsPath,
@@ -403,6 +405,12 @@ export class CommandPaletteHandler {
             env: envArgs,
             envFile: envFile,
         };
+
+        if (reactNativeGlobalCommandName) {
+            CommandExecutor.setReactNativeGlobalCommandName(reactNativeGlobalCommandName);
+        } else {
+            CommandExecutor.setReactNativeGlobalCommandName("");
+        }
 
         return runOptions;
     }
