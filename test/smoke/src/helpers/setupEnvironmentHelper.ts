@@ -259,6 +259,18 @@ import * as Icon from '@expo/vector-icons';
         }
     }
 
+    // https://exp.host/--/api/v2/versions
+    // Expo team has started to prepare Expo 35 to release
+    // and included it to supported sdk versions list (the link above) but Expo mobile applications
+    // are not yet updated to work with such version
+    // This hack will add app.json for Expo 34 version to pure Expo test
+    // TODO: delete this when Expo 35 is released
+    public static addExpo34AppJsonFile(expoAppPath: string, patchedAppJsonFilePath: string) {
+        const AppJsonFile = path.join(expoAppPath, "app.json");
+        const patchedAppJsonContent = fs.readFileSync(patchedAppJsonFilePath).toString();
+        fs.writeFileSync(AppJsonFile, patchedAppJsonContent);
+    }
+
     // For some reason expo app generated with "expo init" doesn't contain the following changes
     // so we have to apply them manually
     public static async patchExpoApp(expoAppPath: string) {
