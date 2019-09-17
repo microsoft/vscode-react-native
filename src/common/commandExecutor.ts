@@ -40,7 +40,7 @@ export class CommandExecutor {
 
     private static ReactNativeCommand = "react-native";
     private childProcess = new Node.ChildProcess();
-    private static ReactNativeGlobalCommandName = "";
+    private static ReactNativeGlobalCommandName: string | null;
 
     constructor(
         private currentWorkingDirectory: string = process.cwd(),
@@ -53,7 +53,7 @@ export class CommandExecutor {
         }
     }
 
-    public static setReactNativeGlobalCommandName(reactNativeGlobalCommandName: string) {
+    public static setReactNativeGlobalCommandName(reactNativeGlobalCommandName: string | null) {
         CommandExecutor.ReactNativeGlobalCommandName = reactNativeGlobalCommandName;
     }
 

@@ -55,13 +55,13 @@ export class SettingsHelper {
     /**
      * Get the React Native Global Command Name
      */
-    public static getReactNativeGlobalCommandName(uri: vscode.Uri): string {
+    public static getReactNativeGlobalCommandName(uri: vscode.Uri): string | null {
         const workspaceConfiguration = vscode.workspace.getConfiguration("react-native-tools", uri);
         if (workspaceConfiguration.has("reactNativeGlobalCommandName")) {
             return ConfigurationReader.readString(workspaceConfiguration.get("reactNativeGlobalCommandName"));
         }
 
-        return "";
+        return null;
     }
 
     /**
