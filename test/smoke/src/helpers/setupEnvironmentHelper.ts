@@ -263,7 +263,7 @@ import * as Icon from '@expo/vector-icons';
     // Expo team has started to prepare Expo 35 to release
     // and included it to supported sdk versions list (the link above) but Expo mobile applications
     // are not yet updated to work with such version
-    // This hack will add app.json for Expo 34 version to pure Expo test
+    // This hack will add app.json for Expo 34 version to pure Expo test app
     // TODO: delete this when Expo 35 is released
     public static addExpo34AppJsonFile(expoAppPath: string, patchedAppJsonFilePath: string) {
         const AppJsonFile = path.join(expoAppPath, "app.json");
