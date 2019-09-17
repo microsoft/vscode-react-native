@@ -188,7 +188,7 @@ async function setup(): Promise<void> {
         SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath, process.env.PURE_EXPO_VERSION);
         await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
         SetupEnvironmentHelper.patchExpoSettingsFile(ExpoWorkspacePath);
-        SetupEnvironmentHelper.addExpo34AppJsonFile(ExpoWorkspacePath, path.join(resourcesPath, "PureRNExpoSample", "app.json"));
+        SetupEnvironmentHelper.addExpo34AppJsonFile(pureRNWorkspacePath, path.join(resourcesPath, "PureRNExpoSample", "app.json"));
         if (process.platform === "darwin") {
             // We need only to download expo app, but this is the quickest way of doing it
             await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);
