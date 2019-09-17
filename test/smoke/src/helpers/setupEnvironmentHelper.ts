@@ -265,9 +265,10 @@ import * as Icon from '@expo/vector-icons';
     // are not yet updated to work with such version
     // This hack will add app.json for Expo 34 version to pure Expo test app
     // TODO: delete this when Expo 35 is released
-    public static addExpo34AppJsonFile(expoAppPath: string, patchedAppJsonFilePath: string) {
+    public static patchPureExpo34AppJsonFile(expoAppPath: string, patchedAppJsonFilePath: string) {
         const AppJsonFile = path.join(expoAppPath, "app.json");
         const patchedAppJsonContent = fs.readFileSync(patchedAppJsonFilePath).toString();
+        console.log(`*** Patching ${AppJsonFile}...`);
         fs.writeFileSync(AppJsonFile, patchedAppJsonContent);
     }
 
