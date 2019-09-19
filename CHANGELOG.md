@@ -1,6 +1,6 @@
 ## 0.11.1
 * Fixed debugging issue when using `broadcast-channels` package in React Native application [#1083](https://github.com/microsoft/vscode-react-native/issues/1083)
-* Added `launchActivity` debug configuration parameter for Android allowing to choose the activity to launch on `Debug Android` scenario
+* Added `launchActivity` debug configuration parameter for Android allowing to choose the activity to launch on `Debug Android` scenario [#1084](https://github.com/microsoft/vscode-react-native/pull/1084)
 * Added error handling for some specific cases [#1086](https://github.com/microsoft/vscode-react-native/pull/1086)
 * Optimized extension activation events [#1103](https://github.com/microsoft/vscode-react-native/pull/1103)
 
