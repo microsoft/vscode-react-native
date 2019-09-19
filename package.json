@@ -28,7 +28,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onDebug",
+		"onDebugResolve:reactnative",
 		"onCommand:reactNative.runAndroidSimulator",
 		"onCommand:reactNative.runAndroidDevice",
 		"onCommand:reactNative.runIosSimulator",
