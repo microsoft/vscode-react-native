@@ -120,7 +120,7 @@ var importScripts = (function(){
     var fs=require('fs'), vm=require('vm');
     return function(scriptUrl){
         var scriptCode = fs.readFileSync(scriptUrl, "utf8");
-        vm.runInThisContext(scriptCode, {filename: scriptUrl});
+        vm.runInThisContext('debugger;' + scriptCode, {filename: scriptUrl});
     };
 })();`;
 
