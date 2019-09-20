@@ -265,10 +265,10 @@ export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeo
             return super.doAttach(port, targetUrl, address, timeout);
         }
 
-        // Since the bundle runs inside the Node.js VM in debuggerWorker.js
+        // Since the bundle runs inside the Node.js VM in debuggerWorker.js in runtime
         // Node debug adapter need time to parse new added code source maps
         // So we added 'debugger;' statement at the start of the bundle code
-        // and awaiting when adapter will receive signal to stop on that statement
+        // and wait for the adapter to receive signal to stop on that statement
         // and then wait for code bundle to be processed and then send continue request to skip the code execution stop in VS Code UI
         public onPaused(notification: Crdp.Debugger.PausedEvent, expectingStopReason?: stoppedEvent.ReasonType): Promise<IOnPausedResult> {
             if (this.firstStop) {
