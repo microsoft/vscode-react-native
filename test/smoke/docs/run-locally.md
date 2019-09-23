@@ -136,7 +136,7 @@ Tests requires several environment variables to be set up before starting:
 |---|---|---|
 |`ANDROID_EMULATOR`|`Nexus_5X_API_28`|Name of the emulated device|
 |`ANDROID_VERSION`|9|Version of android installed on emulated device|
-|`IOS_SIMULATOR`|`iPhone X`|(**Only for iOS tests**) Name of the simulated device|
+|`IOS_SIMULATOR`|`iPhone 11`|(**Only for iOS tests**) Name of the simulated device|
 |`IOS_VERSION`|12.2|(**Only for iOS tests**) Version of iOS on the simulated device|
 |`CODE_VERSION`|`*`, `1.34.1`, `insiders`|Version of VS Code to download and run while running tests|
 |`EXPO_XDL_VERSION` (optional)|`54.1.4`, `skip`|Version of @expo/xdl package to install to the extension directory. If set to "skip" then package installation will be skipped|
@@ -164,7 +164,7 @@ For local runs is more convenient to create file `config.json` inside `test/smok
 {
     "ANDROID_EMULATOR": "Nexus_5X_API_28_x86",
     "ANDROID_VERSION": "9",
-    "IOS_SIMULATOR": "iPhone X",
+    "IOS_SIMULATOR": "iPhone 11",
     "IOS_VERSION": "12.2",
     "CODE_VERSION" : "*"
 }
