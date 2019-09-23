@@ -134,7 +134,9 @@ console.warn = function suppressWebdriverWarnings(message) {
 };
 
 export const RNworkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNAppName);
-const RNworkspaceFilePath = path.join(RNworkspacePath, SmokeTestsConstants.AppjsFileName);
+// const RNworkspaceFilePath = path.join(RNworkspacePath, SmokeTestsConstants.AppjsFileName);
+export const HermesRNworkspacePath = path.join(resourcesPath, SmokeTestsConstants.HermesRNAppName);
+const HermesRNworkspaceFilePath = path.join(HermesRNworkspacePath, SmokeTestsConstants.AppjsFileName);
 export const ExpoWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.ExpoAppName);
 const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.AppjsFileName);
 export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.pureRNExpoApp);
@@ -180,8 +182,9 @@ async function setup(): Promise<void> {
 
     await AndroidEmulatorHelper.runAndroidEmulator();
 
-    SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName, "ReactNativeSample", process.env.RN_VERSION);
+    // SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName, "ReactNativeSample", process.env.RN_VERSION);
     if (!testParams.RunBasicTests) {
+        SetupEnvironmentHelper.prepareHermesReactNativeApplication(HermesRNworkspaceFilePath, resourcesPath, HermesRNworkspacePath, SmokeTestsConstants.HermesRNAppName, "HermesReactNativeSample", process.env.RN_VERSION);
         SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
         const PureRNVersionExpo = process.env.PURE_RN_VERSION || await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", PureRNVersionExpo);

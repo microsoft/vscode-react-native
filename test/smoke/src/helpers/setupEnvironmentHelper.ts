@@ -45,6 +45,41 @@ export class SetupEnvironmentHelper {
         SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
+    public static  prepareHermesReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
+        let command = `react-native init ${appName}`;
+        if (version) {
+            command += ` --version ${version}`;
+        }
+        console.log(`*** Creating Hermes RN app via '${command}' in ${workspacePath}...`);
+        cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
+
+        let customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
+        let launchConfigFile = path.join(resourcesPath, "launch.json");
+        let vsCodeConfigPath = path.join(workspacePath, ".vscode");
+        let gradlFilePath = path.join(workspacePath, "android", "app", "build.gradle");
+
+        console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
+        fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
+
+        let gradlFileText = fs.readFileSync(gradlFilePath).toString();
+
+        gradlFileText = gradlFileText.replace("enableHermes: false,  // clean and rebuild if changing", "enableHermes: true,");
+        fs.writeFileSync(gradlFilePath, gradlFileText);
+
+        console.log(`*** Here`);
+        fs.copyFileSync(path.join(resourcesPath, customEntryPointFolder, "TestButton.js"), path.join(workspacePath, "TestButton.js"));
+
+        if (!fs.existsSync(vsCodeConfigPath)) {
+            console.log(`*** Creating  ${vsCodeConfigPath}...`);
+            fs.mkdirSync(vsCodeConfigPath);
+        }
+
+        console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
+        fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+
+        SetupEnvironmentHelper.patchMetroConfig(workspacePath);
+    }
+
     public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
         const command = `echo -ne '\\n' | expo init -t tabs --name ${appName} ${appName}`;
         console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);

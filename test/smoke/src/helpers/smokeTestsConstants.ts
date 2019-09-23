@@ -27,6 +27,8 @@ export class SmokeTestsConstants {
     public static debugConsoleSearchTimeout = 0.5 * 1000;
     // Default React Native app name
     public static RNAppName = "latestRNApp";
+    // Default Hermes React Native app name
+    public static HermesRNAppName = "latestHermesRNApp";
     // Default Expo app name
     public static ExpoAppName = "latestExpoApp";
     // Default pure React Native for Expo test app name

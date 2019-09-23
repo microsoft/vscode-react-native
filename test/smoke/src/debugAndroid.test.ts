@@ -7,7 +7,7 @@ import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, runVSCode, winTaskKillCommands } from "./main";
+import { ExpoWorkspacePath, pureRNWorkspacePath, /*RNworkspacePath,*/ HermesRNworkspacePath, runVSCode, winTaskKillCommands } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
@@ -45,12 +45,47 @@ export function setup(testParameters?: TestRunArguments) {
             }
         });
 
-        it("RN app Debug test", async function () {
+        /*it("RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
             await app.runCommand("cursorTop");
+            console.log("Android Debug test: App.js file is opened");
+            await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
+            console.log(`Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
+            await app.workbench.debug.openDebugViewlet();
+            await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
+            console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
+            console.log("Android Debug test: Starting debugging");
+            await app.workbench.debug.startDebugging();
+            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
+            await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
+            let client = AppiumHelper.webdriverAttach(opts);
+            clientInited = client.init();
+            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
+            await app.workbench.debug.waitForDebuggingToStart();
+            console.log("Android Debug test: Debugging started");
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
+            console.log("Android Debug test: Stack frame found");
+            await app.workbench.debug.continue();
+            // await for our debug string renders in debug console
+            await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
+            console.log("Android Debug test: Searching for \"Test output from debuggee\" string in console");
+            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
+            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
+            console.log("Android Debug test: \"Test output from debuggee\" string is found");
+            await app.workbench.debug.stopDebugging();
+            console.log("Android Debug test: Debugging is stopped");
+        });*/
+
+        it("Hermes RN app Debug test", async function () {
+            this.timeout(debugAndroidTestTime);
+            app = await runVSCode(HermesRNworkspacePath);
+            await app.workbench.explorer.openExplorerView();
+            await app.workbench.explorer.openFile("App.js");
+            await app.runCommand("cursorTop");
+
             console.log("Android Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
             console.log(`Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
