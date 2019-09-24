@@ -1,9 +1,0 @@
-{
-  "expo": {
-    "slug": "pureRNExpoApp",
-    "name": "pureRNExpoApp",
-    "sdkVersion": "35.0.0",
-    "entryPoint": ".vscode/exponentIndex.js"
-  },
-  "name": "pureRNExpoApp"
-}
