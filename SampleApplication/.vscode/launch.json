@@ -16,7 +16,7 @@
 			"type": "reactnative",
 			"request": "launch",
 			"platform": "ios",
-			"target": "iPhone 5s",
+			"target": "iPhone 11",
 			"sourceMaps": true,
 			"outDir": "${workspaceRoot}/.vscode/.react"
 		}
