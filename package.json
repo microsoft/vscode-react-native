@@ -29,6 +29,7 @@
 	],
 	"activationEvents": [
 		"onDebugResolve:reactnative",
+		"onDebugInitialConfigurations",
 		"onCommand:reactNative.runAndroidSimulator",
 		"onCommand:reactNative.runAndroidDevice",
 		"onCommand:reactNative.runIosSimulator",
