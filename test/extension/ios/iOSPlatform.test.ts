@@ -49,8 +49,8 @@ suite("iOSPlatform", function () {
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.runArguments, expected);
         });
-        test("getRunArgument simulator iPhone 11", function () {
-            runOptions.target = "iPhone 11";
+        test("getRunArgument simulator iPhone8", function () {
+            runOptions.target = "iPhone8";
             const expected = ["--simulator", runOptions.target];
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.runArguments, expected);
