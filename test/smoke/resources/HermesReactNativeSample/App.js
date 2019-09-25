@@ -26,6 +26,7 @@ import {
 
 import TestButton from './TestButton';
 
+const App = () => {
   const isHermes = () => global.HermesInternal != null;
   return (
     <Fragment>

@@ -7,7 +7,7 @@ import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { ExpoWorkspacePath, pureRNWorkspacePath, /*RNworkspacePath,*/ HermesRNworkspacePath, runVSCode, winTaskKillCommands } from "./main";
+import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode, winTaskKillCommands } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
@@ -17,8 +17,10 @@ const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
 const EXPO_APP_PACKAGE_NAME = SetupEnvironmentHelper.expoPackageName;
 const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity`;
 const RNDebugConfigName = "Debug Android";
+const RNHermesDebugConfigName = "React Native (Hermes): Debug Android - Experimental";
 const ExpoDebugConfigName = "Debug in Exponent";
 const RNSetBreakpointOnLine = 14;
+const RNHermesSetBreakpointOnLine = 11;
 const ExpoSetBreakpointOnLine = 12;
 const PureRNExpoSetBreakpointOnLine = 23;
 // Time for Android Debug Test before it reaches timeout
@@ -45,7 +47,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
         });
 
-        /*it("RN app Debug test", async function () {
+        it("RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
@@ -77,21 +79,21 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("Android Debug test: Debugging is stopped");
-        });*/
+        });
 
         it("Hermes RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
-            app = await runVSCode(HermesRNworkspacePath);
+            app = await runVSCode(RNworkspacePath);
+            prepareReactNativeProjectForHermesTesting();
             await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("App.js");
+            await app.workbench.explorer.openFile("TestButton.js");
             await app.runCommand("cursorTop");
-
-            console.log("Android Debug test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
-            console.log(`Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
+            console.log("Android Debug test: TestButton.js file is opened");
+            await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
+            console.log(`Android Debug test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
-            await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
-            console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
+            await app.workbench.debug.chooseDebugConfiguration(RNHermesDebugConfigName);
+            console.log(`Android Debug test: Chosen debug configuration: ${RNHermesDebugConfigName}`);
             console.log("Android Debug test: Starting debugging");
             await app.workbench.debug.startDebugging();
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
@@ -100,18 +102,18 @@ export function setup(testParameters?: TestRunArguments) {
             clientInited = client.init();
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
             await app.workbench.debug.waitForDebuggingToStart();
-            console.log("Android Debug test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
-            console.log("Android Debug test: Stack frame found");
+            console.log("Android Debug Hermes test: Debugging started");
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "TestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for TestButton.js and line ${RNSetBreakpointOnLine}`);
+            console.log("Android Debug Hermes test: Stack frame found");
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log("Android Debug test: Searching for \"Test output from debuggee\" string in console");
-            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
-            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            console.log("Android Debug test: \"Test output from debuggee\" string is found");
+            console.log("Android Debug Hermes test: Searching for \"Test output from Hermes debuggee\" string in console");
+            let found = await app.workbench.debug.findStringInConsole("Test output from Hermes debuggee", 10000);
+            assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in debug console");
+            console.log("Android Debug test: \"Test output from Hermes debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
-            console.log("Android Debug test: Debugging is stopped");
+            console.log("Android Debug Hermes test: Debugging is stopped");
         });
 
         it("Expo app Debug test", async function () {

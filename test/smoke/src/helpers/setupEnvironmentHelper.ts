@@ -46,12 +46,16 @@ export class SetupEnvironmentHelper {
     }
 
     public static  prepareHermesReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
-        let command = `react-native init ${appName}`;
-        if (version) {
+        let commandClean = path.join(workspacePath, "android", "gradlew") + " clean";
+        let commandBuild = path.join(workspacePath, "android", "gradlew") + " build";
+        // let command = `react-native init ${appName}`;
+        /*if (version) {
             command += ` --version ${version}`;
-        }
-        console.log(`*** Creating Hermes RN app via '${command}' in ${workspacePath}...`);
-        cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
+        }*/
+        /*console.log(`*** Creating Hermes RN app via '${command}' in ${workspacePath}...`);
+        cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });*/
+
+        cp.execSync(commandClean, { cwd: path.join(workspacePath, "android"), stdio: "inherit" });
 
         let customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
         let launchConfigFile = path.join(resourcesPath, "launch.json");
@@ -66,7 +70,7 @@ export class SetupEnvironmentHelper {
         gradlFileText = gradlFileText.replace("enableHermes: false,  // clean and rebuild if changing", "enableHermes: true,");
         fs.writeFileSync(gradlFilePath, gradlFileText);
 
-        console.log(`*** Here`);
+        console.log(`*** Copying TestButton.js into ${workspaceFilePath}`);
         fs.copyFileSync(path.join(resourcesPath, customEntryPointFolder, "TestButton.js"), path.join(workspacePath, "TestButton.js"));
 
         if (!fs.existsSync(vsCodeConfigPath)) {
@@ -77,7 +81,8 @@ export class SetupEnvironmentHelper {
         console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
         fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
 
-        SetupEnvironmentHelper.patchMetroConfig(workspacePath);
+        cp.execSync(commandBuild, { cwd: path.join(workspacePath, "android"), stdio: "inherit" });
+        // SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
     public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
