@@ -1,11 +1,11 @@
 {
     "ANDROID_EMULATOR": "Nexus_5X_API_28",
     "ANDROID_VERSION": "9",
-    "IOS_SIMULATOR": "iPhone 5s",
-    "IOS_VERSION": "12.4",
+    "IOS_SIMULATOR": "iPhone8",
+    "IOS_VERSION": "12.2",
     "CODE_VERSION": "1.36.1",
     "EXPO_XDL_VERSION": "56.0.0",
     "RN_VERSION": "0.60.5",
     "PURE_RN_VERSION": "0.59.8",
-    "PURE_EXPO_VERSION": "34.0.4"
+    "PURE_EXPO_VERSION": "35.0.0"
 }
