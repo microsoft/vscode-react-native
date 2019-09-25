@@ -7,10 +7,9 @@ import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, runVSCode, winTaskKillCommands } from "./main";
+import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, runVSCode } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
-import { VSCodeHelper } from "./helpers/vsCodeHelper";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -30,12 +29,6 @@ export function setup(testParameters?: TestRunArguments) {
     describe("Debugging Android", () => {
         let app: SpectronApplication;
         let clientInited: AppiumClient;
-
-        beforeEach(function (done) {
-            this.timeout(120 * 1000); // Sometimes killing processes takes a while
-            VSCodeHelper.killWinCodeProcesses(winTaskKillCommands);
-            done();
-        });
 
         afterEach(async () => {
             await app.stop();
