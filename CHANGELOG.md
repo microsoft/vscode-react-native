@@ -1,5 +1,5 @@
 ## 0.11.2
-* Fixed `Attach to packager` debugging issue when using Haul packager [#1108](https://github.com/microsoft/vscode-react-native/issues/1108)
+* Fixed `Attach to packager` debugging issue when Haul packager is being used [#1108](https://github.com/microsoft/vscode-react-native/issues/1108)
 * Optimized extension activation events [#1114](https://github.com/microsoft/vscode-react-native/pull/1114)
 
 ## 0.11.1
