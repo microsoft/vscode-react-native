@@ -246,6 +246,12 @@ export class AppiumHelper {
     private static async openExpoAppViaClipboardAndroid(client: AppiumClient, clipboard: Electron.Clipboard, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
+        const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc='Projects, tab, 1 of 3']";
+        await client
+            .waitForExist(EXPLORE_ELEMENT, 30 * 1000)
+            .click(EXPLORE_ELEMENT);
+        console.log(`*** Pressing "Projects" icon...`);
+
         console.log(`*** Opening Expo app via clipboard`);
         console.log(`*** Copying ${expoURL} to system clipboard...`);
         await clipboard.writeText(expoURL);
@@ -261,13 +267,12 @@ export class AppiumHelper {
     private static async openExpoAppViaExploreButtonIos(client: AppiumClient, expoURL: string) {
         console.log(`*** Opening Expo app via "Explore" button`);
         console.log(`*** Pressing "Explore" button...`);
-        const EXPO_EXPLORE_BUTTON = "//XCUIElementTypeButton[@name='Explore' or @name='Explore, tab, 2 of 4']";
+        const EXPO_EXPLORE_BUTTON = "//XCUIElementTypeButton[@name='Explore, tab, 2 of 4']";
         await client
             .waitForExist(EXPO_EXPLORE_BUTTON, 30 * 1000)
             .click(EXPO_EXPLORE_BUTTON);
 
         const FIND_A_PROJECT_ELEMENT = `(//XCUIElementTypeOther[@name='Find a project or enter a URL... '])[3]`;
-
 
         console.log(`*** Pasting ${expoURL} to search field...`);
         // Run Expo app by expoURL
