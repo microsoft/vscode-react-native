@@ -1,3 +1,4 @@
+console.log('Test output from debuggee');
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -11,7 +12,6 @@ import { SafeAreaView, StyleSheet, ScrollView, View, Text, StatusBar } from 'rea
 import { Header, LearnMoreLinks, Colors, DebugInstructions, ReloadInstructions } from 'react-native/Libraries/NewAppScreen';
 
 const App = () => {
-  console.log('Test output from debuggee');
   return (
     <Fragment>
       <StatusBar barStyle="dark-content" />

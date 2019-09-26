@@ -1,3 +1,4 @@
+console.log("Test output from debuggee");
 import { AppLoading } from 'expo';
 import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
@@ -9,7 +10,6 @@ import AppNavigator from './navigation/AppNavigator';
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
-  console.log("Test output from debuggee");
   if (!isLoadingComplete && !props.skipLoadingScreen) {
     return (
       <AppLoading
