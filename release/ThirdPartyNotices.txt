@@ -1151,7 +1151,7 @@ THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 -------------------------------------------------------------------
 
-ultron 1.1.1 - MIT
+ultron 1.0.2 - MIT
 https://github.com/unshiftio/ultron
 Copyright (c) 2015 Unshift.io, Arnout Kazemier
 
@@ -1183,7 +1183,7 @@ SOFTWARE.
 
 -------------------------------------------------------------------
 
-ultron 1.0.2 - MIT
+ultron 1.1.1 - MIT
 https://github.com/unshiftio/ultron
 Copyright (c) 2015 Unshift.io, Arnout Kazemier
 
@@ -1345,7 +1345,7 @@ SOFTWARE.
 
 -------------------------------------------------------------------
 
-vscode-nls 3.2.2 - MIT
+vscode-nls 4.1.0 - MIT
 https://github.com/Microsoft/vscode-nls#readme
 Copyright (c) Microsoft Corporation.
 
@@ -1372,7 +1372,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 -------------------------------------------------------------------
 
-vscode-nls 4.1.0 - MIT
+vscode-nls 3.2.2 - MIT
 https://github.com/Microsoft/vscode-nls#readme
 Copyright (c) Microsoft Corporation.
 
