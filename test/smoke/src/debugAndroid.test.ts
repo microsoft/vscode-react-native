@@ -7,10 +7,9 @@ import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode, winTaskKillCommands } from "./main";
+import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
-import { VSCodeHelper } from "./helpers/vsCodeHelper";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -32,12 +31,6 @@ export function setup(testParameters?: TestRunArguments) {
     describe("Debugging Android", () => {
         let app: SpectronApplication;
         let clientInited: AppiumClient;
-
-        beforeEach(function (done) {
-            this.timeout(120 * 1000); // Sometimes killing processes takes a while
-            VSCodeHelper.killWinCodeProcesses(winTaskKillCommands);
-            done();
-        });
 
         afterEach(async () => {
             await app.stop();
@@ -88,13 +81,14 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("TestButton.js");
             await app.runCommand("cursorTop");
-            console.log("Android Debug test: TestButton.js file is opened");
+            console.log("Android Debug Hermes test: TestButton.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
-            console.log(`Android Debug test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`);
+            console.log(`Android Debug Hermes test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
+            console.log(`Android Debug Hermes test: Debug View let opened`);
             await app.workbench.debug.chooseDebugConfiguration(RNHermesDebugConfigName);
-            console.log(`Android Debug test: Chosen debug configuration: ${RNHermesDebugConfigName}`);
-            console.log("Android Debug test: Starting debugging");
+            console.log(`Android Debug Hermes test: Chosen debug configuration: ${RNHermesDebugConfigName}`);
+            console.log("Android Debug Hermes test: Starting debugging");
             await app.workbench.debug.startDebugging();
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
