@@ -41,6 +41,8 @@ Once app is loaded and ran, [open Developer Menu](https://facebook.github.io/rea
 
 You can debug your app on an Android emulator, Android device or iOS simulator. This extension provides [experimental support](doc/debugging.md#debugging-on-ios-device) for iOS devices.
 
+Since version 0.60.2 [React Native supports Hermes engine for Android applications](https://facebook.github.io/react-native/blog/2019/07/17/hermes). Extension provides experimental support for debugging React Native Android applications with Hermes enabled. Please see [Debugging React Native apps with Hermes enabled](doc/debugging.md#debugging-react-native-apps-with-hermes-enabled) for more details.
+
 More information about debugging using VS Code can be found in this [guide](https://code.visualstudio.com/docs/editor/debugging).
 
 See [Setting up debug environment](doc/debugging.md) for more details.
