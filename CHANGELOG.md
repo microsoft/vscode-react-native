@@ -1,3 +1,7 @@
+## 0.11.2
+* Fixed `Attach to packager` debugging issue when using Haul packager [#1108](https://github.com/microsoft/vscode-react-native/issues/1108)
+* Optimized extension activation events [#1114](https://github.com/microsoft/vscode-react-native/pull/1114)
+
 ## 0.11.1
 * Fixed debugging issue when using `broadcast-channels` package in React Native application [#1083](https://github.com/microsoft/vscode-react-native/issues/1083)
 * Added `launchActivity` debug configuration parameter for Android allowing to choose the activity to launch on `Debug Android` scenario [#1084](https://github.com/microsoft/vscode-react-native/pull/1084)
