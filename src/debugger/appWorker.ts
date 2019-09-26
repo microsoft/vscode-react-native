@@ -156,7 +156,7 @@ Object.prototype.toString = function() {
     } else {
         return nativeObjectToString.call(this);
     }
-}
+};
 `;
 
     public static WORKER_DONE = `// Notify debugger that we're done with loading
