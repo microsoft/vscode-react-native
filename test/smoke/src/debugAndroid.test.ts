@@ -76,8 +76,9 @@ export function setup(testParameters?: TestRunArguments) {
 
         it("Hermes RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
-            app = await runVSCode(RNworkspacePath);
             prepareReactNativeProjectForHermesTesting();
+            AndroidEmulatorHelper.uninstallTestAppFromEmulator(RN_APP_PACKAGE_NAME);
+            app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("TestButton.js");
             await app.runCommand("cursorTop");
@@ -96,6 +97,8 @@ export function setup(testParameters?: TestRunArguments) {
             clientInited = client.init();
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Debug Hermes test: Debugging started");
+            let isHermesWorking = await AppiumHelper.isHermesWorking(clientInited);
+            assert.equal(isHermesWorking, true);
             console.log("Android Debug Hermes test: Click Test Button");
             await AppiumHelper.clickTestButtonHermes(clientInited);
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "TestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for TestButton.js and line ${RNHermesSetBreakpointOnLine}`);

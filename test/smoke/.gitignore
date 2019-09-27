@@ -10,7 +10,6 @@ config.dev.json
 *SmokeTests.xml
 resources/latestRNApp/**
 resources/latestExpoApp/**
-resources/latestHermesRNApp/**
 resources/pureRNExpoApp/**
 resources/.vscode-test/**
 yarn-error.log

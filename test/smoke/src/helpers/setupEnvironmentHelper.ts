@@ -57,7 +57,7 @@ export class SetupEnvironmentHelper {
         console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
         fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
 
-        SetupEnvironmentHelper.copyGradlFilesHermes(workspacePath, resourcesPath, customEntryPointFolder);
+        SetupEnvironmentHelper.copyGradleFilesHermes(workspacePath, resourcesPath, customEntryPointFolder);
 
         console.log(`*** Copying ${testButtonPath} into ${workspacePath}`);
         fs.copyFileSync(testButtonPath, path.join(workspacePath, "TestButton.js"));
@@ -299,16 +299,16 @@ module.exports.hasteMapCacheDirectory = ".cache";`;
         console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
     }
 
-    private static copyGradlFilesHermes(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
-        let appGradlBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
-        let resGradlBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
-        let resReactGradlFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // must be removed after react-native package fix
-        let projReactGradlFilePath = path.join(workspacePath, "node_modules", "react-native", "react.gradle"); // must be removed after react-native package fix
+    private static copyGradleFilesHermes(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
+        let appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
+        let resGradleBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
+        let resReactGradleFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // must be removed after react-native package fix
+        let projReactGradleFilePath = path.join(workspacePath, "node_modules", "react-native", "react.gradle"); // must be removed after react-native package fix
 
-        console.log(`*** Copying  ${resGradlBuildFilePath} into ${appGradlBuildFilePath}...`);
-        fs.writeFileSync(appGradlBuildFilePath, fs.readFileSync(resGradlBuildFilePath));
+        console.log(`*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`);
+        fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
 
-        console.log(`*** Copying  ${resReactGradlFilePath} into ${projReactGradlFilePath}...`); // must be removed after react-native package fix
-        fs.writeFileSync(projReactGradlFilePath, fs.readFileSync(resReactGradlFilePath));
+        console.log(`*** Copying  ${resReactGradleFilePath} into ${projReactGradleFilePath}...`); // must be removed after react-native package fix
+        fs.writeFileSync(projReactGradleFilePath, fs.readFileSync(resReactGradleFilePath));
     }
 }

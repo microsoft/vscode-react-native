@@ -144,6 +144,14 @@ export class AndroidEmulatorHelper {
         });
     }
 
+    public static uninstallTestAppFromEmulator(appPackage: string) {
+        try {
+            cp.spawnSync("adb", ["shell", "pm", "uninstall", appPackage]);
+        } catch (e) {
+            console.error(`Error occured while uninstalling test app:\n ${e}`);
+        }
+    }
+
     public static async enableDrawPermitForApp(packageName: string) {
         const drawPermitCommand = `adb -s ${AndroidEmulatorHelper.androidEmulatorName} shell appops set ${packageName} SYSTEM_ALERT_WINDOW allow`;
         console.log(`*** Enabling permission for drawing over apps via: ${drawPermitCommand}`);
