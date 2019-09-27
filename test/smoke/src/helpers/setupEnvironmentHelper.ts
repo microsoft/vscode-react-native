@@ -46,46 +46,36 @@ export class SetupEnvironmentHelper {
     }
 
     public static  prepareHermesReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
-        let commandClean = path.join(workspacePath, "android", "gradlew") + " clean";
-        let commandBuild = path.join(workspacePath, "android", "gradlew") + " build";
+        let commandClean = path.join(workspacePath, "android", "gradlew");
 
         console.log(`*** Executing  ${commandClean}...`);
-        cp.execSync(commandClean, { cwd: path.join(workspacePath, "android"), stdio: "inherit" });
+        cp.spawnSync(commandClean, ["clean"], { cwd: path.join(workspacePath, "android"), stdio: "inherit" });
 
         let customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
-        let launchConfigFile = path.join(resourcesPath, "launch.json");
-        let vsCodeConfigPath = path.join(workspacePath, ".vscode");
-        let appGradlBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
-        let resGradlBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
-        let resReactGradlFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // must be removed after react-native package fix
-        let projReactGradlFilePath = path.join(workspacePath, "node_modules", "react-native", "react.gradle"); // must be removed after react-native package fix
         let testButtonPath = path.join(resourcesPath, customEntryPointFolder, "TestButton.js");
 
         console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
         fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
+
+        SetupEnvironmentHelper.copyGradlFilesHermes(workspacePath, resourcesPath, customEntryPointFolder);
+
+        console.log(`*** Copying ${testButtonPath} into ${workspacePath}`);
+        fs.copyFileSync(testButtonPath, path.join(workspacePath, "TestButton.js"));
+
+        SetupEnvironmentHelper.patchMetroConfig(workspacePath);
+    }
+
+    private static copyGradlFilesHermes(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
+        let appGradlBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
+        let resGradlBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
+        let resReactGradlFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // must be removed after react-native package fix
+        let projReactGradlFilePath = path.join(workspacePath, "node_modules", "react-native", "react.gradle"); // must be removed after react-native package fix
 
         console.log(`*** Copying  ${resGradlBuildFilePath} into ${appGradlBuildFilePath}...`);
         fs.writeFileSync(appGradlBuildFilePath, fs.readFileSync(resGradlBuildFilePath));
 
         console.log(`*** Copying  ${resReactGradlFilePath} into ${projReactGradlFilePath}...`); // must be removed after react-native package fix
         fs.writeFileSync(projReactGradlFilePath, fs.readFileSync(resReactGradlFilePath));
-
-        console.log(`*** Copying ${testButtonPath} into ${workspacePath}`);
-        fs.copyFileSync(testButtonPath, path.join(workspacePath, "TestButton.js"));
-
-        if (!fs.existsSync(vsCodeConfigPath)) {
-            console.log(`*** Creating  ${vsCodeConfigPath}...`);
-            fs.mkdirSync(vsCodeConfigPath);
-        }
-
-        if (!fs.existsSync(path.join(vsCodeConfigPath, "launch.json"))) {
-            console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
-            fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
-        }
-
-        console.log(`*** Executing  ${commandBuild}...`);
-        cp.execSync(commandBuild, { cwd: path.join(workspacePath, "android"), stdio: "inherit" });
-        SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
     public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {

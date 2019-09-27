@@ -27,12 +27,12 @@ export class AppiumHelper {
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Reload JS Bundle']",
         },
         RN_ENABLE_REMOTE_DEBUGGING_BUTTON: {
-            [Platform.Android]:  "//*[@text='Debug JS Remotely']",
+            [Platform.Android]:  "//*[@text='Debug JS Remotely' or @text='Debug']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely']",
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Debug Remote JS']",
         },
         RN_STOP_REMOTE_DEBUGGING_BUTTON: {
-            [Platform.Android]: "//*[@text='Stop Remote JS Debugging']",
+            [Platform.Android]: "//*[@text='Stop Remote JS Debugging' or @text='Stop Debugging']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Stop Remote JS Debugging']",
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Stop Remote JS Debugging']",
         },
@@ -262,6 +262,14 @@ export class AppiumHelper {
             .waitForExist(EXPO_OPEN_FROM_CLIPBOARD, 30 * 1000)
             .click(EXPO_OPEN_FROM_CLIPBOARD);
         console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
+    }
+
+    public static async clickTestButtonHermes(client: AppiumClient) {
+        console.log(`*** Pressing "Test Button" button...`);
+        const TEST_BUTTON_BUTTON = "//*[@text='TEST BUTTON']";
+        await client
+            .waitForExist(TEST_BUTTON_BUTTON, 30 * 1000)
+            .click(TEST_BUTTON_BUTTON);
     }
 
     private static async openExpoAppViaExploreButtonIos(client: AppiumClient, expoURL: string) {

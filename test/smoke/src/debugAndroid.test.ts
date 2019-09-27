@@ -16,7 +16,7 @@ const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
 const EXPO_APP_PACKAGE_NAME = SetupEnvironmentHelper.expoPackageName;
 const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity`;
 const RNDebugConfigName = "Debug Android";
-const RNHermesDebugConfigName = "React Native (Hermes): Debug Android - Experimental";
+const RNHermesDebugConfigName = "Debug Android (Hermes) - Experimental";
 const ExpoDebugConfigName = "Debug in Exponent";
 const RNSetBreakpointOnLine = 14;
 const RNHermesSetBreakpointOnLine = 11;
@@ -96,7 +96,9 @@ export function setup(testParameters?: TestRunArguments) {
             clientInited = client.init();
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Debug Hermes test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "TestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for TestButton.js and line ${RNSetBreakpointOnLine}`);
+            console.log("Android Debug Hermes test: Click Test Button");
+            await AppiumHelper.clickTestButtonHermes(clientInited);
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "TestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for TestButton.js and line ${RNHermesSetBreakpointOnLine}`);
             console.log("Android Debug Hermes test: Stack frame found");
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console

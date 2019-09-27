@@ -7,7 +7,7 @@ export default class TestButton extends Component {
       this.handleClick = this.handleClick.bind(this);
     }
     handleClick() {
-      let testBoleanValue = true;
+      let testBooleanValue = true;
       console.log('Test output from Hermes debuggee');
     }
     render() {
