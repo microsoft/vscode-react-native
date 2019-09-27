@@ -62,7 +62,7 @@ export class SetupEnvironmentHelper {
         console.log(`*** Copying ${testButtonPath} into ${workspacePath}`);
         fs.copyFileSync(testButtonPath, path.join(workspacePath, "TestButton.js"));
 
-        SetupEnvironmentHelper.patchMetroConfig(workspacePath);
+        // SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
     public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
@@ -302,13 +302,13 @@ module.exports.hasteMapCacheDirectory = ".cache";`;
     private static copyGradleFilesHermes(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
         let appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
         let resGradleBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
-        let resReactGradleFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // must be removed after react-native package fix
-        let projReactGradleFilePath = path.join(workspacePath, "node_modules", "react-native", "react.gradle"); // must be removed after react-native package fix
+        // let resReactGradleFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // must be removed after react-native package fix
+        // let projReactGradleFilePath = path.join(workspacePath, "node_modules", "react-native", "react.gradle"); // must be removed after react-native package fix
 
         console.log(`*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`);
         fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
 
-        console.log(`*** Copying  ${resReactGradleFilePath} into ${projReactGradleFilePath}...`); // must be removed after react-native package fix
-        fs.writeFileSync(projReactGradleFilePath, fs.readFileSync(resReactGradleFilePath));
+        // console.log(`*** Copying  ${resReactGradleFilePath} into ${projReactGradleFilePath}...`); // must be removed after react-native package fix
+        // fs.writeFileSync(projReactGradleFilePath, fs.readFileSync(resReactGradleFilePath));
     }
 }
