@@ -246,14 +246,14 @@ export class AppiumHelper {
     public static async clickTestButtonHermes(client: AppiumClient) {
         console.log(`*** Pressing "Test Button" button...`);
         const TEST_BUTTON_BUTTON = "//*[@text='TEST BUTTON']";
-        await client
-            .waitForExist(TEST_BUTTON_BUTTON, 30 * 1000)
-            .click(TEST_BUTTON_BUTTON);
+        await client.click(TEST_BUTTON_BUTTON);
     }
 
     public static async isHermesWorking(client: AppiumClient): Promise<boolean> {
         const HERMES_MARK = "//*[@text='Hermes is working: true']";
-        return client.isExisting(HERMES_MARK);
+        return await client
+            .waitForExist(HERMES_MARK, 30 * 1000)
+            .isExisting(HERMES_MARK);
     }
 
     private static async openExpoAppViaClipboardAndroid(client: AppiumClient, clipboard: Electron.Clipboard, expoURL: string) {

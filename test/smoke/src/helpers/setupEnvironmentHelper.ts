@@ -45,13 +45,14 @@ export class SetupEnvironmentHelper {
         SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
-    public static  prepareHermesReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
+    public static prepareHermesReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
         let commandClean = path.join(workspacePath, "android", "gradlew");
 
-        cp.spawnSync("yarn", ["add", "hermes-engine@0.1.1"], {cwd: workspacePath});
+        console.log(`*** Executing yarn add hermes-engine@0.1.1...`);
+        cp.spawnSync("yarn add hermes-engine@0.1.1", {cwd: workspacePath, stdio: "inherit", shell: true});
 
-        console.log(`*** Executing  ${commandClean}...`);
-        cp.spawnSync(commandClean, ["clean"], { cwd: path.join(workspacePath, "android"), stdio: "inherit" });
+        console.log(`*** Executing  ${commandClean} clean...`);
+        cp.spawnSync(commandClean + " clean", { cwd: path.join(workspacePath, "android"), stdio: "inherit", shell: true});
 
         let customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
         let testButtonPath = path.join(resourcesPath, customEntryPointFolder, "TestButton.js");

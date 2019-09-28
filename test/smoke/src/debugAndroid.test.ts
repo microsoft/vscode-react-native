@@ -97,8 +97,15 @@ export function setup(testParameters?: TestRunArguments) {
             clientInited = client.init();
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Debug Hermes test: Debugging started");
+            console.log("Android Debug Hermes test: Checking for Hermes mark");
             let isHermesWorking = await AppiumHelper.isHermesWorking(clientInited);
             assert.equal(isHermesWorking, true);
+            console.log("Android Debug Hermes test: Reattaching to Hermes app");
+            await app.workbench.debug.stopDebugging();
+            await app.workbench.debug.chooseDebugConfiguration("Attach to packager (Hermes) - Experimental");
+            await app.workbench.debug.startDebugging();
+            console.log("Android Debug Hermes test: Reattached successfully");
+            await sleep(10000);
             console.log("Android Debug Hermes test: Click Test Button");
             await AppiumHelper.clickTestButtonHermes(clientInited);
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "TestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for TestButton.js and line ${RNHermesSetBreakpointOnLine}`);
@@ -110,7 +117,7 @@ export function setup(testParameters?: TestRunArguments) {
             let found = await app.workbench.debug.findStringInConsole("Test output from Hermes debuggee", 10000);
             assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in debug console");
             console.log("Android Debug test: \"Test output from Hermes debuggee\" string is found");
-            await app.workbench.debug.stopDebugging();
+            await app.workbench.debug.disconnectFromDebugger();
             console.log("Android Debug Hermes test: Debugging is stopped");
         });
 

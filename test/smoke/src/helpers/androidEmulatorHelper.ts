@@ -147,7 +147,7 @@ export class AndroidEmulatorHelper {
     public static uninstallTestAppFromEmulator(appPackage: string) {
         console.log(`*** Uninstalling test app ${appPackage}' from Emulator`);
         try {
-            cp.spawnSync("adb", ["shell", "pm", "uninstall", appPackage]);
+            cp.spawnSync("adb", ["shell", "pm", "uninstall", appPackage], {stdio: "inherit"});
         } catch (e) {
             console.error(`Error occured while uninstalling test app:\n ${e}`);
         }
