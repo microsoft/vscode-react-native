@@ -105,7 +105,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.chooseDebugConfiguration("Attach to packager (Hermes) - Experimental");
             await app.workbench.debug.startDebugging();
             console.log("Android Debug Hermes test: Reattached successfully");
-            await sleep(10000);
+            await sleep(8000);
             console.log("Android Debug Hermes test: Click Test Button");
             await AppiumHelper.clickTestButtonHermes(clientInited);
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "TestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for TestButton.js and line ${RNHermesSetBreakpointOnLine}`);

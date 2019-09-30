@@ -250,7 +250,7 @@ export class AppiumHelper {
     }
 
     public static async isHermesWorking(client: AppiumClient): Promise<boolean> {
-        const HERMES_MARK = "//*[@text='Hermes is working: true']";
+        const HERMES_MARK = "//*[@text='Engine: Hermes']";
         return await client
             .waitForExist(HERMES_MARK, 30 * 1000)
             .isExisting(HERMES_MARK);

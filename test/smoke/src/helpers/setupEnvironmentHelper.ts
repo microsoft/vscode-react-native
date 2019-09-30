@@ -49,7 +49,7 @@ export class SetupEnvironmentHelper {
         let commandClean = path.join(workspacePath, "android", "gradlew");
 
         console.log(`*** Executing  ${commandClean} clean...`);
-        cp.spawnSync(commandClean + " clean", { cwd: path.join(workspacePath, "android"), stdio: "inherit", shell: true});
+        cp.execSync(commandClean + " clean", { cwd: path.join(workspacePath, "android"), stdio: "inherit"});
 
         let customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
         let testButtonPath = path.join(resourcesPath, customEntryPointFolder, "TestButton.js");
