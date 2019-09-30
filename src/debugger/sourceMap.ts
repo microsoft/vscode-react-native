@@ -104,7 +104,7 @@ export class SourceMapUtil {
 
     /**
      * Removes sourceURL from the script body since RN 0.61 because it breaks sourcemaps.
-     * Example: //# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false
+     * Example: //# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false -> ""
      */
     public removeSourceURL(scriptBody: string) {
         return scriptBody.replace(SourceMapUtil.SourceURLRegex, "");
