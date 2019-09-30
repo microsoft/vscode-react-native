@@ -70,6 +70,10 @@ export class ScriptImporter {
                     waitForSourceMapping = this.writeAppSourceMap(sourceMappingUrl, scriptUrl)
                         .then(() => {
                             scriptBody = this.sourceMapUtil.updateScriptPaths(scriptBody, <IStrictUrl>sourceMappingUrl);
+                            if (semver.gte(rnVersion, "0.61.0")) {
+                                scriptBody = this.sourceMapUtil.removeSourceURL(scriptBody);
+                            }
+
                         });
                 }
 
