@@ -73,7 +73,6 @@ export class ScriptImporter {
                             if (semver.gte(rnVersion, "0.61.0")) {
                                 scriptBody = this.sourceMapUtil.removeSourceURL(scriptBody);
                             }
-
                         });
                 }
 
