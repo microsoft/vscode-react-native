@@ -86,7 +86,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
             console.log(`Android Debug Hermes test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
-            console.log(`Android Debug Hermes test: Debug View let opened`);
+            console.log(`Android Debug Hermes test: Debug Viewlet opened`);
             await app.workbench.debug.chooseDebugConfiguration(RNHermesDebugConfigName);
             console.log(`Android Debug Hermes test: Chosen debug configuration: ${RNHermesDebugConfigName}`);
             console.log("Android Debug Hermes test: Starting debugging");
@@ -105,7 +105,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.chooseDebugConfiguration("Attach to packager (Hermes) - Experimental");
             await app.workbench.debug.startDebugging();
             console.log("Android Debug Hermes test: Reattached successfully");
-            await sleep(8000);
+            await sleep(7000);
             console.log("Android Debug Hermes test: Click Test Button");
             await AppiumHelper.clickTestButtonHermes(clientInited);
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "TestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for TestButton.js and line ${RNHermesSetBreakpointOnLine}`);
