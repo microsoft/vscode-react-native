@@ -27,9 +27,9 @@ export class SetupEnvironmentHelper {
         console.log(`*** Creating RN app via '${command}' in ${workspacePath}...`);
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
-        let customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
-        let launchConfigFile = path.join(resourcesPath, "launch.json");
-        let vsCodeConfigPath = path.join(workspacePath, ".vscode");
+        const customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
+        const launchConfigFile = path.join(resourcesPath, "launch.json");
+        const vsCodeConfigPath = path.join(workspacePath, ".vscode");
 
         console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
         fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
@@ -46,13 +46,13 @@ export class SetupEnvironmentHelper {
     }
 
     public static prepareHermesReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
-        let commandClean = path.join(workspacePath, "android", "gradlew") + " clean";
+        const commandClean = path.join(workspacePath, "android", "gradlew") + " clean";
 
         console.log(`*** Executing  ${commandClean} ...`);
         cp.execSync(commandClean, { cwd: path.join(workspacePath, "android"), stdio: "inherit"});
 
-        let customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
-        let testButtonPath = path.join(resourcesPath, customEntryPointFolder, "TestButton.js");
+        const customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
+        const testButtonPath = path.join(resourcesPath, customEntryPointFolder, "TestButton.js");
 
         console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
         fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
@@ -298,15 +298,15 @@ module.exports.hasteMapCacheDirectory = ".cache";`;
     }
 
     private static copyGradleFilesHermes(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
-        let appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
-        let resGradleBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
-        let resReactGradleFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
-        let projReactGradleFilePath = path.join(workspacePath, "node_modules", "react-native", "react.gradle"); //TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
+        const appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
+        const resGradleBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
+        const resReactGradleFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
+        const projReactGradleFilePath = path.join(workspacePath, "node_modules", "react-native", "react.gradle"); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
 
         console.log(`*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`);
         fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
 
-        console.log(`*** Copying  ${resReactGradleFilePath} into ${projReactGradleFilePath}...`); //TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
+        console.log(`*** Copying  ${resReactGradleFilePath} into ${projReactGradleFilePath}...`); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
         fs.writeFileSync(projReactGradleFilePath, fs.readFileSync(resReactGradleFilePath));
     }
 }
