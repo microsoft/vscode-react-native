@@ -275,7 +275,7 @@ export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeo
 /**
  * Parses settings.json file for workspace root property
  */
-function getProjectRoot(args: any): string {
+export function getProjectRoot(args: any): string {
     try {
         let vsCodeRoot = args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
         let settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");

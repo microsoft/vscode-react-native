@@ -15,6 +15,7 @@ export interface ILaunchArgs {
     runArguments?: string[];
     env?: any;
     envFile?: string;
+    isDirect?: boolean;
 }
 
 /**

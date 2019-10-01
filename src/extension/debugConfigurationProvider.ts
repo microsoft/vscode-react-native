@@ -36,6 +36,19 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "request": "launch",
             "platform": "exponent",
         },
+        "Debug Android (Hermes) - Experimental": {
+            "name": "Debug Android (Hermes) - Experimental",
+            "cwd": "${workspaceFolder}",
+            "type": "reactnativedirect",
+            "request": "launch",
+            "platform": "android",
+        },
+        "Attach to packager (Hermes) - Experimental": {
+            "name": "Attach to packager (Hermes) - Experimental",
+            "cwd": "${workspaceFolder}",
+            "type": "reactnativedirect",
+            "request": "attach",
+        },
     };
 
     private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
@@ -54,6 +67,14 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         {
             label: "Debug in Exponent",
             description: localize("DebugExpoConfigDesc", "Debug Expo application or React Native application in Expo"),
+        },
+        {
+            label: "Debug Android (Hermes) - Experimental",
+            description: localize("DebugAndroidHermesConfigDesc", "Run and debug Android Hermes application"),
+        },
+        {
+            label: "Attach to packager (Hermes) - Experimental",
+            description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working Android Hermes application packager"),
         },
     ];
 

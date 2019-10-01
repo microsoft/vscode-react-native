@@ -1,7 +1,7 @@
 {
 	"name": "vscode-react-native",
 	"displayName": "React Native Tools",
-	"version": "0.11.0",
+	"version": "0.11.2",
 	"private": true,
 	"publisher": "msjsdiag",
 	"icon": "images/icon.png",
@@ -28,7 +28,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onDebug",
+		"onDebugResolve:reactnative",
+		"onDebugInitialConfigurations",
 		"onCommand:reactNative.runAndroidSimulator",
 		"onCommand:reactNative.runAndroidDevice",
 		"onCommand:reactNative.runIosSimulator",
@@ -345,6 +346,174 @@
 								"type": "string",
 								"description": "%reactNative.launch.debuggerWorkerUrlPath.description%",
 								"default": "debugger-ui/"
+							},
+							"launchActivity": {
+								"type": "string",
+								"description": "%reactNative.launch.launchActivity.description%",
+								"default": "MainActivity"
+							}
+						}
+					}
+				}
+			},
+			{
+				"type": "reactnativedirect",
+				"label": "React Native Direct - Experimental",
+				"program": "./src/debugger/direct/reactNativeDirectDebugEntryPoint.js",
+				"runtime": "node",
+				"enableBreakpointsFor": {
+					"languageIds": [
+						"javascript",
+						"typescript",
+						"javascriptreact",
+						"typescriptreact"
+					]
+				},
+				"configurationSnippets": [
+					{
+						"label": "React Native (Hermes): Debug Android - Experimental",
+						"description": "%reactNative.snippets.debugAndroidHermes.description%",
+						"body": {
+							"name": "Debug Android (Hermes) - Experimental",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnativedirect",
+							"request": "launch",
+							"platform": "android"
+						}
+					},
+					{
+						"label": "React Native (Hermes): Attach to packager - Experimental",
+						"description": "%reactNative.snippets.attachPackagerHermes.description%",
+						"body": {
+							"name": "Attach to packager (Hermes) - Experimental",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnativedirect",
+							"request": "attach"
+						}
+					}
+				],
+				"configurationAttributes": {
+					"attach": {
+						"required": [
+							"cwd"
+						],
+						"properties": {
+							"cwd": {
+								"type": "string",
+								"description": "%reactNative.attach.cwd.description%",
+								"default": "${workspaceFolder}"
+							},
+							"trace": {
+								"type": "string",
+								"enum": [
+									"verbose",
+									"log",
+									"warn",
+									"error",
+									"stop"
+								],
+								"default": "log",
+								"description": "%reactNative.attach.trace.description%"
+							},
+							"address": {
+								"type": "string",
+								"description": "%reactNative.attach.address.description%",
+								"default": "localhost"
+							},
+							"port": {
+								"type": "string",
+								"description": "%reactNative.attach.port.description%",
+								"default": "8081"
+							},
+							"skipFiles": {
+								"type": "array",
+								"description": "%reactNative.attach.skipFiles.description%",
+								"items": {
+									"type": "string"
+								},
+								"default": []
+							}
+						}
+					},
+					"launch": {
+						"required": [
+							"cwd",
+							"platform"
+						],
+						"properties": {
+							"platform": {
+								"type": "string",
+								"enum": [
+									"android"
+								],
+								"description": "%reactNative.launch.platform.description%"
+							},
+							"cwd": {
+								"type": "string",
+								"description": "%reactNative.launch.cwd.description%",
+								"default": "${workspaceFolder}"
+							},
+							"target": {
+								"anyOf": [
+									{
+										"type": "string",
+										"enum": [
+											"device",
+											"simulator"
+										]
+									},
+									{
+										"type": "string"
+									}
+								],
+								"default": "simulator",
+								"description": "%reactNative.launch.target.description%"
+							},
+							"logCatArguments": {
+								"type": "array",
+								"description": "%reactNative.launch.logCatArguments.description%",
+								"default": [
+									"*:S",
+									"ReactNative:V",
+									"ReactNativeJS:V"
+								]
+							},
+							"runArguments": {
+								"type": "array",
+								"description": "%reactNative.launch.runArguments.description%"
+							},
+							"env": {
+								"type": "object",
+								"additionalProperties": {
+									"type": "string"
+								},
+								"description": "%reactNative.launch.env.description%",
+								"default": {}
+							},
+							"envFile": {
+								"type": "string",
+								"description": "%reactNative.launch.envFile.description%",
+								"default": "${workspaceFolder}/.env"
+							},
+							"skipFiles": {
+								"type": "array",
+								"description": "%reactNative.launch.skipFiles.description%",
+								"items": {
+									"type": "string"
+								},
+								"default": []
+							},
+							"trace": {
+								"type": "string",
+								"enum": [
+									"verbose",
+									"log",
+									"warn",
+									"error",
+									"stop"
+								],
+								"default": "log",
+								"description": "%reactNative.launch.trace.description%"
 							},
 							"launchActivity": {
 								"type": "string",
