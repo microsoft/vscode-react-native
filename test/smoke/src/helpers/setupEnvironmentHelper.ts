@@ -57,7 +57,7 @@ export class SetupEnvironmentHelper {
         console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
         fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
 
-        SetupEnvironmentHelper.copyGradleFilesHermes(workspacePath, resourcesPath, customEntryPointFolder);
+        SetupEnvironmentHelper.copyGradleFilesToHermesApp(workspacePath, resourcesPath, customEntryPointFolder);
 
         console.log(`*** Copying ${testButtonPath} into ${workspacePath}`);
         fs.copyFileSync(testButtonPath, path.join(workspacePath, "TestButton.js"));
@@ -297,7 +297,7 @@ module.exports.hasteMapCacheDirectory = ".cache";`;
         console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
     }
 
-    private static copyGradleFilesHermes(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
+    private static copyGradleFilesToHermesApp(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
         const appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
         const resGradleBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
         const resReactGradleFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
