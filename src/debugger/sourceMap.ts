@@ -23,6 +23,7 @@ export interface IStrictUrl extends url.Url {
 
 export class SourceMapUtil {
     private static SourceMapURLRegex: RegExp = /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/m;
+    private static SourceURLRegex: RegExp = /\/\/(#|@) sourceURL=((?!data:).+?)\s*$/m;
 
     /**
      * Given a script body and URL, this method parses the body and finds the corresponding source map URL.
@@ -99,6 +100,14 @@ export class SourceMapUtil {
         // Update the body with the new location of the source map on storage.
         return scriptBody.replace(SourceMapUtil.SourceMapURLRegex,
             "//# sourceMappingURL=" + path.basename(sourceMappingUrl.pathname));
+    }
+
+    /**
+     * Removes sourceURL from the script body since RN 0.61 because it breaks sourcemaps.
+     * Example: //# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false -> ""
+     */
+    public removeSourceURL(scriptBody: string) {
+        return scriptBody.replace(SourceMapUtil.SourceURLRegex, "");
     }
 
     /**
