@@ -120,7 +120,7 @@ export function setup(testParameters?: TestRunArguments) {
             // Wait for debug string to be rendered in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("Android Expo Debug test: Searching for \"Test output from debuggee\" string in console");
-            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
+            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 15 * 1000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("Android Expo Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
