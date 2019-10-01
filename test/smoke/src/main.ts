@@ -141,9 +141,9 @@ console.warn = function suppressWebdriverWarnings(message) {
 export const RNworkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNAppName);
 const RNworkspaceFilePath = path.join(RNworkspacePath, SmokeTestsConstants.AppjsFileName);
 export const ExpoWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.ExpoAppName);
-// const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.AppjsFileName);
+const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.AppjsFileName);
 export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.pureRNExpoApp);
-// const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
+const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
 
 export const artifactsPath = path.join(repoRoot, SmokeTestsConstants.artifactsDir);
 const userDataDir = path.join(testVSCodeDirectory, SmokeTestsConstants.VSCodeUserDataDir);
@@ -195,7 +195,7 @@ async function setup(): Promise<void> {
     await AndroidEmulatorHelper.runAndroidEmulator();
 
     SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName, "ReactNativeSample", process.env.RN_VERSION);
-    /*if (!testParams.RunBasicTests) {
+    if (!testParams.RunBasicTests) {
         SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
         const PureRNVersionExpo = process.env.PURE_RN_VERSION || await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", PureRNVersionExpo);
@@ -206,7 +206,7 @@ async function setup(): Promise<void> {
             // We need only to download expo app, but this is the quickest way of doing it
             await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);
         }
-    }*/
+    }
     await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);
 
     electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
