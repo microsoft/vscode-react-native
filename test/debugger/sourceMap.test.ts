@@ -110,9 +110,10 @@ suite("sourceMap", function() {
             assert.equal(expectedPath, result);
         });
 
-        test("should remove sourceURL from the bundle script body", function() {
-            const scriptBody: string = "//# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false";
-            const expectedScriptBody = "";
+        test("should remove sourceURL from the bundle script body correctly", function() {
+            const scriptBody: string = `//# sourceMappingURL=index.map
+//# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false`;
+            const expectedScriptBody = "//# sourceMappingURL=index.map\n";
             const sourceMap = new SourceMapUtil();
 
             const result = sourceMap.removeSourceURL(scriptBody);
