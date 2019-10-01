@@ -15,6 +15,11 @@ import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestConfigurator } from "./helpers/configHelper";
 import { sleep, findFile } from "./helpers/utilities";
 
+interface IRNGlobalCLISwitch {
+    enableGlobalCLIApproach(): void;
+    disableGlobalCLIApproach(): void;
+}
+
 // TODO Incapsulate main.ts (get rid of function(), local variables, etc)
 console.log(`*** Setting up configuration variables`);
 const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
@@ -136,9 +141,9 @@ console.warn = function suppressWebdriverWarnings(message) {
 export const RNworkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNAppName);
 const RNworkspaceFilePath = path.join(RNworkspacePath, SmokeTestsConstants.AppjsFileName);
 export const ExpoWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.ExpoAppName);
-const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.AppjsFileName);
+// const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.AppjsFileName);
 export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.pureRNExpoApp);
-const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
+// const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
 
 export const artifactsPath = path.join(repoRoot, SmokeTestsConstants.artifactsDir);
 const userDataDir = path.join(testVSCodeDirectory, SmokeTestsConstants.VSCodeUserDataDir);
@@ -167,6 +172,15 @@ function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplica
     });
 }
 
+export let reactNativeGlobalCLIApproachSwitch: IRNGlobalCLISwitch = {
+    enableGlobalCLIApproach() {
+        SetupEnvironmentHelper.prepareReactNativeGlobalCLIApproach(resourcesPath, RNworkspacePath);
+    },
+    disableGlobalCLIApproach() {
+        SetupEnvironmentHelper.removeSettingsFromReactNativeProject(RNworkspacePath);
+    },
+};
+
 const testParams = TestConfigurator.parseTestArguments();
 async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
@@ -181,7 +195,7 @@ async function setup(): Promise<void> {
     await AndroidEmulatorHelper.runAndroidEmulator();
 
     SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName, "ReactNativeSample", process.env.RN_VERSION);
-    if (!testParams.RunBasicTests) {
+    /*if (!testParams.RunBasicTests) {
         SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName);
         const PureRNVersionExpo = process.env.PURE_RN_VERSION || await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", PureRNVersionExpo);
@@ -192,7 +206,7 @@ async function setup(): Promise<void> {
             // We need only to download expo app, but this is the quickest way of doing it
             await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);
         }
-    }
+    }*/
     await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);
 
     electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);

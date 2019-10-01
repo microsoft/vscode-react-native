@@ -7,7 +7,7 @@ import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, runVSCode } from "./main";
+import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, runVSCode, reactNativeGlobalCLIApproachSwitch } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
 
@@ -38,7 +38,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
         });
 
-        it("RN app Debug test", async function () {
+        async function runRNAppDebugTest() {
             this.timeout(debugAndroidTestTime);
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
@@ -70,6 +70,16 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("Android Debug test: Debugging is stopped");
+        }
+
+        it("RN app Debug test", async function () {
+            await runRNAppDebugTest.call(this);
+        });
+
+        it("RN global CLI app Debug test", async function () {
+            reactNativeGlobalCLIApproachSwitch.enableGlobalCLIApproach();
+            await runRNAppDebugTest.call(this);
+            reactNativeGlobalCLIApproachSwitch.disableGlobalCLIApproach();
         });
 
         it("Expo app Debug test", async function () {

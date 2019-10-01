@@ -3,7 +3,6 @@
 
 import * as Q from "q";
 import * as vscode from "vscode";
-
 import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
@@ -310,7 +309,7 @@ function requestSetup(args: any): any {
         target: args.target || "simulator",
     };
 
-    CommandExecutor.setReactNativeGlobalCommandName(reactNativeGlobalCommandName);
+    CommandExecutor.ReactNativeCommand = reactNativeGlobalCommandName;
 
     if (!args.runArguments) {
         let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", workspaceFolder.uri);

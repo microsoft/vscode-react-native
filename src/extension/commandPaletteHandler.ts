@@ -406,7 +406,7 @@ export class CommandPaletteHandler {
             envFile: envFile,
         };
 
-        CommandExecutor.setReactNativeGlobalCommandName(reactNativeGlobalCommandName);
+        CommandExecutor.ReactNativeCommand = reactNativeGlobalCommandName;
 
         return runOptions;
     }

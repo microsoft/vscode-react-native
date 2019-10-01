@@ -38,24 +38,13 @@ export enum CommandStatus {
 
 export class CommandExecutor {
 
-    private static ReactNativeCommand = "react-native";
+    public static ReactNativeCommand: string | null;
     private childProcess = new Node.ChildProcess();
-    private static ReactNativeGlobalCommandName: string | null;
 
     constructor(
         private currentWorkingDirectory: string = process.cwd(),
         private logger: ILogger = new NullLogger()
-    ) {
-        if (!CommandExecutor.ReactNativeGlobalCommandName) {
-            CommandExecutor.ReactNativeCommand = path.resolve(this.currentWorkingDirectory, "node_modules", ".bin", "react-native");
-        } else {
-            CommandExecutor.ReactNativeCommand = CommandExecutor.ReactNativeGlobalCommandName;
-        }
-    }
-
-    public static setReactNativeGlobalCommandName(reactNativeGlobalCommandName: string | null) {
-        CommandExecutor.ReactNativeGlobalCommandName = reactNativeGlobalCommandName;
-    }
+    ) { }
 
     public execute(command: string, options: Options = {}): Q.Promise<void> {
         this.logger.debug(CommandExecutor.getCommandStatusString(command, CommandStatus.Start));
@@ -132,7 +121,10 @@ export class CommandExecutor {
      * Executes a react native command and waits for its completion.
      */
     public spawnReactCommand(command: string, args: string[] = [], options: Options = {}): ISpawnResult {
-        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
+        const reactCommand = HostPlatform.getNpmCliCommand(
+            CommandExecutor.ReactNativeCommand ||
+            path.resolve(this.currentWorkingDirectory, "node_modules", ".bin", "react-native")
+            );
         return this.spawnChildProcess(reactCommand, [command, ...args], options);
     }
 

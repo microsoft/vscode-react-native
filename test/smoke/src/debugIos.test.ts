@@ -5,7 +5,7 @@ import { SpectronApplication } from "./spectron/application";
 import * as assert from "assert";
 import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { RNworkspacePath, runVSCode, ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
+import { RNworkspacePath, runVSCode, ExpoWorkspacePath, pureRNWorkspacePath, reactNativeGlobalCLIApproachSwitch } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
 import { sleep, findFile } from "./helpers/utilities";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
@@ -36,7 +36,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
         });
 
-        it("RN app Debug test", async function () {
+        async function runRNAppDebugTest() {
             this.timeout(debugIosTestTime);
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
@@ -76,6 +76,16 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("iOS Debug test: Debugging is stopped");
+        }
+
+        it("RN app Debug test", async function () {
+            await runRNAppDebugTest.call(this);
+        });
+
+        it("RN global CLI app Debug test", async function () {
+            reactNativeGlobalCLIApproachSwitch.enableGlobalCLIApproach();
+            await runRNAppDebugTest.call(this);
+            reactNativeGlobalCLIApproachSwitch.disableGlobalCLIApproach();
         });
 
         it("Expo app Debug test", async function () {
