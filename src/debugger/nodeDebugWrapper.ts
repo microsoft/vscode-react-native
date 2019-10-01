@@ -272,13 +272,14 @@ export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeo
         // and then wait for code bundle to be processed and then send continue request to skip the code execution stop in VS Code UI
         public onPaused(notification: Crdp.Debugger.PausedEvent, expectingStopReason?: stoppedEvent.ReasonType): Promise<IOnPausedResult> {
             if (this.firstStop) {
-                return new Promise<IOnPausedResult>(() => {
+                return new Promise<IOnPausedResult>((resolve) => {
                     setTimeout(() => {
                         if (notification.reason === "other") {
                             this.firstStop = false;
                             this.continue();
+                            resolve({didPause: false});
                         }
-                        return super.onPaused(notification, expectingStopReason);
+                        resolve(super.onPaused(notification, expectingStopReason));
                     }, 50);
                 });
             } else {
