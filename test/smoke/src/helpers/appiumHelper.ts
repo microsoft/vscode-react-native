@@ -244,9 +244,9 @@ export class AppiumHelper {
     }
 
     public static async clickTestButtonHermes(client: AppiumClient) {
-        console.log(`*** Pressing "Test Button" button...`);
-        const TEST_BUTTON_BUTTON = "//*[@text='TEST BUTTON']";
-        await client.click(TEST_BUTTON_BUTTON);
+        console.log(`*** Pressing button with text "Test Button"...`);
+        const TEST_BUTTON = "//*[@text='TEST BUTTON']";
+        await client.click(TEST_BUTTON);
     }
 
     public static async isHermesWorking(client: AppiumClient): Promise<boolean> {
