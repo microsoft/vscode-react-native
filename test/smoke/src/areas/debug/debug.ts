@@ -148,7 +148,7 @@ export class Debug extends Viewlet {
     }
 
     public async findStringInConsole(stringToFind: string, timeout: number): Promise<boolean> {
-        let awaitRetries: number = timeout / 200;
+        let awaitRetries: number = timeout / 100;
         let retry = 1;
         await this.focusDebugConsole();
         let found;
@@ -163,14 +163,18 @@ export class Debug extends Viewlet {
                     resolve();
                 } else {
                     retry++;
-                    this.spectron.client.keys(["ArrowDown"]);
+                    if (retry < awaitRetries / 2) {
+                        this.spectron.client.keys(["ArrowDown"]);
+                    } else {
+                        this.spectron.client.keys(["ArrowUp"]);
+                    }
                     if (retry >= awaitRetries) {
                         clearInterval(check);
                         found = false;
                         resolve();
                     }
                 }
-            }, 200);
+            }, 100);
         });
         return found;
     }
