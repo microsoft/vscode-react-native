@@ -167,6 +167,10 @@ function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplica
     });
 }
 
+export function prepareReactNativeProjectForHermesTesting() {
+    SetupEnvironmentHelper.prepareHermesReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName, "HermesReactNativeSample", process.env.RN_VERSION);
+}
+
 const testParams = TestConfigurator.parseTestArguments();
 async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
