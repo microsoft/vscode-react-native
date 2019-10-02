@@ -9,7 +9,7 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet, ScrollView, View, Text, StatusBar } from 'react-native';
 import { Header, LearnMoreLinks, Colors, DebugInstructions, ReloadInstructions } from 'react-native/Libraries/NewAppScreen';
-import TestButton from './TestButton';
+import AppTestButton from './AppTestButton';
 
 const App: () => React$Node = () => {
   console.log('Test output from debuggee');
@@ -26,7 +26,7 @@ const App: () => React$Node = () => {
               <Text style={styles.footer}>Engine: Hermes</Text>
             </View>
           )}
-          <TestButton />
+          <AppTestButton />
         </ScrollView>
       </SafeAreaView>
     </>

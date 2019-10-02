@@ -80,9 +80,9 @@ export function setup(testParameters?: TestRunArguments) {
             AndroidEmulatorHelper.uninstallTestAppFromEmulator(RN_APP_PACKAGE_NAME);
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("TestButton.js");
+            await app.workbench.explorer.openFile("AppTestButton.js");
             await app.runCommand("cursorTop");
-            console.log("Android Debug Hermes test: TestButton.js file is opened");
+            console.log("Android Debug Hermes test: AppTestButton.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
             console.log(`Android Debug Hermes test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
@@ -108,7 +108,7 @@ export function setup(testParameters?: TestRunArguments) {
             await sleep(7000);
             console.log("Android Debug Hermes test: Click Test Button");
             await AppiumHelper.clickTestButtonHermes(clientInited);
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "TestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for TestButton.js and line ${RNHermesSetBreakpointOnLine}`);
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "AppTestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`);
             console.log("Android Debug Hermes test: Stack frame found");
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Button } from 'react-native';
 
-export default class TestButton extends Component {
+export default class AppTestButton extends Component {
     constructor(props) {
       super(props);
       this.handleClick = this.handleClick.bind(this);

@@ -52,7 +52,7 @@ export class SetupEnvironmentHelper {
         cp.execSync(commandClean, { cwd: path.join(workspacePath, "android"), stdio: "inherit" });
 
         const customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
-        const testButtonPath = path.join(resourcesPath, customEntryPointFolder, "TestButton.js");
+        const testButtonPath = path.join(resourcesPath, customEntryPointFolder, "AppTestButton.js");
 
         console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
         fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
@@ -60,7 +60,7 @@ export class SetupEnvironmentHelper {
         SetupEnvironmentHelper.copyGradleFilesToHermesApp(workspacePath, resourcesPath, customEntryPointFolder);
 
         console.log(`*** Copying ${testButtonPath} into ${workspacePath}`);
-        fs.copyFileSync(testButtonPath, path.join(workspacePath, "TestButton.js"));
+        fs.copyFileSync(testButtonPath, path.join(workspacePath, "AppTestButton.js"));
     }
 
     public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
