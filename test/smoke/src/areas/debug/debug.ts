@@ -163,7 +163,7 @@ export class Debug extends Viewlet {
                     resolve();
                 } else {
                     retry++;
-                    this.spectron.client.keys(["ArrowUp"]);
+                    this.spectron.client.keys(["ArrowDown"]);
                     if (retry >= awaitRetries) {
                         clearInterval(check);
                         found = false;
