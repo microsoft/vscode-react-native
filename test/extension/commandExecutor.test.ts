@@ -3,10 +3,15 @@
 
 import { CommandExecutor } from "../../src/common/commandExecutor";
 import { ConsoleLogger } from "../../src/extension/log/ConsoleLogger";
+import { SettingsHelper } from "../../src/extension/settingsHelper";
+import { HostPlatform } from "../../src/common/hostPlatform";
 
 import { Node } from "../../src/common/node/node";
 import { ChildProcess } from "../../src/common/node/childProcess";
 
+import * as vscode from "vscode";
+import * as fs from "fs";
+import * as cp from "child_process";
 import { EventEmitter } from "events";
 import * as assert from "assert";
 import * as semver from "semver";
@@ -139,16 +144,52 @@ suite("commandExecutor", function() {
         });
 
         suite("ReactNativeClIApproaches", function () {
+
+            const sampleReactNative022ProjectDir = path.join(__dirname, "..", "resources", "sampleReactNative022Project");
+            let uri: vscode.Uri;
+            
+            const correctRNGlobalCLINameContent: any = {
+                "react-native-tools.reactNativeGlobalCommandName": "react-native",
+            };
+
+            const incorrectRNGlobalCLINameContent: any = {
+                "react-native-tools.reactNativeGlobalCommandName": "incorrect",
+            };
+
             setup(() => {
+                cp.execSync("npm i", { cwd: sampleReactNative022ProjectDir });
+                fs.writeFileSync(path.join(sampleReactNative022ProjectDir, "settings.json"), JSON.stringify(correctRNGlobalCLINameContent));
+                uri = vscode.Uri.file(sampleReactNative022ProjectDir);
+
                 console.log("setup ReactNativeClIApproaches");
             });
-            teardown(() => {
-                console.log("teardown ReactNativeClIApproaches");
-            });
-            test("selectReactNativeCLI should return local CLI", (done: MochaDone) => {
-                assert.equal(true, true); // TODO  create real test
+
+            test("selectReactNativeCLI should return correct global CLI", (done: MochaDone) => {
+                let reactNativeGlobalCommandName = SettingsHelper.getReactNativeGlobalCommandName(uri);
+                let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
+                CommandExecutor.ReactNativeCommand = reactNativeGlobalCommandName;
+                assert.equal(commandExecutor.selectReactNativeCLI, "react-native");
                 done();
-            } );
+            });
+
+            test("selectReactNativeCLI should return incorrect global CLI", (done: MochaDone) => {
+                fs.writeFileSync(path.join(sampleReactNative022ProjectDir, "settings.json"), JSON.stringify(incorrectRNGlobalCLINameContent));
+                let reactNativeGlobalCommandName = SettingsHelper.getReactNativeGlobalCommandName(uri);
+                let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
+                CommandExecutor.ReactNativeCommand = reactNativeGlobalCommandName;
+                assert.equal(commandExecutor.selectReactNativeCLI, "incorrect");
+                done();
+            });
+
+            test("selectReactNativeCLI should return local CLI", (done: MochaDone) => {
+                const localCLIPath = HostPlatform.getNpmCliCommand(path.join(sampleReactNative022ProjectDir, "node_modules", ".bin", "react-native"));
+                fs.unlinkSync(path.join(sampleReactNative022ProjectDir, "settings.json"));
+                let reactNativeGlobalCommandName = SettingsHelper.getReactNativeGlobalCommandName(uri);
+                let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
+                CommandExecutor.ReactNativeCommand = reactNativeGlobalCommandName;
+                assert.equal(commandExecutor.selectReactNativeCLI, localCLIPath);
+                done();
+            });
         });
     });
 });

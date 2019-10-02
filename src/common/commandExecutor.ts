@@ -184,7 +184,7 @@ export class CommandExecutor {
         return deferred.promise;
     }
 
-    private selectReactNativeCLI(): string {
+    public selectReactNativeCLI(): string {
         return CommandExecutor.ReactNativeCommand || path.resolve(this.currentWorkingDirectory, "node_modules", ".bin", "react-native");
     }
 
