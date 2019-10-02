@@ -12,6 +12,7 @@ const DEBUG_OPTIONS_COMBOBOX_OPENED = `${DEBUG_OPTIONS_COMBOBOX}.monaco-select-b
 const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .configure`;
 const START = `.icon[title="Start Debugging"]`;
 const STOP = `.debug-toolbar .action-label[title*=\"Stop\"]`;
+const DISCONNECT = `.debug-toolbar .action-label[title*=\"Disconnect\"]`;
 const STEP_OVER = `.debug-toolbar .action-label[title*=\"Step Over\"]`;
 const STEP_IN = `.debug-toolbar .action-label[title*=\"Step Into\"]`;
 const STEP_OUT = `.debug-toolbar .action-label[title*=\"Step Out\"]`;
@@ -98,6 +99,11 @@ export class Debug extends Viewlet {
 
     public async stopDebugging(): Promise<any> {
         await this.spectron.client.waitAndClick(STOP);
+        await this.spectron.client.waitForElement(NOT_DEBUG_STATUS_BAR);
+    }
+
+    public async disconnectFromDebugger(): Promise<any> {
+        await this.spectron.client.waitAndClick(DISCONNECT);
         await this.spectron.client.waitForElement(NOT_DEBUG_STATUS_BAR);
     }
 

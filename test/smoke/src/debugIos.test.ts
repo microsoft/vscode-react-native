@@ -15,6 +15,7 @@ import { TestRunArguments } from "./helpers/configHelper";
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const RNDebugConfigName = "Debug iOS";
 const ExpoDebugConfigName = "Debug in Exponent";
+
 const RNSetBreakpointOnLine = 1;
 const ExpoSetBreakpointOnLine = 1;
 const PureRNExpoSetBreakpointOnLine = 1;

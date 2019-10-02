@@ -27,9 +27,9 @@ export class SetupEnvironmentHelper {
         console.log(`*** Creating RN app via '${command}' in ${workspacePath}...`);
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
-        let customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
-        let launchConfigFile = path.join(resourcesPath, "launch.json");
-        let vsCodeConfigPath = path.join(workspacePath, ".vscode");
+        const customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
+        const launchConfigFile = path.join(resourcesPath, "launch.json");
+        const vsCodeConfigPath = path.join(workspacePath, ".vscode");
 
         console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
         fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
@@ -43,6 +43,24 @@ export class SetupEnvironmentHelper {
         fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
 
         SetupEnvironmentHelper.patchMetroConfig(workspacePath);
+    }
+
+    public static prepareHermesReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
+        const commandClean = path.join(workspacePath, "android", "gradlew") + " clean";
+
+        console.log(`*** Executing  ${commandClean} ...`);
+        cp.execSync(commandClean, { cwd: path.join(workspacePath, "android"), stdio: "inherit" });
+
+        const customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
+        const testButtonPath = path.join(resourcesPath, customEntryPointFolder, "AppTestButton.js");
+
+        console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
+        fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
+
+        SetupEnvironmentHelper.copyGradleFilesToHermesApp(workspacePath, resourcesPath, customEntryPointFolder);
+
+        console.log(`*** Copying ${testButtonPath} into ${workspacePath}`);
+        fs.copyFileSync(testButtonPath, path.join(workspacePath, "AppTestButton.js"));
     }
 
     public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
@@ -277,5 +295,18 @@ module.exports.hasteMapCacheDirectory = ".cache";`;
         fs.appendFileSync(metroConfigPath, patchContent);
         const contentAfterPatching = fs.readFileSync(metroConfigPath);
         console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
+    }
+
+    private static copyGradleFilesToHermesApp(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
+        const appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
+        const resGradleBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
+        const resReactGradleFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
+        const projReactGradleFilePath = path.join(workspacePath, "node_modules", "react-native", "react.gradle"); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
+
+        console.log(`*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`);
+        fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
+
+        console.log(`*** Copying  ${resReactGradleFilePath} into ${projReactGradleFilePath}...`); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
+        fs.writeFileSync(projReactGradleFilePath, fs.readFileSync(resReactGradleFilePath));
     }
 }
