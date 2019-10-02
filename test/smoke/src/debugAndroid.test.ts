@@ -23,7 +23,6 @@ const RNSetBreakpointOnLine = 1;
 const RNHermesSetBreakpointOnLine = 11;
 const ExpoSetBreakpointOnLine = 1;
 const PureRNExpoSetBreakpointOnLine = 1;
-
 // Time for Android Debug Test before it reaches timeout
 const debugAndroidTestTime = SmokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
 // Time for Android Expo Debug Test before it reaches timeout
