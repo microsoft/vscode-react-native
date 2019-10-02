@@ -148,7 +148,7 @@ export class Debug extends Viewlet {
     }
 
     public async findStringInConsole(stringToFind: string, timeout: number): Promise<boolean> {
-        let awaitRetries: number = timeout / 100;
+        let awaitRetries: number = timeout / 200;
         let retry = 1;
         await this.focusDebugConsole();
         let found;
@@ -170,7 +170,7 @@ export class Debug extends Viewlet {
                         resolve();
                     }
                 }
-            }, 100);
+            }, 200);
         });
         return found;
     }
