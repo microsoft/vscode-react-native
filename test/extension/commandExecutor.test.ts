@@ -137,5 +137,18 @@ suite("commandExecutor", function() {
                 assert.equal(version, "^0.22.2");
             }).done(() => done(), done);
         });
+
+        suite("ReactNativeClIApproaches", function () {
+            setup(() => {
+                console.log("setup ReactNativeClIApproaches");
+            });
+            teardown(() => {
+                console.log("teardown ReactNativeClIApproaches");
+            });
+            test("selectReactNativeCLI should return local CLI", (done: MochaDone) => {
+                assert.equal(true, true); // TODO  create real test
+                done();
+            } );
+        });
     });
 });

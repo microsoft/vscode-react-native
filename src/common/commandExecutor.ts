@@ -121,10 +121,7 @@ export class CommandExecutor {
      * Executes a react native command and waits for its completion.
      */
     public spawnReactCommand(command: string, args: string[] = [], options: Options = {}): ISpawnResult {
-        const reactCommand = HostPlatform.getNpmCliCommand(
-            CommandExecutor.ReactNativeCommand ||
-            path.resolve(this.currentWorkingDirectory, "node_modules", ".bin", "react-native")
-            );
+        const reactCommand = HostPlatform.getNpmCliCommand(this.selectReactNativeCLI());
         return this.spawnChildProcess(reactCommand, [command, ...args], options);
     }
 
@@ -185,6 +182,10 @@ export class CommandExecutor {
                 return this.generateRejectionForCommand(commandWithArgs, reason);
             });
         return deferred.promise;
+    }
+
+    private selectReactNativeCLI(): string {
+        return CommandExecutor.ReactNativeCommand || path.resolve(this.currentWorkingDirectory, "node_modules", ".bin", "react-native");
     }
 
     private spawnChildProcess(command: string, args: string[], options: Options = {}): ISpawnResult {

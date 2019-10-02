@@ -68,14 +68,6 @@ export class SetupEnvironmentHelper {
         SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
-    public static prepareReactNativeGlobalCLIApproach(resourcesPath: string, workspacePath: string) {
-        const settingsConfigFile = path.join(resourcesPath, "settings.json");
-        const vsCodeConfigPath = path.join(workspacePath, ".vscode");
-
-        console.log(`*** Copying ${settingsConfigFile} into ${vsCodeConfigPath}...`);
-        fs.copyFileSync(settingsConfigFile, path.join(vsCodeConfigPath, "settings.json"));
-    }
-
     public static addExpoDependencyToRNProject(workspacePath: string, version?: string) {
         let npmCmd = "npm";
         if (process.platform === "win32") {
@@ -108,15 +100,6 @@ export class SetupEnvironmentHelper {
         if (fs.existsSync(iOSExpoAppsCacheDirectory)) {
             console.log(`*** Deleting iOS expo app cache directory: ${iOSExpoAppsCacheDirectory}`);
             rimraf.sync(iOSExpoAppsCacheDirectory);
-        }
-    }
-
-    public static removeSettingsFromReactNativeProject(workspacePath: string) {
-        const settingsConfigFile = path.join(workspacePath, ".vscode", "settings.json");
-
-        console.log(`*** Deleting ${settingsConfigFile}...`);
-        if (fs.existsSync(settingsConfigFile)) {
-            fs.unlinkSync(settingsConfigFile);
         }
     }
 

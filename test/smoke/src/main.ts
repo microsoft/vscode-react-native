@@ -15,11 +15,6 @@ import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestConfigurator } from "./helpers/configHelper";
 import { sleep, findFile } from "./helpers/utilities";
 
-interface IRNGlobalCLISwitch {
-    enableGlobalCLIApproach(): void;
-    disableGlobalCLIApproach(): void;
-}
-
 // TODO Incapsulate main.ts (get rid of function(), local variables, etc)
 console.log(`*** Setting up configuration variables`);
 const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
@@ -171,15 +166,6 @@ function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplica
         waitTime: SmokeTestsConstants.spectronElementResponseTimeout,
     });
 }
-
-export let reactNativeGlobalCLIApproachSwitch: IRNGlobalCLISwitch = {
-    enableGlobalCLIApproach() {
-        SetupEnvironmentHelper.prepareReactNativeGlobalCLIApproach(resourcesPath, RNworkspacePath);
-    },
-    disableGlobalCLIApproach() {
-        SetupEnvironmentHelper.removeSettingsFromReactNativeProject(RNworkspacePath);
-    },
-};
 
 const testParams = TestConfigurator.parseTestArguments();
 async function setup(): Promise<void> {
