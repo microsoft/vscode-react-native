@@ -1,0 +1,6 @@
+node_modules/
+android/
+ios/
+.flowconfig
+.watchmanconfig
+./package-lock.json
