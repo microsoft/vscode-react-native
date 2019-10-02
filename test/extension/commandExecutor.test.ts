@@ -147,7 +147,6 @@ suite("commandExecutor", function() {
 
             const sampleReactNative022ProjectDir = path.join(__dirname, "..", "resources", "sampleReactNative022Project");
             let uri: vscode.Uri;
-            
             const correctRNGlobalCLINameContent: any = {
                 "react-native-tools.reactNativeGlobalCommandName": "react-native",
             };
