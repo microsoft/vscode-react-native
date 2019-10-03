@@ -124,7 +124,7 @@ export class Packager {
                 return this.monkeyPatchOpnForRNPackager(rnVersion);
             })
             .catch(err => {
-                throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeDependencyIsNotInstalled);
+                throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
             })
             .then((version) => {
                 return this.getPackagerArgs(rnVersion, resetCache);

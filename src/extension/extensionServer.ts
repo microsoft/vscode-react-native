@@ -269,10 +269,10 @@ export class ExtensionServer implements vscode.Disposable {
                     })
                     .catch(error => {
                         this.logger.error(error);
-                        if (error instanceof InternalError && error.errorCode === InternalErrorCode.ReactNativeDependencyIsNotInstalled) {
-                            this.logger.warning(localize("ReactNativePackageIsNotInstalled", "It seems that 'react-native' package is not installed. Please run 'npm install' to install the package."));
+                        if (error instanceof InternalError && error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
+                            this.logger.warning(localize("ReactNativePackageIsNotInstalledWarning", "It seems that 'react-native' package is not installed. Please run 'npm install' to install the package."));
                             TelemetryHelper.sendErrorEvent(
-                                "NodeModulesAreNotInstalled",
+                                "ReactNativePackageIsNotInstalled",
                                 error
                             );
                         }

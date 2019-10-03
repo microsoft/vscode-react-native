@@ -43,7 +43,7 @@ export enum InternalErrorCode {
         ProjectVersionNotReadable = 603,
         NotInReactNativeFolderError = 604,
         CouldNotFindProjectVersion = 605,
-        ReactNativeDependencyIsNotInstalled = 606,
+        ReactNativePackageIsNotInstalled = 606,
 
         // Miscellaneous errors
         TelemetryInitializationFailed = 701,
