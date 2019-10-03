@@ -243,6 +243,19 @@ export class AppiumHelper {
         }
     }
 
+    public static async clickTestButtonHermes(client: AppiumClient) {
+        console.log(`*** Pressing button with text "Test Button"...`);
+        const TEST_BUTTON = "//*[@text='TEST BUTTON']";
+        await client.click(TEST_BUTTON);
+    }
+
+    public static async isHermesWorking(client: AppiumClient): Promise<boolean> {
+        const HERMES_MARK = "//*[@text='Engine: Hermes']";
+        return await client
+            .waitForExist(HERMES_MARK, 30 * 1000)
+            .isExisting(HERMES_MARK);
+    }
+
     private static async openExpoAppViaClipboardAndroid(client: AppiumClient, clipboard: Electron.Clipboard, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
