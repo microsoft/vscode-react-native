@@ -136,23 +136,23 @@ suite("commandExecutor", function() {
         });
 
         suite("ReactNativeClIApproaches", function () {
-            const sampleReactNative061ProjectDir = path.join(__dirname, "..", "resources", "sampleReactNative061Project");
+            const sampleReactNative022ProjectDir = path.join(__dirname, "..", "resources", "sampleReactNative022Project");
             const RNGlobalCLINameContent: any = {
                 ["react-native-tools.reactNativeGlobalCommandName"]: "",
             };
 
             test("selectReactNativeCLI should return local CLI", (done: MochaDone) => {
-                const localCLIPath = path.join(sampleReactNative061ProjectDir, "node_modules", ".bin", "react-native");
-                let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative061ProjectDir);
+                const localCLIPath = path.join(sampleReactNative022ProjectDir, "node_modules", ".bin", "react-native");
+                let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
                 CommandExecutor.ReactNativeCommand = RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"];
                 assert.equal(commandExecutor.selectReactNativeCLI(), localCLIPath);
                 done();
             });
 
             test("selectReactNativeCLI should return global CLI", (done: MochaDone) => {
-                let randomHash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                let randomHash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15); // Generate random hash string, e. g. 'kvwceypjqulgaqmfz77wq'
                 RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"] = randomHash;
-                let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative061ProjectDir);
+                let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
                 CommandExecutor.ReactNativeCommand = RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"];
                 assert.equal(commandExecutor.selectReactNativeCLI(), randomHash);
                 done();
