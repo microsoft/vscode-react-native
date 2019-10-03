@@ -157,7 +157,6 @@ export class Debug extends Viewlet {
         let awaitRetries: number = timeout / 200;
         let retry = 1;
         await this.focusDebugConsole();
-        this.spectron.client.keys(["ArrowUp"]);
         let found;
         await new Promise((resolve) => {
             let check = setInterval(async () => {
