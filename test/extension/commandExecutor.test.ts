@@ -132,7 +132,8 @@ suite("commandExecutor", function() {
             commandExecutor.getReactNativeVersion()
             .then(version => {
                 assert.equal(version, "^0.22.2");
-            }).done(() => done(), done);
+                done();
+            });
         });
 
         suite("ReactNativeClIApproaches", function () {
@@ -150,7 +151,7 @@ suite("commandExecutor", function() {
             });
 
             test("selectReactNativeCLI should return global CLI", (done: MochaDone) => {
-                let randomHash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15); // Generate random hash string, e. g. 'kvwceypjqulgaqmfz77wq'
+                const randomHash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15); // Generate random hash string, e. g. 'kvwceypjqulgaqmfz77wq'
                 RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"] = randomHash;
                 let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
                 CommandExecutor.ReactNativeCommand = RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"];
