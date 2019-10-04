@@ -1,3 +1,4 @@
+console.log('Test output from debuggee');
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -12,7 +13,6 @@ import { Header, LearnMoreLinks, Colors, DebugInstructions, ReloadInstructions }
 import AppTestButton from './AppTestButton';
 
 const App: () => React$Node = () => {
-  console.log('Test output from debuggee');
   return (
     <>
       <StatusBar barStyle="dark-content" />

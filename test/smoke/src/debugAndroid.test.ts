@@ -18,10 +18,11 @@ const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity
 const RNDebugConfigName = "Debug Android";
 const RNHermesDebugConfigName = "Debug Android (Hermes) - Experimental";
 const ExpoDebugConfigName = "Debug in Exponent";
-const RNSetBreakpointOnLine = 14;
+
+const RNSetBreakpointOnLine = 1;
 const RNHermesSetBreakpointOnLine = 11;
-const ExpoSetBreakpointOnLine = 12;
-const PureRNExpoSetBreakpointOnLine = 23;
+const ExpoSetBreakpointOnLine = 1;
+const PureRNExpoSetBreakpointOnLine = 1;
 // Time for Android Debug Test before it reaches timeout
 const debugAndroidTestTime = SmokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
 // Time for Android Expo Debug Test before it reaches timeout
@@ -63,11 +64,11 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
             console.log("Android Debug test: Stack frame found");
-            await app.workbench.debug.continue();
+            await app.workbench.debug.stepOver();
             // await for our debug string renders in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("Android Debug test: Searching for \"Test output from debuggee\" string in console");
-            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
+            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
@@ -165,7 +166,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Expo Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for App.js and line ${ExpoSetBreakpointOnLine}`);
             console.log("Android Expo Debug test: Stack frame found");
-            await app.workbench.debug.continue();
+            await app.workbench.debug.stepOver();
             // Wait for debug string to be rendered in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("Android Expo Debug test: Searching for \"Test output from debuggee\" string in console");
@@ -218,7 +219,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android pure RN Expo test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === PureRNExpoSetBreakpointOnLine, `looking for App.js and line ${PureRNExpoSetBreakpointOnLine}`);
             console.log("Android pure RN Expo test: Stack frame found");
-            await app.workbench.debug.continue();
+            await app.workbench.debug.stepOver();
             // Wait for debug string to be rendered in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("Android pure RN Expo test: Searching for \"Test output from debuggee\" string in console");
