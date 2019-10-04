@@ -271,7 +271,7 @@ export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeo
         // and wait for the adapter to receive a signal to stop on that statement
         // and then wait for code bundle to be processed and then send continue request to skip the code execution stop in VS Code UI
         public onPaused(notification: Crdp.Debugger.PausedEvent, expectingStopReason?: stoppedEvent.ReasonType): Promise<IOnPausedResult> {
-            // Pause on 'debugger;' statement contains reason = "other" instead of "breakpoint"
+            // When pause on 'debugger;' statement, notification contains reason with value "other" instead of "breakpoint"
             if (this.firstStop && notification.reason === "other") {
                 return new Promise<IOnPausedResult>((resolve) => {
                     setTimeout(() => {
