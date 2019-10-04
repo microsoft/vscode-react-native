@@ -1,5 +1,5 @@
 ## 0.12.0
-* Added experimental support for React Native Android applications on Hermes engine. Experimental means that debugger is on early stage of design and there are could be bugs. If you tried experimental feature and would like to provide feedback, please post it to [Github issue](https://github.com/microsoft/vscode-react-native/issues/1099).
+* Added experimental support for React Native Android applications on Hermes engine. Experimental means that debugger is on early stage of design and there may be bugs. If you tried experimental feature and would like to provide feedback, please post it to [Github issue](https://github.com/microsoft/vscode-react-native/issues/1099).
 * Added support for React Native 0.61 [#1122](https://github.com/microsoft/vscode-react-native/pull/1122)
 * Added wait phase for initializing React Native app bundle sourcemaps to avoid breakpoints skip on application initialization [#1081](https://github.com/microsoft/vscode-react-native/issues/1081)
 * Improved extension security
