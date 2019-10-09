@@ -5,6 +5,7 @@ import { CommandExecutor } from "../../src/common/commandExecutor";
 import { ConsoleLogger } from "../../src/extension/log/ConsoleLogger";
 
 import { Node } from "../../src/common/node/node";
+import { FileSystem } from "../../src/common/node/fileSystem";
 import { ChildProcess } from "../../src/common/node/childProcess";
 
 import { EventEmitter } from "events";
@@ -13,6 +14,7 @@ import * as semver from "semver";
 import * as sinon from "sinon";
 import * as Q from "q";
 import * as path from "path";
+import * as fs from "fs";
 
 suite("commandExecutor", function() {
     suite("extensionContext", function () {
@@ -20,6 +22,7 @@ suite("commandExecutor", function() {
         let childProcessStubInstance = new ChildProcess();
         let childProcessStub: Sinon.SinonStub & ChildProcess;
         let Log = new ConsoleLogger();
+        const sampleReactNative022ProjectDir = path.join(__dirname, "..", "resources", "sampleReactNative022Project");
 
         teardown(function() {
             let mockedMethods = [Log.log, ...Object.keys(childProcessStubInstance)];
@@ -126,18 +129,58 @@ suite("commandExecutor", function() {
                 });
         });
 
-        test("getReactNativeVersion should return verson string if there is react-native package in node_modules", (done: MochaDone) => {
-            let commandExecutor: CommandExecutor = new CommandExecutor(path.join(__dirname, "..", "resources", "sampleReactNative022Project"));
+        test("getReactNativeVersion should return version string if there is 'react-native' field in project package.json", (done: MochaDone) => {
+            let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
 
             commandExecutor.getReactNativeVersion()
             .then(version => {
                 assert.equal(version, "^0.22.2");
-                done();
-            });
+            }).done(() => done(), done);
+        });
+
+        test("getReactNativeVersion should return version string if there is 'version' field in react-native package's package.json file", (done: MochaDone) => {
+            const reactNativePackageDir = path.join(sampleReactNative022ProjectDir, "node_modules", "react-native");
+            const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
+            let fsHelper: FileSystem = new Node.FileSystem();
+            let versionObj = {
+                "version": "^0.22.0",
+            };
+
+            if (!fs.existsSync(reactNativePackageDir)) {
+                fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir);
+            }
+
+            fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(versionObj, null, 2));
+
+            commandExecutor.getReactNativeVersion()
+            .then(version => {
+                assert.equal(version, "^0.22.0");
+                fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
+            }).done(() => done(), done);
+        });
+
+        test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", (done: MochaDone) => {
+            const reactNativePackageDir = path.join(sampleReactNative022ProjectDir, "node_modules", "react-native");
+            const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
+            let fsHelper: FileSystem = new Node.FileSystem();
+            let testObj = {
+                "test": "test",
+            };
+
+            if (!fs.existsSync(reactNativePackageDir)) {
+                fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir);
+            }
+
+            fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(testObj, null, 2));
+
+            commandExecutor.getReactNativeVersion()
+            .then(version => {
+                assert.equal(version, "^0.22.2");
+                fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
+            }).done(() => done(), done);
         });
 
         suite("ReactNativeClIApproaches", function () {
-            const sampleReactNative022ProjectDir = path.join(__dirname, "..", "resources", "sampleReactNative022Project");
             const RNGlobalCLINameContent: any = {
                 ["react-native-tools.reactNativeGlobalCommandName"]: "",
             };
