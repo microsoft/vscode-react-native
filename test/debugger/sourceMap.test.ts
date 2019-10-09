@@ -111,10 +111,12 @@ suite("sourceMap", function() {
         });
 
         test("should remove sourceURL from the bundle script body correctly", function() {
-            const scriptBody: string = `var sourceURL = '//# sourceURL=' + (hasOwnProperty.call(options, 'sourceURL') ? (options.sourceURL + '').replace(/[\\r\\n]/g, ' ') : 'lodash.templateSources[' + ++templateCounter + ']') + '\\n';
+            const scriptBody: string = `//# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false
+var sourceURL = '//# sourceURL=' + (hasOwnProperty.call(options, 'sourceURL') ? (options.sourceURL + '').replace(/[\\r\\n]/g, ' ') : 'lodash.templateSources[' + ++templateCounter + ']') + '\\n';
 //# sourceMappingURL=index.map
 //# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false`;
-            const expectedScriptBody = `var sourceURL = '//# sourceURL=' + (hasOwnProperty.call(options, 'sourceURL') ? (options.sourceURL + '').replace(/[\\r\\n]/g, ' ') : 'lodash.templateSources[' + ++templateCounter + ']') + '\\n';
+            const expectedScriptBody = `//# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false
+var sourceURL = '//# sourceURL=' + (hasOwnProperty.call(options, 'sourceURL') ? (options.sourceURL + '').replace(/[\\r\\n]/g, ' ') : 'lodash.templateSources[' + ++templateCounter + ']') + '\\n';
 //# sourceMappingURL=index.map\n`;
             const sourceMap = new SourceMapUtil();
 
