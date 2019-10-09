@@ -1,3 +1,6 @@
+## 0.12.1
+* Fixed debugging issues with React Native 0.61 applications if some additional packages were installed, such as `react-native-navigation` or `react-native-splash-screen`
+
 ## 0.12.0
 * Added experimental support for React Native Android applications on Hermes engine. Experimental means that the debugger is on early stage of development and some bugs can be revealed. If you tried experimental feature and would like to provide feedback, please post it to [Github issue](https://github.com/microsoft/vscode-react-native/issues/1099).
 * Added support for React Native 0.61 [#1122](https://github.com/microsoft/vscode-react-native/pull/1122)
