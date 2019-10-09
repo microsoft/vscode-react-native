@@ -123,5 +123,18 @@ var sourceURL = '//# sourceURL=' + (hasOwnProperty.call(options, 'sourceURL') ? 
             const result = sourceMap.removeSourceURL(scriptBody);
             assert.equal(expectedScriptBody, result);
         });
+
+        test("should not remove anything if sourceURL is not in the bottom of the bundle script body", function() {
+            const scriptBody: string = `//# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false
+var sourceURL = '//# sourceURL=' + (hasOwnProperty.call(options, 'sourceURL') ? (options.sourceURL + '').replace(/[\\r\\n]/g, ' ') : 'lodash.templateSources[' + ++templateCounter + ']') + '\\n';
+//# sourceMappingURL=index.map`;
+            const expectedScriptBody = `//# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false
+var sourceURL = '//# sourceURL=' + (hasOwnProperty.call(options, 'sourceURL') ? (options.sourceURL + '').replace(/[\\r\\n]/g, ' ') : 'lodash.templateSources[' + ++templateCounter + ']') + '\\n';
+//# sourceMappingURL=index.map`;
+            const sourceMap = new SourceMapUtil();
+
+            const result = sourceMap.removeSourceURL(scriptBody);
+            assert.equal(expectedScriptBody, result);
+        });
     });
 });
