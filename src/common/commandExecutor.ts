@@ -6,11 +6,13 @@ import * as Q from "q";
 import * as path from "path";
 import {ChildProcess} from "child_process";
 import {ILogger} from "../extension/log/LogHelper";
-import { NullLogger } from "../extension/log/NullLogger";
+import {NullLogger} from "../extension/log/NullLogger";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
 import {HostPlatform, HostPlatformId} from "./hostPlatform";
+import {FileSystem} from "./node/fileSystem";
 import {ErrorHelper} from "./error/errorHelper";
+
 import {InternalErrorCode} from "./error/internalErrorCode";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
@@ -76,6 +78,29 @@ export class CommandExecutor {
     }
 
     public getReactNativeVersion(): Q.Promise<string> {
+        const reactNativeDir = path.resolve(
+            this.currentWorkingDirectory,
+            "node_modules",
+            "react-native"
+          );
+        let fs: FileSystem = new Node.FileSystem();
+
+        if (fs.existsSync(path.resolve(reactNativeDir, "package.json"))) {
+            return this.getReactNativeVersionFromRNPackage(reactNativeDir);
+        } else {
+            return this.getReactNativeVersionFromProjectPackage();
+        }
+    }
+
+    public getReactNativeVersionFromRNPackage(reactNativeDir: string): Q.Promise<string> {
+        let reactNativePackage = new Package(reactNativeDir);
+        return reactNativePackage.version()
+            .catch(err => {
+                return this.getReactNativeVersionFromProjectPackage();
+            });
+    }
+
+    public getReactNativeVersionFromProjectPackage(): Q.Promise<string> {
         let curPackage = new Package(this.currentWorkingDirectory);
         return curPackage.dependencyPackage("react-native").version()
             .catch(err => {
