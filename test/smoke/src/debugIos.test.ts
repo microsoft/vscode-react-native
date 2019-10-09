@@ -15,9 +15,10 @@ import { TestRunArguments } from "./helpers/configHelper";
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const RNDebugConfigName = "Debug iOS";
 const ExpoDebugConfigName = "Debug in Exponent";
-const RNSetBreakpointOnLine = 15;
-const ExpoSetBreakpointOnLine = 12;
-const PureRNExpoSetBreakpointOnLine = 23;
+
+const RNSetBreakpointOnLine = 1;
+const ExpoSetBreakpointOnLine = 1;
+const PureRNExpoSetBreakpointOnLine = 1;
 // Time for OS Debug Test before it reaches timeout
 const debugIosTestTime = SmokeTestsConstants.iosAppBuildAndInstallTimeout + 100 * 1000;
 // Time for iOS Expo Debug Test before it reaches timeout
@@ -67,11 +68,11 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
             console.log("iOS Debug test: Stack frame found");
-            await app.workbench.debug.continue();
+            await app.workbench.debug.stepOver();
             // Wait for our debug string to render in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("iOS Debug test: Searching for \"Test output from debuggee\" string in console");
-            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
+            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("iOS Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
@@ -135,11 +136,11 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS Expo Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for App.js and line ${ExpoSetBreakpointOnLine}`);
             console.log("iOS Expo Debug test: Stack frame found");
-            await app.workbench.debug.continue();
+            await app.workbench.debug.stepOver();
             // Wait for our debug string to render in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("iOS Expo Debug test: Searching for \"Test output from debuggee\" string in console");
-            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
+            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("iOS Expo Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
@@ -203,11 +204,11 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS pure RN Expo test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === PureRNExpoSetBreakpointOnLine, `looking for App.js and line ${PureRNExpoSetBreakpointOnLine}`);
             console.log("iOS pure RN Expo test: Stack frame found");
-            await app.workbench.debug.continue();
+            await app.workbench.debug.stepOver();
             // Wait for our debug string to render in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("iOS pure RN Expo test: Searching for \"Test output from debuggee\" string in console");
-            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10000);
+            let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("iOS pure RN Expo test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();

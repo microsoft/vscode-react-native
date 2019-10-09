@@ -9,7 +9,7 @@ import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { RemoteExtension } from "../common/remoteExtension";
 import { RemoteTelemetryReporter, ReassignableTelemetryReporter } from "../common/telemetryReporters";
-import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger } from "vscode-chrome-debug-core";
+import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger, Crdp, stoppedEvent, IOnPausedResult } from "vscode-chrome-debug-core";
 import { ContinuedEvent, TerminatedEvent, Logger, Response } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 import { MultipleLifetimesAppWorker } from "./appWorker";
@@ -257,11 +257,32 @@ export function makeSession(
 
 export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeof ChromeDebugAdapter {
     return class extends debugAdapterClass {
+        private firstStop: boolean = true;
         public doAttach(port: number, targetUrl?: string, address?: string, timeout?: number): Promise<void> {
             // We need to overwrite ChromeDebug's _attachMode to let Node2 adapter
             // to set up breakpoints on initial pause event
             (this as any)._attachMode = false;
             return super.doAttach(port, targetUrl, address, timeout);
+        }
+
+        // Since the bundle runs inside the Node.js VM in debuggerWorker.js in runtime
+        // Node debug adapter need time to parse new added code source maps
+        // So we added 'debugger;' statement at the start of the bundle code
+        // and wait for the adapter to receive a signal to stop on that statement
+        // and then wait for code bundle to be processed and then send continue request to skip the code execution stop in VS Code UI
+        public onPaused(notification: Crdp.Debugger.PausedEvent, expectingStopReason?: stoppedEvent.ReasonType): Promise<IOnPausedResult> {
+            // When pause on 'debugger;' statement, notification contains reason with value "other" instead of "breakpoint"
+            if (this.firstStop && notification.reason === "other") {
+                return new Promise<IOnPausedResult>((resolve) => {
+                    setTimeout(() => {
+                        this.firstStop = false;
+                        this.continue();
+                        resolve({didPause: false});
+                    }, 50);
+                });
+            } else {
+                return super.onPaused(notification, expectingStopReason);
+            }
         }
 
         public async terminate(args: DebugProtocol.TerminatedEvent) {
