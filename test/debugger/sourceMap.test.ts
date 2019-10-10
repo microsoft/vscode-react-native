@@ -122,7 +122,7 @@ suite("sourceMap", function() {
             assert.equal(expectedScriptBody, result);
         });
 
-        test("should not remove anything if sourceURL is not in the end of the bundle script", function() {
+        test("should remove sourceURL if it is before sourceMappingURL", function() {
             const scriptBody: string = `var sourceURL = '//# sourceURL=' + (hasOwnProperty.call(options, 'sourceURL') ? (options.sourceURL + '').replace(/[\\r\\n]/g, ' ') : 'lodash.templateSources[' + ++templateCounter + ']') + '\\n';
 //# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false
 //# sourceMappingURL=index.map`;

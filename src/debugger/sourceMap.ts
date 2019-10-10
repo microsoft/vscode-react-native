@@ -23,7 +23,7 @@ export interface IStrictUrl extends url.Url {
 
 export class SourceMapUtil {
     private static SourceMapURLRegex: RegExp = /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/m;
-    private static SourceURLRegex: RegExp = /^\/\/(#|@) sourceURL=((?!data:).+?)\s*$/m;
+    private static SourceURLRegex: RegExp = /^\/\/[#@] ?sourceURL=(.+)$/m;
 
     /**
      * Given a script body and URL, this method parses the body and finds the corresponding source map URL.
