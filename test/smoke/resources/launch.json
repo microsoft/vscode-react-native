@@ -16,7 +16,7 @@
             "platform": "android"
         },
         {
-            "name": "Attach to packager (Hermes) - Experimental",
+            "name": "Attach to Hermes - Experimental",
             "cwd": "${workspaceFolder}",
             "type": "reactnativedirect",
             "request": "attach"

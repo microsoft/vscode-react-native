@@ -383,10 +383,10 @@
 						}
 					},
 					{
-						"label": "React Native (Hermes): Attach to packager - Experimental",
+						"label": "React Native (Hermes): Attach to Hermes - Experimental",
 						"description": "%reactNative.snippets.attachPackagerHermes.description%",
 						"body": {
-							"name": "Attach to packager (Hermes) - Experimental",
+							"name": "Attach to Hermes - Experimental",
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect",
 							"request": "attach"
