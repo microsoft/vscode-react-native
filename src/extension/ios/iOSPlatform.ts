@@ -63,7 +63,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
             this.logger.warning(localize("iosRelativeProjectPathOptionIsDeprecatedUseRunArgumentsInstead", "'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead."));
         }
 
-        this.iosProjectRoot = path.join(this.projectPath, this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
+        const iosProjectFolderPath = IOSPlatform.getOptFromRunArgs(this.runArguments, "--project-path", false);
+        this.iosProjectRoot = path.join(this.projectPath, iosProjectFolderPath || this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
         const schemeFromArgs = IOSPlatform.getOptFromRunArgs(this.runArguments, "--scheme", false);
         this.iosDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot, schemeFromArgs ? schemeFromArgs : this.runOptions.scheme);
 
