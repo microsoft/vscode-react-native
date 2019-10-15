@@ -5,6 +5,7 @@ import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
 import {CommandExecutor} from "./commandExecutor";
+import {Package} from "./node/package";
 
 export class ReactNativeProjectHelper {
 
@@ -15,6 +16,31 @@ export class ReactNativeProjectHelper {
 
     public static getReactNativeVersion(projectRoot: string) {
         return new CommandExecutor(projectRoot).getReactNativeVersion();
+    }
+
+    public static getReactNativePackageVersionFromNodeModules(reactNativePackageDir: string): Q.Promise<string> {
+        let reactNativePackage = new Package(reactNativePackageDir);
+        return reactNativePackage.version();
+    }
+
+    public static getReactNativeVersionFromProjectPackage(cwd: string): Q.Promise<string> {
+        let curPackage = new Package(cwd);
+        return curPackage.dependencyPackage("react-native").version()
+            .catch(err => {
+                return curPackage.dependencies()
+                    .then(dependencies => {
+                        if (dependencies["react-native"]) {
+                            return dependencies["react-native"];
+                        }
+                        return curPackage.devDependencies()
+                            .then(devDependencies => {
+                                if (devDependencies["react-native"]) {
+                                    return devDependencies["react-native"];
+                                }
+                                return "";
+                        });
+                    });
+            });
     }
 
     /**

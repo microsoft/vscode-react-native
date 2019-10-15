@@ -13,14 +13,16 @@ import {Telemetry} from "../common/telemetry";
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
 import {IRemoteExtension, OpenFileRequest} from "../common/remoteExtension";
 import * as rpc from "noice-json-rpc";
+import * as path from "path";
 import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
 import * as nls from "vscode-nls";
-import { CommandExecutor } from "../common/commandExecutor";
-import {InternalError} from "../common/error/internalError";
+import {CommandExecutor} from "../common/commandExecutor";
+import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 const localize = nls.loadMessageBundle();
 
@@ -237,6 +239,18 @@ export class ExtensionServer implements vscode.Disposable {
                 TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
                 return mobilePlatform.beforeStartPackager()
                     .then(() => {
+                        generator.step("getReactNativeVersion");
+                        return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(
+                            path.resolve(request.arguments.cwd, "node_modules", "react-native")
+                            );
+                    })
+                    .catch(err => {
+                        const noReactNativePackageError = ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
+                        generator.addError(noReactNativePackageError);
+                        this.logger.warning(localize("ReactNativePackageIsNotInstalledWarning", "It seems that 'react-native' package is not installed. Please run 'npm install' to install the package."));
+                        throw noReactNativePackageError;
+                    })
+                    .then(version => {
                         generator.step("startPackager");
                         return mobilePlatform.startPackager();
                     })
@@ -269,13 +283,6 @@ export class ExtensionServer implements vscode.Disposable {
                     })
                     .catch(error => {
                         this.logger.error(error);
-                        if (error instanceof InternalError && error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
-                            this.logger.warning(localize("ReactNativePackageIsNotInstalledWarning", "It seems that 'react-native' package is not installed. Please run 'npm install' to install the package."));
-                            TelemetryHelper.sendErrorEvent(
-                                "ReactNativePackageIsNotInstalled",
-                                error
-                            );
-                        }
                         reject(error);
                     });
             });
@@ -299,7 +306,6 @@ function isNullOrUndefined(value: any): boolean {
 function requestSetup(args: any): any {
     const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program));
     const projectRootPath = getProjectRoot(args);
-    const reactNativeGlobalCommandName = SettingsHelper.getReactNativeGlobalCommandName(workspaceFolder.uri);
     let mobilePlatformOptions: any = {
         workspaceRoot: workspaceFolder.uri.fsPath,
         projectRoot: projectRootPath,
@@ -309,7 +315,7 @@ function requestSetup(args: any): any {
         target: args.target || "simulator",
     };
 
-    CommandExecutor.ReactNativeCommand = reactNativeGlobalCommandName;
+    CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(workspaceFolder.uri);
 
     if (!args.runArguments) {
         let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", workspaceFolder.uri);

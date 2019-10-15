@@ -1,18 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { Package } from "./node/package";
 import * as Q from "q";
 import * as path from "path";
 import {ChildProcess} from "child_process";
 import {ILogger} from "../extension/log/LogHelper";
 import {NullLogger} from "../extension/log/NullLogger";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
 import {HostPlatform, HostPlatformId} from "./hostPlatform";
 import {FileSystem} from "./node/fileSystem";
 import {ErrorHelper} from "./error/errorHelper";
-
 import {InternalErrorCode} from "./error/internalErrorCode";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
@@ -78,46 +77,21 @@ export class CommandExecutor {
     }
 
     public getReactNativeVersion(): Q.Promise<string> {
-        const reactNativeDir = path.resolve(
+        const reactNativePackageDir = path.resolve(
             this.currentWorkingDirectory,
             "node_modules",
             "react-native"
           );
-        let fs: FileSystem = new Node.FileSystem();
+        const fs: FileSystem = new Node.FileSystem();
 
-        if (fs.existsSync(path.resolve(reactNativeDir, "package.json"))) {
-            return this.getReactNativeVersionFromRNPackage(reactNativeDir);
+        if (fs.existsSync(path.resolve(reactNativePackageDir, "package.json"))) {
+            return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(reactNativePackageDir)
+                .catch(err => {
+                    return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(this.currentWorkingDirectory);
+                });
         } else {
-            return this.getReactNativeVersionFromProjectPackage();
+            return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(this.currentWorkingDirectory);
         }
-    }
-
-    public getReactNativeVersionFromRNPackage(reactNativeDir: string): Q.Promise<string> {
-        let reactNativePackage = new Package(reactNativeDir);
-        return reactNativePackage.version()
-            .catch(err => {
-                return this.getReactNativeVersionFromProjectPackage();
-            });
-    }
-
-    public getReactNativeVersionFromProjectPackage(): Q.Promise<string> {
-        let curPackage = new Package(this.currentWorkingDirectory);
-        return curPackage.dependencyPackage("react-native").version()
-            .catch(err => {
-                return curPackage.dependencies()
-                    .then(dependencies => {
-                        if (dependencies["react-native"]) {
-                            return dependencies["react-native"];
-                        }
-                        return curPackage.devDependencies()
-                            .then(devDependencies => {
-                                if (devDependencies["react-native"]) {
-                                    return devDependencies["react-native"];
-                                }
-                                return "";
-                        });
-                    });
-            });
     }
 
     /**

@@ -129,55 +129,52 @@ suite("commandExecutor", function() {
                 });
         });
 
-        test("getReactNativeVersion should return version string if there is 'react-native' field in project package.json", (done: MochaDone) => {
-            let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
+        suite("getReactNativeVersion", function () {
 
-            commandExecutor.getReactNativeVersion()
-            .then(version => {
-                assert.equal(version, "^0.22.2");
-            }).done(() => done(), done);
-        });
-
-        test("getReactNativeVersion should return version string if there is 'version' field in react-native package's package.json file", (done: MochaDone) => {
             const reactNativePackageDir = path.join(sampleReactNative022ProjectDir, "node_modules", "react-native");
-            const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
-            let fsHelper: FileSystem = new Node.FileSystem();
-            let versionObj = {
-                "version": "^0.22.0",
-            };
+            const fsHelper: FileSystem = new Node.FileSystem();
 
-            if (!fs.existsSync(reactNativePackageDir)) {
+            setup(() => {
                 fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir);
-            }
+            });
 
-            fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(versionObj, null, 2));
+            test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
+                const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
+                let versionObj = {
+                    "version": "^0.22.0",
+                };
 
-            commandExecutor.getReactNativeVersion()
-            .then(version => {
-                assert.equal(version, "^0.22.0");
-                fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
-            }).done(() => done(), done);
-        });
+                fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(versionObj, null, 2));
 
-        test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", (done: MochaDone) => {
-            const reactNativePackageDir = path.join(sampleReactNative022ProjectDir, "node_modules", "react-native");
-            const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
-            let fsHelper: FileSystem = new Node.FileSystem();
-            let testObj = {
-                "test": "test",
-            };
+                commandExecutor.getReactNativeVersion()
+                .then(version => {
+                    assert.equal(version, "^0.22.0");
+                }).done(() => done(), done);
+            });
 
-            if (!fs.existsSync(reactNativePackageDir)) {
-                fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir);
-            }
+            test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", (done: MochaDone) => {
+                const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
+                let testObj = {
+                    "test": "test",
+                };
 
-            fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(testObj, null, 2));
+                fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(testObj, null, 2));
 
-            commandExecutor.getReactNativeVersion()
-            .then(version => {
-                assert.equal(version, "^0.22.2");
-                fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
-            }).done(() => done(), done);
+                commandExecutor.getReactNativeVersion()
+                .then(version => {
+                    fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
+                    assert.equal(version, "^0.22.2");
+                }).done(() => done(), done);
+            });
+
+            test("getReactNativeVersion should return version string if there is 'react-native' field in project package.json", (done: MochaDone) => {
+                let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
+
+                commandExecutor.getReactNativeVersion()
+                .then(version => {
+                    assert.equal(version, "^0.22.2");
+                }).done(() => done(), done);
+            });
         });
 
         suite("ReactNativeClIApproaches", function () {

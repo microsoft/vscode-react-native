@@ -3,6 +3,7 @@
 
 import * as vscode from "vscode";
 import * as Q from "q";
+import * as path from "path";
 import * as XDL from "./exponent/xdlInterface";
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
@@ -22,8 +23,8 @@ import {spawn, ChildProcess} from "child_process";
 import {HostPlatform} from "../common/hostPlatform";
 import {CommandExecutor} from "../common/commandExecutor";
 import * as nls from "vscode-nls";
-import { ErrorHelper } from "../common/error/errorHelper";
-import { InternalErrorCode } from "../common/error/internalErrorCode";
+import {ErrorHelper} from "../common/error/errorHelper";
+import {InternalErrorCode} from "../common/error/internalErrorCode";
 const localize = nls.loadMessageBundle();
 
 interface IReactNativeStuff {
@@ -64,13 +65,16 @@ export class CommandPaletteHandler {
     public static startPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return this.executeCommandInContext("startPackager", project.workspaceFolder, () => {
-                    return project.packager.isRunning()
-                        .then((running) => {
-                            return running ? project.packager.stop() : Q.resolve(void 0);
-                        });
-                })
-                .then(() => project.packager.start());
+                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                    .then(version => {
+                        return this.executeCommandInContext("startPackager", project.workspaceFolder, () => {
+                            return project.packager.isRunning()
+                                .then((running) => {
+                                    return running ? project.packager.stop() : Q.resolve(void 0);
+                                });
+                        })
+                        .then(() => project.packager.start());
+                    });
             });
     }
 
@@ -101,8 +105,11 @@ export class CommandPaletteHandler {
     public static restartPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return this.executeCommandInContext("restartPackager", project.workspaceFolder, () =>
-                    this.runRestartPackagerCommandAndUpdateStatus(project));
+                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                    .then(version => {
+                        return this.executeCommandInContext("restartPackager", project.workspaceFolder, () =>
+                            this.runRestartPackagerCommandAndUpdateStatus(project));
+                    });
             });
     }
 
@@ -112,13 +119,16 @@ export class CommandPaletteHandler {
     public static publishToExpHost(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return this.executeCommandInContext("publishToExpHost", project.workspaceFolder, () => {
-                    return this.executePublishToExpHost(project).then((didPublish) => {
-                        if (!didPublish) {
-                            CommandPaletteHandler.logger.warning(localize("ExponentPublishingWasUnsuccessfulMakeSureYoureLoggedInToExpo", "Publishing was unsuccessful. Please make sure you are logged in Expo and your project is a valid Expo project"));
-                        }
+                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                    .then(version => {
+                        return this.executeCommandInContext("publishToExpHost", project.workspaceFolder, () => {
+                            return this.executePublishToExpHost(project).then((didPublish) => {
+                                if (!didPublish) {
+                                    CommandPaletteHandler.logger.warning(localize("ExponentPublishingWasUnsuccessfulMakeSureYoureLoggedInToExpo", "Publishing was unsuccessful. Please make sure you are logged in Expo and your project is a valid Expo project"));
+                                }
+                            });
+                        });
                     });
-                });
             });
     }
 
@@ -129,19 +139,22 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 TargetPlatformHelper.checkTargetPlatformSupport("android");
-                return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
-                    const platform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform, target);
-                    return platform.beforeStartPackager()
-                        .then(() => {
-                            return platform.startPackager();
-                        })
-                        .then(() => {
-                            return platform.runApp(/*shouldLaunchInAllDevices*/true);
-                        })
-                        .then(() => {
-                            return platform.disableJSDebuggingMode();
+                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                    .then(version => {
+                        return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
+                            const platform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform, target);
+                            return platform.beforeStartPackager()
+                                .then(() => {
+                                    return platform.startPackager();
+                                })
+                                .then(() => {
+                                    return platform.runApp(/*shouldLaunchInAllDevices*/true);
+                                })
+                                .then(() => {
+                                    return platform.disableJSDebuggingMode();
+                                });
                         });
-                });
+                    });
             });
     }
 
@@ -151,21 +164,24 @@ export class CommandPaletteHandler {
     public static runIos(target: TargetType = "simulator"): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                TargetPlatformHelper.checkTargetPlatformSupport("ios");
-                return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
-                    const platform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform, target);
-                    return platform.beforeStartPackager()
-                        .then(() => {
-                            return platform.startPackager();
-                        })
-                        .then(() => {
-                            // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
-                            return platform.disableJSDebuggingMode();
-                        })
-                        .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
-                        .then(() => {
-                            return platform.runApp();
-                        });
+                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                    .then(version => {
+                    TargetPlatformHelper.checkTargetPlatformSupport("ios");
+                    return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
+                        const platform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform, target);
+                        return platform.beforeStartPackager()
+                            .then(() => {
+                                return platform.startPackager();
+                            })
+                            .then(() => {
+                                // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
+                                return platform.disableJSDebuggingMode();
+                            })
+                            .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+                            .then(() => {
+                                return platform.runApp();
+                            });
+                    });
                 });
             });
     }
@@ -176,18 +192,21 @@ export class CommandPaletteHandler {
     public static runExponent(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return this.loginToExponent(project)
-                    .then(() => {
-                        return this.executeCommandInContext("runExponent", project.workspaceFolder, () => {
-                            const platform = <ExponentPlatform>this.createPlatform(project, "exponent", ExponentPlatform);
-                            return platform.beforeStartPackager()
-                                .then(() => {
-                                    return platform.startPackager();
-                                })
-                                .then(() => {
-                                    return platform.runApp();
+                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                    .then(version => {
+                        return this.loginToExponent(project)
+                            .then(() => {
+                                return this.executeCommandInContext("runExponent", project.workspaceFolder, () => {
+                                    const platform = <ExponentPlatform>this.createPlatform(project, "exponent", ExponentPlatform);
+                                    return platform.beforeStartPackager()
+                                        .then(() => {
+                                            return platform.startPackager();
+                                        })
+                                        .then(() => {
+                                            return platform.runApp();
+                                        });
                                 });
-                        });
+                            });
                     });
             });
     }
@@ -211,16 +230,19 @@ export class CommandPaletteHandler {
     public static reloadApp(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                const androidPlatform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform);
-                androidPlatform.reloadApp()
-                    .catch(() => { }); // Ignore any errors
+                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                    .then(version => {
+                        const androidPlatform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform);
+                        androidPlatform.reloadApp()
+                            .catch(() => { }); // Ignore any errors
 
-                if (process.platform === "darwin") {
-                    const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
-                    iosPlatform.reloadApp()
-                        .catch(() => { }); // Ignore any errors
-                }
-                return Q.resolve(void 0);
+                        if (process.platform === "darwin") {
+                            const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
+                            iosPlatform.reloadApp()
+                                .catch(() => { }); // Ignore any errors
+                        }
+                        return Q.resolve(void 0);
+                    });
             });
     }
 
@@ -387,6 +409,17 @@ export class CommandPaletteHandler {
         } else {
             return Q.reject(ErrorHelper.getInternalError(InternalErrorCode.WorkspaceNotFound, "Current workspace does not contain React Native projects."));
         }
+    }
+
+    private static checkReactNativePackageExistence(workspaceRoot: string): Q.Promise<string> {
+        return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(
+            path.resolve(workspaceRoot, "node_modules", "react-native")
+            )
+            .catch(err => {
+                const noReactNativePackageError = ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
+                this.logger.warning(localize("ReactNativePackageIsNotInstalledWarning", "It seems that 'react-native' package is not installed. Please run 'npm install' to install the package."));
+                throw noReactNativePackageError;
+            });
     }
 
     private static getRunOptions(project: IReactNativeProject, platform: "ios" | "android" | "exponent", target: TargetType = "simulator"): IAndroidRunOptions | IIOSRunOptions {
