@@ -77,9 +77,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                             return this.remoteExtension.getPackagerPort(launchArgs.cwd);
                         })
                         .then((packagerPort: number) => {
-                            if (!launchArgs.port) {
-                                launchArgs.port = packagerPort;
-                            }
+                            launchArgs.port = launchArgs.port || packagerPort;
                             this.attach(launchArgs).then(() => {
                                 resolve();
                             }).catch((e) => reject(e));
@@ -114,11 +112,11 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 return TelemetryHelper.generate("attach", extProps, (generator) => {
                     return this.remoteExtension.getPackagerPort(attachArgs.cwd)
                         .then((packagerPort: number) => {
-
-                            this.outputLogger(`Connecting to ${packagerPort} port`);
+                            attachArgs.port = attachArgs.port || packagerPort;
+                            this.outputLogger(`Connecting to ${attachArgs.port} port`);
                             const attachArguments = Object.assign({}, attachArgs, {
                                 address: "localhost",
-                                port: attachArgs.port || packagerPort,
+                                port: attachArgs.port,
                                 restart: true,
                                 request: "attach",
                                 remoteRoot: undefined,
