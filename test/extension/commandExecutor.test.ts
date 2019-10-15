@@ -134,7 +134,7 @@ suite("commandExecutor", function() {
             const reactNativePackageDir = path.join(sampleReactNative022ProjectDir, "node_modules", "react-native");
             const fsHelper: FileSystem = new Node.FileSystem();
 
-            setup(() => {
+            suiteSetup(() => {
                 fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir);
             });
 
