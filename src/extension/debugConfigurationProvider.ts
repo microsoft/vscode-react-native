@@ -43,8 +43,8 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "request": "launch",
             "platform": "android",
         },
-        "Attach to Hermes - Experimental": {
-            "name": "Attach to Hermes - Experimental",
+        "Attach to Hermes application - Experimental": {
+            "name": "Attach to Hermes application - Experimental",
             "cwd": "${workspaceFolder}",
             "type": "reactnativedirect",
             "request": "attach",
@@ -73,7 +73,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             description: localize("DebugAndroidHermesConfigDesc", "Run and debug Android Hermes application"),
         },
         {
-            label: "Attach to Hermes - Experimental",
+            label: "Attach to Hermes application - Experimental",
             description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working Android Hermes application packager"),
         },
     ];

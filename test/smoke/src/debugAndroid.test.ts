@@ -103,7 +103,7 @@ export function setup(testParameters?: TestRunArguments) {
             assert.equal(isHermesWorking, true);
             console.log("Android Debug Hermes test: Reattaching to Hermes app");
             await app.workbench.debug.stopDebugging();
-            await app.workbench.debug.chooseDebugConfiguration("Attach to Hermes - Experimental");
+            await app.workbench.debug.chooseDebugConfiguration("Attach to Hermes application - Experimental");
             await app.workbench.debug.startDebugging();
             console.log("Android Debug Hermes test: Reattached successfully");
             await sleep(7000);
