@@ -10,7 +10,6 @@ import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
 import {HostPlatform, HostPlatformId} from "./hostPlatform";
-import {FileSystem} from "./node/fileSystem";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 import * as nls from "vscode-nls";
@@ -77,21 +76,7 @@ export class CommandExecutor {
     }
 
     public getReactNativeVersion(): Q.Promise<string> {
-        const reactNativePackageDir = path.resolve(
-            this.currentWorkingDirectory,
-            "node_modules",
-            "react-native"
-          );
-        const fs: FileSystem = new Node.FileSystem();
-
-        if (fs.existsSync(path.resolve(reactNativePackageDir, "package.json"))) {
-            return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(reactNativePackageDir)
-                .catch(err => {
-                    return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(this.currentWorkingDirectory);
-                });
-        } else {
-            return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(this.currentWorkingDirectory);
-        }
+        return ReactNativeProjectHelper.getReactNativeVersion(this.currentWorkingDirectory);
     }
 
     /**
@@ -133,7 +118,7 @@ export class CommandExecutor {
      */
     public spawnWithProgress(command: string, args: string[], options: Options = { verbosity: CommandVerbosity.OUTPUT }): Q.Promise<void> {
         let deferred = Q.defer<void>();
-        const spawnOptions = Object.assign({}, options);
+        const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         const commandWithArgs = command + " " + args.join(" ");
         const timeBetweenDots = 1500;
         let lastDotTime = 0;

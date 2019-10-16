@@ -41,7 +41,7 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.RNTempFolderDeletionFailed]: localize("RNTempFolderDeletionFailed", "Couldn't delete the temporary folder {0}"),
     [InternalErrorCode.CouldNotFindLocationOfNodeDebugger]: localize("CouldNotFindLocationOfNodeDebugger", "Couldn't find the location of the node-debugger extension"),
     [InternalErrorCode.CouldNotFindWorkspace]: localize("CouldNotFindWorkspace", "Couldn't find any workspace or React Native project folder"),
-    [InternalErrorCode.ReactNativePackageIsNotInstalled]: localize("ReactNativePackageIsNotInstalled", "Couldn't find React Native package in node modules"),
+    [InternalErrorCode.ReactNativePackageIsNotInstalled]: localize("ReactNativePackageIsNotInstalled", "Couldn't find react-native package in node_modules. Please, run \"npm install\" inside your project to install it."),
     [InternalErrorCode.PackagerRunningInDifferentPort]: localize("PackagerRunningInDifferentPort", "A packager cannot be started on port {0} because a packager process is already running on port {1}"),
     [InternalErrorCode.ErrorWhileProcessingMessageInIPMSServer]: localize("ErrorWhileProcessingMessageInIPMSServer", "An error ocurred while handling message: {0}"),
     [InternalErrorCode.ErrorNoPipeFound]: localize("ErrorNoPipeFound", "Unable to set up communication with VSCode react-native extension. Is this a react-native project, and have you made sure that the react-native npm package is installed at the root?"),
