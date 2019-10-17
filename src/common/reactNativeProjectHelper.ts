@@ -5,6 +5,8 @@ import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
 import {Package} from "./node/package";
+import {ErrorHelper} from "../common/error/errorHelper";
+import {InternalErrorCode} from "../common/error/internalErrorCode";
 
 export class ReactNativeProjectHelper {
 
@@ -27,7 +29,11 @@ export class ReactNativeProjectHelper {
     }
 
     public static getReactNativePackageVersionFromNodeModules(reactNativePackageDir: string): Q.Promise<string> {
-        return new Package(reactNativePackageDir).version();
+        return new Package(reactNativePackageDir).version()
+            .catch(err => {
+                const noReactNativePackageError = ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
+                throw noReactNativePackageError;
+            });
     }
 
     public static getReactNativeVersionFromProjectPackage(cwd: string): Q.Promise<string> {

@@ -119,16 +119,13 @@ export class CommandPaletteHandler {
     public static publishToExpHost(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
-                    .then(version => {
-                        return this.executeCommandInContext("publishToExpHost", project.workspaceFolder, () => {
-                            return this.executePublishToExpHost(project).then((didPublish) => {
-                                if (!didPublish) {
-                                    CommandPaletteHandler.logger.warning(localize("ExponentPublishingWasUnsuccessfulMakeSureYoureLoggedInToExpo", "Publishing was unsuccessful. Please make sure you are logged in Expo and your project is a valid Expo project"));
-                                }
-                            });
-                        });
+                return this.executeCommandInContext("publishToExpHost", project.workspaceFolder, () => {
+                    return this.executePublishToExpHost(project).then((didPublish) => {
+                        if (!didPublish) {
+                            CommandPaletteHandler.logger.warning(localize("ExponentPublishingWasUnsuccessfulMakeSureYoureLoggedInToExpo", "Publishing was unsuccessful. Please make sure you are logged in Expo and your project is a valid Expo project"));
+                        }
                     });
+                });
             });
     }
 
@@ -411,11 +408,7 @@ export class CommandPaletteHandler {
     private static checkReactNativePackageExistence(workspaceRoot: string): Q.Promise<string> {
         return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(
             path.resolve(workspaceRoot, "node_modules", "react-native")
-            )
-            .catch(err => {
-                const noReactNativePackageError = ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
-                throw noReactNativePackageError;
-            });
+            );
     }
 
     private static getRunOptions(project: IReactNativeProject, platform: "ios" | "android" | "exponent", target: TargetType = "simulator"): IAndroidRunOptions | IIOSRunOptions {

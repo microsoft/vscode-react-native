@@ -22,8 +22,6 @@ import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
 import * as nls from "vscode-nls";
 import {CommandExecutor} from "../common/commandExecutor";
-import {ErrorHelper} from "../common/error/errorHelper";
-import {InternalErrorCode} from "../common/error/internalErrorCode";
 const localize = nls.loadMessageBundle();
 
 export class ExtensionServer implements vscode.Disposable {
@@ -245,9 +243,8 @@ export class ExtensionServer implements vscode.Disposable {
                             );
                     })
                     .catch(err => {
-                        const noReactNativePackageError = ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
-                        generator.addError(noReactNativePackageError);
-                        throw noReactNativePackageError;
+                        generator.addError(err);
+                        throw err;
                     })
                     .then(version => {
                         generator.step("startPackager");
