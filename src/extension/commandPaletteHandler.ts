@@ -230,19 +230,16 @@ export class CommandPaletteHandler {
     public static reloadApp(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
-                    .then(version => {
-                        const androidPlatform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform);
-                        androidPlatform.reloadApp()
-                            .catch(() => { }); // Ignore any errors
+                const androidPlatform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform);
+                androidPlatform.reloadApp()
+                    .catch(() => { }); // Ignore any errors
 
-                        if (process.platform === "darwin") {
-                            const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
-                            iosPlatform.reloadApp()
-                                .catch(() => { }); // Ignore any errors
-                        }
-                        return Q.resolve(void 0);
-                    });
+                if (process.platform === "darwin") {
+                    const iosPlatform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform);
+                    iosPlatform.reloadApp()
+                        .catch(() => { }); // Ignore any errors
+                }
+                return Q.resolve(void 0);
             });
     }
 
@@ -417,7 +414,6 @@ export class CommandPaletteHandler {
             )
             .catch(err => {
                 const noReactNativePackageError = ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
-                this.logger.warning(localize("ReactNativePackageIsNotInstalledWarning", "It seems that 'react-native' package is not installed. Please run 'npm install' to install the package."));
                 throw noReactNativePackageError;
             });
     }

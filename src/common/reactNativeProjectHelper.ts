@@ -27,20 +27,19 @@ export class ReactNativeProjectHelper {
     }
 
     public static getReactNativePackageVersionFromNodeModules(reactNativePackageDir: string): Q.Promise<string> {
-        let reactNativePackage = new Package(reactNativePackageDir);
-        return reactNativePackage.version();
+        return new Package(reactNativePackageDir).version();
     }
 
     public static getReactNativeVersionFromProjectPackage(cwd: string): Q.Promise<string> {
-        let curPackage = new Package(cwd);
-        return curPackage.dependencyPackage("react-native").version()
+        const rootProjectPackageJson = new Package(cwd);
+        return rootProjectPackageJson.dependencyPackage("react-native").version()
             .catch(err => {
-                return curPackage.dependencies()
+                return rootProjectPackageJson.dependencies()
                     .then(dependencies => {
                         if (dependencies["react-native"]) {
                             return dependencies["react-native"];
                         }
-                        return curPackage.devDependencies()
+                        return rootProjectPackageJson.devDependencies()
                             .then(devDependencies => {
                                 if (devDependencies["react-native"]) {
                                     return devDependencies["react-native"];

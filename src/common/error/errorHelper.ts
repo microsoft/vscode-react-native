@@ -17,11 +17,6 @@ export class ErrorHelper {
         return new NestedError(<number> errorCode, message, innerError);
     }
 
-    public static getNestedErrorWithExtras(innerError: Error, errorCode: InternalErrorCode, extras: any, ...optionalArgs: any[]): NestedError {
-        let message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
-        return new NestedError(<number> errorCode, message, innerError, extras);
-    }
-
     public static wrapError(error: InternalError, innerError: Error): NestedError {
         return NestedError.getWrappedError(error, innerError);
     }

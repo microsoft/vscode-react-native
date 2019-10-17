@@ -247,7 +247,6 @@ export class ExtensionServer implements vscode.Disposable {
                     .catch(err => {
                         const noReactNativePackageError = ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
                         generator.addError(noReactNativePackageError);
-                        this.logger.warning(localize("ReactNativePackageIsNotInstalledWarning", "It seems that 'react-native' package is not installed. Please run 'npm install' to install the package."));
                         throw noReactNativePackageError;
                     })
                     .then(version => {
