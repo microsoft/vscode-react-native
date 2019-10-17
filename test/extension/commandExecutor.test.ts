@@ -5,7 +5,6 @@ import { CommandExecutor } from "../../src/common/commandExecutor";
 import { ConsoleLogger } from "../../src/extension/log/ConsoleLogger";
 
 import { Node } from "../../src/common/node/node";
-import { FileSystem } from "../../src/common/node/fileSystem";
 import { ChildProcess } from "../../src/common/node/childProcess";
 
 import { EventEmitter } from "events";
@@ -132,11 +131,15 @@ suite("commandExecutor", function() {
         suite("getReactNativeVersion", function () {
 
             const reactNativePackageDir = path.join(sampleReactNative022ProjectDir, "node_modules", "react-native");
-            const fsHelper: FileSystem = new Node.FileSystem();
+            const fsHelper = new Node.FileSystem();
 
             suiteSetup(() => {
                 fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir);
             });
+
+            suiteTeardown(() => {
+                fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
+            })
 
             test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
@@ -159,16 +162,6 @@ suite("commandExecutor", function() {
                 };
 
                 fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(testObj, null, 2));
-
-                commandExecutor.getReactNativeVersion()
-                .then(version => {
-                    fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
-                    assert.equal(version, "^0.22.2");
-                }).done(() => done(), done);
-            });
-
-            test("getReactNativeVersion should return version string if there is 'react-native' field in project package.json", (done: MochaDone) => {
-                let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
 
                 commandExecutor.getReactNativeVersion()
                 .then(version => {
