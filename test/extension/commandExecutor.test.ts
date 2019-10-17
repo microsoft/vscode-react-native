@@ -139,7 +139,7 @@ suite("commandExecutor", function() {
 
             suiteTeardown(() => {
                 fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
-            })
+            });
 
             test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
