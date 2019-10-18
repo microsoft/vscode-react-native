@@ -388,10 +388,10 @@
 						}
 					},
 					{
-						"label": "React Native (Hermes): Attach to packager - Experimental",
+						"label": "React Native (Hermes): Attach to Hermes application - Experimental",
 						"description": "%reactNative.snippets.attachPackagerHermes.description%",
 						"body": {
-							"name": "Attach to packager (Hermes) - Experimental",
+							"name": "Attach to Hermes application - Experimental",
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect",
 							"request": "attach"
@@ -428,7 +428,7 @@
 							},
 							"port": {
 								"type": "string",
-								"description": "%reactNative.attach.port.description%",
+								"description": "%reactNative.direct.attach.port.description%",
 								"default": "8081"
 							},
 							"skipFiles": {
@@ -458,6 +458,11 @@
 								"type": "string",
 								"description": "%reactNative.launch.cwd.description%",
 								"default": "${workspaceFolder}"
+							},
+							"port": {
+								"type": "string",
+								"description": "%reactNative.direct.attach.port.description%",
+								"default": "8081"
 							},
 							"target": {
 								"anyOf": [

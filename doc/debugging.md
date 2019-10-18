@@ -88,11 +88,11 @@ To debug while using Hermes engine, please choose one of the following debug con
 }
 ```
 
- - React Native (Hermes): Attach to packager - Experimental
+ - React Native (Hermes): Attach to Hermes application - Experimental
 
  ```
 {
-    "name": "Attach to packager (Hermes) - Experimental",
+    "name": "Attach to Hermes application - Experimental",
     "cwd": "${workspaceFolder}",
     "type": "reactnativedirect",
     "request": "attach"
