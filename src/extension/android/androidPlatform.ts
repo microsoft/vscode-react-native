@@ -89,52 +89,56 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             };
         }
 
-        return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
-            const env = this.getEnvArgument();
+        return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(this.runOptions.projectRoot)
+            .then(version => {
+                TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+                return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
+                    const env = this.getEnvArgument();
 
-            return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
-                .then(version => {
-                    if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, AndroidPlatform.NO_PACKAGER_VERSION)) {
-                        this.runArguments.push("--no-packager");
-                    }
-
-                    let mainActivity = GeneralMobilePlatform.getOptFromRunArgs(this.runArguments, "--main-activity");
-
-                    if (mainActivity) {
-                        this.adbHelper.setLaunchActivity(mainActivity);
-                    } else if (!isNullOrUndefined(this.runOptions.debugLaunchActivity)) {
-                        this.runArguments.push("--main-activity", this.runOptions.debugLaunchActivity);
-                        this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity);
-                    }
-
-                    const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", this.runArguments, {env});
-                    const output = new OutputVerifier(
-                        () =>
-                            Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
-                        () =>
-                            Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS),
-                        "android").process(runAndroidSpawn);
-
-                    return output
-                        .finally(() => {
-                            return this.initializeTargetDevicesAndPackageName();
-                        }).then(() => [this.debugTarget], reason => {
-                            if (reason.message === ErrorHelper.getInternalError(InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator).message && this.devices.length > 1 && this.debugTarget) {
-                                /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
-                                this.needsToLaunchApps = true;
-                                return shouldLaunchInAllDevices
-                                    ? this.adbHelper.getOnlineDevices()
-                                    : Q([this.debugTarget]);
-                            } else {
-                                return Q.reject<IDevice[]>(reason);
+                    return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
+                        .then(version => {
+                            if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, AndroidPlatform.NO_PACKAGER_VERSION)) {
+                                this.runArguments.push("--no-packager");
                             }
-                        }).then(devices => {
-                            return new PromiseUtil().forEach(devices, device => {
-                                return this.launchAppWithADBReverseAndLogCat(device);
-                            });
+
+                            let mainActivity = GeneralMobilePlatform.getOptFromRunArgs(this.runArguments, "--main-activity");
+
+                            if (mainActivity) {
+                                this.adbHelper.setLaunchActivity(mainActivity);
+                            } else if (!isNullOrUndefined(this.runOptions.debugLaunchActivity)) {
+                                this.runArguments.push("--main-activity", this.runOptions.debugLaunchActivity);
+                                this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity);
+                            }
+
+                            const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", this.runArguments, {env});
+                            const output = new OutputVerifier(
+                                () =>
+                                    Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
+                                () =>
+                                    Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS),
+                                "android").process(runAndroidSpawn);
+
+                            return output
+                                .finally(() => {
+                                    return this.initializeTargetDevicesAndPackageName();
+                                }).then(() => [this.debugTarget], reason => {
+                                    if (reason.message === ErrorHelper.getInternalError(InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator).message && this.devices.length > 1 && this.debugTarget) {
+                                        /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
+                                        this.needsToLaunchApps = true;
+                                        return shouldLaunchInAllDevices
+                                            ? this.adbHelper.getOnlineDevices()
+                                            : Q([this.debugTarget]);
+                                    } else {
+                                        return Q.reject<IDevice[]>(reason);
+                                    }
+                                }).then(devices => {
+                                    return new PromiseUtil().forEach(devices, device => {
+                                        return this.launchAppWithADBReverseAndLogCat(device);
+                                    });
+                                });
                         });
                 });
-        });
+            })
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
