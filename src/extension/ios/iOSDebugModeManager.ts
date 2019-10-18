@@ -19,11 +19,13 @@ export class IOSDebugModeManager {
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     private projectRoot: string;
+    private iosProjectRoot: string;
     private simulatorPlist: SimulatorPlist;
 
-    constructor(projectRoot: string, scheme?: string) {
+    constructor(iosProjectRoot: string, projectRoot: string, scheme?: string) {
         this.projectRoot = projectRoot;
-        this.simulatorPlist = new SimulatorPlist(this.projectRoot, scheme);
+        this.iosProjectRoot = iosProjectRoot;
+        this.simulatorPlist = new SimulatorPlist(this.iosProjectRoot, this.projectRoot, scheme);
     }
 
     public setSimulatorRemoteDebuggingSetting(enable: boolean, configuration?: string, productName?: string): Q.Promise<void> {
