@@ -66,7 +66,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         const iosProjectFolderPath = IOSPlatform.getOptFromRunArgs(this.runArguments, "--project-path", false);
         this.iosProjectRoot = path.join(this.projectPath, iosProjectFolderPath || this.runOptions.iosRelativeProjectPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH);
         const schemeFromArgs = IOSPlatform.getOptFromRunArgs(this.runArguments, "--scheme", false);
-        this.iosDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot, schemeFromArgs ? schemeFromArgs : this.runOptions.scheme);
+        this.iosDebugModeManager  = new IOSDebugModeManager(this.iosProjectRoot, this.projectPath, schemeFromArgs ? schemeFromArgs : this.runOptions.scheme);
 
         if (this.runArguments && this.runArguments.length > 0) {
             this.targetType = (this.runArguments.indexOf(`--${IOSPlatform.deviceString}`) >= 0) ?
@@ -238,7 +238,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 scheme = schemeFromArgs;
             }
         }
-        return this.plistBuddy.getBundleId(this.iosProjectRoot, true, this.runOptions.configuration, this.runOptions.productName, scheme);
+        return this.plistBuddy.getBundleId(this.iosProjectRoot, this.projectPath, true, this.runOptions.configuration, this.runOptions.productName, scheme);
     }
 
     private static remote(fsPath: string): RemoteExtension {
