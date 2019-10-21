@@ -11,7 +11,8 @@ import * as sinon from "sinon";
 suite("plistBuddy", function() {
     suite("extensionContext", function() {
         test("findPlistFile should correctly find the NSUserDefaults plist file for the simulator", function() {
-            const projectRoot = path.join("/", "tmp", "myProject");
+            const projectRoot = path.join("/", "tmp");
+            const iosProjectRoot = path.join(projectRoot, "myProject");
 
             const bundleId = "com.contoso.app";
 
@@ -48,7 +49,7 @@ suite("plistBuddy", function() {
 
             // getBundleId returns bundleId
             const bundleIdStub = sinon.stub();
-            bundleIdStub.withArgs(projectRoot).returns(Q.resolve(bundleId));
+            bundleIdStub.withArgs(iosProjectRoot).returns(Q.resolve(bundleId));
             bundleIdStub.returns(Q.reject("Incorrect project root"));
 
             const mockPlistBuddy: any = {
@@ -63,7 +64,7 @@ suite("plistBuddy", function() {
                 exec: execStub,
             };
 
-            const simulatorPlist = new SimulatorPlist(projectRoot, undefined, {
+            const simulatorPlist = new SimulatorPlist(iosProjectRoot, projectRoot, undefined, {
                 nodeFileSystem: mockFS,
                 plistBuddy: mockPlistBuddy,
                 nodeChildProcess: mockChildProcess,

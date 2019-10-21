@@ -67,7 +67,8 @@ suite("plistBuddy", function() {
         });
 
         test("getBundleId should return the bundle ID for RN <0.59", function() {
-            const iosProjectRoot = path.join("/", "userHome", "rnProject", "ios");
+            const projectRoot = path.join("/", "userHome", "rnProject");
+            const iosProjectRoot = path.join(projectRoot, "ios");
             const appName = "myApp";
             const simulatorBundleId = "com.contoso.simulator";
             const deviceBundleId = "com.contoso.device";
@@ -76,10 +77,10 @@ suite("plistBuddy", function() {
             sandbox.stub(ReactNativeProjectHelper, "getReactNativeVersion").returns(Q.resolve("0.58.5"));
 
             return Q.all([
-                plistBuddy.getBundleId(iosProjectRoot, true, "Debug", appName),
-                plistBuddy.getBundleId(iosProjectRoot, true, "Debug", appName, "whateverScheme"),
-                plistBuddy.getBundleId(iosProjectRoot, false, undefined, appName),
-                plistBuddy.getBundleId(iosProjectRoot, false, undefined, appName, "whateverScheme"),
+                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
+                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName, "whateverScheme"),
+                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
+                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName, "whateverScheme"),
             ]).spread((simulatorId1, simulatorId2, deviceId1, deviceId2) => {
                 assert.equal(simulatorBundleId, simulatorId1);
                 assert.equal(simulatorBundleId, simulatorId2);
@@ -89,7 +90,8 @@ suite("plistBuddy", function() {
         });
 
         test("getBundleId should return the bundle ID for RN >=0.59", function() {
-            const iosProjectRoot = path.join("/", "userHome", "rnProject", "ios");
+            const projectRoot = path.join("/", "userHome", "rnProject");
+            const iosProjectRoot = path.join(projectRoot, "ios");
             const appName = "myApp";
             const scheme = "myCustomScheme";
             const simulatorBundleId = "com.contoso.simulator";
@@ -100,10 +102,10 @@ suite("plistBuddy", function() {
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
             return Q.all([
-                plistBuddy.getBundleId(iosProjectRoot, true, "Debug", appName),
-                plistBuddy.getBundleId(iosProjectRoot, true, "Debug", appName, scheme),
-                plistBuddy.getBundleId(iosProjectRoot, false, undefined, appName),
-                plistBuddy.getBundleId(iosProjectRoot, false, undefined, appName, scheme),
+                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
+                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName, scheme),
+                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
+                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName, scheme),
             ]).spread((simulatorId1, simulatorId2, deviceId1, deviceId2) => {
                 assert.equal(simulatorBundleId, simulatorId1);
                 assert.equal(simulatorBundleId, simulatorId2);
