@@ -42,7 +42,10 @@ export class ReactNativeProjectHelper {
                             return devDependencies["react-native"];
                         }
                         return "";
-                });
+                    });
+            })
+            .catch(err => {
+                return "";
             });
     }
 
