@@ -24,15 +24,14 @@ export class PlistBuddy {
         this.nodeChildProcess = nodeChildProcess;
     }
 
-    public getBundleId(iosProjectRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string, scheme?: string): Q.Promise<string> {
-        const projectRoot = path.normalize(path.join(iosProjectRoot, ".."));
+    public getBundleId(iosProjectRoot: string, projectRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string, scheme?: string): Q.Promise<string> {
         return ReactNativeProjectHelper.getReactNativeVersion(projectRoot)
         .then((rnVersion) => {
             let productsFolder;
             if (semver.gte(rnVersion, "0.59.0")) {
                 if (!scheme) {
                     // If no scheme were provided via runOptions.scheme or via runArguments then try to get scheme using the way RN CLI does.
-                    scheme = this.getInferredScheme(projectRoot, rnVersion);
+                    scheme = this.getInferredScheme(iosProjectRoot, projectRoot, rnVersion);
                 }
                 productsFolder = path.join(iosProjectRoot, "build", scheme, "Build", "Products");
             } else {
@@ -81,7 +80,7 @@ export class PlistBuddy {
         return this.invokePlistBuddy(`Print ${property}`, plistFile);
     }
 
-    public getInferredScheme(projectRoot: string, rnVersion: string) {
+    public getInferredScheme(iosProjectRoot: string, projectRoot: string, rnVersion: string) {
         // Portion of code was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.js
         // and modified a little bit
         /**
@@ -100,10 +99,10 @@ export class PlistBuddy {
             iOSCliFolderName = "cli";
         }
         const findXcodeProject = require(path.join(projectRoot, `node_modules/@react-native-community/${iOSCliFolderName}/build/commands/runIOS/findXcodeProject`)).default;
-        const xcodeProject = findXcodeProject(fs.readdirSync(`${projectRoot}/ios`));
+        const xcodeProject = findXcodeProject(fs.readdirSync(iosProjectRoot));
         if (!xcodeProject) {
             throw new Error(
-                `Could not find Xcode project files in "${`${projectRoot}/ios`}" folder`
+                `Could not find Xcode project files in "${iosProjectRoot}" folder`
             );
         }
 
