@@ -20,31 +20,24 @@ suite("reactNativeProjectHelper", function() {
             fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir);
         });
 
-        test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
+        test("getReactNativePackageVersionFromNodeModules should return if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
             let versionObj = {
                 "version": "^0.20.0",
             };
 
             fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(versionObj, null, 2));
 
-            ReactNativeProjectHelper.getReactNativeVersion(sampleReactNative022ProjectDir)
+            ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(sampleReactNative022ProjectDir)
             .then(version => {
                 assert.equal(version, "^0.20.0");
                 fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
             }).done(() => done(), done);
         });
 
-        test("getReactNativeVersion should return version string if there isn't react-native package's package.json file", (done: MochaDone) => {
-            ReactNativeProjectHelper.getReactNativeVersion(sampleReactNative022ProjectDir)
-            .then(version => {
-                assert.equal(version, "^0.22.2");
-            }).done(() => done(), done);
-        });
-
         test("getReactNativeVersionFromProjectPackage should return version string if 'version' field is found in project's package.json file", (done: MochaDone) => {
             ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(sampleReactNative022ProjectDir)
             .then(version => {
-                assert.equal(version, "^0.22.0");
+                assert.equal(version, "^0.22.2");
             }).done(() => done(), done);
         });
     });

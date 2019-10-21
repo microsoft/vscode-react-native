@@ -6,7 +6,7 @@ import * as vscode from "vscode";
 import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
-import {Package} from "../common/node/package";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
@@ -237,7 +237,7 @@ export class ExtensionServer implements vscode.Disposable {
                 return mobilePlatform.beforeStartPackager()
                     .then(() => {
                         generator.step("getReactNativeVersion");
-                        return new Package(request.arguments.cwd).dependencyPackage("react-native").version();
+                        return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(mobilePlatformOptions.workspaceRoot);
                     })
                     .then(version => {
                         generator.step("startPackager");

@@ -71,16 +71,7 @@ export class Package {
     }
 
     public dependencyPackage(dependencyName: string): Package {
-        const dependencyPath = this.dependencyPath(dependencyName);
-        if (this.fileSystem.existsSync(pathModule.join(dependencyPath, "package.json"))) {
-            return new Package(this.dependencyPath(dependencyName), { fileSystem: this.fileSystem});
-        } else {
-            if (dependencyName === "react-native") {
-                throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
-            } else {
-                throw ErrorHelper.getInternalError(InternalErrorCode.DependencyPackageIsNotInstalled, dependencyName);
-            }
-        }
+        return new Package(this.dependencyPath(dependencyName), { fileSystem: this.fileSystem});
     }
 
     public informationJsonFilePath(): string {

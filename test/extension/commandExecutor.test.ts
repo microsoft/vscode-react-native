@@ -137,6 +137,10 @@ suite("commandExecutor", function() {
                 fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir);
             });
 
+            suiteTeardown(() => {
+                fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
+            });
+
             test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
                 let versionObj = {
@@ -148,12 +152,16 @@ suite("commandExecutor", function() {
                 commandExecutor.getReactNativeVersion()
                 .then(version => {
                     assert.equal(version, "^0.22.0");
-                    fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
                 }).done(() => done(), done);
             });
 
-            test("getReactNativeVersion should return version string if there isn't react-native package's package.json file", (done: MochaDone) => {
+            test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", (done: MochaDone) => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
+                let testObj = {
+                    "test": "test",
+                };
+
+                fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(testObj, null, 2));
 
                 commandExecutor.getReactNativeVersion()
                 .then(version => {
