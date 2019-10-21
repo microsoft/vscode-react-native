@@ -8,7 +8,7 @@ import { Node } from "../../src/common/node/node";
 import { ChildProcess } from "../../src/common/node/childProcess";
 
 import { EventEmitter } from "events";
-import { Crypto } from "./node/crypto";
+import { Crypto } from "../../src/common/node/crypto";
 import * as assert from "assert";
 import * as semver from "semver";
 import * as sinon from "sinon";
