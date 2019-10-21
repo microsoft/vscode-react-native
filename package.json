@@ -298,11 +298,6 @@
 								"type": "array",
 								"description": "%reactNative.launch.runArguments.description%"
 							},
-							"iosRelativeProjectPath": {
-								"type": "string",
-								"description": "%reactNative.launch.iosRelativeProjectPath.description%",
-								"default": "ios"
-							  },
 							"env": {
 								"type": "object",
 								"additionalProperties": {
