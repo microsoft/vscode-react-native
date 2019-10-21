@@ -57,7 +57,7 @@ suite("reactNativeProjectHelper", function() {
         });
 
         test("getReactNativePackageVersionFromNodeModules should return if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
-            let versionObj = {
+            const versionObj = {
                 "version": "^0.20.0",
             };
 
@@ -69,8 +69,8 @@ suite("reactNativeProjectHelper", function() {
             }).done(() => done(), done);
         });
 
-        test("getReactNativePackageVersionFromNodeModules should return if version link", (done: MochaDone) => {
-            let versionObj = {
+        test("getReactNativePackageVersionFromNodeModules should return string if version field is an URL", (done: MochaDone) => {
+            const versionObj = {
                 "version": "https://github.com/expo/react-native/archive/sdk-35.0.0.tar.gz",
             };
 
@@ -83,7 +83,7 @@ suite("reactNativeProjectHelper", function() {
         });
     });
 
-    test("getReactNativePackageVersionFromNodeModules should throw ReactNativePackageIsNotInstalled error", (done: MochaDone) => {
+    test("getReactNativePackageVersionFromNodeModules should throw ReactNativePackageIsNotInstalled error if package is not installed", (done: MochaDone) => {
         ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(sampleReactNative022ProjectDir)
         .catch(error => {
             assert.equal(error.errorCode, 606);

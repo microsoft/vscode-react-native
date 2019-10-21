@@ -144,7 +144,7 @@ suite("commandExecutor", function() {
 
             test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
-                let versionObj = {
+                const versionObj = {
                     "version": "^0.22.0",
                 };
 
@@ -158,7 +158,7 @@ suite("commandExecutor", function() {
 
             test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", (done: MochaDone) => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
-                let testObj = {
+                const testObj = {
                     "test": "test",
                 };
 
