@@ -94,7 +94,6 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
                 return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
                     const env = this.getEnvArgument();
-
                     return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
                         .then(version => {
                             if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, AndroidPlatform.NO_PACKAGER_VERSION)) {
