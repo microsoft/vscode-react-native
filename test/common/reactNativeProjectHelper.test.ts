@@ -56,7 +56,7 @@ suite("reactNativeProjectHelper", function() {
             fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
         });
 
-        test("getReactNativePackageVersionFromNodeModules should return if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
+        test("getReactNativePackageVersionFromNodeModules should return package version if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
             const versionObj = {
                 "version": "^0.20.0",
             };
@@ -83,7 +83,7 @@ suite("reactNativeProjectHelper", function() {
         });
     });
 
-    test("getReactNativePackageVersionFromNodeModules should throw ReactNativePackageIsNotInstalled error if package is not installed", (done: MochaDone) => {
+    test("getReactNativePackageVersionFromNodeModules should throw ReactNativePackageIsNotInstalled error if the package is not installed", (done: MochaDone) => {
         ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(sampleReactNative022ProjectDir)
         .catch(error => {
             assert.equal(error.errorCode, 606);
