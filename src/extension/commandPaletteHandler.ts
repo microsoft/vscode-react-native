@@ -3,7 +3,6 @@
 
 import * as vscode from "vscode";
 import * as Q from "q";
-import * as path from "path";
 import * as XDL from "./exponent/xdlInterface";
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
@@ -65,7 +64,7 @@ export class CommandPaletteHandler {
     public static startPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
                     .then(version => {
                         return this.executeCommandInContext("startPackager", project.workspaceFolder, () => {
                             return project.packager.isRunning()
@@ -105,7 +104,7 @@ export class CommandPaletteHandler {
     public static restartPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
                     .then(version => {
                         return this.executeCommandInContext("restartPackager", project.workspaceFolder, () =>
                             this.runRestartPackagerCommandAndUpdateStatus(project));
@@ -136,7 +135,7 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 TargetPlatformHelper.checkTargetPlatformSupport("android");
-                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
                     .then(version => {
                         return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
                             const platform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform, target);
@@ -161,7 +160,7 @@ export class CommandPaletteHandler {
     public static runIos(target: TargetType = "simulator"): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
                     .then(version => {
                     TargetPlatformHelper.checkTargetPlatformSupport("ios");
                     return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
@@ -189,7 +188,7 @@ export class CommandPaletteHandler {
     public static runExponent(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return CommandPaletteHandler.checkReactNativePackageExistence(project.workspaceFolder.uri.path)
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
                     .then(version => {
                         return this.loginToExponent(project)
                             .then(() => {
@@ -403,12 +402,6 @@ export class CommandPaletteHandler {
         } else {
             return Q.reject(ErrorHelper.getInternalError(InternalErrorCode.WorkspaceNotFound, "Current workspace does not contain React Native projects."));
         }
-    }
-
-    private static checkReactNativePackageExistence(workspaceRoot: string): Q.Promise<string> {
-        return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(
-            path.resolve(workspaceRoot, "node_modules", "react-native")
-            );
     }
 
     private static getRunOptions(project: IReactNativeProject, platform: "ios" | "android" | "exponent", target: TargetType = "simulator"): IAndroidRunOptions | IIOSRunOptions {

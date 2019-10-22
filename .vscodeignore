@@ -12,7 +12,7 @@ SampleApplication/**
 tools/**
 .vscodeignore
 gulpfile.js
-preparebuild.bat
+prepareBuild.bat
 tsconfig.json
 tslint.json
 release/**

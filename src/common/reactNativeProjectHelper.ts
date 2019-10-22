@@ -16,43 +16,36 @@ export class ReactNativeProjectHelper {
     }
 
     public static getReactNativeVersion(projectRoot: string): Q.Promise<string> {
-        const reactNativePackageDir = path.resolve(
-            projectRoot,
-            "node_modules",
-            "react-native"
-          );
-
-        return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(reactNativePackageDir)
+        return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(projectRoot)
             .catch(err => {
                 return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(projectRoot);
             });
     }
 
-    public static getReactNativePackageVersionFromNodeModules(reactNativePackageDir: string): Q.Promise<string> {
-        return new Package(reactNativePackageDir).version()
+    public static getReactNativePackageVersionFromNodeModules(projectRoot: string): Q.Promise<string> {
+        return new Package(projectRoot).dependencyPackage("react-native").version()
             .catch(err => {
-                const noReactNativePackageError = ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
-                throw noReactNativePackageError;
+                throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
             });
     }
 
     public static getReactNativeVersionFromProjectPackage(cwd: string): Q.Promise<string> {
         const rootProjectPackageJson = new Package(cwd);
-        return rootProjectPackageJson.dependencyPackage("react-native").version()
-            .catch(err => {
-                return rootProjectPackageJson.dependencies()
-                    .then(dependencies => {
-                        if (dependencies["react-native"]) {
-                            return dependencies["react-native"];
+        return rootProjectPackageJson.dependencies()
+            .then(dependencies => {
+                if (dependencies["react-native"]) {
+                    return dependencies["react-native"];
+                }
+                return rootProjectPackageJson.devDependencies()
+                    .then(devDependencies => {
+                        if (devDependencies["react-native"]) {
+                            return devDependencies["react-native"];
                         }
-                        return rootProjectPackageJson.devDependencies()
-                            .then(devDependencies => {
-                                if (devDependencies["react-native"]) {
-                                    return devDependencies["react-native"];
-                                }
-                                return "";
-                        });
+                        return "";
                     });
+            })
+            .catch(err => {
+                return "";
             });
     }
 

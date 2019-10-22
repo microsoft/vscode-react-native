@@ -6,6 +6,7 @@ import * as vscode from "vscode";
 import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
@@ -13,11 +14,9 @@ import {Telemetry} from "../common/telemetry";
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
-import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
 import {IRemoteExtension, OpenFileRequest} from "../common/remoteExtension";
 import * as rpc from "noice-json-rpc";
-import * as path from "path";
 import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
 import * as nls from "vscode-nls";
@@ -241,14 +240,8 @@ export class ExtensionServer implements vscode.Disposable {
                         return mobilePlatform.beforeStartPackager()
                             .then(() => {
                                 generator.step("getReactNativeVersion");
-                                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(
-                                    path.resolve(request.arguments.cwd, "node_modules", "react-native")
-                                    );
+                                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(mobilePlatformOptions.workspaceRoot);
                             })
-                            /*.catch(err => {
-                                generator.addError(err);
-                                throw err;
-                            })*/
                             .then(version => {
                                 generator.step("startPackager");
                                 return mobilePlatform.startPackager();

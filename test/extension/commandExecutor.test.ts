@@ -8,6 +8,7 @@ import { Node } from "../../src/common/node/node";
 import { ChildProcess } from "../../src/common/node/childProcess";
 
 import { EventEmitter } from "events";
+import { Crypto } from "../../src/common/node/crypto";
 import * as assert from "assert";
 import * as semver from "semver";
 import * as sinon from "sinon";
@@ -143,7 +144,7 @@ suite("commandExecutor", function() {
 
             test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
-                let versionObj = {
+                const versionObj = {
                     "version": "^0.22.0",
                 };
 
@@ -157,7 +158,7 @@ suite("commandExecutor", function() {
 
             test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", (done: MochaDone) => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
-                let testObj = {
+                const testObj = {
                     "test": "test",
                 };
 
@@ -184,7 +185,7 @@ suite("commandExecutor", function() {
             });
 
             test("selectReactNativeCLI should return global CLI", (done: MochaDone) => {
-                const randomHash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15); // Generate random hash string, e. g. 'kvwceypjqulgaqmfz77wq'
+                const randomHash = new Crypto().hash(Math.random().toString(36).substring(2, 15));
                 RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"] = randomHash;
                 let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
                 CommandExecutor.ReactNativeCommand = RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"];

@@ -53,7 +53,7 @@ export class SettingsHelper {
     }
 
     /**
-     * Get the React Native Global Command Name
+     * Get the React Native Global Command Name, e.g. 'react-native' or a custom one
      */
     public static getReactNativeGlobalCommandName(uri: vscode.Uri): string | null {
         const workspaceConfiguration = vscode.workspace.getConfiguration("react-native-tools", uri);
