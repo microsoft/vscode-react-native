@@ -37,6 +37,8 @@ export class SmokeTestsConstants {
     public static VSCodeUserDataDir = "VSCodeUserData";
     // Name of application entry point file
     public static AppjsFileName = "App.js";
-    // Name of file where tests environment variables stores
+     // Name of file where tests environment variables are stored
     public static EnvConfigFileName = "config.json";
+    // Name of file where tests environment variables are stored for development environment
+    public static EnvDevConfigFileName = "config.dev.json";
 }

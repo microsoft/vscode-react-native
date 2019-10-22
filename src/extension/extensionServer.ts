@@ -201,6 +201,14 @@ export class ExtensionServer implements vscode.Disposable {
             mobilePlatformOptions.productName = request.arguments.productName;
         }
 
+        if (!isNullOrUndefined(request.arguments.launchActivity)) {
+            mobilePlatformOptions.debugLaunchActivity = request.arguments.launchActivity;
+        }
+
+        if (request.arguments.type === "reactnativedirect") {
+            mobilePlatformOptions.isDirect = true;
+        }
+
         mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(request.arguments.cwd || request.arguments.program);
         const platformDeps: MobilePlatformDeps = {
             packager: this.reactNativePackager,
@@ -208,12 +216,19 @@ export class ExtensionServer implements vscode.Disposable {
         const mobilePlatform = new PlatformResolver()
             .resolveMobilePlatform(request.arguments.platform, mobilePlatformOptions, platformDeps);
         return new Promise((resolve, reject) => {
-            const extProps = {
+            let extProps: any = {
                 platform: {
                     value: request.arguments.platform,
                     isPii: false,
                 },
             };
+
+            if (mobilePlatformOptions.isDirect) {
+                extProps.isDirect = {
+                    value: true,
+                    isPii: false,
+                };
+            }
 
             TelemetryHelper.generate("launch", extProps, (generator) => {
                 generator.step("checkPlatformCompatibility");
@@ -236,6 +251,13 @@ export class ExtensionServer implements vscode.Disposable {
                         return mobilePlatform.runApp();
                     })
                     .then(() => {
+                        if (mobilePlatformOptions.isDirect) {
+                            generator.step("mobilePlatform.enableDirectDebuggingMode");
+                            if (request.arguments.platform === "android") {
+                                this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
+                            }
+                            return mobilePlatform.disableJSDebuggingMode();
+                        }
                         generator.step("mobilePlatform.enableJSDebuggingMode");
                         this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
                         return mobilePlatform.enableJSDebuggingMode();

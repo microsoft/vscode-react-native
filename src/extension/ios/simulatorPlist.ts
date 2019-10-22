@@ -16,6 +16,7 @@ const localize = nls.loadMessageBundle();
 
 export class SimulatorPlist {
     private projectRoot: string;
+    private iosProjectRoot: string;
     private scheme?: string;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
@@ -23,12 +24,13 @@ export class SimulatorPlist {
     private plistBuddy: PlistBuddy;
     private nodeChildProcess: ChildProcess;
 
-    constructor(projectRoot: string, scheme?: string, {
+    constructor(iosProjectRoot: string, projectRoot: string, scheme?: string, {
         nodeFileSystem = new FileSystem(),
         plistBuddy = new PlistBuddy(),
         nodeChildProcess = new ChildProcess(),
     } = {}) {
         this.projectRoot = projectRoot;
+        this.iosProjectRoot = iosProjectRoot;
 
         this.nodeFileSystem = nodeFileSystem;
         this.plistBuddy = plistBuddy;
@@ -39,7 +41,7 @@ export class SimulatorPlist {
     public findPlistFile(configuration?: string, productName?: string): Q.Promise<string> {
 
         return Q.all<any>([
-            this.plistBuddy.getBundleId(this.projectRoot, true, configuration, productName, this.scheme), // Find the name of the application
+            this.plistBuddy.getBundleId(this.iosProjectRoot, this.projectRoot, true, configuration, productName, this.scheme), // Find the name of the application
             this.nodeChildProcess.exec("xcrun simctl getenv booted HOME").outcome, // Find the path of the simulator we are running
             ]).spread((bundleId: string, pathBuffer: Buffer) => {
                 const pathBefore = path.join(pathBuffer.toString().trim(), "Containers", "Data", "Application");

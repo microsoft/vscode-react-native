@@ -9,6 +9,19 @@
             "platform": "android"
         },
         {
+            "name": "Debug Android (Hermes) - Experimental",
+            "cwd": "${workspaceFolder}",
+            "type": "reactnativedirect",
+            "request": "launch",
+            "platform": "android"
+        },
+        {
+            "name": "Attach to Hermes application - Experimental",
+            "cwd": "${workspaceFolder}",
+            "type": "reactnativedirect",
+            "request": "attach"
+        },
+        {
             "name": "Debug iOS",
             "cwd": "${workspaceFolder}",
             "type": "reactnative",

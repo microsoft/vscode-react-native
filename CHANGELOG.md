@@ -1,3 +1,29 @@
+## 0.12.1
+* Fixed debugging issues with React Native 0.61 applications if some additional packages were installed, such as `react-native-navigation` or `react-native-splash-screen`
+
+## 0.12.0
+* Added experimental support for React Native Android applications on Hermes engine. Experimental means that the debugger is on early stage of development and some bugs can be revealed. If you tried experimental feature and would like to provide feedback, please post it to [Github issue](https://github.com/microsoft/vscode-react-native/issues/1099).
+* Added support for React Native 0.61 [#1122](https://github.com/microsoft/vscode-react-native/pull/1122)
+* Added wait phase for initializing React Native app bundle sourcemaps to avoid breakpoints skip on application initialization [#1081](https://github.com/microsoft/vscode-react-native/issues/1081)
+* Added [inline breakpoints feature](https://github.com/microsoft/vscode/issues/31612) support
+* Improved extension security [#1125](https://github.com/microsoft/vscode-react-native/pull/1125)
+
+## 0.11.2
+* Fixed `Attach to packager` debugging issue when Haul packager is being used [#1108](https://github.com/microsoft/vscode-react-native/issues/1108)
+* Optimized extension activation events [#1114](https://github.com/microsoft/vscode-react-native/pull/1114)
+
+## 0.11.1
+* Fixed debugging issue when using `broadcast-channels` package in React Native application [#1083](https://github.com/microsoft/vscode-react-native/issues/1083)
+* Added `launchActivity` debug configuration parameter for Android allowing to choose the activity to launch on `Debug Android` scenario [#1084](https://github.com/microsoft/vscode-react-native/pull/1084)
+* Added error handling for some specific cases [#1086](https://github.com/microsoft/vscode-react-native/pull/1086)
+* Optimized extension activation events [#1103](https://github.com/microsoft/vscode-react-native/pull/1103)
+
+## 0.11.0
+* Fixed the folder `.vscode/.react` isn't created when opening directory with nested RN project
+* Fixed usage of removed `-v` option for `react-native` command from @react-native-community/cli
+* Updated extension translation
+* [Internal] Improved smoke tests workflow
+
 ## 0.10.2
 * Fixed security vulnerabilities ([#1050](https://github.com/microsoft/vscode-react-native/pull/1050), [#1052](https://github.com/microsoft/vscode-react-native/pull/1052)), [#1055](https://github.com/microsoft/vscode-react-native/pull/1055))
 * Fixed readme markup ([#1051](https://github.com/microsoft/vscode-react-native/pull/1051))

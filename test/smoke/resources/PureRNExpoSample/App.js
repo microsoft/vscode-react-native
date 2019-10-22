@@ -1,3 +1,4 @@
+console.log('Test output from debuggee');
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -20,7 +21,6 @@ const instructions = Platform.select({
 type Props = {};
 export default class App extends Component<Props> {
   render() {
-    console.log('Test output from debuggee');
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>Welcome to React Native!</Text>

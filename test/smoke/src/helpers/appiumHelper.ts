@@ -27,13 +27,13 @@ export class AppiumHelper {
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Reload JS Bundle']",
         },
         RN_ENABLE_REMOTE_DEBUGGING_BUTTON: {
-            [Platform.Android]:  "//*[@text='Debug JS Remotely']",
-            [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely']",
+            [Platform.Android]:  "//*[@text='Debug JS Remotely' or @text='Debug']",
+            [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely' or @name='Debug']",
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Debug Remote JS']",
         },
         RN_STOP_REMOTE_DEBUGGING_BUTTON: {
-            [Platform.Android]: "//*[@text='Stop Remote JS Debugging']",
-            [Platform.iOS]: "//XCUIElementTypeButton[@name='Stop Remote JS Debugging']",
+            [Platform.Android]: "//*[@text='Stop Remote JS Debugging' or @text='Stop Debugging']",
+            [Platform.iOS]: "//XCUIElementTypeButton[@name='Stop Remote JS Debugging' or @name='Stop Debugging']",
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Stop Remote JS Debugging']",
         },
         RN_DEV_MENU_CANCEL: {
@@ -243,9 +243,28 @@ export class AppiumHelper {
         }
     }
 
+    public static async clickTestButtonHermes(client: AppiumClient) {
+        console.log(`*** Pressing button with text "Test Button"...`);
+        const TEST_BUTTON = "//*[@text='TEST BUTTON']";
+        await client.click(TEST_BUTTON);
+    }
+
+    public static async isHermesWorking(client: AppiumClient): Promise<boolean> {
+        const HERMES_MARK = "//*[@text='Engine: Hermes']";
+        return await client
+            .waitForExist(HERMES_MARK, 30 * 1000)
+            .isExisting(HERMES_MARK);
+    }
+
     private static async openExpoAppViaClipboardAndroid(client: AppiumClient, clipboard: Electron.Clipboard, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
+        const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc='Projects, tab, 1 of 3']";
+        await client
+            .waitForExist(EXPLORE_ELEMENT, 30 * 1000)
+            .click(EXPLORE_ELEMENT);
+        console.log(`*** Pressing "Projects" icon...`);
+
         console.log(`*** Opening Expo app via clipboard`);
         console.log(`*** Copying ${expoURL} to system clipboard...`);
         await clipboard.writeText(expoURL);
@@ -261,13 +280,12 @@ export class AppiumHelper {
     private static async openExpoAppViaExploreButtonIos(client: AppiumClient, expoURL: string) {
         console.log(`*** Opening Expo app via "Explore" button`);
         console.log(`*** Pressing "Explore" button...`);
-        const EXPO_EXPLORE_BUTTON = "//XCUIElementTypeButton[@name='Explore' or @name='Explore, tab, 2 of 4']";
+        const EXPO_EXPLORE_BUTTON = "//XCUIElementTypeButton[@name='Explore, tab, 2 of 4']";
         await client
             .waitForExist(EXPO_EXPLORE_BUTTON, 30 * 1000)
             .click(EXPO_EXPLORE_BUTTON);
 
         const FIND_A_PROJECT_ELEMENT = `(//XCUIElementTypeOther[@name='Find a project or enter a URL... '])[3]`;
-
 
         console.log(`*** Pasting ${expoURL} to search field...`);
         // Run Expo app by expoURL

@@ -15,6 +15,7 @@ export interface ILaunchArgs {
     runArguments?: string[];
     env?: any;
     envFile?: string;
+    isDirect?: boolean;
 }
 
 /**
@@ -24,6 +25,7 @@ export interface ILaunchArgs {
 export interface IAndroidRunOptions extends ILaunchArgs {
     variant?: string;
     logCatArguments?: any;
+    debugLaunchActivity?: string;
 }
 
 export interface IIOSRunOptions extends ILaunchArgs {

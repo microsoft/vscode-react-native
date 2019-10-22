@@ -27,9 +27,9 @@ export class SetupEnvironmentHelper {
         console.log(`*** Creating RN app via '${command}' in ${workspacePath}...`);
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
-        let customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
-        let launchConfigFile = path.join(resourcesPath, "launch.json");
-        let vsCodeConfigPath = path.join(workspacePath, ".vscode");
+        const customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
+        const launchConfigFile = path.join(resourcesPath, "launch.json");
+        const vsCodeConfigPath = path.join(workspacePath, ".vscode");
 
         console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
         fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
@@ -45,8 +45,26 @@ export class SetupEnvironmentHelper {
         SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
+    public static prepareHermesReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
+        const commandClean = path.join(workspacePath, "android", "gradlew") + " clean";
+
+        console.log(`*** Executing  ${commandClean} ...`);
+        cp.execSync(commandClean, { cwd: path.join(workspacePath, "android"), stdio: "inherit" });
+
+        const customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
+        const testButtonPath = path.join(resourcesPath, customEntryPointFolder, "AppTestButton.js");
+
+        console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
+        fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
+
+        SetupEnvironmentHelper.copyGradleFilesToHermesApp(workspacePath, resourcesPath, customEntryPointFolder);
+
+        console.log(`*** Copying ${testButtonPath} into ${workspacePath}`);
+        fs.copyFileSync(testButtonPath, path.join(workspacePath, "AppTestButton.js"));
+    }
+
     public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
-        const command = `echo -ne '\\n' | expo init -t tabs --name ${appName}  --workflow managed ${appName}`;
+        const command = `echo -ne '\\n' | expo init -t tabs --name ${appName} ${appName}`;
         console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
@@ -169,7 +187,7 @@ export class SetupEnvironmentHelper {
     public static async installExpoAppOnIos(expoAppPath: string) {
         return new Promise((resolve, reject) => {
             console.log(`*** Installing Expo app on iOS simulator with 'expo-cli install:ios' command`);
-            let installerProcess = cp.spawn("expo-cli", ["install:ios"], {cwd: expoAppPath, stdio: "pipe"});
+            let installerProcess = cp.spawn("expo-cli", ["client:install:ios"], {cwd: expoAppPath, stdio: "pipe"});
             installerProcess.stdout.on("data", (data) => {
                 const string = filterProgressBarChars(data.toString().trim());
                 if (string !== "") {
@@ -193,61 +211,20 @@ export class SetupEnvironmentHelper {
         });
     }
 
-    public static addAdditionalPackagesToExpoApp(expoAppPath: string) {
-        return new Promise((resolve, reject) => {
-            console.log(`*** Installing additional packages to app ${expoAppPath} with 'expo-cli install @expo/vector-icons expo-asset expo-font' command`);
-            let expoCliCommand = process.platform === "win32" ? "expo-cli.cmd" : "expo-cli";
-            let installerProcess = cp.spawn(expoCliCommand, [
-                "install",
-                "@expo/vector-icons",
-                "expo-asset",
-                "expo-font",
-            ], {cwd: expoAppPath, stdio: "pipe"});
-            installerProcess.stdout.on("data", (data) => {
-                const string = filterProgressBarChars(data.toString().trim());
-                if (string !== "") {
-                    console.log(`stdout: ${string}`);
-                }
-            });
-            installerProcess.stderr.on("data", (data) => {
-                const string = filterProgressBarChars(data.toString().trim());
-                if (string !== "") {
-                    console.error(`stderr: ${string}`);
-                }
-            });
-            installerProcess.on("close", () => {
-                console.log("*** expo-cli terminated");
-                resolve();
-            });
-            installerProcess.on("error", (error) => {
-                console.log("Error occurred in expo-cli process: ", error);
-                reject(error);
-            });
-        });
-    }
-
-    public static patchAppJsForExpoApp(expoAppPath: string) {
-        const oldString = "import { AppLoading, Asset, Font, Icon } from 'expo';";
-        const newString = `import { AppLoading } from 'expo';
-import { Asset } from 'expo-asset';
-import * as Font from 'expo-font';
-import * as Icon from '@expo/vector-icons';
-`;
-        const appJSPath = path.join(expoAppPath, "App.js");
-        console.log(`*** Patching ${appJSPath}`);
-        const content: string = fs.readFileSync(appJSPath).toString();
-        if (content.indexOf(oldString) === -1) {
-            throw new Error("Nothing to patch in App.js, looks like expo team already fixed it. Please check!");
+    // Fix for https://github.com/expo/expo-cli/issues/951
+    // TODO: Delete when bug will be fixed
+    public static patchExpoSettingsFile(expoAppPath: string) {
+        const settingsJsonPath = path.join(expoAppPath, ".expo", "settings.json");
+        if (fs.existsSync(settingsJsonPath)) {
+            console.log(`*** Patching ${settingsJsonPath}...`);
+            let content = JSON.parse(fs.readFileSync(settingsJsonPath).toString());
+            if (content.https === false) {
+                console.log(`*** Deleting https: ${content.https} line...`);
+                delete content.https;
+                content = JSON.stringify(content, null, 2);
+                fs.writeFileSync(settingsJsonPath, content);
+            }
         }
-        const updatedContent = content.replace(oldString, newString);
-        fs.writeFileSync(appJSPath, updatedContent);
-    }
-
-    // For some reason expo app generated with "expo init" doesn't contain the following changes
-    // so we have to apply them manually
-    public static async patchExpoApp(expoAppPath) {
-        await this.addAdditionalPackagesToExpoApp(expoAppPath);
-        await this.patchAppJsForExpoApp(expoAppPath);
     }
 
     // TODO: refactor this function to make it capable to accept debug configuration as a parameter
@@ -313,13 +290,23 @@ module.exports.cacheStores = [
     }),
 ];
 
-// This \/ should be uncommented as soon as this PR is merged
-// https://github.com/facebook/metro/pull/424,
-
 // Redirect Haste Map cache
-// module.exports.hasteMapCacheDirectory = ".cache";`;
+module.exports.hasteMapCacheDirectory = ".cache";`;
         fs.appendFileSync(metroConfigPath, patchContent);
         const contentAfterPatching = fs.readFileSync(metroConfigPath);
         console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
+    }
+
+    private static copyGradleFilesToHermesApp(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
+        const appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
+        const resGradleBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
+        const resReactGradleFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
+        const projReactGradleFilePath = path.join(workspacePath, "node_modules", "react-native", "react.gradle"); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
+
+        console.log(`*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`);
+        fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
+
+        console.log(`*** Copying  ${resReactGradleFilePath} into ${projReactGradleFilePath}...`); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
+        fs.writeFileSync(projReactGradleFilePath, fs.readFileSync(resReactGradleFilePath));
     }
 }

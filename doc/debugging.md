@@ -66,3 +66,35 @@ For WPF apps use `wpf`, e.g.(WPF debugging available only for react-native-windo
     "platform": "wpf"
 }
 ```
+
+## Debugging React Native apps with Hermes enabled
+
+Hermes is the new JavaScript engine optimized for running React Native apps on Android. It improves app performance and decreases app size.
+
+Click [here](https://facebook.github.io/react-native/docs/hermes/) to learn more about Hermes.
+
+Debugging apps with Hermes enabled is currently experimental. Please, see [this issue](https://github.com/microsoft/vscode-react-native/issues/1073) for current known issues on Hermes support.
+
+To debug while using Hermes engine, please choose one of the following debug configurations:
+ - React Native (Hermes): Debug Android - Experimental
+
+```
+{
+    "name": "Debug Android (Hermes) - Experimental",
+    "cwd": "${workspaceFolder}",
+    "type": "reactnativedirect",
+    "request": "launch",
+    "platform": "android"
+}
+```
+
+ - React Native (Hermes): Attach to Hermes application - Experimental
+
+ ```
+{
+    "name": "Attach to Hermes application - Experimental",
+    "cwd": "${workspaceFolder}",
+    "type": "reactnativedirect",
+    "request": "attach"
+}
+```
