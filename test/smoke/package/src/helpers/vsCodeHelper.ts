@@ -17,7 +17,7 @@ import * as fs from "fs";
 import * as rimraf from "rimraf";
 import * as cp from "child_process";
 
-import { spawnSync } from "../helpers/utilities";
+import { spawnSync } from "./utilities";
 
 export class VSCodeHelper {
     private static version;
