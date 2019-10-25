@@ -621,6 +621,11 @@
 					"default": 8081,
 					"scope": "resource"
 				},
+				"react-native-tools.reactNativeGlobalCommandName": {
+					"description": "%reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description%",
+					"type": "string",
+					"scope": "resource"
+				},
 				"react-native-tools.projectRoot": {
 					"description": "%reactNative.configuration.properties.react-native-tools.projectRoot.description%",
 					"type": "string",

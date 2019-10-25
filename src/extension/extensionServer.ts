@@ -3,10 +3,10 @@
 
 import * as Q from "q";
 import * as vscode from "vscode";
-
 import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
@@ -20,6 +20,7 @@ import * as rpc from "noice-json-rpc";
 import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
 import * as nls from "vscode-nls";
+import {CommandExecutor} from "../common/commandExecutor";
 const localize = nls.loadMessageBundle();
 
 export class ExtensionServer implements vscode.Disposable {
@@ -235,6 +236,10 @@ export class ExtensionServer implements vscode.Disposable {
                 TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
                 return mobilePlatform.beforeStartPackager()
                     .then(() => {
+                        generator.step("getReactNativeVersion");
+                        return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(mobilePlatformOptions.workspaceRoot);
+                    })
+                    .then(version => {
                         generator.step("startPackager");
                         return mobilePlatform.startPackager();
                     })
@@ -266,6 +271,7 @@ export class ExtensionServer implements vscode.Disposable {
                         resolve();
                     })
                     .catch(error => {
+                        generator.addError(error);
                         this.logger.error(error);
                         reject(error);
                     });
@@ -298,6 +304,8 @@ function requestSetup(args: any): any {
         envFile: args.envFile,
         target: args.target || "simulator",
     };
+
+    CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(workspaceFolder.uri);
 
     if (!args.runArguments) {
         let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", workspaceFolder.uri);

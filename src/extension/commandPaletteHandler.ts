@@ -20,9 +20,10 @@ import {IAndroidRunOptions, IIOSRunOptions} from "./launchArgs";
 import {ExponentPlatform} from "./exponent/exponentPlatform";
 import {spawn, ChildProcess} from "child_process";
 import {HostPlatform} from "../common/hostPlatform";
+import {CommandExecutor} from "../common/commandExecutor";
 import * as nls from "vscode-nls";
-import { ErrorHelper } from "../common/error/errorHelper";
-import { InternalErrorCode } from "../common/error/internalErrorCode";
+import {ErrorHelper} from "../common/error/errorHelper";
+import {InternalErrorCode} from "../common/error/internalErrorCode";
 const localize = nls.loadMessageBundle();
 
 interface IReactNativeStuff {
@@ -63,13 +64,16 @@ export class CommandPaletteHandler {
     public static startPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return this.executeCommandInContext("startPackager", project.workspaceFolder, () => {
-                    return project.packager.isRunning()
-                        .then((running) => {
-                            return running ? project.packager.stop() : Q.resolve(void 0);
-                        });
-                })
-                .then(() => project.packager.start());
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
+                    .then(version => {
+                        return this.executeCommandInContext("startPackager", project.workspaceFolder, () => {
+                            return project.packager.isRunning()
+                                .then((running) => {
+                                    return running ? project.packager.stop() : Q.resolve(void 0);
+                                });
+                        })
+                        .then(() => project.packager.start());
+                    });
             });
     }
 
@@ -100,8 +104,11 @@ export class CommandPaletteHandler {
     public static restartPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return this.executeCommandInContext("restartPackager", project.workspaceFolder, () =>
-                    this.runRestartPackagerCommandAndUpdateStatus(project));
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
+                    .then(version => {
+                        return this.executeCommandInContext("restartPackager", project.workspaceFolder, () =>
+                            this.runRestartPackagerCommandAndUpdateStatus(project));
+                    });
             });
     }
 
@@ -128,19 +135,22 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 TargetPlatformHelper.checkTargetPlatformSupport("android");
-                return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
-                    const platform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform, target);
-                    return platform.beforeStartPackager()
-                        .then(() => {
-                            return platform.startPackager();
-                        })
-                        .then(() => {
-                            return platform.runApp(/*shouldLaunchInAllDevices*/true);
-                        })
-                        .then(() => {
-                            return platform.disableJSDebuggingMode();
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
+                    .then(version => {
+                        return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
+                            const platform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform, target);
+                            return platform.beforeStartPackager()
+                                .then(() => {
+                                    return platform.startPackager();
+                                })
+                                .then(() => {
+                                    return platform.runApp(/*shouldLaunchInAllDevices*/true);
+                                })
+                                .then(() => {
+                                    return platform.disableJSDebuggingMode();
+                                });
                         });
-                });
+                    });
             });
     }
 
@@ -150,21 +160,24 @@ export class CommandPaletteHandler {
     public static runIos(target: TargetType = "simulator"): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                TargetPlatformHelper.checkTargetPlatformSupport("ios");
-                return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
-                    const platform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform, target);
-                    return platform.beforeStartPackager()
-                        .then(() => {
-                            return platform.startPackager();
-                        })
-                        .then(() => {
-                            // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
-                            return platform.disableJSDebuggingMode();
-                        })
-                        .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
-                        .then(() => {
-                            return platform.runApp();
-                        });
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
+                    .then(version => {
+                    TargetPlatformHelper.checkTargetPlatformSupport("ios");
+                    return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
+                        const platform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform, target);
+                        return platform.beforeStartPackager()
+                            .then(() => {
+                                return platform.startPackager();
+                            })
+                            .then(() => {
+                                // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
+                                return platform.disableJSDebuggingMode();
+                            })
+                            .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+                            .then(() => {
+                                return platform.runApp();
+                            });
+                    });
                 });
             });
     }
@@ -175,18 +188,21 @@ export class CommandPaletteHandler {
     public static runExponent(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return this.loginToExponent(project)
-                    .then(() => {
-                        return this.executeCommandInContext("runExponent", project.workspaceFolder, () => {
-                            const platform = <ExponentPlatform>this.createPlatform(project, "exponent", ExponentPlatform);
-                            return platform.beforeStartPackager()
-                                .then(() => {
-                                    return platform.startPackager();
-                                })
-                                .then(() => {
-                                    return platform.runApp();
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
+                    .then(version => {
+                        return this.loginToExponent(project)
+                            .then(() => {
+                                return this.executeCommandInContext("runExponent", project.workspaceFolder, () => {
+                                    const platform = <ExponentPlatform>this.createPlatform(project, "exponent", ExponentPlatform);
+                                    return platform.beforeStartPackager()
+                                        .then(() => {
+                                            return platform.startPackager();
+                                        })
+                                        .then(() => {
+                                            return platform.runApp();
+                                        });
                                 });
-                        });
+                            });
                     });
             });
     }
@@ -403,6 +419,8 @@ export class CommandPaletteHandler {
             env: envArgs,
             envFile: envFile,
         };
+
+        CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(project.workspaceFolder.uri);
 
         return runOptions;
     }

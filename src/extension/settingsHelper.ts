@@ -53,6 +53,18 @@ export class SettingsHelper {
     }
 
     /**
+     * Get the React Native Global Command Name, e.g. 'react-native' or a custom one
+     */
+    public static getReactNativeGlobalCommandName(uri: vscode.Uri): string | null {
+        const workspaceConfiguration = vscode.workspace.getConfiguration("react-native-tools", uri);
+        if (workspaceConfiguration.has("reactNativeGlobalCommandName")) {
+            return ConfigurationReader.readString(workspaceConfiguration.get("reactNativeGlobalCommandName"));
+        }
+
+        return null;
+    }
+
+    /**
      * Get command line run arguments from settings.json
      */
     public static getRunArgs(platform: string, target: "device" | "simulator", uri: vscode.Uri): string[] {
