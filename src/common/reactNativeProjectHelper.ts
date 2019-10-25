@@ -4,9 +4,11 @@
 import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
+import * as semver from "semver";
 import {Package} from "./node/package";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
+import {URL} from "url";
 
 export class ReactNativeProjectHelper {
 
@@ -47,6 +49,19 @@ export class ReactNativeProjectHelper {
             .catch(err => {
                 return "";
             });
+    }
+
+    public static verifyVersion(version: string): string {
+        if (!!semver.valid(version)) {
+            return version;
+        } else {
+            try {
+                new URL(version);
+                return "SemverInvalid: URL";
+            } catch (err) {
+                return "SemverInvalid";
+            }
+        }
     }
 
     /**

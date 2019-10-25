@@ -4,6 +4,7 @@
 import * as Q from "q";
 import {Telemetry} from "./telemetry";
 import {TelemetryGenerator, IHasErrorCode} from "./telemetryGenerators";
+import {ReactNativeProjectHelper} from "./reactNativeProjectHelper"
 
 export interface ITelemetryPropertyInfo {
     value: any;
@@ -30,7 +31,7 @@ export class TelemetryHelper {
 
     public static addReactNativeVersionToEventProperties(reactNativeVersion: string, properties: ICommandTelemetryProperties = {}): any {
         properties.reactNativeVersion = {
-            value: reactNativeVersion,
+            value: ReactNativeProjectHelper.verifyVersion(reactNativeVersion),
             isPii: false,
         }
 
