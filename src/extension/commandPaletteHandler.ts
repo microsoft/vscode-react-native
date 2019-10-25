@@ -410,7 +410,6 @@ export class CommandPaletteHandler {
         const envArgs = SettingsHelper.getEnvArgs(platform, target, project.workspaceFolder.uri);
         const envFile = SettingsHelper.getEnvFile(platform, target, project.workspaceFolder.uri);
         const projectRoot = SettingsHelper.getReactNativeProjectRoot(project.workspaceFolder.uri.fsPath);
-        const reactNativeGlobalCommandName = SettingsHelper.getReactNativeGlobalCommandName(project.workspaceFolder.uri);
         const runOptions: IAndroidRunOptions | IIOSRunOptions = {
             platform: platform,
             workspaceRoot: project.workspaceFolder.uri.fsPath,
@@ -421,7 +420,7 @@ export class CommandPaletteHandler {
             envFile: envFile,
         };
 
-        CommandExecutor.ReactNativeCommand = reactNativeGlobalCommandName;
+        CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(project.workspaceFolder.uri);
 
         return runOptions;
     }
