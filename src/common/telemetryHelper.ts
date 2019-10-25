@@ -4,6 +4,7 @@
 import * as Q from "q";
 import {Telemetry} from "./telemetry";
 import {TelemetryGenerator, IHasErrorCode} from "./telemetryGenerators";
+import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
 
 export interface ITelemetryPropertyInfo {
     value: any;
@@ -23,12 +24,22 @@ export class TelemetryHelper {
         const event = TelemetryHelper.createTelemetryEvent(eventName, properties);
         Telemetry.send(event);
     }
+
     public static createTelemetryEvent(eventName: string, properties?: Telemetry.ITelemetryProperties): Telemetry.TelemetryEvent {
         return new Telemetry.TelemetryEvent(eventName, properties);
     }
 
     public static telemetryProperty(propertyValue: any, pii?: boolean): ITelemetryPropertyInfo {
         return { value: String(propertyValue), isPii: pii || false };
+    }
+
+    public static addReactNativeVersionToEventProperties(reactNativeVersion: string, properties: ICommandTelemetryProperties = {}): any {
+        properties.reactNativeVersion = {
+            value: ReactNativeProjectHelper.verifyVersion(reactNativeVersion),
+            isPii: false,
+        };
+
+        return properties;
     }
 
     public static addTelemetryEventProperties(event: Telemetry.TelemetryEvent, properties: ICommandTelemetryProperties): void {

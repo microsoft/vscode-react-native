@@ -231,51 +231,55 @@ export class ExtensionServer implements vscode.Disposable {
                 };
             }
 
-            TelemetryHelper.generate("launch", extProps, (generator) => {
-                generator.step("checkPlatformCompatibility");
-                TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
-                return mobilePlatform.beforeStartPackager()
-                    .then(() => {
-                        generator.step("getReactNativeVersion");
-                        return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(mobilePlatformOptions.workspaceRoot);
-                    })
-                    .then(version => {
-                        generator.step("startPackager");
-                        return mobilePlatform.startPackager();
-                    })
-                    .then(() => {
-                        // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
-                        // and the user needs to Reload JS manually. We prewarm it to prevent that issue
-                        generator.step("prewarmBundleCache");
-                        this.logger.info(localize("PrewarmingBundleCache", "Prewarming bundle cache. This may take a while ..."));
-                        return mobilePlatform.prewarmBundleCache();
-                    })
-                    .then(() => {
-                        generator.step("mobilePlatform.runApp").add("target", mobilePlatformOptions.target, false);
-                        this.logger.info(localize("BuildingAndRunningApplication", "Building and running application."));
-                        return mobilePlatform.runApp();
-                    })
-                    .then(() => {
-                        if (mobilePlatformOptions.isDirect) {
-                            generator.step("mobilePlatform.enableDirectDebuggingMode");
-                            if (request.arguments.platform === "android") {
-                                this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
-                            }
-                            return mobilePlatform.disableJSDebuggingMode();
-                        }
-                        generator.step("mobilePlatform.enableJSDebuggingMode");
-                        this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
-                        return mobilePlatform.enableJSDebuggingMode();
-                    })
-                    .then(() => {
-                        resolve();
-                    })
-                    .catch(error => {
-                        generator.addError(error);
-                        this.logger.error(error);
-                        reject(error);
+            ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(mobilePlatformOptions.projectRoot)
+                .then(version => {
+                    TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+                    TelemetryHelper.generate("launch", extProps, (generator) => {
+                        generator.step("checkPlatformCompatibility");
+                        TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
+                        return mobilePlatform.beforeStartPackager()
+                            .then(() => {
+                                generator.step("getReactNativeVersion");
+                                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(mobilePlatformOptions.workspaceRoot);
+                            })
+                            .then(version => {
+                                generator.step("startPackager");
+                                return mobilePlatform.startPackager();
+                            })
+                            .then(() => {
+                                // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                                // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                                generator.step("prewarmBundleCache");
+                                this.logger.info(localize("PrewarmingBundleCache", "Prewarming bundle cache. This may take a while ..."));
+                                return mobilePlatform.prewarmBundleCache();
+                            })
+                            .then(() => {
+                                generator.step("mobilePlatform.runApp").add("target", mobilePlatformOptions.target, false);
+                                this.logger.info(localize("BuildingAndRunningApplication", "Building and running application."));
+                                return mobilePlatform.runApp();
+                            })
+                            .then(() => {
+                                if (mobilePlatformOptions.isDirect) {
+                                    generator.step("mobilePlatform.enableDirectDebuggingMode");
+                                    if (request.arguments.platform === "android") {
+                                        this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
+                                    }
+                                    return mobilePlatform.disableJSDebuggingMode();
+                                }
+                                generator.step("mobilePlatform.enableJSDebuggingMode");
+                                this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
+                                return mobilePlatform.enableJSDebuggingMode();
+                            })
+                            .then(() => {
+                                resolve();
+                            })
+                            .catch(error => {
+                                generator.addError(error);
+                                this.logger.error(error);
+                                reject(error);
+                            });
                     });
-            });
+                });
         });
     }
 }

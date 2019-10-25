@@ -194,55 +194,59 @@ export function makeSession(
                 },
             };
 
-            return TelemetryHelper.generate("attach", extProps, (generator) => {
-                return Q({})
-                    .then(() => {
-                        logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
-                        // TODO: remove dependency on args.program - "program" property is technically
-                        // no more required in launch configuration and could be removed
-                        const workspaceRootPath = request.arguments.cwd ? path.resolve(request.arguments.cwd) : path.resolve(path.dirname(request.arguments.program), "..");
-                        const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
-                        // Create folder if not exist to avoid problems if
-                        // RN project root is not a ${workspaceFolder}
-                        mkdirp.sync(sourcesStoragePath);
+            return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(request.arguments.cwd)
+                .then(version => {
+                    TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+                    return TelemetryHelper.generate("attach", extProps, (generator) => {
+                        return Q({})
+                            .then(() => {
+                                logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
+                                // TODO: remove dependency on args.program - "program" property is technically
+                                // no more required in launch configuration and could be removed
+                                const workspaceRootPath = request.arguments.cwd ? path.resolve(request.arguments.cwd) : path.resolve(path.dirname(request.arguments.program), "..");
+                                const sourcesStoragePath = path.join(workspaceRootPath, ".vscode", ".react");
+                                // Create folder if not exist to avoid problems if
+                                // RN project root is not a ${workspaceFolder}
+                                mkdirp.sync(sourcesStoragePath);
 
-                        // If launch is invoked first time, appWorker is undefined, so create it here
-                        this.appWorker = new MultipleLifetimesAppWorker(
-                            request.arguments,
-                            sourcesStoragePath,
-                            this.projectRootPath,
-                            undefined);
-                        this.appWorker.on("connected", (port: number) => {
-                            logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
-                            // Don't mutate original request to avoid side effects
-                            let attachArguments = Object.assign({}, request.arguments, {
-                                address: "localhost",
-                                port,
-                                restart: true,
-                                request: "attach",
-                                remoteRoot: undefined,
-                                localRoot: undefined,
-                            });
-                            // Reinstantiate debug adapter, as the current implementation of ChromeDebugAdapter
-                            // doesn't allow us to reattach to another debug target easily. As of now it's easier
-                            // to throw previous instance out and create a new one.
-                            (this as any)._debugAdapter = new (<any>debugSessionOpts.adapter)(debugSessionOpts, this);
+                                // If launch is invoked first time, appWorker is undefined, so create it here
+                                this.appWorker = new MultipleLifetimesAppWorker(
+                                    request.arguments,
+                                    sourcesStoragePath,
+                                    this.projectRootPath,
+                                    undefined);
+                                this.appWorker.on("connected", (port: number) => {
+                                    logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
+                                    // Don't mutate original request to avoid side effects
+                                    let attachArguments = Object.assign({}, request.arguments, {
+                                        address: "localhost",
+                                        port,
+                                        restart: true,
+                                        request: "attach",
+                                        remoteRoot: undefined,
+                                        localRoot: undefined,
+                                    });
+                                    // Reinstantiate debug adapter, as the current implementation of ChromeDebugAdapter
+                                    // doesn't allow us to reattach to another debug target easily. As of now it's easier
+                                    // to throw previous instance out and create a new one.
+                                    (this as any)._debugAdapter = new (<any>debugSessionOpts.adapter)(debugSessionOpts, this);
 
-                            // Explicity call _debugAdapter.attach() to prevent directly calling dispatchRequest()
-                            // yield a response as "attach" even for "launch" request. Because dispatchRequest() will
-                            // decide to do a sendResponse() aligning with the request parameter passed in.
-                            Q((this as any)._debugAdapter.attach(attachArguments, request.seq))
-                                .then((responseBody) => {
-                                    const response: DebugProtocol.Response = new Response(request);
-                                    response.body = responseBody;
-                                    this.sendResponse(response);
+                                    // Explicity call _debugAdapter.attach() to prevent directly calling dispatchRequest()
+                                    // yield a response as "attach" even for "launch" request. Because dispatchRequest() will
+                                    // decide to do a sendResponse() aligning with the request parameter passed in.
+                                    Q((this as any)._debugAdapter.attach(attachArguments, request.seq))
+                                        .then((responseBody) => {
+                                            const response: DebugProtocol.Response = new Response(request);
+                                            response.body = responseBody;
+                                            this.sendResponse(response);
+                                        });
                                 });
-                        });
 
-                        return this.appWorker.start();
-                    })
-                    .catch(error => this.bailOut(error.message));
-            });
+                                return this.appWorker.start();
+                            })
+                            .catch(error => this.bailOut(error.message));
+                    });
+                });
         }
 
         /**
