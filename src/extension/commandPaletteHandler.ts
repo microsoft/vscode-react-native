@@ -35,6 +35,7 @@ interface IReactNativeStuff {
 
 interface IReactNativeProject extends IReactNativeStuff {
     workspaceFolder: vscode.WorkspaceFolder;
+    reactNativeVersion?: string;
 }
 
 export class CommandPaletteHandler {
@@ -64,7 +65,7 @@ export class CommandPaletteHandler {
     public static startPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.fsPath)
                     .then(version => {
                         return this.executeCommandInContext("startPackager", project.workspaceFolder, () => {
                             return project.packager.isRunning()
@@ -104,7 +105,7 @@ export class CommandPaletteHandler {
     public static restartPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.fsPath)
                     .then(version => {
                         return this.executeCommandInContext("restartPackager", project.workspaceFolder, () =>
                             this.runRestartPackagerCommandAndUpdateStatus(project));
@@ -135,8 +136,9 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 TargetPlatformHelper.checkTargetPlatformSupport("android");
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.fsPath)
                     .then(version => {
+                        project.reactNativeVersion = version;
                         return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
                             const platform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform, target);
                             return platform.beforeStartPackager()
@@ -160,25 +162,26 @@ export class CommandPaletteHandler {
     public static runIos(target: TargetType = "simulator"): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.fsPath)
                     .then(version => {
-                    TargetPlatformHelper.checkTargetPlatformSupport("ios");
-                    return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
-                        const platform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform, target);
-                        return platform.beforeStartPackager()
-                            .then(() => {
-                                return platform.startPackager();
-                            })
-                            .then(() => {
-                                // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
-                                return platform.disableJSDebuggingMode();
-                            })
-                            .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
-                            .then(() => {
-                                return platform.runApp();
-                            });
+                        project.reactNativeVersion = version;
+                        TargetPlatformHelper.checkTargetPlatformSupport("ios");
+                        return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
+                            const platform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform, target);
+                            return platform.beforeStartPackager()
+                                .then(() => {
+                                    return platform.startPackager();
+                                })
+                                .then(() => {
+                                    // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
+                                    return platform.disableJSDebuggingMode();
+                                })
+                                .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+                                .then(() => {
+                                    return platform.runApp();
+                                });
+                        });
                     });
-                });
             });
     }
 
@@ -188,7 +191,7 @@ export class CommandPaletteHandler {
     public static runExponent(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.path)
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.fsPath)
                     .then(version => {
                         return this.loginToExponent(project)
                             .then(() => {
@@ -418,6 +421,7 @@ export class CommandPaletteHandler {
             runArguments: runArgs,
             env: envArgs,
             envFile: envFile,
+            reactNativeVersion: project.reactNativeVersion,
         };
 
         CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(project.workspaceFolder.uri);

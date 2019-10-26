@@ -56,7 +56,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
     }
 
     public launch(launchArgs: IDirectLaunchRequestArgs): Promise<void>  {
-        const extProps = {
+        let extProps = {
             platform: {
                 value: launchArgs.platform,
                 isPii: false,
@@ -73,7 +73,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null , 2)}`);
                 return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(launchArgs.cwd)
                     .then(version => {
-                        TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+                        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
                         return TelemetryHelper.generate("launch", extProps, (generator) => {
                             return this.remoteExtension.launch({ "arguments": launchArgs })
                                 .then(() => {
@@ -96,7 +96,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
     }
 
     public attach(attachArgs: IDirectAttachRequestArgs): Promise<void> {
-        const extProps = {
+        let extProps = {
             platform: {
                 value: attachArgs.platform,
                 isPii: false,
@@ -115,7 +115,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null , 2)}`);
                 return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(attachArgs.cwd)
                     .then(version => {
-                        TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+                        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
                             return this.remoteExtension.getPackagerPort(attachArgs.cwd)
                                 .then((packagerPort: number) => {

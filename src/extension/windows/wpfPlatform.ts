@@ -24,63 +24,64 @@ export class WpfPlatform extends WindowsPlatform {
     }
 
     public runApp(enableDebug: boolean = true): Q.Promise<void> {
-        const extProps = {
+        let extProps = {
             platform: {
                 value: "wpf",
                 isPii: false,
             },
         };
 
-        return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(this.runOptions.projectRoot)
-            .then(version => {
-                TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
-                return TelemetryHelper.generate("WpfPlatform.runApp", extProps, () => {
-                    const env = this.getEnvArgument();
+        if (this.runOptions.reactNativeVersion) {
+            extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
+        }
 
-                    if (enableDebug) {
-                        this.runArguments.push("--proxy");
+        return TelemetryHelper.generate("WpfPlatform.runApp", extProps, () => {
+            const env = this.getEnvArgument();
+
+            if (enableDebug) {
+                this.runArguments.push("--proxy");
+            }
+
+            return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
+                .then(version => {
+                    if (!semver.gt(version, WpfPlatform.WPF_SUPPORTED)) {
+                        throw new Error(localize("DebuggingWPFPlatformIsNotSupportedForThisRNWinVersion", "Debugging WPF platform is not supported for this react-native-windows version({0})", version));
                     }
 
-                    return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
-                        .then(version => {
-                            if (!semver.gt(version, WpfPlatform.WPF_SUPPORTED)) {
-                                throw new Error(localize("DebuggingWPFPlatformIsNotSupportedForThisRNWinVersion", "Debugging WPF platform is not supported for this react-native-windows version({0})", version));
-                            }
+                    if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, WpfPlatform.NO_PACKAGER_VERSION)) {
+                        this.runArguments.push("--no-packager");
+                    }
 
-                            if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, WpfPlatform.NO_PACKAGER_VERSION)) {
-                                this.runArguments.push("--no-packager");
-                            }
+                    const exec = new CommandExecutor(this.projectPath, this.logger);
+                    return Q.Promise((resolve, reject) => {
+                        const appName = this.projectPath.split(path.sep).pop();
+                        // Killing another instances of the app which were run earlier
+                        return exec.execute(`cmd /C Taskkill /IM ${appName}.exe /F`)
+                            .finally(() => {
+                                const runWpfSpawn = exec.spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
+                                let resolved = false;
+                                let output = "";
+                                runWpfSpawn.stdout.on("data", (data: Buffer) => {
+                                    output += data.toString();
+                                    if (!resolved && output.indexOf("Starting the app") > -1) {
+                                        resolved = true;
+                                        resolve(void 0);
+                                    }
+                                });
 
-                            const exec = new CommandExecutor(this.projectPath, this.logger);
-                            return Q.Promise((resolve, reject) => {
-                                const appName = this.projectPath.split(path.sep).pop();
-                                // Killing another instances of the app which were run earlier
-                                return exec.execute(`cmd /C Taskkill /IM ${appName}.exe /F`)
-                                    .finally(() => {
-                                        const runWpfSpawn = exec.spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
-                                        let resolved = false;
-                                        let output = "";
-                                        runWpfSpawn.stdout.on("data", (data: Buffer) => {
-                                            output += data.toString();
-                                            if (!resolved && output.indexOf("Starting the app") > -1) {
-                                                resolved = true;
-                                                resolve(void 0);
-                                            }
-                                        });
+                                runWpfSpawn.stderr.on("data", (error: Buffer) => {
+                                    if (error.toString().trim()) {
+                                        reject(error.toString());
+                                    }
+                                });
 
-                                        runWpfSpawn.stderr.on("data", (error: Buffer) => {
-                                            if (error.toString().trim()) {
-                                                reject(error.toString());
-                                            }
-                                        });
-
-                                        runWpfSpawn.outcome.then(() => {
-                                            reject(void 0); // If WPF process ended then app run fault
-                                        });
-                                    });
+                                runWpfSpawn.outcome.then(() => {
+                                    reject(void 0); // If WPF process ended then app run fault
+                                });
                             });
-                        });
+                    });
                 });
-            });
+        });
+
     }
 }

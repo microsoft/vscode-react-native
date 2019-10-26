@@ -244,6 +244,7 @@ export class ExtensionServer implements vscode.Disposable {
                             })
                             .then(version => {
                                 generator.step("startPackager");
+                                mobilePlatformOptions.reactNativeVersion = version;
                                 return mobilePlatform.startPackager();
                             })
                             .then(() => {

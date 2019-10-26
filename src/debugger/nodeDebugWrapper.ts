@@ -187,7 +187,7 @@ export function makeSession(
          */
         // tslint:disable-next-line:member-ordering
         protected attachRequest(request: DebugProtocol.Request): Q.Promise<void> {
-            const extProps = {
+            let extProps = {
                 platform: {
                     value: request.arguments.platform,
                     isPii: false,
@@ -196,7 +196,7 @@ export function makeSession(
 
             return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(request.arguments.cwd)
                 .then(version => {
-                    TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+                    extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
                     return TelemetryHelper.generate("attach", extProps, (generator) => {
                         return Q({})
                             .then(() => {

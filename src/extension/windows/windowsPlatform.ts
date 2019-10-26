@@ -34,35 +34,36 @@ export class WindowsPlatform extends GeneralMobilePlatform {
     }
 
     public runApp(enableDebug: boolean = true): Q.Promise<void> {
-        const extProps = {
+        let extProps = {
             platform: {
                 value: "windows",
                 isPii: false,
             },
         };
 
-        return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(this.runOptions.projectRoot)
-            .then(version => {
-                TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
-                return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
-                    const env = this.getEnvArgument();
+        if (this.runOptions.reactNativeVersion) {
+            extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
+        }
 
-                    if (enableDebug) {
-                        this.runArguments.push("--proxy");
+        return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
+            const env = this.getEnvArgument();
+
+            if (enableDebug) {
+                this.runArguments.push("--proxy");
+            }
+
+            return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
+                .then(version => {
+                    if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, WindowsPlatform.NO_PACKAGER_VERSION)) {
+                        this.runArguments.push("--no-packager");
                     }
 
-                    return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
-                        .then(version => {
-                            if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, WindowsPlatform.NO_PACKAGER_VERSION)) {
-                                this.runArguments.push("--no-packager");
-                            }
-
-                            const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
-                            return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), this.platformName)
-                                .process(runWindowsSpawn);
-                        });
+                    const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
+                    return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), this.platformName)
+                        .process(runWindowsSpawn);
                 });
-            });
+        });
+
     }
 
     public prewarmBundleCache(): Q.Promise<void> {
