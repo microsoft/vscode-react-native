@@ -301,15 +301,16 @@ export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeo
  * Parses settings.json file for workspace root property
  */
 export function getProjectRoot(args: any): string {
+    const vsCodeRoot = args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
+    const settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
     try {
-        let vsCodeRoot = args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
-        let settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
         let settingsContent = fs.readFileSync(settingsPath, "utf8");
         settingsContent = stripJsonComments(settingsContent);
         let parsedSettings = JSON.parse(settingsContent);
         let projectRootPath = parsedSettings["react-native-tools.projectRoot"] || parsedSettings["react-native-tools"].projectRoot;
         return path.resolve(vsCodeRoot, projectRootPath);
     } catch (e) {
+        logger.verbose(`${settingsPath} file doesn't exist or its content is incorrect. This file will be ignored.`);
         return args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
     }
 }
