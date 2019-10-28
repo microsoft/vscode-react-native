@@ -309,13 +309,8 @@ export function getProjectRoot(args: any): string {
             logger.error(localize("InvalidJSONFileSyntax", "Invalid JSON syntax. Please check if {0} file is correct.", settingsPath));
             throw e;
         }
-        try {
-            let projectRootPath = parsedSettings["react-native-tools.projectRoot"] || parsedSettings["react-native-tools"].projectRoot;
-            return path.resolve(vsCodeRoot, projectRootPath);
-        } catch (e) {
-            logger.error(localize("CannotReadPropertyProjectRoot", "Invalid settings.json file. \"react-native-tools.projectRoot\" field is required in {0} file.", settingsPath));
-            throw e;
-        }
+        let projectRootPath = parsedSettings["react-native-tools.projectRoot"] || parsedSettings["react-native-tools"].projectRoot;
+        return path.resolve(vsCodeRoot, projectRootPath);
     } catch (e) {
         return args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
     }
