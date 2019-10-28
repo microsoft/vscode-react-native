@@ -57,6 +57,18 @@ If you use android, you need to change debug server by:
 
 * Note that some aspects of React Native hard-code the port to the default as specified in [this issue](https://github.com/facebook/react-native/issues/9145).
 
+## Setting up React Native global CLI
+
+To use React Native CLI installed globally:
+
+```
+{
+    "react-native-tools.reactNativeGlobalCommandName": "react-native"
+}
+```
+
+You can also use custom React Native CLI compatible with Facebook React Native CLI.
+
 ## Logging
 
 To expose internal logs to the output, set the following properties:
