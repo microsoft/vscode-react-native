@@ -89,9 +89,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             };
         }
 
-        if (this.runOptions.reactNativeVersion) {
-            extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
-        }
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
 
         return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
             const env = this.getEnvArgument();
@@ -138,7 +136,6 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         });
                 });
         });
-
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {

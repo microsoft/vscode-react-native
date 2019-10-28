@@ -41,9 +41,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             },
         };
 
-        if (this.runOptions.reactNativeVersion) {
-            extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
-        }
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
 
         return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
             const env = this.getEnvArgument();
@@ -63,7 +61,6 @@ export class WindowsPlatform extends GeneralMobilePlatform {
                         .process(runWindowsSpawn);
                 });
         });
-
     }
 
     public prewarmBundleCache(): Q.Promise<void> {

@@ -36,9 +36,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
             },
         };
 
-        if (this.runOptions.reactNativeVersion) {
-            extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
-        }
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
 
         return TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
             return this.exponentHelper.loginToExponent(
@@ -97,7 +95,6 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     return Q.resolve(void 0);
                 });
         });
-
     }
 
     public beforeStartPackager(): Q.Promise<void> {

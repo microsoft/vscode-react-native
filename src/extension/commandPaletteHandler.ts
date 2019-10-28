@@ -196,6 +196,7 @@ export class CommandPaletteHandler {
                         return this.loginToExponent(project)
                             .then(() => {
                                 return this.executeCommandInContext("runExponent", project.workspaceFolder, () => {
+                                    project.reactNativeVersion = version;
                                     const platform = <ExponentPlatform>this.createPlatform(project, "exponent", ExponentPlatform);
                                     return platform.beforeStartPackager()
                                         .then(() => {
@@ -421,7 +422,7 @@ export class CommandPaletteHandler {
             runArguments: runArgs,
             env: envArgs,
             envFile: envFile,
-            reactNativeVersion: project.reactNativeVersion,
+            reactNativeVersion: project.reactNativeVersion || "",
         };
 
         CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(project.workspaceFolder.uri);

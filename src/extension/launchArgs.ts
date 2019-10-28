@@ -9,6 +9,7 @@ export interface ILaunchArgs {
     platform: string;
     workspaceRoot: string;
     projectRoot: string;
+    reactNativeVersion: string;
     target?: "simulator" | "device";
     debugAdapterPort?: number;
     packagerPort?: any;
@@ -16,7 +17,6 @@ export interface ILaunchArgs {
     env?: any;
     envFile?: string;
     isDirect?: boolean;
-    reactNativeVersion?: string;
 }
 
 /**

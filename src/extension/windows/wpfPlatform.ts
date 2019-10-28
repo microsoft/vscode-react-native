@@ -9,7 +9,6 @@ import {MobilePlatformDeps} from "../generalMobilePlatform";
 import {IWindowsRunOptions} from "../launchArgs";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
-import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 import {WindowsPlatform} from "./windowsPlatform";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
@@ -31,9 +30,7 @@ export class WpfPlatform extends WindowsPlatform {
             },
         };
 
-        if (this.runOptions.reactNativeVersion) {
-            extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
-        }
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
 
         return TelemetryHelper.generate("WpfPlatform.runApp", extProps, () => {
             const env = this.getEnvArgument();
@@ -42,46 +39,42 @@ export class WpfPlatform extends WindowsPlatform {
                 this.runArguments.push("--proxy");
             }
 
-            return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
-                .then(version => {
-                    if (!semver.gt(version, WpfPlatform.WPF_SUPPORTED)) {
-                        throw new Error(localize("DebuggingWPFPlatformIsNotSupportedForThisRNWinVersion", "Debugging WPF platform is not supported for this react-native-windows version({0})", version));
-                    }
+            if (!semver.gt(this.runOptions.reactNativeVersion, WpfPlatform.WPF_SUPPORTED)) {
+                throw new Error(localize("DebuggingWPFPlatformIsNotSupportedForThisRNWinVersion", "Debugging WPF platform is not supported for this react-native-windows version({0})", this.runOptions.reactNativeVersion));
+            }
 
-                    if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, WpfPlatform.NO_PACKAGER_VERSION)) {
-                        this.runArguments.push("--no-packager");
-                    }
+            if (!semver.valid(this.runOptions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(this.runOptions.reactNativeVersion, WpfPlatform.NO_PACKAGER_VERSION)) {
+                this.runArguments.push("--no-packager");
+            }
 
-                    const exec = new CommandExecutor(this.projectPath, this.logger);
-                    return Q.Promise((resolve, reject) => {
-                        const appName = this.projectPath.split(path.sep).pop();
-                        // Killing another instances of the app which were run earlier
-                        return exec.execute(`cmd /C Taskkill /IM ${appName}.exe /F`)
-                            .finally(() => {
-                                const runWpfSpawn = exec.spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
-                                let resolved = false;
-                                let output = "";
-                                runWpfSpawn.stdout.on("data", (data: Buffer) => {
-                                    output += data.toString();
-                                    if (!resolved && output.indexOf("Starting the app") > -1) {
-                                        resolved = true;
-                                        resolve(void 0);
-                                    }
-                                });
+            const exec = new CommandExecutor(this.projectPath, this.logger);
+            return Q.Promise((resolve, reject) => {
+                const appName = this.projectPath.split(path.sep).pop();
+                // Killing another instances of the app which were run earlier
+                return exec.execute(`cmd /C Taskkill /IM ${appName}.exe /F`)
+                    .finally(() => {
+                        const runWpfSpawn = exec.spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
+                        let resolved = false;
+                        let output = "";
+                        runWpfSpawn.stdout.on("data", (data: Buffer) => {
+                            output += data.toString();
+                            if (!resolved && output.indexOf("Starting the app") > -1) {
+                                resolved = true;
+                                resolve(void 0);
+                            }
+                        });
 
-                                runWpfSpawn.stderr.on("data", (error: Buffer) => {
-                                    if (error.toString().trim()) {
-                                        reject(error.toString());
-                                    }
-                                });
+                        runWpfSpawn.stderr.on("data", (error: Buffer) => {
+                            if (error.toString().trim()) {
+                                reject(error.toString());
+                            }
+                        });
 
-                                runWpfSpawn.outcome.then(() => {
-                                    reject(void 0); // If WPF process ended then app run fault
-                                });
-                            });
+                        runWpfSpawn.outcome.then(() => {
+                            reject(void 0); // If WPF process ended then app run fault
+                        });
                     });
-                });
+            });
         });
-
     }
 }

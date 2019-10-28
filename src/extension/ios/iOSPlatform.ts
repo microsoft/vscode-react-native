@@ -92,9 +92,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             },
         };
 
-        if (this.runOptions.reactNativeVersion) {
-            extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
-        }
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
 
         return TelemetryHelper.generate("iOSPlatform.runApp", extProps, () => {
             // Compile, deploy, and launch the app on either a simulator or a device
@@ -115,7 +113,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
                         .process(runIosSpawn);
                 });
         });
-
     }
 
     public enableJSDebuggingMode(): Q.Promise<void> {
