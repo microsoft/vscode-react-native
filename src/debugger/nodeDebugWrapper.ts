@@ -297,20 +297,26 @@ export function makeAdapter(debugAdapterClass: typeof ChromeDebugAdapter): typeo
  * Parses settings.json file for workspace root property
  */
 export function getProjectRoot(args: any): string {
-    const vsCodeRoot = args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
-    const settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
     try {
+        const vsCodeRoot = args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
+        const settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
         let settingsContent = fs.readFileSync(settingsPath, "utf8");
         settingsContent = stripJsonComments(settingsContent);
-        let parsedSettings = JSON.parse(settingsContent);
-        let projectRootPath = parsedSettings["react-native-tools.projectRoot"] || parsedSettings["react-native-tools"].projectRoot;
-        return path.resolve(vsCodeRoot, projectRootPath);
-    } catch (e) {
-        if (e.message.includes("JSON")) {
+        let parsedSettings;
+        try {
+            parsedSettings = JSON.parse(settingsContent);
+        } catch (e) {
             logger.error(localize("InvalidJSONFileSyntax", "Invalid JSON syntax. Please check if {0} file is correct.", settingsPath));
-        } else {
-            logger.error(e);
+            throw e;
         }
+        try {
+            let projectRootPath = parsedSettings["react-native-tools.projectRoot"] || parsedSettings["react-native-tools"].projectRoot;
+            return path.resolve(vsCodeRoot, projectRootPath);
+        } catch (e) {
+            logger.error(localize("CannotReadPropertyProjectRoot", "Invalid settings.json file. \"react-native-tools.projectRoot\" field is required in {0} file.", settingsPath));
+            throw e;
+        }
+    } catch (e) {
         return args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
     }
 }
