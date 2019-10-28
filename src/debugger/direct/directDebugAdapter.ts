@@ -71,7 +71,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
             .then(() => {
                 this.outputLogger("Launching the application");
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null , 2)}`);
-                return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(launchArgs.cwd)
+                return ReactNativeProjectHelper.getReactNativeVersion(launchArgs.cwd)
                     .then(version => {
                         extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
                         return TelemetryHelper.generate("launch", extProps, (generator) => {
@@ -113,7 +113,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
             .then(() => {
                 this.outputLogger("Attaching to the application");
                 logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null , 2)}`);
-                return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(attachArgs.cwd)
+                return ReactNativeProjectHelper.getReactNativeVersion(attachArgs.cwd)
                     .then(version => {
                         extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
