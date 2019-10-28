@@ -4,7 +4,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as cp from "child_process";
-import { SpectronApplication, Quality } from "./spectron/application";
+import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleLogger } from "../../automation";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
@@ -13,7 +13,7 @@ import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestConfigurator } from "./helpers/configHelper";
-import { sleep, findFile } from "./helpers/utilities";
+import { findFile } from "./helpers/utilities";
 
 // TODO Incapsulate main.ts (get rid of function(), local variables, etc)
 console.log(`*** Setting up configuration variables`);
@@ -38,8 +38,8 @@ async function fail(errorMessage) {
     process.exit(1);
 }
 
-if (parseInt(process.version.substr(1), 10) < 8) {
-    fail("Please update your Node version to greater than 8 to run the smoke test.");
+if (parseInt(process.version.substr(1), 10) < 10) {
+    fail("Please update your Node version to greater than 10 to run the smoke test.");
 }
 
 function getBuildElectronPath(root: string, isInsiders: boolean): string {
@@ -113,26 +113,6 @@ if (process.platform === "win32") {
     winTaskKillCommands = VSCodeHelper.getTaskKillCommands(testVSCodeDirectory, isInsiders, userName);
 }
 
-/**
- * WebDriverIO 4.8.0 outputs all kinds of "deprecation" warnings
- * for common commands like `keys` and `moveToObject`.
- * According to https://github.com/Codeception/CodeceptJS/issues/531,
- * these deprecation warnings are for Firefox, and have no alternative replacements.
- * Since we can't downgrade WDIO as suggested (it's Spectron's dep, not ours),
- * we must suppress the warning with a classic monkey-patch.
- *
- * @see webdriverio/lib/helpers/depcrecationWarning.js
- * @see https://github.com/webdriverio/webdriverio/issues/2076
- */
-// Filter out the following messages:
-const wdioDeprecationWarning = /^WARNING: the "\w+" command will be deprecated soon../; // [sic]
-// Monkey patch:
-const warn = console.warn;
-console.warn = function suppressWebdriverWarnings(message) {
-    if (wdioDeprecationWarning.test(message)) { return; }
-    warn.apply(console, arguments);
-};
-
 export const RNworkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNAppName);
 const RNworkspaceFilePath = path.join(RNworkspacePath, SmokeTestsConstants.AppjsFileName);
 export const ExpoWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.ExpoAppName);
@@ -148,23 +128,26 @@ const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
 
-function createApp(quality: Quality, workspaceOrFolder: string): SpectronApplication | null {
-
+function createOptions(quality: Quality, workspaceOrFolder: string): ApplicationOptions | null {
     if (!electronExecutablePath) {
         return null;
     }
 
+    const loggers: Logger[] = [];
+    loggers.push(new ConsoleLogger());
     console.log(`*** Executing ${electronExecutablePath} with Spectron`);
-    return new SpectronApplication({
+
+    return {
         quality,
-        electronPath: electronExecutablePath,
+        codePath: electronExecutablePath,
         workspacePath: workspaceOrFolder,
         userDataDir,
         extensionsPath,
-        artifactsPath,
-        workspaceFilePath: "",
-        waitTime: SmokeTestsConstants.spectronElementResponseTimeout,
-    });
+        waitTime: SmokeTestsConstants.elementResponseTimeout,
+        logger: new MultiLogger(loggers),
+        verbose: true,
+        screenshotsPath: RNworkspaceFilePath,
+    };
 }
 
 export function prepareReactNativeProjectForHermesTesting() {
@@ -226,11 +209,10 @@ async function setup(): Promise<void> {
     console.log("*** Smoke tests setup done!\n");
 }
 
-export async function runVSCode(workspaceOrFolder: string): Promise<SpectronApplication> {
-    const app = createApp(quality, workspaceOrFolder);
+export async function runVSCode(workspaceOrFolder: string): Promise<Application> {
+    const options = createOptions(quality, workspaceOrFolder);
+    const app = new Application(options!);
     await app!.start();
-    await sleep(5000);
-    await app!.prepareMainWindow();
     return app!;
 }
 
