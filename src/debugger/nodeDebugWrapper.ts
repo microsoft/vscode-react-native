@@ -306,7 +306,7 @@ export function getProjectRoot(args: any): string {
         let projectRootPath = parsedSettings["react-native-tools.projectRoot"] || parsedSettings["react-native-tools"].projectRoot;
         return path.resolve(vsCodeRoot, projectRootPath);
     } catch (e) {
-        logger.log(localize("SettingsJsonFileDoesNotExistOrIncorrect", "{0} file doesn't exist or its content is incorrect. This file will be ignored.", settingsPath));
+        logger.verbose(localize("SettingsJsonFileDoesNotExistOrIncorrect", "{0} file doesn't exist or its content is incorrect. This file will be ignored.", settingsPath));
         return args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
     }
 }
