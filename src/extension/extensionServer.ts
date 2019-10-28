@@ -13,6 +13,8 @@ import {SettingsHelper} from "./settingsHelper";
 import {Telemetry} from "../common/telemetry";
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
+import {ErrorHelper} from "../common/error/errorHelper";
+import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
 import {IRemoteExtension, OpenFileRequest} from "../common/remoteExtension";
@@ -231,20 +233,16 @@ export class ExtensionServer implements vscode.Disposable {
                 };
             }
 
-            ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(mobilePlatformOptions.projectRoot)
+            ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(mobilePlatformOptions.projectRoot)
                 .then(version => {
-                    TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+                    mobilePlatformOptions.reactNativeVersion = version;
+                    extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
                     TelemetryHelper.generate("launch", extProps, (generator) => {
                         generator.step("checkPlatformCompatibility");
                         TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
                         return mobilePlatform.beforeStartPackager()
                             .then(() => {
-                                generator.step("getReactNativeVersion");
-                                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(mobilePlatformOptions.workspaceRoot);
-                            })
-                            .then(version => {
                                 generator.step("startPackager");
-                                mobilePlatformOptions.reactNativeVersion = version;
                                 return mobilePlatform.startPackager();
                             })
                             .then(() => {
@@ -280,6 +278,14 @@ export class ExtensionServer implements vscode.Disposable {
                                 reject(error);
                             });
                     });
+                })
+                .catch(error => {
+                    TelemetryHelper.sendErrorEvent(
+                        "ReactNativePackageIsNotInstalled",
+                        ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled)
+                        );
+                    this.logger.error(error);
+                    reject(error);
                 });
         });
     }
