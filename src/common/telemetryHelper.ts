@@ -3,8 +3,9 @@
 
 import * as Q from "q";
 import {Telemetry} from "./telemetry";
+import {URL} from "url";
+import * as semver from "semver";
 import {TelemetryGenerator, IHasErrorCode} from "./telemetryGenerators";
-import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
 
 export interface ITelemetryPropertyInfo {
     value: any;
@@ -35,7 +36,7 @@ export class TelemetryHelper {
 
     public static addReactNativeVersionToEventProperties(reactNativeVersion: string, properties: ICommandTelemetryProperties = {}): any {
         properties.reactNativeVersion = {
-            value: ReactNativeProjectHelper.verifyVersion(reactNativeVersion),
+            value: TelemetryHelper.verifyVersion(reactNativeVersion),
             isPii: false,
         };
 
@@ -110,6 +111,18 @@ export class TelemetryHelper {
     public static generate<T>(name: string, extendedParamsToSend: ICommandTelemetryProperties = {}, codeGeneratingTelemetry: { (telemetry: TelemetryGenerator): Q.Promise<T> | T }): Q.Promise<T> {
         let generator: TelemetryGenerator = new TelemetryGenerator(name, extendedParamsToSend);
         return generator.time("", () => codeGeneratingTelemetry(generator)).finally(() => generator.send());
+    }
+
+    public static verifyVersion(version: string): string {
+        if (!!semver.valid(version)) {
+            return version;
+        } else {
+            try {
+                return new URL(version) && "SemverInvalid: URL";
+            } catch (err) {
+                return "SemverInvalid";
+            }
+        }
     }
 
     private static createBasicCommandTelemetry(commandName: string, args: string[] = []): Telemetry.TelemetryEvent {
