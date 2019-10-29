@@ -14,7 +14,7 @@ Using this extension, you can debug your code and quickly run `react-native` com
   1. Press `Ctrl + Shift + X` (`Cmd + Shift + X` on macOS), wait a moment while the list of available extensions is populated
   2. Type `react-native` and install **React Native Tools**
   3. For more guidance view [VS Code Extension Gallery](https://code.visualstudio.com/docs/editor/extension-gallery)
-* Since React Native uses local CLI, it isn't necessary to have `react-native-cli` installed globally.
+* If you haven't already, set up React Native using the steps detailed on the React Native [getting started documentation](https://facebook.github.io/react-native/docs/getting-started.html)
 * Open your React Native project root folder in VS Code.
 
 Please notice that the extension uses `.vscode/.react` directory at the project root to store intermediate files required for debugging. Although these files usually get removed after debug session ends, you may want to add this directory to your project's `.gitignore` file.
