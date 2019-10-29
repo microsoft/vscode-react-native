@@ -194,7 +194,7 @@ export function makeSession(
                 },
             };
 
-            return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(request.arguments.cwd)
+            return ReactNativeProjectHelper.getReactNativeVersion(request.arguments.cwd)
                 .then(version => {
                     extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
                     return TelemetryHelper.generate("attach", extProps, (generator) => {
