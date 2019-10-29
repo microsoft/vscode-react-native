@@ -59,7 +59,8 @@ If you use android, you need to change debug server by:
 
 ## Setting up React Native global CLI
 
-To use React Native CLI installed globally:
+To specify React Native CLI installed globally, you can use `reactNativeGlobalCommandName` parameter. This parameter is responsible for launcher command name, which is used to run React Native commands.
+For example, `react-native` is launcher command name for Facebook React Native CLI. You can specify it like this:
 
 ```
 {
@@ -67,7 +68,13 @@ To use React Native CLI installed globally:
 }
 ```
 
-You can also use custom React Native CLI compatible with Facebook React Native CLI.
+You can also use custom React Native CLI compatible with Facebook React Native CLI, by setting up `reactNativeGlobalCommandName` parameter:
+
+```
+{
+    "react-native-tools.reactNativeGlobalCommandName": "custom-react-native"
+}
+```
 
 ## Logging
 
