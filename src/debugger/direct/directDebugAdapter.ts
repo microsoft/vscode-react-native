@@ -56,7 +56,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
     }
 
     public launch(launchArgs: IDirectLaunchRequestArgs): Promise<void>  {
-        const extProps = {
+        let extProps = {
             platform: {
                 value: launchArgs.platform,
                 isPii: false,
@@ -69,30 +69,34 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
 
         return new Promise<void>((resolve, reject) => this.initializeSettings(launchArgs)
             .then(() => {
-                this.outputLogger("Launching the app");
-                logger.verbose(`Launching the app: ${JSON.stringify(launchArgs, null , 2)}`);
-                return TelemetryHelper.generate("launch", extProps, (generator) => {
-                    return this.remoteExtension.launch({ "arguments": launchArgs })
-                        .then(() => {
-                            return this.remoteExtension.getPackagerPort(launchArgs.cwd);
+                this.outputLogger("Launching the application");
+                logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null , 2)}`);
+                return ReactNativeProjectHelper.getReactNativeVersion(launchArgs.cwd)
+                    .then(version => {
+                        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+                        return TelemetryHelper.generate("launch", extProps, (generator) => {
+                            return this.remoteExtension.launch({ "arguments": launchArgs })
+                                .then(() => {
+                                    return this.remoteExtension.getPackagerPort(launchArgs.cwd);
+                                })
+                                .then((packagerPort: number) => {
+                                    launchArgs.port = launchArgs.port || packagerPort;
+                                    this.attach(launchArgs).then(() => {
+                                        resolve();
+                                    }).catch((e) => reject(e));
+                                }).catch((e) => reject(e));
                         })
-                        .then((packagerPort: number) => {
-                            launchArgs.port = launchArgs.port || packagerPort;
-                            this.attach(launchArgs).then(() => {
-                                resolve();
-                            }).catch((e) => reject(e));
-                        }).catch((e) => reject(e));
-                })
-                .catch((err) => {
-                    this.outputLogger("An error occurred while launching the application. " + err.message || err, true);
-                    this.cleanUp();
-                    reject(err);
-                });
+                        .catch((err) => {
+                            this.outputLogger("An error occurred while launching the application. " + err.message || err, true);
+                            this.cleanUp();
+                            reject(err);
+                        });
+                    });
         }));
     }
 
     public attach(attachArgs: IDirectAttachRequestArgs): Promise<void> {
-        const extProps = {
+        let extProps = {
             platform: {
                 value: attachArgs.platform,
                 isPii: false,
@@ -107,32 +111,36 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
 
         return new Promise<void>((resolve, reject) => this.initializeSettings(attachArgs)
             .then(() => {
-                this.outputLogger("Attaching to the app");
-                logger.verbose(`Attaching to app: ${JSON.stringify(attachArgs, null , 2)}`);
-                return TelemetryHelper.generate("attach", extProps, (generator) => {
-                    return this.remoteExtension.getPackagerPort(attachArgs.cwd)
-                        .then((packagerPort: number) => {
-                            attachArgs.port = attachArgs.port || packagerPort;
-                            this.outputLogger(`Connecting to ${attachArgs.port} port`);
-                            const attachArguments = Object.assign({}, attachArgs, {
-                                address: "localhost",
-                                port: attachArgs.port,
-                                restart: true,
-                                request: "attach",
-                                remoteRoot: undefined,
-                                localRoot: undefined,
-                            });
-                            super.attach(attachArguments).then(() => {
-                                this.outputLogger("The debugger attached successfully");
-                                resolve();
-                            }).catch((e) => reject(e));
-                        }).catch((e) => reject(e));
-            })
-            .catch((err) => {
-                this.outputLogger("An error occurred while attaching to the debugger. " + err.message || err, true);
-                this.cleanUp();
-                reject(err);
-            });
+                this.outputLogger("Attaching to the application");
+                logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null , 2)}`);
+                return ReactNativeProjectHelper.getReactNativeVersion(attachArgs.cwd)
+                    .then(version => {
+                        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+                        return TelemetryHelper.generate("attach", extProps, (generator) => {
+                            return this.remoteExtension.getPackagerPort(attachArgs.cwd)
+                                .then((packagerPort: number) => {
+                                    attachArgs.port = attachArgs.port || packagerPort;
+                                    this.outputLogger(`Connecting to ${attachArgs.port} port`);
+                                    const attachArguments = Object.assign({}, attachArgs, {
+                                        address: "localhost",
+                                        port: attachArgs.port,
+                                        restart: true,
+                                        request: "attach",
+                                        remoteRoot: undefined,
+                                        localRoot: undefined,
+                                    });
+                                    super.attach(attachArguments).then(() => {
+                                        this.outputLogger("The debugger attached successfully");
+                                        resolve();
+                                    }).catch((e) => reject(e));
+                                }).catch((e) => reject(e));
+                        })
+                        .catch((err) => {
+                            this.outputLogger("An error occurred while attaching to the debugger. " + err.message || err, true);
+                            this.cleanUp();
+                            reject(err);
+                        });
+                    });
         }));
     }
 
