@@ -59,9 +59,9 @@ If you use android, you need to change debug server by:
 
 ## Setting up React Native global CLI
 
-By default React Native Tools extension uses React Native local CLI from React Native project's dependencies to run React Native commands. Local CLI module is available at the following path: `yourProjectDir/node_modules/.bin/react-native`. But you always have an opportunity to change that approach and use React Native global CLI.
+By default React Native Tools extension uses React Native local CLI from React Native project's dependencies to run React Native commands. Local CLI module is available at the following path: `yourProjectDir/node_modules/.bin/react-native`. But it is possible to change that approach and use globally installed React Native CLI that is available from your PATH environment variable.
 
-To specify React Native CLI installed globally, you can use `reactNativeGlobalCommandName` parameter. This parameter is responsible for launcher command name, which is used to run React Native commands. If you edit `reactNativeGlobalCommandName` parameter in your `settings.json` file, the extension will use specified launcher command name to run React Native commands.
+To specify React Native CLI installed globally, you can use `reactNativeGlobalCommandName` parameter. This parameter is responsible for launcher command name, which is used to run React Native commands. If you edit `reactNativeGlobalCommandName` parameter in your `settings.json` file, the extension will use specified launcher command name to run React Native commands (e.g. `react-native run-android` instead of  `yourProjectDir/node_modules/.bin/react-native run-android`).
 For example, `react-native` is launcher command name for Facebook React Native CLI. You can specify it like this:
 
 ```
