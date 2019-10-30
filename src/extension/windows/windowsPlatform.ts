@@ -34,12 +34,14 @@ export class WindowsPlatform extends GeneralMobilePlatform {
     }
 
     public runApp(enableDebug: boolean = true): Q.Promise<void> {
-        const extProps = {
+        let extProps = {
             platform: {
                 value: "windows",
                 isPii: false,
             },
         };
+
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
 
         return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
             const env = this.getEnvArgument();
