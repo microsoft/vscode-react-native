@@ -1,3 +1,10 @@
+## 0.13.0
+* Added React Native local CLI support. Now the extension uses local CLI to run React Native commands by default [#1101](https://github.com/microsoft/vscode-react-native/issues/1101)
+* Added an opportunity to switch between local and global React Native CLI
+* Added an opportunity to use custom React Native CLI compatible with Facebook React Native CLI
+* Added error logging to `settings.json` parsing [#1148](https://github.com/microsoft/vscode-react-native/pull/1148)
+* Improved extension security [#1145](https://github.com/microsoft/vscode-react-native/pull/1145)
+
 ## 0.12.1
 * Fixed debugging issues with React Native 0.61 applications if some additional packages were installed, such as `react-native-navigation` or `react-native-splash-screen`
 
