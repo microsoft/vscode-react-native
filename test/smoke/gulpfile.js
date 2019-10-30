@@ -21,14 +21,18 @@ gulp.task("prepare-environment", (done) => {
 });
 
 gulp.task("download-vscode-repo", (done) => {
-    console.log(`*** Removing VS Code repo smoke tests directory: ${CODE_ROOT}`);
-    rimraf.sync(CODE_SMOKE_TESTS_FOLDER);
     console.log(`*** Downloading VS Code ${CODE_REPO_VERSION} repo into directory: ${CODE_ROOT}`);
     cp.execSync(`git clone --branch ${CODE_REPO_VERSION} ${CODE_REPO_URL}`, { cwd: __dirname, stdio: "inherit" });
     done();
 });
 
-gulp.task("prepare-smoke-tests", gulp.series("prepare-environment", "download-vscode-repo", function copyPackage (done) {
+gulp.task("remove-vscode-smoke-tests", (done) => {
+    console.log(`*** Removing VS Code repo smoke tests directory: ${CODE_SMOKE_TESTS_FOLDER}`);
+    rimraf.sync(CODE_SMOKE_TESTS_FOLDER);
+    done();
+});
+
+gulp.task("prepare-smoke-tests", gulp.series("prepare-environment", "download-vscode-repo", "remove-vscode-smoke-tests", function copyPackage (done) {
     console.log(`*** Copying smoke tests package ${SMOKE_TESTS_PACKAGE_FOLDER} into directory: ${CODE_SMOKE_TESTS_FOLDER}`);
     ncp(SMOKE_TESTS_PACKAGE_FOLDER, CODE_SMOKE_TESTS_FOLDER, (err) => {
         if (err) {
