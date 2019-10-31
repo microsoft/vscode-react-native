@@ -1,3 +1,14 @@
+## 0.13.0
+* The algorithm of processing React Native CLI commands was changed, the [following changes were made](https://github.com/microsoft/vscode-react-native/pull/1093):
+  * Extension can now work without the `react-native-cli` installed globally. Now it uses local CLI from `react-native` package installed in `node_modules` of the React Native project
+  * Added `reactNativeGlobalCommandName` property support to `settings.json` that is allowing to switch between locally installed CLI and global ones ([more info](https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#setting-up-react-native-global-cli))
+  * Added error handling in cases if React Native package is not installed in `node_modules`
+* Added additional verbose mode error logging in cases if `settings.json` file is incorrect or absent [#1148](https://github.com/microsoft/vscode-react-native/pull/1148)
+* Fixed --project-path React Native command argument handling for iOS [#1143](https://github.com/microsoft/vscode-react-native/pull/1143)
+* Fixed Hermes debug scenarios quick configurations names [#1140](https://github.com/microsoft/vscode-react-native/pull/1140)
+* Fixed `port` argument handling for launch and attach Hermes debug scenarios [#1140](https://github.com/microsoft/vscode-react-native/pull/1140)
+* Improved extension security [#1145](https://github.com/microsoft/vscode-react-native/pull/1145)
+
 ## 0.12.1
 * Fixed debugging issues with React Native 0.61 applications if some additional packages were installed, such as `react-native-navigation` or `react-native-splash-screen`
 
