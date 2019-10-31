@@ -135,11 +135,11 @@ function createOptions(quality: Quality, workspaceOrFolder: string): Application
 
     const loggers: Logger[] = [];
     loggers.push(new ConsoleLogger());
-    console.log(`*** Executing ${electronExecutablePath} with Spectron`);
+    console.log(`*** Executing ${testVSCodeDirectory}`);
 
     return {
         quality,
-        codePath: electronExecutablePath,
+        codePath: testVSCodeDirectory,
         workspacePath: workspaceOrFolder,
         userDataDir,
         extensionsPath,
