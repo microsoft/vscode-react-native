@@ -90,7 +90,7 @@ suite("reactNativeProjectHelper", function() {
         }).done(() => done(), done);
     });
 
-    test("processVersion should return semver valid version strings or SemverInvalid one", (done: MochaDone) => {
+    test("processVersion should return semver valid version strings or correct error strings", (done: MochaDone) => {
 
         assert.equal(ReactNativeProjectHelper.processVersion("0.61.0-rc.0"), "0.61.0");
         assert.equal(ReactNativeProjectHelper.processVersion("~1.2.3-beta.1"), "1.2.3");
@@ -101,8 +101,12 @@ suite("reactNativeProjectHelper", function() {
         assert.equal(ReactNativeProjectHelper.processVersion("https://github.com/expo/react-native/archive/sdk-35.0.0.tar.gz"), "SemverInvalid: URL");
         assert.equal(ReactNativeProjectHelper.processVersion("/github.com/expo/react-native/archive/sdk-35.0.0.tar.gz"), "35.0.0");
         assert.equal(ReactNativeProjectHelper.processVersion("/github.com/expo/react-native/archive/sdk"), "SemverInvalid");
+        assert.equal(ReactNativeProjectHelper.processVersion("C:\\jdk\\test\\test"), "SemverInvalid: URL");
         assert.equal(ReactNativeProjectHelper.processVersion("qwertyuiop[]asdfghjk"), "SemverInvalid");
+        assert.equal(ReactNativeProjectHelper.processVersion("/Users/test/Data"), "SemverInvalid");
+        assert.equal(ReactNativeProjectHelper.processVersion("@#.str?/4568-7468/.fd"), "4568.0.0");
         assert.equal(ReactNativeProjectHelper.processVersion("^str.0.61.str.2"), "0.61.0");
+        assert.equal(ReactNativeProjectHelper.processVersion("qwert  1 asdf"), "1.0.0");
         assert.equal(ReactNativeProjectHelper.processVersion("^0.str.str.2"), "0.0.0");
         assert.equal(ReactNativeProjectHelper.processVersion(""), "SemverInvalid");
 
