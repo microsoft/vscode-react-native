@@ -15,7 +15,7 @@ suite("reactNativeProjectHelper", function() {
     test("getReactNativeVersionFromProjectPackage should return version string if 'version' field is found in project's package.json file", (done: MochaDone) => {
         ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(sampleReactNative022ProjectDir)
         .then(version => {
-            assert.equal(version, "^0.22.2");
+            assert.equal(version, "0.22.2");
         }).done(() => done(), done);
     });
 
@@ -65,7 +65,7 @@ suite("reactNativeProjectHelper", function() {
 
             ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(sampleReactNative022ProjectDir)
             .then(version => {
-                assert.equal(version, "^0.20.0");
+                assert.equal(version, "0.20.0");
             }).done(() => done(), done);
         });
 
@@ -78,7 +78,7 @@ suite("reactNativeProjectHelper", function() {
 
             ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(sampleReactNative022ProjectDir)
             .then(version => {
-                assert.equal(version, "https://github.com/expo/react-native/archive/sdk-35.0.0.tar.gz");
+                assert.equal(version, "SemverInvalid: URL");
             }).done(() => done(), done);
         });
     });
@@ -88,5 +88,25 @@ suite("reactNativeProjectHelper", function() {
         .catch(error => {
             assert.equal(error.errorCode, 606);
         }).done(() => done(), done);
+    });
+
+    test("processVersion should return semver valid version strings or SemverInvalid one", (done: MochaDone) => {
+        let randomString = "";
+        let asciiLow = 65;
+        let asciiHigh = 90;
+
+        for (let i = 0; i < 12; i++) { // generate random string containing only letters
+            randomString += String.fromCharCode(Math.floor((Math.random() * (asciiHigh - asciiLow)) + asciiLow));
+        }
+
+        assert.equal(ReactNativeProjectHelper.processVersion("0.61.0-rc.0"), "0.61.0");
+        assert.equal(ReactNativeProjectHelper.processVersion("0.61.3"), "0.61.3");
+        assert.equal(ReactNativeProjectHelper.processVersion("https://github.com/expo/react-native/archive/sdk-35.0.0.tar.gz"), "SemverInvalid: URL");
+        assert.equal(ReactNativeProjectHelper.processVersion(randomString), "SemverInvalid");
+        assert.equal(ReactNativeProjectHelper.processVersion("^0.61.2.0"), "0.61.2");
+        assert.equal(ReactNativeProjectHelper.processVersion("^str.0.61.str.2"), "0.61.0");
+        assert.equal(ReactNativeProjectHelper.processVersion(""), "SemverInvalid");
+
+        done();
     });
 });

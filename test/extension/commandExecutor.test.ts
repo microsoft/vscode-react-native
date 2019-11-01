@@ -152,7 +152,7 @@ suite("commandExecutor", function() {
 
                 commandExecutor.getReactNativeVersion()
                 .then(version => {
-                    assert.equal(version, "^0.22.0");
+                    assert.equal(version, "0.22.0");
                 }).done(() => done(), done);
             });
 
@@ -166,7 +166,7 @@ suite("commandExecutor", function() {
 
                 commandExecutor.getReactNativeVersion()
                 .then(version => {
-                    assert.equal(version, "^0.22.2");
+                    assert.equal(version, "0.22.2");
                 }).done(() => done(), done);
             });
         });
