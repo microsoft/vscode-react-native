@@ -45,7 +45,7 @@ export function setup(testParameters?: TestRunArguments) {
             this.timeout(debugAndroidTestTime);
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("App.js");
+            await app.workbench.explorer.openFile("app.js");
             await app.workbench.quickopen.runCommand("cursorTop");
             console.log("Android Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
@@ -81,7 +81,7 @@ export function setup(testParameters?: TestRunArguments) {
             AndroidEmulatorHelper.uninstallTestAppFromEmulator(RN_APP_PACKAGE_NAME);
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("AppTestButton.js");
+            await app.workbench.explorer.openFile("apprestbutton.js");
             await app.workbench.quickopen.runCommand("cursorTop");
             console.log("Android Debug Hermes test: AppTestButton.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
@@ -130,7 +130,7 @@ export function setup(testParameters?: TestRunArguments) {
             app = await runVSCode(ExpoWorkspacePath);
             console.log(`Android Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("App.js");
+            await app.workbench.explorer.openFile("app.js");
             await app.workbench.quickopen.runCommand("cursorTop");
             console.log("Android Expo Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
@@ -185,7 +185,7 @@ export function setup(testParameters?: TestRunArguments) {
             app = await runVSCode(pureRNWorkspacePath);
             console.log(`Android pure RN Expo test: ${pureRNWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("App.js");
+            await app.workbench.explorer.openFile("app.js");
             await app.workbench.quickopen.runCommand("cursorTop");
             console.log("Android pure RN Expo test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(PureRNExpoSetBreakpointOnLine);
