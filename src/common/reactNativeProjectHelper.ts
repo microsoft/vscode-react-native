@@ -5,12 +5,13 @@ import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
 import * as semver from "semver";
-import {URL} from "url";
 import {Package} from "./node/package";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 
 export class ReactNativeProjectHelper {
+
+    public static readonly URLRegExp = new RegExp(/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&:%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/gi);
 
     public static getRNVersionsWithBrokenMetroBundler() {
         // https://github.com/Microsoft/vscode-react-native/issues/660 for details
@@ -53,9 +54,10 @@ export class ReactNativeProjectHelper {
     }
 
     public static processVersion(version: string): string {
-        try {
-            return new URL(version) && "SemverInvalid: URL";
-        } catch (err) {
+        const url = version.match(ReactNativeProjectHelper.URLRegExp);
+        if (url) {
+            return "SemverInvalid: URL";
+        } else {
             const versionObj = semver.coerce(version);
             return (versionObj && versionObj.toString()) || "SemverInvalid";
         }
