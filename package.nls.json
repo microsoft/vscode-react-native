@@ -63,5 +63,6 @@
     "reactNative.configuration.properties.react-native.android.envFile.device.description":"Absolute path to a file containing environment variable definitions.",
     "reactNative.configuration.properties.react-native.packager.port.description":"React-native packager port",
     "reactNative.configuration.properties.react-native-tools.projectRoot.description":"Subfolder in which the react-native project is located",
-    "reactNative.configuration.properties.react-native-tools.logLevel.description":"Logging level in extension"
+    "reactNative.configuration.properties.react-native-tools.logLevel.description":"Logging level in extension",
+    "reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description": "The command name to be used to execute React Native CLI commands."
 }

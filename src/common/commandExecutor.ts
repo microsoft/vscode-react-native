@@ -2,9 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as Q from "q";
+import * as path from "path";
 import {ChildProcess} from "child_process";
 import {ILogger} from "../extension/log/LogHelper";
-import { NullLogger } from "../extension/log/NullLogger";
+import {NullLogger} from "../extension/log/NullLogger";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
 import {HostPlatform, HostPlatformId} from "./hostPlatform";
@@ -36,8 +38,7 @@ export enum CommandStatus {
 
 export class CommandExecutor {
 
-    private static ReactNativeCommand = "react-native";
-    private static ReactNativeVersionCommand = "--version";
+    public static ReactNativeCommand: string | null;
     private childProcess = new Node.ChildProcess();
 
     constructor(
@@ -74,29 +75,8 @@ export class CommandExecutor {
         return this.spawnReactCommand("start", args, options);
     }
 
-    /**
-     * Uses the `react-native --version` command to get the version used on the project.
-     * Returns null if the workspace is not a react native project
-     */
     public getReactNativeVersion(): Q.Promise<string> {
-        let deferred = Q.defer<string>();
-        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
-        let output = "";
-
-        const result = this.childProcess.spawn(reactCommand,
-            [CommandExecutor.ReactNativeVersionCommand],
-            { cwd: this.currentWorkingDirectory });
-
-        result.stdout.on("data", (data: Buffer) => {
-            output += data.toString();
-        });
-
-        result.stdout.on("end", () => {
-            const match = output.match(/react-native: ([\d\.]+)/);
-            deferred.resolve(match && match[1] || "");
-        });
-
-        return deferred.promise;
+        return ReactNativeProjectHelper.getReactNativeVersion(this.currentWorkingDirectory);
     }
 
     /**
@@ -125,7 +105,7 @@ export class CommandExecutor {
      * Executes a react native command and waits for its completion.
      */
     public spawnReactCommand(command: string, args: string[] = [], options: Options = {}): ISpawnResult {
-        const reactCommand = HostPlatform.getNpmCliCommand(CommandExecutor.ReactNativeCommand);
+        const reactCommand = HostPlatform.getNpmCliCommand(this.selectReactNativeCLI());
         return this.spawnChildProcess(reactCommand, [command, ...args], options);
     }
 
@@ -186,6 +166,10 @@ export class CommandExecutor {
                 return this.generateRejectionForCommand(commandWithArgs, reason);
             });
         return deferred.promise;
+    }
+
+    public selectReactNativeCLI(): string {
+        return CommandExecutor.ReactNativeCommand || path.resolve(this.currentWorkingDirectory, "node_modules", ".bin", "react-native");
     }
 
     private spawnChildProcess(command: string, args: string[], options: Options = {}): ISpawnResult {
