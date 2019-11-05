@@ -28,7 +28,7 @@ suite("androidPlatform", function () {
         const androidProjectPath = path.join(projectRoot, "android");
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
-        const genericRunOptions: IAndroidRunOptions = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot };
+        const genericRunOptions: IAndroidRunOptions = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, reactNativeVersion: "^0.19.0" };
 
         const rnProjectContent = fs.readFileSync(ReactNative022.DEFAULT_PROJECT_FILE, "utf8");
 

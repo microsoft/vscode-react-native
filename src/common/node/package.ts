@@ -47,6 +47,10 @@ export class Package {
         return this.parseProperty("dependencies");
     }
 
+    public devDependencies(): Q.Promise<IPackageDependencyDict> {
+        return this.parseProperty("devDependencies");
+    }
+
     public version(): Q.Promise<string> {
         return this.parseProperty("version").then(version =>
             typeof version === "string"

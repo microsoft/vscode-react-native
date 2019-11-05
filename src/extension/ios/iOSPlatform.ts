@@ -85,12 +85,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     public runApp(): Q.Promise<void> {
-        const extProps = {
+        let extProps = {
             platform: {
                 value: "ios",
                 isPii: false,
             },
         };
+
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
 
         return TelemetryHelper.generate("iOSPlatform.runApp", extProps, () => {
             // Compile, deploy, and launch the app on either a simulator or a device

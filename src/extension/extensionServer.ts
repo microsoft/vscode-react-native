@@ -3,16 +3,18 @@
 
 import * as Q from "q";
 import * as vscode from "vscode";
-
 import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
 import {Telemetry} from "../common/telemetry";
 import {PlatformResolver} from "./platformResolver";
 import {TelemetryHelper} from "../common/telemetryHelper";
+import {ErrorHelper} from "../common/error/errorHelper";
+import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
 import {IRemoteExtension, OpenFileRequest} from "../common/remoteExtension";
@@ -20,6 +22,7 @@ import * as rpc from "noice-json-rpc";
 import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
 import * as nls from "vscode-nls";
+import {CommandExecutor} from "../common/commandExecutor";
 const localize = nls.loadMessageBundle();
 
 export class ExtensionServer implements vscode.Disposable {
@@ -230,46 +233,60 @@ export class ExtensionServer implements vscode.Disposable {
                 };
             }
 
-            TelemetryHelper.generate("launch", extProps, (generator) => {
-                generator.step("checkPlatformCompatibility");
-                TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
-                return mobilePlatform.beforeStartPackager()
-                    .then(() => {
-                        generator.step("startPackager");
-                        return mobilePlatform.startPackager();
-                    })
-                    .then(() => {
-                        // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
-                        // and the user needs to Reload JS manually. We prewarm it to prevent that issue
-                        generator.step("prewarmBundleCache");
-                        this.logger.info(localize("PrewarmingBundleCache", "Prewarming bundle cache. This may take a while ..."));
-                        return mobilePlatform.prewarmBundleCache();
-                    })
-                    .then(() => {
-                        generator.step("mobilePlatform.runApp").add("target", mobilePlatformOptions.target, false);
-                        this.logger.info(localize("BuildingAndRunningApplication", "Building and running application."));
-                        return mobilePlatform.runApp();
-                    })
-                    .then(() => {
-                        if (mobilePlatformOptions.isDirect) {
-                            generator.step("mobilePlatform.enableDirectDebuggingMode");
-                            if (request.arguments.platform === "android") {
-                                this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
-                            }
-                            return mobilePlatform.disableJSDebuggingMode();
-                        }
-                        generator.step("mobilePlatform.enableJSDebuggingMode");
-                        this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
-                        return mobilePlatform.enableJSDebuggingMode();
-                    })
-                    .then(() => {
-                        resolve();
-                    })
-                    .catch(error => {
-                        this.logger.error(error);
-                        reject(error);
+            ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(mobilePlatformOptions.projectRoot)
+                .then(version => {
+                    mobilePlatformOptions.reactNativeVersion = version;
+                    extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+                    TelemetryHelper.generate("launch", extProps, (generator) => {
+                        generator.step("checkPlatformCompatibility");
+                        TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
+                        return mobilePlatform.beforeStartPackager()
+                            .then(() => {
+                                generator.step("startPackager");
+                                return mobilePlatform.startPackager();
+                            })
+                            .then(() => {
+                                // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                                // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                                generator.step("prewarmBundleCache");
+                                this.logger.info(localize("PrewarmingBundleCache", "Prewarming bundle cache. This may take a while ..."));
+                                return mobilePlatform.prewarmBundleCache();
+                            })
+                            .then(() => {
+                                generator.step("mobilePlatform.runApp").add("target", mobilePlatformOptions.target, false);
+                                this.logger.info(localize("BuildingAndRunningApplication", "Building and running application."));
+                                return mobilePlatform.runApp();
+                            })
+                            .then(() => {
+                                if (mobilePlatformOptions.isDirect) {
+                                    generator.step("mobilePlatform.enableDirectDebuggingMode");
+                                    if (request.arguments.platform === "android") {
+                                        this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
+                                    }
+                                    return mobilePlatform.disableJSDebuggingMode();
+                                }
+                                generator.step("mobilePlatform.enableJSDebuggingMode");
+                                this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
+                                return mobilePlatform.enableJSDebuggingMode();
+                            })
+                            .then(() => {
+                                resolve();
+                            })
+                            .catch(error => {
+                                generator.addError(error);
+                                this.logger.error(error);
+                                reject(error);
+                            });
                     });
-            });
+                })
+                .catch(error => {
+                    TelemetryHelper.sendErrorEvent(
+                        "ReactNativePackageIsNotInstalled",
+                        ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled)
+                        );
+                    this.logger.error(error);
+                    reject(error);
+                });
         });
     }
 }
@@ -298,6 +315,8 @@ function requestSetup(args: any): any {
         envFile: args.envFile,
         target: args.target || "simulator",
     };
+
+    CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(workspaceFolder.uri);
 
     if (!args.runArguments) {
         let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", workspaceFolder.uri);

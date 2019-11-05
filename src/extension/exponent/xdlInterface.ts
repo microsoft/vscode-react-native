@@ -70,13 +70,13 @@ export function supportedVersions(): Q.Promise<string[]> {
 export function currentUser(): Q.Promise<XDLPackage.IUser> {
     return getPackage()
         .then((xdl) =>
-            xdl.User.getCurrentUserAsync());
+            xdl.User ? xdl.User.getCurrentUserAsync() : xdl.UserManager.getCurrentUserAsync());
 }
 
 export function login(username: string, password: string): Q.Promise<XDLPackage.IUser> {
     return getPackage()
         .then((xdl) =>
-            xdl.User.loginAsync("user-pass", { username: username, password: password }));
+        xdl.User ? xdl.User.loginAsync("user-pass", { username: username, password: password }) : xdl.UserManager.loginAsync("user-pass", { username: username, password: password }));
 }
 
 export function mapVersion(reactNativeVersion: string): Q.Promise<string> {

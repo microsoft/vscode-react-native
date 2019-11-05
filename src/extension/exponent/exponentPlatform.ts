@@ -29,12 +29,14 @@ export class ExponentPlatform extends GeneralMobilePlatform {
     }
 
     public runApp(): Q.Promise<void> {
-        const extProps = {
+        let extProps = {
             platform: {
                 value: "exponent",
                 isPii: false,
             },
         };
+
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
 
         return TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
             return this.exponentHelper.loginToExponent(
