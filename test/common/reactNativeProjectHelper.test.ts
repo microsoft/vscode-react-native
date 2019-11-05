@@ -104,7 +104,6 @@ suite("reactNativeProjectHelper", function() {
         assert.equal(ReactNativeProjectHelper.processVersion("git+https://git@github.com/test/test.git"), "SemverInvalid: URL");
         assert.equal(ReactNativeProjectHelper.processVersion("/github.com/expo/react-native/archive/sdk"), "SemverInvalid");
         assert.equal(ReactNativeProjectHelper.processVersion("qwertyuiop[]asdfghjk"), "SemverInvalid");
-        assert.equal(ReactNativeProjectHelper.processVersion("C:\\jdk\\test\\test"), "SemverInvalid");
         assert.equal(ReactNativeProjectHelper.processVersion("/Users/test/Data"), "SemverInvalid");
         assert.equal(ReactNativeProjectHelper.processVersion("@#.str?/4568-7468/.fd"), "4568.0.0");
         assert.equal(ReactNativeProjectHelper.processVersion("^str.0.61.str.2"), "0.61.0");
