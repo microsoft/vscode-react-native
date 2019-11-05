@@ -4,6 +4,8 @@
 import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
+import * as semver from "semver";
+import {URL} from "url";
 import {Package} from "./node/package";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
@@ -24,6 +26,7 @@ export class ReactNativeProjectHelper {
 
     public static getReactNativePackageVersionFromNodeModules(projectRoot: string): Q.Promise<string> {
         return new Package(projectRoot).dependencyPackage("react-native").version()
+            .then(version => ReactNativeProjectHelper.processVersion(version))
             .catch(err => {
                 throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
             });
@@ -34,12 +37,12 @@ export class ReactNativeProjectHelper {
         return rootProjectPackageJson.dependencies()
             .then(dependencies => {
                 if (dependencies["react-native"]) {
-                    return dependencies["react-native"];
+                    return ReactNativeProjectHelper.processVersion(dependencies["react-native"]);
                 }
                 return rootProjectPackageJson.devDependencies()
                     .then(devDependencies => {
                         if (devDependencies["react-native"]) {
-                            return devDependencies["react-native"];
+                            return ReactNativeProjectHelper.processVersion(devDependencies["react-native"]);
                         }
                         return "";
                     });
@@ -47,6 +50,15 @@ export class ReactNativeProjectHelper {
             .catch(err => {
                 return "";
             });
+    }
+
+    public static processVersion(version: string): string {
+        try {
+            return new URL(version) && "SemverInvalid: URL";
+        } catch (err) {
+            const versionObj = semver.coerce(version);
+            return (versionObj && versionObj.toString()) || "SemverInvalid";
+        }
     }
 
     /**
