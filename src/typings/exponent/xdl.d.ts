@@ -19,6 +19,12 @@ declare module xdl {
         getCurrentUserAsync(): Q.Promise<IUser>;
     }
 
+    var UserManager: {
+        loginAsync(loginType: string, options: ILoginOptions): Q.Promise<IUser>;
+        logoutAsync(): Q.Promise<void>;
+        getCurrentUserAsync(): Q.Promise<IUser>;
+    }
+
     interface IStartOptions {
         reset?: boolean
     }
