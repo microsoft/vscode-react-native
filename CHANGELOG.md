@@ -7,6 +7,7 @@
 * Fixed --project-path React Native command argument handling for iOS [#1143](https://github.com/microsoft/vscode-react-native/pull/1143)
 * Fixed Hermes debug scenarios quick configurations names [#1140](https://github.com/microsoft/vscode-react-native/pull/1140)
 * Fixed `port` argument handling for launch and attach Hermes debug scenarios [#1140](https://github.com/microsoft/vscode-react-native/pull/1140)
+* Added support for `@expo/xdl` greater than 56.1 [#1155](https://github.com/microsoft/vscode-react-native/pull/1155), [@expo/expo-cli#864](https://github.com/expo/expo-cli/issues/864)
 * Improved extension security [#1145](https://github.com/microsoft/vscode-react-native/pull/1145)
 
 ## 0.12.1
