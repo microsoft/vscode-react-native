@@ -3,6 +3,21 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+const fs = require('fs');
+const path = require('path');
+
+const root = path.dirname(path.dirname(path.dirname(__dirname)));
+const driverPath = path.join(root, 'src/vs/platform/driver/common/driver.ts');
+
+let contents = fs.readFileSync(driverPath, 'utf8');
+contents = /\/\/\*START([\s\S]*)\/\/\*END/mi.exec(contents)[1].trim();
+contents = contents.replace(/\bTPromise\b/g, 'Promise');
+
+contents = `/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
 /**
  * Thenable is a common denominator between ES6 promises, Q, jquery.Deferred, WinJS.Promise,
  * and others. This API makes no assumption about what promise library is being used which
@@ -20,38 +35,17 @@ interface Thenable<T> {
 	then<TResult>(onfulfilled?: (value: T) => TResult | Thenable<TResult>, onrejected?: (reason: any) => void): Thenable<TResult>;
 }
 
-export interface IElement {
-	tagName: string;
-	className: string;
-	textContent: string;
-	attributes: { [name: string]: string; };
-	children: IElement[];
-	top: number;
-	left: number;
-}
-
-export interface IDriver {
-	_serviceBrand: undefined;
-
-	getWindowIds(): Promise<number[]>;
-	capturePage(windowId: number): Promise<string>;
-	reloadWindow(windowId: number): Promise<void>;
-	exitApplication(): Promise<void>;
-	dispatchKeybinding(windowId: number, keybinding: string): Promise<void>;
-	click(windowId: number, selector: string, xoffset?: number | undefined, yoffset?: number | undefined): Promise<void>;
-	doubleClick(windowId: number, selector: string): Promise<void>;
-	setValue(windowId: number, selector: string, text: string): Promise<void>;
-	getTitle(windowId: number): Promise<string>;
-	isActiveElement(windowId: number, selector: string): Promise<boolean>;
-	getElements(windowId: number, selector: string, recursive?: boolean): Promise<IElement[]>;
-	getElementXY(windowId: number, selector: string, xoffset?: number, yoffset?: number): Promise<{ x: number; y: number; }>;
-	typeInEditor(windowId: number, selector: string, text: string): Promise<void>;
-	getTerminalBuffer(windowId: number, selector: string): Promise<string[]>;
-	writeInTerminal(windowId: number, selector: string, text: string): Promise<void>;
-}
+${contents}
 
 export interface IDisposable {
 	dispose(): void;
 }
 
 export function connect(outPath: string, handle: string): Promise<{ client: IDisposable, driver: IDriver }>;
+`;
+
+const srcPath = path.join(path.dirname(__dirname), 'src');
+const outPath = path.join(path.dirname(__dirname), 'out');
+
+fs.writeFileSync(path.join(srcPath, 'driver.d.ts'), contents);
+fs.writeFileSync(path.join(outPath, 'driver.d.ts'), contents);
