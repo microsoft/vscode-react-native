@@ -25,7 +25,7 @@ Here the steps to run React Native debugging inside Docker Container on a real A
 1. Configure your `devcontainer.json` file just about like this: <br> **NOTE**: This is just a sample of configuration, you can modify your `devcontainer.json` file as you need.
     ```
     {
-        "name": "React Native Android Dockerfile",
+        "name": "React Native Android Container",
 
         // Sets the run context to one level up instead of the .devcontainer folder.
         "context": "..",
