@@ -35,9 +35,9 @@ Here the steps to run React Native debugging inside Docker Container on a real A
 
         // The optional 'runArgs' property can be used to specify additional runtime arguments.
         "runArgs": [
-            "--privileged",
-            "--net", "host",
-            "-v", "/dev/bus/usb:/dev/bus/usb"
+            "--privileged", // give all capabilities to a container, in other words, the container can then do almost everything that the host can do
+            "--net", "host", // forwarding all host machine ports
+            "-v", "/dev/bus/usb:/dev/bus/usb" // mount connected USB devices to a container
         ],
 
         "settings": {
