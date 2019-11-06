@@ -88,7 +88,7 @@ We support using Expo to run, debug and publish applications. For more details a
 
 ## Developing inside a Docker Container
 
-The extension provides limited support of [VS Code Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) features. For more details about configuring and debugging React Native Android applications inside Docker Container see [Containerization docs](doc/containerization.md).
+The extension provides support of [VS Code Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) features on Linux. For more details about configuring and debugging React Native Android applications inside Docker Container see [Containerization docs](doc/containerization.md).
 
 ## Build APK and Generate Bundle
 
