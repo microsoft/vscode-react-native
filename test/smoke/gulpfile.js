@@ -10,9 +10,11 @@ const rimraf = require("rimraf");
 const CODE_REPO_VERSION = "1.39.2";
 const CODE_REPO_URL = "https://github.com/microsoft/vscode.git";
 const SMOKE_TESTS_PACKAGE_FOLDER = path.join(__dirname, "package");
+const SMOKE_TESTS_AUTOMATION_FOLDER = path.join(__dirname, "automation");
 const CODE_FOLDER_NAME = "vscode";
 const CODE_ROOT = path.join(__dirname, CODE_FOLDER_NAME);
 const CODE_SMOKE_TESTS_FOLDER = path.join(CODE_ROOT, "test", "smoke");
+const CODE_AUTOMATION_FOLDER = path.join(CODE_ROOT, "test", "smoke", "automation");
 
 gulp.task("prepare-environment", (done) => {
     console.log(`*** Removing old VS Code repo directory: ${CODE_ROOT}`);
@@ -29,6 +31,7 @@ gulp.task("download-vscode-repo", (done) => {
 gulp.task("remove-vscode-smoke-tests", (done) => {
     console.log(`*** Removing VS Code repo smoke tests directory: ${CODE_SMOKE_TESTS_FOLDER}`);
     rimraf.sync(CODE_SMOKE_TESTS_FOLDER);
+    rimraf.sync(CODE_AUTOMATION_FOLDER);
     done();
 });
 
@@ -38,7 +41,12 @@ gulp.task("prepare-smoke-tests", gulp.series("prepare-environment", "download-vs
         if (err) {
             console.error(`Couldn't copy smoke tests from ${SMOKE_TESTS_PACKAGE_FOLDER} package into ${CODE_SMOKE_TESTS_FOLDER}: ${err}`);
         }
-        done();
+        ncp(SMOKE_TESTS_AUTOMATION_FOLDER, CODE_AUTOMATION_FOLDER, (err) => {
+            if (err) {
+                console.error(`Couldn't copy smoke tests from ${SMOKE_TESTS_AUTOMATION_FOLDER} package into ${CODE_AUTOMATION_FOLDER}: ${err}`);
+            }
+            done();
+        });
     });
 }));
 
