@@ -8,7 +8,7 @@ Please follow the [VS Code official documentation](https://code.visualstudio.com
 
 For development of React Native Android application in Docker Container you can use [official React Native Docker image](https://hub.docker.com/r/reactnativecommunity/react-native-android) provided by [react-native-community](https://github.com/react-native-community/docker-android).
 
-Here the steps to run React Native debugging inside Docker Container on a real Android device:
+Here are the steps to run React Native debugging inside Docker Container on a real Android device:
 
 1. Open Command Palette and run the following command
     ```
