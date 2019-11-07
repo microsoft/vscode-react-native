@@ -19,7 +19,7 @@ Here the steps to run React Native debugging inside Docker Container on a real A
     ```
     FROM reactnativecommunity/react-native-android:latest
 
-    RUN npm install -g expo-cli react-native
+    RUN npm install -g expo-cli react-native-cli
     ```
 
 1. Configure your `devcontainer.json` file just about like this: <br> **NOTE**: This is just a sample of configuration, you can modify your `devcontainer.json` file as you need.
