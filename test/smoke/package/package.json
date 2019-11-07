@@ -8,6 +8,7 @@
     "mocha": "node ./node_modules/tslint/bin/tslint -c tslint.json --project tsconfig.json 'src/**' && tsc && node ./node_modules/mocha/bin/_mocha --reporter mocha-multi-reporters --reporter-options configFile=./mochaReporterConfig.json"
   },
   "devDependencies": {
+    "@types/clipboardy": "^2.0.1",
     "@types/gulp-filter": "^3.0.33",
     "@types/mkdirp": "^0.5.2",
     "@types/mocha": "^5.2.7",
@@ -19,6 +20,7 @@
     "@types/vinyl-fs": "^2.4.11",
     "@types/vinyl-source-stream": "^0.0.30",
     "@types/webdriverio": "^4.13.0",
+    "clipboardy": "^2.1.0",
     "electron": "3.1.6",
     "gulp-chmod": "^2.0.0",
     "gulp-filter": "^5.0.1",

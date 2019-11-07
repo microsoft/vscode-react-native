@@ -9,6 +9,7 @@ import { Code, findElement } from "./code";
 import { Editors } from "./editors";
 import { Editor } from "./editor";
 import { IElement } from "../src/driver";
+import * as clipboardy from "clipboardy";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
@@ -18,9 +19,9 @@ const STEP_OVER = `.debug-toolbar .action-label[title*="Step Over"]`;
 const STEP_IN = `.debug-toolbar .action-label[title*="Step Into"]`;
 const STEP_OUT = `.debug-toolbar .action-label[title*="Step Out"]`;
 const CONTINUE = `.debug-toolbar .action-label[title*="Continue"]`;
+const DISCONNECT = `.debug-toolbar .action-label[title*="Disconnect"]`;
 const GLYPH_AREA = ".margin-view-overlays>:nth-child";
 const BREAKPOINT_GLYPH = ".debug-breakpoint";
-const PAUSE = `.debug-toolbar .action-label[title*="Pause"]`;
 const DEBUG_STATUS_BAR = `.statusbar.debugging`;
 const NOT_DEBUG_STATUS_BAR = `.statusbar:not(debugging)`;
 const TOOLBAR_HIDDEN = `.debug-toolbar[aria-hidden="true"]`;
@@ -30,6 +31,8 @@ const VARIABLE = `${VIEWLET} .debug-variables .monaco-list-row .expression`;
 const CONSOLE_OUTPUT = `.repl .output.expression .value`;
 const CONSOLE_EVALUATION_RESULT = `.repl .evaluation-result.expression .value`;
 const CONSOLE_LINK = `.repl .value a.link`;
+const DEBUG_OPTIONS_COMBOBOX = "select[aria-label=\"Debug Launch Configurations\"].monaco-select-box";
+const DEBUG_OPTIONS_COMBOBOX_OPENED = `${DEBUG_OPTIONS_COMBOBOX}.monaco-select-box-dropdown-padding.synthetic-focus`;
 
 const REPL_FOCUSED = ".repl-input-wrapper .monaco-editor textarea";
 
@@ -76,16 +79,26 @@ export class Debug extends Viewlet {
         await this.code.waitForElement(BREAKPOINT_GLYPH);
     }
 
-    public async startDebugging(): Promise<number> {
+    public async startDebugging(): Promise<void> {
         await this.code.dispatchKeybinding("f5");
-        await this.code.waitForElement(PAUSE);
+    }
+
+    public async waitForDebuggingToStart(): Promise<void> {
         await this.code.waitForElement(DEBUG_STATUS_BAR);
-        const portPrefix = "Port: ";
+    }
 
-        const output = await this.waitForOutput(output => output.some(line => line.indexOf(portPrefix) >= 0));
-        const lastOutput = output.filter(line => line.indexOf(portPrefix) >= 0)[0];
+    public async areStackFramesExist(): Promise<any> {
+        return await this.code.waitForElement(STACK_FRAME);
+    }
 
-        return lastOutput ? parseInt(lastOutput.substr(portPrefix.length)) : 3000;
+    public async chooseDebugConfiguration(debugOption: string) {
+        if (process.platform === "darwin") {
+            await this.code.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX} option[value=\"${debugOption}\"]`);
+        } else {
+            await this.code.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX}.monaco-select-box-dropdown-padding`);
+            await this.code.waitForElement(DEBUG_OPTIONS_COMBOBOX_OPENED);
+            await this.code.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX_OPENED} option[value=\"${debugOption}\"]`);
+        }
     }
 
     public async stepOver(): Promise<any> {
@@ -107,6 +120,12 @@ export class Debug extends Viewlet {
 
     public async stopDebugging(): Promise<any> {
         await this.code.waitAndClick(STOP);
+        await this.code.waitForElement(TOOLBAR_HIDDEN);
+        await this.code.waitForElement(NOT_DEBUG_STATUS_BAR);
+    }
+
+    public async disconnectFromDebugger(): Promise<any> {
+        await this.code.waitAndClick(DISCONNECT);
         await this.code.waitForElement(TOOLBAR_HIDDEN);
         await this.code.waitForElement(NOT_DEBUG_STATUS_BAR);
     }
@@ -146,8 +165,23 @@ export class Debug extends Viewlet {
         await this.code.waitForElement(CONSOLE_LINK);
     }
 
-    private async waitForOutput(fn: (output: string[]) => boolean): Promise<string[]> {
+    public async waitForOutput(fn: (output: string[]) => boolean): Promise<string[]> {
         const elements = await this.code.waitForElements(CONSOLE_OUTPUT, false, elements => fn(elements.map(e => e.textContent)));
         return elements.map(e => e.textContent);
+    }
+
+    // Gets Expo URL from VS Code Expo QR Code tab
+    // For correct work opened and selected Expo QR Code tab is needed
+    public async prepareExpoURLToClipboard() {
+        this.commands.runCommand("editor.action.webvieweditor.selectAll");
+        console.log("Expo QR Code tab text prepared to be copied");
+        this.commands.runCommand("editor.action.clipboardCopyAction");
+        let copiedText = clipboardy.readSync();
+        console.log(`Expo QR Code tab text copied: \n ${copiedText}`);
+        const match = copiedText.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
+        if (!match) return null;
+        let expoURL = match[0];
+        console.log(`Found Expo URL: ${expoURL}`);
+        return expoURL;
     }
 }

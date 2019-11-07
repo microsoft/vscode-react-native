@@ -40,13 +40,13 @@ export function setup(testParameters?: TestRunArguments) {
             this.timeout(debugIosTestTime);
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("app.js");
+            await app.workbench.explorer.openFile("App.js");
             await app.workbench.quickopen.runCommand("cursorTop");
             console.log("iOS Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
             console.log(`iOS Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
-            // await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
+            await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
             console.log(`iOS Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
             SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
@@ -63,7 +63,7 @@ export function setup(testParameters?: TestRunArguments) {
             //     await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS);
             //     await sleep(5 * 1000);
             // }
-            // await app.workbench.debug.waitForDebuggingToStart();
+            await app.workbench.debug.waitForDebuggingToStart();
             console.log("iOS Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
             console.log("iOS Debug test: Stack frame found");
@@ -86,7 +86,7 @@ export function setup(testParameters?: TestRunArguments) {
             app = await runVSCode(ExpoWorkspacePath);
             console.log(`iOS Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("app.js");
+            await app.workbench.explorer.openFile("App.js");
             console.log("iOS Expo Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
             console.log(`iOS Expo Debug test: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
@@ -153,7 +153,7 @@ export function setup(testParameters?: TestRunArguments) {
             app = await runVSCode(pureRNWorkspacePath);
             console.log(`iOS pure RN Expo test: ${pureRNWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("app.js");
+            await app.workbench.explorer.openFile("App.js");
             // await app.runCommand("cursorTop");
             console.log("iOS pure RN Expo test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(PureRNExpoSetBreakpointOnLine);
