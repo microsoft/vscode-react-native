@@ -31,6 +31,7 @@ gulp.task("download-vscode-repo", (done) => {
 gulp.task("remove-vscode-smoke-tests", (done) => {
     console.log(`*** Removing VS Code repo smoke tests directory: ${CODE_SMOKE_TESTS_FOLDER}`);
     rimraf.sync(CODE_SMOKE_TESTS_FOLDER);
+    console.log(`*** Removing VS Code repo smoke tests directory: ${CODE_AUTOMATION_FOLDER}`);
     rimraf.sync(CODE_AUTOMATION_FOLDER);
     done();
 });
@@ -41,6 +42,7 @@ gulp.task("prepare-smoke-tests", gulp.series("prepare-environment", "download-vs
         if (err) {
             console.error(`Couldn't copy smoke tests from ${SMOKE_TESTS_PACKAGE_FOLDER} package into ${CODE_SMOKE_TESTS_FOLDER}: ${err}`);
         }
+        console.log(`*** Copying smoke tests package ${SMOKE_TESTS_AUTOMATION_FOLDER} into directory: ${CODE_AUTOMATION_FOLDER}`);
         ncp(SMOKE_TESTS_AUTOMATION_FOLDER, CODE_AUTOMATION_FOLDER, (err) => {
             if (err) {
                 console.error(`Couldn't copy smoke tests from ${SMOKE_TESTS_AUTOMATION_FOLDER} package into ${CODE_AUTOMATION_FOLDER}: ${err}`);
