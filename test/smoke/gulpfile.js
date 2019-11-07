@@ -14,7 +14,7 @@ const SMOKE_TESTS_AUTOMATION_FOLDER = path.join(__dirname, "automation");
 const CODE_FOLDER_NAME = "vscode";
 const CODE_ROOT = path.join(__dirname, CODE_FOLDER_NAME);
 const CODE_SMOKE_TESTS_FOLDER = path.join(CODE_ROOT, "test", "smoke");
-const CODE_AUTOMATION_FOLDER = path.join(CODE_ROOT, "test", "smoke", "automation");
+const CODE_AUTOMATION_FOLDER = path.join(CODE_ROOT, "test", "automation");
 
 gulp.task("prepare-environment", (done) => {
     console.log(`*** Removing old VS Code repo directory: ${CODE_ROOT}`);
