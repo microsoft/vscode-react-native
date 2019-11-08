@@ -82,7 +82,7 @@ export function setup(testParameters?: TestRunArguments) {
             AndroidEmulatorHelper.uninstallTestAppFromEmulator(RN_APP_PACKAGE_NAME);
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("apprestbutton.js");
+            await app.workbench.explorer.openFile("AppTestButton.js");
             await app.workbench.quickopen.runCommand("cursorTop");
             console.log("Android Debug Hermes test: AppTestButton.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
