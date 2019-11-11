@@ -379,8 +379,9 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 -------------------------------------------------------------------
 
-semver 5.1.0 - ISC
+semver 6.3.0 - ISC
 https://github.com/npm/node-semver#readme
+Copyright Isaac Z.
 Copyright Isaac Z. Schlueter
 Copyright (c) Isaac Z. Schlueter and Contributors
 
@@ -1321,7 +1322,7 @@ SOFTWARE.
 
 -------------------------------------------------------------------
 
-vscode-nls 3.2.2 - MIT
+vscode-nls 4.1.1 - MIT
 https://github.com/Microsoft/vscode-nls#readme
 Copyright (c) Microsoft Corporation.
 
@@ -1348,7 +1349,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 -------------------------------------------------------------------
 
-vscode-nls 4.1.1 - MIT
+vscode-nls 3.2.2 - MIT
 https://github.com/Microsoft/vscode-nls#readme
 Copyright (c) Microsoft Corporation.
 
