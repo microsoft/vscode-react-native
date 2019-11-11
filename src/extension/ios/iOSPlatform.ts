@@ -92,24 +92,24 @@ export class IOSPlatform extends GeneralMobilePlatform {
             },
         };
 
-        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersions["react-native"], extProps);
 
         return TelemetryHelper.generate("iOSPlatform.runApp", extProps, () => {
             // Compile, deploy, and launch the app on either a simulator or a device
             const env = this.getEnvArgument();
 
-            return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
-                .then(version => {
-                    if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
+            return ReactNativeProjectHelper.getReactNativeVersions(this.runOptions.projectRoot)
+                .then(versions => {
+                    if (!semver.valid(versions["react-native"]) /*Custom RN implementations should support this flag*/ || semver.gte(versions["react-native"], IOSPlatform.NO_PACKAGER_VERSION)) {
                         this.runArguments.push("--no-packager");
                     }
                     // Since @react-native-community/cli@2.1.0 build output are hidden by default
                     // we are using `--verbose` to show it as it contains `BUILD SUCCESSFUL` and other patterns
-                    if (semver.gte(version, "0.60.0")) {
+                    if (semver.gte(versions["react-native"], "0.60.0")) {
                         this.runArguments.push("--verbose");
                     }
                     const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", this.runArguments, {env});
-                    return new OutputVerifier(() => this.generateSuccessPatterns(version), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
+                    return new OutputVerifier(() => this.generateSuccessPatterns(versions["react-native"]), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
                         .process(runIosSpawn);
                 });
         });

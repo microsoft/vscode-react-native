@@ -13,7 +13,7 @@ import { ChromeDebugSession, IChromeDebugSessionOpts, ChromeDebugAdapter, logger
 import { ContinuedEvent, TerminatedEvent, Logger, Response } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 import { MultipleLifetimesAppWorker } from "./appWorker";
-import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
+import { ReactNativeProjectHelper, ParsedPackageName } from "../common/reactNativeProjectHelper";
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
@@ -194,9 +194,26 @@ export function makeSession(
                 },
             };
 
-            return ReactNativeProjectHelper.getReactNativeVersion(request.arguments.cwd)
-                .then(version => {
-                    extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+            let parsedPackageNames: ParsedPackageName[] = [
+                {
+                    packageName: "react-native",
+                    isCoercion: true,
+                },
+            ];
+
+            if (request.arguments.platform === "windows") {
+                parsedPackageNames.push({
+                    packageName: "react-native-windows",
+                    isCoercion: false,
+                });
+            }
+
+            return ReactNativeProjectHelper.getReactNativeVersions(request.arguments.cwd, parsedPackageNames)
+                .then(versions => {
+                    extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions["react-native"], extProps);
+                    if (request.arguments.platform === "windows") {
+                        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions["react-native-windows"], extProps, "reactNativeWindowsVersion");
+                    }
                     return TelemetryHelper.generate("attach", extProps, (generator) => {
                         return Q({})
                             .then(() => {

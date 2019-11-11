@@ -270,10 +270,10 @@ AppRegistry.registerRunnable('main', function(appParameters) {
             this.logger.logStream("...");
         }
 
-        return ReactNativeProjectHelper.getReactNativeVersion(this.projectRootPath)
-            .then(version => {
+        return ReactNativeProjectHelper.getReactNativeVersions(this.projectRootPath)
+            .then(versions => {
                 if (showProgress) this.logger.logStream(".");
-                return XDL.mapVersion(version)
+                return XDL.mapVersion(versions["react-native"])
                     .then(sdkVersion => {
                         if (!sdkVersion) {
                             return XDL.supportedVersions()

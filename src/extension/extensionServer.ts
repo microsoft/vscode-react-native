@@ -6,7 +6,7 @@ import * as vscode from "vscode";
 import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
-import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import {ReactNativeProjectHelper, ParsedPackageName} from "../common/reactNativeProjectHelper";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
@@ -233,10 +233,27 @@ export class ExtensionServer implements vscode.Disposable {
                 };
             }
 
-            ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(mobilePlatformOptions.projectRoot)
-                .then(version => {
-                    mobilePlatformOptions.reactNativeVersion = version;
-                    extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+            let parsedPackageNames: ParsedPackageName[] = [
+                {
+                    packageName: "react-native",
+                    isCoercion: true,
+                },
+            ];
+
+            if (mobilePlatformOptions.platform === "windows") {
+                parsedPackageNames.push({
+                    packageName: "react-native-windows",
+                    isCoercion: false,
+                });
+            }
+
+            ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, parsedPackageNames)
+                .then(versions => {
+                    mobilePlatformOptions.reactNativeVersions = versions;
+                    extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions["react-native"], extProps);
+                    if (mobilePlatformOptions.platform === "windows") {
+                        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions["react-native-windows"], extProps, "reactNativeWindowsVersion");
+                    }
                     TelemetryHelper.generate("launch", extProps, (generator) => {
                         generator.step("checkPlatformCompatibility");
                         TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);

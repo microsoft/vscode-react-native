@@ -13,9 +13,9 @@ suite("reactNativeProjectHelper", function() {
     const sampleReactNative022ProjectDir = path.join(__dirname, "..", "resources", "sampleReactNative022Project");
 
     test("getReactNativeVersionFromProjectPackage should return version string if 'version' field is found in project's package.json file", (done: MochaDone) => {
-        ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(sampleReactNative022ProjectDir)
-        .then(version => {
-            assert.equal(version, "0.22.2");
+        ReactNativeProjectHelper.getReactNativeVersionsFromProjectPackage(sampleReactNative022ProjectDir)
+        .then(versions => {
+            assert.equal(versions[0], "0.22.2");
         }).done(() => done(), done);
     });
 
@@ -36,9 +36,9 @@ suite("reactNativeProjectHelper", function() {
         });
 
         test("getReactNativeVersionFromProjectPackage should return empty string if 'version' field isn't found in project's package.json file", (done: MochaDone) => {
-            ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(sampleReactNative022ProjectDir)
-            .then(version => {
-                assert.equal(version, "");
+            ReactNativeProjectHelper.getReactNativeVersionsFromProjectPackage(sampleReactNative022ProjectDir)
+            .then(versions => {
+                assert.equal(versions[0], "");
             }).done(() => done(), done);
         });
     });
@@ -63,9 +63,9 @@ suite("reactNativeProjectHelper", function() {
 
             fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(versionObj, null, 2));
 
-            ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(sampleReactNative022ProjectDir)
-            .then(version => {
-                assert.equal(version, "0.20.0");
+            ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(sampleReactNative022ProjectDir)
+            .then(versions => {
+                assert.equal(versions[0], "0.20.0");
             }).done(() => done(), done);
         });
 
@@ -76,15 +76,15 @@ suite("reactNativeProjectHelper", function() {
 
             fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(versionObj, null, 2));
 
-            ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(sampleReactNative022ProjectDir)
-            .then(version => {
-                assert.equal(version, "SemverInvalid: URL");
+            ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(sampleReactNative022ProjectDir)
+            .then(versions => {
+                assert.equal(versions[0], "SemverInvalid: URL");
             }).done(() => done(), done);
         });
     });
 
     test("getReactNativePackageVersionFromNodeModules should throw ReactNativePackageIsNotInstalled error if the package is not installed", (done: MochaDone) => {
-        ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(sampleReactNative022ProjectDir)
+        ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(sampleReactNative022ProjectDir)
         .catch(error => {
             assert.equal(error.errorCode, 606);
         }).done(() => done(), done);

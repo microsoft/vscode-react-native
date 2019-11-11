@@ -10,7 +10,7 @@ import {Request} from "../common/node/request";
 import {SourceMapUtil} from "./sourceMap";
 import url = require("url");
 import * as semver from "semver";
-import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import {ReactNativeProjectHelper, PackageVersion} from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 
@@ -48,11 +48,11 @@ export class ScriptImporter {
         const overriddenScriptUrlString = (parsedScriptUrl.hostname === "localhost") ? this.overridePackagerPort(scriptUrlString) : scriptUrlString;
         // We'll get the source code, and store it locally to have a better debugging experience
         return Request.request(overriddenScriptUrlString, true).then(scriptBody => {
-            return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath).then(rnVersion => {
+            return ReactNativeProjectHelper.getReactNativeVersions(projectRootPath).then(rnVersions => {
                 // unfortunatelly Metro Bundler is broken in RN 0.54.x versions, so use this workaround unless it will be fixed
                 // https://github.com/facebook/metro/issues/147
                 // https://github.com/Microsoft/vscode-react-native/issues/660
-                if (ReactNativeProjectHelper.getRNVersionsWithBrokenMetroBundler().indexOf(rnVersion) >= 0) {
+                if (ReactNativeProjectHelper.getRNVersionsWithBrokenMetroBundler().indexOf(rnVersions["react-native"]) >= 0) {
                     let noSourceMappingUrlGenerated =  scriptBody.match(/sourceMappingURL=/g) === null;
                     if (noSourceMappingUrlGenerated) {
                         let sourceMapPathUrl = overriddenScriptUrlString.replace("bundle", "map");
@@ -70,7 +70,7 @@ export class ScriptImporter {
                     waitForSourceMapping = this.writeAppSourceMap(sourceMappingUrl, scriptUrl)
                         .then(() => {
                             scriptBody = this.sourceMapUtil.updateScriptPaths(scriptBody, <IStrictUrl>sourceMappingUrl);
-                            if (semver.gte(rnVersion, "0.61.0")) {
+                            if (semver.gte(rnVersions["react-native"], "0.61.0")) {
                                 scriptBody = this.sourceMapUtil.removeSourceURL(scriptBody);
                             }
                         });
@@ -90,10 +90,10 @@ export class ScriptImporter {
         const errPackagerNotRunning = ErrorHelper.getInternalError(InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort, this.packagerPort);
         return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
             .then(() => {
-                return ReactNativeProjectHelper.getReactNativeVersion(projectRootPath);
+                return ReactNativeProjectHelper.getReactNativeVersions(projectRootPath);
             })
-            .then((rnVersion: string) => {
-                let debuggerWorkerURL = this.prepareDebuggerWorkerURL(rnVersion, debuggerWorkerUrlPath);
+            .then((rnVersions: PackageVersion) => {
+                let debuggerWorkerURL = this.prepareDebuggerWorkerURL(rnVersions["react-native"], debuggerWorkerUrlPath);
                 let debuggerWorkerLocalPath = path.join(sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
                 logger.verbose("About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath);
 

@@ -41,7 +41,8 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             },
         };
 
-        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersions["react-native"], extProps);
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersions["react-native-windows"], extProps, "reactNativeWindowsVersion");
 
         return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
             const env = this.getEnvArgument();
@@ -50,9 +51,9 @@ export class WindowsPlatform extends GeneralMobilePlatform {
                 this.runArguments.push("--proxy");
             }
 
-            return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
-                .then(version => {
-                    if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, WindowsPlatform.NO_PACKAGER_VERSION)) {
+            return ReactNativeProjectHelper.getReactNativeVersions(this.runOptions.projectRoot)
+                .then(versions => {
+                    if (!semver.valid(versions["react-native"]) /*Custom RN implementations should support this flag*/ || semver.gte(versions["react-native"], WindowsPlatform.NO_PACKAGER_VERSION)) {
                         this.runArguments.push("--no-packager");
                     }
 

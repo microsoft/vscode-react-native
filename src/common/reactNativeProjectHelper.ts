@@ -10,6 +10,15 @@ import {Package} from "./node/package";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 
+export interface ParsedPackageName {
+    packageName: string;
+    isCoercion: boolean;
+}
+
+export interface PackageVersion {
+    [packageName: string]: string;
+}
+
 export class ReactNativeProjectHelper {
 
     public static getRNVersionsWithBrokenMetroBundler() {
@@ -17,46 +26,85 @@ export class ReactNativeProjectHelper {
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
 
-    public static getReactNativeVersion(projectRoot: string): Q.Promise<string> {
-        return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(projectRoot)
+    public static getReactNativeVersions(
+        projectRoot: string,
+        parsedPackageNames: ParsedPackageName[] = [ {packageName: "react-native", isCoercion: true} ]
+    ): Q.Promise<PackageVersion> {
+        return ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(projectRoot, parsedPackageNames)
             .catch(err => {
-                return ReactNativeProjectHelper.getReactNativeVersionFromProjectPackage(projectRoot);
+                return ReactNativeProjectHelper.getReactNativeVersionsFromProjectPackage(projectRoot, parsedPackageNames);
             });
     }
 
-    public static getReactNativePackageVersionFromNodeModules(projectRoot: string): Q.Promise<string> {
-        return new Package(projectRoot).dependencyPackage("react-native").version()
-            .then(version => ReactNativeProjectHelper.processVersion(version))
-            .catch(err => {
-                throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
-            });
+    public static getReactNativePackageVersionsFromNodeModules(
+        projectRoot: string,
+        parsedPackageNames: ParsedPackageName[] = [ {packageName: "react-native", isCoercion: true} ]
+    ): Q.Promise<PackageVersion> {
+        let versionPromises: Q.Promise<PackageVersion>[] = [];
+
+        parsedPackageNames.forEach(parsedPackageName => {
+            versionPromises.push(
+                    new Package(projectRoot).dependencyPackage(parsedPackageName.packageName).version()
+                        .then(version => ({[parsedPackageName.packageName]: ReactNativeProjectHelper.processVersion(version, parsedPackageName.isCoercion)}))
+                        .catch(err => {
+                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
+                        })
+                );
+        });
+
+        return Q.all(versionPromises).then(packageVersions => {
+            return packageVersions.reduce((allPackageVersions, packageVersion) => {
+                return Object.assign(allPackageVersions, packageVersion);
+            }, {});
+        });
     }
 
-    public static getReactNativeVersionFromProjectPackage(cwd: string): Q.Promise<string> {
-        const rootProjectPackageJson = new Package(cwd);
-        return rootProjectPackageJson.dependencies()
-            .then(dependencies => {
-                if (dependencies["react-native"]) {
-                    return ReactNativeProjectHelper.processVersion(dependencies["react-native"]);
-                }
-                return rootProjectPackageJson.devDependencies()
-                    .then(devDependencies => {
-                        if (devDependencies["react-native"]) {
-                            return ReactNativeProjectHelper.processVersion(devDependencies["react-native"]);
+    public static getReactNativeVersionsFromProjectPackage(
+        cwd: string,
+        parsedPackageNames: ParsedPackageName[] = [ {packageName: "react-native", isCoercion: true} ]
+    ): Q.Promise<PackageVersion> {
+        let versionPromises: Q.Promise<PackageVersion>[] = [];
+
+        parsedPackageNames.forEach(parsedPackageName => {
+            versionPromises.push((() => {
+                const rootProjectPackageJson = new Package(cwd);
+                return rootProjectPackageJson.dependencies()
+                    .then(dependencies => {
+                        if (dependencies[parsedPackageName.packageName]) {
+                            return {[parsedPackageName.packageName]: ReactNativeProjectHelper.processVersion(dependencies[parsedPackageName.packageName], parsedPackageName.isCoercion)};
                         }
-                        return "";
+                        return rootProjectPackageJson.devDependencies()
+                            .then(devDependencies => {
+                                if (devDependencies[parsedPackageName.packageName]) {
+                                    return {[parsedPackageName.packageName]: ReactNativeProjectHelper.processVersion(devDependencies[parsedPackageName.packageName], parsedPackageName.isCoercion)};
+                                }
+                                return {[parsedPackageName.packageName]: ""};
+                            });
+                    })
+                    .catch(err => {
+                        return {[parsedPackageName.packageName]: ""};
                     });
-            })
-            .catch(err => {
-                return "";
-            });
+                })()
+                );
+        });
+
+        return Q.all(versionPromises).then(packageVersions => {
+            return packageVersions.reduce((allPackageVersions, packageVersion) => {
+                return Object.assign(allPackageVersions, packageVersion);
+            }, {});
+        });
     }
 
-    public static processVersion(version: string): string {
+    public static processVersion(version: string, isCoercion: boolean = true): string {
         try {
             return new URL(version) && "SemverInvalid: URL";
         } catch (err) {
-            const versionObj = semver.coerce(version);
+            let versionObj;
+            if (isCoercion) {
+                versionObj = semver.coerce(version);
+            } else {
+                versionObj = semver.clean(version, { loose: true });
+            }
             return (versionObj && versionObj.toString()) || "SemverInvalid";
         }
     }
@@ -69,9 +117,9 @@ export class ReactNativeProjectHelper {
         if (!projectRoot || !fs.existsSync(path.join(projectRoot, "package.json"))) {
             return Q<boolean>(false);
         }
-        return this.getReactNativeVersion(projectRoot)
-            .then(version => {
-                return !!(version);
+        return this.getReactNativeVersions(projectRoot)
+            .then(versions => {
+                return !!(versions["react-native"]);
             });
     }
 

@@ -10,7 +10,7 @@ import {Packager} from "../common/packager";
 import {TargetType, GeneralMobilePlatform} from "./generalMobilePlatform";
 import {AndroidPlatform} from "./android/androidPlatform";
 import {IOSPlatform} from "./ios/iOSPlatform";
-import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import {ReactNativeProjectHelper, PackageVersion} from "../common/reactNativeProjectHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExponentHelper} from "./exponent/exponentHelper";
@@ -35,7 +35,7 @@ interface IReactNativeStuff {
 
 interface IReactNativeProject extends IReactNativeStuff {
     workspaceFolder: vscode.WorkspaceFolder;
-    reactNativeVersion?: string;
+    reactNativeVersions?: PackageVersion;
 }
 
 export class CommandPaletteHandler {
@@ -65,8 +65,8 @@ export class CommandPaletteHandler {
     public static startPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.packager.getProjectPath())
-                    .then(version => {
+                return ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(project.packager.getProjectPath())
+                    .then(versions => {
                         return this.executeCommandInContext("startPackager", project.workspaceFolder, () => {
                             return project.packager.isRunning()
                                 .then((running) => {
@@ -105,8 +105,8 @@ export class CommandPaletteHandler {
     public static restartPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.packager.getProjectPath())
-                    .then(version => {
+                return ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(project.packager.getProjectPath())
+                    .then(versions => {
                         return this.executeCommandInContext("restartPackager", project.workspaceFolder, () =>
                             this.runRestartPackagerCommandAndUpdateStatus(project));
                     });
@@ -136,9 +136,9 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 TargetPlatformHelper.checkTargetPlatformSupport("android");
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.packager.getProjectPath())
-                    .then(version => {
-                        project.reactNativeVersion = version;
+                return ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(project.packager.getProjectPath())
+                    .then(versions => {
+                        project.reactNativeVersions = versions;
                         return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
                             const platform = <AndroidPlatform>this.createPlatform(project, "android", AndroidPlatform, target);
                             return platform.beforeStartPackager()
@@ -162,9 +162,9 @@ export class CommandPaletteHandler {
     public static runIos(target: TargetType = "simulator"): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.packager.getProjectPath())
-                    .then(version => {
-                        project.reactNativeVersion = version;
+                return ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(project.packager.getProjectPath())
+                    .then(versions => {
+                        project.reactNativeVersions = versions;
                         TargetPlatformHelper.checkTargetPlatformSupport("ios");
                         return this.executeCommandInContext("runIos", project.workspaceFolder, () => {
                             const platform = <IOSPlatform>this.createPlatform(project, "ios", IOSPlatform, target);
@@ -191,12 +191,12 @@ export class CommandPaletteHandler {
     public static runExponent(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.packager.getProjectPath())
-                    .then(version => {
+                return ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(project.packager.getProjectPath())
+                    .then(versions => {
                         return this.loginToExponent(project)
                             .then(() => {
                                 return this.executeCommandInContext("runExponent", project.workspaceFolder, () => {
-                                    project.reactNativeVersion = version;
+                                    project.reactNativeVersions = versions;
                                     const platform = <ExponentPlatform>this.createPlatform(project, "exponent", ExponentPlatform);
                                     return platform.beforeStartPackager()
                                         .then(() => {
@@ -422,7 +422,7 @@ export class CommandPaletteHandler {
             runArguments: runArgs,
             env: envArgs,
             envFile: envFile,
-            reactNativeVersion: project.reactNativeVersion || "",
+            reactNativeVersions: project.reactNativeVersions || {["react-native"]: ""},
         };
 
         CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(project.workspaceFolder.uri);

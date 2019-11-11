@@ -30,7 +30,8 @@ export class WpfPlatform extends WindowsPlatform {
             },
         };
 
-        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersions["react-native"], extProps);
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersions["react-native-windows"], extProps, "reactNativeWindowsVersion");
 
         return TelemetryHelper.generate("WpfPlatform.runApp", extProps, () => {
             const env = this.getEnvArgument();
@@ -39,11 +40,11 @@ export class WpfPlatform extends WindowsPlatform {
                 this.runArguments.push("--proxy");
             }
 
-            if (!semver.gt(this.runOptions.reactNativeVersion, WpfPlatform.WPF_SUPPORTED)) {
-                throw new Error(localize("DebuggingWPFPlatformIsNotSupportedForThisRNWinVersion", "Debugging WPF platform is not supported for this react-native-windows version({0})", this.runOptions.reactNativeVersion));
+            if (!semver.gt(this.runOptions.reactNativeVersions["react-native"], WpfPlatform.WPF_SUPPORTED)) {
+                throw new Error(localize("DebuggingWPFPlatformIsNotSupportedForThisRNWinVersion", "Debugging WPF platform is not supported for this react-native-windows version({0})", this.runOptions.reactNativeVersions["react-native"]));
             }
 
-            if (!semver.valid(this.runOptions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(this.runOptions.reactNativeVersion, WpfPlatform.NO_PACKAGER_VERSION)) {
+            if (!semver.valid(this.runOptions.reactNativeVersions["react-native"]) /*Custom RN implementations should support this flag*/ || semver.gte(this.runOptions.reactNativeVersions["react-native"], WpfPlatform.NO_PACKAGER_VERSION)) {
                 this.runArguments.push("--no-packager");
             }
 
