@@ -47,16 +47,14 @@ function getBuildElectronPath(root: string, isInsiders: boolean): string {
         case "darwin":
             return isInsiders
                 ?
-                path.join(root, "Visual Studio Code - Insiders.app", "Contents", "MacOS", "Electron")
+                path.join(root, "Visual Studio Code - Insiders.app")
                 :
-                path.join(root, "Visual Studio Code.app", "Contents", "MacOS", "Electron");
+                path.join(root, "Visual Studio Code.app");
         case "linux": {
-            const product = require(path.join(root, "VSCode-linux-x64", "resources", "app", "product.json"));
-            return path.join(root, "VSCode-linux-x64", product.applicationName);
+            return path.join(root, "VSCode-linux-x64");
         }
         case "win32": {
-            const product = require(path.join(root, "resources", "app", "product.json"));
-            return path.join(root, `${product.nameShort}.exe`);
+            return root;
         }
         default:
             throw new Error(`Platform ${process.platform} isn't supported`);
@@ -88,7 +86,8 @@ function getVSCodeExecutablePath(testVSCodeFolder: string, isInsiders: boolean) 
     }
 }
 
-const repoRoot = path.join(__dirname, "..", "..", "..");
+// resolving path from VS Code smoke tests directory to repository root
+const repoRoot = path.join(__dirname, "..", "..", "..", "..", "..", "..");
 const resourcesPath = path.join(__dirname, "..", "resources");
 const isInsiders = process.env.CODE_VERSION === "insiders";
 let testVSCodeDirectory;
@@ -135,11 +134,12 @@ function createOptions(quality: Quality, workspaceOrFolder: string): Application
 
     const loggers: Logger[] = [];
     loggers.push(new ConsoleLogger());
-    console.log(`*** Executing ${testVSCodeDirectory}`);
+    const codePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
+    console.log(`*** Executing ${codePath}`);
 
     return {
         quality,
-        codePath: testVSCodeDirectory,
+        codePath: codePath,
         workspacePath: workspaceOrFolder,
         userDataDir,
         extensionsPath,

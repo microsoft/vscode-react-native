@@ -9,7 +9,7 @@ import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
-import { Application } from "../../automation";
+import { Application } from "../../automation/src";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -46,7 +46,7 @@ export function setup(testParameters?: TestRunArguments) {
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
-            await app.workbench.quickopen.runCommand("cursorTop");
+            await app.workbench.editors.scrollTop();
             console.log("Android Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
             console.log(`Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
@@ -83,7 +83,7 @@ export function setup(testParameters?: TestRunArguments) {
             app = await runVSCode(RNworkspacePath);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("AppTestButton.js");
-            await app.workbench.quickopen.runCommand("cursorTop");
+            await app.workbench.editors.scrollTop();
             console.log("Android Debug Hermes test: AppTestButton.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
             console.log(`Android Debug Hermes test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`);
@@ -132,7 +132,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`Android Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
-            await app.workbench.quickopen.runCommand("cursorTop");
+            await app.workbench.editors.scrollTop();
             console.log("Android Expo Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
             console.log(`Android Expo Debug test: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
@@ -187,7 +187,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`Android pure RN Expo test: ${pureRNWorkspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
             await app.workbench.explorer.openFile("App.js");
-            await app.workbench.quickopen.runCommand("cursorTop");
+            await app.workbench.editors.scrollTop();
             console.log("Android pure RN Expo test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(PureRNExpoSetBreakpointOnLine);
             console.log(`Android pure RN Expo test: Breakpoint is set on line ${PureRNExpoSetBreakpointOnLine}`);

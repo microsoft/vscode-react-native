@@ -47,4 +47,12 @@ export class Editors {
 
         await this.waitForEditorFocus("Untitled-1", true);
     }
+
+    public async scrollTop(): Promise<void> {
+        if (process.platform === "darwin") {
+            await this.code.dispatchKeybinding("cmd+home");
+        } else {
+            await this.code.dispatchKeybinding("ctrl+home");
+        }
+    }
 }
