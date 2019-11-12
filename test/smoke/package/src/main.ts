@@ -127,7 +127,7 @@ const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 const keybindingsPath = path.join(userDataDir, "keybindings.json");
 process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
 
-function createOptions(quality: Quality, workspaceOrFolder: string): ApplicationOptions | null {
+function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolderName: string): ApplicationOptions | null {
     if (!electronExecutablePath) {
         return null;
     }
@@ -141,7 +141,7 @@ function createOptions(quality: Quality, workspaceOrFolder: string): Application
         quality,
         codePath: codePath,
         workspacePath: workspaceOrFolder,
-        userDataDir,
+        userDataDir: path.join(userDataDir, dataDirFolderName),
         extensionsPath,
         waitTime: SmokeTestsConstants.elementResponseTimeout,
         logger: new MultiLogger(loggers),
@@ -209,8 +209,9 @@ async function setup(): Promise<void> {
     console.log("*** Smoke tests setup done!\n");
 }
 
+let dataDirFolderName = 0;
 export async function runVSCode(workspaceOrFolder: string): Promise<Application> {
-    const options = createOptions(quality, workspaceOrFolder);
+    const options = createOptions(quality, workspaceOrFolder, dataDirFolderName++);
     const app = new Application(options!);
     await app!.start();
     return app!;
