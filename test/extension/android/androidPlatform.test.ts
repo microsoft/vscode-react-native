@@ -97,8 +97,8 @@ suite("androidPlatform", function () {
                 return reactNative.runAndroid(genericRunOptions);
             });
 
-            sandbox.stub(rnHelper.ReactNativeProjectHelper, "getReactNativeVersion", function () {
-                return Q.resolve("0.0.1");
+            sandbox.stub(rnHelper.ReactNativeProjectHelper, "getReactNativeVersions", function () {
+                return Q.resolve({["react-native"]: "0.0.1"});
             });
 
             androidPlatform.setAdbHelper(adbHelper);
@@ -218,7 +218,15 @@ suite("androidPlatform", function () {
 
                 return Q({})
                     .then(() => {
-                        const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: any = {
+                            platform: "android",
+                            workspaceRoot: projectRoot,
+                            projectRoot: projectRoot,
+                            target: "Nexus_12",
+                            reactNativeVersions: {
+                                ["react-native"]: "^0.19.0",
+                            },
+                        };
                         const platform = createAndroidPlatform(runOptions);
                         platform.setAdbHelper(adbHelper);
                         return platform.runApp();
@@ -241,7 +249,15 @@ suite("androidPlatform", function () {
 
                 return Q({})
                     .then(() => {
-                        const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: any = {
+                            platform: "android",
+                            workspaceRoot: projectRoot,
+                            projectRoot: projectRoot,
+                            target: "Nexus_12",
+                            reactNativeVersions: {
+                                ["react-native"]: "^0.19.0",
+                            },
+                        };
                         const platform = createAndroidPlatform(runOptions);
                         platform.setAdbHelper(adbHelper);
                         return platform.runApp();

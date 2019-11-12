@@ -15,7 +15,7 @@ suite("reactNativeProjectHelper", function() {
     test("getReactNativeVersionFromProjectPackage should return version string if 'version' field is found in project's package.json file", (done: MochaDone) => {
         ReactNativeProjectHelper.getReactNativeVersionsFromProjectPackage(sampleReactNative022ProjectDir)
         .then(versions => {
-            assert.equal(versions[0], "0.22.2");
+            assert.equal(versions["react-native"], "0.22.2");
         }).done(() => done(), done);
     });
 
@@ -38,7 +38,7 @@ suite("reactNativeProjectHelper", function() {
         test("getReactNativeVersionFromProjectPackage should return empty string if 'version' field isn't found in project's package.json file", (done: MochaDone) => {
             ReactNativeProjectHelper.getReactNativeVersionsFromProjectPackage(sampleReactNative022ProjectDir)
             .then(versions => {
-                assert.equal(versions[0], "");
+                assert.equal(versions["react-native"], "");
             }).done(() => done(), done);
         });
     });
@@ -65,7 +65,7 @@ suite("reactNativeProjectHelper", function() {
 
             ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(sampleReactNative022ProjectDir)
             .then(versions => {
-                assert.equal(versions[0], "0.20.0");
+                assert.equal(versions["react-native"], "0.20.0");
             }).done(() => done(), done);
         });
 
@@ -78,7 +78,7 @@ suite("reactNativeProjectHelper", function() {
 
             ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(sampleReactNative022ProjectDir)
             .then(versions => {
-                assert.equal(versions[0], "SemverInvalid: URL");
+                assert.equal(versions["react-native"], "SemverInvalid: URL");
             }).done(() => done(), done);
         });
     });

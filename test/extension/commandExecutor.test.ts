@@ -151,8 +151,8 @@ suite("commandExecutor", function() {
                 fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(versionObj, null, 2));
 
                 commandExecutor.getReactNativeVersion()
-                .then(version => {
-                    assert.equal(version, "0.22.0");
+                .then(versions => {
+                    assert.equal(versions["react-native"], "0.22.0");
                 }).done(() => done(), done);
             });
 
@@ -165,8 +165,8 @@ suite("commandExecutor", function() {
                 fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(testObj, null, 2));
 
                 commandExecutor.getReactNativeVersion()
-                .then(version => {
-                    assert.equal(version, "0.22.2");
+                .then(versions => {
+                    assert.equal(versions["react-native"], "0.22.2");
                 }).done(() => done(), done);
             });
         });
