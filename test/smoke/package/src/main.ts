@@ -4,7 +4,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as cp from "child_process";
-import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleLogger } from "../../automation/src";
+import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleLogger } from "../../automation";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
