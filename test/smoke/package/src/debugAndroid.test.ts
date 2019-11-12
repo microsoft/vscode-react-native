@@ -9,7 +9,7 @@ import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
-import { Application } from "../../automation/src";
+import { Application } from "../../automation";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
