@@ -9,7 +9,7 @@ import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
-import { Application } from "../../automation";
+import { Application } from "../../automation/src";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -17,6 +17,7 @@ const EXPO_APP_PACKAGE_NAME = SetupEnvironmentHelper.expoPackageName;
 const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity`;
 const RNDebugConfigName = "Debug Android";
 const RNHermesDebugConfigName = "Debug Android (Hermes) - Experimental";
+const RNHermesAttachConfigName = "Attach to Hermes application - Experimental";
 const ExpoDebugConfigName = "Debug in Exponent";
 
 const RNSetBreakpointOnLine = 1;
@@ -51,10 +52,9 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
             console.log(`Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
-            await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
             console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             console.log("Android Debug test: Starting debugging");
-            await app.workbench.debug.startDebugging();
+            await app.workbench.debug.runDebugScenario(RNDebugConfigName);
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = AppiumHelper.webdriverAttach(opts);
@@ -89,10 +89,9 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`Android Debug Hermes test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             console.log(`Android Debug Hermes test: Debug Viewlet opened`);
-            await app.workbench.debug.chooseDebugConfiguration(RNHermesDebugConfigName);
             console.log(`Android Debug Hermes test: Chosen debug configuration: ${RNHermesDebugConfigName}`);
             console.log("Android Debug Hermes test: Starting debugging");
-            await app.workbench.debug.startDebugging();
+            await app.workbench.debug.runDebugScenario(RNHermesDebugConfigName);
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = AppiumHelper.webdriverAttach(opts);
@@ -104,8 +103,7 @@ export function setup(testParameters?: TestRunArguments) {
             assert.equal(isHermesWorking, true);
             console.log("Android Debug Hermes test: Reattaching to Hermes app");
             await app.workbench.debug.stopDebugging();
-            await app.workbench.debug.chooseDebugConfiguration("Attach to Hermes application - Experimental");
-            await app.workbench.debug.startDebugging();
+            await app.workbench.debug.runDebugScenario(RNHermesAttachConfigName);
             console.log("Android Debug Hermes test: Reattached successfully");
             await sleep(7000);
             console.log("Android Debug Hermes test: Click Test Button");
@@ -138,9 +136,8 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`Android Expo Debug test: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             console.log(`Android Expo Debug test: Chosen debug configuration: ${ExpoDebugConfigName}`);
-            await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
             console.log("Android Expo Debug test: Starting debugging");
-            await app.workbench.debug.startDebugging();
+            await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
             await app.workbench.editors.waitForTab("Expo QR Code");
             await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("Android Expo Debug test: 'Expo QR Code' tab found");
@@ -193,9 +190,8 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`Android pure RN Expo test: Breakpoint is set on line ${PureRNExpoSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             console.log(`Android pure RN Expo test: Chosen debug configuration: ${ExpoDebugConfigName}`);
-            // await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
             console.log("Android pure RN Expo test: Starting debugging");
-            await app.workbench.debug.startDebugging();
+            await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
             // await app.workbench.waitForTab("Expo QR Code");
             // await app.workbench.waitForActiveTab("Expo QR Code");
             console.log("Android pure RN Expo test: 'Expo QR Code' tab found");

@@ -8,6 +8,7 @@ import { Editors } from "./editors";
 import { Editor } from "./editor";
 import { IElement } from "../src/driver";
 import * as clipboardy from "clipboardy";
+import { QuickOpen } from ".";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
@@ -52,7 +53,7 @@ function toStackFrame(element: IElement): IStackFrame {
 
 export class Debug extends Viewlet {
 
-    constructor(code: Code, private commands: Commands, private editors: Editors, private editor: Editor) {
+    constructor(code: Code, private commands: Commands, private editors: Editors, private editor: Editor, private quickopen: QuickOpen) {
         super(code);
     }
 
@@ -89,14 +90,9 @@ export class Debug extends Viewlet {
         return await this.code.waitForElement(STACK_FRAME);
     }
 
-    public async chooseDebugConfiguration(debugOption: string) {
-        if (process.platform === "darwin") {
-            await this.code.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX} option[value=\"${debugOption}\"]`);
-        } else {
-            await this.code.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX}.monaco-select-box-dropdown-padding`);
-            await this.code.waitForElement(DEBUG_OPTIONS_COMBOBOX_OPENED);
-            await this.code.waitAndClick(`${DEBUG_OPTIONS_COMBOBOX_OPENED} option[value=\"${debugOption}\"]`);
-        }
+    public async runDebugScenario(debugOption: string): Promise<any> {
+        await this.quickopen.openQuickOpen();
+        await this.quickopen.submit(`debug ${debugOption}`);
     }
 
     public async stepOver(): Promise<any> {

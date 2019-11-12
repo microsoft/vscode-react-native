@@ -46,12 +46,11 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
             console.log(`iOS Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
-            await app.workbench.debug.chooseDebugConfiguration(RNDebugConfigName);
             console.log(`iOS Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
             SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
             console.log("iOS Debug test: Starting debugging");
-            await app.workbench.debug.startDebugging()
+            await app.workbench.debug.runDebugScenario(RNDebugConfigName);
             await IosSimulatorHelper.waitUntilIosAppIsInstalled(RnAppBundleId, SmokeTestsConstants.iosAppBuildAndInstallTimeout, 40 * 1000);
             // Sometimes by this moment iOS app already have remote js debugging enabled so we don't need to enable it manually
             // if (!await app.workbench.debug.areStackFramesExist()) {
@@ -93,11 +92,10 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`iOS Expo Debug test: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             console.log(`iOS Expo Debug test: Chosen debug configuration: ${ExpoDebugConfigName}`);
-            // await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
             SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
             console.log("iOS Expo Debug test: Starting debugging");
-            await app.workbench.debug.startDebugging();
+            await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
             const device = <string>IosSimulatorHelper.getDevice();
             await sleep(5 * 1000);
             // await app.workbench.waitForTab("Expo QR Code");
@@ -161,11 +159,10 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`iOS pure RN Expo test: Breakpoint is set on line ${PureRNExpoSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             console.log(`iOS pure RN Expo test: Chosen debug configuration: ${ExpoDebugConfigName}`);
-            // await app.workbench.debug.chooseDebugConfiguration(ExpoDebugConfigName);
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
             SetupEnvironmentHelper.addIosTargetToLaunchJson(pureRNWorkspacePath);
             console.log("iOS pure RN Expo test: Starting debugging");
-            await app.workbench.debug.startDebugging();
+            await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
             const device = <string>IosSimulatorHelper.getDevice();
             await sleep(5 * 1000);
             // await app.workbench.waitForTab("Expo QR Code");

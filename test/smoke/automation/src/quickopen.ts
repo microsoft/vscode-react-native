@@ -15,7 +15,7 @@ export class QuickOpen {
 
     constructor(private code: Code, private editors: Editors) { }
 
-    public async openQuickOpen(value: string): Promise<void> {
+    public async openQuickOpen(value?: string): Promise<void> {
         let retries = 0;
 
         // other parts of code might steal focus away from quickopen :(
