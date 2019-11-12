@@ -30,8 +30,6 @@ const VARIABLE = `${VIEWLET} .debug-variables .monaco-list-row .expression`;
 const CONSOLE_OUTPUT = `.repl .output.expression .value`;
 const CONSOLE_EVALUATION_RESULT = `.repl .evaluation-result.expression .value`;
 const CONSOLE_LINK = `.repl .value a.link`;
-const DEBUG_OPTIONS_COMBOBOX = "select[aria-label=\"Debug Launch Configurations\"].monaco-select-box";
-const DEBUG_OPTIONS_COMBOBOX_OPENED = `${DEBUG_OPTIONS_COMBOBOX}.monaco-select-box-dropdown-padding.synthetic-focus`;
 
 const REPL_FOCUSED = ".repl-input-wrapper .monaco-editor textarea";
 
