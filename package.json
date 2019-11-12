@@ -654,7 +654,8 @@
 		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
 		"vscode:prepublish": "gulp",
 		"test": "node ./node_modules/vscode/bin/test",
-		"postinstall": "node ./node_modules/vscode/bin/install"
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install && yarn --cwd ./vscode/test/smoke mocha"
 	},
 	"dependencies": {
 		"extract-opts": "2.2.0",
@@ -681,7 +682,7 @@
 	"devDependencies": {
 		"@types/mkdirp": "^0.5.2",
 		"@types/mocha": "^2.2.40",
-		"@types/mock-fs": "^3.6.30",
+		"@types/ncp": "^2.0.2",
 		"@types/node": "^10.14.4",
 		"@types/qr-image": "^3.2.0",
 		"@types/rimraf": "^2.0.2",
@@ -707,6 +708,7 @@
 		"mocha": "^5.2.0",
 		"mocha-junit-reporter": "^1.22.0",
 		"mocha-multi-reporters": "^1.1.7",
+		"ncp": "^2.0.0",
 		"plugin-error": "^1.0.1",
 		"remap-istanbul": "^0.13.0",
 		"rimraf": "^2.6.3",

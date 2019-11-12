@@ -133,7 +133,8 @@ gulp.task("check-copyright", () => {
         "!SampleApplication/**",
         "!test/resources/sampleReactNative022Project/**/*.js",
         "!test/smoke/node_modules/**",
-        "!test/smoke/resources/**"
+        "!test/smoke/resources/**",
+        "!test/smoke/vscode/**"
     ])
         .pipe(copyright());
 });
