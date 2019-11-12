@@ -211,7 +211,7 @@ async function setup(): Promise<void> {
 
 let dataDirFolderName = 0;
 export async function runVSCode(workspaceOrFolder: string): Promise<Application> {
-    const options = createOptions(quality, workspaceOrFolder, dataDirFolderName++);
+    const options = createOptions(quality, workspaceOrFolder, (dataDirFolderName++).toString());
     const app = new Application(options!);
     await app!.start();
     return app!;
