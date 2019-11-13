@@ -15,10 +15,6 @@ export interface ParsedPackageName {
     useSemverCoerce: boolean;
 }
 
-export interface PackageVersion {
-    [packageName: string]: string;
-}
-
 export interface RNPackageVersions {
     reactNativeVersion: string;
     reactNativeWindowsVersion: string;
@@ -39,11 +35,11 @@ export class ReactNativeProjectHelper {
     }
 
     public static getReactNativePackageVersionsFromNodeModules(projectRoot: string, isRNWVersion: boolean = false): Q.Promise<RNPackageVersions> {
-        let versionPromises: Q.Promise<PackageVersion>[] = [];
+        let versionPromises: Q.Promise<string>[] = [];
 
         versionPromises.push(
             new Package(projectRoot).getPackageVersionFromNodeModules("react-native")
-                .then(version => ({["react-native"]: ReactNativeProjectHelper.processVersion(version, true)}))
+                .then(version => ReactNativeProjectHelper.processVersion(version, true))
                 .catch(err => {
                     throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
                 })
@@ -52,18 +48,15 @@ export class ReactNativeProjectHelper {
         if (isRNWVersion) {
             versionPromises.push(
                 new Package(projectRoot).getPackageVersionFromNodeModules("react-native-windows")
-                    .then(version => ({["react-native-windows"]: ReactNativeProjectHelper.processVersion(version, false)}))
-                    .catch(err => ({["react-native-windows"]: ""}))
+                    .then(version => ReactNativeProjectHelper.processVersion(version, false))
+                    .catch(err => "")
             );
         }
 
         return Q.all(versionPromises).then(packageVersions => ({
-            reactNativeVersion: packageVersions[0]["react-native"],
-            reactNativeWindowsVersion: (packageVersions[1] && packageVersions[1]["react-native-windows"]) || "",
-        }))
-        .then(versions => {
-            return versions;
-        });
+            reactNativeVersion: packageVersions[0],
+            reactNativeWindowsVersion: packageVersions[1] || "",
+        }));
     }
 
     public static getReactNativeVersionsFromProjectPackage(cwd: string, isRNWVersion: boolean = false): Q.Promise<RNPackageVersions> {
@@ -81,7 +74,7 @@ export class ReactNativeProjectHelper {
             });
         }
 
-        let versionPromises: Q.Promise<PackageVersion>[] = [];
+        let versionPromises: Q.Promise<string>[] = [];
 
         parsedPackageNames.forEach(parsedPackageName => {
             versionPromises.push((() => {
@@ -89,26 +82,26 @@ export class ReactNativeProjectHelper {
                 return rootProjectPackageJson.dependencies()
                     .then(dependencies => {
                         if (dependencies[parsedPackageName.packageName]) {
-                            return {[parsedPackageName.packageName]: ReactNativeProjectHelper.processVersion(dependencies[parsedPackageName.packageName], parsedPackageName.useSemverCoerce)};
+                            return ReactNativeProjectHelper.processVersion(dependencies[parsedPackageName.packageName], parsedPackageName.useSemverCoerce);
                         }
                         return rootProjectPackageJson.devDependencies()
                             .then(devDependencies => {
                                 if (devDependencies[parsedPackageName.packageName]) {
-                                    return {[parsedPackageName.packageName]: ReactNativeProjectHelper.processVersion(devDependencies[parsedPackageName.packageName], parsedPackageName.useSemverCoerce)};
+                                    return ReactNativeProjectHelper.processVersion(devDependencies[parsedPackageName.packageName], parsedPackageName.useSemverCoerce);
                                 }
-                                return {[parsedPackageName.packageName]: ""};
+                                return "";
                             });
                     })
                     .catch(err => {
-                        return {[parsedPackageName.packageName]: ""};
+                        return "";
                     });
                 })()
-                );
+            );
         });
 
         return Q.all(versionPromises).then(packageVersions => ({
-            reactNativeVersion: packageVersions[0]["react-native"],
-            reactNativeWindowsVersion: (packageVersions[1] && packageVersions[1]["react-native-windows"]) || "",
+            reactNativeVersion: packageVersions[0],
+            reactNativeWindowsVersion: packageVersions[1] || "",
         }));
     }
 
@@ -120,7 +113,7 @@ export class ReactNativeProjectHelper {
             if (useSemverCoerce) {
                 versionObj = semver.coerce(version);
             } else {
-                versionObj = semver.clean(version, { loose: true });
+                versionObj = semver.clean(version.replace(/[\^~]/g, ""), { loose: true });
             }
             return (versionObj && versionObj.toString()) || "SemverInvalid";
         }
