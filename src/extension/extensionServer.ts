@@ -6,7 +6,7 @@ import * as vscode from "vscode";
 import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
-import {ReactNativeProjectHelper, ParsedPackageName} from "../common/reactNativeProjectHelper";
+import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
@@ -233,26 +233,14 @@ export class ExtensionServer implements vscode.Disposable {
                 };
             }
 
-            let parsedPackageNames: ParsedPackageName[] = [
-                {
-                    packageName: "react-native",
-                    isCoercion: true,
-                },
-            ];
-
-            if (mobilePlatformOptions.platform === "windows") {
-                parsedPackageNames.push({
-                    packageName: "react-native-windows",
-                    isCoercion: false,
-                });
-            }
-
-            ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, parsedPackageNames)
+            // ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, mobilePlatformOptions.platform === "windows")
+            ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true)
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
-                    extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions["react-native"], extProps);
-                    if (mobilePlatformOptions.platform === "windows") {
-                        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions["react-native-windows"], extProps, "reactNativeWindowsVersion");
+                    extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions.reactNativeVersion, extProps);
+                    // if (mobilePlatformOptions.platform === "windows") {
+                    if (versions.reactNativeWindowsVersion) {
+                        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions.reactNativeWindowsVersion, extProps, "reactNativeWindowsVersion");
                     }
                     TelemetryHelper.generate("launch", extProps, (generator) => {
                         generator.step("checkPlatformCompatibility");

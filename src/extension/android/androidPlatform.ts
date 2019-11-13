@@ -89,13 +89,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             };
         }
 
-        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersions["react-native"], extProps);
+        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersions.reactNativeVersion, extProps);
 
         return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
             const env = this.getEnvArgument();
             return ReactNativeProjectHelper.getReactNativeVersions(this.runOptions.projectRoot)
                 .then(versions => {
-                    if (!semver.valid(versions["react-native"]) /*Custom RN implementations should support this flag*/ || semver.gte(versions["react-native"], AndroidPlatform.NO_PACKAGER_VERSION)) {
+                    if (!semver.valid(versions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(versions.reactNativeVersion, AndroidPlatform.NO_PACKAGER_VERSION)) {
                         this.runArguments.push("--no-packager");
                     }
 

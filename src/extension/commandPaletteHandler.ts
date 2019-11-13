@@ -10,7 +10,7 @@ import {Packager} from "../common/packager";
 import {TargetType, GeneralMobilePlatform} from "./generalMobilePlatform";
 import {AndroidPlatform} from "./android/androidPlatform";
 import {IOSPlatform} from "./ios/iOSPlatform";
-import {ReactNativeProjectHelper, PackageVersion} from "../common/reactNativeProjectHelper";
+import {ReactNativeProjectHelper, RNPackageVersions} from "../common/reactNativeProjectHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ExponentHelper} from "./exponent/exponentHelper";
@@ -35,7 +35,7 @@ interface IReactNativeStuff {
 
 interface IReactNativeProject extends IReactNativeStuff {
     workspaceFolder: vscode.WorkspaceFolder;
-    reactNativeVersions?: PackageVersion;
+    reactNativeVersions?: RNPackageVersions;
 }
 
 export class CommandPaletteHandler {
@@ -422,7 +422,7 @@ export class CommandPaletteHandler {
             runArguments: runArgs,
             env: envArgs,
             envFile: envFile,
-            reactNativeVersions: project.reactNativeVersions || {["react-native"]: ""},
+            reactNativeVersions: project.reactNativeVersions || {reactNativeVersion: "", reactNativeWindowsVersion: ""},
         };
 
         CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(project.workspaceFolder.uri);

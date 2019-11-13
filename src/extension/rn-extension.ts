@@ -132,15 +132,15 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
     return ReactNativeProjectHelper.getReactNativeVersions(projectRootPath)
         .then(versions => {
-            outputChannelLogger.debug(`React Native version: ${versions["react-native"]}`);
+            outputChannelLogger.debug(`React Native version: ${versions.reactNativeVersion}`);
             let promises = [];
-            if (!versions["react-native"]) {
+            if (!versions.reactNativeVersion) {
                 outputChannelLogger.debug("react-native version is empty");
                 TelemetryHelper.sendErrorEvent(
                     "AddProjectReactNativeVersionIsEmpty",
                     ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion)
                 );
-            } else if (isSupportedVersion(versions["react-native"])) {
+            } else if (isSupportedVersion(versions.reactNativeVersion)) {
                 promises.push(entryPointHandler.runFunction("debugger.setupLauncherStub", ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () => {
                     let reactDirManager = new ReactDirManager(rootPath);
                     return setupAndDispose(reactDirManager, context)
@@ -165,7 +165,7 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                         return configureNodeDebuggerLocation();
                     }));
             } else {
-                outputChannelLogger.debug(`react-native@${versions["react-native"]} isn't supported`);
+                outputChannelLogger.debug(`react-native@${versions.reactNativeVersion} isn't supported`);
             }
 
             return Q.all(promises).then(() => {});

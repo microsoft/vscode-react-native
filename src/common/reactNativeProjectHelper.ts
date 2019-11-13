@@ -19,6 +19,11 @@ export interface PackageVersion {
     [packageName: string]: string;
 }
 
+export interface RNPackageVersions {
+    reactNativeVersion: string;
+    reactNativeWindowsVersion: string;
+}
+
 export class ReactNativeProjectHelper {
 
     public static getRNVersionsWithBrokenMetroBundler() {
@@ -26,43 +31,56 @@ export class ReactNativeProjectHelper {
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
 
-    public static getReactNativeVersions(
-        projectRoot: string,
-        parsedPackageNames: ParsedPackageName[] = [ {packageName: "react-native", isCoercion: true} ]
-    ): Q.Promise<PackageVersion> {
-        return ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(projectRoot, parsedPackageNames)
+    public static getReactNativeVersions(projectRoot: string, isRNWVersion: boolean = false): Q.Promise<RNPackageVersions> {
+        return ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(projectRoot, isRNWVersion)
             .catch(err => {
-                return ReactNativeProjectHelper.getReactNativeVersionsFromProjectPackage(projectRoot, parsedPackageNames);
+                return ReactNativeProjectHelper.getReactNativeVersionsFromProjectPackage(projectRoot, isRNWVersion);
             });
     }
 
-    public static getReactNativePackageVersionsFromNodeModules(
-        projectRoot: string,
-        parsedPackageNames: ParsedPackageName[] = [ {packageName: "react-native", isCoercion: true} ]
-    ): Q.Promise<PackageVersion> {
+    public static getReactNativePackageVersionsFromNodeModules(projectRoot: string, isRNWVersion: boolean = false): Q.Promise<RNPackageVersions> {
         let versionPromises: Q.Promise<PackageVersion>[] = [];
 
-        parsedPackageNames.forEach(parsedPackageName => {
-            versionPromises.push(
-                    new Package(projectRoot).dependencyPackage(parsedPackageName.packageName).version()
-                        .then(version => ({[parsedPackageName.packageName]: ReactNativeProjectHelper.processVersion(version, parsedPackageName.isCoercion)}))
-                        .catch(err => {
-                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
-                        })
-                );
-        });
+        versionPromises.push(
+            new Package(projectRoot).getPackageVersionFromNodeModules("react-native")
+                .then(version => ({["react-native"]: ReactNativeProjectHelper.processVersion(version, true)}))
+                .catch(err => {
+                    throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
+                })
+            );
 
-        return Q.all(versionPromises).then(packageVersions => {
-            return packageVersions.reduce((allPackageVersions, packageVersion) => {
-                return Object.assign(allPackageVersions, packageVersion);
-            }, {});
+        if (isRNWVersion) {
+            versionPromises.push(
+                new Package(projectRoot).getPackageVersionFromNodeModules("react-native-windows")
+                    .then(version => ({["react-native-windows"]: ReactNativeProjectHelper.processVersion(version, false)}))
+                    .catch(err => ({["react-native-windows"]: ""}))
+            );
+        }
+
+        return Q.all(versionPromises).then(packageVersions => ({
+            reactNativeVersion: packageVersions[0]["react-native"],
+            reactNativeWindowsVersion: (packageVersions[1] && packageVersions[1]["react-native-windows"]) || "",
+        }))
+        .then(versions => {
+            return versions;
         });
     }
 
-    public static getReactNativeVersionsFromProjectPackage(
-        cwd: string,
-        parsedPackageNames: ParsedPackageName[] = [ {packageName: "react-native", isCoercion: true} ]
-    ): Q.Promise<PackageVersion> {
+    public static getReactNativeVersionsFromProjectPackage(cwd: string, isRNWVersion: boolean = false): Q.Promise<RNPackageVersions> {
+        let parsedPackageNames: ParsedPackageName[] = [
+            {
+                packageName: "react-native",
+                isCoercion: true,
+            },
+        ];
+
+        if (isRNWVersion) {
+            parsedPackageNames.push({
+                packageName: "react-native-windows",
+                isCoercion: false,
+            });
+        }
+
         let versionPromises: Q.Promise<PackageVersion>[] = [];
 
         parsedPackageNames.forEach(parsedPackageName => {
@@ -88,11 +106,10 @@ export class ReactNativeProjectHelper {
                 );
         });
 
-        return Q.all(versionPromises).then(packageVersions => {
-            return packageVersions.reduce((allPackageVersions, packageVersion) => {
-                return Object.assign(allPackageVersions, packageVersion);
-            }, {});
-        });
+        return Q.all(versionPromises).then(packageVersions => ({
+            reactNativeVersion: packageVersions[0]["react-native"],
+            reactNativeWindowsVersion: (packageVersions[1] && packageVersions[1]["react-native-windows"]) || "",
+        }));
     }
 
     public static processVersion(version: string, isCoercion: boolean = true): string {
@@ -119,7 +136,7 @@ export class ReactNativeProjectHelper {
         }
         return this.getReactNativeVersions(projectRoot)
             .then(versions => {
-                return !!(versions["react-native"]);
+                return !!(versions.reactNativeVersion);
             });
     }
 

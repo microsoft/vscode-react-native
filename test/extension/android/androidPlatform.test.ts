@@ -33,7 +33,8 @@ suite("androidPlatform", function () {
             workspaceRoot: projectRoot,
             projectRoot: projectRoot,
             reactNativeVersions: {
-                ["react-native"]: "^0.19.0",
+                reactNativeVersion: "^0.19.0",
+                reactNativeWindowsVersion: "",
             },
         };
 
@@ -98,7 +99,7 @@ suite("androidPlatform", function () {
             });
 
             sandbox.stub(rnHelper.ReactNativeProjectHelper, "getReactNativeVersions", function () {
-                return Q.resolve({["react-native"]: "0.0.1"});
+                return Q.resolve({reactNativeVersion: "0.0.1", reactNativeWindowsVersion: ""});
             });
 
             androidPlatform.setAdbHelper(adbHelper);
@@ -224,7 +225,8 @@ suite("androidPlatform", function () {
                             projectRoot: projectRoot,
                             target: "Nexus_12",
                             reactNativeVersions: {
-                                ["react-native"]: "^0.19.0",
+                                reactNativeVersion: "^0.19.0",
+                                reactNativeWindowsVersion: "",
                             },
                         };
                         const platform = createAndroidPlatform(runOptions);
@@ -255,7 +257,8 @@ suite("androidPlatform", function () {
                             projectRoot: projectRoot,
                             target: "Nexus_12",
                             reactNativeVersions: {
-                                ["react-native"]: "^0.19.0",
+                                reactNativeVersion: "^0.19.0",
+                                reactNativeWindowsVersion: "",
                             },
                         };
                         const platform = createAndroidPlatform(runOptions);

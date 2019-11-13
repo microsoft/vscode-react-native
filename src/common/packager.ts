@@ -124,7 +124,7 @@ export class Packager {
 
             return ReactNativeProjectHelper.getReactNativeVersions(this.projectPath)
             .then((versions) => {
-                rnVersion = versions["react-native"];
+                rnVersion = versions.reactNativeVersion;
                 return this.monkeyPatchOpnForRNPackager(rnVersion);
             })
             .then((version) => {

@@ -28,10 +28,10 @@ export class PlistBuddy {
         return ReactNativeProjectHelper.getReactNativeVersions(projectRoot)
         .then((rnVersions) => {
             let productsFolder;
-            if (semver.gte(rnVersions["react-native"], "0.59.0")) {
+            if (semver.gte(rnVersions.reactNativeVersion, "0.59.0")) {
                 if (!scheme) {
                     // If no scheme were provided via runOptions.scheme or via runArguments then try to get scheme using the way RN CLI does.
-                    scheme = this.getInferredScheme(iosProjectRoot, projectRoot, rnVersions["react-native"]);
+                    scheme = this.getInferredScheme(iosProjectRoot, projectRoot, rnVersions.reactNativeVersion);
                 }
                 productsFolder = path.join(iosProjectRoot, "build", scheme, "Build", "Products");
             } else {
