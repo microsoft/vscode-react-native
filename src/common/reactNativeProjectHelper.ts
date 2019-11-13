@@ -12,7 +12,7 @@ import {InternalErrorCode} from "../common/error/internalErrorCode";
 
 export interface ParsedPackageName {
     packageName: string;
-    isCoercion: boolean;
+    useSemverCoerce: boolean;
 }
 
 export interface PackageVersion {
@@ -70,14 +70,14 @@ export class ReactNativeProjectHelper {
         let parsedPackageNames: ParsedPackageName[] = [
             {
                 packageName: "react-native",
-                isCoercion: true,
+                useSemverCoerce: true,
             },
         ];
 
         if (isRNWVersion) {
             parsedPackageNames.push({
                 packageName: "react-native-windows",
-                isCoercion: false,
+                useSemverCoerce: false,
             });
         }
 
@@ -89,12 +89,12 @@ export class ReactNativeProjectHelper {
                 return rootProjectPackageJson.dependencies()
                     .then(dependencies => {
                         if (dependencies[parsedPackageName.packageName]) {
-                            return {[parsedPackageName.packageName]: ReactNativeProjectHelper.processVersion(dependencies[parsedPackageName.packageName], parsedPackageName.isCoercion)};
+                            return {[parsedPackageName.packageName]: ReactNativeProjectHelper.processVersion(dependencies[parsedPackageName.packageName], parsedPackageName.useSemverCoerce)};
                         }
                         return rootProjectPackageJson.devDependencies()
                             .then(devDependencies => {
                                 if (devDependencies[parsedPackageName.packageName]) {
-                                    return {[parsedPackageName.packageName]: ReactNativeProjectHelper.processVersion(devDependencies[parsedPackageName.packageName], parsedPackageName.isCoercion)};
+                                    return {[parsedPackageName.packageName]: ReactNativeProjectHelper.processVersion(devDependencies[parsedPackageName.packageName], parsedPackageName.useSemverCoerce)};
                                 }
                                 return {[parsedPackageName.packageName]: ""};
                             });
@@ -112,12 +112,12 @@ export class ReactNativeProjectHelper {
         }));
     }
 
-    public static processVersion(version: string, isCoercion: boolean = true): string {
+    public static processVersion(version: string, useSemverCoerce: boolean = true): string {
         try {
             return new URL(version) && "SemverInvalid: URL";
         } catch (err) {
             let versionObj;
-            if (isCoercion) {
+            if (useSemverCoerce) {
                 versionObj = semver.coerce(version);
             } else {
                 versionObj = semver.clean(version, { loose: true });
