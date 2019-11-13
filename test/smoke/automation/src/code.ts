@@ -378,3 +378,12 @@ export function findElements(element: IElement, fn: (element: IElement) => boole
 
     return result;
 }
+
+export async function sleep(time: number) {
+    await new Promise(resolve => {
+        const timer = setTimeout(() => {
+            clearTimeout(timer);
+            resolve();
+        }, time);
+    });
+}

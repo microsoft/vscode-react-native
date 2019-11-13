@@ -3,7 +3,7 @@
 
 import { Viewlet } from "./viewlet";
 import { Commands } from "./workbench";
-import { Code, findElement } from "./code";
+import { Code, findElement, sleep } from "./code";
 import { Editors } from "./editors";
 import { Editor } from "./editor";
 import { IElement } from "../src/driver";
@@ -166,9 +166,12 @@ export class Debug extends Viewlet {
     // For correct work opened and selected Expo QR Code tab is needed
     public async prepareExpoURLToClipboard() {
         const controlKey = process.platform === "darwin" ? "cmd" : "ctrl";
+        await sleep(2000);
         this.code.dispatchKeybinding(`${controlKey}+a`);
         console.log("Expo QR Code tab text prepared to be copied");
+        await sleep(1000);
         this.code.dispatchKeybinding(`${controlKey}+c`);
+        await sleep(2000);
         let copiedText = clipboardy.readSync();
         console.log(`Expo QR Code tab text copied: \n ${copiedText}`);
         const match = copiedText.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
