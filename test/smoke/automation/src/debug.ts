@@ -165,9 +165,10 @@ export class Debug extends Viewlet {
     // Gets Expo URL from VS Code Expo QR Code tab
     // For correct work opened and selected Expo QR Code tab is needed
     public async prepareExpoURLToClipboard() {
-        this.commands.runCommand("editor.action.webvieweditor.selectAll");
+        const controlKey = process.platform === "darwin" ? "cmd" : "ctrl";
+        this.code.dispatchKeybinding(`${controlKey}+a`);
         console.log("Expo QR Code tab text prepared to be copied");
-        this.commands.runCommand("editor.action.clipboardCopyAction");
+        this.code.dispatchKeybinding(`${controlKey}+c`);
         let copiedText = clipboardy.readSync();
         console.log(`Expo QR Code tab text copied: \n ${copiedText}`);
         const match = copiedText.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);

@@ -155,12 +155,12 @@ export function setup(testParameters?: TestRunArguments) {
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
             // TODO Add listener to trigger that main expo app has been ran
-            // await AppiumHelper.openExpoApplication(Platform.Android, clientInited, app.client.spectron.electron.clipboard, expoURL);
+            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL);
             // TODO Add listener to trigger that child expo app has been ran instead of using timeout
             console.log(`Android Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
-            // await app.workbench.debug.waitForDebuggingToStart();
+            await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Expo Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for App.js and line ${ExpoSetBreakpointOnLine}`);
             console.log("Android Expo Debug test: Stack frame found");
@@ -192,27 +192,27 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`Android pure RN Expo test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             console.log("Android pure RN Expo test: Starting debugging");
             await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
-            // await app.workbench.waitForTab("Expo QR Code");
-            // await app.workbench.waitForActiveTab("Expo QR Code");
+            await app.workbench.editors.waitForTab("Expo QR Code");
+            await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("Android pure RN Expo test: 'Expo QR Code' tab found");
-            // await app.workbench.selectTab("Expo QR Code");
+            await app.workbench.editors.selectTab("Expo QR Code");
             console.log("Android pure RN Expo test: 'Expo QR Code' tab selected");
-            // let expoURL;
-            // for (let retries = 0; retries < 5; retries++) {
-            //     await app.workbench.selectTab("Expo QR Code");
-            //     expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
-            //     if (expoURL) break;
-            // }
-            // assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
-            // expoURL = expoURL as string;
+            let expoURL;
+            for (let retries = 0; retries < 5; retries++) {
+                await app.workbench.editors.selectTab("Expo QR Code");
+                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+                if (expoURL) break;
+            }
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
-            // await AppiumHelper.openExpoApplication(Platform.Android, clientInited, app.client.spectron.electron.clipboard, expoURL);
+            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL);
             console.log(`Android pure RN Expo test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
-            // await app.workbench.debug.waitForDebuggingToStart();
+            await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android pure RN Expo test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === PureRNExpoSetBreakpointOnLine, `looking for App.js and line ${PureRNExpoSetBreakpointOnLine}`);
             console.log("Android pure RN Expo test: Stack frame found");
@@ -220,8 +220,8 @@ export function setup(testParameters?: TestRunArguments) {
             // Wait for debug string to be rendered in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("Android pure RN Expo test: Searching for \"Test output from debuggee\" string in console");
-            // let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
-            // assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
+            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
+            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("Android pure RN Expo test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("Android pure RN Expo test: Debugging is stopped");

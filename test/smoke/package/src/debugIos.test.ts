@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { AppiumHelper, AppiumClient } from "./helpers/appiumHelper";
+import * as assert from "assert";
+import { AppiumHelper, AppiumClient, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { RNworkspacePath, runVSCode, ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
@@ -51,17 +52,16 @@ export function setup(testParameters?: TestRunArguments) {
             SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
             console.log("iOS Debug test: Starting debugging");
             await app.workbench.debug.runDebugScenario(RNDebugConfigName);
+
             await IosSimulatorHelper.waitUntilIosAppIsInstalled(RnAppBundleId, SmokeTestsConstants.iosAppBuildAndInstallTimeout, 40 * 1000);
-            // Sometimes by this moment iOS app already have remote js debugging enabled so we don't need to enable it manually
-            // if (!await app.workbench.debug.areStackFramesExist()) {
-            //     const device = <string>IosSimulatorHelper.getDevice();
-            //     const appPath = `${RNworkspacePath}/ios/build/${SmokeTestsConstants.RNAppName}/Build/Products/Debug-iphonesimulator/${SmokeTestsConstants.RNAppName}.app`;
-            //     const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
-            //     let client = AppiumHelper.webdriverAttach(opts);
-            //     clientInited = client.init();
-            //     await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS);
-            //     await sleep(5 * 1000);
-            // }
+            const device = <string>IosSimulatorHelper.getDevice();
+            const appPath = `${RNworkspacePath}/ios/build/${SmokeTestsConstants.RNAppName}/Build/Products/Debug-iphonesimulator/${SmokeTestsConstants.RNAppName}.app`;
+            const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
+            let client = AppiumHelper.webdriverAttach(opts);
+            clientInited = client.init();
+            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS);
+            await sleep(5 * 1000);
+
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("iOS Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
@@ -70,8 +70,8 @@ export function setup(testParameters?: TestRunArguments) {
             // Wait for our debug string to render in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("iOS Debug test: Searching for \"Test output from debuggee\" string in console");
-            // let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
-            // assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
+            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
+            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("iOS Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("iOS Debug test: Debugging is stopped");
@@ -98,19 +98,19 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
             const device = <string>IosSimulatorHelper.getDevice();
             await sleep(5 * 1000);
-            // await app.workbench.waitForTab("Expo QR Code");
-            // await app.workbench.waitForActiveTab("Expo QR Code");
+            await app.workbench.editors.waitForTab("Expo QR Code");
+            await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("iOS Expo Debug test: 'Expo QR Code' tab found");
-            // await app.workbench.selectTab("Expo QR Code");
+            await app.workbench.editors.selectTab("Expo QR Code");
             console.log("iOS Expo Debug test: 'Expo QR Code' tab selected");
-            // let expoURL;
-            // for (let retries = 0; retries < 5; retries++) {
-            //     await app.workbench.selectTab("Expo QR Code");
-            //     expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
-            //     if (expoURL) break;
-            // }
-            // assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
-            // expoURL = expoURL as string;
+            let expoURL;
+            for (let retries = 0; retries < 5; retries++) {
+                await app.workbench.editors.selectTab("Expo QR Code");
+                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+                if (expoURL) break;
+            }
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            expoURL = expoURL as string;
             let appFile = findFile(SetupEnvironmentHelper.iOSExpoAppsCacheDir, /.*\.(app)/);
             if (!appFile) {
                 throw new Error(`iOS Expo app is not found in ${SetupEnvironmentHelper.iOSExpoAppsCacheDir}`);
@@ -122,14 +122,13 @@ export function setup(testParameters?: TestRunArguments) {
             // await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, app.client.spectron.electron.clipboard, expoURL);
             console.log(`iOS Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
-            // Sometimes by this moment iOS app already have remote js debugging enabled so we don't need to enable it manually
-            // if (!await app.workbench.debug.areStackFramesExist()) {
-            //     await AppiumHelper.disableExpoErrorRedBox(clientInited);
-            //     await AppiumHelper.disableDevMenuInformationalMsg(clientInited);
-            //     await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS_Expo);
-            //     await sleep(5 * 1000);
-            // }
-            // await app.workbench.debug.waitForDebuggingToStart();
+
+            await AppiumHelper.disableExpoErrorRedBox(clientInited);
+            await AppiumHelper.disableDevMenuInformationalMsg(clientInited);
+            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS_Expo);
+            await sleep(5 * 1000);
+
+            await app.workbench.debug.waitForDebuggingToStart();
             console.log("iOS Expo Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for App.js and line ${ExpoSetBreakpointOnLine}`);
             console.log("iOS Expo Debug test: Stack frame found");
@@ -137,8 +136,8 @@ export function setup(testParameters?: TestRunArguments) {
             // Wait for our debug string to render in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("iOS Expo Debug test: Searching for \"Test output from debuggee\" string in console");
-            // let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
-            // assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
+            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
+            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("iOS Expo Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("iOS Expo Debug test: Debugging is stopped");
@@ -165,19 +164,19 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
             const device = <string>IosSimulatorHelper.getDevice();
             await sleep(5 * 1000);
-            // await app.workbench.waitForTab("Expo QR Code");
-            // await app.workbench.waitForActiveTab("Expo QR Code");
+            await app.workbench.editors.waitForTab("Expo QR Code");
+            await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("iOS pure RN Expo test: 'Expo QR Code' tab found");
-            // await app.workbench.selectTab("Expo QR Code");
-            // console.log("iOS pure RN Expo test: 'Expo QR Code' tab selected");
-            // let expoURL;
-            // for (let retries = 0; retries < 5; retries++) {
-            //     await app.workbench.selectTab("Expo QR Code");
-            //     expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
-            //     if (expoURL) break;
-            // }
-            // assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
-            // expoURL = expoURL as string;
+            await app.workbench.editors.selectTab("Expo QR Code");
+            console.log("iOS pure RN Expo test: 'Expo QR Code' tab selected");
+            let expoURL;
+            for (let retries = 0; retries < 5; retries++) {
+                await app.workbench.editors.selectTab("Expo QR Code");
+                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+                if (expoURL) break;
+            }
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            expoURL = expoURL as string;
             let appFile = findFile(SetupEnvironmentHelper.iOSExpoAppsCacheDir, /.*\.(app)/);
             if (!appFile) {
                 throw new Error(`iOS Expo app is not found in ${SetupEnvironmentHelper.iOSExpoAppsCacheDir}`);
@@ -186,17 +185,16 @@ export function setup(testParameters?: TestRunArguments) {
             const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
-            // await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, app.client.spectron.electron.clipboard, expoURL);
+            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL);
             console.log(`iOS pure RN Expo test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
-            // Sometimes by this moment iOS app already have remote js debugging enabled so we don't need to enable it manually
-            // if (!await app.workbench.debug.areStackFramesExist()) {
-            //     await AppiumHelper.disableExpoErrorRedBox(clientInited);
-            //     await AppiumHelper.disableDevMenuInformationalMsg(clientInited);
-            //     await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS_Expo);
-            //     await sleep(5 * 1000);
-            // }
-            // await app.workbench.debug.waitForDebuggingToStart();
+
+            await AppiumHelper.disableExpoErrorRedBox(clientInited);
+            await AppiumHelper.disableDevMenuInformationalMsg(clientInited);
+            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS_Expo);
+            await sleep(5 * 1000);
+
+            await app.workbench.debug.waitForDebuggingToStart();
             console.log("iOS pure RN Expo test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === PureRNExpoSetBreakpointOnLine, `looking for App.js and line ${PureRNExpoSetBreakpointOnLine}`);
             console.log("iOS pure RN Expo test: Stack frame found");
@@ -204,8 +202,8 @@ export function setup(testParameters?: TestRunArguments) {
             // Wait for our debug string to render in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("iOS pure RN Expo test: Searching for \"Test output from debuggee\" string in console");
-            // let found = await app.workbench.debug.findStringInConsole("Test output from debuggee", 10 * 1000);
-            // assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
+            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
+            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("iOS pure RN Expo test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.stopDebugging();
             console.log("iOS pure RN Expo test: Debugging is stopped");
