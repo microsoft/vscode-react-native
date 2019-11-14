@@ -101,14 +101,10 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.editors.waitForTab("Expo QR Code");
             await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("iOS Expo Debug test: 'Expo QR Code' tab found");
-            await app.workbench.editors.selectTab("Expo QR Code");
-            console.log("iOS Expo Debug test: 'Expo QR Code' tab selected");
+
             let expoURL;
-            for (let retries = 0; retries < 5; retries++) {
-                await app.workbench.editors.selectTab("Expo QR Code");
-                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
-                if (expoURL) break;
-            }
+            expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
             let appFile = findFile(SetupEnvironmentHelper.iOSExpoAppsCacheDir, /.*\.(app)/);
@@ -167,14 +163,10 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.editors.waitForTab("Expo QR Code");
             await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("iOS pure RN Expo test: 'Expo QR Code' tab found");
-            await app.workbench.editors.selectTab("Expo QR Code");
-            console.log("iOS pure RN Expo test: 'Expo QR Code' tab selected");
+
             let expoURL;
-            for (let retries = 0; retries < 5; retries++) {
-                await app.workbench.editors.selectTab("Expo QR Code");
-                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
-                if (expoURL) break;
-            }
+            expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
             let appFile = findFile(SetupEnvironmentHelper.iOSExpoAppsCacheDir, /.*\.(app)/);

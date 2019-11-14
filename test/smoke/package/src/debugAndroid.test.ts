@@ -101,21 +101,22 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Debug Hermes test: Checking for Hermes mark");
             let isHermesWorking = await AppiumHelper.isHermesWorking(clientInited);
             assert.equal(isHermesWorking, true);
-            console.log("Android Debug Hermes test: Click Test Button");
-            await AppiumHelper.clickTestButtonHermes(clientInited);
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "AppTestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`);
-            console.log("Android Debug Hermes test: Stack frame found");
-            await app.workbench.debug.stepOver();
-            // await for our debug string renders in debug console
-            await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log("Android Debug Hermes test: Searching for \"Test output from Hermes debuggee\" string in console");
-            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
-            assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in debug console");
-            console.log("Android Debug test: \"Test output from Hermes debuggee\" string is found");
             console.log("Android Debug Hermes test: Reattaching to Hermes app");
             await app.workbench.debug.stopDebugging();
             await app.workbench.debug.runDebugScenario(RNHermesAttachConfigName);
             console.log("Android Debug Hermes test: Reattached successfully");
+            await sleep(7000);
+            console.log("Android Debug Hermes test: Click Test Button");
+            await AppiumHelper.clickTestButtonHermes(clientInited);
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "AppTestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`);
+            console.log("Android Debug Hermes test: Stack frame found");
+            await app.workbench.debug.continue();
+            // await for our debug string renders in debug console
+            await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
+            console.log("Android Debug Hermes test: Searching for \"Test output from Hermes debuggee\" string in console");
+            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0), ".info");
+            assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in debug console");
+            console.log("Android Debug test: \"Test output from Hermes debuggee\" string is found");
             await app.workbench.debug.disconnectFromDebugger();
             console.log("Android Debug Hermes test: Debugging is stopped");
         });
@@ -140,14 +141,10 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.editors.waitForTab("Expo QR Code");
             await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("Android Expo Debug test: 'Expo QR Code' tab found");
-            await app.workbench.editors.selectTab("Expo QR Code");
-            console.log("Android Expo Debug test: 'Expo QR Code' tab selected");
+
             let expoURL;
-            for (let retries = 0; retries < 5; retries++) {
-                await app.workbench.editors.selectTab("Expo QR Code");
-                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
-                if (expoURL) break;
-            }
+            expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
@@ -194,14 +191,10 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.editors.waitForTab("Expo QR Code");
             await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("Android pure RN Expo test: 'Expo QR Code' tab found");
-            await app.workbench.editors.selectTab("Expo QR Code");
-            console.log("Android pure RN Expo test: 'Expo QR Code' tab selected");
+
             let expoURL;
-            for (let retries = 0; retries < 5; retries++) {
-                await app.workbench.editors.selectTab("Expo QR Code");
-                expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
-                if (expoURL) break;
-            }
+            expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);

@@ -3,7 +3,7 @@
 
 import { Viewlet } from "./viewlet";
 import { Commands } from "./workbench";
-import { Code, findElement, sleep } from "./code";
+import { Code, findElement } from "./code";
 import { Editors } from "./editors";
 import { Editor } from "./editor";
 import { IElement } from "../src/driver";
@@ -30,7 +30,7 @@ const VARIABLE = `${VIEWLET} .debug-variables .monaco-list-row .expression`;
 const CONSOLE_OUTPUT = `.repl .output.expression .value`;
 const CONSOLE_EVALUATION_RESULT = `.repl .evaluation-result.expression .value`;
 const CONSOLE_LINK = `.repl .value a.link`;
-const OUTPUT_CHANNEL = `div[id="workbench.panel.output"] .view-line`;
+const OUTPUT_CHANNEL = `.view-line .mtk1`;
 
 const REPL_FOCUSED = ".repl-input-wrapper .monaco-editor textarea";
 
@@ -158,8 +158,8 @@ export class Debug extends Viewlet {
         await this.code.waitForElement(CONSOLE_LINK);
     }
 
-    public async waitForOutput(fn: (output: string[]) => boolean): Promise<string[]> {
-        const elements = await this.code.waitForElements(CONSOLE_OUTPUT, false, elements => fn(elements.map(e => e.textContent)));
+    public async waitForOutput(fn: (output: string[]) => boolean, msgType?: string): Promise<string[]> {
+        const elements = await this.code.waitForElements(msgType ? CONSOLE_OUTPUT + msgType: CONSOLE_OUTPUT, false, elements => fn(elements.map(e => e.textContent)));
         return elements.map(e => e.textContent);
     }
 
@@ -172,7 +172,7 @@ export class Debug extends Viewlet {
     // For correct work opened and selected Expo QR Code tab is needed
     public async prepareExpoURLToClipboard() {
         this.quickopen.openQuickOpen();
-        this.quickopen.submit("React Native: Run exponent");
+        this.quickopen.submit("view React Native: Run exponent");
         let expoURL = null;
         this.getOutputChannelContent(output => output.some(line => {
             let match = line.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
