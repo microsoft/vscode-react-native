@@ -30,6 +30,7 @@ const VARIABLE = `${VIEWLET} .debug-variables .monaco-list-row .expression`;
 const CONSOLE_OUTPUT = `.repl .output.expression .value`;
 const CONSOLE_EVALUATION_RESULT = `.repl .evaluation-result.expression .value`;
 const CONSOLE_LINK = `.repl .value a.link`;
+const OUTPUT_CHANNEL = `div[id="workbench.panel.output"] .view-line`;
 
 const REPL_FOCUSED = ".repl-input-wrapper .monaco-editor textarea";
 
@@ -162,22 +163,27 @@ export class Debug extends Viewlet {
         return elements.map(e => e.textContent);
     }
 
+    public async getOutputChannelContent(fn: (output: string[]) => boolean): Promise<string[]> {
+        const elements = await this.code.waitForElements(OUTPUT_CHANNEL, false, elements => fn(elements.map(e => e.textContent)));
+        return elements.map(e => e.textContent);
+    }
+
     // Gets Expo URL from VS Code Expo QR Code tab
     // For correct work opened and selected Expo QR Code tab is needed
     public async prepareExpoURLToClipboard() {
-        const controlKey = process.platform === "darwin" ? "cmd" : "ctrl";
-        await sleep(2000);
-        this.code.dispatchKeybinding(`${controlKey}+a`);
-        console.log("Expo QR Code tab text prepared to be copied");
-        await sleep(1000);
-        this.code.dispatchKeybinding(`${controlKey}+c`);
-        await sleep(2000);
-        let copiedText = clipboardy.readSync();
-        console.log(`Expo QR Code tab text copied: \n ${copiedText}`);
-        const match = copiedText.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
-        if (!match) return null;
-        let expoURL = match[0];
-        console.log(`Found Expo URL: ${expoURL}`);
+        this.quickopen.openQuickOpen();
+        this.quickopen.submit("React Native: Run exponent");
+        let expoURL = null;
+        this.getOutputChannelContent(output => output.some(line => {
+            let match = line.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
+            if (match) {
+                expoURL = match[0];
+                clipboardy.writeSync(expoURL);
+                console.log(`Found Expo URL: ${expoURL}`);
+                return true;
+            }
+            return false;
+        }));
         return expoURL;
     }
 }

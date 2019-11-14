@@ -101,22 +101,21 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Debug Hermes test: Checking for Hermes mark");
             let isHermesWorking = await AppiumHelper.isHermesWorking(clientInited);
             assert.equal(isHermesWorking, true);
-            console.log("Android Debug Hermes test: Reattaching to Hermes app");
-            await app.workbench.debug.stopDebugging();
-            await app.workbench.debug.runDebugScenario(RNHermesAttachConfigName);
-            console.log("Android Debug Hermes test: Reattached successfully");
-            await sleep(7000);
             console.log("Android Debug Hermes test: Click Test Button");
             await AppiumHelper.clickTestButtonHermes(clientInited);
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "AppTestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`);
             console.log("Android Debug Hermes test: Stack frame found");
-            await app.workbench.debug.continue();
+            await app.workbench.debug.stepOver();
             // await for our debug string renders in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("Android Debug Hermes test: Searching for \"Test output from Hermes debuggee\" string in console");
             let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in debug console");
             console.log("Android Debug test: \"Test output from Hermes debuggee\" string is found");
+            console.log("Android Debug Hermes test: Reattaching to Hermes app");
+            await app.workbench.debug.stopDebugging();
+            await app.workbench.debug.runDebugScenario(RNHermesAttachConfigName);
+            console.log("Android Debug Hermes test: Reattached successfully");
             await app.workbench.debug.disconnectFromDebugger();
             console.log("Android Debug Hermes test: Debugging is stopped");
         });
