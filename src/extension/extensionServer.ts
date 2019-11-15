@@ -233,14 +233,12 @@ export class ExtensionServer implements vscode.Disposable {
                 };
             }
 
-            // ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, mobilePlatformOptions.platform === "windows")
             ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true)
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
-                    extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions.reactNativeVersion, extProps);
-                    // if (mobilePlatformOptions.platform === "windows") {
+                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
                     if (versions.reactNativeWindowsVersion) {
-                        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions.reactNativeWindowsVersion, extProps, "reactNativeWindowsVersion");
+                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
                     TelemetryHelper.generate("launch", extProps, (generator) => {
                         generator.step("checkPlatformCompatibility");

@@ -27,14 +27,14 @@ export class ReactNativeProjectHelper {
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
 
-    public static getReactNativeVersions(projectRoot: string, isRNWVersion: boolean = false): Q.Promise<RNPackageVersions> {
-        return ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(projectRoot, isRNWVersion)
+    public static getReactNativeVersions(projectRoot: string, isRNWindows: boolean = false): Q.Promise<RNPackageVersions> {
+        return ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(projectRoot, isRNWindows)
             .catch(err => {
-                return ReactNativeProjectHelper.getReactNativeVersionsFromProjectPackage(projectRoot, isRNWVersion);
+                return ReactNativeProjectHelper.getReactNativeVersionsFromProjectPackage(projectRoot, isRNWindows);
             });
     }
 
-    public static getReactNativePackageVersionsFromNodeModules(projectRoot: string, isRNWVersion: boolean = false): Q.Promise<RNPackageVersions> {
+    public static getReactNativePackageVersionsFromNodeModules(projectRoot: string, isRNWindows: boolean = false): Q.Promise<RNPackageVersions> {
         let versionPromises: Q.Promise<string>[] = [];
 
         versionPromises.push(
@@ -45,7 +45,7 @@ export class ReactNativeProjectHelper {
                 })
             );
 
-        if (isRNWVersion) {
+        if (isRNWindows) {
             versionPromises.push(
                 new Package(projectRoot).getPackageVersionFromNodeModules("react-native-windows")
                     .then(version => ReactNativeProjectHelper.processVersion(version, false))
@@ -54,12 +54,12 @@ export class ReactNativeProjectHelper {
         }
 
         return Q.all(versionPromises).then(packageVersions => ({
-            reactNativeVersion: packageVersions[0],
+            reactNativeVersion: packageVersions[0] || "",
             reactNativeWindowsVersion: packageVersions[1] || "",
         }));
     }
 
-    public static getReactNativeVersionsFromProjectPackage(cwd: string, isRNWVersion: boolean = false): Q.Promise<RNPackageVersions> {
+    public static getReactNativeVersionsFromProjectPackage(cwd: string, isRNWindows: boolean = false): Q.Promise<RNPackageVersions> {
         let parsedPackageNames: ParsedPackageName[] = [
             {
                 packageName: "react-native",
@@ -67,42 +67,41 @@ export class ReactNativeProjectHelper {
             },
         ];
 
-        if (isRNWVersion) {
+        if (isRNWindows) {
             parsedPackageNames.push({
                 packageName: "react-native-windows",
                 useSemverCoerce: false,
             });
         }
 
-        let versionPromises: Q.Promise<string>[] = [];
+        const rootProjectPackageJson = new Package(cwd);
 
-        parsedPackageNames.forEach(parsedPackageName => {
-            versionPromises.push((() => {
-                const rootProjectPackageJson = new Package(cwd);
-                return rootProjectPackageJson.dependencies()
-                    .then(dependencies => {
-                        if (dependencies[parsedPackageName.packageName]) {
-                            return ReactNativeProjectHelper.processVersion(dependencies[parsedPackageName.packageName], parsedPackageName.useSemverCoerce);
-                        }
-                        return rootProjectPackageJson.devDependencies()
-                            .then(devDependencies => {
-                                if (devDependencies[parsedPackageName.packageName]) {
-                                    return ReactNativeProjectHelper.processVersion(devDependencies[parsedPackageName.packageName], parsedPackageName.useSemverCoerce);
-                                }
-                                return "";
-                            });
-                    })
-                    .catch(err => {
-                        return "";
+        return rootProjectPackageJson.dependencies()
+            .then(dependencies => {
+                return rootProjectPackageJson.devDependencies()
+                    .then(devDependencies => {
+                        let versionPromises: Q.Promise<string>[] = [];
+                        parsedPackageNames.forEach(parsedPackageName => {
+                            versionPromises.push(
+                                Q.Promise<string>((resolve, reject) => {
+                                    if (dependencies[parsedPackageName.packageName]) {
+                                        resolve(ReactNativeProjectHelper.processVersion(dependencies[parsedPackageName.packageName], parsedPackageName.useSemverCoerce));
+                                    }
+                                    if (devDependencies[parsedPackageName.packageName]) {
+                                        resolve(ReactNativeProjectHelper.processVersion(devDependencies[parsedPackageName.packageName], parsedPackageName.useSemverCoerce));
+                                    }
+                                    resolve("");
+                                })
+                                .catch(err => "")
+                            );
+                        });
+
+                        return Q.all(versionPromises).then(packageVersions => ({
+                            reactNativeVersion: packageVersions[0],
+                            reactNativeWindowsVersion: packageVersions[1] || "",
+                        }));
                     });
-                })()
-            );
-        });
-
-        return Q.all(versionPromises).then(packageVersions => ({
-            reactNativeVersion: packageVersions[0],
-            reactNativeWindowsVersion: packageVersions[1] || "",
-        }));
+            });
     }
 
     public static processVersion(version: string, useSemverCoerce: boolean = true): string {
@@ -110,10 +109,12 @@ export class ReactNativeProjectHelper {
             return new URL(version) && "SemverInvalid: URL";
         } catch (err) {
             let versionObj;
+            // As some of 'react-native-windows' versions contain postfixes we cannot use 'coerce' function to parse them
+            // as some critical parts of the will be dropped. To save this information we use 'clean' function
             if (useSemverCoerce) {
                 versionObj = semver.coerce(version);
             } else {
-                versionObj = semver.clean(version.replace(/[\^~]/g, ""), { loose: true });
+                versionObj = semver.clean(version.replace(/[\^~<>]/g, ""), { loose: true });
             }
             return (versionObj && versionObj.toString()) || "SemverInvalid";
         }

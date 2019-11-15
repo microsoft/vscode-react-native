@@ -73,9 +73,9 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null , 2)}`);
                 return ReactNativeProjectHelper.getReactNativeVersions(launchArgs.cwd, launchArgs.platform === "windows")
                     .then(versions => {
-                        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions.reactNativeVersion, extProps);
+                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
                         if (launchArgs.platform === "windows") {
-                            extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions.reactNativeWindowsVersion, extProps, "reactNativeWindowsVersion");
+                            extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("launch", extProps, (generator) => {
                             return this.remoteExtension.launch({ "arguments": launchArgs })
@@ -118,9 +118,9 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null , 2)}`);
                 return ReactNativeProjectHelper.getReactNativeVersions(attachArgs.cwd, true)
                     .then(versions => {
-                        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions.reactNativeVersion, extProps);
+                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
                         if (versions.reactNativeWindowsVersion) {
-                            extProps = TelemetryHelper.addReactNativeVersionToEventProperties(versions.reactNativeWindowsVersion, extProps, "reactNativeWindowsVersion");
+                            extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
                             return this.remoteExtension.getPackagerPort(attachArgs.cwd)

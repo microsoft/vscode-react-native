@@ -32,9 +32,9 @@ export class TelemetryHelper {
         return { value: String(propertyValue), isPii: pii || false };
     }
 
-    public static addReactNativeVersionToEventProperties(reactNativeVersion: string, properties: ICommandTelemetryProperties = {}, reactNativeVersionPropName = "reactNativeVersion"): any {
-        properties[reactNativeVersionPropName] = {
-            value: reactNativeVersion,
+    public static addPropertyToTelemetryProperties(propValue: any, propName: string, properties: ICommandTelemetryProperties = {}): any {
+        properties[propName] = {
+            value: propValue,
             isPii: false,
         };
 

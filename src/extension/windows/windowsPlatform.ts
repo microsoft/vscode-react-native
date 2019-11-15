@@ -9,7 +9,6 @@ import {IWindowsRunOptions} from "../launchArgs";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
-import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 
 /**
@@ -41,8 +40,8 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             },
         };
 
-        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersions.reactNativeVersion, extProps);
-        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersions.reactNativeWindowsVersion, extProps, "reactNativeWindowsVersion");
+        extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
+        extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
 
         return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
             const env = this.getEnvArgument();
@@ -51,16 +50,13 @@ export class WindowsPlatform extends GeneralMobilePlatform {
                 this.runArguments.push("--proxy");
             }
 
-            return ReactNativeProjectHelper.getReactNativeVersions(this.runOptions.projectRoot)
-                .then(versions => {
-                    if (!semver.valid(versions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(versions.reactNativeVersion, WindowsPlatform.NO_PACKAGER_VERSION)) {
-                        this.runArguments.push("--no-packager");
-                    }
+            if (!semver.valid(this.runOptions.reactNativeVersions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(this.runOptions.reactNativeVersions.reactNativeVersion, WindowsPlatform.NO_PACKAGER_VERSION)) {
+                this.runArguments.push("--no-packager");
+            }
 
-                    const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
-                    return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), this.platformName)
-                        .process(runWindowsSpawn);
-                });
+            const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
+            return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), this.platformName)
+                .process(runWindowsSpawn);
         });
     }
 

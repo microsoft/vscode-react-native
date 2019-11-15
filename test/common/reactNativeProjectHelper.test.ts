@@ -104,6 +104,12 @@ suite("reactNativeProjectHelper", function() {
 
         assert.equal(ReactNativeProjectHelper.processVersion("^0.60.0-vnext.68", false), "0.60.0-vnext.68");
         assert.equal(ReactNativeProjectHelper.processVersion("=v0.60.0-vnext.68", false), "0.60.0-vnext.68");
+        assert.equal(ReactNativeProjectHelper.processVersion("1.0.0 - 2.9999.9999", false), "SemverInvalid");
+        assert.equal(ReactNativeProjectHelper.processVersion("latest", false), "SemverInvalid");
+        assert.equal(ReactNativeProjectHelper.processVersion("~1.2", false), "SemverInvalid");
+        assert.equal(ReactNativeProjectHelper.processVersion("2.x", false), "SemverInvalid");
+        assert.equal(ReactNativeProjectHelper.processVersion(">=1.0.2", false), "1.0.2");
+        assert.equal(ReactNativeProjectHelper.processVersion("<3.0.0", false), "3.0.0");
 
         assert.equal(ReactNativeProjectHelper.processVersion("0.61.0-rc.0"), "0.61.0");
         assert.equal(ReactNativeProjectHelper.processVersion("~1.2.3-beta.1"), "1.2.3");
