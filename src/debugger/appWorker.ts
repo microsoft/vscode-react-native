@@ -221,8 +221,8 @@ function fetch(url) {
         if (!this.sourcesStoragePath)
             throw ErrorHelper.getInternalError(InternalErrorCode.SourcesStoragePathIsNullOrEmpty);
         this.webSocketConstructor = webSocketConstructor;
-        this.DOM_LOCATION_STUB = `// https://github.com/callstack/haul/blob/7cd75dfc0775c5a31a32b2965883ed174cee6aef/packages/haul-core/assets/debuggerWorker.js#L123
-// Since Haul 0.14.2 version it relies on DOM location object presence in global object
+        this.DOM_LOCATION_STUB = `// https://github.com/callstack/haul/pull/641/files#diff-7819345467dc6ec57baa550e3f60938cR123
+// Since Haul 0.13.0 version it relies on DOM location object presence in global object
 // but since worker is ran as a Node process it doesn't have a location, so we add it
 if (self.location) {
     return;
