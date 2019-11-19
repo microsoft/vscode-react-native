@@ -67,7 +67,7 @@ function getNativeModules() {
             for (var i = 0; i < ids.length; i++) {
               if (modules[ids[i]].verboseName) {
                  var packagePath = new String(modules[ids[i]].verboseName);
-                 if (packagePath.indexOf("react-native/Libraries/BatchedBridge/NativeModules.js") > 0) {
+                 if (packagePath.indexOf('react-native/Libraries/BatchedBridge/NativeModules.js') > 0) {
                    nativeModuleId = parseInt(ids[i], 10);
                    break;
                  }
@@ -117,10 +117,10 @@ if (!self.postMessage) {
 }
 
 var importScripts = (function(){
-    var fs=require('fs'), vm=require('vm');
+    var fs=require('fs'), vm=require('vm'), url=require('url');
     return function(scriptUrl){
-        scriptUrl = new URL(scriptUrl);
-        var scriptCode = fs.readFileSync(scriptUrl.pathname, "utf8");
+        scriptUrl = url.fileURLToPath(scriptUrl);
+        var scriptCode = fs.readFileSync(scriptUrl, 'utf8');
         // Add a 'debugger;' statement to stop code execution
         // to wait for the sourcemaps to be processed by the debug adapter
         vm.runInThisContext('debugger;' + scriptCode, {filename: scriptUrl});
@@ -165,26 +165,28 @@ Object.prototype.toString = function() {
 postMessage({workerLoaded:true});`;
 
     public static FETCH_STUB = `(function(self) {
-        'use strict';
+'use strict';
 
-        if (self.fetch) {
-          return
-        }
+if (self.fetch) {
+    return;
+}
 
-        self.fetch = fetch;
+self.fetch = fetch;
 
-        function fetch(url) {
-            return new Promise((resolve, reject) => {
-                var data = require("fs").readFileSync(url, 'utf8');
-                resolve(
-                    {
-                        text: function () {
-                            return data;
-                        }
-                    });
+function fetch(url) {
+    return new Promise((resolve, reject) => {
+        var data = require('fs').readFileSync(url, 'utf8');
+        resolve(
+            {
+                text: function () {
+                    return data;
+                }
             });
-        }
-      })(global);`;
+    });
+}
+})(global);`;
+
+    public DOM_LOCATION_STUB: string;
 
     private packagerAddress: string;
     private packagerPort: number;
@@ -219,6 +221,14 @@ postMessage({workerLoaded:true});`;
         if (!this.sourcesStoragePath)
             throw ErrorHelper.getInternalError(InternalErrorCode.SourcesStoragePathIsNullOrEmpty);
         this.webSocketConstructor = webSocketConstructor;
+        this.DOM_LOCATION_STUB = `// https://github.com/callstack/haul/blob/7cd75dfc0775c5a31a32b2965883ed174cee6aef/packages/haul-core/assets/debuggerWorker.js#L123
+// Since Haul 0.14.2 version it relies on DOM location object presence in global object
+// but since worker is ran as a Node process it doesn't have a location, so we add it
+if (self.location) {
+    return;
+}
+self.location = new URL('http://${this.packagerAddress}:${this.packagerPort}');
+`;
         this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
     }
 
@@ -258,6 +268,7 @@ postMessage({workerLoaded:true});`;
                     MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH,
                     MultipleLifetimesAppWorker.PROCESS_TO_STRING_PATCH,
                     isHaulProject ? MultipleLifetimesAppWorker.FETCH_STUB : null,
+                    isHaulProject ? this.DOM_LOCATION_STUB : null,
                     workerContent,
                     MultipleLifetimesAppWorker.WORKER_DONE,
                 ].join("\n");
