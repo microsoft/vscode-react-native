@@ -156,7 +156,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                         return this.scriptImporter.downloadAppScript(<string>rnMessage.url, this.projectRootPath)
                             .then((downloadedScript: DownloadedScript) => {
                                 this.bundleLoaded.resolve(void 0);
-                                return Object.assign({}, rnMessage, { url: downloadedScript.filepath });
+                                return Object.assign({}, rnMessage, { url: `${url.pathToFileURL(downloadedScript.filepath)}`});
                             });
                     } else {
                         throw ErrorHelper.getInternalError(InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty);

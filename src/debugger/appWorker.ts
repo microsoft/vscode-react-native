@@ -119,7 +119,8 @@ if (!self.postMessage) {
 var importScripts = (function(){
     var fs=require('fs'), vm=require('vm');
     return function(scriptUrl){
-        var scriptCode = fs.readFileSync(scriptUrl, "utf8");
+        scriptUrl = new URL(scriptUrl);
+        var scriptCode = fs.readFileSync(scriptUrl.pathname, "utf8");
         // Add a 'debugger;' statement to stop code execution
         // to wait for the sourcemaps to be processed by the debug adapter
         vm.runInThisContext('debugger;' + scriptCode, {filename: scriptUrl});
