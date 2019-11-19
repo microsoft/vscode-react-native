@@ -57,7 +57,7 @@ export class ReactNativeProjectHelper {
 
         parsedPackages.forEach(parsedPackage => {
             versionPromises.push(
-                ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(projectRoot, parsedPackage)
+                ReactNativeProjectHelper.getProcessedVersionFromNodeModules(projectRoot, parsedPackage)
             );
         });
 
@@ -166,7 +166,7 @@ export class ReactNativeProjectHelper {
         return !!haulVersion;
     }
 
-    private static getReactNativePackageVersionFromNodeModules(projectRoot: string, parsedPackage: ParsedPackage): Q.Promise<PackageVersion> {
+    private static getProcessedVersionFromNodeModules(projectRoot: string, parsedPackage: ParsedPackage): Q.Promise<PackageVersion> {
         return new Package(projectRoot).getPackageVersionFromNodeModules(parsedPackage.packageName)
             .then(version => ({[parsedPackage.packageName]: ReactNativeProjectHelper.processVersion(version, parsedPackage.useSemverCoerce)}))
             .catch(err => ({[parsedPackage.packageName]: ""}));
