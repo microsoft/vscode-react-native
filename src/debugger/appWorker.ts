@@ -125,7 +125,8 @@ var importScripts = (function(){
         // to wait for the sourcemaps to be processed by the debug adapter
         vm.runInThisContext('debugger;' + scriptCode, {filename: scriptUrl});
     };
-})();`;
+})();
+`;
 
     public static CONSOLE_TRACE_PATCH = `// Worker is ran as nodejs process, so console.trace() writes to stderr and it leads to error in native app
 // To avoid this console.trace() is overridden to print stacktrace via console.log()
@@ -145,7 +146,8 @@ console.trace = (function() {
             console.error(e);
         }
     };
-})();`;
+})();
+`;
 
     public static PROCESS_TO_STRING_PATCH = `// As worker is ran in node, it breaks broadcast-channels package approach of identifying if it’s ran in node:
 // https://github.com/pubkey/broadcast-channel/blob/master/src/util.js#L64
@@ -184,7 +186,8 @@ function fetch(url) {
             });
     });
 }
-})(global);`;
+})(global);
+`;
 
     public DOM_LOCATION_STUB: string;
 
