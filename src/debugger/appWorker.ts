@@ -177,7 +177,7 @@ self.fetch = fetch;
 
 function fetch(url) {
     return new Promise((resolve, reject) => {
-        var data = require('fs').readFileSync(url, 'utf8');
+        var data = require('fs').readFileSync(require('url').fileURLToPath(url), 'utf8');
         resolve(
             {
                 text: function () {
