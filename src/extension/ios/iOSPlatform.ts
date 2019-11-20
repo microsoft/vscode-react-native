@@ -14,7 +14,6 @@ import {IOSDebugModeManager} from "./iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {SettingsHelper} from "../settingsHelper";
 import {RemoteExtension} from "../../common/remoteExtension";
-import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
@@ -92,26 +91,23 @@ export class IOSPlatform extends GeneralMobilePlatform {
             },
         };
 
-        extProps = TelemetryHelper.addReactNativeVersionToEventProperties(this.runOptions.reactNativeVersion, extProps);
+        extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
 
         return TelemetryHelper.generate("iOSPlatform.runApp", extProps, () => {
             // Compile, deploy, and launch the app on either a simulator or a device
             const env = this.getEnvArgument();
 
-            return ReactNativeProjectHelper.getReactNativeVersion(this.runOptions.projectRoot)
-                .then(version => {
-                    if (!semver.valid(version) /*Custom RN implementations should support this flag*/ || semver.gte(version, IOSPlatform.NO_PACKAGER_VERSION)) {
-                        this.runArguments.push("--no-packager");
-                    }
-                    // Since @react-native-community/cli@2.1.0 build output are hidden by default
-                    // we are using `--verbose` to show it as it contains `BUILD SUCCESSFUL` and other patterns
-                    if (semver.gte(version, "0.60.0")) {
-                        this.runArguments.push("--verbose");
-                    }
-                    const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", this.runArguments, {env});
-                    return new OutputVerifier(() => this.generateSuccessPatterns(version), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
-                        .process(runIosSpawn);
-                });
+            if (!semver.valid(this.runOptions.reactNativeVersions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(this.runOptions.reactNativeVersions.reactNativeVersion, IOSPlatform.NO_PACKAGER_VERSION)) {
+                this.runArguments.push("--no-packager");
+            }
+            // Since @react-native-community/cli@2.1.0 build output are hidden by default
+            // we are using `--verbose` to show it as it contains `BUILD SUCCESSFUL` and other patterns
+            if (semver.gte(this.runOptions.reactNativeVersions.reactNativeVersion, "0.60.0")) {
+                this.runArguments.push("--verbose");
+            }
+            const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", this.runArguments, {env});
+            return new OutputVerifier(() => this.generateSuccessPatterns(this.runOptions.reactNativeVersions.reactNativeVersion), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
+                .process(runIosSpawn);
         });
     }
 
