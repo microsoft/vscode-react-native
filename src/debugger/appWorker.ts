@@ -189,8 +189,6 @@ function fetch(url) {
 })(global);
 `;
 
-    public DOM_LOCATION_STUB: string;
-
     private packagerAddress: string;
     private packagerPort: number;
     private sourcesStoragePath: string;
@@ -224,13 +222,6 @@ function fetch(url) {
         if (!this.sourcesStoragePath)
             throw ErrorHelper.getInternalError(InternalErrorCode.SourcesStoragePathIsNullOrEmpty);
         this.webSocketConstructor = webSocketConstructor;
-        this.DOM_LOCATION_STUB = `// https://github.com/callstack/haul/pull/641/files#diff-7819345467dc6ec57baa550e3f60938cR123
-// Haul packager since 0.13.0 relies on DOM location object presence in global object
-// but since worker is ran as a Node process it doesn't have a location, so we add it as packager URL address
-if (!self.location) {
-    self.location = new URL('http://${this.packagerAddress}:${this.packagerPort}');
-}
-`;
         this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
     }
 
@@ -270,7 +261,6 @@ if (!self.location) {
                     MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH,
                     MultipleLifetimesAppWorker.PROCESS_TO_STRING_PATCH,
                     isHaulProject ? MultipleLifetimesAppWorker.FETCH_STUB : null,
-                    isHaulProject ? this.DOM_LOCATION_STUB : null,
                     workerContent,
                     MultipleLifetimesAppWorker.WORKER_DONE,
                 ].join("\n");
