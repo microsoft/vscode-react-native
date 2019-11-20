@@ -156,9 +156,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                         return this.scriptImporter.downloadAppScript(<string>rnMessage.url, this.projectRootPath)
                             .then((downloadedScript: DownloadedScript) => {
                                 this.bundleLoaded.resolve(void 0);
-                                // TODO: Replace by url.pathToFileURL method when Node 10 LTS become deprecated
-                                const filePrefix = process.platform === "win32" ? "file:///" : "file://";
-                                return Object.assign({}, rnMessage, { url: `${filePrefix}${downloadedScript.filepath}`});
+                                return Object.assign({}, rnMessage, { url: `${this.pathToFileUrl(downloadedScript.filepath)}`});
                             });
                     } else {
                         throw ErrorHelper.getInternalError(InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty);
@@ -174,5 +172,11 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             (reason) => printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.CouldntImportScriptAt, rnMessage.url), reason));
 
         return promise;
+    }
+
+    // TODO: Replace by url.pathToFileURL method when Node 10 LTS become deprecated
+    public pathToFileUrl(url: string) {
+        const filePrefix = process.platform === "win32" ? "file:///" : "file://";
+        return filePrefix + url;
     }
 }

@@ -133,7 +133,7 @@ suite("appWorker", function () {
                 assert.deepEqual(debuggeeProcessSendStub.firstCall.args[0], {
                     data: {
                         ...fakeMessage,
-                        url: fakeDownloadedScript.filepath,
+                        url: worker.pathToFileUrl(fakeDownloadedScript.filepath),
                     },
                 });
             });
