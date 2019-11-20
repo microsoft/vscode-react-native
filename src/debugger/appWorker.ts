@@ -53,6 +53,15 @@ Object.defineProperty(process, "versions", {
     value: undefined
 });
 
+// TODO: Replace by url.fileURLToPath method when Node 10 LTS become deprecated
+function fileUrlToPath(url) {
+  if (process.platform === 'win32') {
+      return url.toString().replace('file:///', '');
+  } else if {
+    return url.toString().replace('file://', '');
+  }
+}
+
 function getNativeModules() {
     var NativeModules;
     try {
@@ -117,9 +126,9 @@ if (!self.postMessage) {
 }
 
 var importScripts = (function(){
-    var fs=require('fs'), vm=require('vm'), url=require('url');
+    var fs=require('fs'), vm=require('vm');
     return function(scriptUrl){
-        scriptUrl = url.fileURLToPath(scriptUrl);
+        scriptUrl = fileUrlToPath(scriptUrl);
         var scriptCode = fs.readFileSync(scriptUrl, 'utf8');
         // Add a 'debugger;' statement to stop code execution
         // to wait for the sourcemaps to be processed by the debug adapter
@@ -177,7 +186,7 @@ self.fetch = fetch;
 
 function fetch(url) {
     return new Promise((resolve, reject) => {
-        var data = require('fs').readFileSync(require('url').fileURLToPath(url), 'utf8');
+        var data = require('fs').readFileSync(fileUrlToPath(url), 'utf8');
         resolve(
             {
                 text: function () {
