@@ -57,7 +57,7 @@ Object.defineProperty(process, "versions", {
 function fileUrlToPath(url) {
   if (process.platform === 'win32') {
       return url.toString().replace('file:///', '');
-  } else if {
+  } else {
     return url.toString().replace('file://', '');
   }
 }
