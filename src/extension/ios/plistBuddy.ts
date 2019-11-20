@@ -25,13 +25,13 @@ export class PlistBuddy {
     }
 
     public getBundleId(iosProjectRoot: string, projectRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string, scheme?: string): Q.Promise<string> {
-        return ReactNativeProjectHelper.getReactNativeVersion(projectRoot)
-        .then((rnVersion) => {
+        return ReactNativeProjectHelper.getReactNativeVersions(projectRoot)
+        .then((rnVersions) => {
             let productsFolder;
-            if (semver.gte(rnVersion, "0.59.0")) {
+            if (semver.gte(rnVersions.reactNativeVersion, "0.59.0")) {
                 if (!scheme) {
                     // If no scheme were provided via runOptions.scheme or via runArguments then try to get scheme using the way RN CLI does.
-                    scheme = this.getInferredScheme(iosProjectRoot, projectRoot, rnVersion);
+                    scheme = this.getInferredScheme(iosProjectRoot, projectRoot, rnVersions.reactNativeVersion);
                 }
                 productsFolder = path.join(iosProjectRoot, "build", scheme, "Build", "Products");
             } else {

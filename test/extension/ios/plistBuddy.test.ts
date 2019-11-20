@@ -74,7 +74,7 @@ suite("plistBuddy", function() {
             const deviceBundleId = "com.contoso.device";
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, undefined, simulatorBundleId, deviceBundleId);
 
-            sandbox.stub(ReactNativeProjectHelper, "getReactNativeVersion").returns(Q.resolve("0.58.5"));
+            sandbox.stub(ReactNativeProjectHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.58.5", reactNativeWindowsVersion: ""}));
 
             return Q.all([
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
@@ -98,7 +98,7 @@ suite("plistBuddy", function() {
             const deviceBundleId = "com.contoso.device";
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, "myCustomScheme", simulatorBundleId, deviceBundleId);
 
-            sandbox.stub(ReactNativeProjectHelper, "getReactNativeVersion").returns(Q.resolve("0.59.0"));
+            sandbox.stub(ReactNativeProjectHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.59.0", reactNativeWindowsVersion: ""}));
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
             return Q.all([
