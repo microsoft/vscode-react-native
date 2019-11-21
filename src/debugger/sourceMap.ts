@@ -150,6 +150,6 @@ export class SourceMapUtil {
             const sourceMapMatch = matchesList[matchesList.length - 1].match(SourceMapUtil.SourceMapURLRegex);
             return sourceMapMatch ? sourceMapMatch[2] : null;
         }
-        return null
+        return null;
     }
 }
