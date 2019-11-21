@@ -22,7 +22,7 @@ export interface IStrictUrl extends url.Url {
 }
 
 export class SourceMapUtil {
-    private static SourceMapURLRegex: RegExp = /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/m;
+    private static SourceMapURLRegex: RegExp = /^\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/m;
     private static SourceURLRegex: RegExp = /^\/\/[#@] ?sourceURL=(.+)$/m;
 
     /**
@@ -143,8 +143,16 @@ export class SourceMapUtil {
      * Returns the first match if found, null otherwise.
      */
     private getSourceMapRelativeUrl(body: string) {
-        let match = body.match(SourceMapUtil.SourceMapURLRegex);
-        // If match is null, the body doesn't contain the source map
-        return match ? match[2] : null;
+        let match = body.split(SourceMapUtil.SourceMapURLRegex);
+        // Get the latest match because code can contain other source mapping entries
+        if (match && match.length > 0) {
+            if (match[match.length - 1] === "") {
+                return match[match.length - 2];
+            } else {
+                return match[match.length - 1];
+            }
+        }
+
+        return null;
     }
 }
