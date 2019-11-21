@@ -112,6 +112,26 @@ export class SourceMapUtil {
     }
 
     /**
+     * Parses the body of a script searching for a source map URL.
+     * It supports the following source map url styles:
+     *
+     *  `//# sourceMappingURL=path/to/source/map`
+     *
+     *  `//@ sourceMappingURL=path/to/source/map`
+     *
+     * Returns the last match if found, null otherwise.
+     */
+    public getSourceMapRelativeUrl(body: string) {
+        let matchesList = body.match(SourceMapUtil.SourceMapURLGlobalRegex);
+        // If match is null, the body doesn't contain the source map
+        if (matchesList) {
+            const sourceMapMatch = matchesList[matchesList.length - 1].match(SourceMapUtil.SourceMapURLRegex);
+            return sourceMapMatch ? sourceMapMatch[2] : null;
+        }
+        return null;
+    }
+
+    /**
      * Given an absolute source path, this method does two things:
      * 1. It changes the path from absolute to be relative to the sourcesRootPath parameter.
      * 2. It changes the path separators to Unix style.
@@ -133,23 +153,5 @@ export class SourceMapUtil {
     private makeUnixStylePath(p: string): string {
         let pathArgs = p.split(path.sep);
         return path.posix.join.apply(null, pathArgs);
-    }
-
-    /**
-     * Parses the body of a script searching for a source map URL.
-     * It supports the following source map url styles:
-     *  //# sourceMappingURL=path/to/source/map
-     *  //@ sourceMappingURL=path/to/source/map
-     *
-     * Returns the last match if found, null otherwise.
-     */
-    private getSourceMapRelativeUrl(body: string) {
-        let matchesList = body.match(SourceMapUtil.SourceMapURLGlobalRegex);
-        // If match is null, the body doesn't contain the source map
-        if (matchesList) {
-            const sourceMapMatch = matchesList[matchesList.length - 1].match(SourceMapUtil.SourceMapURLRegex);
-            return sourceMapMatch ? sourceMapMatch[2] : null;
-        }
-        return null;
     }
 }

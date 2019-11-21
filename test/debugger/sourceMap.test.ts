@@ -110,6 +110,17 @@ suite("sourceMap", function() {
             assert.equal(expectedPath, result);
         });
 
+        test("should get only the latest sourceMappingURL", function() {
+            const scriptBody: string = `//# sourceMappingURL=abort.controller.js.map
+//# sourceMappingURL=index.map
+//# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false`;
+            const expectedScriptBody = `index.map`;
+            const sourceMap = new SourceMapUtil();
+
+            const result = sourceMap.getSourceMapRelativeUrl(scriptBody);
+            assert.equal(expectedScriptBody, result);
+        });
+
         test("should remove sourceURL from the bundle script body correctly", function() {
             const scriptBody: string = `var sourceURL = '//# sourceURL=' + (hasOwnProperty.call(options, 'sourceURL') ? (options.sourceURL + '').replace(/[\\r\\n]/g, ' ') : 'lodash.templateSources[' + ++templateCounter + ']') + '\\n';
 //# sourceMappingURL=index.map
