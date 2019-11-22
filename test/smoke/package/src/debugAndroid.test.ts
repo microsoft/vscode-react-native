@@ -114,7 +114,7 @@ export function setup(testParameters?: TestRunArguments) {
             // await for our debug string renders in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             console.log("Android Debug Hermes test: Searching for \"Test output from Hermes debuggee\" string in console");
-            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0), ".info");
+            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in debug console");
             console.log("Android Debug test: \"Test output from Hermes debuggee\" string is found");
             await app.workbench.debug.disconnectFromDebugger();

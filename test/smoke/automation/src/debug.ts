@@ -158,8 +158,8 @@ export class Debug extends Viewlet {
         await this.code.waitForElement(CONSOLE_LINK);
     }
 
-    public async waitForOutput(fn: (output: string[]) => boolean, msgType?: string): Promise<string[]> {
-        const elements = await this.code.waitForElements(msgType ? CONSOLE_OUTPUT + msgType: CONSOLE_OUTPUT, false, elements => fn(elements.map(e => e.textContent)));
+    public async waitForOutput(fn: (output: string[]) => boolean): Promise<string[]> {
+        const elements = await this.code.waitForElements(CONSOLE_OUTPUT, false, elements => fn(elements.map(e => e.textContent)));
         return elements.map(e => e.textContent);
     }
 
@@ -168,22 +168,32 @@ export class Debug extends Viewlet {
         return elements.map(e => e.textContent);
     }
 
+    // Await function
+    public async sleep(time: number) {
+        await new Promise(resolve => {
+            const timer = setTimeout(() => {
+                clearTimeout(timer);
+                resolve();
+            }, time);
+        });
+    }
+
     // Gets Expo URL from VS Code Expo QR Code tab
     // For correct work opened and selected Expo QR Code tab is needed
     public async prepareExpoURLToClipboard() {
-        this.quickopen.openQuickOpen();
-        this.quickopen.submit("view React Native: Run exponent");
-        let expoURL = null;
-        this.getOutputChannelContent(output => output.some(line => {
-            let match = line.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
-            if (match) {
-                expoURL = match[0];
-                clipboardy.writeSync(expoURL);
-                console.log(`Found Expo URL: ${expoURL}`);
-                return true;
-            }
-            return false;
-        }));
+        const controlKey = process.platform === "darwin" ? "cmd" : "ctrl";
+        await this.sleep(2000);
+        await this.code.dispatchKeybinding(`${controlKey}+a`);
+        console.log("Expo QR Code tab text prepared to be copied");
+        await this.sleep(1000);
+        await this.code.dispatchKeybinding(`${controlKey}+c`);
+        await this.sleep(2000);
+        let copiedText = clipboardy.readSync();
+        console.log(`Expo QR Code tab text copied: \n ${copiedText}`);
+        const match = copiedText.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
+        if (!match) return null;
+        let expoURL = match[0];
+        console.log(`Found Expo URL: ${expoURL}`);
         return expoURL;
     }
 }
