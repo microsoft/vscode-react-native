@@ -65,7 +65,7 @@ export class CommandPaletteHandler {
     public static startPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.packager.getProjectPath())
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.fsPath)
                     .then(version => {
                         return this.executeCommandInContext("startPackager", project.workspaceFolder, () => {
                             return project.packager.isRunning()
@@ -105,7 +105,7 @@ export class CommandPaletteHandler {
     public static restartPackager(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.packager.getProjectPath())
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.fsPath)
                     .then(version => {
                         return this.executeCommandInContext("restartPackager", project.workspaceFolder, () =>
                             this.runRestartPackagerCommandAndUpdateStatus(project));
@@ -136,7 +136,7 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
                 TargetPlatformHelper.checkTargetPlatformSupport("android");
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.packager.getProjectPath())
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.fsPath)
                     .then(version => {
                         project.reactNativeVersion = version;
                         return this.executeCommandInContext("runAndroid", project.workspaceFolder, () => {
@@ -162,7 +162,7 @@ export class CommandPaletteHandler {
     public static runIos(target: TargetType = "simulator"): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.packager.getProjectPath())
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.fsPath)
                     .then(version => {
                         project.reactNativeVersion = version;
                         TargetPlatformHelper.checkTargetPlatformSupport("ios");
@@ -191,7 +191,7 @@ export class CommandPaletteHandler {
     public static runExponent(): Q.Promise<void> {
         return this.selectProject()
             .then((project: IReactNativeProject) => {
-                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.packager.getProjectPath())
+                return ReactNativeProjectHelper.getReactNativePackageVersionFromNodeModules(project.workspaceFolder.uri.fsPath)
                     .then(version => {
                         return this.loginToExponent(project)
                             .then(() => {

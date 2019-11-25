@@ -84,11 +84,7 @@ The **Packager** commands allow you to start/stop the [**Metro Bundler**](https:
 
 ## Using Expo
 
-We support using Expo to run, debug and publish applications. For more details about configuring and debugging Expo applications see [Expo docs](doc/expo.md).
-
-## Developing inside a Docker Container
-
-The extension provides support of [VS Code Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) features on Linux. For more details about configuring and debugging React Native Android applications inside Docker Container see [Containerization docs](doc/containerization.md).
+We support using Expo to run, debug and publish applications. For more details about configuring and debugging Expo applications see [Expo docs](doc/expo.md)
 
 ## Build APK and Generate Bundle
 

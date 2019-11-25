@@ -71,10 +71,6 @@ export class Packager {
         return this.packagerStatus;
     }
 
-    public getProjectPath(): string {
-        return this.projectPath;
-    }
-
     public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<string[]> {
         let args: string[] = ["--port", this.port.toString()];
 

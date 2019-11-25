@@ -1,6 +1,3 @@
-## 0.13.1
-* Fixed command palette commands execution in cases when `projectRoot` has been customized [#1160](https://github.com/microsoft/vscode-react-native/pull/1160)
-
 ## 0.13.0
 * The algorithm of processing React Native CLI commands was changed, the [following changes were made](https://github.com/microsoft/vscode-react-native/pull/1093):
   * Extension can now work without the `react-native-cli` installed globally. Now it uses local CLI from `react-native` package installed in `node_modules` of the React Native project
