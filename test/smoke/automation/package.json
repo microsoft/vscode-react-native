@@ -20,7 +20,6 @@
     "prepublishOnly": "npm run copy-package-version"
   },
   "devDependencies": {
-    "@types/clipboardy": "^2.0.1",
     "@types/mkdirp": "0.5.1",
     "@types/ncp": "2.0.1",
     "@types/node": "8.0.33",
@@ -32,7 +31,6 @@
     "watch": "^1.0.2"
   },
   "dependencies": {
-    "clipboardy": "^2.1.0",
     "mkdirp": "^0.5.1",
     "ncp": "^2.0.0",
     "puppeteer": "^1.19.0",

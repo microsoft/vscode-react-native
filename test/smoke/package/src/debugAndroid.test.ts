@@ -2,9 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
+import * as path from "path";
 import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
-import { sleep } from "./helpers/utilities";
+import { sleep, findStringInFile, findExpoURLInLogFile } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
@@ -113,10 +114,12 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log("Android Debug Hermes test: Searching for \"Test output from Hermes debuggee\" string in console");
-            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
-            assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in debug console");
-            console.log("Android Debug test: \"Test output from Hermes debuggee\" string is found");
+            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                console.log("Android Debug Hermes test: Searching for \"Test output from Hermes debuggee\" string in output file");
+                let found = findStringInFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ChromeDebugCoreLogs.txt"), "Test output from Hermes debuggee");
+                assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in output file");
+                console.log("Android Debug test: \"Test output from Hermes debuggee\" string is found");
+            }
             await app.workbench.debug.disconnectFromDebugger();
             console.log("Android Debug Hermes test: Debugging is stopped");
         });
@@ -143,8 +146,9 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Expo Debug test: 'Expo QR Code' tab found");
 
             let expoURL;
-            expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
-
+            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
+            }
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
@@ -193,7 +197,9 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android pure RN Expo test: 'Expo QR Code' tab found");
 
             let expoURL;
-            expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
+            }
 
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;

@@ -6,7 +6,7 @@ import { AppiumHelper, AppiumClient, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { RNworkspacePath, runVSCode, ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
-import { sleep, findFile } from "./helpers/utilities";
+import { sleep, findFile, findExpoURLInLogFile } from "./helpers/utilities";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import * as path from "path";
 import { TestRunArguments } from "./helpers/configHelper";
@@ -103,7 +103,9 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS Expo Debug test: 'Expo QR Code' tab found");
 
             let expoURL;
-            expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
+            }
 
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;
@@ -165,7 +167,9 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS pure RN Expo test: 'Expo QR Code' tab found");
 
             let expoURL;
-            expoURL = await app.workbench.debug.prepareExpoURLToClipboard();
+            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
+            }
 
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
             expoURL = expoURL as string;

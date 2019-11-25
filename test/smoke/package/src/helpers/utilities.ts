@@ -5,6 +5,7 @@ import * as fs from "fs";
 import * as cp from "child_process";
 import * as request from "request";
 import * as URL from "url-parse";
+import * as clipboardy from "clipboardy";
 import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 
@@ -160,4 +161,21 @@ export function filterProgressBarChars(str: string) {
     const filterRegExp = /\||\/|\-|\\/;
     str = str.replace(filterRegExp, "");
     return str;
+}
+
+export function findStringInFile(filePath: string, strToFind: string): boolean {
+    if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath).toString().trim();
+        return content.indexOf(strToFind) !== -1;
+    }
+    return false;
+}
+
+export function findExpoURLInLogFile(filePath: string) {
+        let content = fs.readFileSync(filePath).toString().trim();
+        const match = content.match(/exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
+        if (!match) return null;
+        let expoURL = match[0];
+        console.log(`Found Expo URL: ${expoURL}`);
+        return expoURL;
 }
