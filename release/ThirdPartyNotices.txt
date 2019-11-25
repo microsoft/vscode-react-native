@@ -1322,7 +1322,7 @@ SOFTWARE.
 
 -------------------------------------------------------------------
 
-vscode-nls 4.1.1 - MIT
+vscode-nls 3.2.2 - MIT
 https://github.com/Microsoft/vscode-nls#readme
 Copyright (c) Microsoft Corporation.
 
@@ -1349,7 +1349,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 -------------------------------------------------------------------
 
-vscode-nls 3.2.2 - MIT
+vscode-nls 4.1.1 - MIT
 https://github.com/Microsoft/vscode-nls#readme
 Copyright (c) Microsoft Corporation.
 
@@ -1395,7 +1395,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 -------------------------------------------------------------------
 
-ws 6.2.1 - MIT
+ws 3.3.3 - MIT
 https://github.com/websockets/ws
 Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>
 
@@ -1426,7 +1426,7 @@ SOFTWARE.
 
 -------------------------------------------------------------------
 
-ws 3.3.3 - MIT
+ws 6.2.1 - MIT
 https://github.com/websockets/ws
 Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>
 
