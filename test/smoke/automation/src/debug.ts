@@ -29,7 +29,6 @@ const VARIABLE = `${VIEWLET} .debug-variables .monaco-list-row .expression`;
 const CONSOLE_OUTPUT = `.repl .output.expression .value`;
 const CONSOLE_EVALUATION_RESULT = `.repl .evaluation-result.expression .value`;
 const CONSOLE_LINK = `.repl .value a.link`;
-const OUTPUT_CHANNEL = `.view-line .mtk1`;
 
 const REPL_FOCUSED = ".repl-input-wrapper .monaco-editor textarea";
 
@@ -162,8 +161,4 @@ export class Debug extends Viewlet {
         return elements.map(e => e.textContent);
     }
 
-    public async getOutputChannelContent(fn: (output: string[]) => boolean): Promise<string[]> {
-        const elements = await this.code.waitForElements(OUTPUT_CHANNEL, false, elements => fn(elements.map(e => e.textContent)));
-        return elements.map(e => e.textContent);
-    }
 }
