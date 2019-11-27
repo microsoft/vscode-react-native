@@ -134,7 +134,6 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
 
     const loggers: Logger[] = [];
     loggers.push(new ConsoleLogger());
-    loggers.push(new FileLogger(path.join(dataDirFolderName, "driverLog.txt")));
     const codePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
     console.log(`*** Executing ${codePath}`);
 
