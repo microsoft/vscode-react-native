@@ -4,7 +4,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as cp from "child_process";
-import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleLogger } from "../../automation";
+import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleLogger, FileLogger } from "../../automation";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
@@ -134,6 +134,7 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
 
     const loggers: Logger[] = [];
     loggers.push(new ConsoleLogger());
+    loggers.push(new FileLogger(path.join(dataDirFolderName, "driverLog.txt")));
     const codePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
     console.log(`*** Executing ${codePath}`);
 
@@ -146,7 +147,7 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
         waitTime: SmokeTestsConstants.elementResponseTimeout,
         logger: new MultiLogger(loggers),
         verbose: true,
-        screenshotsPath: RNworkspaceFilePath,
+        screenshotsPath: dataDirFolderName,
     };
 }
 
@@ -214,7 +215,7 @@ export async function runVSCode(workspaceOrFolder: string): Promise<Application>
     runName++;
     const extensionLogsDir = path.join(artifactsPath, runName.toString(), "extensionLogs");
     process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
-    const options = createOptions(quality, workspaceOrFolder, runName.toString());
+    const options = createOptions(quality, workspaceOrFolder, extensionLogsDir);
     const app = new Application(options!);
     console.log(`Options for run #${runName}: ${JSON.stringify(options, null, 2)}`);
     await app!.start();
