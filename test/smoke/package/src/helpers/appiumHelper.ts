@@ -9,6 +9,7 @@ import * as kill from "tree-kill";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./utilities";
 import * as clipboardy from "clipboardy";
+import { artifactsPath } from "../main";
 let appiumProcess: null | cp.ChildProcess;
 export type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
 export enum Platform {
@@ -50,7 +51,7 @@ export class AppiumHelper {
     };
 
     public static runAppium() {
-        const appiumLogFolder = path.join(__dirname, "..", "..", "..", "..", SmokeTestsConstants.artifactsDir);
+        const appiumLogFolder = artifactsPath;
         mkdirp.sync(appiumLogFolder);
         const appiumLogPath = path.join(appiumLogFolder, "appium.log");
         console.log(`*** Executing Appium with logging to ${appiumLogPath}`);

@@ -161,3 +161,20 @@ export function filterProgressBarChars(str: string) {
     str = str.replace(filterRegExp, "");
     return str;
 }
+
+export function findStringInFile(filePath: string, strToFind: string): boolean {
+    if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath).toString().trim();
+        return content.includes(strToFind);
+    }
+    return false;
+}
+
+export function findExpoURLInLogFile(filePath: string) {
+        let content = fs.readFileSync(filePath).toString().trim();
+        const match = content.match(/exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
+        if (!match) return null;
+        let expoURL = match[0];
+        console.log(`Found Expo URL: ${expoURL}`);
+        return expoURL;
+}

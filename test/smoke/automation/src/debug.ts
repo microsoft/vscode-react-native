@@ -7,7 +7,6 @@ import { Code, findElement } from "./code";
 import { Editors } from "./editors";
 import { Editor } from "./editor";
 import { IElement } from "../src/driver";
-import * as clipboardy from "clipboardy";
 import { QuickOpen } from ".";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
@@ -162,18 +161,4 @@ export class Debug extends Viewlet {
         return elements.map(e => e.textContent);
     }
 
-    // Gets Expo URL from VS Code Expo QR Code tab
-    // For correct work opened and selected Expo QR Code tab is needed
-    public async prepareExpoURLToClipboard() {
-        this.commands.runCommand("editor.action.webvieweditor.selectAll");
-        console.log("Expo QR Code tab text prepared to be copied");
-        this.commands.runCommand("editor.action.clipboardCopyAction");
-        let copiedText = clipboardy.readSync();
-        console.log(`Expo QR Code tab text copied: \n ${copiedText}`);
-        const match = copiedText.match(/^exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+$/gm);
-        if (!match) return null;
-        let expoURL = match[0];
-        console.log(`Found Expo URL: ${expoURL}`);
-        return expoURL;
-    }
 }

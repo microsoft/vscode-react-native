@@ -209,9 +209,12 @@ async function setup(): Promise<void> {
     console.log("*** Smoke tests setup done!\n");
 }
 
-let dataDirFolderName = 0;
+let runName = 0;
 export async function runVSCode(workspaceOrFolder: string): Promise<Application> {
-    const options = createOptions(quality, workspaceOrFolder, (dataDirFolderName++).toString());
+    runName++;
+    const extensionLogsDir = path.join(artifactsPath, runName.toString(), "extensionLogs");
+    process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
+    const options = createOptions(quality, workspaceOrFolder, runName.toString());
     const app = new Application(options!);
     await app!.start();
     return app!;

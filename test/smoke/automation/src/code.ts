@@ -187,7 +187,7 @@ async function poll<T>(
     fn: () => Thenable<T>,
     acceptFn: (result: T) => boolean,
     timeoutMessage: string,
-    retryCount: number = 200,
+    retryCount: number = 2000,
     retryInterval: number = 100 // millis
 ): Promise<T> {
     let trial = 1;
@@ -302,12 +302,12 @@ export class Code {
         return await poll(() => this.driver.getElements(windowId, selector, recursive), accept, `get elements '${selector}'`);
     }
 
-    public async waitForElement(selector: string, accept: (result: IElement | undefined) => boolean = result => !!result, retryCount: number = 200): Promise<IElement> {
+    public async waitForElement(selector: string, accept: (result: IElement | undefined) => boolean = result => !!result, retryCount: number = 2000): Promise<IElement> {
         const windowId = await this.getActiveWindowId();
         return await poll<IElement>(() => this.driver.getElements(windowId, selector).then(els => els[0]), accept, `get element '${selector}'`, retryCount);
     }
 
-    public async waitForActiveElement(selector: string, retryCount: number = 200): Promise<void> {
+    public async waitForActiveElement(selector: string, retryCount: number = 2000): Promise<void> {
         const windowId = await this.getActiveWindowId();
         await poll(() => this.driver.isActiveElement(windowId, selector), r => r, `is active element '${selector}'`, retryCount);
     }
@@ -378,3 +378,4 @@ export function findElements(element: IElement, fn: (element: IElement) => boole
 
     return result;
 }
+
