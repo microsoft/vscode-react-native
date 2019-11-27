@@ -28,7 +28,15 @@ suite("androidPlatform", function () {
         const androidProjectPath = path.join(projectRoot, "android");
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
-        const genericRunOptions: IAndroidRunOptions = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, reactNativeVersion: "^0.19.0" };
+        const genericRunOptions: IAndroidRunOptions = {
+            platform: "android",
+            workspaceRoot: projectRoot,
+            projectRoot: projectRoot,
+            reactNativeVersions: {
+                reactNativeVersion: "^0.19.0",
+                reactNativeWindowsVersion: "",
+            },
+        };
 
         const rnProjectContent = fs.readFileSync(ReactNative022.DEFAULT_PROJECT_FILE, "utf8");
 
@@ -90,8 +98,8 @@ suite("androidPlatform", function () {
                 return reactNative.runAndroid(genericRunOptions);
             });
 
-            sandbox.stub(rnHelper.ReactNativeProjectHelper, "getReactNativeVersion", function () {
-                return Q.resolve("0.0.1");
+            sandbox.stub(rnHelper.ReactNativeProjectHelper, "getReactNativeVersions", function () {
+                return Q.resolve({reactNativeVersion: "0.0.1", reactNativeWindowsVersion: ""});
             });
 
             androidPlatform.setAdbHelper(adbHelper);
@@ -211,7 +219,16 @@ suite("androidPlatform", function () {
 
                 return Q({})
                     .then(() => {
-                        const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: any = {
+                            platform: "android",
+                            workspaceRoot: projectRoot,
+                            projectRoot: projectRoot,
+                            target: "Nexus_12",
+                            reactNativeVersions: {
+                                reactNativeVersion: "^0.19.0",
+                                reactNativeWindowsVersion: "",
+                            },
+                        };
                         const platform = createAndroidPlatform(runOptions);
                         platform.setAdbHelper(adbHelper);
                         return platform.runApp();
@@ -234,7 +251,16 @@ suite("androidPlatform", function () {
 
                 return Q({})
                     .then(() => {
-                        const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
+                        const runOptions: any = {
+                            platform: "android",
+                            workspaceRoot: projectRoot,
+                            projectRoot: projectRoot,
+                            target: "Nexus_12",
+                            reactNativeVersions: {
+                                reactNativeVersion: "^0.19.0",
+                                reactNativeWindowsVersion: "",
+                            },
+                        };
                         const platform = createAndroidPlatform(runOptions);
                         platform.setAdbHelper(adbHelper);
                         return platform.runApp();

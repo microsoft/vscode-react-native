@@ -1,3 +1,10 @@
+## 0.13.2
+* Added support for Haul packager 0.15 [#1166](https://github.com/microsoft/vscode-react-native/pull/1166)
+* Fixed security vulnerability [#1165](https://github.com/microsoft/vscode-react-native/pull/1165)
+
+## 0.13.1
+* Fixed command palette commands execution in cases when `projectRoot` has been customized [#1160](https://github.com/microsoft/vscode-react-native/pull/1160)
+
 ## 0.13.0
 * The algorithm of processing React Native CLI commands was changed, the [following changes were made](https://github.com/microsoft/vscode-react-native/pull/1093):
   * Extension can now work without the `react-native-cli` installed globally. Now it uses local CLI from `react-native` package installed in `node_modules` of the React Native project
@@ -37,7 +44,7 @@
 * [Internal] Improved smoke tests workflow
 
 ## 0.10.2
-* Fixed security vulnerabilities ([#1050](https://github.com/microsoft/vscode-react-native/pull/1050), [#1052](https://github.com/microsoft/vscode-react-native/pull/1052)), [#1055](https://github.com/microsoft/vscode-react-native/pull/1055))
+* Fixed security vulnerabilities ([#1050](https://github.com/microsoft/vscode-react-native/pull/1050), [#1052](https://github.com/microsoft/vscode-react-native/pull/1052), [#1055](https://github.com/microsoft/vscode-react-native/pull/1055))
 * Fixed readme markup ([#1051](https://github.com/microsoft/vscode-react-native/pull/1051))
 
 ## 0.10.1

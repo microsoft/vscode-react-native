@@ -53,6 +53,15 @@ Object.defineProperty(process, "versions", {
     value: undefined
 });
 
+// TODO: Replace by url.fileURLToPath method when Node 10 LTS become deprecated
+function fileUrlToPath(url) {
+  if (process.platform === 'win32') {
+      return url.toString().replace('file:///', '');
+  } else {
+    return url.toString().replace('file://', '');
+  }
+}
+
 function getNativeModules() {
     var NativeModules;
     try {
@@ -67,7 +76,7 @@ function getNativeModules() {
             for (var i = 0; i < ids.length; i++) {
               if (modules[ids[i]].verboseName) {
                  var packagePath = new String(modules[ids[i]].verboseName);
-                 if (packagePath.indexOf("react-native/Libraries/BatchedBridge/NativeModules.js") > 0) {
+                 if (packagePath.indexOf('react-native/Libraries/BatchedBridge/NativeModules.js') > 0) {
                    nativeModuleId = parseInt(ids[i], 10);
                    break;
                  }
@@ -119,12 +128,14 @@ if (!self.postMessage) {
 var importScripts = (function(){
     var fs=require('fs'), vm=require('vm');
     return function(scriptUrl){
-        var scriptCode = fs.readFileSync(scriptUrl, "utf8");
+        scriptUrl = fileUrlToPath(scriptUrl);
+        var scriptCode = fs.readFileSync(scriptUrl, 'utf8');
         // Add a 'debugger;' statement to stop code execution
         // to wait for the sourcemaps to be processed by the debug adapter
         vm.runInThisContext('debugger;' + scriptCode, {filename: scriptUrl});
     };
-})();`;
+})();
+`;
 
     public static CONSOLE_TRACE_PATCH = `// Worker is ran as nodejs process, so console.trace() writes to stderr and it leads to error in native app
 // To avoid this console.trace() is overridden to print stacktrace via console.log()
@@ -144,7 +155,8 @@ console.trace = (function() {
             console.error(e);
         }
     };
-})();`;
+})();
+`;
 
     public static PROCESS_TO_STRING_PATCH = `// As worker is ran in node, it breaks broadcast-channels package approach of identifying if it’s ran in node:
 // https://github.com/pubkey/broadcast-channel/blob/master/src/util.js#L64
@@ -164,26 +176,27 @@ Object.prototype.toString = function() {
 postMessage({workerLoaded:true});`;
 
     public static FETCH_STUB = `(function(self) {
-        'use strict';
+'use strict';
 
-        if (self.fetch) {
-          return
-        }
+if (self.fetch) {
+    return;
+}
 
-        self.fetch = fetch;
+self.fetch = fetch;
 
-        function fetch(url) {
-            return new Promise((resolve, reject) => {
-                var data = require("fs").readFileSync(url, 'utf8');
-                resolve(
-                    {
-                        text: function () {
-                            return data;
-                        }
-                    });
+function fetch(url) {
+    return new Promise((resolve, reject) => {
+        var data = require('fs').readFileSync(fileUrlToPath(url), 'utf8');
+        resolve(
+            {
+                text: function () {
+                    return data;
+                }
             });
-        }
-      })(global);`;
+    });
+}
+})(global);
+`;
 
     private packagerAddress: string;
     private packagerPort: number;
