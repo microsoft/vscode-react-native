@@ -71,6 +71,10 @@ export class Packager {
         return this.packagerStatus;
     }
 
+    public getProjectPath(): string {
+        return this.projectPath;
+    }
+
     public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<string[]> {
         let args: string[] = ["--port", this.port.toString()];
 
@@ -118,9 +122,9 @@ export class Packager {
 
             executedStartPackagerCmd = true;
 
-            return ReactNativeProjectHelper.getReactNativeVersion(this.projectPath)
-            .then((version) => {
-                rnVersion = version;
+            return ReactNativeProjectHelper.getReactNativeVersions(this.projectPath)
+            .then((versions) => {
+                rnVersion = versions.reactNativeVersion;
                 return this.monkeyPatchOpnForRNPackager(rnVersion);
             })
             .then((version) => {

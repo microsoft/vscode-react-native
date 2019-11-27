@@ -194,9 +194,12 @@ export function makeSession(
                 },
             };
 
-            return ReactNativeProjectHelper.getReactNativeVersion(request.arguments.cwd)
-                .then(version => {
-                    extProps = TelemetryHelper.addReactNativeVersionToEventProperties(version, extProps);
+            return ReactNativeProjectHelper.getReactNativeVersions(request.arguments.cwd, true)
+                .then(versions => {
+                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
+                    if (versions.reactNativeWindowsVersion) {
+                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
+                    }
                     return TelemetryHelper.generate("attach", extProps, (generator) => {
                         return Q({})
                             .then(() => {

@@ -33,6 +33,10 @@ export class Package {
         this.fileSystem = fileSystem;
     }
 
+    public getPackageVersionFromNodeModules(packageName: string): Q.Promise<string> {
+        return this.dependencyPackage(packageName).version();
+    }
+
     public parsePackageInformation(): Q.Promise<IPackageInformation> {
         return this.fileSystem.readFile(this.informationJsonFilePath(), "utf8")
             .then(data =>

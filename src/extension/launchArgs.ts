@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import {RNPackageVersions} from "../common/reactNativeProjectHelper";
+
 /**
  * Defines the supported launch arguments.
  * Add more arguments here as needed.
@@ -9,7 +11,7 @@ export interface ILaunchArgs {
     platform: string;
     workspaceRoot: string;
     projectRoot: string;
-    reactNativeVersion: string;
+    reactNativeVersions: RNPackageVersions;
     target?: "simulator" | "device";
     debugAdapterPort?: number;
     packagerPort?: any;
