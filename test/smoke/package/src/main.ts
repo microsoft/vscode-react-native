@@ -215,7 +215,7 @@ export async function runVSCode(workspaceOrFolder: string): Promise<Application>
     const extensionLogsDir = path.join(artifactsPath, runName.toString(), "extensionLogs");
     process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
     const options = createOptions(quality, workspaceOrFolder, runName.toString());
-    const app = new Application(options!);
+    const app = new Application(options);
     console.log(`Options for run #${runName}: ${JSON.stringify(options, null, 2)}`);
     await app!.start();
     return app!;
