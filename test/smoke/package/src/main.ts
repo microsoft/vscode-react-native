@@ -146,7 +146,7 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
         waitTime: SmokeTestsConstants.elementResponseTimeout,
         logger: new MultiLogger(loggers),
         verbose: true,
-        screenshotsPath: dataDirFolderName,
+        screenshotsPath: process.env.REACT_NATIVE_TOOLS_LOGS_DIR ? process.env.REACT_NATIVE_TOOLS_LOGS_DIR : artifactsPath,
     };
 }
 
@@ -214,7 +214,7 @@ export async function runVSCode(workspaceOrFolder: string): Promise<Application>
     runName++;
     const extensionLogsDir = path.join(artifactsPath, runName.toString(), "extensionLogs");
     process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
-    const options = createOptions(quality, workspaceOrFolder, extensionLogsDir);
+    const options = createOptions(quality, workspaceOrFolder, runName.toString());
     const app = new Application(options!);
     console.log(`Options for run #${runName}: ${JSON.stringify(options, null, 2)}`);
     await app!.start();
