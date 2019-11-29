@@ -38,7 +38,6 @@ export function setup(testParameters?: TestRunArguments) {
         afterEach(async () => {
             if (app) {
                 await app.stop();
-                app = null;
             }
             if (clientInited) {
                 clientInited.closeApp();
