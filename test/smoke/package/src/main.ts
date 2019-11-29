@@ -124,9 +124,6 @@ const userDataDir = path.join(testVSCodeDirectory, SmokeTestsConstants.VSCodeUse
 
 const extensionsPath = path.join(testVSCodeDirectory, "extensions");
 
-const keybindingsPath = path.join(userDataDir, "keybindings.json");
-process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
-
 function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolderName: string): ApplicationOptions | null {
     if (!electronExecutablePath) {
         return null;
@@ -205,7 +202,6 @@ async function setup(): Promise<void> {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
         fs.mkdirSync(userDataDir);
     }
-    await VSCodeHelper.fetchKeybindings(keybindingsPath);
     console.log("*** Smoke tests setup done!\n");
 }
 
