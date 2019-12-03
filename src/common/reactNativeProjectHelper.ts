@@ -67,12 +67,12 @@ export class ReactNativeProjectHelper {
             }, {});
         })
         .then(packageVersions => {
-            if (!packageVersions["react-native"]) {
+            if (packageVersions["react-native"].startsWith("error")) {
                 throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
             }
             return {
                 reactNativeVersion: packageVersions["react-native"],
-                reactNativeWindowsVersion: packageVersions["react-native-windows"] || "",
+                reactNativeWindowsVersion: packageVersions["react-native-windows"] || "errorThereIsNoPackage",
             };
         });
     }
@@ -107,22 +107,22 @@ export class ReactNativeProjectHelper {
                                 } else if (devDependencies[parsedPackage.packageName]) {
                                     parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.processVersion(devDependencies[parsedPackage.packageName], parsedPackage.useSemverCoerce);
                                 } else {
-                                    parsedPackageVersions[parsedPackage.packageName] = "";
+                                    parsedPackageVersions[parsedPackage.packageName] = "errorThereAreNoDependencies";
                                 }
                             } catch (err) {
-                                parsedPackageVersions[parsedPackage.packageName] = "";
+                                parsedPackageVersions[parsedPackage.packageName] = "errorThereAreNoDependencies";
                             }
                         });
 
                         return {
                             reactNativeVersion: parsedPackageVersions["react-native"],
-                            reactNativeWindowsVersion: parsedPackageVersions["react-native-windows"] || "",
+                            reactNativeWindowsVersion: parsedPackageVersions["react-native-windows"] || "errorThereIsNoPackage",
                         };
                     });
             })
             .catch(err => ({
-                reactNativeVersion: "",
-                reactNativeWindowsVersion: "",
+                reactNativeVersion: "errorUnknown",
+                reactNativeWindowsVersion: "errorUnknown",
             }));
     }
 
@@ -152,7 +152,7 @@ export class ReactNativeProjectHelper {
         }
         return this.getReactNativeVersions(projectRoot)
             .then(versions => {
-                return !!(versions.reactNativeVersion);
+                return !versions.reactNativeVersion.startsWith("error");
             });
     }
 
@@ -169,6 +169,6 @@ export class ReactNativeProjectHelper {
     private static getProcessedVersionFromNodeModules(projectRoot: string, parsedPackage: ParsedPackage): Q.Promise<PackageVersion> {
         return new Package(projectRoot).getPackageVersionFromNodeModules(parsedPackage.packageName)
             .then(version => ({[parsedPackage.packageName]: ReactNativeProjectHelper.processVersion(version, parsedPackage.useSemverCoerce)}))
-            .catch(err => ({[parsedPackage.packageName]: ""}));
+            .catch(err => ({[parsedPackage.packageName]: "errorThereIsNoPackage"}));
     }
 }

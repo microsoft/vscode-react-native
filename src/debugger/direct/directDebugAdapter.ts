@@ -119,7 +119,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
                 return ReactNativeProjectHelper.getReactNativeVersions(attachArgs.cwd, true)
                     .then(versions => {
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                        if (versions.reactNativeWindowsVersion) {
+                        if (!versions.reactNativeWindowsVersion.startsWith("error")) {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
