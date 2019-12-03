@@ -102,12 +102,14 @@ export interface SpawnOptions {
     headless?: boolean;
 }
 
-async function createDriverHandle(handlePath?: string): Promise<string> {
+async function createDriverHandle(userDataDir?: string): Promise<string> {
     if ("win32" === os.platform()) {
         const name = [...Array(15)].map(() => Math.random().toString(36)[3]).join("");
         return `\\\\.\\pipe\\${name}`;
     } else {
-        return path.join(handlePath!, "SmokeTestDriverHandle");
+        const driverHandlePath = path.join(userDataDir!, "SmokeTestDriverHandle");
+        cp.execSync(`mkfifo ${driverHandlePath}`);
+        return driverHandlePath;
     }
 }
 
