@@ -655,6 +655,7 @@
 		"vscode:prepublish": "gulp",
 		"test": "node ./node_modules/vscode/bin/test",
 		"postinstall": "node ./node_modules/vscode/bin/install",
+		"prepare-smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install",
 		"smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install && yarn --cwd ./vscode/test/smoke mocha",
 		"quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
 	},

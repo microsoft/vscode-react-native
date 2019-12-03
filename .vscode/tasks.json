@@ -2,6 +2,25 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "prepare-smoke-tests",
+            "type": "process",
+            "command": ["yarn"],
+            "windows": {
+                "command": "yarn.cmd",
+            },
+            "args": [
+                "prepare-smoke-tests"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+        },
+        {
             "label": "compile-smoke-tests",
             "type": "process",
             "command": ["./node_modules/.bin/tsc"],
@@ -48,7 +67,7 @@
         },
         {
             "label": "Build Smoke Tests",
-            "dependsOn": ["tslint-smoke-tests", "compile-smoke-tests"]
+            "dependsOn": ["prepare-smoke-tests"]
         }
     ],
 }

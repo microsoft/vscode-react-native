@@ -193,7 +193,7 @@
             "request": "launch",
             "protocol": "inspector",
             "name": "Launch All Smoke Tests",
-            "program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke",
             "args": [ "--dont-delete-vsix" ],
             "timeout": 240000,
@@ -209,7 +209,7 @@
             "request": "launch",
             "protocol": "inspector",
             "name": "Launch Android Smoke Tests",
-            "program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke",
             "args": [
                 "--dont-delete-vsix",
@@ -228,7 +228,7 @@
             "request": "launch",
             "protocol": "inspector",
             "name": "Launch iOS Smoke Tests",
-            "program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke",
             "args": [
                 "--dont-delete-vsix",
@@ -247,7 +247,7 @@
             "request": "launch",
             "protocol": "inspector",
             "name": "Launch All Smoke Tests (skip setup)",
-            "program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke",
             "args": [
                 "--dont-delete-vsix",
@@ -266,7 +266,7 @@
             "request": "launch",
             "protocol": "inspector",
             "name": "Launch Android Smoke Tests (skip setup)",
-            "program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke",
             "args": [
                 "--dont-delete-vsix",
@@ -286,7 +286,7 @@
             "request": "launch",
             "protocol": "inspector",
             "name": "Launch iOS Smoke Tests (skip setup)",
-            "program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
+            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke",
             "args": [
                 "--dont-delete-vsix",
