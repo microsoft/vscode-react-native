@@ -6,7 +6,7 @@ import * as cp from "child_process";
 import * as os from "os";
 import * as fs from "fs";
 import * as mkdirp from "mkdirp";
-import { tmpName } from "tmp";
+import { tmpNameSync } from "tmp";
 import { IDriver, connect as connectElectronDriver, IDisposable, IElement, Thenable } from "./driver";
 import { connect as connectPuppeteerDriver, launch } from "./puppeteerDriver";
 import { Logger } from "./logger";
@@ -103,12 +103,12 @@ export interface SpawnOptions {
     headless?: boolean;
 }
 
-async function createDriverHandle(): Promise<string> {
+function createDriverHandle(): string {
     if ("win32" === os.platform()) {
         const name = [...Array(15)].map(() => Math.random().toString(36)[3]).join("");
         return `\\\\.\\pipe\\${name}`;
     } else {
-        return tmpName();
+        return tmpNameSync();
     }
 }
 
@@ -116,7 +116,7 @@ export async function spawn(options: SpawnOptions): Promise<Code> {
     const codePath = options.codePath;
     const electronPath = codePath ? getBuildElectronPath(codePath) : getDevElectronPath();
     const outPath = codePath ? getBuildOutPath(codePath) : getDevOutPath();
-    const handle = await createDriverHandle(options.userDataDir);
+    const handle = await createDriverHandle();
 
     const args = [
         options.workspacePath,
