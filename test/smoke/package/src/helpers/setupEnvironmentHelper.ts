@@ -99,11 +99,15 @@ export class SetupEnvironmentHelper {
         cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
     }
 
-    public static cleanUp(testVSCodeDirectory: string, testLogsDirectory: string, workspacePaths: string[], iOSExpoAppsCacheDirectory: string) {
+    public static cleanUp(testVSCodeDirectory: string, userDataDir: string, testLogsDirectory: string, workspacePaths: string[], iOSExpoAppsCacheDirectory: string) {
         console.log("\n*** Clean up...");
         if (fs.existsSync(testVSCodeDirectory)) {
             console.log(`*** Deleting test VS Code directory: ${testVSCodeDirectory}`);
             rimraf.sync(testVSCodeDirectory);
+        }
+        if (fs.existsSync(userDataDir)) {
+            console.log(`*** Deleting VS Code temporary user data dir: ${userDataDir}`);
+            rimraf.sync(userDataDir);
         }
         if (fs.existsSync(testLogsDirectory)) {
             console.log(`*** Deleting test logs directory: ${testLogsDirectory}`);
