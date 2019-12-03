@@ -225,7 +225,7 @@ before(async function () {
         return;
     }
     this.timeout(SmokeTestsConstants.smokeTestSetupAwaitTimeout);
-    SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath], SetupEnvironmentHelper.iOSExpoAppsCacheDir);
+    SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), userDataDir, artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath], SetupEnvironmentHelper.iOSExpoAppsCacheDir);
     try {
         await setup();
     } catch (err) {
