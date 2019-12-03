@@ -116,7 +116,7 @@ export async function spawn(options: SpawnOptions): Promise<Code> {
     const codePath = options.codePath;
     const electronPath = codePath ? getBuildElectronPath(codePath) : getDevElectronPath();
     const outPath = codePath ? getBuildOutPath(codePath) : getDevOutPath();
-    const handle = await createDriverHandle();
+    const handle = createDriverHandle();
 
     const args = [
         options.workspacePath,
