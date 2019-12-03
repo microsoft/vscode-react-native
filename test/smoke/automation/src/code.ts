@@ -108,6 +108,7 @@ async function createDriverHandle(userDataDir?: string): Promise<string> {
         return `\\\\.\\pipe\\${name}`;
     } else {
         const driverHandlePath = path.join(userDataDir!, "SmokeTestDriverHandle");
+        mkdirp.sync(userDataDir!);
         cp.execSync(`mkfifo ${driverHandlePath}`);
         return driverHandlePath;
     }
