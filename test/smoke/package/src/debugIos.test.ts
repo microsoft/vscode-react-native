@@ -109,7 +109,7 @@ export function setup(testParameters?: TestRunArguments) {
                 expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
             }
 
-            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
             expoURL = expoURL as string;
             let appFile = findFile(SetupEnvironmentHelper.iOSExpoAppsCacheDir, /.*\.(app)/);
             if (!appFile) {
@@ -119,7 +119,7 @@ export function setup(testParameters?: TestRunArguments) {
             const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
-            // await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, app.client.spectron.electron.clipboard, expoURL);
+            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL);
             console.log(`iOS Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
 
@@ -173,7 +173,7 @@ export function setup(testParameters?: TestRunArguments) {
                 expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
             }
 
-            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
             expoURL = expoURL as string;
             let appFile = findFile(SetupEnvironmentHelper.iOSExpoAppsCacheDir, /.*\.(app)/);
             if (!appFile) {
