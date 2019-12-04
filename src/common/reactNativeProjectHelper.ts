@@ -28,7 +28,7 @@ export class ReactNativeProjectHelper {
 
     private static RN_VERSION_ERRORS = {
         NO_PACKAGE: "errorNoPackage",
-        NO_IN_DEPENDENCIES: "errorNoInDependencies",
+        NOT_IN_DEPENDENCIES: "errorNotInDependencies",
         NO_DEPENDENCIES: "errorNoDependencies",
         UNKNOWN_ERROR: "errorUnknown",
     };
@@ -114,7 +114,7 @@ export class ReactNativeProjectHelper {
                                 } else if (devDependencies[parsedPackage.packageName]) {
                                     parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.processVersion(devDependencies[parsedPackage.packageName], parsedPackage.useSemverCoerce);
                                 } else {
-                                    parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.RN_VERSION_ERRORS.NO_IN_DEPENDENCIES;
+                                    parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.RN_VERSION_ERRORS.NOT_IN_DEPENDENCIES;
                                 }
                             } catch (err) {
                                 parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.RN_VERSION_ERRORS.NO_DEPENDENCIES;
