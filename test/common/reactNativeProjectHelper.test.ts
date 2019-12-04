@@ -39,8 +39,8 @@ suite("reactNativeProjectHelper", function() {
         test("getReactNativeVersionsFromProjectPackage should return containing empty version strings if 'version' field isn't found in project's package.json file", (done: MochaDone) => {
             ReactNativeProjectHelper.getReactNativeVersionsFromProjectPackage(sampleReactNative022ProjectDir, true)
             .then(versions => {
-                assert.equal(versions.reactNativeVersion, "");
-                assert.equal(versions.reactNativeWindowsVersion, "");
+                assert.equal(versions.reactNativeVersion, "errorNoDependencies");
+                assert.equal(versions.reactNativeWindowsVersion, "errorNoDependencies");
             }).done(() => done(), done);
         });
     });

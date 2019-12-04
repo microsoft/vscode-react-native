@@ -26,6 +26,13 @@ export interface RNPackageVersions {
 
 export class ReactNativeProjectHelper {
 
+    private static RN_VERSION_ERRORS = {
+        NO_PACKAGE: "errorNoPackage",
+        NO_IN_DEPENDENCIES: "errorNoInDependencies",
+        NO_DEPENDENCIES: "errorNoDependencies",
+        UNKNOWN_ERROR: "errorUnknown",
+    };
+
     public static getRNVersionsWithBrokenMetroBundler() {
         // https://github.com/Microsoft/vscode-react-native/issues/660 for details
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
@@ -72,7 +79,7 @@ export class ReactNativeProjectHelper {
             }
             return {
                 reactNativeVersion: packageVersions["react-native"],
-                reactNativeWindowsVersion: packageVersions["react-native-windows"] || "errorThereIsNoPackage",
+                reactNativeWindowsVersion: packageVersions["react-native-windows"] || ReactNativeProjectHelper.RN_VERSION_ERRORS.NO_PACKAGE,
             };
         });
     }
@@ -107,22 +114,22 @@ export class ReactNativeProjectHelper {
                                 } else if (devDependencies[parsedPackage.packageName]) {
                                     parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.processVersion(devDependencies[parsedPackage.packageName], parsedPackage.useSemverCoerce);
                                 } else {
-                                    parsedPackageVersions[parsedPackage.packageName] = "errorThereAreNoDependencies";
+                                    parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.RN_VERSION_ERRORS.NO_IN_DEPENDENCIES;
                                 }
                             } catch (err) {
-                                parsedPackageVersions[parsedPackage.packageName] = "errorThereAreNoDependencies";
+                                parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.RN_VERSION_ERRORS.NO_DEPENDENCIES;
                             }
                         });
 
                         return {
                             reactNativeVersion: parsedPackageVersions["react-native"],
-                            reactNativeWindowsVersion: parsedPackageVersions["react-native-windows"] || "errorThereIsNoPackage",
+                            reactNativeWindowsVersion: parsedPackageVersions["react-native-windows"] || ReactNativeProjectHelper.RN_VERSION_ERRORS.NO_PACKAGE,
                         };
                     });
             })
             .catch(err => ({
-                reactNativeVersion: "errorUnknown",
-                reactNativeWindowsVersion: "errorUnknown",
+                reactNativeVersion: ReactNativeProjectHelper.RN_VERSION_ERRORS.UNKNOWN_ERROR,
+                reactNativeWindowsVersion: ReactNativeProjectHelper.RN_VERSION_ERRORS.UNKNOWN_ERROR,
             }));
     }
 
@@ -169,6 +176,6 @@ export class ReactNativeProjectHelper {
     private static getProcessedVersionFromNodeModules(projectRoot: string, parsedPackage: ParsedPackage): Q.Promise<PackageVersion> {
         return new Package(projectRoot).getPackageVersionFromNodeModules(parsedPackage.packageName)
             .then(version => ({[parsedPackage.packageName]: ReactNativeProjectHelper.processVersion(version, parsedPackage.useSemverCoerce)}))
-            .catch(err => ({[parsedPackage.packageName]: "errorThereIsNoPackage"}));
+            .catch(err => ({[parsedPackage.packageName]: ReactNativeProjectHelper.RN_VERSION_ERRORS.NO_PACKAGE}));
     }
 }
