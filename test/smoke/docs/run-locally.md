@@ -31,6 +31,7 @@ Tests work with the VS Code repository during preparation stage so, make sure th
     brew cask install android-studio
     brew install git
     brew install watchman
+    brew install carthage
     ```
    * **Ubuntu**:
     ```bash
