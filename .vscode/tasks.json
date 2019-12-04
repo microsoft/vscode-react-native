@@ -28,7 +28,7 @@
                 "command": ".\\node_modules\\.bin\\tsc.cmd",
             },
             "options": {
-                "cwd": "${workspaceRoot}/test/smoke"
+                "cwd": "${workspaceRoot}/test/smoke/vscode/test/smoke"
             },
             "presentation": {
                 "echo": true,
@@ -54,7 +54,7 @@
                 "'src/**'",
             ],
             "options": {
-                "cwd": "${workspaceRoot}/test/smoke"
+                "cwd": "${workspaceRoot}/test/smoke/vscode/test/smoke"
             },
             "presentation": {
                 "echo": true,
@@ -66,8 +66,12 @@
             }
         },
         {
-            "label": "Build Smoke Tests",
+            "label": "Prepare Smoke Tests",
             "dependsOn": ["prepare-smoke-tests"]
+        },
+        {
+            "label": "Build Smoke Tests",
+            "dependsOn": ["tslint-smoke-tests", "compile-smoke-tests"]
         }
     ],
 }

@@ -202,7 +202,7 @@
                 "${workspaceRoot}/src/**/*.js"
             ],
             "sourceMaps": true,
-            "preLaunchTask": "Build Smoke Tests"
+            "preLaunchTask": "Prepare Smoke Tests"
         },
         {
             "type": "node",
@@ -221,7 +221,7 @@
                 "${workspaceRoot}/src/**/*.js"
             ],
             "sourceMaps": true,
-            "preLaunchTask": "Build Smoke Tests"
+            "preLaunchTask": "Prepare Smoke Tests"
         },
         {
             "type": "node",
@@ -240,7 +240,7 @@
                 "${workspaceRoot}/src/**/*.js"
             ],
             "sourceMaps": true,
-            "preLaunchTask": "Build Smoke Tests"
+            "preLaunchTask": "Prepare Smoke Tests"
         },
         {
             "type": "node",
