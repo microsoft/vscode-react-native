@@ -151,7 +151,7 @@ export function setup(testParameters?: TestRunArguments) {
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                 expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
             }
-            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
@@ -203,7 +203,7 @@ export function setup(testParameters?: TestRunArguments) {
                 expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
             }
 
-            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
