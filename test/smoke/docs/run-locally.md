@@ -6,6 +6,7 @@ Please, be aware that automated tests doesn't cover debugging cases on a real de
 ## Prerequisites
 
 Make sure you are on `Node.JS 10.x`.
+
 Tests require build tools that are needed for VS Code to be installed before the tests. Make sure that [instructions for building VS Code from sources](https://github.com/Microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed.
 
 ### Windows only
