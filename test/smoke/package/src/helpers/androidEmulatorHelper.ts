@@ -25,7 +25,7 @@ export class AndroidEmulatorHelper {
          "-gpu", "swiftshader_indirect",
          "-wipe-data",
          "-port", this.androidEmulatorPort.toString(),
-         "-no-snapshot",
+         "-no-snapshot-save",
          "-no-boot-anim",
          "-no-audio"];
         console.log(`*** Executing Android emulator with 'emulator ${emulatorOpts.join(" ")}' command...`);
