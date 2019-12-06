@@ -62,7 +62,7 @@ export class ProjectVersionHelper {
             }, {});
         })
         .then(packageVersions => {
-            if (!ProjectVersionHelper.isValidVersion(packageVersions["react-native"])) {
+            if (ProjectVersionHelper.isVersionError(packageVersions["react-native"])) {
                 throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
             }
             return {
@@ -121,8 +121,8 @@ export class ProjectVersionHelper {
             }));
     }
 
-    public static isValidVersion(version: string): boolean {
-        return !version.toLowerCase().includes("error");
+    public static isVersionError(version: string): boolean {
+        return version.toLowerCase().includes("error");
     }
 
     public static processVersion(version: string, useSemverCoerce: boolean = true): string {

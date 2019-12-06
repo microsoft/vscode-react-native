@@ -23,7 +23,7 @@ export class ReactNativeProjectHelper {
         }
         return ProjectVersionHelper.getReactNativeVersions(projectRoot)
             .then(versions => {
-                return ProjectVersionHelper.isValidVersion(versions.reactNativeVersion);
+                return !ProjectVersionHelper.isVersionError(versions.reactNativeVersion);
             });
     }
 

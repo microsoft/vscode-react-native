@@ -237,7 +237,7 @@ export class ExtensionServer implements vscode.Disposable {
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (ProjectVersionHelper.isValidVersion(versions.reactNativeWindowsVersion)) {
+                    if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
                     TelemetryHelper.generate("launch", extProps, (generator) => {

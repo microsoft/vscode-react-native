@@ -134,7 +134,7 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
         .then(versions => {
             outputChannelLogger.debug(`React Native version: ${versions.reactNativeVersion}`);
             let promises = [];
-            if (!ProjectVersionHelper.isValidVersion(versions.reactNativeVersion)) {
+            if (ProjectVersionHelper.isVersionError(versions.reactNativeVersion)) {
                 outputChannelLogger.debug("react-native version is empty");
                 TelemetryHelper.sendErrorEvent(
                     "AddProjectReactNativeVersionIsEmpty",

@@ -198,7 +198,7 @@ export function makeSession(
             return ProjectVersionHelper.getReactNativeVersions(request.arguments.cwd, true)
                 .then(versions => {
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (ProjectVersionHelper.isValidVersion(versions.reactNativeWindowsVersion)) {
+                    if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
                     return TelemetryHelper.generate("attach", extProps, (generator) => {
