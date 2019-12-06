@@ -4,7 +4,7 @@
     "IOS_SIMULATOR": "iPhone8",
     "IOS_VERSION": "13.2",
     "CODE_VERSION": "1.40.2",
-    "EXPO_XDL_VERSION": "56.8.0",
+    "EXPO_XDL_VERSION": "57.1.1",
     "RN_VERSION": "0.61.2",
     "PURE_RN_VERSION": "0.59.8",
     "PURE_EXPO_VERSION": "35.0.0"
