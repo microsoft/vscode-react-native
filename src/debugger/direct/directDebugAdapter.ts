@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
+import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { getExtensionVersion } from "../../common/extensionHelper";
@@ -71,7 +72,7 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
             .then(() => {
                 this.outputLogger("Launching the application");
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null , 2)}`);
-                return ReactNativeProjectHelper.getReactNativeVersions(launchArgs.cwd, launchArgs.platform === "windows")
+                return ProjectVersionHelper.getReactNativeVersions(launchArgs.cwd, launchArgs.platform === "windows")
                     .then(versions => {
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
                         if (launchArgs.platform === "windows") {
@@ -116,10 +117,10 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
             .then(() => {
                 this.outputLogger("Attaching to the application");
                 logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null , 2)}`);
-                return ReactNativeProjectHelper.getReactNativeVersions(attachArgs.cwd, true)
+                return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, true)
                     .then(versions => {
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                        if (!versions.reactNativeWindowsVersion.startsWith("error")) {
+                        if (ProjectVersionHelper.isValidVersion(versions.reactNativeWindowsVersion)) {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {

@@ -7,7 +7,7 @@ import * as path from "path";
 import * as Q from "q";
 import * as XDL from "./xdlInterface";
 import { Package, IPackageInformation } from "../../common/node/package";
-import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
+import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { FileSystem } from "../../common/node/fileSystem";
 import {OutputChannelLogger} from "../log/OutputChannelLogger";
 import stripJSONComments = require("strip-json-comments");
@@ -270,7 +270,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
             this.logger.logStream("...");
         }
 
-        return ReactNativeProjectHelper.getReactNativeVersions(this.projectRootPath)
+        return ProjectVersionHelper.getReactNativeVersions(this.projectRootPath)
             .then(versions => {
                 if (showProgress) this.logger.logStream(".");
                 return XDL.mapVersion(versions.reactNativeVersion)

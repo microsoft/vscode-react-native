@@ -14,6 +14,7 @@ import { ContinuedEvent, TerminatedEvent, Logger, Response } from "vscode-debuga
 import { DebugProtocol } from "vscode-debugprotocol";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
+import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
@@ -194,10 +195,10 @@ export function makeSession(
                 },
             };
 
-            return ReactNativeProjectHelper.getReactNativeVersions(request.arguments.cwd, true)
+            return ProjectVersionHelper.getReactNativeVersions(request.arguments.cwd, true)
                 .then(versions => {
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (!versions.reactNativeWindowsVersion.startsWith("error")) {
+                    if (ProjectVersionHelper.isValidVersion(versions.reactNativeWindowsVersion)) {
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
                     return TelemetryHelper.generate("attach", extProps, (generator) => {

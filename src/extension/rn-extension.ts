@@ -24,7 +24,7 @@ import {InternalError} from "../common/error/internalError";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {SettingsHelper} from "./settingsHelper";
 import {PackagerStatusIndicator} from "./packagerStatusIndicator";
-import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import {ProjectVersionHelper} from "../common/projectVersionHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper, ICommandTelemetryProperties} from "../common/telemetryHelper";
@@ -130,11 +130,11 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
     let rootPath = folder.uri.fsPath;
     let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
-    return ReactNativeProjectHelper.getReactNativeVersions(projectRootPath)
+    return ProjectVersionHelper.getReactNativeVersions(projectRootPath)
         .then(versions => {
             outputChannelLogger.debug(`React Native version: ${versions.reactNativeVersion}`);
             let promises = [];
-            if (versions.reactNativeVersion.startsWith("error")) {
+            if (!ProjectVersionHelper.isValidVersion(versions.reactNativeVersion)) {
                 outputChannelLogger.debug("react-native version is empty");
                 TelemetryHelper.sendErrorEvent(
                     "AddProjectReactNativeVersionIsEmpty",
