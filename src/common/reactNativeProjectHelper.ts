@@ -27,9 +27,9 @@ export interface RNPackageVersions {
 export class ReactNativeProjectHelper {
 
     private static RN_VERSION_ERRORS = {
-        NO_PACKAGE: "errorNoPackage",
-        NOT_IN_DEPENDENCIES: "errorNotInDependencies",
-        NO_DEPENDENCIES: "errorNoDependencies",
+        MISSING_PACKAGE_IN_NODE_MODULES: "errorMissingPackageInNodeModules",
+        MISSING_DEPENDENCY: "errorMissingDependency",
+        MISSING_DEPENDENCIES_FIELDS: "errorMissingDependenciesFields",
         UNKNOWN_ERROR: "errorUnknown",
     };
 
@@ -79,7 +79,7 @@ export class ReactNativeProjectHelper {
             }
             return {
                 reactNativeVersion: packageVersions["react-native"],
-                reactNativeWindowsVersion: packageVersions["react-native-windows"] || ReactNativeProjectHelper.RN_VERSION_ERRORS.NO_PACKAGE,
+                reactNativeWindowsVersion: packageVersions["react-native-windows"] || ReactNativeProjectHelper.RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
             };
         });
     }
@@ -114,16 +114,16 @@ export class ReactNativeProjectHelper {
                                 } else if (devDependencies[parsedPackage.packageName]) {
                                     parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.processVersion(devDependencies[parsedPackage.packageName], parsedPackage.useSemverCoerce);
                                 } else {
-                                    parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.RN_VERSION_ERRORS.NOT_IN_DEPENDENCIES;
+                                    parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.RN_VERSION_ERRORS.MISSING_DEPENDENCY;
                                 }
                             } catch (err) {
-                                parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.RN_VERSION_ERRORS.NO_DEPENDENCIES;
+                                parsedPackageVersions[parsedPackage.packageName] = ReactNativeProjectHelper.RN_VERSION_ERRORS.MISSING_DEPENDENCIES_FIELDS;
                             }
                         });
 
                         return {
                             reactNativeVersion: parsedPackageVersions["react-native"],
-                            reactNativeWindowsVersion: parsedPackageVersions["react-native-windows"] || ReactNativeProjectHelper.RN_VERSION_ERRORS.NO_PACKAGE,
+                            reactNativeWindowsVersion: parsedPackageVersions["react-native-windows"] || ReactNativeProjectHelper.RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
                         };
                     });
             })
@@ -176,6 +176,6 @@ export class ReactNativeProjectHelper {
     private static getProcessedVersionFromNodeModules(projectRoot: string, parsedPackage: ParsedPackage): Q.Promise<PackageVersion> {
         return new Package(projectRoot).getPackageVersionFromNodeModules(parsedPackage.packageName)
             .then(version => ({[parsedPackage.packageName]: ReactNativeProjectHelper.processVersion(version, parsedPackage.useSemverCoerce)}))
-            .catch(err => ({[parsedPackage.packageName]: ReactNativeProjectHelper.RN_VERSION_ERRORS.NO_PACKAGE}));
+            .catch(err => ({[parsedPackage.packageName]: ReactNativeProjectHelper.RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES}));
     }
 }
