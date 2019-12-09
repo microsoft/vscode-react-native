@@ -4,6 +4,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as cp from "child_process";
+import * as mkdirp from "mkdirp";
 import { Application, Quality, ApplicationOptions, MultiLogger, Logger, FileLogger } from "../../automation";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
@@ -129,8 +130,10 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
         return null;
     }
 
+    const logsDir = process.env.REACT_NATIVE_TOOLS_LOGS_DIR || artifactsPath;
     const loggers: Logger[] = [];
-    loggers.push(new FileLogger(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR || artifactsPath, SmokeTestsConstants.VSCodeDriverLogFileName)));
+    mkdirp.sync(logsDir);
+    loggers.push(new FileLogger(path.join(logsDir, SmokeTestsConstants.VSCodeDriverLogFileName)));
     const codePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
     console.log(`*** Executing ${codePath}`);
 
@@ -144,7 +147,7 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
         logger: new MultiLogger(loggers),
         verbose: true,
         log: "trace",
-        screenshotsPath: process.env.REACT_NATIVE_TOOLS_LOGS_DIR || artifactsPath,
+        screenshotsPath: path.join(logsDir, "screenshots"),
     };
 }
 
