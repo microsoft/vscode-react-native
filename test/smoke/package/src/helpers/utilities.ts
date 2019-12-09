@@ -176,7 +176,7 @@ export interface ExpoLaunch {
     failed: boolean;
 }
 
-export async function findExpoSuccessAndFailurePatterns(filePath: string, successPattern: string, failurePattern: string): Promise<ExpoLaunch>{
+export async function findExpoSuccessAndFailurePatterns(filePath: string, successPattern: string, failurePattern: string): Promise<ExpoLaunch> {
     let awaitRetries: number = SmokeTestsConstants.expoAppLaunchTimeout / 5000;
     let retry = 1;
     return new Promise<ExpoLaunch>((resolve, reject) => {
