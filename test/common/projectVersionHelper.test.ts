@@ -101,7 +101,7 @@ suite("projectVersionHelper", function() {
         }).done(() => done(), done);
     });
 
-    test("isVersionError should return true if a vesion string contains an error substring", (done: MochaDone) => {
+    test("isVersionError should return true if a version string contains an error substring", (done: MochaDone) => {
         assert.equal(ProjectVersionHelper.isVersionError(RN_VERSION_ERRORS.MISSING_DEPENDENCIES_FIELDS_IN_PROJECT_PACKAGE_FILE), true);
         assert.equal(ProjectVersionHelper.isVersionError(RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES), true);
         assert.equal(ProjectVersionHelper.isVersionError(RN_VERSION_ERRORS.MISSING_DEPENDENCY_IN_PROJECT_PACKAGE_FILE), true);
@@ -112,7 +112,7 @@ suite("projectVersionHelper", function() {
         done();
     });
 
-    test("isVersionError should return false if a vesion string doesn't contain an error substring", (done: MochaDone) => {
+    test("isVersionError should return false if a version string doesn't contain an error substring", (done: MochaDone) => {
         assert.equal(ProjectVersionHelper.isVersionError("^0.60.0-vnext.68"), false);
         assert.equal(ProjectVersionHelper.isVersionError("https://github.com/expo/react-native/archive/sdk-35.0.0.tar.gz"), false);
         assert.equal(ProjectVersionHelper.isVersionError("SemverInvalid"), false);
