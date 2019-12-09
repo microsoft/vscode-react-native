@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { ProjectVersionHelper } from "../../src/common/projectVersionHelper";
+import { RN_VERSION_ERRORS } from "../../src/common/error/versionError";
 import { Node } from "../../src/common/node/node";
 
 import * as assert from "assert";
@@ -98,6 +99,28 @@ suite("projectVersionHelper", function() {
         .catch(error => {
             assert.equal(error.errorCode, 606);
         }).done(() => done(), done);
+    });
+
+    test("isVersionError should return true if a vesion string contains an error substring", (done: MochaDone) => {
+        assert.equal(ProjectVersionHelper.isVersionError(RN_VERSION_ERRORS.MISSING_DEPENDENCIES_FIELDS_IN_PROJECT_PACKAGE_FILE), true);
+        assert.equal(ProjectVersionHelper.isVersionError(RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES), true);
+        assert.equal(ProjectVersionHelper.isVersionError(RN_VERSION_ERRORS.MISSING_DEPENDENCY_IN_PROJECT_PACKAGE_FILE), true);
+        assert.equal(ProjectVersionHelper.isVersionError(RN_VERSION_ERRORS.UNKNOWN_ERROR), true);
+        assert.equal(ProjectVersionHelper.isVersionError("someError"), true);
+        assert.equal(ProjectVersionHelper.isVersionError("ERRORSTRING"), true);
+
+        done();
+    });
+
+    test("isVersionError should return false if a vesion string doesn't contain an error substring", (done: MochaDone) => {
+        assert.equal(ProjectVersionHelper.isVersionError("^0.60.0-vnext.68"), false);
+        assert.equal(ProjectVersionHelper.isVersionError("https://github.com/expo/react-native/archive/sdk-35.0.0.tar.gz"), false);
+        assert.equal(ProjectVersionHelper.isVersionError("SemverInvalid"), false);
+        assert.equal(ProjectVersionHelper.isVersionError("0.61.0"), false);
+        assert.equal(ProjectVersionHelper.isVersionError("SemverInvalid: URL"), false);
+        assert.equal(ProjectVersionHelper.isVersionError("*"), false);
+
+        done();
     });
 
     test("processVersion should return semver valid version strings or correct error strings", (done: MochaDone) => {
