@@ -51,6 +51,8 @@ export class SmokeTestsConstants {
     public static ReactNativeLogFileName = "ReactNative.txt";
     // File name where logs from React Native: Run exponent output channel will be saved
     public static ReactNativeRunExpoLogFileName = "ReactNativeRunexponent.txt";
-    // File name where logs from Chrome Debug Core logs will be saved
+    // File name where logs from Chrome Debug Core will be saved
     public static ChromeDebugCoreLogFileName = "ChromeDebugCoreLogs.txt";
+    // File name where logs from VS Code driver will be saved
+    public static VSCodeDriverLogFileName = "VSCodeDriverLogs.txt";
 }
