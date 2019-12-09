@@ -143,6 +143,7 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
         waitTime: SmokeTestsConstants.elementResponseTimeout,
         logger: new MultiLogger(loggers),
         verbose: true,
+        log: "trace",
         screenshotsPath: process.env.REACT_NATIVE_TOOLS_LOGS_DIR || artifactsPath,
     };
 }
