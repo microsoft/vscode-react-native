@@ -23,6 +23,8 @@ export class SmokeTestsConstants {
     public static iosAppBuildAndInstallTimeout = 600 * 1000;
     // Timeout for Expo app to execute
     public static expoAppBuildAndInstallTimeout = 60 * 1000;
+    // Timeout for Expo app to launch
+    public static expoAppLaunchTimeout = 120 * 1000;
     // Timeout before search string in debug console
     public static debugConsoleSearchTimeout = 0.5 * 1000;
     // Default React Native app name
@@ -37,8 +39,18 @@ export class SmokeTestsConstants {
     public static VSCodeUserDataDir = "VSCodeUserData";
     // Name of application entry point file
     public static AppjsFileName = "App.js";
-     // Name of file where tests environment variables are stored
+    // Name of file where tests environment variables are stored
     public static EnvConfigFileName = "config.json";
     // Name of file where tests environment variables are stored for development environment
     public static EnvDevConfigFileName = "config.dev.json";
+    // Log string in case if Expo launched successfully
+    public static ExpoSuccessPattern = "Tunnel ready";
+    // Log string in case if Expo launch failed
+    public static ExpoFailurePattern = "XDLError";
+    // File name where logs from React Native output channel will be saved
+    public static ReactNativeLogFileName = "ReactNative.txt";
+    // File name where logs from React Native: Run exponent output channel will be saved
+    public static ReactNativeRunExpoLogFileName = "ReactNativeRunexponent.txt";
+    // File name where logs from Chrome Debug Core logs will be saved
+    public static ChromeDebugCoreLogFileName = "ChromeDebugCoreLogs.txt";
 }

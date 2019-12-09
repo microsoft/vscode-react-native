@@ -7,6 +7,7 @@ import * as request from "request";
 import * as URL from "url-parse";
 import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
+import { SmokeTestsConstants } from "./smokeTestsConstants";
 
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
     return new Promise<R>((c, e) => fn(...args, (err, r) => err ? e(err) : c(r)));
@@ -168,6 +169,36 @@ export function findStringInFile(filePath: string, strToFind: string): boolean {
         return content.includes(strToFind);
     }
     return false;
+}
+
+export interface ExpoLaunch {
+    successful: boolean;
+    failed: boolean;
+}
+
+export async function findExpoSuccessAndFailurePatterns(filePath: string, successPattern: string, failurePattern: string): Promise<ExpoLaunch>{
+    let awaitRetries: number = SmokeTestsConstants.expoAppLaunchTimeout / 5000;
+    let retry = 1;
+    return new Promise<ExpoLaunch>((resolve, reject) => {
+        let check = setInterval(async () => {
+            let expoStarted = findStringInFile(filePath, successPattern);
+            let expoFailed = findStringInFile(filePath, failurePattern);
+            console.log(`Searching for Expo launch logging patterns for ${retry} time...`);
+            if (expoStarted || expoFailed) {
+                clearInterval(check);
+                const status: ExpoLaunch = {successful: expoStarted, failed: expoFailed};
+                console.log(`Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`);
+                resolve(status);
+            } else {
+                retry++;
+                if (retry >= awaitRetries) {
+                    console.log(`Expo launch logging patterns are not found after ${retry} retries:`);
+                    clearInterval(check);
+                    resolve({successful: expoStarted, failed: expoFailed});
+                }
+            }
+        }, 5000);
+    });
 }
 
 export function findExpoURLInLogFile(filePath: string) {
