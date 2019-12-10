@@ -6,7 +6,7 @@ import { AppiumHelper, AppiumClient, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { RNworkspacePath, runVSCode, ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
-import { sleep, findFile, findExpoURLInLogFile } from "./helpers/utilities";
+import { sleep, findFile, findExpoURLInLogFile, findExpoSuccessAndFailurePatterns, ExpoLaunch } from "./helpers/utilities";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import * as path from "path";
 import { TestRunArguments } from "./helpers/configHelper";
@@ -30,7 +30,9 @@ export function setup(testParameters?: TestRunArguments) {
         let clientInited: AppiumClient;
 
         afterEach(async () => {
-            await app.stop();
+            if (app) {
+                await app.stop();
+            }
             if (clientInited) {
                 clientInited.closeApp();
                 clientInited.endAll();
@@ -98,16 +100,24 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
             const device = <string>IosSimulatorHelper.getDevice();
             await sleep(5 * 1000);
+            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                let expoLaunchStatus: ExpoLaunch;
+                expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
+                if (expoLaunchStatus.failed) {
+                    console.log("First attempt to start failed, retrying...");
+                    await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
+                }
+            }
             await app.workbench.editors.waitForTab("Expo QR Code");
             await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("iOS Expo Debug test: 'Expo QR Code' tab found");
 
             let expoURL;
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
+                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeRunExpoLogFileName));
             }
 
-            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
             expoURL = expoURL as string;
             let appFile = findFile(SetupEnvironmentHelper.iOSExpoAppsCacheDir, /.*\.(app)/);
             if (!appFile) {
@@ -117,7 +127,7 @@ export function setup(testParameters?: TestRunArguments) {
             const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
-            // await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, app.client.spectron.electron.clipboard, expoURL);
+            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL);
             console.log(`iOS Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
 
@@ -162,16 +172,24 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
             const device = <string>IosSimulatorHelper.getDevice();
             await sleep(5 * 1000);
+            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                let expoLaunchStatus: ExpoLaunch;
+                expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
+                if (expoLaunchStatus.failed) {
+                    console.log("First attempt to start failed, retrying...");
+                    await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
+                }
+            }
             await app.workbench.editors.waitForTab("Expo QR Code");
             await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("iOS pure RN Expo test: 'Expo QR Code' tab found");
 
             let expoURL;
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
+                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeRunExpoLogFileName));
             }
 
-            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
             expoURL = expoURL as string;
             let appFile = findFile(SetupEnvironmentHelper.iOSExpoAppsCacheDir, /.*\.(app)/);
             if (!appFile) {

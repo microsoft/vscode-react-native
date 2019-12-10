@@ -5,7 +5,7 @@ import * as assert from "assert";
 import * as path from "path";
 import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
-import { sleep, findStringInFile, findExpoURLInLogFile } from "./helpers/utilities";
+import { sleep, findStringInFile, findExpoURLInLogFile, ExpoLaunch, findExpoSuccessAndFailurePatterns } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
@@ -36,7 +36,9 @@ export function setup(testParameters?: TestRunArguments) {
         let clientInited: AppiumClient;
 
         afterEach(async () => {
-            await app.stop();
+            if (app) {
+                await app.stop();
+            }
             if (clientInited) {
                 clientInited.closeApp();
                 clientInited.endAll();
@@ -116,7 +118,7 @@ export function setup(testParameters?: TestRunArguments) {
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                 console.log("Android Debug Hermes test: Searching for \"Test output from Hermes debuggee\" string in output file");
-                let found = findStringInFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ChromeDebugCoreLogs.txt"), "Test output from Hermes debuggee");
+                let found = findStringInFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ChromeDebugCoreLogFileName), "Test output from Hermes debuggee");
                 assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in output file");
                 console.log("Android Debug test: \"Test output from Hermes debuggee\" string is found");
             }
@@ -141,15 +143,24 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`Android Expo Debug test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             console.log("Android Expo Debug test: Starting debugging");
             await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
+            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                let expoLaunchStatus: ExpoLaunch;
+                expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
+                if (expoLaunchStatus.failed) {
+                    console.log("First attempt to start failed, retrying...");
+                    await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
+                }
+            }
+
             await app.workbench.editors.waitForTab("Expo QR Code");
             await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("Android Expo Debug test: 'Expo QR Code' tab found");
 
             let expoURL;
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
+                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeRunExpoLogFileName));
             }
-            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);
@@ -192,16 +203,24 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`Android pure RN Expo test: Chosen debug configuration: ${ExpoDebugConfigName}`);
             console.log("Android pure RN Expo test: Starting debugging");
             await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
+            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                let expoLaunchStatus: ExpoLaunch;
+                expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
+                if (expoLaunchStatus.failed) {
+                    console.log("First attempt to start failed, retrying...");
+                    await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
+                }
+            }
             await app.workbench.editors.waitForTab("Expo QR Code");
             await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log("Android pure RN Expo test: 'Expo QR Code' tab found");
 
             let expoURL;
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, "ReactNativeRunexponent.txt"));
+                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeRunExpoLogFileName));
             }
 
-            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found in the clipboard");
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             let client = AppiumHelper.webdriverAttach(opts);

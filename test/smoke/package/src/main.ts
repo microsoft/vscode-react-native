@@ -120,19 +120,18 @@ export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
 
 export const artifactsPath = path.join(repoRoot, SmokeTestsConstants.artifactsDir);
-const userDataDir = path.join(testVSCodeDirectory, SmokeTestsConstants.VSCodeUserDataDir);
+const userDataDir = path.join(repoRoot, SmokeTestsConstants.VSCodeUserDataDir);
 
 const extensionsPath = path.join(testVSCodeDirectory, "extensions");
-
-const keybindingsPath = path.join(userDataDir, "keybindings.json");
-process.env.VSCODE_KEYBINDINGS_PATH = keybindingsPath;
 
 function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolderName: string): ApplicationOptions | null {
     if (!electronExecutablePath) {
         return null;
     }
 
+    const logsDir = process.env.REACT_NATIVE_TOOLS_LOGS_DIR || artifactsPath;
     const loggers: Logger[] = [];
+
     loggers.push(new ConsoleLogger());
     const codePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
     console.log(`*** Executing ${codePath}`);
@@ -146,7 +145,7 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
         waitTime: SmokeTestsConstants.elementResponseTimeout,
         logger: new MultiLogger(loggers),
         verbose: true,
-        screenshotsPath: RNworkspaceFilePath,
+        screenshotsPath: path.join(logsDir, "screenshots"),
     };
 }
 
@@ -205,7 +204,6 @@ async function setup(): Promise<void> {
         console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
         fs.mkdirSync(userDataDir);
     }
-    await VSCodeHelper.fetchKeybindings(keybindingsPath);
     console.log("*** Smoke tests setup done!\n");
 }
 
@@ -216,6 +214,7 @@ export async function runVSCode(workspaceOrFolder: string): Promise<Application>
     process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
     const options = createOptions(quality, workspaceOrFolder, runName.toString());
     const app = new Application(options!);
+    console.log(`Options for run #${runName}: ${JSON.stringify(options, null, 2)}`);
     await app!.start();
     return app!;
 }
@@ -228,7 +227,7 @@ before(async function () {
         return;
     }
     this.timeout(SmokeTestsConstants.smokeTestSetupAwaitTimeout);
-    SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath], SetupEnvironmentHelper.iOSExpoAppsCacheDir);
+    SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), userDataDir, artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath], SetupEnvironmentHelper.iOSExpoAppsCacheDir);
     try {
         await setup();
     } catch (err) {

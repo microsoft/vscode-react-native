@@ -1,11 +1,13 @@
 # Running automated smoke tests locally
 
-Tests supports running on **Windows 10**, **MacOS Mojave** and **Ubuntu 18.04** machines. Use instructions respected to your machine type.
+Tests supports running on **Windows 10**, **MacOS Catalina** and **Ubuntu 18.04** machines. Use instructions respected to your machine type.
 Please, be aware that automated tests doesn't cover debugging cases on a real devices - only emulators/simulators.
 
 ## Prerequisites
 
 Make sure you are on `Node.JS 10.x`.
+
+Tests require build tools that are needed for VS Code to be installed before the tests. Make sure that [instructions for building VS Code from sources](https://github.com/Microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed.
 
 ### Windows only
    * [Install Chocolatey](https://chocolatey.org/install)
@@ -29,6 +31,8 @@ Make sure you are on `Node.JS 10.x`.
     brew cask install java8
     brew cask install android-studio
     brew install git
+    brew install watchman
+    brew install carthage
     ```
    * **Ubuntu**:
     ```bash

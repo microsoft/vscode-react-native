@@ -12,8 +12,6 @@ import * as path from "path";
 import * as utilities from "./utilities";
 import * as request from "request";
 import * as source from "vinyl-source-stream";
-import * as https from "https";
-import * as fs from "fs";
 import * as rimraf from "rimraf";
 import * as cp from "child_process";
 
@@ -57,20 +55,6 @@ export class VSCodeHelper {
                     resolve();
                 });
             });
-        });
-    }
-
-    public static async fetchKeybindings(keybindingsPath: string) {
-        const keybindingsUrl = `https://raw.githubusercontent.com/Microsoft/vscode-docs/master/build/keybindings/doc.keybindings.${VSCodeHelper.getKeybindingPlatform()}.json`;
-        console.log(`*** Fetching keybindings into ${keybindingsPath}` );
-        await new Promise((cb, err) => {
-            https.get(keybindingsUrl, res => {
-                const output = fs.createWriteStream(keybindingsPath);
-                res.on("error", err);
-                output.on("error", err);
-                output.on("close", cb);
-                res.pipe(output);
-            }).on("error", err);
         });
     }
 
@@ -134,14 +118,6 @@ export class VSCodeHelper {
         // CodeHelper.exe window
         commands.push(`taskkill /f /t /fi "IMAGENAME eq CodeHelper.exe" /fi "USERNAME eq ${userName}`);
         return commands;
-    }
-
-    private static getKeybindingPlatform(): string {
-        switch (process.platform) {
-            case "darwin": return "osx";
-            case "win32": return "win";
-            default: return process.platform;
-        }
     }
 
     private static getDownloadUrl(cb) {
