@@ -4,8 +4,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as cp from "child_process";
-import * as mkdirp from "mkdirp";
-import { Application, Quality, ApplicationOptions, MultiLogger, Logger, FileLogger } from "../../automation";
+import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleLogger } from "../../automation";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
@@ -132,8 +131,8 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
 
     const logsDir = process.env.REACT_NATIVE_TOOLS_LOGS_DIR || artifactsPath;
     const loggers: Logger[] = [];
-    mkdirp.sync(logsDir);
-    loggers.push(new FileLogger(path.join(logsDir, SmokeTestsConstants.VSCodeDriverLogFileName)));
+
+    loggers.push(new ConsoleLogger());
     const codePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
     console.log(`*** Executing ${codePath}`);
 
@@ -146,7 +145,6 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
         waitTime: SmokeTestsConstants.elementResponseTimeout,
         logger: new MultiLogger(loggers),
         verbose: true,
-        log: "trace",
         screenshotsPath: path.join(logsDir, "screenshots"),
     };
 }
