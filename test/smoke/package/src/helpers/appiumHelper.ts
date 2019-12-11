@@ -128,15 +128,15 @@ export class AppiumHelper {
         return wdio.remote(attachArgs);
     }
 
-    public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string) {
+    public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string, projectFolder: string) {
         // There are two ways to run app in Expo app:
         // - via clipboard
-        // - via Explore button
+        // - via expo android command
         if (platform === Platform.Android) {
             if (process.platform === "darwin") {
                 // Longer way to open Expo app, but
                 // it certainly works on Mac
-                return this.openExpoAppViaExploreButtonAndroid(client, expoURL);
+                return this.openExpoAppViaExpoAndroidCommand(client, projectFolder);
             } else {
                 // The quickest way to open Expo app,
                 // it doesn't work on Mac though
@@ -307,37 +307,13 @@ export class AppiumHelper {
             .click(OPEN_BUTTON);
     }
 
-    private static async openExpoAppViaExploreButtonAndroid(client: AppiumClient, expoURL: string) {
-        console.log(`*** Opening Expo app via "Explore" button`);
-        console.log(`*** Pressing "Explore" button...`);
+    private static async openExpoAppViaExpoAndroidCommand(client: AppiumClient, projectFolder: string) {
+        console.log(`*** Opening Expo app via "expo android" command`);
+        console.log(`*** Searching for the "Explore" button...`);
         const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc='Explore' or @content-desc='Explore, tab, 2 of 3']";
         await client
-            .waitForExist(EXPLORE_ELEMENT, 30 * 1000)
-            .click(EXPLORE_ELEMENT);
-        console.log(`*** Pressing "Search" icon...`);
+            .waitForExist(EXPLORE_ELEMENT, 30 * 1000);
 
-        // Elements hierarchy:
-        // Parent element
-        // |- Featured Projects    <- where we start searching
-        // |- "Search" button     <- what we are looking for
-        //
-        const FEATURED_PROJECTS_ELEMENT = "//*[@text=\"Featured Projects\"]";
-        await client
-            .waitForExist(FEATURED_PROJECTS_ELEMENT, 5 * 1000)
-            .click(`${FEATURED_PROJECTS_ELEMENT}//../child::*[2]`);
-
-        console.log(`*** Pasting ${expoURL} to text field...`);
-        const FIND_A_PROJECT_ELEMENT = "//*[@text=\"Find a project or enter a URL...\"]";
-        await client
-            .waitForExist(FIND_A_PROJECT_ELEMENT, 5 * 1000)
-            .click(FIND_A_PROJECT_ELEMENT);
-        client.keys(expoURL);
-        await sleep(2 * 1000);
-
-        console.log(`*** Clicking on first found result to run the app`);
-        const TAP_TO_ATTEMPT_ELEMENT = "//*[@text=\"Tap to attempt to open project at\"]";
-        await client
-            .waitForExist(TAP_TO_ATTEMPT_ELEMENT, 10 * 1000)
-            .click(`${TAP_TO_ATTEMPT_ELEMENT}//..`); // parent element is the one we should click on
+        cp.execSync("expo android", { cwd: projectFolder, stdio: "inherit" });
     }
 }
