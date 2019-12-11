@@ -284,7 +284,7 @@ export class AppiumHelper {
         console.log(`*** Pressing "Add" button...`);
 
         const EXPO_ADD_BUTTON = `(//XCUIElementTypeOther[@name=""])[2]`;
-        const FIND_A_PROJECT_ELEMENT = `//XCUIElementTypeAlert[@name="Enter a project URL to open it"]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeOther[1]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeCollectionView/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeTextField`;
+        const FIND_A_PROJECT_ELEMENT = `//XCUIElementTypeTextField`;
         const OPEN_BUTTON = `//XCUIElementTypeButton[@name="Open"]`;
 
         await client
