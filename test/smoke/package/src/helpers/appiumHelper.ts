@@ -145,7 +145,7 @@ export class AppiumHelper {
         } else if (platform === Platform.iOS) {
             // Similar to openExpoAppViaClipboardAndroid approach
             // but uses different XPath selectors
-            return this.openExpoAppViaExploreButtonIos(client, expoURL);
+            return this.openExpoAppViaProjectURL(client, expoURL);
         } else {
             throw new Error(`Unknown platform ${platform}`);
         }
@@ -279,15 +279,17 @@ export class AppiumHelper {
         console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
-    private static async openExpoAppViaExploreButtonIos(client: AppiumClient, expoURL: string) {
-        console.log(`*** Opening Expo app via "Explore" button`);
-        console.log(`*** Pressing "Explore" button...`);
-        const EXPO_EXPLORE_BUTTON = "//XCUIElementTypeButton[@name='Explore, tab, 2 of 4']";
-        await client
-            .waitForExist(EXPO_EXPLORE_BUTTON, 30 * 1000)
-            .click(EXPO_EXPLORE_BUTTON);
+    private static async openExpoAppViaProjectURL(client: AppiumClient, expoURL: string) {
+        console.log(`*** Opening Expo app via Project URL`);
+        console.log(`*** Pressing "Add" button...`);
 
-        const FIND_A_PROJECT_ELEMENT = `(//XCUIElementTypeOther[@name='Find a project or enter a URL... '])[3]`;
+        const EXPO_ADD_BUTTON = `(//XCUIElementTypeOther[@name=""])[2]`;
+        const FIND_A_PROJECT_ELEMENT = `//XCUIElementTypeTextField`;
+        const OPEN_BUTTON = `//XCUIElementTypeButton[@name="Open"]`;
+
+        await client
+            .waitForExist(EXPO_ADD_BUTTON, 30 * 1000)
+            .click(EXPO_ADD_BUTTON);
 
         console.log(`*** Pasting ${expoURL} to search field...`);
         // Run Expo app by expoURL
@@ -299,11 +301,10 @@ export class AppiumHelper {
         client.keys(expoURL);
         await sleep(2 * 1000);
 
-        console.log(`*** Clicking on first found result to run the app`);
-        const TAP_TO_ATTEMPT_ELEMENT = `//XCUIElementTypeOther[@name='Tap to attempt to open project at ${expoURL}']`;
+        console.log(`*** Clicking on Open button to run the app`);
         await client
-            .waitForExist(TAP_TO_ATTEMPT_ELEMENT, 30 * 1000)
-            .click(`${TAP_TO_ATTEMPT_ELEMENT}//..`); // parent element is the one we should click on
+            .waitForExist(OPEN_BUTTON, 30 * 1000)
+            .click(OPEN_BUTTON);
     }
 
     private static async openExpoAppViaExpoAndroidCommand(client: AppiumClient, projectFolder: string) {
