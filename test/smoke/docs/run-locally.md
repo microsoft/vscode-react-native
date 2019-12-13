@@ -7,7 +7,7 @@ Please, be aware that automated tests doesn't cover debugging cases on a real de
 
 Make sure you are on `Node.JS 10.x`.
 
-Tests are running using [VS Code automation package](https://github.com/microsoft/vscode/tree/master/test/automation), so they are require build tools, that are needed for VS Code. Please make sure that [instructions for building VS Code from sources](https://github.com/Microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed before running the tests.
+Tests are running using [VS Code automation package](https://github.com/microsoft/vscode/tree/master/test/automation), so before the tests runs the VS Code build tools are needed to be installed. Please make sure that [instructions for building VS Code from sources](https://github.com/Microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed before running the tests.
 
 ### Windows only
    * [Install Chocolatey](https://chocolatey.org/install)
