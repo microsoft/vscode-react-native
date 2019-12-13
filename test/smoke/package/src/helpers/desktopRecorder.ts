@@ -73,7 +73,7 @@ export class DesktopRecorder {
             options.Format = this.ffmpegFormat[process.platform];
         }
         let args: string[] = [];
-        args.push("-video_size", "1920x1080");
+        args.push("-video_size", options.VideoSize);
         args.push("-f", options.Format || "");
         args.push("-i", options.Input);
         args.push("-framerate", options.Framerate.toString());
