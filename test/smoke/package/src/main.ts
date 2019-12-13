@@ -98,6 +98,7 @@ if (!isInsiders) {
 }
 
 let electronExecutablePath: string;
+let screenshotsPath: string;
 
 let quality: Quality;
 if (isInsiders) {
@@ -134,8 +135,8 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
 
     loggers.push(new ConsoleLogger());
     const codePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
+    screenshotsPath = path.join(logsDir, "screenshots");
     console.log(`*** Executing ${codePath}`);
-
     return {
         quality,
         codePath: codePath,
@@ -145,7 +146,7 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
         waitTime: SmokeTestsConstants.elementResponseTimeout,
         logger: new MultiLogger(loggers),
         verbose: true,
-        screenshotsPath: path.join(logsDir, "screenshots"),
+        screenshotsPath,
     };
 }
 
@@ -236,6 +237,19 @@ before(async function () {
 });
 
 describe("Extension smoke tests", () => {
+
+    afterEach(async function () {
+        if (this.currentTest.state !== 'failed') {
+            return;
+        }
+        if (screenshotsPath) {
+            const app = this.app as Application;
+            const name = this.currentTest.fullTitle().replace(/[^a-z0-9\-]/ig, '_');
+
+            await app.captureScreenshot(name);
+        }
+    });
+
     after(async function () {
         AndroidEmulatorHelper.terminateAndroidEmulator();
         if (process.platform === "darwin") {
