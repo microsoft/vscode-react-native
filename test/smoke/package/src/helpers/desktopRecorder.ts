@@ -38,7 +38,7 @@ export class DesktopRecorder {
     };
     private defaultOptions: FFmpegOptions = {
         Framerate: 30,
-        VideoSize: "1920x1080",
+        VideoSize: "800x600",
         Output: path.join(artifactsPath, "testsRecord.avi"),
         Input: process.platform === "win32" ? "desktop" : process.platform === "darwin" ? "0:0" : ":10",
         PixelFormat: "yuv420p",
@@ -46,13 +46,16 @@ export class DesktopRecorder {
 
     public startRecord(options?: FFmpegOptions) {
         const args = this.prepareOptions(options);
-        this.recorderProcess = cp.spawn(this.ffmpegExecutable, args);
-        this.recorderProcess.on("exit", () => {
-            console.log("*** Video record finished, video saved as: %s", args[args.length - 1]);
-        });
-        this.recorderProcess.on("error", (error) => {
-            console.error("Error occurred in ffmpeg process: ", error);
-        });
+        if (!this.recorderProcess) {
+            this.recorderProcess = cp.spawn(this.ffmpegExecutable, args);
+            this.recorderProcess.on("exit", () => {
+                console.log("*** Video record finished, video saved as: %s", args[args.length - 1]);
+            });
+            this.recorderProcess.on("error", (error) => {
+                console.error("Error occurred in ffmpeg process: ", error);
+            });
+        }
+
     }
 
     public stopRecord() {
