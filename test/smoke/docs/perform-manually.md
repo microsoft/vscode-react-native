@@ -7,6 +7,8 @@ These are the scenarios that should be tested during manual smoke testing:
 |---|---|---|---|
 |Debug Android on device||||
 |Debug Android on emulator||||
+|Debug Android (Hermes) - Experimental on device||||
+|Debug Android (Hermes) - Experimental on emulator||||
 |Debug Expo Android on device||||
 |Debug Expo iOS on device||||
 |Debug Expo Android on emulator||||
@@ -19,6 +21,8 @@ These are the scenarios that should be tested during manual smoke testing:
 |---|---|---|---|
 |Debug Android on device||||
 |Debug Android on emulator||||
+|Debug Android (Hermes) - Experimental on device||||
+|Debug Android (Hermes) - Experimental on emulator||||
 |Debug Expo Android on device||||
 |Debug Expo iOS on device||||
 |Debug Expo Android on emulator||||
@@ -31,6 +35,8 @@ These are the scenarios that should be tested during manual smoke testing:
 |---|---|---|---|
 |Debug Android on device||||
 |Debug Android on emulator||||
+|Debug Android (Hermes) - Experimental on device||||
+|Debug Android (Hermes) - Experimental on emulator||||
 |Debug iOS on simulator||||
 |Debug iOS on device||||
 |Debug Expo Android on device||||
