@@ -245,12 +245,12 @@ before(async function () {
 describe("Extension smoke tests", () => {
 
     afterEach(async function () {
-        if (this.currentTest.state !== 'failed') {
+        if (this.currentTest.state !== "failed") {
             return;
         }
         if (screenshotsPath) {
             const app = this.app as Application;
-            const name = this.currentTest.fullTitle().replace(/[^a-z0-9\-]/ig, '_');
+            const name = this.currentTest.fullTitle().replace(/[^a-z0-9\-]/ig, "_");
 
             await app.captureScreenshot(name);
         }
