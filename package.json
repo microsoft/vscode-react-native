@@ -683,7 +683,7 @@
 	},
 	"devDependencies": {
 		"@types/mkdirp": "^0.5.2",
-		"@types/mocha": "^2.2.40",
+		"@types/mocha": "^5.2.7",
 		"@types/ncp": "^2.0.2",
 		"@types/node": "^10.14.4",
 		"@types/qr-image": "^3.2.0",
