@@ -14,6 +14,7 @@ import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestConfigurator } from "./helpers/configHelper";
 import { findFile } from "./helpers/utilities";
+import { DesktopRecorder } from "./helpers/desktopRecorder";
 
 // TODO Incapsulate main.ts (get rid of function(), local variables, etc)
 console.log(`*** Setting up configuration variables`);
@@ -155,6 +156,7 @@ export function prepareReactNativeProjectForHermesTesting() {
 }
 
 const testParams = TestConfigurator.parseTestArguments();
+const desktopRecorder = new DesktopRecorder();
 async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
     console.log("*** Preparing smoke tests setup...");
@@ -231,6 +233,10 @@ before(async function () {
     SetupEnvironmentHelper.cleanUp(path.join(testVSCodeDirectory, ".."), userDataDir, artifactsPath, [RNworkspacePath, ExpoWorkspacePath, pureRNWorkspacePath], SetupEnvironmentHelper.iOSExpoAppsCacheDir);
     try {
         await setup();
+        if (testParams.VideoRecord) {
+            console.log(`*** --video-record parameter is set, test will be recorded and saved in ${artifactsPath}`);
+            desktopRecorder.startRecord();
+        }
     } catch (err) {
         await fail(err);
     }
