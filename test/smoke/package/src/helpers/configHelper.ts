@@ -74,10 +74,6 @@ export class TestConfigurator {
             variables = JSON.parse(fs.readFileSync(envConfigFilePath).toString());
         }
 
-        if (process.env.NIGHTLY) {
-            console.log("*** This is nightly build, only the latest software versions will be used");
-            variables.CODE_VERSION = "*";
-        }
         // Hack for Azure DevOps, because it doesn't implicitly support optional parameters for task group
         if (variables.EXPO_XDL_VERSION === "skip") {
             delete variables.EXPO_XDL_VERSION;
