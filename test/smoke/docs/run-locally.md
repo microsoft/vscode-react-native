@@ -1,11 +1,13 @@
 # Running automated smoke tests locally
 
-Tests supports running on **Windows 10**, **MacOS Mojave** and **Ubuntu 18.04** machines. Use instructions respected to your machine type.
+Tests supports running on **Windows 10**, **MacOS Catalina** and **Ubuntu 18.04** machines. Use instructions respected to your machine type.
 Please, be aware that automated tests doesn't cover debugging cases on a real devices - only emulators/simulators.
 
 ## Prerequisites
 
 Make sure you are on `Node.JS 10.x`.
+
+Tests are running using [VS Code automation package](https://github.com/microsoft/vscode/tree/master/test/automation), so before the tests runs the VS Code build tools are required to be installed. Please make sure that [instructions for building VS Code from sources](https://github.com/Microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed before running the tests.
 
 ### Windows only
    * [Install Chocolatey](https://chocolatey.org/install)
@@ -29,6 +31,7 @@ Make sure you are on `Node.JS 10.x`.
     brew cask install java8
     brew cask install android-studio
     brew install git
+    brew install watchman
     ```
    * **Ubuntu**:
     ```bash
@@ -176,7 +179,7 @@ yarn mocha
 ```
 These command will perform pre-tests setup (creating applications, downloading VS Code, cleaning up, etc) and then run Android and iOS tests.
 
-> Notice (**Mac only**): when the tests are being ran for the first time, you need to give permissions for `runsvc.sh` agent process for System Events. Request for the permissions will appear automatically during the tests, so you need to just press `Allow` button. This is required for `expo ios:install` command which runs graphical iOS simulator.
+> Notice (**Mac only**): when the tests are being ran for the first time, you need to give permissions for `runsvc.sh` agent process for System Events. Request for the permissions will appear automatically during the tests, so you need to just press `Allow` button. This is required for `expo client:install:ios` command which runs graphical iOS simulator.
 
 Also, it supports the following parameters:
 
@@ -200,4 +203,4 @@ Several diagnostic logs are written during tests run. `SmokeTestLogs` directory 
   * `chromedriver.log` - logs of Chrome Driver that are used by Spectron
 * `appium.log` - logs of Appium server
 
-Also, VS Code instance, that is downloaded and used for running tests, is located in `test/smoke/resources/.vscode-test` directory.
+Also, VS Code instance, that is downloaded and used for running tests, is located in `test/smoke/vscode/test/smoke/resources/.vscode-test` directory.

@@ -2,6 +2,25 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "prepare-smoke-tests",
+            "type": "process",
+            "command": ["yarn"],
+            "windows": {
+                "command": "yarn.cmd",
+            },
+            "args": [
+                "prepare-smoke-tests"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+        },
+        {
             "label": "compile-smoke-tests",
             "type": "process",
             "command": ["./node_modules/.bin/tsc"],
@@ -9,7 +28,7 @@
                 "command": ".\\node_modules\\.bin\\tsc.cmd",
             },
             "options": {
-                "cwd": "${workspaceRoot}/test/smoke"
+                "cwd": "${workspaceRoot}/test/smoke/vscode/test/smoke"
             },
             "presentation": {
                 "echo": true,
@@ -35,7 +54,7 @@
                 "'src/**'",
             ],
             "options": {
-                "cwd": "${workspaceRoot}/test/smoke"
+                "cwd": "${workspaceRoot}/test/smoke/vscode/test/smoke"
             },
             "presentation": {
                 "echo": true,
@@ -45,6 +64,10 @@
                 "showReuseMessage": false,
                 "clear": false
             }
+        },
+        {
+            "label": "Prepare Smoke Tests",
+            "dependsOn": ["prepare-smoke-tests"]
         },
         {
             "label": "Build Smoke Tests",
