@@ -43,9 +43,9 @@ export class SmokeTestsConstants {
     public static EnvConfigFileName = "config.json";
     // Name of file where tests environment variables are stored for development environment
     public static EnvDevConfigFileName = "config.dev.json";
-    // Log string in case if Expo launched successfully
+    // Log string in case of Expo launched successfully
     public static ExpoSuccessPattern = "Tunnel ready";
-    // Log string in case if Expo launch failed
+    // Log string in case of Expo launch failed
     public static ExpoFailurePattern = "XDLError";
     // File name where logs from React Native output channel will be saved
     public static ReactNativeLogFileName = "ReactNative.txt";
