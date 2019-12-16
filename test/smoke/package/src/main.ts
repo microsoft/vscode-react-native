@@ -24,9 +24,11 @@ const envConfigFilePathDev = path.resolve(__dirname, "..", SmokeTestsConstants.E
 
 TestConfigurator.setUpEnvVariables(fs.existsSync(envConfigFilePathDev) ? envConfigFilePathDev : envConfigFilePath);
 TestConfigurator.printEnvVariableConfiguration();
+const desktopRecorder = new DesktopRecorder();
 
 async function fail(errorMessage) {
     console.error(errorMessage);
+    desktopRecorder.stopRecord();
     AndroidEmulatorHelper.terminateAndroidEmulator();
     if (process.platform === "darwin") {
         try {
@@ -156,7 +158,7 @@ export function prepareReactNativeProjectForHermesTesting() {
 }
 
 const testParams = TestConfigurator.parseTestArguments();
-const desktopRecorder = new DesktopRecorder();
+
 async function setup(): Promise<void> {
     console.log("*** Test VS Code directory:", testVSCodeDirectory);
     console.log("*** Preparing smoke tests setup...");
@@ -258,6 +260,7 @@ describe("Extension smoke tests", () => {
     });
 
     after(async function () {
+        desktopRecorder.stopRecord();
         AndroidEmulatorHelper.terminateAndroidEmulator();
         if (process.platform === "darwin") {
             try {
