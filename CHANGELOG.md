@@ -1,3 +1,11 @@
+## 0.14.0
+* Enhanced extension security [#1171](https://github.com/microsoft/vscode-react-native/pull/1171)
+* Deps: `vscode-chrome-debug-core@6.8.7` [#1175](https://github.com/microsoft/vscode-react-native/pull/1175)
+* Enhanced extension logging [#1175](https://github.com/microsoft/vscode-react-native/pull/1175)
+* Internal changes:
+    * Enhance smoke tests workflow ([#1180](https://github.com/microsoft/vscode-react-native/pull/1180))
+    * Enhance extension telemetry ([#1175](https://github.com/microsoft/vscode-react-native/pull/1175))
+
 ## 0.13.2
 * Added support for Haul packager 0.15 [#1166](https://github.com/microsoft/vscode-react-native/pull/1166)
 * Fixed security vulnerability [#1165](https://github.com/microsoft/vscode-react-native/pull/1165)
