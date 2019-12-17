@@ -304,13 +304,8 @@ module.exports.hasteMapCacheDirectory = ".cache";`;
     private static copyGradleFilesToHermesApp(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
         const appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
         const resGradleBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
-        const resReactGradleFilePath = path.join(resourcesPath, customEntryPointFolder, "react.gradle"); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
-        const projReactGradleFilePath = path.join(workspacePath, "node_modules", "react-native", "react.gradle"); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
 
         console.log(`*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`);
         fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
-
-        console.log(`*** Copying  ${resReactGradleFilePath} into ${projReactGradleFilePath}...`); // TODO:  remove after react-native Gradle configuration fix (https://github.com/facebook/react-native/issues/25599)
-        fs.writeFileSync(projReactGradleFilePath, fs.readFileSync(resReactGradleFilePath));
     }
 }
