@@ -51,7 +51,7 @@ export class TelemetryHelper {
         });
     }
 
-    public static sendErrorEvent(eventName: string, error: Error, isPii: boolean = true, errorDescription?: string) {
+    public static sendErrorEvent(eventName: string, error: Error, errorDescription?: string, isPii: boolean = true) {
         const event = TelemetryHelper.createTelemetryEvent(eventName);
         let errorWithErrorCode: IHasErrorCode = <IHasErrorCode> <Object> error;
         if (errorWithErrorCode.errorCode) {

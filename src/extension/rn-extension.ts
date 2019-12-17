@@ -135,12 +135,12 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
             outputChannelLogger.debug(`React Native version: ${versions.reactNativeVersion}`);
             let promises = [];
             if (ProjectVersionHelper.isVersionError(versions.reactNativeVersion)) {
-                outputChannelLogger.debug("react-native version is empty");
+                outputChannelLogger.debug(`Found empty react-native version in ${projectRootPath}. Reason: ${versions.reactNativeVersion}`);
                 TelemetryHelper.sendErrorEvent(
                     "AddProjectReactNativeVersionIsEmpty",
                     ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion),
-                    false,
-                    versions.reactNativeVersion
+                    versions.reactNativeVersion,
+                    false
                 );
             } else if (isSupportedVersion(versions.reactNativeVersion)) {
                 promises.push(entryPointHandler.runFunction("debugger.setupLauncherStub", ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed), () => {
