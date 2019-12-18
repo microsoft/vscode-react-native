@@ -10,6 +10,7 @@ import * as semver from "semver";
 import * as os from "os";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
 import { sleep } from "./utilities";
+import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
 
 const XDL = require("@expo/xdl");
 
@@ -161,6 +162,7 @@ export class SetupEnvironmentHelper {
     // Installs Expo app on Android device using XDL function
     public static async installExpoAppOnAndroid() {
         await XDL.Android.installExpoAsync();
+        AndroidEmulatorHelper.enableDrawPermitForApp(this.expoPackageName);
     }
 
     // Installs Expo app on iOS device using XDL function
