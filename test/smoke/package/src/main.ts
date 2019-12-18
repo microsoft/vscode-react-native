@@ -172,11 +172,10 @@ async function setup(): Promise<void> {
         const PureRNVersionExpo = process.env.PURE_RN_VERSION || await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo();
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", PureRNVersionExpo);
         SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath, process.env.PURE_EXPO_VERSION);
-        await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
+        await SetupEnvironmentHelper.installExpoAppOnAndroid();
         SetupEnvironmentHelper.patchExpoSettingsFile(ExpoWorkspacePath);
         if (process.platform === "darwin") {
-            // We need only to download expo app
-            await SetupEnvironmentHelper.downloadExpoClientForIOS();
+            await SetupEnvironmentHelper.installExpoAppOnIos();
         }
     }
     await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);
