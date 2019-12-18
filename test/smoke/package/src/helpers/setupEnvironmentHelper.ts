@@ -161,12 +161,14 @@ export class SetupEnvironmentHelper {
 
     // Installs Expo app on Android device using XDL function
     public static async installExpoAppOnAndroid() {
+        console.log(`*** Installing Expo app on Android emulator using Expo XDL function`);
         await XDL.Android.installExpoAsync();
         AndroidEmulatorHelper.enableDrawPermitForApp(this.expoPackageName);
     }
 
     // Installs Expo app on iOS device using XDL function
     public static async installExpoAppOnIos() {
+        console.log(`*** Installing Expo app on iOS simulator using Expo XDL function`);
         await XDL.Simulator._installExpoOnSimulatorAsync();
     }
 
