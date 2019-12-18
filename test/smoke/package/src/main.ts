@@ -175,8 +175,8 @@ async function setup(): Promise<void> {
         await SetupEnvironmentHelper.installExpoAppOnAndroid(ExpoWorkspacePath);
         SetupEnvironmentHelper.patchExpoSettingsFile(ExpoWorkspacePath);
         if (process.platform === "darwin") {
-            // We need only to download expo app, but this is the quickest way of doing it
-            await SetupEnvironmentHelper.installExpoAppOnIos(ExpoWorkspacePath);
+            // We need only to download expo app
+            await SetupEnvironmentHelper.downloadExpoClientForIOS();
         }
     }
     await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);

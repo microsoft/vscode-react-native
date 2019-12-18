@@ -6,7 +6,7 @@ export class SmokeTestsConstants {
     // 9 = Android Pie
     public static defaultTargetAndroidPlatformVersion = "9";
     // Default code of iOS platform version which is being targeted during the tests.
-    public static defaultTargetIosPlatformVersion = "12.2";
+    public static defaultTargetIosPlatformVersion = "12.4";
     // Default target emulator name "emulator-" + port
     public static defaultTargetAndroidDeviceName = "emulator-5554";
     // Timeout for smoke tests setup

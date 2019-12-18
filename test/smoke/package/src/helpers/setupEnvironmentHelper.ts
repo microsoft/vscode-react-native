@@ -12,6 +12,7 @@ import * as os from "os";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
 import { sleep, filterProgressBarChars } from "./utilities";
 import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
+import * as XDL from "@expo/xdl";
 
 export class SetupEnvironmentHelper {
 
@@ -187,8 +188,12 @@ export class SetupEnvironmentHelper {
         AndroidEmulatorHelper.enableDrawPermitForApp(this.expoPackageName);
     }
 
+    public static async downloadExpoClientForIOS() {
+        await XDL.Simulator._downloadSimulatorAppAsync();
+    }
+
     // Installs Expo app on iOS device via "expo install:ios" command
-    public static async installExpoAppOnIos(expoAppPath: string) {
+    /*public static async installExpoAppOnIos(expoAppPath: string) {
         return new Promise((resolve, reject) => {
             console.log(`*** Installing Expo app on iOS simulator with 'expo-cli install:ios' command`);
             let installerProcess = cp.spawn("expo-cli", ["client:install:ios"], {cwd: expoAppPath, stdio: "pipe"});
@@ -213,7 +218,7 @@ export class SetupEnvironmentHelper {
                 reject(error);
             });
         });
-    }
+    }*/
 
     // Fix for https://github.com/expo/expo-cli/issues/951
     // TODO: Delete when bug will be fixed
