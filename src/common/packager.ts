@@ -11,7 +11,7 @@ import {Node} from "./node/node";
 import {Package} from "./node/package";
 import {PromiseUtil} from "./node/promise";
 import {Request} from "./node/request";
-import {ReactNativeProjectHelper} from "./reactNativeProjectHelper";
+import {ProjectVersionHelper} from "./projectVersionHelper";
 import {PackagerStatusIndicator, PackagerStatus} from "../extension/packagerStatusIndicator";
 import {SettingsHelper} from "../extension/settingsHelper";
 import * as Q from "q";
@@ -122,7 +122,7 @@ export class Packager {
 
             executedStartPackagerCmd = true;
 
-            return ReactNativeProjectHelper.getReactNativeVersions(this.projectPath)
+            return ProjectVersionHelper.getReactNativeVersions(this.projectPath)
             .then((versions) => {
                 rnVersion = versions.reactNativeVersion;
                 return this.monkeyPatchOpnForRNPackager(rnVersion);

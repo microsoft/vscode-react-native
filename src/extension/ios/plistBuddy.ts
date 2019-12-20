@@ -11,7 +11,7 @@ import {Node} from "../../common/node/node";
 import {ChildProcess} from "../../common/node/childProcess";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
+import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 
 export class PlistBuddy {
     private static plistBuddyExecutable = "/usr/libexec/PlistBuddy";
@@ -25,7 +25,7 @@ export class PlistBuddy {
     }
 
     public getBundleId(iosProjectRoot: string, projectRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string, scheme?: string): Q.Promise<string> {
-        return ReactNativeProjectHelper.getReactNativeVersions(projectRoot)
+        return ProjectVersionHelper.getReactNativeVersions(projectRoot)
         .then((rnVersions) => {
             let productsFolder;
             if (semver.gte(rnVersions.reactNativeVersion, "0.59.0")) {
