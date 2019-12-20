@@ -6,7 +6,7 @@ import * as vscode from "vscode";
 import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
-import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import {ProjectVersionHelper} from "../common/projectVersionHelper";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
@@ -233,11 +233,11 @@ export class ExtensionServer implements vscode.Disposable {
                 };
             }
 
-            ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true)
+            ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true)
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (versions.reactNativeWindowsVersion) {
+                    if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
                     TelemetryHelper.generate("launch", extProps, (generator) => {
