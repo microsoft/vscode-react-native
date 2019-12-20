@@ -13,7 +13,7 @@ import {ReactNative022} from "../../resources/reactNative022";
 import * as adb from "../../../src/extension/android/adb";
 import {RecordingsHelper} from "../../resources/recordingsHelper";
 import {CommandExecutor} from "../../../src/common/commandExecutor";
-import * as rnHelper from "../../../src/common/reactNativeProjectHelper";
+import {ProjectVersionHelper} from "../../../src/common/projectVersionHelper";
 import * as rimraf from "rimraf";
 import "should";
 import * as sinon from "sinon";
@@ -98,7 +98,7 @@ suite("androidPlatform", function () {
                 return reactNative.runAndroid(genericRunOptions);
             });
 
-            sandbox.stub(rnHelper.ReactNativeProjectHelper, "getReactNativeVersions", function () {
+            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions", function () {
                 return Q.resolve({reactNativeVersion: "0.0.1", reactNativeWindowsVersion: ""});
             });
 

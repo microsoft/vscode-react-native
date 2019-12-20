@@ -14,7 +14,6 @@ import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {LogCatMonitor} from "./logCatMonitor";
-import {ReactNativeProjectHelper} from "../../common/reactNativeProjectHelper";
 import * as nls from "vscode-nls";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
@@ -93,47 +92,48 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
         return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
             const env = this.getEnvArgument();
-            return ReactNativeProjectHelper.getReactNativeVersions(this.runOptions.projectRoot)
-                .then(versions => {
-                    if (!semver.valid(versions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(versions.reactNativeVersion, AndroidPlatform.NO_PACKAGER_VERSION)) {
-                        this.runArguments.push("--no-packager");
+
+            if (
+                !semver.valid(this.runOptions.reactNativeVersions.reactNativeVersion) /*Custom RN implementations should support this flag*/ ||
+                semver.gte(this.runOptions.reactNativeVersions.reactNativeVersion, AndroidPlatform.NO_PACKAGER_VERSION)
+            ) {
+                this.runArguments.push("--no-packager");
+            }
+
+            let mainActivity = GeneralMobilePlatform.getOptFromRunArgs(this.runArguments, "--main-activity");
+
+            if (mainActivity) {
+                this.adbHelper.setLaunchActivity(mainActivity);
+            } else if (!isNullOrUndefined(this.runOptions.debugLaunchActivity)) {
+                this.runArguments.push("--main-activity", this.runOptions.debugLaunchActivity);
+                this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity);
+            }
+
+            const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", this.runArguments, {env});
+            const output = new OutputVerifier(
+                () =>
+                    Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
+                () =>
+                    Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS),
+                "android").process(runAndroidSpawn);
+
+            return output
+                .finally(() => {
+                    return this.initializeTargetDevicesAndPackageName();
+                }).then(() => [this.debugTarget], reason => {
+                    if (reason.message === ErrorHelper.getInternalError(InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator).message && this.devices.length > 1 && this.debugTarget) {
+                        /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
+                        this.needsToLaunchApps = true;
+                        return shouldLaunchInAllDevices
+                            ? this.adbHelper.getOnlineDevices()
+                            : Q([this.debugTarget]);
+                    } else {
+                        return Q.reject<IDevice[]>(reason);
                     }
-
-                    let mainActivity = GeneralMobilePlatform.getOptFromRunArgs(this.runArguments, "--main-activity");
-
-                    if (mainActivity) {
-                        this.adbHelper.setLaunchActivity(mainActivity);
-                    } else if (!isNullOrUndefined(this.runOptions.debugLaunchActivity)) {
-                        this.runArguments.push("--main-activity", this.runOptions.debugLaunchActivity);
-                        this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity);
-                    }
-
-                    const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", this.runArguments, {env});
-                    const output = new OutputVerifier(
-                        () =>
-                            Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
-                        () =>
-                            Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS),
-                        "android").process(runAndroidSpawn);
-
-                    return output
-                        .finally(() => {
-                            return this.initializeTargetDevicesAndPackageName();
-                        }).then(() => [this.debugTarget], reason => {
-                            if (reason.message === ErrorHelper.getInternalError(InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator).message && this.devices.length > 1 && this.debugTarget) {
-                                /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
-                                this.needsToLaunchApps = true;
-                                return shouldLaunchInAllDevices
-                                    ? this.adbHelper.getOnlineDevices()
-                                    : Q([this.debugTarget]);
-                            } else {
-                                return Q.reject<IDevice[]>(reason);
-                            }
-                        }).then(devices => {
-                            return new PromiseUtil().forEach(devices, device => {
-                                return this.launchAppWithADBReverseAndLogCat(device);
-                            });
-                        });
+                }).then(devices => {
+                    return new PromiseUtil().forEach(devices, device => {
+                        return this.launchAppWithADBReverseAndLogCat(device);
+                    });
                 });
         });
     }

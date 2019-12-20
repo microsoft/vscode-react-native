@@ -7,8 +7,7 @@ import * as assert from "assert";
 import * as path from "path";
 import * as Q from "q";
 import * as sinon from "sinon";
-import { ReactNativeProjectHelper } from "../../../src/common/reactNativeProjectHelper";
-
+import { ProjectVersionHelper } from "../../../src/common/projectVersionHelper";
 
 suite("plistBuddy", function() {
     suite("extensionContext", function() {
@@ -74,7 +73,7 @@ suite("plistBuddy", function() {
             const deviceBundleId = "com.contoso.device";
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, undefined, simulatorBundleId, deviceBundleId);
 
-            sandbox.stub(ReactNativeProjectHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.58.5", reactNativeWindowsVersion: ""}));
+            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.58.5", reactNativeWindowsVersion: ""}));
 
             return Q.all([
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
@@ -98,7 +97,7 @@ suite("plistBuddy", function() {
             const deviceBundleId = "com.contoso.device";
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, "myCustomScheme", simulatorBundleId, deviceBundleId);
 
-            sandbox.stub(ReactNativeProjectHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.59.0", reactNativeWindowsVersion: ""}));
+            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.59.0", reactNativeWindowsVersion: ""}));
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
             return Q.all([
