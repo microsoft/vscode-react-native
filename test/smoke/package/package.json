@@ -8,6 +8,7 @@
     "mocha": "node ./node_modules/tslint/bin/tslint -c tslint.json --project tsconfig.json 'src/**' && tsc && node ./node_modules/mocha/bin/_mocha --reporter mocha-multi-reporters --reporter-options configFile=./mochaReporterConfig.json"
   },
   "devDependencies": {
+    "@expo/xdl": "^57.4.1",
     "@types/clipboardy": "^2.0.1",
     "@types/gulp-filter": "^3.0.33",
     "@types/mkdirp": "^0.5.2",
@@ -41,5 +42,9 @@
     "vinyl-fs": "^3.0.3",
     "vinyl-source-stream": "^1.1.0",
     "webdriverio": "^4.13.0"
+  },
+  "resolutions": {
+    "@expo/xdl/analytics-node/axios": "^0.19.0",
+    "**/serialize-javascript": "^2.1.1"
   }
 }
