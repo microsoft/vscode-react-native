@@ -6,7 +6,7 @@ import * as path from "path";
 import {ChildProcess} from "child_process";
 import {ILogger} from "../extension/log/LogHelper";
 import {NullLogger} from "../extension/log/NullLogger";
-import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import {ProjectVersionHelper} from "../common/projectVersionHelper";
 import {Node} from "./node/node";
 import {ISpawnResult} from "./node/childProcess";
 import {HostPlatform, HostPlatformId} from "./hostPlatform";
@@ -76,7 +76,7 @@ export class CommandExecutor {
     }
 
     public getReactNativeVersion(): Q.Promise<string> {
-        return ReactNativeProjectHelper.getReactNativeVersions(this.currentWorkingDirectory)
+        return ProjectVersionHelper.getReactNativeVersions(this.currentWorkingDirectory)
             .then(versions => versions.reactNativeVersion);
     }
 
