@@ -11,7 +11,7 @@
   "scripts": {
     "postinstall": "npm run compile",
     "compile": "npm run copy-driver && npm run copy-driver-definition && tsc",
-    "copy-driver": "ncp src/driver.js out/",
+    "copy-driver": "ncp src/driver.js out/driver.js",
     "copy-driver-definition": "node tools/copy-driver-definition.js",
     "copy-package-version": "node tools/copy-package-version.js",
     "prepublishOnly": "npm run copy-package-version"
@@ -22,9 +22,7 @@
     "@types/node": "8.0.33",
     "@types/puppeteer": "^1.19.0",
     "@types/tmp": "0.1.0",
-    "concurrently": "^3.5.1",
-    "typescript": "2.9.2",
-    "watch": "^1.0.2"
+    "typescript": "2.9.2"
   },
   "dependencies": {
     "mkdirp": "^0.5.1",
