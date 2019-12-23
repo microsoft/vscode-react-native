@@ -16,6 +16,42 @@
             "preLaunchTask": "gulp: build"
         },
         {
+            "name": "Debug Debugger",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/src/debugger/reactNativeDebugEntryPoint.ts",
+            "runtimeArgs": [
+                "--harmony"
+            ],
+            "stopOnEntry": false,
+            "args": [
+                "--server=4712"
+            ], // Use "debugServer": "4712", on launch.json of the instance to debug
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/src/**/*.js"
+            ],
+            "preLaunchTask": "gulp: build"
+        },
+        {
+            "name": "Debug Direct Debugger",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/src/debugger/direct/reactNativeDirectDebugEntryPoint.ts",
+            "runtimeArgs": [
+                "--harmony"
+            ],
+            "stopOnEntry": false,
+            "args": [
+                "--server=4712"
+            ], // Use "debugServer": "4712", on launch.json of the instance to debug
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/src/**/*.js"
+            ],
+            "preLaunchTask": "gulp: build"
+        },
+        {
             "name": "Quick Launch Extension",
             "type": "extensionHost",
             "request": "launch",
@@ -48,24 +84,6 @@
             "preLaunchTask": "gulp: quick-build"
         },
         {
-            "name": "Debug Debugger",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/src/debugger/reactNativeDebugEntryPoint.ts",
-            "runtimeArgs": [
-                "--harmony"
-            ],
-            "stopOnEntry": false,
-            "args": [
-                "--server=4712"
-            ], // Use "debugServer": "4712", on launch.json of the instance to debug
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/src/**/*.js"
-            ],
-            "preLaunchTask": "gulp: build"
-        },
-        {
             "name": "Quick Debug Direct Debugger",
             "type": "node",
             "request": "launch",
@@ -84,25 +102,7 @@
             "preLaunchTask": "gulp: quick-build"
         },
         {
-            "name": "Debug Direct Debugger",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/src/debugger/direct/reactNativeDirectDebugEntryPoint.ts",
-            "runtimeArgs": [
-                "--harmony"
-            ],
-            "stopOnEntry": false,
-            "args": [
-                "--server=4712"
-            ], // Use "debugServer": "4712", on launch.json of the instance to debug
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/src/**/*.js"
-            ],
-            "preLaunchTask": "gulp: build"
-        },
-        {
-            "name": "Launch Tests",
+            "name": "Launch Extension tests",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
@@ -135,7 +135,7 @@
             "preLaunchTask": "gulp: build"
         },
         {
-            "name": "Run mocha",
+            "name": "Launch Debugger tests",
             "type": "node",
             "protocol": "inspector",
             "request": "launch",
