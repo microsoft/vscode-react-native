@@ -66,68 +66,40 @@
             "preLaunchTask": "gulp: build"
         },
         {
-            "name": "Sample - Android App",
-            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
+            "name": "Quick Debug Direct Debugger",
             "type": "node",
             "request": "launch",
-            "args": [
-                "android"
-            ],
+            "program": "${workspaceRoot}/src/debugger/direct/reactNativeDirectDebugEntryPoint.ts",
             "runtimeArgs": [
-                "--nolazy"
+                "--harmony"
             ],
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/SampleApplication/.vscode/.react/**/*.js"
-            ]
-        },
-        {
-            "name": "Sample - iOS App",
-            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
-            "type": "node",
-            "request": "launch",
+            "stopOnEntry": false,
             "args": [
-                "ios"
-            ],
-            "runtimeArgs": [
-                "--nolazy"
-            ],
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/SampleApplication/.vscode/.react/**/*.js"
-            ]
-        },
-        {
-            "name": "Sample - Android Extension",
-            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
-            "type": "node",
-            "request": "launch",
-            "args": [
-                "android"
-            ],
-            "runtimeArgs": [
-                "--nolazy"
-            ],
+                "--server=4712"
+            ], // Use "debugServer": "4712", on launch.json of the instance to debug
             "sourceMaps": true,
             "outFiles": [
                 "${workspaceRoot}/src/**/*.js"
-            ]
+            ],
+            "preLaunchTask": "gulp: quick-build"
         },
         {
-            "name": "Sample - iOS Extension",
-            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
+            "name": "Debug Direct Debugger",
             "type": "node",
             "request": "launch",
-            "args": [
-                "ios"
-            ],
+            "program": "${workspaceRoot}/src/debugger/direct/reactNativeDirectDebugEntryPoint.ts",
             "runtimeArgs": [
-                "--nolazy"
+                "--harmony"
             ],
+            "stopOnEntry": false,
+            "args": [
+                "--server=4712"
+            ], // Use "debugServer": "4712", on launch.json of the instance to debug
             "sourceMaps": true,
             "outFiles": [
                 "${workspaceRoot}/src/**/*.js"
-            ]
+            ],
+            "preLaunchTask": "gulp: build"
         },
         {
             "name": "Launch Tests",
@@ -308,6 +280,13 @@
             "configurations": [
                 "Quick Launch Extension",
                 "Quick Debug Debugger"
+            ]
+        },
+        {
+            "name": "Quick Extension + Direct Debugger",
+            "configurations": [
+                "Quick Launch Extension",
+                "Quick Debug Direct Debugger"
             ]
         }
     ]
