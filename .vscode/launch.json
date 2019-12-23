@@ -16,6 +16,42 @@
             "preLaunchTask": "gulp: build"
         },
         {
+            "name": "Debug Debugger",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/src/debugger/reactNativeDebugEntryPoint.ts",
+            "runtimeArgs": [
+                "--harmony"
+            ],
+            "stopOnEntry": false,
+            "args": [
+                "--server=4712"
+            ], // Use "debugServer": "4712", on launch.json of the instance to debug
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/src/**/*.js"
+            ],
+            "preLaunchTask": "gulp: build"
+        },
+        {
+            "name": "Debug Direct Debugger",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/src/debugger/direct/reactNativeDirectDebugEntryPoint.ts",
+            "runtimeArgs": [
+                "--harmony"
+            ],
+            "stopOnEntry": false,
+            "args": [
+                "--server=4712"
+            ], // Use "debugServer": "4712", on launch.json of the instance to debug
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/src/**/*.js"
+            ],
+            "preLaunchTask": "gulp: build"
+        },
+        {
             "name": "Quick Launch Extension",
             "type": "extensionHost",
             "request": "launch",
@@ -48,10 +84,10 @@
             "preLaunchTask": "gulp: quick-build"
         },
         {
-            "name": "Debug Debugger",
+            "name": "Quick Debug Direct Debugger",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/src/debugger/reactNativeDebugEntryPoint.ts",
+            "program": "${workspaceRoot}/src/debugger/direct/reactNativeDirectDebugEntryPoint.ts",
             "runtimeArgs": [
                 "--harmony"
             ],
@@ -63,74 +99,10 @@
             "outFiles": [
                 "${workspaceRoot}/src/**/*.js"
             ],
-            "preLaunchTask": "gulp: build"
+            "preLaunchTask": "gulp: quick-build"
         },
         {
-            "name": "Sample - Android App",
-            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
-            "type": "node",
-            "request": "launch",
-            "args": [
-                "android"
-            ],
-            "runtimeArgs": [
-                "--nolazy"
-            ],
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/SampleApplication/.vscode/.react/**/*.js"
-            ]
-        },
-        {
-            "name": "Sample - iOS App",
-            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
-            "type": "node",
-            "request": "launch",
-            "args": [
-                "ios"
-            ],
-            "runtimeArgs": [
-                "--nolazy"
-            ],
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/SampleApplication/.vscode/.react/**/*.js"
-            ]
-        },
-        {
-            "name": "Sample - Android Extension",
-            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
-            "type": "node",
-            "request": "launch",
-            "args": [
-                "android"
-            ],
-            "runtimeArgs": [
-                "--nolazy"
-            ],
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/src/**/*.js"
-            ]
-        },
-        {
-            "name": "Sample - iOS Extension",
-            "program": "${workspaceRoot}/SampleApplication/.vscode/launchReactNative.js",
-            "type": "node",
-            "request": "launch",
-            "args": [
-                "ios"
-            ],
-            "runtimeArgs": [
-                "--nolazy"
-            ],
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/src/**/*.js"
-            ]
-        },
-        {
-            "name": "Launch Tests",
+            "name": "Launch Extension tests",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
@@ -163,7 +135,7 @@
             "preLaunchTask": "gulp: build"
         },
         {
-            "name": "Run mocha",
+            "name": "Launch Debugger tests",
             "type": "node",
             "protocol": "inspector",
             "request": "launch",
@@ -308,6 +280,13 @@
             "configurations": [
                 "Quick Launch Extension",
                 "Quick Debug Debugger"
+            ]
+        },
+        {
+            "name": "Quick Extension + Direct Debugger",
+            "configurations": [
+                "Quick Launch Extension",
+                "Quick Debug Direct Debugger"
             ]
         }
     ]
