@@ -12,7 +12,7 @@ import { Telemetry } from "../../common/telemetry";
 import { OutputEvent, Logger } from "vscode-debugadapter";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { RemoteTelemetryReporter } from "../../common/telemetryReporters";
-import { ChromeDebugAdapter, ChromeDebugSession, IChromeDebugSessionOpts, IAttachRequestArgs, logger } from "vscode-chrome-debug-core";
+import { ChromeDebugAdapter, ChromeDebugSession, IChromeDebugSessionOpts, IAttachRequestArgs, logger, IOnPausedResult, Crdp } from "vscode-chrome-debug-core";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { RemoteExtension } from "../../common/remoteExtension";
 import { DebugProtocol } from "vscode-debugprotocol";
@@ -28,6 +28,18 @@ export interface IDirectAttachRequestArgs extends IAttachRequestArgs, ILaunchArg
 export interface IDirectLaunchRequestArgs extends DebugProtocol.LaunchRequestArguments, IDirectAttachRequestArgs { }
 
 export class DirectDebugAdapter extends ChromeDebugAdapter {
+
+    /**
+     * @description The Hermes native functions calls mark in call stack
+     * @type {string}
+     */
+    private static HERMES_NATIVE_FUNCTION_NAME: string = "(native)";
+
+    /**
+     * @description Equals to 0xfffffff - the scriptId returned by Hermes debugger, that means "invalid script ID"
+     * @type {string}
+     */
+    private static HERMES_NATIVE_FUNCTION_SCRIPT_ID: string = "4294967295";
 
     private outputLogger: (message: string, error?: boolean | string) => void;
     private projectRootPath: string;
@@ -154,6 +166,16 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
     public disconnect(args: DebugProtocol.DisconnectArguments): void {
         this.cleanUp();
         super.disconnect(args);
+    }
+
+    protected async onPaused(notification: Crdp.Debugger.PausedEvent, expectingStopReason = this._expectingStopReason): Promise<IOnPausedResult> {
+        // Excluding Hermes native function calls from call stack, since VS Code can't process them properly
+        // More info: https://github.com/facebook/hermes/issues/168
+        notification.callFrames = notification.callFrames.filter(callFrame =>
+            callFrame.functionName !== DirectDebugAdapter.HERMES_NATIVE_FUNCTION_NAME &&
+            callFrame.location.scriptId !== DirectDebugAdapter.HERMES_NATIVE_FUNCTION_SCRIPT_ID
+            );
+        return super.onPaused(notification, expectingStopReason);
     }
 
     private initializeSettings(args: any): Q.Promise<any> {
