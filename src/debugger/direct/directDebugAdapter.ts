@@ -29,8 +29,15 @@ export interface IDirectLaunchRequestArgs extends DebugProtocol.LaunchRequestArg
 
 export class DirectDebugAdapter extends ChromeDebugAdapter {
 
-    private static HERMES_NATIVE_FUNCTION_NAME: string = "(native)"; // the name of Hermes native functions in call stack (https://github.com/facebook/hermes/issues/168)
-    private static HERMES_NATIVE_FUNCTION_SCRIPT_ID: string = "4294967295"; // equals to 0xfffffff -  the scriptId returned by Hermes debugger, that means "invalid script ID"
+    /**
+     * @type {string} - the Hermes native functions calls mark in call stack (https://github.com/facebook/hermes/issues/168)
+     */
+    private static HERMES_NATIVE_FUNCTION_NAME: string = "(native)";
+    
+    /**
+     * @type {string} - equals to 0xfffffff - the scriptId returned by Hermes debugger, that means "invalid script ID"
+     */
+    private static HERMES_NATIVE_FUNCTION_SCRIPT_ID: string = "4294967295";
 
     private outputLogger: (message: string, error?: boolean | string) => void;
     private projectRootPath: string;
