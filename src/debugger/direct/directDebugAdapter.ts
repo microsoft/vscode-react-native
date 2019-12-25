@@ -169,7 +169,8 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
     }
 
     protected async onPaused(notification: Crdp.Debugger.PausedEvent, expectingStopReason = this._expectingStopReason): Promise<IOnPausedResult> {
-        // excluding Hermes native function calls from call stack, since VS Code can't process them properly (https://github.com/facebook/hermes/issues/168)
+        // Excluding Hermes native function calls from call stack, since VS Code can't process them properly 
+        // More info: https://github.com/facebook/hermes/issues/168
         notification.callFrames = notification.callFrames.filter(callFrame =>
             callFrame.functionName !== DirectDebugAdapter.HERMES_NATIVE_FUNCTION_NAME &&
             callFrame.location.scriptId !== DirectDebugAdapter.HERMES_NATIVE_FUNCTION_SCRIPT_ID
