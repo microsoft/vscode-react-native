@@ -30,7 +30,7 @@ export interface IDirectLaunchRequestArgs extends DebugProtocol.LaunchRequestArg
 export class DirectDebugAdapter extends ChromeDebugAdapter {
 
     /**
-     * @description The Hermes native functions calls mark in call stack (https://github.com/facebook/hermes/issues/168)
+     * @description The Hermes native functions calls mark in call stack
      * @type {string}
      */
     private static HERMES_NATIVE_FUNCTION_NAME: string = "(native)";
