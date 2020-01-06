@@ -146,6 +146,17 @@
 						}
 					},
 					{
+						"label": "React Native: Debug Windows",
+						"description": "%reactNative.snippets.debugWindows.description%",
+						"body": {
+							"name": "Debug Windows",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnative",
+							"request": "launch",
+							"platform": "windows"
+						}
+					},
+					{
 						"label": "React Native: Attach to packager",
 						"description": "%reactNative.snippets.attachPackager.description%",
 						"body": {
