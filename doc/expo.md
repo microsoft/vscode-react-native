@@ -49,4 +49,4 @@ If you want to change your app entrypoint (for example, from `index.js` to `inde
 
  **Q: I was working with a React Native version and after debugging in exponent I decided to update it, why is exponent not updating automatically?**
 
- The extension caches the version of the exponent SDK used by your project. This is helpfull since we don't want to install the SDK each time you run exponent. If you want the extension to update the SDK version based on your React Native version, just restart VS Code and we should be able to do it if it's supported.
+The extension caches the version of the exponent SDK used by your project. This is helpful since we don't want to install the SDK each time you run exponent. If you want the extension to update the SDK version based on your React Native version, just restart VS Code and we should be able to do it if it's supported.
