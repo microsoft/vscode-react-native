@@ -10,6 +10,9 @@ import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { ProjectVersionHelper } from "../../common/projectVersionHelper";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 /**
  * Windows specific platform implementation for debugging RN applications.
@@ -52,6 +55,10 @@ export class WindowsPlatform extends GeneralMobilePlatform {
 
             if (!semver.valid(this.runOptions.reactNativeVersions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(this.runOptions.reactNativeVersions.reactNativeVersion, WindowsPlatform.NO_PACKAGER_VERSION)) {
                 this.runArguments.push("--no-packager");
+            }
+
+            if (ProjectVersionHelper.isVersionError(this.runOptions.reactNativeVersions.reactNativeWindowsVersion)) {
+                this.logger.warning(localize("ReactNativeWindowsNotInstalled", "It appears you don't have react-native-windows installed. Go to https://github.com/microsoft/react-native-windows#getting-started for more info."));
             }
 
             const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
