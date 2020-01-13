@@ -3,7 +3,7 @@
 
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { IRunOptions } from "../launchArgs";
+import { IExponentRunOptions } from "../launchArgs";
 import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import { ExponentHelper } from "./exponentHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
@@ -22,7 +22,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
     private exponentHelper: ExponentHelper;
     private qrCodeContentProvider: QRCodeContentProvider = new QRCodeContentProvider();
 
-    constructor(runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
+    constructor(runOptions: IExponentRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
         this.exponentHelper = new ExponentHelper(runOptions.workspaceRoot, runOptions.projectRoot);
         this.exponentTunnelPath = null;
@@ -39,41 +39,25 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
 
         return TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
-            return this.exponentHelper.loginToExponent(
-                (message, password) => {
-                    return Q.Promise((resolve, reject) => {
-                        vscode.window.showInputBox({ placeHolder: message, password: password })
-                            .then(login => {
-                                resolve(login || "");
-                            }, reject);
-                    });
-                },
-                (message) => {
-                    return Q.Promise((resolve, reject) => {
-                        const okButton =  { title: "Ok" };
-                        const cancelButton =  { title: "Cancel", isCloseAffordance: true };
-                        vscode.window.showInformationMessage(message, {modal: true}, okButton, cancelButton)
-                            .then(answer => {
-                                if (answer === cancelButton) {
-                                    reject(ErrorHelper.getInternalError(InternalErrorCode.UserCancelledExpoLogin));
-                                }
-                                resolve("");
-                            }, reject);
-                    });
-                }
-            )
+            return this.loginToExponentOrSkip(this.runOptions.expoConnectionType)
                 .then(() =>
                     XDL.setOptions(this.projectPath, { packagerPort: this.packager.port })
                 )
                 .then(() =>
                     XDL.startExponentServer(this.projectPath)
                 )
-                .then(() =>
-                    XDL.startTunnels(this.projectPath)
-                )
-                .then(() =>
-                    XDL.getUrl(this.projectPath, { dev: true, minify: false })
-                ).then(exponentUrl => {
+                .then(() => {
+                    if (this.runOptions.expoConnectionType !== "tunnel") return void 0;
+                    return XDL.startTunnels(this.projectPath)
+                })
+                .then(() => {
+                    if (this.runOptions.expoConnectionType !== "local") {
+                        return XDL.getUrl(this.projectPath, { dev: true, minify: false });
+                    } else {
+                        return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "localhost" });
+                    }
+                })
+                .then(exponentUrl => {
                     return "exp://" + url.parse(exponentUrl).host;
                 })
                 .catch(reason => {
@@ -95,6 +79,33 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     return Q.resolve(void 0);
                 });
         });
+    }
+
+    public loginToExponentOrSkip(expoConnectionType?: "tunnel" | "lan" | "local") {
+        if (expoConnectionType !== "tunnel") return  Q({});
+        return this.exponentHelper.loginToExponent(
+            (message, password) => {
+                return Q.Promise((resolve, reject) => {
+                    vscode.window.showInputBox({ placeHolder: message, password: password })
+                        .then(login => {
+                            resolve(login || "");
+                        }, reject);
+                });
+            },
+            (message) => {
+                return Q.Promise((resolve, reject) => {
+                    const okButton =  { title: "Ok" };
+                    const cancelButton =  { title: "Cancel", isCloseAffordance: true };
+                    vscode.window.showInformationMessage(message, {modal: true}, okButton, cancelButton)
+                        .then(answer => {
+                            if (answer === cancelButton) {
+                                reject(ErrorHelper.getInternalError(InternalErrorCode.UserCancelledExpoLogin));
+                            }
+                            resolve("");
+                        }, reject);
+                });
+            }
+        );
     }
 
     public beforeStartPackager(): Q.Promise<void> {
