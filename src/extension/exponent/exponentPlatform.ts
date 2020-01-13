@@ -48,7 +48,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                 )
                 .then(() => {
                     if (this.runOptions.expoConnectionType !== "tunnel") return void 0;
-                    return XDL.startTunnels(this.projectPath)
+                    return XDL.startTunnels(this.projectPath);
                 })
                 .then(() => {
                     if (this.runOptions.expoConnectionType !== "local") {
