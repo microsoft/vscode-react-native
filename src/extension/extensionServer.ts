@@ -17,6 +17,7 @@ import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
+import {ExponentPlatform} from "./exponent/exponentPlatform";
 import {IRemoteExtension, OpenFileRequest} from "../common/remoteExtension";
 import * as rpc from "noice-json-rpc";
 import * as WebSocket from "ws";
@@ -60,6 +61,7 @@ export class ExtensionServer implements vscode.Disposable {
             this.serverInstance = null;
         }
 
+        ExponentPlatform.stopExpoAdbReverse();
         this.reactNativePackager.statusIndicator.dispose();
         this.reactNativePackager.stop(true);
         this.stopMonitoringLogCat();

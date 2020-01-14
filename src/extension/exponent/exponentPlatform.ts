@@ -18,6 +18,9 @@ const localize = nls.loadMessageBundle();
 
 
 export class ExponentPlatform extends GeneralMobilePlatform {
+    private static isExpoAdbReverseEnable: boolean = false;
+    private static projectPath: string;
+
     private exponentTunnelPath: string | null;
     private exponentHelper: ExponentHelper;
     private qrCodeContentProvider: QRCodeContentProvider = new QRCodeContentProvider();
@@ -28,6 +31,12 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         this.exponentTunnelPath = null;
     }
 
+    public static stopExpoAdbReverse() {
+        if (!ExponentPlatform.isExpoAdbReverseEnable) return;
+        ExponentPlatform.isExpoAdbReverseEnable = false;
+        XDL.stopAdbReverse(ExponentPlatform.projectPath);
+    }
+
     public runApp(): Q.Promise<void> {
         let extProps = {
             platform: {
@@ -36,6 +45,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
             },
         };
 
+        ExponentPlatform.projectPath = this.projectPath;
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
 
         return TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
@@ -51,10 +61,18 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     return XDL.startTunnels(this.projectPath);
                 })
                 .then(() => {
-                    if (this.runOptions.expoConnectionType !== "local") {
-                        return XDL.getUrl(this.projectPath, { dev: true, minify: false });
-                    } else {
-                        return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "localhost" });
+                    if (this.runOptions.expoConnectionType !== "local") return false;
+                    return XDL.startAdbReverse(this.projectPath);
+                })
+                .then((isAdbReversed) => {
+                    ExponentPlatform.isExpoAdbReverseEnable = isAdbReversed;
+                    switch (this.runOptions.expoConnectionType) {
+                        case "lan":
+                            return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "lan" });
+                        case "local":
+                            return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "localhost" });
+                        default:
+                            return XDL.getUrl(this.projectPath, { dev: true, minify: false });
                     }
                 })
                 .then(exponentUrl => {
