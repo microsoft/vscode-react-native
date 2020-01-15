@@ -320,7 +320,7 @@ function requestSetup(args: any): any {
     };
 
     if (args.platform === "exponent") {
-        mobilePlatformOptions.expoConnectionType = args.expoConnectionType || "tunnel";
+        mobilePlatformOptions.expoHostType = args.expoHostType || "tunnel";
     }
 
     CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(workspaceFolder.uri);

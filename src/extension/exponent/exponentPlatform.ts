@@ -39,7 +39,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
 
         return TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
-            return this.loginToExponentOrSkip(this.runOptions.expoConnectionType)
+            return this.loginToExponentOrSkip(this.runOptions.expoHostType)
                 .then(() =>
                     XDL.setOptions(this.projectPath, { packagerPort: this.packager.port })
                 )
@@ -47,32 +47,34 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     XDL.startExponentServer(this.projectPath)
                 )
                 .then(() => {
-                    if (this.runOptions.expoConnectionType !== "tunnel") {
-                        // we should cancel previous adb reverse to prevent future possible conflicts
-                        // stopAdbReverse function is also called in startTunnels func by Expo design
+                    if (this.runOptions.expoHostType !== "tunnel") {
+                        // the purpose of this is to save the same logic as in Expo 'startTunnelsAsync' function (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L2226)
+                        // where at first 'stopTunnelsAsync' function (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L2240) is called
+                        // it contains 'Android.stopAdbReverseAsync' (https://github.com/expo/expo-cli/blob/1d515d21200841e181518358fd9dc4c7b24c7cd6/packages/xdl/src/Project.ts#L2369) function call
+                        // to cancel previous results of execution of 'adb reverse' command
                         return XDL.stopAdbReverse(this.projectPath);
                     }
                     return XDL.startTunnels(this.projectPath);
                 })
                 .then(() => {
-                    if (this.runOptions.expoConnectionType !== "local") return false;
+                    if (this.runOptions.expoHostType !== "local") return false;
+                    // we need to execute 'adb reverse' command to bind ports used by Expo and RN of local machine to ports of a connected device or an running emulator
                     return XDL.startAdbReverse(this.projectPath);
                 })
                 .then((isAdbReversed) => {
-                    if (this.runOptions.expoConnectionType === "tunnel") {
-                        return XDL.getUrl(this.projectPath, { dev: true, minify: false });
-                    } else {
-                        if (isAdbReversed) {
-                            this.logger.info(localize("ExpoStartAdbReverseSuccess", "A device or an emulator was found, 'adb reverse' command successfully executed."));
-                        } else {
-                            this.logger.warning(localize("ExpoStartAdbReverseFailure", "Adb reverse command failed. Couldn't find connected over usb device or running simulator. Also please make sure that there is only one currently connected device or running emulator."));
-                        }
-
-                        if (this.runOptions.expoConnectionType === "lan") {
+                    switch (this.runOptions.expoHostType) {
+                        case "lan":
                             return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "lan" });
-                        } else {
+                        case "local":
+                            if (isAdbReversed) {
+                                this.logger.info(localize("ExpoStartAdbReverseSuccess", "A device or an emulator was found, 'adb reverse' command successfully executed."));
+                            } else {
+                                this.logger.warning(localize("ExpoStartAdbReverseFailure", "Adb reverse command failed. Couldn't find connected over usb device or running emulator. Also please make sure that there is only one currently connected device or running emulator."));
+                            }
+
                             return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "localhost" });
-                        }
+                        default:
+                            return XDL.getUrl(this.projectPath, { dev: true, minify: false });
                     }
                 })
                 .then(exponentUrl => {
@@ -99,8 +101,8 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         });
     }
 
-    public loginToExponentOrSkip(expoConnectionType?: "tunnel" | "lan" | "local") {
-        if (expoConnectionType !== "tunnel") return  Q({});
+    public loginToExponentOrSkip(expoHostType?: "tunnel" | "lan" | "local") {
+        if (expoHostType !== "tunnel") return  Q({});
         return this.exponentHelper.loginToExponent(
             (message, password) => {
                 return Q.Promise((resolve, reject) => {

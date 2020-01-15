@@ -39,7 +39,7 @@ export interface IIOSRunOptions extends ILaunchArgs {
 }
 
 export interface IExponentRunOptions extends IAndroidRunOptions, IIOSRunOptions {
-    expoConnectionType?: "tunnel" | "lan" | "local";
+    expoHostType?: "tunnel" | "lan" | "local";
 }
 
 export interface IWindowsRunOptions extends ILaunchArgs {
