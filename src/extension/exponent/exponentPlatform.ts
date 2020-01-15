@@ -18,9 +18,6 @@ const localize = nls.loadMessageBundle();
 
 
 export class ExponentPlatform extends GeneralMobilePlatform {
-    private static isExpoAdbReverseEnable: boolean = false;
-    private static projectPath: string;
-
     private exponentTunnelPath: string | null;
     private exponentHelper: ExponentHelper;
     private qrCodeContentProvider: QRCodeContentProvider = new QRCodeContentProvider();
@@ -31,12 +28,6 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         this.exponentTunnelPath = null;
     }
 
-    public static stopExpoAdbReverse() {
-        if (!ExponentPlatform.isExpoAdbReverseEnable) return;
-        ExponentPlatform.isExpoAdbReverseEnable = false;
-        XDL.stopAdbReverse(ExponentPlatform.projectPath);
-    }
-
     public runApp(): Q.Promise<void> {
         let extProps = {
             platform: {
@@ -45,7 +36,6 @@ export class ExponentPlatform extends GeneralMobilePlatform {
             },
         };
 
-        ExponentPlatform.projectPath = this.projectPath;
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
 
         return TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
@@ -57,7 +47,9 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     XDL.startExponentServer(this.projectPath)
                 )
                 .then(() => {
-                    if (this.runOptions.expoConnectionType !== "tunnel") return void 0;
+                    if (this.runOptions.expoConnectionType !== "tunnel") {
+                        return XDL.stopAdbReverse(this.projectPath);
+                    }
                     return XDL.startTunnels(this.projectPath);
                 })
                 .then(() => {
@@ -65,7 +57,11 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     return XDL.startAdbReverse(this.projectPath);
                 })
                 .then((isAdbReversed) => {
-                    ExponentPlatform.isExpoAdbReverseEnable = isAdbReversed;
+                    if (isAdbReversed) {
+                        this.logger.info(localize("ExpoStartAdbReverseSuccess", "A device or an emulator was found, 'adb reverse' command successfully executed."));
+                    } else {
+                        this.logger.warning(localize("ExpoStartAdbReverseFailure", "Adb reverse command failed. Couldn't find connected over usb device or running simulator. Also please make sure that there is only one currently connected device or running emulator."));
+                    }
                     switch (this.runOptions.expoConnectionType) {
                         case "lan":
                             return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "lan" });
