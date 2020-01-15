@@ -48,10 +48,9 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                 )
                 .then(() => {
                     if (this.runOptions.expoHostType !== "tunnel") {
-                        // the purpose of this is to save the same logic as in Expo 'startTunnelsAsync' function (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L2226)
-                        // where at first 'stopTunnelsAsync' function (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L2240) is called
-                        // it contains 'Android.stopAdbReverseAsync' (https://github.com/expo/expo-cli/blob/1d515d21200841e181518358fd9dc4c7b24c7cd6/packages/xdl/src/Project.ts#L2369) function call
-                        // to cancel previous results of execution of 'adb reverse' command
+                        // the purpose of this is to save the same sequence of handling 'adb reverse' command execution as in Expo
+                        // https://github.com/expo/expo-cli/blob/1d515d21200841e181518358fd9dc4c7b24c7cd6/packages/xdl/src/Project.ts#L2226-L2370
+                        // we added this to be sure that our Expo launching logic doesn't have any negative side effects
                         return XDL.stopAdbReverse(this.projectPath);
                     }
                     return XDL.startTunnels(this.projectPath);
