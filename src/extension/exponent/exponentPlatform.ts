@@ -48,6 +48,8 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                 )
                 .then(() => {
                     if (this.runOptions.expoConnectionType !== "tunnel") {
+                        // we should cancel previous adb reverse to prevent future possible conflicts
+                        // stopAdbReverse function is also called in startTunnels func by Expo design
                         return XDL.stopAdbReverse(this.projectPath);
                     }
                     return XDL.startTunnels(this.projectPath);
@@ -57,18 +59,20 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     return XDL.startAdbReverse(this.projectPath);
                 })
                 .then((isAdbReversed) => {
-                    if (isAdbReversed) {
-                        this.logger.info(localize("ExpoStartAdbReverseSuccess", "A device or an emulator was found, 'adb reverse' command successfully executed."));
+                    if (this.runOptions.expoConnectionType === "tunnel") {
+                        return XDL.getUrl(this.projectPath, { dev: true, minify: false });
                     } else {
-                        this.logger.warning(localize("ExpoStartAdbReverseFailure", "Adb reverse command failed. Couldn't find connected over usb device or running simulator. Also please make sure that there is only one currently connected device or running emulator."));
-                    }
-                    switch (this.runOptions.expoConnectionType) {
-                        case "lan":
+                        if (isAdbReversed) {
+                            this.logger.info(localize("ExpoStartAdbReverseSuccess", "A device or an emulator was found, 'adb reverse' command successfully executed."));
+                        } else {
+                            this.logger.warning(localize("ExpoStartAdbReverseFailure", "Adb reverse command failed. Couldn't find connected over usb device or running simulator. Also please make sure that there is only one currently connected device or running emulator."));
+                        }
+
+                        if (this.runOptions.expoConnectionType === "lan") {
                             return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "lan" });
-                        case "local":
+                        } else {
                             return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "localhost" });
-                        default:
-                            return XDL.getUrl(this.projectPath, { dev: true, minify: false });
+                        }
                     }
                 })
                 .then(exponentUrl => {
