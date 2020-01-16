@@ -237,7 +237,10 @@ export class ExtensionServer implements vscode.Disposable {
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
+                    if (request.arguments.platform === "windows") {
+                        if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
+                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled);
+                        }
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
                     TelemetryHelper.generate("launch", extProps, (generator) => {
@@ -283,10 +286,19 @@ export class ExtensionServer implements vscode.Disposable {
                     });
                 })
                 .catch(error => {
-                    TelemetryHelper.sendErrorEvent(
-                        "ReactNativePackageIsNotInstalled",
-                        ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled)
-                        );
+                    if (error && error.errorCode) {
+                        if (error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
+                            TelemetryHelper.sendErrorEvent(
+                                "ReactNativePackageIsNotInstalled",
+                                ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled)
+                                );
+                        } else if (error.errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled) {
+                            TelemetryHelper.sendErrorEvent(
+                                "ReactNativeWindowsPackageIsNotInstalled",
+                                ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled)
+                                );
+                        }
+                    }
                     this.logger.error(error);
                     reject(error);
                 });
