@@ -3,7 +3,7 @@
 * Deps: `vscode-chrome-debug-core@6.8.8` [#1193](https://github.com/microsoft/vscode-react-native/pull/1193)
 * Enhanced extension logging [#1175](https://github.com/microsoft/vscode-react-native/pull/1175)
 * Added `Debug Windows` scenario configuration to extension's debug scenarios configurations layouts ([#1189](https://github.com/microsoft/vscode-react-native/pull/1189)), thanks to [David Serafimov(@nasadigital)](https://github.com/nasadigital)
-* Fixed typos in documentation ([#1190](https://github.com/microsoft/vscode-react-native/pull/1190)), thanks to [Ivan Tse(@ivantse)](https://github.com/nasadigital)
+* Fixed typos in documentation ([#1190](https://github.com/microsoft/vscode-react-native/pull/1190)), thanks to [Ivan Tse(@ivantse)](https://github.com/ivantse)
 * Enhanced React Native Hermes applications debugging [#1099](https://github.com/microsoft/vscode-react-native/issues/1099) ([#548](https://github.com/microsoft/vscode-chrome-debug-core/pull/548))
     * Fixed incorrect displaying of `Global`, `Closure` variables
     * Fixed incorrect displaying of value of numeric variables
