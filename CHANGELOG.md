@@ -1,3 +1,19 @@
+## 0.14.0
+* Enhanced extension security [#1171](https://github.com/microsoft/vscode-react-native/pull/1171)
+* Deps: `vscode-chrome-debug-core@6.8.8` [#1193](https://github.com/microsoft/vscode-react-native/pull/1193)
+* Enhanced extension logging [#1175](https://github.com/microsoft/vscode-react-native/pull/1175)
+* Added `Debug Windows` scenario configuration to extension's debug scenarios configurations layouts ([#1189](https://github.com/microsoft/vscode-react-native/pull/1189), [#1191](https://github.com/microsoft/vscode-react-native/pull/1191)), thanks to [David Serafimov(@nasadigital)](https://github.com/nasadigital)
+* Fixed typos in documentation ([#1190](https://github.com/microsoft/vscode-react-native/pull/1190)), thanks to [Ivan Tse(@ivantse)](https://github.com/ivantse)
+* Enhanced React Native Hermes applications debugging [#1099](https://github.com/microsoft/vscode-react-native/issues/1099) ([#548](https://github.com/microsoft/vscode-chrome-debug-core/pull/548))
+    * Fixed incorrect displaying of `Global`, `Closure` variables
+    * Fixed incorrect displaying of value of numeric variables
+    * Fixed incorrect displaying of `this` object content
+    * Fixed incorrect handling of arrays on debugging
+    * Fixed displaying of redundant React Native Hermes native functions calls in Call Stack [#1187](https://github.com/microsoft/vscode-react-native/pull/1187)
+* Internal changes:
+    * Enhanced smoke tests workflow ([#1180](https://github.com/microsoft/vscode-react-native/pull/1180))
+    * Enhanced extension telemetry ([#1175](https://github.com/microsoft/vscode-react-native/pull/1175))
+
 ## 0.13.2
 * Added support for Haul packager 0.15 [#1166](https://github.com/microsoft/vscode-react-native/pull/1166)
 * Fixed security vulnerability [#1165](https://github.com/microsoft/vscode-react-native/pull/1165)
