@@ -9,6 +9,7 @@
     * Fixed incorrect displaying of value of numeric variables
     * Fixed incorrect displaying of `this` object content
     * Fixed incorrect handling of arrays on debugging
+    * Fixed displaying of redundant React Native Hermes native functions calls in Call Stack [#1187](https://github.com/microsoft/vscode-react-native/pull/1187)
 * Internal changes:
     * Enhanced smoke tests workflow ([#1180](https://github.com/microsoft/vscode-react-native/pull/1180))
     * Enhanced extension telemetry ([#1175](https://github.com/microsoft/vscode-react-native/pull/1175))
