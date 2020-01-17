@@ -57,7 +57,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                 })
                 .then(() => {
                     if (this.runOptions.expoHostType !== "local") return false;
-                    // we need to execute 'adb reverse' command to bind ports used by Expo and RN of local machine to ports of a connected device or an running emulator
+                    // we need to execute 'adb reverse' command to bind ports used by Expo and RN of local machine to ports of a connected Android device or a running emulator
                     return XDL.startAdbReverse(this.projectPath);
                 })
                 .then((isAdbReversed) => {
@@ -72,6 +72,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                             }
 
                             return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "localhost" });
+                        case "tunnel":
                         default:
                             return XDL.getUrl(this.projectPath, { dev: true, minify: false });
                     }
@@ -101,7 +102,9 @@ export class ExponentPlatform extends GeneralMobilePlatform {
     }
 
     public loginToExponentOrSkip(expoHostType?: "tunnel" | "lan" | "local") {
-        if (expoHostType !== "tunnel") return  Q({});
+        if (expoHostType !== "tunnel") {
+            return  Q({});
+        }
         return this.exponentHelper.loginToExponent(
             (message, password) => {
                 return Q.Promise((resolve, reject) => {
