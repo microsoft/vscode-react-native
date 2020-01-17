@@ -286,10 +286,19 @@ export class ExtensionServer implements vscode.Disposable {
                     });
                 })
                 .catch(error => {
-                    TelemetryHelper.sendErrorEvent(
-                        "ReactNativePackageIsNotInstalled",
-                        ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled)
-                        );
+                    if (error && error.errorCode) {
+                        if (error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
+                            TelemetryHelper.sendErrorEvent(
+                                "ReactNativePackageIsNotInstalled",
+                                ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled)
+                                );
+                        } else if (error.errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled) {
+                            TelemetryHelper.sendErrorEvent(
+                                "ReactNativeWindowsPackageIsNotInstalled",
+                                ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled)
+                                );
+                        }
+                    }
                     this.logger.error(error);
                     reject(error);
                 });
