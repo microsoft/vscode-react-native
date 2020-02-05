@@ -331,6 +331,10 @@ function requestSetup(args: any): any {
         target: args.target || "simulator",
     };
 
+    if (args.platform === "exponent") {
+        mobilePlatformOptions.expoHostType = args.expoHostType || "tunnel";
+    }
+
     CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(workspaceFolder.uri);
 
     if (!args.runArguments) {

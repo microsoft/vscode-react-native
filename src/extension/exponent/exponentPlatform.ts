@@ -3,7 +3,7 @@
 
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { IRunOptions } from "../launchArgs";
+import { IExponentRunOptions } from "../launchArgs";
 import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import { ExponentHelper } from "./exponentHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
@@ -22,7 +22,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
     private exponentHelper: ExponentHelper;
     private qrCodeContentProvider: QRCodeContentProvider = new QRCodeContentProvider();
 
-    constructor(runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
+    constructor(runOptions: IExponentRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
         this.exponentHelper = new ExponentHelper(runOptions.workspaceRoot, runOptions.projectRoot);
         this.exponentTunnelPath = null;
@@ -39,41 +39,45 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
 
         return TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
-            return this.exponentHelper.loginToExponent(
-                (message, password) => {
-                    return Q.Promise((resolve, reject) => {
-                        vscode.window.showInputBox({ placeHolder: message, password: password })
-                            .then(login => {
-                                resolve(login || "");
-                            }, reject);
-                    });
-                },
-                (message) => {
-                    return Q.Promise((resolve, reject) => {
-                        const okButton =  { title: "Ok" };
-                        const cancelButton =  { title: "Cancel", isCloseAffordance: true };
-                        vscode.window.showInformationMessage(message, {modal: true}, okButton, cancelButton)
-                            .then(answer => {
-                                if (answer === cancelButton) {
-                                    reject(ErrorHelper.getInternalError(InternalErrorCode.UserCancelledExpoLogin));
-                                }
-                                resolve("");
-                            }, reject);
-                    });
-                }
-            )
+            return this.loginToExponentOrSkip(this.runOptions.expoHostType)
                 .then(() =>
                     XDL.setOptions(this.projectPath, { packagerPort: this.packager.port })
                 )
                 .then(() =>
                     XDL.startExponentServer(this.projectPath)
                 )
-                .then(() =>
-                    XDL.startTunnels(this.projectPath)
-                )
-                .then(() =>
-                    XDL.getUrl(this.projectPath, { dev: true, minify: false })
-                ).then(exponentUrl => {
+                .then(() => {
+                    if (this.runOptions.expoHostType !== "tunnel") {
+                        // the purpose of this is to save the same sequence of handling 'adb reverse' command execution as in Expo
+                        // https://github.com/expo/expo-cli/blob/1d515d21200841e181518358fd9dc4c7b24c7cd6/packages/xdl/src/Project.ts#L2226-L2370
+                        // we added this to be sure that our Expo launching logic doesn't have any negative side effects
+                        return XDL.stopAdbReverse(this.projectPath);
+                    }
+                    return XDL.startTunnels(this.projectPath);
+                })
+                .then(() => {
+                    if (this.runOptions.expoHostType !== "local") return false;
+                    // we need to execute 'adb reverse' command to bind ports used by Expo and RN of local machine to ports of a connected Android device or a running emulator
+                    return XDL.startAdbReverse(this.projectPath);
+                })
+                .then((isAdbReversed) => {
+                    switch (this.runOptions.expoHostType) {
+                        case "lan":
+                            return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "lan" });
+                        case "local":
+                            if (isAdbReversed) {
+                                this.logger.info(localize("ExpoStartAdbReverseSuccess", "A device or an emulator was found, 'adb reverse' command successfully executed."));
+                            } else {
+                                this.logger.warning(localize("ExpoStartAdbReverseFailure", "Adb reverse command failed. Couldn't find connected over usb device or running emulator. Also please make sure that there is only one currently connected device or running emulator."));
+                            }
+
+                            return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "localhost" });
+                        case "tunnel":
+                        default:
+                            return XDL.getUrl(this.projectPath, { dev: true, minify: false });
+                    }
+                })
+                .then(exponentUrl => {
                     return "exp://" + url.parse(exponentUrl).host;
                 })
                 .catch(reason => {
@@ -95,6 +99,35 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     return Q.resolve(void 0);
                 });
         });
+    }
+
+    public loginToExponentOrSkip(expoHostType?: "tunnel" | "lan" | "local") {
+        if (expoHostType !== "tunnel") {
+            return  Q({});
+        }
+        return this.exponentHelper.loginToExponent(
+            (message, password) => {
+                return Q.Promise((resolve, reject) => {
+                    vscode.window.showInputBox({ placeHolder: message, password: password })
+                        .then(login => {
+                            resolve(login || "");
+                        }, reject);
+                });
+            },
+            (message) => {
+                return Q.Promise((resolve, reject) => {
+                    const okButton =  { title: "Ok" };
+                    const cancelButton =  { title: "Cancel", isCloseAffordance: true };
+                    vscode.window.showInformationMessage(message, {modal: true}, okButton, cancelButton)
+                        .then(answer => {
+                            if (answer === cancelButton) {
+                                reject(ErrorHelper.getInternalError(InternalErrorCode.UserCancelledExpoLogin));
+                            }
+                            resolve("");
+                        }, reject);
+                });
+            }
+        );
     }
 
     public beforeStartPackager(): Q.Promise<void> {

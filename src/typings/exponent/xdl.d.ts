@@ -72,6 +72,11 @@ declare module xdl {
         facebookReactNativeVersionToExpoVersionAsync(facebookReactNativeVersion: string): Q.Promise<string>;
     }
 
+    var Android: {
+        startAdbReverseAsync(projectRoot: string): Q.Promise<boolean>;
+        stopAdbReverseAsync(projectRoot: string): Q.Promise<void>;
+    }
+
     interface IApiConfig {
         scheme: string,
         host: string,

@@ -363,6 +363,16 @@
 								"type": "string",
 								"description": "%reactNative.launch.launchActivity.description%",
 								"default": "MainActivity"
+							},
+							"expoHostType": {
+								"type": "string",
+								"enum": [
+									"tunnel",
+									"lan",
+									"local"
+								],
+								"default": "tunnel",
+								"description": "%reactNative.launch.expoHostType.description%"
 							}
 						}
 					}

@@ -120,3 +120,15 @@ export function stopAll(projectRoot: string): Q.Promise<void> {
         .then((xdl) =>
             xdl.Project.stopAsync(projectRoot));
 }
+
+export function startAdbReverse(projectRoot: string): Q.Promise<boolean> {
+    return getPackage()
+        .then((xdl) =>
+            xdl.Android.startAdbReverseAsync(projectRoot));
+}
+
+export function stopAdbReverse(projectRoot: string): Q.Promise<void> {
+    return getPackage()
+        .then((xdl) =>
+            xdl.Android.stopAdbReverseAsync(projectRoot));
+}
