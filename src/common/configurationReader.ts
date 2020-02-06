@@ -31,7 +31,7 @@ export class ConfigurationReader {
         }
     }
 
-    public static readObject(value: any): Object {
+    public static readObject(value: any): Record<string, any> {
         if (this.isObject(value)) {
             return value;
         } else {

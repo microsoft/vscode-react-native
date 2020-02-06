@@ -34,19 +34,19 @@ export class ErrorHelper {
     }
 
     private static formatErrorMessage(errorMessage: string, ...optionalArgs: any[]): string {
-         if (!errorMessage) {
-             return errorMessage;
-         }
+        if (!errorMessage) {
+            return errorMessage;
+        }
 
-         let result: string = <string> errorMessage;
-         let args: string[] = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
-         if (args) {
+        let result: string = <string> errorMessage;
+        let args: string[] = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
+        if (args) {
             for (let i: number = 0; i < args.length; i++) {
                 result = result.replace(new RegExp("\\{" + i + "\\}", "g"), args[i]);
             }
-         }
+        }
 
-         return result;
+        return result;
     }
 
     private static getOptionalArgsArrayFromFunctionCall(functionArguments: IArguments, startIndex: number): any[] {

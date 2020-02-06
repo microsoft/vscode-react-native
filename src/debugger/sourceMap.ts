@@ -13,7 +13,7 @@ interface ISourceMap extends RawSourceMap {
 }
 interface ISourceMapSection {
     map: ISourceMap;
-    offset: { column: number, line: number };
+    offset: { column: number; line: number };
 }
 
 export interface IStrictUrl extends url.Url {

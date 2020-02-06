@@ -11,8 +11,7 @@ module.exports = {
     ],
     parser: "@typescript-eslint/parser",
     extends: [
-        "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended"
     ],
     plugins: ["header"],
     parserOptions: {
@@ -25,6 +24,13 @@ module.exports = {
       "@typescript-eslint/interface-name-prefix": "off",
       "@typescript-eslint/prefer-namespace-keyword": "off",
       "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-inferrable-types": "off",
+      "@typescript-eslint/consistent-type-assertions": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-empty-interface": "off",
+      "@typescript-eslint/no-var-requires": "off",
+      "@typescript-eslint/triple-slash-reference": "off",
+      "@typescript-eslint/no-namespace": "off",
       "prefer-const": "off",
       "header/header": [
         "error",

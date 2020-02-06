@@ -7,8 +7,8 @@ import { ErrorHelper } from "./error/errorHelper";
 import { InternalErrorCode } from "./error/internalErrorCode";
 
 export type PatternToFailure = {
-    pattern: string | RegExp,
-    errorCode: number
+    pattern: string | RegExp;
+    errorCode: number;
 };
 
 /* This class transforms a spawn process to only succeed if all defined success patterns
@@ -29,10 +29,10 @@ export class OutputVerifier {
 
     public process(spawnResult: ISpawnResult): Q.Promise<void> {
         // Store all output
-        this.store(spawnResult.stdout, new_content =>
-            this.output += new_content);
-        this.store(spawnResult.stderr, new_content =>
-            this.errors += new_content);
+        this.store(spawnResult.stdout, newContent =>
+            this.output += newContent);
+        this.store(spawnResult.stderr, newContent =>
+            this.errors += newContent);
 
         return spawnResult.outcome // Wait for the process to finish
             .then(this.generatePatternToFailure) // Generate the failure patterns to check
@@ -51,7 +51,7 @@ export class OutputVerifier {
             });
     }
 
-    private store(stream: NodeJS.ReadableStream, append: (new_content: string) => void) {
+    private store(stream: NodeJS.ReadableStream, append: (newContent: string) => void) {
         stream.on("data", (data: Buffer) => {
             append(data.toString());
         });
