@@ -6,6 +6,7 @@ import * as Q from "q";
 import * as glob from "glob";
 import * as fs from "fs";
 import * as semver from "semver";
+import * as cp from "child_process";
 
 import {Node} from "../../common/node/node";
 import {ChildProcess} from "../../common/node/childProcess";
@@ -37,14 +38,27 @@ export class PlistBuddy {
             } else {
                 productsFolder = path.join(iosProjectRoot, "build", "Build", "Products");
             }
-            const configurationFolder = path.join(productsFolder, `${configuration}${simulator ? "-iphonesimulator" : "-iphoneos"}`);
+            const sdkType = simulator ? "iphonesimulator" : "iphoneos";
+            let configurationFolder = path.join(productsFolder, `${configuration}-${sdkType}`);
             let executable = "";
             if (productName) {
                 executable = `${productName}.app`;
             } else {
-                const executableList = this.findExecutable(configurationFolder);
+                let executableList = this.findExecutable(configurationFolder);
                 if (!executableList.length) {
-                    throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundExecutableInFolder, configurationFolder);
+                    if (!scheme) {
+                        throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundExecutableInFolder, configurationFolder);
+                    }
+                    const projectWorkspaceConfigName = `${scheme}.xcworkspace`;
+                    configurationFolder = this.getBuildPath(
+                        iosProjectRoot,
+                        projectWorkspaceConfigName,
+                        configuration,
+                        scheme,
+                        sdkType
+                    );
+
+                    executableList.push(`${scheme}.app`);
                 } else if (executableList.length > 1) {
                     throw ErrorHelper.getInternalError(InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder, configurationFolder);
                 }
@@ -80,6 +94,40 @@ export class PlistBuddy {
         return this.invokePlistBuddy(`Print ${property}`, plistFile);
     }
 
+    public getBuildPath(
+        iosProjectRoot: string,
+        projectWorkspaceConfigName: string,
+        configuration: string,
+        scheme: string,
+        sdkType: string
+    ) {
+        const buildSettings = cp.execFileSync(
+            "xcodebuild",
+            [
+                "-workspace",
+                projectWorkspaceConfigName,
+                "-scheme",
+                scheme,
+                "-sdk",
+                sdkType,
+                "-configuration",
+                configuration,
+                "-showBuildSettings",
+            ],
+            {
+                encoding: "utf8",
+                cwd: iosProjectRoot,
+            }
+        );
+
+        const targetBuildDir = this.getTargetBuildDir(buildSettings);
+
+        if (!targetBuildDir) {
+            throw new Error("Failed to get the target build directory.");
+        }
+        return targetBuildDir;
+    }
+
     public getInferredScheme(iosProjectRoot: string, projectRoot: string, rnVersion: string) {
         // Portion of code was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.js
         // and modified a little bit
@@ -111,6 +159,13 @@ export class PlistBuddy {
             path.extname(xcodeProject.name)
         );
         return inferredSchemeName;
+    }
+
+    private getTargetBuildDir(buildSettings: string) {
+        const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
+        return targetBuildMatch && targetBuildMatch[1]
+            ? targetBuildMatch[1].trim()
+            : null;
     }
 
     private findExecutable(folder: string): string[] {
