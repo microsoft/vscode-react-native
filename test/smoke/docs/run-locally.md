@@ -197,10 +197,12 @@ Also, it supports the following parameters:
 
 ## Troubleshooting
 
-Several diagnostic logs are written during tests run. `SmokeTestLogs` directory is created on each tests run and contains
+1. Several diagnostic logs are written during tests run. `SmokeTestLogs` directory is created on each tests run and contains
 * zero-based numbering named directories that corresponds to particular test. There are different diagnostic logs inside such as:
   * `extensionLogs/ReactNative*` - extension output windows logs
   * `chromedriver.log` - logs of Chrome Driver that are used by Spectron
 * `appium.log` - logs of Appium server
-
 Also, VS Code instance, that is downloaded and used for running tests, is located in `test/smoke/vscode/test/smoke/resources/.vscode-test` directory.
+1. (Linux only) There are some known issues with launching VS Code using xrdp:
+* [make sure to pass virtual display resolution argument to Xvfb](https://github.com/microsoft/vscode/issues/89147#issuecomment-578674329)
+* VS Code has problems when running on virtual display on Linux: [more info](https://github.com/microsoft/vscode/issues/3451), [fix](https://github.com/microsoft/vscode/issues/3451#issuecomment-217716116)
