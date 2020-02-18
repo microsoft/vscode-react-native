@@ -7,8 +7,8 @@ import * as glob from "glob";
 import * as fs from "fs";
 import * as semver from "semver";
 
-import {Node} from "../../common/node/node";
-import {ChildProcess} from "../../common/node/childProcess";
+import { Node } from "../../common/node/node";
+import { ChildProcess } from "../../common/node/childProcess";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
@@ -37,14 +37,27 @@ export class PlistBuddy {
             } else {
                 productsFolder = path.join(iosProjectRoot, "build", "Build", "Products");
             }
-            const configurationFolder = path.join(productsFolder, `${configuration}${simulator ? "-iphonesimulator" : "-iphoneos"}`);
+            const sdkType = simulator ? "iphonesimulator" : "iphoneos";
+            let configurationFolder = path.join(productsFolder, `${configuration}-${sdkType}`);
             let executable = "";
             if (productName) {
                 executable = `${productName}.app`;
             } else {
                 const executableList = this.findExecutable(configurationFolder);
                 if (!executableList.length) {
-                    throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundExecutableInFolder, configurationFolder);
+                    if (!scheme) {
+                        throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundExecutableInFolder, configurationFolder);
+                    }
+                    const projectWorkspaceConfigName = `${scheme}.xcworkspace`;
+                    configurationFolder = this.getBuildPath(
+                        iosProjectRoot,
+                        projectWorkspaceConfigName,
+                        configuration,
+                        scheme,
+                        sdkType
+                    );
+
+                    executableList.push(`${scheme}.app`);
                 } else if (executableList.length > 1) {
                     throw ErrorHelper.getInternalError(InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder, configurationFolder);
                 }
@@ -80,6 +93,40 @@ export class PlistBuddy {
         return this.invokePlistBuddy(`Print ${property}`, plistFile);
     }
 
+    public getBuildPath(
+        iosProjectRoot: string,
+        projectWorkspaceConfigName: string,
+        configuration: string,
+        scheme: string,
+        sdkType: string
+    ): string {
+        const buildSettings = this.nodeChildProcess.execFileSync(
+            "xcodebuild",
+            [
+                "-workspace",
+                projectWorkspaceConfigName,
+                "-scheme",
+                scheme,
+                "-sdk",
+                sdkType,
+                "-configuration",
+                configuration,
+                "-showBuildSettings",
+            ],
+            {
+                encoding: "utf8",
+                cwd: iosProjectRoot,
+            }
+        );
+
+        const targetBuildDir = this.getTargetBuildDir(<string>buildSettings);
+
+        if (!targetBuildDir) {
+            throw new Error("Failed to get the target build directory.");
+        }
+        return targetBuildDir;
+    }
+
     public getInferredScheme(iosProjectRoot: string, projectRoot: string, rnVersion: string) {
         // Portion of code was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.js
         // and modified a little bit
@@ -111,6 +158,20 @@ export class PlistBuddy {
             path.extname(xcodeProject.name)
         );
         return inferredSchemeName;
+    }
+
+    /**
+     *
+     * The function was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
+     *
+     * @param {string} buildSettings
+     * @returns {string | null}
+     */
+    private getTargetBuildDir(buildSettings: string) {
+        const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
+        return targetBuildMatch && targetBuildMatch[1]
+            ? targetBuildMatch[1].trim()
+            : null;
     }
 
     private findExecutable(folder: string): string[] {
