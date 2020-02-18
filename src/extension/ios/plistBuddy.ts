@@ -99,7 +99,7 @@ export class PlistBuddy {
         configuration: string,
         scheme: string,
         sdkType: string
-    ) {
+    ): string {
         const buildSettings = this.nodeChildProcess.execFileSync(
             "xcodebuild",
             [
@@ -162,9 +162,10 @@ export class PlistBuddy {
 
     /**
      *
-     * The funciton was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
+     * The function was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
      *
      * @param {string} buildSettings
+     * @returns {string | null}
      */
     private getTargetBuildDir(buildSettings: string) {
         const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
