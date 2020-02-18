@@ -197,10 +197,15 @@ Also, it supports the following parameters:
 
 ## Troubleshooting
 
-Several diagnostic logs are written during tests run. `SmokeTestLogs` directory is created on each tests run and contains
+1. Several diagnostic logs are written during tests run. `SmokeTestLogs` directory is created on each tests run and contains
 * zero-based numbering named directories that corresponds to particular test. There are different diagnostic logs inside such as:
   * `extensionLogs/ReactNative*` - extension output windows logs
   * `chromedriver.log` - logs of Chrome Driver that are used by Spectron
 * `appium.log` - logs of Appium server
-
 Also, VS Code instance, that is downloaded and used for running tests, is located in `test/smoke/vscode/test/smoke/resources/.vscode-test` directory.
+2. (Linux only) There are some known issues with launching VS Code using virtual display servers:
+```
+libGL error: No matching fbConfigs or visuals found
+libGL error: failed to load driver: swrast
+```
+There is a [workaround](https://github.com/microsoft/vscode/issues/3451#issuecomment-217716116) for these issues. Also [make sure to pass virtual display resolution argument to Xvfb, since it may lead to errors on VS Code based on Electron 6](https://github.com/microsoft/vscode/issues/89147#issuecomment-578674329)
