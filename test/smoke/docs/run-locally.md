@@ -208,4 +208,4 @@ Also, VS Code instance, that is downloaded and used for running tests, is locate
 libGL error: No matching fbConfigs or visuals found
 libGL error: failed to load driver: swrast
 ```
-There is a [workaround](https://github.com/microsoft/vscode/issues/3451#issuecomment-217716116) for this issue. Also [make sure to pass virtual display resolution argument to Xvfb, since it may lead to errors on VS Code based on Electron 6](https://github.com/microsoft/vscode/issues/89147#issuecomment-578674329)
+There is a [workaround](https://github.com/microsoft/vscode/issues/3451#issuecomment-217716116) for these issue. Also [make sure to pass virtual display resolution argument to Xvfb, since it may lead to errors on VS Code based on Electron 6](https://github.com/microsoft/vscode/issues/89147#issuecomment-578674329)
