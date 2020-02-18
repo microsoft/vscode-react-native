@@ -6,10 +6,9 @@ import * as Q from "q";
 import * as glob from "glob";
 import * as fs from "fs";
 import * as semver from "semver";
-import * as cp from "child_process";
 
-import {Node} from "../../common/node/node";
-import {ChildProcess} from "../../common/node/childProcess";
+import { Node } from "../../common/node/node";
+import { ChildProcess } from "../../common/node/childProcess";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
@@ -44,7 +43,7 @@ export class PlistBuddy {
             if (productName) {
                 executable = `${productName}.app`;
             } else {
-                let executableList = this.findExecutable(configurationFolder);
+                const executableList = this.findExecutable(configurationFolder);
                 if (!executableList.length) {
                     if (!scheme) {
                         throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundExecutableInFolder, configurationFolder);
@@ -101,7 +100,7 @@ export class PlistBuddy {
         scheme: string,
         sdkType: string
     ) {
-        const buildSettings = cp.execFileSync(
+        const buildSettings = this.nodeChildProcess.execFileSync(
             "xcodebuild",
             [
                 "-workspace",
@@ -120,7 +119,7 @@ export class PlistBuddy {
             }
         );
 
-        const targetBuildDir = this.getTargetBuildDir(buildSettings);
+        const targetBuildDir = this.getTargetBuildDir(<string>buildSettings);
 
         if (!targetBuildDir) {
             throw new Error("Failed to get the target build directory.");
@@ -161,6 +160,12 @@ export class PlistBuddy {
         return inferredSchemeName;
     }
 
+    /**
+     *
+     * The funciton was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
+     *
+     * @param {string} buildSettings
+     */
     private getTargetBuildDir(buildSettings: string) {
         const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
         return targetBuildMatch && targetBuildMatch[1]
