@@ -1,3 +1,8 @@
+## 0.14.1
+* Implemented Expo debugging without mandatory logging in and Internet connection [#1188](https://github.com/microsoft/vscode-react-native/issues/1188)
+    * Added `expoHostType` parameter to Expo debug scenario configuration. See the [documentation](https://github.com/microsoft/vscode-react-native#react-native-debug-configuration-properties) for more details
+* Fixed iOS debugging according to [XCode build caching changes in React Native CLI v3.1.0](https://github.com/react-native-community/cli/releases/tag/v3.1.0) [#1198](https://github.com/microsoft/vscode-react-native/issues/1198)
+
 ## 0.14.0
 * Enhanced extension security [#1171](https://github.com/microsoft/vscode-react-native/pull/1171)
 * Deps: `vscode-chrome-debug-core@6.8.8` [#1193](https://github.com/microsoft/vscode-react-native/pull/1193)
