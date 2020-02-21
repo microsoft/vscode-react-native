@@ -17,21 +17,20 @@ import * as semver from "semver";
 
 import {FileSystem} from "../common/node/fileSystem";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
-import {Packager} from "../common/packager";
 import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalError} from "../common/error/internalError";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {SettingsHelper} from "./settingsHelper";
-import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {ProjectVersionHelper} from "../common/projectVersionHelper";
 import {ReactDirManager} from "./reactDirManager";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper, ICommandTelemetryProperties} from "../common/telemetryHelper";
-import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
-import {ExponentHelper} from "./exponent/exponentHelper";
 import {ReactNativeDebugConfigProvider} from "./debugConfigurationProvider";
+import {RNDebugAdapterDescriptorFactory} from "./rnDebugAdapterDescriptorFactory";
+import {ProjectsStorage} from "./projectsStorage";
+import {AppLauncher} from "./appLauncher";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -67,6 +66,10 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
 
         debugConfigProvider = vscode.debug.registerDebugConfigurationProvider("reactnative", configProvider);
+
+        const rnFactory = new RNDebugAdapterDescriptorFactory();
+        context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory("reactnative", rnFactory));
+
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
         let promises: any = [];
@@ -147,19 +150,9 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                     let reactDirManager = new ReactDirManager(rootPath);
                     return setupAndDispose(reactDirManager, context)
                         .then(() => {
-                            let exponentHelper: ExponentHelper = new ExponentHelper(rootPath, projectRootPath);
-                            let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
-                            let packager: Packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(folder.uri.fsPath), packagerStatusIndicator);
-                            let extensionServer: ExtensionServer = new ExtensionServer(projectRootPath, packager);
+                            ProjectsStorage.addFolder(folder, new AppLauncher(reactDirManager, folder));
 
-                            CommandPaletteHandler.addFolder(folder, {
-                                packager,
-                                exponentHelper,
-                                reactDirManager,
-                                extensionServer,
-                            });
-
-                            return setupAndDispose(extensionServer, context).then(() => { });
+                            return void 0;
                         });
                 }));
                 promises.push(entryPointHandler.runFunction("debugger.setupNodeDebuggerLocation",
@@ -175,14 +168,14 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
 }
 
 function onFolderRemoved(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder): void {
-    let project = CommandPaletteHandler.getFolder(folder);
-    Object.keys(project).forEach((key) => {
-        if (project[key].dispose) {
-            project[key].dispose();
+    let appLauncher = ProjectsStorage.getFolder(folder);
+    Object.keys(appLauncher).forEach((key) => {
+        if (appLauncher[key].dispose) {
+            appLauncher[key].dispose();
         }
     });
     outputChannelLogger.debug(`Delete project: ${folder.uri.fsPath}`);
-    CommandPaletteHandler.delFolder(folder);
+    ProjectsStorage.delFolder(folder);
 
     try { // Preventing memory leaks
         context.subscriptions.forEach((element: any, index: number) => {
