@@ -31,7 +31,68 @@ const debugAndroidTestTime = SmokeTestsConstants.androidAppBuildAndInstallTimeou
 const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
 
 export function setup(testParameters?: TestRunArguments) {
+
     describe("Debugging Android", () => {
+
+        async function ReactNativeExpoTest(testName: string, retriesToLaunchApp: number) {
+            if (testParameters && testParameters.RunBasicTests) {
+                this.skip();
+            }
+            this.timeout(debugExpoTestTime);
+            app = await runVSCode(ExpoWorkspacePath);
+            console.log(`: ${ExpoWorkspacePath} directory is opened in VS Code`);
+            await app.workbench.explorer.openExplorerView();
+            await app.workbench.explorer.openFile("App.js");
+            await app.workbench.editors.scrollTop();
+            console.log(`Android Expo Debug test: App.js file is opened`);
+            await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
+            console.log(`Android Expo Debug test: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
+            await app.workbench.debug.openDebugViewlet();
+            console.log(`Android Expo Debug test: Chosen debug configuration: ${ExpoDebugConfigName}`);
+            console.log("Android Expo Debug test: Starting debugging");
+            await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
+            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                let expoLaunchStatus: ExpoLaunch;
+                expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
+                if (expoLaunchStatus.failed) {
+                    console.log("First attempt to start failed, retrying...");
+                    await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
+                }
+            }
+
+            await app.workbench.editors.waitForTab("Expo QR Code");
+            await app.workbench.editors.waitForActiveTab("Expo QR Code");
+            console.log("Android Expo Debug test: 'Expo QR Code' tab found");
+
+            let expoURL;
+            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeRunExpoLogFileName));
+            }
+            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
+            expoURL = expoURL as string;
+            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
+            let client = AppiumHelper.webdriverAttach(opts);
+            clientInited = client.init();
+            // TODO Add listener to trigger that main expo app has been ran
+            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL, ExpoWorkspacePath);
+            // TODO Add listener to trigger that child expo app has been ran instead of using timeout
+            console.log(`Android Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
+            await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
+            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
+            await app.workbench.debug.waitForDebuggingToStart();
+            console.log("Android Expo Debug test: Debugging started");
+            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for App.js and line ${ExpoSetBreakpointOnLine}`);
+            console.log("Android Expo Debug test: Stack frame found");
+            await app.workbench.debug.stepOver();
+            // Wait for debug string to be rendered in debug console
+            await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
+            console.log("Android Expo Debug test: Searching for \"Test output from debuggee\" string in console");
+            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
+            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
+            console.log("Android Expo Debug test: \"Test output from debuggee\" string is found");
+            await app.workbench.debug.stopDebugging();
+            console.log("Android Expo Debug test: Debugging is stopped");
+        }
         let app: Application;
         let clientInited: AppiumClient;
 
@@ -127,63 +188,7 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("Expo app Debug test", async function () {
-            if (testParameters && testParameters.RunBasicTests) {
-                this.skip();
-            }
-            this.timeout(debugExpoTestTime);
-            app = await runVSCode(ExpoWorkspacePath);
-            console.log(`Android Expo Debug test: ${ExpoWorkspacePath} directory is opened in VS Code`);
-            await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("App.js");
-            await app.workbench.editors.scrollTop();
-            console.log("Android Expo Debug test: App.js file is opened");
-            await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
-            console.log(`Android Expo Debug test: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
-            await app.workbench.debug.openDebugViewlet();
-            console.log(`Android Expo Debug test: Chosen debug configuration: ${ExpoDebugConfigName}`);
-            console.log("Android Expo Debug test: Starting debugging");
-            await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
-            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                let expoLaunchStatus: ExpoLaunch;
-                expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
-                if (expoLaunchStatus.failed) {
-                    console.log("First attempt to start failed, retrying...");
-                    await app.workbench.debug.runDebugScenario(ExpoDebugConfigName);
-                }
-            }
-
-            await app.workbench.editors.waitForTab("Expo QR Code");
-            await app.workbench.editors.waitForActiveTab("Expo QR Code");
-            console.log("Android Expo Debug test: 'Expo QR Code' tab found");
-
-            let expoURL;
-            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeRunExpoLogFileName));
-            }
-            assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
-            expoURL = expoURL as string;
-            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
-            let client = AppiumHelper.webdriverAttach(opts);
-            clientInited = client.init();
-            // TODO Add listener to trigger that main expo app has been ran
-            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL, ExpoWorkspacePath);
-            // TODO Add listener to trigger that child expo app has been ran instead of using timeout
-            console.log(`Android Expo Debug test: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
-            await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
-            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
-            await app.workbench.debug.waitForDebuggingToStart();
-            console.log("Android Expo Debug test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for App.js and line ${ExpoSetBreakpointOnLine}`);
-            console.log("Android Expo Debug test: Stack frame found");
-            await app.workbench.debug.stepOver();
-            // Wait for debug string to be rendered in debug console
-            await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log("Android Expo Debug test: Searching for \"Test output from debuggee\" string in console");
-            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
-            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            console.log("Android Expo Debug test: \"Test output from debuggee\" string is found");
-            await app.workbench.debug.stopDebugging();
-            console.log("Android Expo Debug test: Debugging is stopped");
+            await ReactNativeExpoTest("Android Expo Debug test", 5);
         });
 
         it("Pure RN app Expo test", async function () {
