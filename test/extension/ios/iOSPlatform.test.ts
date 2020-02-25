@@ -63,7 +63,7 @@ suite("iOSPlatform", function () {
         });
         test("getRunArgument device with incorrect 'device' field", function () {
             runOptions.target = "device Contoso iPhone";
-            const expected = ["--device"];
+            const expected = ["--device", ""];
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.runArguments, expected);
         });
