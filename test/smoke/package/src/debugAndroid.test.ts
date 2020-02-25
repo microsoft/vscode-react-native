@@ -67,7 +67,7 @@ export function setup(testParameters?: TestRunArguments) {
                         console.log(`Attempt to start #${retry} failed, retrying...`);
                         await app.workbench.debug.runDebugScenario(debugConfigName);
                     } else {
-                        continue;
+                        break;
                     }
                 }
             }
