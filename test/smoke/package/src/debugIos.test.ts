@@ -39,10 +39,6 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         async function ExpoTest(testName: string, workspacePath: string, debugConfigName: string, retriesToLaunchApp: number) {
-            if (testParameters && testParameters.RunBasicTests) {
-                this.skip();
-            }
-            this.timeout(debugExpoTestTime);
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
@@ -162,10 +158,18 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("Expo app Debug test", async function () {
+            if (testParameters && testParameters.RunBasicTests) {
+                this.skip();
+            }
+            this.timeout(debugExpoTestTime);
             await ExpoTest("iOS Expo Debug test", ExpoWorkspacePath, ExpoDebugConfigName, 5);
         });
 
         it("Pure RN app Expo test", async function () {
+            if (testParameters && testParameters.RunBasicTests) {
+                this.skip();
+            }
+            this.timeout(debugExpoTestTime);
             await ExpoTest("iOS pure RN Expo test", pureRNWorkspacePath, ExpoDebugConfigName, 5);
         });
     });
