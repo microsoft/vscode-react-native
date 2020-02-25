@@ -37,7 +37,7 @@ Once app is loaded and ran, [open Developer Menu](https://facebook.github.io/rea
 
 ![React Native enable remote debug](images/enable-remote-debug.png)
 
-You can debug your app on an Android emulator, Android device or iOS simulator. This extension provides [experimental support](doc/debugging.md#debugging-on-ios-device) for iOS devices.
+You can debug your app on an Android emulator, Android device or iOS simulator, iOS device. Please see the documentation for [debugging on iOS devices](doc/debugging.md#debugging-on-ios-device).
 
 Since version 0.60.2 [React Native supports Hermes engine for Android applications](https://facebook.github.io/react-native/blog/2019/07/17/hermes). Extension provides experimental support for debugging React Native Android applications with Hermes enabled. Please see [Debugging React Native apps with Hermes enabled](doc/debugging.md#debugging-react-native-apps-with-hermes-enabled) for more details.
 

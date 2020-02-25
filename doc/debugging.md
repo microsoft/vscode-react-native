@@ -37,7 +37,7 @@ Please be aware, specifying scheme value as a part of `runArguments` parameter a
 Debugging on an iOS device require following manual steps:
 * Install [ios-deploy](https://www.npmjs.com/package/ios-deploy) `npm install -g ios-deploy`.
 * Have a valid iOS Development certificate installed.
-* In your project's `launch.json` file set `target` to `device` or use 'launchArguments' property to specify particular device to run on in case of multiple devices connected, e.g. `"runArguments": [ "--device", "My iPhone" ]`
+* In your project's `launch.json` file set `target` to `device`. In case if needed to specify the exact device to run you can set `target` to `device=<iOS_device_name>` or you can also use `runArguments` property to specify particular device to run on in case of multiple devices connected, e.g. `"runArguments": [ "--device", "My iPhone" ]`
 * Choose **Debug iOS** configuration from the Configuration dropdown and press F5.
 * Shake the device to open the development menu and select "Debug JS Remotely".
 
