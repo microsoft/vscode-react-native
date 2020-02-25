@@ -199,7 +199,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             target === IOSPlatform.simulatorString) {
             return [`--${this.runOptions.target}`];
         } else {
-            if (target.indexOf("device") !== -1) {
+            if (target.indexOf(IOSPlatform.deviceString) !== -1) {
                 const deviceArgs = target.split("=");
                 return ["--device", deviceArgs[1] || ""];
             } else {
