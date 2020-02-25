@@ -18,7 +18,6 @@ const ExpoDebugConfigName = "Debug in Exponent";
 
 const RNSetBreakpointOnLine = 1;
 const ExpoSetBreakpointOnLine = 1;
-const PureRNExpoSetBreakpointOnLine = 1;
 // Time for OS Debug Test before it reaches timeout
 const debugIosTestTime = SmokeTestsConstants.iosAppBuildAndInstallTimeout + 100 * 1000;
 // Time for iOS Expo Debug Test before it reaches timeout
@@ -167,7 +166,7 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("Pure RN app Expo test", async function () {
-            await ExpoTest("iOS pure RN Expo test", ExpoWorkspacePath, ExpoDebugConfigName, 5);
+            await ExpoTest("iOS pure RN Expo test", pureRNWorkspacePath, ExpoDebugConfigName, 5);
         });
     });
 }
