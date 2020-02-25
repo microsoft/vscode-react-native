@@ -201,9 +201,13 @@ export class IOSPlatform extends GeneralMobilePlatform {
         } else {
             if (target.indexOf(IOSPlatform.deviceString) !== -1) {
                 const deviceArgs = target.split("=");
-                return ["--device", deviceArgs[1] || ""];
+                if (deviceArgs[1] !== "") {
+                    return [`--${IOSPlatform.deviceString}`, deviceArgs[1]];
+                } else {
+                    return [`--${IOSPlatform.deviceString}`];
+                }
             } else {
-                return ["--simulator", `${this.runOptions.target}`];
+                return [`--${IOSPlatform.simulatorString}`, `${this.runOptions.target}`];
             }
         }
     }
