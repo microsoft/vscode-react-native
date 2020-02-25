@@ -32,6 +32,19 @@ const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 40
 export function setup(testParameters?: TestRunArguments) {
 
     describe("Debugging Android", () => {
+        let app: Application;
+        let clientInited: AppiumClient;
+
+        afterEach(async () => {
+            if (app) {
+                await app.stop();
+            }
+            if (clientInited) {
+                clientInited.closeApp();
+                clientInited.endAll();
+            }
+        });
+
         async function ExpoTest(testName: string, workspacePath: string, debugConfigName: string, retriesToLaunchApp: number) {
             if (testParameters && testParameters.RunBasicTests) {
                 this.skip();
@@ -51,6 +64,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.runDebugScenario(debugConfigName);
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                 for (let retry = 0; retry < retriesToLaunchApp; retry++) {
+                    await sleep(5 * 1000);
                     let expoLaunchStatus: ExpoLaunch;
                     expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
                     if (expoLaunchStatus.failed) {
@@ -95,18 +109,6 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.stopDebugging();
             console.log(`${testName}: Debugging is stopped`);
         }
-        let app: Application;
-        let clientInited: AppiumClient;
-
-        afterEach(async () => {
-            if (app) {
-                await app.stop();
-            }
-            if (clientInited) {
-                clientInited.closeApp();
-                clientInited.endAll();
-            }
-        });
 
         it("RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
