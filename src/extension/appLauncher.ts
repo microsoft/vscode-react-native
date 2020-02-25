@@ -104,44 +104,44 @@ export class AppLauncher {
         return SettingsHelper.getPackagerPort(projectFolder);
     }
 
-    public launch(request: any): Promise<any> {
-        let mobilePlatformOptions = this.requestSetup(request.arguments);
+    public launch(launchArgs: any): Promise<any> {
+        let mobilePlatformOptions = this.requestSetup(launchArgs);
 
         // We add the parameter if it's defined (adapter crashes otherwise)
-        if (!isNullOrUndefined(request.arguments.logCatArguments)) {
-            mobilePlatformOptions.logCatArguments = [this.parseLogCatArguments(request.arguments.logCatArguments)];
+        if (!isNullOrUndefined(launchArgs.logCatArguments)) {
+            mobilePlatformOptions.logCatArguments = [this.parseLogCatArguments(launchArgs.logCatArguments)];
         }
 
-        if (!isNullOrUndefined(request.arguments.variant)) {
-            mobilePlatformOptions.variant = request.arguments.variant;
+        if (!isNullOrUndefined(launchArgs.variant)) {
+            mobilePlatformOptions.variant = launchArgs.variant;
         }
 
-        if (!isNullOrUndefined(request.arguments.scheme)) {
-            mobilePlatformOptions.scheme = request.arguments.scheme;
+        if (!isNullOrUndefined(launchArgs.scheme)) {
+            mobilePlatformOptions.scheme = launchArgs.scheme;
         }
 
-        if (!isNullOrUndefined(request.arguments.productName)) {
-            mobilePlatformOptions.productName = request.arguments.productName;
+        if (!isNullOrUndefined(launchArgs.productName)) {
+            mobilePlatformOptions.productName = launchArgs.productName;
         }
 
-        if (!isNullOrUndefined(request.arguments.launchActivity)) {
-            mobilePlatformOptions.debugLaunchActivity = request.arguments.launchActivity;
+        if (!isNullOrUndefined(launchArgs.launchActivity)) {
+            mobilePlatformOptions.debugLaunchActivity = launchArgs.launchActivity;
         }
 
-        if (request.arguments.type === "reactnativedirect") {
+        if (launchArgs.type === "reactnativedirect") {
             mobilePlatformOptions.isDirect = true;
         }
 
-        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(request.arguments.cwd || request.arguments.program);
+        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(launchArgs.cwd || launchArgs.program);
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
         };
         const mobilePlatform = new PlatformResolver()
-            .resolveMobilePlatform(request.arguments.platform, mobilePlatformOptions, platformDeps);
+            .resolveMobilePlatform(launchArgs.platform, mobilePlatformOptions, platformDeps);
         return new Promise((resolve, reject) => {
             let extProps: any = {
                 platform: {
-                    value: request.arguments.platform,
+                    value: launchArgs.platform,
                     isPii: false,
                 },
             };
@@ -157,7 +157,7 @@ export class AppLauncher {
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (request.arguments.platform === "windows") {
+                    if (launchArgs.platform === "windows") {
                         if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
                             throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled);
                         }
@@ -186,7 +186,7 @@ export class AppLauncher {
                             .then(() => {
                                 if (mobilePlatformOptions.isDirect) {
                                     generator.step("mobilePlatform.enableDirectDebuggingMode");
-                                    if (request.arguments.platform === "android") {
+                                    if (launchArgs.platform === "android") {
                                         this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
                                     }
                                     return mobilePlatform.disableJSDebuggingMode();
