@@ -37,7 +37,7 @@ Once app is loaded and ran, [open Developer Menu](https://facebook.github.io/rea
 
 ![React Native enable remote debug](images/enable-remote-debug.png)
 
-You can debug your app on an Android emulator, Android device or iOS simulator. This extension provides [experimental support](doc/debugging.md#debugging-on-ios-device) for iOS devices.
+You can debug your app on an Android emulator, Android device or iOS simulator, iOS device. Please see the documentation for [debugging on iOS devices](doc/debugging.md#debugging-on-ios-device).
 
 Since version 0.60.2 [React Native supports Hermes engine for Android applications](https://facebook.github.io/react-native/blog/2019/07/17/hermes). Extension provides experimental support for debugging React Native Android applications with Hermes enabled. Please see [Debugging React Native apps with Hermes enabled](doc/debugging.md#debugging-react-native-apps-with-hermes-enabled) for more details.
 
@@ -60,7 +60,7 @@ See [Setting up debug environment](doc/debugging.md) for more details.
 |`skipFiles`|An array of file or folder names, or glob patterns, to skip when debugging|`array`|`[]`|
 |`debuggerWorkerUrlPath`|Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide)|`string`|`debugger-ui/`|
 |`platform`|The platform to target. Possible values: `android`, `ios`, `exponent`, `windows`, `wpf`|`string`|n/a|
-|`target`|Target to run on. Possible values: `simulator`, `device`, `<Android emulator/device id>`, `<iOS simulator/device name>`|`string`|`simulator`|
+|`target`|Target to run on. Possible values: `simulator`, `device`, `device=<iOS device name>`, [`<Android emulator/device id>`](https://github.com/react-native-community/cli/blob/master/docs/commands.md#--deviceid-string), `<iOS simulator name>`|`string`|`simulator`|
 |`logCatArguments`|Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can be an array such as: `[":S", "ReactNative:V", "ReactNativeJS:V"]`|`array`|`["*:S", "ReactNative:V", "ReactNativeJS:V"]`|
 |`runArguments`|Run arguments to be passed to `react-native run-<platform>` command (override all other configuration params)|`array`|n/a|
 |`launchActivity`|The Android activity to be launched for debugging, e.g. it specifies [`--main-activity`](https://github.com/react-native-community/cli/blob/master/docs/commands.md#--main-activity-string) parameter in `react-native` run arguments|`string`|`MainActivity`|
