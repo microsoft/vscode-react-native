@@ -49,13 +49,11 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
             console.log(`${testName}: Chosen debug configuration: ${ExpoDebugConfigName}`);
-            // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
-            SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
             console.log(`${testName}: Starting debugging`);
             await app.workbench.debug.runDebugScenario(debugConfigName);
             const device = <string>IosSimulatorHelper.getDevice();
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                for (let retry = 0; retry < retriesToLaunchApp; retry++) {
+                for (let retry = 1; retry <= retriesToLaunchApp; retry++) {
                     await sleep(5 * 1000);
                     let expoLaunchStatus: ExpoLaunch;
                     expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
