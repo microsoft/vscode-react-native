@@ -178,13 +178,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             }
         } else {
             if (this.runOptions.target) {
-                if (this.runOptions.target === IOSPlatform.deviceString ||
-                    this.runOptions.target === IOSPlatform.simulatorString) {
-
-                    runArguments.push(`--${this.runOptions.target}`);
-                } else {
-                    runArguments.push("--simulator", `${this.runOptions.target}`);
-                }
+                runArguments.push(...this.handleTargetArg(this.runOptions.target));
             }
 
             if (this.runOptions.iosRelativeProjectPath) {
@@ -198,6 +192,20 @@ export class IOSPlatform extends GeneralMobilePlatform {
         }
 
         return runArguments;
+    }
+
+    private handleTargetArg(target: string): string[] {
+        if (target === IOSPlatform.deviceString ||
+            target === IOSPlatform.simulatorString) {
+            return [`--${this.runOptions.target}`];
+        } else {
+            if (target.indexOf(IOSPlatform.deviceString) !== -1) {
+                const deviceArgs = target.split("=");
+                return deviceArgs[1] ? [`--${IOSPlatform.deviceString}`, deviceArgs[1]] : [`--${IOSPlatform.deviceString}`];
+            } else {
+                return [`--${IOSPlatform.simulatorString}`, `${this.runOptions.target}`];
+            }
+        }
     }
 
     private generateSuccessPatterns(version: string): Q.Promise<string[]> {
