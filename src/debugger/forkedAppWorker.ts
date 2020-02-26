@@ -11,7 +11,7 @@ import {ScriptImporter, DownloadedScript}  from "./scriptImporter";
 import { logger } from "vscode-chrome-debug-core";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
-import { RemoteExtension } from "../common/remoteExtension";
+import { AppLauncher } from "../extension/appLauncher";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { getLoggingDirectory } from "../extension/log/LogHelper";
 
@@ -35,7 +35,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
     protected workerLoaded = Q.defer<void>();
     private bundleLoaded: Q.Deferred<void>;
-    private remoteExtension: RemoteExtension;
+    private appLauncher: AppLauncher;
     private logWriteStream: fs.WriteStream;
     private logDirectory: string | null;
 
@@ -50,9 +50,11 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     ) {
         this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, this.sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
 
-        this.remoteExtension = RemoteExtension.atProjectRootPath(this.projectRootPath);
+        this.appLauncher = AppLauncher.getAppLauncherByProjectRootPath(this.projectRootPath);
 
-        this.remoteExtension.api.Debugger.onShowDevMenu(() => {
+        console.log({name: "temp", appLauncher: this.appLauncher}); // temp expression
+
+        /*this.remoteExtension.api.Debugger.onShowDevMenu(() => {
             this.postMessage({
                 method: "vscode_showDevMenu",
             });
@@ -62,7 +64,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             this.postMessage({
                 method: "vscode_reloadApp",
             });
-        });
+        });*/
     }
 
     public stop() {

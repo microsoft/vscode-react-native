@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
+import * as Q from "q";
 import {Packager} from "../common/packager";
 import {RNPackageVersions} from "../common/projectVersionHelper";
 import {ExponentHelper} from "./exponent/exponentHelper";
@@ -19,7 +20,7 @@ import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {LogCatMonitor} from "./android/logCatMonitor";
-import {OpenFileRequest} from "../common/remoteExtension";
+import {ProjectsStorage} from "./projectsStorage";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -32,6 +33,14 @@ export class AppLauncher {
 
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private logCatMonitor: LogCatMonitor | null = null;
+
+    public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
+        try {
+            return ProjectsStorage.projectsCache[projectRootPath];
+        } catch (err) {
+            throw new Error(`Could not find AppLauncher by the project root path ${projectRootPath}`);
+        }
+    }
 
     constructor(reactDirManager: ReactDirManager, workspaceFolder: vscode.WorkspaceFolder) {
         const rootPath = workspaceFolder.uri.fsPath;
@@ -84,9 +93,8 @@ export class AppLauncher {
         }
     }
 
-    public openFileAtLocation(openFileRequest: OpenFileRequest): Promise<void> {
-        const { filename, lineNumber } = openFileRequest;
-        return new Promise((resolve) => {
+    public openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void> {
+        return Q.Promise((resolve) => {
             vscode.workspace.openTextDocument(vscode.Uri.file(filename))
                 .then((document: vscode.TextDocument) => {
                     vscode.window.showTextDocument(document)
@@ -94,7 +102,7 @@ export class AppLauncher {
                             let range = editor.document.lineAt(lineNumber - 1).range;
                             editor.selection = new vscode.Selection(range.start, range.end);
                             editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
-                            resolve();
+                            resolve(void 0);
                         });
                 });
         });

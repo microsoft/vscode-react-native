@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {RemoteExtension} from "../common/remoteExtension";
+import {AppLauncher} from "./appLauncher";
 import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {ErrorHelper} from "../common/error/errorHelper";
@@ -48,8 +48,8 @@ const localize = nls.loadMessageBundle();
     }
 
     getReactNativeWorkspaceForFile(filename, workspace).then(projectRootPath => {
-        const remoteExtension = RemoteExtension.atProjectRootPath(projectRootPath);
-        return remoteExtension.openFileAtLocation(filename, lineNumber);
+        const appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
+        return appLauncher.openFileAtLocation(filename, lineNumber);
     }).done(() => { }, (reason) => {
         throw ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed,
             "Unable to communicate with VSCode. Please make sure it is open in the appropriate workspace.");

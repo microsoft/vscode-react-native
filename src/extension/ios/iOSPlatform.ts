@@ -12,8 +12,7 @@ import {IIOSRunOptions} from "../launchArgs";
 import {PlistBuddy} from "./plistBuddy";
 import {IOSDebugModeManager} from "./iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
-import {SettingsHelper} from "../settingsHelper";
-import {RemoteExtension} from "../../common/remoteExtension";
+// import {SettingsHelper} from "../settingsHelper";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
@@ -21,7 +20,6 @@ const localize = nls.loadMessageBundle();
 
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
-    private static remoteExtension: RemoteExtension;
 
     private plistBuddy = new PlistBuddy();
     private targetType: TargetType = "simulator";
@@ -46,11 +44,13 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private static readonly RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
     public showDevMenu(deviceId?: string): Q.Promise<void> {
-        return IOSPlatform.remote(this.runOptions.projectRoot).showDevMenu(deviceId);
+        // return IOSPlatform.remote(this.runOptions.projectRoot).showDevMenu(deviceId); // TODO replace with a new implementation from appLauncher
+        return Q.resolve(void 0);
     }
 
     public reloadApp(deviceId?: string): Q.Promise<void> {
-        return IOSPlatform.remote(this.runOptions.projectRoot).reloadApp(deviceId);
+        // return IOSPlatform.remote(this.runOptions.projectRoot).reloadApp(deviceId); // TODO replace with a new implementation from appLauncher
+        return Q.resolve(void 0);
     }
 
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
@@ -239,11 +239,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
         return this.plistBuddy.getBundleId(this.iosProjectRoot, this.projectPath, true, this.runOptions.configuration, this.runOptions.productName, scheme);
     }
 
-    private static remote(fsPath: string): RemoteExtension {
+    /*private static remote(fsPath: string): RemoteExtension { // TODO replace with a new implementation from appLauncher
         if (this.remoteExtension) {
             return this.remoteExtension;
         } else {
             return this.remoteExtension = RemoteExtension.atProjectRootPath(SettingsHelper.getReactNativeProjectRoot(fsPath));
         }
-    }
+    }*/
 }

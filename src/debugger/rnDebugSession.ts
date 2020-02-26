@@ -16,7 +16,6 @@ import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ILaunchArgs } from "../extension/launchArgs";
 import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import { TelemetryHelper } from "../common/telemetryHelper";
-import { ProjectsStorage } from "../extension/projectsStorage";
 import { AppLauncher } from "../extension/appLauncher";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 import * as nls from "vscode-nls";
@@ -185,7 +184,7 @@ export class RNDebugSession extends LoggingDebugSession {
                         throw ErrorHelper.getInternalError(InternalErrorCode.NotInReactNativeFolderError);
                     }
                     this.projectRootPath = projectRootPath;
-                    this.appLauncher = ProjectsStorage.projectsCache[projectRootPath];
+                    this.appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
                     this.isSettingsInitialized = true;
 
                     return void 0;
