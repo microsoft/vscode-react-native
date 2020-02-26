@@ -63,11 +63,11 @@ export function setup(testParameters?: TestRunArguments) {
                     await sleep(5 * 1000);
                     let expoLaunchStatus: ExpoLaunch;
                     expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
-                    if (expoLaunchStatus.failed) {
+                    if (expoLaunchStatus.successful) {
+                        break;
+                    } else {
                         console.log(`Attempt to start #${retry} failed, retrying...`);
                         await app.workbench.debug.runDebugScenario(debugConfigName);
-                    } else {
-                        break;
                     }
                 }
             }
