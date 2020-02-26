@@ -37,6 +37,7 @@ export class RNDebugSession extends LoggingDebugSession {
     private appWorker: MultipleLifetimesAppWorker | null = null;
     private projectRootPath: string;
     private isSettingsInitialized: boolean; // used to prevent parameters reinitialization when attach is called from launch function
+    private previousAttachArgs: IAttachRequestArgs;
 
     constructor(private session: vscode.DebugSession) {
         super();
@@ -76,6 +77,8 @@ export class RNDebugSession extends LoggingDebugSession {
                 isPii: false,
             },
         };
+
+        this.previousAttachArgs = attachArgs;
 
         return new Promise<void>((resolve, reject) => this.initializeSettings(attachArgs)
             .then(() => {
@@ -141,11 +144,20 @@ export class RNDebugSession extends LoggingDebugSession {
 
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
         // The client is about to disconnect so first we need to stop app worker
-       if (this.appWorker) {
-           this.appWorker.stop();
-       }
+        if (this.appWorker) {
+            this.appWorker.stop();
+        }
 
-       super.disconnectRequest(response, args, request);
+        // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
+        if (this.previousAttachArgs.platform === "android") {
+            try {
+                this.appLauncher.stopMonitoringLogCat();
+            } catch (err) {
+                logger.warn(localize("CouldNotStopMonitoringLogcat", "Couldn't stop monitoring logcat: {0}", err.message || err));
+            }
+        }
+
+        super.disconnectRequest(response, args, request);
    }
 
     private initializeSettings(args: any): Q.Promise<any> {
