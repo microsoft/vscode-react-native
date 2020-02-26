@@ -50,18 +50,16 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.openDebugViewlet();
             console.log(`${testName}: Chosen debug configuration: ${ExpoDebugConfigName}`);
             console.log(`${testName}: Starting debugging`);
-            await app.workbench.debug.runDebugScenario(debugConfigName);
             const device = <string>IosSimulatorHelper.getDevice();
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                 for (let retry = 1; retry <= retriesToLaunchApp; retry++) {
-                    await sleep(5 * 1000);
                     let expoLaunchStatus: ExpoLaunch;
+                    await app.workbench.debug.runDebugScenario(debugConfigName);
                     expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
                     if (expoLaunchStatus.successful) {
                         break;
                     } else {
                         console.log(`Attempt to start #${retry} failed, retrying...`);
-                        await app.workbench.debug.runDebugScenario(debugConfigName);
                     }
                 }
             }
