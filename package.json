@@ -21,7 +21,7 @@
 		"url": "https://github.com/Microsoft/vscode-react-native"
 	},
 	"engines": {
-		"vscode": "^1.26.0"
+		"vscode": "^1.35.0"
 	},
 	"categories": [
 		"Debuggers",
@@ -112,7 +112,6 @@
 			{
 				"type": "reactnative",
 				"label": "React Native",
-				"program": "./src/debugger/reactNativeDebugEntryPoint.js",
 				"runtime": "node",
 				"enableBreakpointsFor": {
 					"languageIds": [
@@ -381,7 +380,6 @@
 			{
 				"type": "reactnativedirect",
 				"label": "React Native Direct - Experimental",
-				"program": "./src/debugger/direct/reactNativeDirectDebugEntryPoint.js",
 				"runtime": "node",
 				"enableBreakpointsFor": {
 					"languageIds": [
@@ -742,7 +740,7 @@
 		"tslint": "^5.17.0",
 		"typescript": "^2.8.3",
 		"vsce": "^1.65.0",
-		"vscode": "^1.1.35",
+		"vscode": "^1.1.36",
 		"vscode-nls-dev": "^3.3.1"
 	},
 	"extensionDependencies": [
