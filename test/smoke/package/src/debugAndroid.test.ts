@@ -20,6 +20,9 @@ const RNDebugConfigName = "Debug Android";
 const RNHermesDebugConfigName = "Debug Android (Hermes) - Experimental";
 const RNHermesAttachConfigName = "Attach to Hermes application - Experimental";
 const ExpoDebugConfigName = "Debug in Exponent";
+const ExpoLanDebugConfigName = "Debug in Exponent (LAN)";
+const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
+
 
 const RNSetBreakpointOnLine = 1;
 const RNHermesSetBreakpointOnLine = 11;
@@ -185,20 +188,36 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Debug Hermes test: Debugging is stopped");
         });
 
-        it("Expo app Debug test", async function () {
+        it("Expo app Debug test(Tunnel)", async function () {
             if (testParameters && testParameters.RunBasicTests) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await ExpoTest("Android Expo Debug test", ExpoWorkspacePath, ExpoDebugConfigName, 5);
+            await ExpoTest("Android Expo Debug test(Tunnel)", ExpoWorkspacePath, ExpoDebugConfigName, 5);
         });
 
-        it("Pure RN app Expo test", async function () {
+        it("Pure RN app Expo test(Tunnel)", async function () {
             if (testParameters && testParameters.RunBasicTests) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await ExpoTest("Android pure RN Expo test", pureRNWorkspacePath, ExpoDebugConfigName, 5);
+            await ExpoTest("Android pure RN Expo test(Tunnel)", pureRNWorkspacePath, ExpoDebugConfigName, 5);
+        });
+
+        it("Expo app Debug test(LAN)", async function () {
+            if (testParameters && testParameters.RunBasicTests) {
+                this.skip();
+            }
+            this.timeout(debugExpoTestTime);
+            await ExpoTest("Android Expo Debug test(LAN)", ExpoWorkspacePath, ExpoLanDebugConfigName, 0);
+        });
+
+        it("Expo app Debug test(localhost)", async function () {
+            if (testParameters && testParameters.RunBasicTests) {
+                this.skip();
+            }
+            this.timeout(debugExpoTestTime);
+            await ExpoTest("Android Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 0);
         });
     });
 }
