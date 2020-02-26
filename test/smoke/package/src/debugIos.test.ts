@@ -15,6 +15,8 @@ import { Application } from "../../automation";
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const RNDebugConfigName = "Debug iOS";
 const ExpoDebugConfigName = "Debug in Exponent";
+const ExpoLanDebugConfigName = "Debug in Exponent (LAN)";
+const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
 
 const RNSetBreakpointOnLine = 1;
 const ExpoSetBreakpointOnLine = 1;
@@ -167,6 +169,30 @@ export function setup(testParameters?: TestRunArguments) {
             }
             this.timeout(debugExpoTestTime);
             await ExpoTest("iOS pure RN Expo test", pureRNWorkspacePath, ExpoDebugConfigName, 5);
+        });
+
+        it("Pure RN app Expo test(Tunnel)", async function () {
+            if (testParameters && testParameters.RunBasicTests) {
+                this.skip();
+            }
+            this.timeout(debugExpoTestTime);
+            await ExpoTest("Android pure RN Expo test(Tunnel)", pureRNWorkspacePath, ExpoDebugConfigName, 5);
+        });
+
+        it("Expo app Debug test(LAN)", async function () {
+            if (testParameters && testParameters.RunBasicTests) {
+                this.skip();
+            }
+            this.timeout(debugExpoTestTime);
+            await ExpoTest("iOS Expo Debug test(LAN)", ExpoWorkspacePath, ExpoLanDebugConfigName, 0);
+        });
+
+        it("Expo app Debug test(localhost)", async function () {
+            if (testParameters && testParameters.RunBasicTests) {
+                this.skip();
+            }
+            this.timeout(debugExpoTestTime);
+            await ExpoTest("iOS Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 0);
         });
     });
 }
