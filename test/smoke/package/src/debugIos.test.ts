@@ -68,8 +68,7 @@ export function setup(testParameters?: TestRunArguments) {
                             console.log(`Attempt to start #${retry} failed, retrying...`);
                         }
                     }
-                }
-                else {
+                } else {
                     assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
                 }
             }
