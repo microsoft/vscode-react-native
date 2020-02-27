@@ -155,7 +155,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS Debug test: Debugging is stopped");
         });
 
-        it("Expo app Debug test", async function () {
+        it("Expo app Debug test(Tunnel)", async function () {
             if (testParameters && testParameters.RunBasicTests) {
                 this.skip();
             }
@@ -163,20 +163,12 @@ export function setup(testParameters?: TestRunArguments) {
             await ExpoTest("iOS Expo Debug test", ExpoWorkspacePath, ExpoDebugConfigName, 5);
         });
 
-        it("Pure RN app Expo test", async function () {
-            if (testParameters && testParameters.RunBasicTests) {
-                this.skip();
-            }
-            this.timeout(debugExpoTestTime);
-            await ExpoTest("iOS pure RN Expo test", pureRNWorkspacePath, ExpoDebugConfigName, 5);
-        });
-
         it("Pure RN app Expo test(Tunnel)", async function () {
             if (testParameters && testParameters.RunBasicTests) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await ExpoTest("Android pure RN Expo test(Tunnel)", pureRNWorkspacePath, ExpoDebugConfigName, 5);
+            await ExpoTest("iOS pure RN Expo test(Tunnel)", pureRNWorkspacePath, ExpoDebugConfigName, 5);
         });
 
         it("Expo app Debug test(LAN)", async function () {
