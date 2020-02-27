@@ -58,7 +58,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
             console.log(`${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
             await app.workbench.debug.openDebugViewlet();
-            console.log(`${testName}: Chosen debug configuration: ${ExpoDebugConfigName}`);
+            console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             console.log(`${testName}: Starting debugging`);
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                 for (let retry = 1; retry <= retriesToLaunchApp; retry++) {
@@ -209,7 +209,7 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await ExpoTest("Android Expo Debug test(LAN)", ExpoWorkspacePath, ExpoLanDebugConfigName, 0);
+            await ExpoTest("Android Expo Debug test(LAN)", ExpoWorkspacePath, ExpoLanDebugConfigName, 1);
         });
 
         it("Expo app Debug test(localhost)", async function () {
@@ -217,7 +217,7 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await ExpoTest("Android Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 0);
+            await ExpoTest("Android Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
         });
     });
 }
