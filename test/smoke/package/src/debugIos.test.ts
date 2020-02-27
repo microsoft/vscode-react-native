@@ -53,7 +53,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             console.log(`${testName}: Starting debugging`);
             const device = <string>IosSimulatorHelper.getDevice();
-            // Scan logs only if launch retries provided
+            // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
                 await app.workbench.debug.runDebugScenario(debugConfigName);
             } else {

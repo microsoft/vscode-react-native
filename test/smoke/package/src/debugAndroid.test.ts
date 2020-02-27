@@ -60,7 +60,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.openDebugViewlet();
             console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             console.log(`${testName}: Starting debugging`);
-            // Scan logs only if launch retries provided
+            // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
                 await app.workbench.debug.runDebugScenario(debugConfigName);
             } else {
