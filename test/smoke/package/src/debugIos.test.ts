@@ -53,18 +53,24 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             console.log(`${testName}: Starting debugging`);
             const device = <string>IosSimulatorHelper.getDevice();
-            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                for (let retry = 1; retry <= triesToLaunchApp; retry++) {
-                    let expoLaunchStatus: ExpoLaunch;
-                    await app.workbench.debug.runDebugScenario(debugConfigName);
-                    expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
-                    if (expoLaunchStatus.successful) {
-                        break;
-                    } else {
-                        console.log(`Attempt to start #${retry} failed, retrying...`);
+            // Scan logs only if launch retries provided
+            if (triesToLaunchApp <= 1) {
+                await app.workbench.debug.runDebugScenario(debugConfigName);
+            } else {
+                if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
+                    for (let retry = 1; retry <= triesToLaunchApp; retry++) {
+                        let expoLaunchStatus: ExpoLaunch;
+                        await app.workbench.debug.runDebugScenario(debugConfigName);
+                        expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
+                        if (expoLaunchStatus.successful) {
+                            break;
+                        } else {
+                            console.log(`Attempt to start #${retry} failed, retrying...`);
+                        }
                     }
                 }
             }
+
             await app.workbench.editors.waitForTab("Expo QR Code");
             await app.workbench.editors.waitForActiveTab("Expo QR Code");
             console.log(`${testName}: 'Expo QR Code' tab found`);
@@ -160,7 +166,7 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await ExpoTest("iOS Expo Debug test", ExpoWorkspacePath, ExpoDebugConfigName, 5);
+            await ExpoTest("iOS Expo Debug test(Tunnel)", ExpoWorkspacePath, ExpoDebugConfigName, 5);
         });
 
         it("Pure RN app Expo test(Tunnel)", async function () {
