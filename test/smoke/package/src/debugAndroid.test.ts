@@ -48,7 +48,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
         });
 
-        async function ExpoTest(testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
+        async function expoTest(testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
@@ -200,7 +200,7 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await ExpoTest("Android Expo Debug test(Tunnel)", ExpoWorkspacePath, ExpoDebugConfigName, 5);
+            await expoTest("Android Expo Debug test(Tunnel)", ExpoWorkspacePath, ExpoDebugConfigName, 5);
         });
 
         it("Pure RN app Expo test(Tunnel)", async function () {
@@ -208,7 +208,7 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await ExpoTest("Android pure RN Expo test(Tunnel)", pureRNWorkspacePath, ExpoDebugConfigName, 5);
+            await expoTest("Android pure RN Expo test(Tunnel)", pureRNWorkspacePath, ExpoDebugConfigName, 5);
         });
 
         it("Expo app Debug test(LAN)", async function () {
@@ -216,7 +216,7 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await ExpoTest("Android Expo Debug test(LAN)", ExpoWorkspacePath, ExpoLanDebugConfigName, 1);
+            await expoTest("Android Expo Debug test(LAN)", ExpoWorkspacePath, ExpoLanDebugConfigName, 1);
         });
 
         it("Expo app Debug test(localhost)", async function () {
@@ -224,7 +224,7 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await ExpoTest("Android Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
+            await expoTest("Android Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
         });
     });
 }
