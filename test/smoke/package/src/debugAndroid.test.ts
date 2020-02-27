@@ -48,7 +48,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
         });
 
-        async function ExpoTest(testName: string, workspacePath: string, debugConfigName: string, retriesToLaunchApp: number) {
+        async function ExpoTest(testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
             await app.workbench.explorer.openExplorerView();
@@ -61,7 +61,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             console.log(`${testName}: Starting debugging`);
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                for (let retry = 1; retry <= retriesToLaunchApp; retry++) {
+                for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                     let expoLaunchStatus: ExpoLaunch;
                     await app.workbench.debug.runDebugScenario(debugConfigName);
                     expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
