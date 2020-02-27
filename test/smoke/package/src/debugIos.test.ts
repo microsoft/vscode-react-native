@@ -69,6 +69,9 @@ export function setup(testParameters?: TestRunArguments) {
                         }
                     }
                 }
+                else {
+                    assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
+                }
             }
 
             await app.workbench.editors.waitForTab("Expo QR Code");
