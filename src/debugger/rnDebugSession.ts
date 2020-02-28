@@ -108,7 +108,7 @@ export class RNDebugSession extends LoggingDebugSession {
                                 logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
 
                                 const attachArguments = {
-                                    type: "node",
+                                    type: "pwa-node",
                                     request: "attach",
                                     name: "Attach",
                                     port: port,
@@ -198,7 +198,7 @@ export class RNDebugSession extends LoggingDebugSession {
 /**
  * Parses settings.json file for workspace root property
  */
-function getProjectRoot(args: any): string {
+export function getProjectRoot(args: any): string {
     const vsCodeRoot = args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
     const settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
     try {
