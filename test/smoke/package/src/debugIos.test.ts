@@ -92,7 +92,7 @@ export function setup(testParameters?: TestRunArguments) {
             const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
-            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL, ExpoWorkspacePath);
+            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL, workspacePath);
             console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
 
