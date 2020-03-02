@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {RNPackageVersions} from "../common/reactNativeProjectHelper";
+import {RNPackageVersions} from "../common/projectVersionHelper";
 
 /**
  * Defines the supported launch arguments.
@@ -38,9 +38,13 @@ export interface IIOSRunOptions extends ILaunchArgs {
     configuration?: string;
 }
 
+export interface IExponentRunOptions extends IAndroidRunOptions, IIOSRunOptions {
+    expoHostType?: "tunnel" | "lan" | "local";
+}
+
 export interface IWindowsRunOptions extends ILaunchArgs {
 }
 
-export interface IRunOptions extends IAndroidRunOptions, IIOSRunOptions, IWindowsRunOptions  {
+export interface IRunOptions extends IAndroidRunOptions, IIOSRunOptions, IExponentRunOptions, IWindowsRunOptions  {
 
 }

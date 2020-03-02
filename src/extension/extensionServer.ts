@@ -6,7 +6,7 @@ import * as vscode from "vscode";
 import {MessagingHelper}from "../common/extensionMessaging";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {Packager} from "../common/packager";
-import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
+import {ProjectVersionHelper} from "../common/projectVersionHelper";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {FileSystem} from "../common/node/fileSystem";
 import {SettingsHelper} from "./settingsHelper";
@@ -233,11 +233,14 @@ export class ExtensionServer implements vscode.Disposable {
                 };
             }
 
-            ReactNativeProjectHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true)
+            ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true)
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (versions.reactNativeWindowsVersion) {
+                    if (request.arguments.platform === "windows") {
+                        if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
+                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled);
+                        }
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
                     TelemetryHelper.generate("launch", extProps, (generator) => {
@@ -283,10 +286,19 @@ export class ExtensionServer implements vscode.Disposable {
                     });
                 })
                 .catch(error => {
-                    TelemetryHelper.sendErrorEvent(
-                        "ReactNativePackageIsNotInstalled",
-                        ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled)
-                        );
+                    if (error && error.errorCode) {
+                        if (error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
+                            TelemetryHelper.sendErrorEvent(
+                                "ReactNativePackageIsNotInstalled",
+                                ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled)
+                                );
+                        } else if (error.errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled) {
+                            TelemetryHelper.sendErrorEvent(
+                                "ReactNativeWindowsPackageIsNotInstalled",
+                                ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled)
+                                );
+                        }
+                    }
                     this.logger.error(error);
                     reject(error);
                 });
@@ -318,6 +330,10 @@ function requestSetup(args: any): any {
         envFile: args.envFile,
         target: args.target || "simulator",
     };
+
+    if (args.platform === "exponent") {
+        mobilePlatformOptions.expoHostType = args.expoHostType || "tunnel";
+    }
 
     CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(workspaceFolder.uri);
 

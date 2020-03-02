@@ -10,7 +10,7 @@ import {Request} from "../common/node/request";
 import {SourceMapUtil} from "./sourceMap";
 import url = require("url");
 import * as semver from "semver";
-import {ReactNativeProjectHelper, RNPackageVersions} from "../common/reactNativeProjectHelper";
+import {ProjectVersionHelper, RNPackageVersions} from "../common/projectVersionHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 
@@ -48,11 +48,11 @@ export class ScriptImporter {
         const overriddenScriptUrlString = (parsedScriptUrl.hostname === "localhost") ? this.overridePackagerPort(scriptUrlString) : scriptUrlString;
         // We'll get the source code, and store it locally to have a better debugging experience
         return Request.request(overriddenScriptUrlString, true).then(scriptBody => {
-            return ReactNativeProjectHelper.getReactNativeVersions(projectRootPath).then(rnVersions => {
+            return ProjectVersionHelper.getReactNativeVersions(projectRootPath).then(rnVersions => {
                 // unfortunatelly Metro Bundler is broken in RN 0.54.x versions, so use this workaround unless it will be fixed
                 // https://github.com/facebook/metro/issues/147
                 // https://github.com/Microsoft/vscode-react-native/issues/660
-                if (ReactNativeProjectHelper.getRNVersionsWithBrokenMetroBundler().indexOf(rnVersions.reactNativeVersion) >= 0) {
+                if (ProjectVersionHelper.getRNVersionsWithBrokenMetroBundler().indexOf(rnVersions.reactNativeVersion) >= 0) {
                     let noSourceMappingUrlGenerated =  scriptBody.match(/sourceMappingURL=/g) === null;
                     if (noSourceMappingUrlGenerated) {
                         let sourceMapPathUrl = overriddenScriptUrlString.replace("bundle", "map");
@@ -90,7 +90,7 @@ export class ScriptImporter {
         const errPackagerNotRunning = ErrorHelper.getInternalError(InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort, this.packagerPort);
         return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
             .then(() => {
-                return ReactNativeProjectHelper.getReactNativeVersions(projectRootPath);
+                return ProjectVersionHelper.getReactNativeVersions(projectRootPath);
             })
             .then((rnVersions: RNPackageVersions) => {
                 let debuggerWorkerURL = this.prepareDebuggerWorkerURL(rnVersions.reactNativeVersion, debuggerWorkerUrlPath);

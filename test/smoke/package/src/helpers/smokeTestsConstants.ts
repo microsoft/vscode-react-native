@@ -6,7 +6,7 @@ export class SmokeTestsConstants {
     // 9 = Android Pie
     public static defaultTargetAndroidPlatformVersion = "9";
     // Default code of iOS platform version which is being targeted during the tests.
-    public static defaultTargetIosPlatformVersion = "12.2";
+    public static defaultTargetIosPlatformVersion = "12.4";
     // Default target emulator name "emulator-" + port
     public static defaultTargetAndroidDeviceName = "emulator-5554";
     // Timeout for smoke tests setup
@@ -43,9 +43,9 @@ export class SmokeTestsConstants {
     public static EnvConfigFileName = "config.json";
     // Name of file where tests environment variables are stored for development environment
     public static EnvDevConfigFileName = "config.dev.json";
-    // Log string in case if Expo launched successfully
+    // Log string in case of Expo launched successfully
     public static ExpoSuccessPattern = "Tunnel ready";
-    // Log string in case if Expo launch failed
+    // Log string in case of Expo launch failed
     public static ExpoFailurePattern = "XDLError";
     // File name where logs from React Native output channel will be saved
     public static ReactNativeLogFileName = "ReactNative.txt";

@@ -1,7 +1,7 @@
 {
 	"name": "vscode-react-native",
 	"displayName": "React Native Tools",
-	"version": "0.13.2",
+	"version": "0.14.1",
 	"private": true,
 	"publisher": "msjsdiag",
 	"icon": "images/icon.png",
@@ -143,6 +143,17 @@
 							"type": "reactnative",
 							"request": "launch",
 							"platform": "ios"
+						}
+					},
+					{
+						"label": "React Native: Debug Windows",
+						"description": "%reactNative.snippets.debugWindows.description%",
+						"body": {
+							"name": "Debug Windows",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnative",
+							"request": "launch",
+							"platform": "windows"
 						}
 					},
 					{
@@ -352,6 +363,16 @@
 								"type": "string",
 								"description": "%reactNative.launch.launchActivity.description%",
 								"default": "MainActivity"
+							},
+							"expoHostType": {
+								"type": "string",
+								"enum": [
+									"tunnel",
+									"lan",
+									"local"
+								],
+								"default": "tunnel",
+								"description": "%reactNative.launch.expoHostType.description%"
 							}
 						}
 					}
@@ -674,7 +695,7 @@
 		"strip-json-comments": "2.0.1",
 		"typechecker": "2.0.8",
 		"ultron": "1.0.2",
-		"vscode-chrome-debug-core": "^6.8.2",
+		"vscode-chrome-debug-core": "^6.8.8",
 		"vscode-debugadapter": "^1.37.1",
 		"vscode-debugprotocol": "^1.37.0",
 		"vscode-extension-telemetry": "0.0.5",
