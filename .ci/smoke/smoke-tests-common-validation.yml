@@ -1,0 +1,91 @@
+parameters:
+  AppiumVersion: true
+  BasicOnly: false
+  ExpoCLIVersion: latest
+  ExpoLogin: $(ExpoLogin)
+  ExpoPassword: $(ExpoPassword)
+  smokeTestsDirectory: "test/smoke"
+  srcDirectory: "./"
+
+steps:
+- bash: 'rm -rf $(Agent.WorkFolder)/_tools/node'
+  displayName: 'Clear Node cache'
+
+- bash: |
+  rm -rf /tmp/metro-bundler-cache-*
+  rm -rf /tmp/haste-map-react-native-packager-*
+  rm -rf ~/.cache/yarn
+displayName: Clear RN, Yarn cache, Node Cache(Unix)
+condition: and(succeeded(), or(eq(variables['Agent.OS'], 'Linux'), eq(variables['Agent.OS'], 'Darwin')))
+
+- task: NodeTool@0
+  displayName: Use Node
+  inputs:
+    versionSpec: 10.x
+    checkLatest: true
+
+- task: Npm@1
+  displayName: 'npm i gulp vsce -g'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: 'i gulp vsce -g'
+
+- task: Npm@1
+    displayName: 'npm ci'
+    inputs:
+      command: custom
+      verbose: false
+      customCommand: ci
+
+- task: Gulp@0
+    displayName: 'gulp release'
+    inputs:
+      targets: release
+
+- task: CopyFiles@2
+  displayName: 'Copy Files to: test/smoke/package/resources/drop-win'
+  inputs:
+    Contents: '*.vsix'
+    TargetFolder: 'test/smoke/package/resources/drop-win'
+
+- bash: |
+  /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+  echo ">>> Started xvfb"
+displayName: Start xvfb
+condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+
+- bash: |
+   npm install -g yarn react-native-cli
+   npm install -g appium@$(AppiumVersion)
+   npm install -g expo-cli@$(ExpoCLIVersion)
+  displayName: 'npm install -g yarn react-native-cli expo-cli appium'
+
+- bash: npm install --global windows-build-tools --vs2015
+  displayName: 'npm install --global windows-build-tools --vs2015'
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+
+- bash: |
+  export MOCHA_FILE=./ReactNativeSmokeTests.xml
+  export BASIC_ONLY=""
+  export NIGHTLY=""
+  if [ $(NightlyBuild) = true ]; then
+    NIGHTLY="true"
+  fi
+  if [ $(BasicOnly) = true ]; then
+    BASIC_ONLY="--basic-only"
+  else
+    expo login -u '$(ExpoLogin)' -p '$(ExpoPassword)'
+  fi
+  yarn smoke-tests $BASIC_ONLY
+ displayName: 'Run smoke tests'
+  env:
+    DISPLAY: ':99.0'
+
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results'
+  inputs:
+    testResultsFiles: '$(srcDirectory)/$(smokeTestDirectory)/vscode/test/smoke/ReactNativeSmokeTests.xml'
+    failTaskOnFailedTests: true
+    testRunTitle: '$variables['Agent.OS'] React Native extension smoke tests'
+  condition: always()

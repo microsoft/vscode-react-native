@@ -1,0 +1,10 @@
+trigger:
+    branches:
+      include: ['master']
+
+  jobs:
+  - job: Linux
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - template: smoke-tests-common-validation.yml

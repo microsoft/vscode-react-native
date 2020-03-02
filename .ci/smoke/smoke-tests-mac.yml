@@ -1,0 +1,10 @@
+trigger:
+    branches:
+      include: ['master']
+
+  jobs:
+  - job: macOS
+    pool:
+      vmImage: 'macOS-latest'
+    steps:
+    - template: smoke-tests-common-validation.yml
