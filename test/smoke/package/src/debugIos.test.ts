@@ -63,7 +63,6 @@ export function setup(testParameters?: TestRunArguments) {
                         let expoLaunchStatus: ExpoLaunch;
                         // Sometimes there is an issue with incorrect caching of exponentIndex.js file during debugging of pure RN app with Expo
                         // reload packager in cases of restarts to avoid that
-                        // test
                         await app.workbench.debug.runCommandPalette(RNStopPackagerCommandName);
                         await app.workbench.debug.runDebugScenario(debugConfigName);
                         expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
