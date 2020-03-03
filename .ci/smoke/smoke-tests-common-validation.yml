@@ -6,7 +6,7 @@ steps:
     rm -rf /tmp/metro-bundler-cache-*
     rm -rf /tmp/haste-map-react-native-packager-*
     rm -rf ~/.cache/yarn
-  displayName: Clear RN, Yarn cache, Node Cache(Unix)
+  displayName: Clear RN, Yarn cache
   condition: and(succeeded(), or(eq(variables['Agent.OS'], 'Linux'), eq(variables['Agent.OS'], 'Darwin')))
 
 - task: NodeTool@0
