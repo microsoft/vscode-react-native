@@ -69,7 +69,7 @@ steps:
       expo login -u '$(ExpoLogin)' -p '$(ExpoPassword)'
     fi
     yarn smoke-tests $BASIC_ONLY
- displayName: 'Run smoke tests'
+  displayName: 'Run smoke tests'
   env:
     DISPLAY: ':99.0'
 
