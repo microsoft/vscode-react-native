@@ -89,7 +89,7 @@ export class Debug extends Viewlet {
 
     public async runCommandPalette(commandName: string): Promise<any> {
         await this.quickopen.openQuickOpen();
-        await this.quickopen.submit(commandName);
+        await this.quickopen.submit(`>${commandName}`);
     }
 
     public async runDebugScenario(debugOption: string): Promise<any> {
