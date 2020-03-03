@@ -5,7 +5,7 @@ trigger:
   jobs:
   - job: Windows
     pool:
-      vmImage: 'windows-latest'
+      name: 'React Native smoke tests - Windows'
     steps:
     - bash: |
       cd $APPDATA && cd ../Local

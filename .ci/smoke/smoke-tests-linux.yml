@@ -5,6 +5,6 @@ trigger:
   jobs:
   - job: Linux
     pool:
-      vmImage: 'ubuntu-latest'
+      name: 'React Native smoke tests - Linux'
     steps:
     - template: smoke-tests-common-validation.yml

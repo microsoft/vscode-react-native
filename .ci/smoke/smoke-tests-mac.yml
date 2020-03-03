@@ -5,6 +5,6 @@ trigger:
   jobs:
   - job: macOS
     pool:
-      vmImage: 'macOS-latest'
+      name: 'React Native smoke tests - macOS'
     steps:
     - template: smoke-tests-common-validation.yml

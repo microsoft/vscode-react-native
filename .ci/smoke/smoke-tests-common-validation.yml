@@ -87,7 +87,7 @@ condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
   inputs:
     testResultsFiles: '$(srcDirectory)/$(smokeTestDirectory)/vscode/test/smoke/ReactNativeSmokeTests.xml'
     failTaskOnFailedTests: true
-    testRunTitle: '$variables['Agent.OS'] React Native extension smoke tests'
+    testRunTitle: '${{ variables['Agent.OS'] }} React Native extension smoke tests'
   condition: always()
 
 - task: ArchiveFiles@2
