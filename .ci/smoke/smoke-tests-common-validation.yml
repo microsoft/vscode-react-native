@@ -1,20 +1,11 @@
-parameters:
-  AppiumVersion: true
-  BasicOnly: false
-  ExpoCLIVersion: latest
-  ExpoLogin: $(ExpoLogin)
-  ExpoPassword: $(ExpoPassword)
-  smokeTestsDirectory: "test/smoke"
-  srcDirectory: "./"
-
 steps:
 - bash: 'rm -rf $(Agent.WorkFolder)/_tools/node'
   displayName: 'Clear Node cache'
 
 - bash: |
-  rm -rf /tmp/metro-bundler-cache-*
-  rm -rf /tmp/haste-map-react-native-packager-*
-  rm -rf ~/.cache/yarn
+   rm -rf /tmp/metro-bundler-cache-*
+   rm -rf /tmp/haste-map-react-native-packager-*
+   rm -rf ~/.cache/yarn
 displayName: Clear RN, Yarn cache, Node Cache(Unix)
 condition: and(succeeded(), or(eq(variables['Agent.OS'], 'Linux'), eq(variables['Agent.OS'], 'Darwin')))
 
@@ -50,8 +41,8 @@ condition: and(succeeded(), or(eq(variables['Agent.OS'], 'Linux'), eq(variables[
     TargetFolder: 'test/smoke/package/resources/drop-win'
 
 - bash: |
-  /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-  echo ">>> Started xvfb"
+   /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+   echo ">>> Started xvfb"
 displayName: Start xvfb
 condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 

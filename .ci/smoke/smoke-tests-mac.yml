@@ -2,7 +2,7 @@ trigger:
     branches:
       include: ['master']
 
-  jobs:
+jobs:
   - job: macOS
     pool:
       name: 'React Native smoke tests - macOS'
