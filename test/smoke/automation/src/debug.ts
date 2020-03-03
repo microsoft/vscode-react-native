@@ -7,7 +7,6 @@ import { Code, findElement } from "./code";
 import { Editors } from "./editors";
 import { Editor } from "./editor";
 import { IElement } from "../src/driver";
-import { QuickOpen } from ".";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
@@ -50,7 +49,7 @@ function toStackFrame(element: IElement): IStackFrame {
 
 export class Debug extends Viewlet {
 
-    constructor(code: Code, private commands: Commands, private editors: Editors, private editor: Editor, private quickopen: QuickOpen) {
+    constructor(code: Code, private commands: Commands, private editors: Editors, private editor: Editor) {
         super(code);
     }
 
