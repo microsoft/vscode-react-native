@@ -6,8 +6,8 @@ steps:
    rm -rf /tmp/metro-bundler-cache-*
    rm -rf /tmp/haste-map-react-native-packager-*
    rm -rf ~/.cache/yarn
-displayName: Clear RN, Yarn cache, Node Cache(Unix)
-condition: and(succeeded(), or(eq(variables['Agent.OS'], 'Linux'), eq(variables['Agent.OS'], 'Darwin')))
+  displayName: Clear RN, Yarn cache, Node Cache(Unix)
+  condition: and(succeeded(), or(eq(variables['Agent.OS'], 'Linux'), eq(variables['Agent.OS'], 'Darwin')))
 
 - task: NodeTool@0
   displayName: Use Node
@@ -43,8 +43,8 @@ condition: and(succeeded(), or(eq(variables['Agent.OS'], 'Linux'), eq(variables[
 - bash: |
    /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
    echo ">>> Started xvfb"
-displayName: Start xvfb
-condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+  displayName: Start xvfb
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 
 - bash: |
    npm install -g yarn react-native-cli
