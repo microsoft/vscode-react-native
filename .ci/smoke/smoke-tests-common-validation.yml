@@ -23,16 +23,16 @@ steps:
     customCommand: 'i gulp vsce -g'
 
 - task: Npm@1
-    displayName: 'npm ci'
-    inputs:
-      command: custom
-      verbose: false
-      customCommand: ci
+  displayName: 'npm ci'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: ci
 
 - task: Gulp@0
-    displayName: 'gulp release'
-    inputs:
-      targets: release
+  displayName: 'gulp release'
+  inputs:
+    targets: release
 
 - task: CopyFiles@2
   displayName: 'Copy Files to: test/smoke/package/resources/drop-win'
