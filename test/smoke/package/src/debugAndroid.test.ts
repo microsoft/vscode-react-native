@@ -63,7 +63,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`${testName}: Starting debugging`);
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
-                await app.workbench.debug.runDebugScenario(debugConfigName);
+                await app.workbench.quickopen.runDebugScenario(debugConfigName);
             } else {
                 if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                     for (let retry = 1; retry <= triesToLaunchApp; retry++) {
@@ -71,7 +71,7 @@ export function setup(testParameters?: TestRunArguments) {
                         // Sometimes there is an issue with incorrect caching of exponentIndex.js file during debugging of pure RN app with Expo
                         // reload packager in cases of restarts to avoid that
                         await app.workbench.debug.runCommand(RNStopPackagerCommandName);
-                        await app.workbench.debug.runDebugScenario(debugConfigName);
+                        await app.workbench.quickopen.runDebugScenario(debugConfigName);
                         expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
                         if (expoLaunchStatus.successful) {
                             break;
@@ -130,7 +130,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.debug.openDebugViewlet();
             console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             console.log("Android Debug test: Starting debugging");
-            await app.workbench.debug.runDebugScenario(RNDebugConfigName);
+            await app.workbench.quickopen.runDebugScenario(RNDebugConfigName);
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = AppiumHelper.webdriverAttach(opts);
@@ -167,7 +167,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`Android Debug Hermes test: Debug Viewlet opened`);
             console.log(`Android Debug Hermes test: Chosen debug configuration: ${RNHermesDebugConfigName}`);
             console.log("Android Debug Hermes test: Starting debugging");
-            await app.workbench.debug.runDebugScenario(RNHermesDebugConfigName);
+            await app.workbench.quickopen.runDebugScenario(RNHermesDebugConfigName);
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = AppiumHelper.webdriverAttach(opts);
@@ -179,7 +179,7 @@ export function setup(testParameters?: TestRunArguments) {
             assert.equal(isHermesWorking, true);
             console.log("Android Debug Hermes test: Reattaching to Hermes app");
             await app.workbench.debug.stopDebugging();
-            await app.workbench.debug.runDebugScenario(RNHermesAttachConfigName);
+            await app.workbench.quickopen.runDebugScenario(RNHermesAttachConfigName);
             console.log("Android Debug Hermes test: Reattached successfully");
             await sleep(7000);
             console.log("Android Debug Hermes test: Click Test Button");

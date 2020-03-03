@@ -87,15 +87,6 @@ export class Debug extends Viewlet {
         return await this.code.waitForElement(STACK_FRAME);
     }
 
-    public async runCommand(commandName: string): Promise<any> {
-        await this.quickopen.runCommand(commandName);
-    }
-
-    public async runDebugScenario(debugOption: string): Promise<any> {
-        await this.quickopen.openQuickOpen();
-        await this.quickopen.submit(`debug ${debugOption}`);
-    }
-
     public async stepOver(): Promise<any> {
         await this.code.waitAndClick(STEP_OVER);
     }

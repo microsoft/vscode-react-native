@@ -56,7 +56,7 @@ export function setup(testParameters?: TestRunArguments) {
             const device = <string>IosSimulatorHelper.getDevice();
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
-                await app.workbench.debug.runDebugScenario(debugConfigName);
+                await app.workbench.quickopen.runDebugScenario(debugConfigName);
             } else {
                 if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                     for (let retry = 1; retry <= triesToLaunchApp; retry++) {
@@ -64,7 +64,7 @@ export function setup(testParameters?: TestRunArguments) {
                         // Sometimes there is an issue with incorrect caching of exponentIndex.js file during debugging of pure RN app with Expo
                         // reload packager in cases of restarts to avoid that
                         await app.workbench.debug.runCommand(RNStopPackagerCommandName);
-                        await app.workbench.debug.runDebugScenario(debugConfigName);
+                        await app.workbench.quickopen.runDebugScenario(debugConfigName);
                         expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
                         if (expoLaunchStatus.successful) {
                             break;
@@ -134,7 +134,7 @@ export function setup(testParameters?: TestRunArguments) {
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
             SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
             console.log("iOS Debug test: Starting debugging");
-            await app.workbench.debug.runDebugScenario(RNDebugConfigName);
+            await app.workbench.quickopen.runDebugScenario(RNDebugConfigName);
 
             await IosSimulatorHelper.waitUntilIosAppIsInstalled(RnAppBundleId, SmokeTestsConstants.iosAppBuildAndInstallTimeout, 40 * 1000);
             const device = <string>IosSimulatorHelper.getDevice();
