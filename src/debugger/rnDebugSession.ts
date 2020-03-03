@@ -18,6 +18,7 @@ import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { AppLauncher } from "../extension/appLauncher";
 import { MultipleLifetimesAppWorker } from "./appWorker";
+import { RnCdpProxy } from "../cdp-proxy/rnCdpProxy";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -37,6 +38,7 @@ export class RNDebugSession extends LoggingDebugSession {
     private projectRootPath: string;
     private isSettingsInitialized: boolean; // used to prevent parameters reinitialization when attach is called from launch function
     private previousAttachArgs: IAttachRequestArgs;
+    private rnCdpProxy: RnCdpProxy | null = null;
 
     constructor(private session: vscode.DebugSession) {
         super();
@@ -90,48 +92,57 @@ export class RNDebugSession extends LoggingDebugSession {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
+                            this.rnCdpProxy = new RnCdpProxy();
+                            return this.rnCdpProxy.createServer()
+                                .then(() => {
+                                    logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
 
-                            const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-                            // Create folder if not exist to avoid problems if
-                            // RN project root is not a ${workspaceFolder}
-                            mkdirp.sync(sourcesStoragePath);
+                                    const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
+                                    // Create folder if not exist to avoid problems if
+                                    // RN project root is not a ${workspaceFolder}
+                                    mkdirp.sync(sourcesStoragePath);
 
-                            // If launch is invoked first time, appWorker is undefined, so create it here
-                            this.appWorker = new MultipleLifetimesAppWorker(
-                                attachArgs,
-                                sourcesStoragePath,
-                                this.projectRootPath,
-                                undefined);
+                                    // If launch is invoked first time, appWorker is undefined, so create it here
+                                    this.appWorker = new MultipleLifetimesAppWorker(
+                                        attachArgs,
+                                        sourcesStoragePath,
+                                        this.projectRootPath,
+                                        undefined);
 
-                            this.appWorker.on("connected", (port: number) => {
-                                logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
+                                    this.appWorker.on("connected", (port: number) => {
+                                        logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
 
-                                const attachArguments = {
-                                    type: "pwa-node",
-                                    request: "attach",
-                                    name: "Attach",
-                                    port: port,
-                                };
+                                        if (this.rnCdpProxy) {
+                                            const attachArguments = {
+                                                type: "pwa-node",
+                                                request: "attach",
+                                                name: "Attach",
+                                                port: port,
+                                                inspectUri: this.rnCdpProxy.getInspectUriTemplate(),
+                                            };
 
-                                vscode.debug.startDebugging(
-                                    this.appLauncher.getWorkspaceFolder(),
-                                    attachArguments,
-                                    this.session
-                                )
-                                .then((childDebugSessionStarted: boolean) => {
-                                    if (childDebugSessionStarted) {
-                                        resolve();
-                                    } else {
-                                        reject(new Error("Can not start child debug session"));
-                                    }
-                                },
-                                err => {
-                                    reject(err);
+                                            vscode.debug.startDebugging(
+                                                this.appLauncher.getWorkspaceFolder(),
+                                                attachArguments,
+                                                this.session
+                                            )
+                                            .then((childDebugSessionStarted: boolean) => {
+                                                if (childDebugSessionStarted) {
+                                                    resolve();
+                                                } else {
+                                                    reject(new Error("Can not start child debug session"));
+                                                }
+                                            },
+                                            err => {
+                                                reject(err);
+                                            });
+                                        } else {
+                                            throw new Error("CDP proxy doesn't work");
+                                        }
+                                    });
+
+                                    return this.appWorker.start();
                                 });
-                            });
-
-                            return this.appWorker.start();
                         })
                         .catch((err) => {
                             logger.error("An error occurred while attaching to the debugger. " + err.message || err);
@@ -145,6 +156,11 @@ export class RNDebugSession extends LoggingDebugSession {
         // The client is about to disconnect so first we need to stop app worker
         if (this.appWorker) {
             this.appWorker.stop();
+        }
+
+        if (this.rnCdpProxy) {
+            this.rnCdpProxy.stopServer();
+            this.rnCdpProxy = null;
         }
 
         // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session

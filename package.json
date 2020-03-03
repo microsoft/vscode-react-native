@@ -693,6 +693,7 @@
 		"strip-json-comments": "2.0.1",
 		"typechecker": "2.0.8",
 		"ultron": "1.0.2",
+		"vscode-cdp-proxy": "github:RedMickey/vscode-cdp-proxy#add-connection-caching",
 		"vscode-chrome-debug-core": "^6.8.8",
 		"vscode-debugadapter": "^1.37.1",
 		"vscode-debugprotocol": "^1.37.0",
@@ -738,7 +739,7 @@
 		"source-map-support": "^0.4.0",
 		"through2": "^2.0.1",
 		"tslint": "^5.17.0",
-		"typescript": "^2.8.3",
+		"typescript": "^3.0.3",
 		"vsce": "^1.65.0",
 		"vscode": "^1.1.36",
 		"vscode-nls-dev": "^3.3.1"
