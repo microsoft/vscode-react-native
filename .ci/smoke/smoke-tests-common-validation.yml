@@ -78,7 +78,7 @@ steps:
   inputs:
     testResultsFiles: '$(srcDirectory)/$(smokeTestDirectory)/vscode/test/smoke/ReactNativeSmokeTests.xml'
     failTaskOnFailedTests: true
-    testRunTitle: '$variables['Agent.OS'] React Native extension smoke tests'
+    testRunTitle: join(variables['Agent.OS'], ' React Native extension smoke tests')
   condition: always()
 
 - task: ArchiveFiles@2
