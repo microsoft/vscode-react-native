@@ -49,7 +49,6 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`${testName}: App.js file is opened`);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
             console.log(`${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
-            await app.workbench.debug.openDebugViewlet();
             console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             console.log(`${testName}: Starting debugging`);
             const device = <string>IosSimulatorHelper.getDevice();
@@ -130,7 +129,6 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
             console.log(`iOS Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
-            await app.workbench.debug.openDebugViewlet();
             console.log(`iOS Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
             SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);

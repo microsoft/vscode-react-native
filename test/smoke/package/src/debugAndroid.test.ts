@@ -57,7 +57,6 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`${testName}: App.js file is opened`);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
             console.log(`${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
-            await app.workbench.debug.openDebugViewlet();
             console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             console.log(`${testName}: Starting debugging`);
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
@@ -128,7 +127,6 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
             console.log(`Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
-            await app.workbench.debug.openDebugViewlet();
             console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             console.log("Android Debug test: Starting debugging");
             await app.workbench.quickopen.runDebugScenario(RNDebugConfigName);
@@ -163,8 +161,6 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Debug Hermes test: AppTestButton.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
             console.log(`Android Debug Hermes test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`);
-            await app.workbench.debug.openDebugViewlet();
-            console.log(`Android Debug Hermes test: Debug Viewlet opened`);
             console.log(`Android Debug Hermes test: Chosen debug configuration: ${RNHermesDebugConfigName}`);
             console.log("Android Debug Hermes test: Starting debugging");
             await app.workbench.quickopen.runDebugScenario(RNHermesDebugConfigName);
