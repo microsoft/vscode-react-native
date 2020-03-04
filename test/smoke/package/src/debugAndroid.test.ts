@@ -52,8 +52,7 @@ export function setup(testParameters?: TestRunArguments) {
         async function expoTest(testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
-            await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("App.js");
+            await app.workbench.quickopen.openFile("App.js");
             await app.workbench.editors.scrollTop();
             console.log(`${testName}: App.js file is opened`);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
@@ -121,8 +120,7 @@ export function setup(testParameters?: TestRunArguments) {
         it("RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
             app = await runVSCode(RNworkspacePath);
-            await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("App.js");
+            await app.workbench.quickopen.openFile("App.js");
             await app.workbench.editors.scrollTop();
             console.log("Android Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
@@ -157,8 +155,7 @@ export function setup(testParameters?: TestRunArguments) {
             prepareReactNativeProjectForHermesTesting();
             AndroidEmulatorHelper.uninstallTestAppFromEmulator(RN_APP_PACKAGE_NAME);
             app = await runVSCode(RNworkspacePath);
-            await app.workbench.explorer.openExplorerView();
-            await app.workbench.explorer.openFile("AppTestButton.js");
+            await app.workbench.quickopen.openFile("AppTestButton.js");
             await app.workbench.editors.scrollTop();
             console.log("Android Debug Hermes test: AppTestButton.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
