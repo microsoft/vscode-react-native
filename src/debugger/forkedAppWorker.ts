@@ -13,6 +13,7 @@ import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { getLoggingDirectory } from "../extension/log/LogHelper";
+import { generateRandomPortNumber } from "../common/extensionHelper";
 
 function printDebuggingError(error: Error, reason: any) {
     const nestedError = ErrorHelper.getNestedError(error, InternalErrorCode.DebuggingWontWorkReloadJSAndReconnect, reason);
@@ -71,7 +72,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     public start(): Q.Promise<number> {
         let scriptToRunPath = path.resolve(this.sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
-        const port = Math.round(Math.random() * 40000 + 3000);
+        const port = generateRandomPortNumber();
 
         // Note that we set --inspect-brk flag to pause the process on the first line - this is
         // required for debug adapter to set the breakpoints BEFORE the debuggee has started.

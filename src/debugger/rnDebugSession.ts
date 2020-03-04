@@ -9,7 +9,7 @@ import * as mkdirp from "mkdirp";
 import stripJsonComments = require("strip-json-comments");
 import { LoggingDebugSession, Logger, logger } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
-import { getLoggingDirectory } from "../extension/log/LogHelper";
+import { getLoggingDirectory, LogHelper } from "../extension/log/LogHelper";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
@@ -19,6 +19,8 @@ import { TelemetryHelper } from "../common/telemetryHelper";
 import { AppLauncher } from "../extension/appLauncher";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
+import { generateRandomPortNumber } from "../common/extensionHelper";
+import { LogLevel } from "../extension/log/LogHelper";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -34,7 +36,7 @@ export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments
 
 export class RNDebugSession extends LoggingDebugSession {
 
-    private readonly CDP_PROXY_PORT = 13602;
+    private readonly CDP_PROXY_PORT = generateRandomPortNumber();
     private readonly CDP_PROXY_HOST_ADDRESS = "127.0.0.1";
 
     private appLauncher: AppLauncher;
@@ -43,6 +45,7 @@ export class RNDebugSession extends LoggingDebugSession {
     private isSettingsInitialized: boolean; // used to prevent parameters reinitialization when attach is called from launch function
     private previousAttachArgs: IAttachRequestArgs;
     private rnCdpProxy: ReactNativeCDPProxy | null = null;
+    private cdpProxyLogLevel: LogLevel;
 
     constructor(private session: vscode.DebugSession) {
         super();
@@ -95,7 +98,7 @@ export class RNDebugSession extends LoggingDebugSession {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            this.rnCdpProxy = new ReactNativeCDPProxy(this.CDP_PROXY_PORT, this.CDP_PROXY_HOST_ADDRESS, attachArgs.trace);
+                            this.rnCdpProxy = new ReactNativeCDPProxy(this.CDP_PROXY_PORT, this.CDP_PROXY_HOST_ADDRESS, this.cdpProxyLogLevel);
                             return this.rnCdpProxy.createServer()
                                 .then(() => {
                                     logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
@@ -188,8 +191,10 @@ export class RNDebugSession extends LoggingDebugSession {
             if (logLevel) {
                 logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
                 logger.setup(Logger.LogLevel[logLevel], chromeDebugCoreLogs || false);
+                this.cdpProxyLogLevel = LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Info : LogLevel.None;
             } else {
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
+                this.cdpProxyLogLevel = LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Info : LogLevel.None;
             }
 
             if (!args.sourceMaps) {

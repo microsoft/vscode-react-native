@@ -10,7 +10,7 @@ import {
     IProtocolSuccess
 } from "vscode-cdp-proxy";
 import { URL } from "url";
-import { isVerboseLogLevel, LogLevel } from "../extension/log/LogHelper";
+import { LogLevel } from "../extension/log/LogHelper";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { IncomingMessage } from "http";
 
@@ -23,15 +23,10 @@ export class ReactNativeCDPProxy {
     private outputChannelLogger: OutputChannelLogger;
     private logLevel: LogLevel;
 
-    constructor(port: number, hostAddress: string, logLevel?: string) {
+    constructor(port: number, hostAddress: string, logLevel: LogLevel) {
         this.port = port;
         this.hostAddress = hostAddress;
-
-        if (isVerboseLogLevel(logLevel)) {
-            this.logLevel = LogLevel.Trace;
-        } else {
-            this.logLevel = LogLevel.None;
-        }
+        this.logLevel = logLevel;
 
         this.outputChannelLogger = OutputChannelLogger.getChannel("RN CDP Proxy", true);
     }
