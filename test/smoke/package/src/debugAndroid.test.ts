@@ -207,12 +207,12 @@ export function setup(testParameters?: TestRunArguments) {
             await expoTest("Android Expo Debug test(Tunnel)", ExpoWorkspacePath, ExpoDebugConfigName, 5);
         });
 
-        it("Pure RN app Expo test(Tunnel)", async function () {
+        it("Pure RN app Expo test(LAN)", async function () {
             if (testParameters && testParameters.RunBasicTests) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("Android pure RN Expo test(Tunnel)", pureRNWorkspacePath, ExpoDebugConfigName, 5);
+            await expoTest("Android pure RN Expo test(LAN)", pureRNWorkspacePath, ExpoLanDebugConfigName, 1);
         });
 
         it("Expo app Debug test(LAN)", async function () {
