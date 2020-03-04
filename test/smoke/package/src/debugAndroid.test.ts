@@ -75,6 +75,9 @@ export function setup(testParameters?: TestRunArguments) {
                         if (expoLaunchStatus.successful) {
                             break;
                         } else {
+                            if (retry === triesToLaunchApp) {
+                                assert.fail(`App start has failed after ${retry} retries`);
+                            }
                             console.log(`Attempt to start #${retry} failed, retrying...`);
                         }
                     }
