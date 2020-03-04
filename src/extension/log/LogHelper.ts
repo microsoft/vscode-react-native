@@ -7,12 +7,13 @@
 import * as path from "path";
 import * as mkdirp from "mkdirp";
 export enum LogLevel {
-    Trace = 0,
-    Debug = 1,
-    Info = 2,
-    Warning = 3,
-    Error = 4,
-    None = 5,
+    None = 0,
+    Trace = 1,
+    Debug = 2,
+    Info = 3,
+    Warning = 4,
+    Error = 5,
+    Verbose = 6,
 }
 
 export interface ILogger {
@@ -56,6 +57,15 @@ export function getLoggingDirectory(): string | null {
         return dirPath;
     }
     return null;
+}
+
+export function isVerboseLogLevel(logLevel: string | undefined): boolean {
+    if (!logLevel) {
+        return false;
+    }
+
+    logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
+    return LogLevel[logLevel] === 6; // if logLevel equals "Verbose"
 }
 
 function getLogLevel() {

@@ -18,7 +18,7 @@ import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { AppLauncher } from "../extension/appLauncher";
 import { MultipleLifetimesAppWorker } from "./appWorker";
-import { RnCdpProxy } from "../cdp-proxy/rnCdpProxy";
+import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -27,18 +27,22 @@ export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments
     port: number;
     url?: string;
     address?: string;
+    trace?: string;
 }
 
 export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments, IAttachRequestArgs { }
 
 export class RNDebugSession extends LoggingDebugSession {
 
+    private readonly CDP_PROXY_PORT = 13602;
+    private readonly CDP_PROXY_HOST_ADDRESS = "127.0.0.1";
+
     private appLauncher: AppLauncher;
     private appWorker: MultipleLifetimesAppWorker | null = null;
     private projectRootPath: string;
     private isSettingsInitialized: boolean; // used to prevent parameters reinitialization when attach is called from launch function
     private previousAttachArgs: IAttachRequestArgs;
-    private rnCdpProxy: RnCdpProxy | null = null;
+    private rnCdpProxy: ReactNativeCDPProxy | null = null;
 
     constructor(private session: vscode.DebugSession) {
         super();
@@ -80,7 +84,6 @@ export class RNDebugSession extends LoggingDebugSession {
         };
 
         this.previousAttachArgs = attachArgs;
-
         return new Promise<void>((resolve, reject) => this.initializeSettings(attachArgs)
             .then(() => {
                 logger.log("Attaching to the application");
@@ -92,7 +95,7 @@ export class RNDebugSession extends LoggingDebugSession {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            this.rnCdpProxy = new RnCdpProxy();
+                            this.rnCdpProxy = new ReactNativeCDPProxy(this.CDP_PROXY_PORT, this.CDP_PROXY_HOST_ADDRESS, attachArgs.trace);
                             return this.rnCdpProxy.createServer()
                                 .then(() => {
                                     logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
@@ -130,14 +133,14 @@ export class RNDebugSession extends LoggingDebugSession {
                                                 if (childDebugSessionStarted) {
                                                     resolve();
                                                 } else {
-                                                    reject(new Error("Can not start child debug session"));
+                                                    reject(new Error("Cannot start child debug session"));
                                                 }
                                             },
                                             err => {
                                                 reject(err);
                                             });
                                         } else {
-                                            throw new Error("CDP proxy doesn't work");
+                                            throw new Error("Cannot connect to debugger worker: Chrome debugger proxy is offline");
                                         }
                                     });
 

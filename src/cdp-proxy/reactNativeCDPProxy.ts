@@ -10,18 +10,30 @@ import {
     IProtocolSuccess
 } from "vscode-cdp-proxy";
 import { URL } from "url";
+import { isVerboseLogLevel, LogLevel } from "../extension/log/LogHelper";
+import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { IncomingMessage } from "http";
 
-export class RnCdpProxy {
+export class ReactNativeCDPProxy {
     private server: Server | null;
     private hostAddress: string;
     private port: number;
     private debuggerTarget: Connection;
     private applicationTarget: Connection;
+    private outputChannelLogger: OutputChannelLogger;
+    private logLevel: LogLevel;
 
-    constructor(port = 13602, hostAddress = "127.0.0.1") {
+    constructor(port: number, hostAddress: string, logLevel?: string) {
         this.port = port;
         this.hostAddress = hostAddress;
+
+        if (isVerboseLogLevel(logLevel)) {
+            this.logLevel = LogLevel.Trace;
+        } else {
+            this.logLevel = LogLevel.None;
+        }
+
+        this.outputChannelLogger = OutputChannelLogger.getChannel("RN CDP Proxy", true);
     }
 
     public createServer(): Promise<void> {
@@ -65,31 +77,31 @@ export class RnCdpProxy {
     }
 
     private handleDebuggerTargetCommand(evt: IProtocolCommand) {
-        console.log("debugger -> target", evt);
+        this.logger(`debugger -> target: ${JSON.stringify(evt, null , 2)}`);
         this.applicationTarget.send(evt);
     }
 
     private handleApplicationTargetCommand(evt: IProtocolCommand) {
-        console.log("target -> debugger", evt);
+        this.logger(`target -> debugger: ${JSON.stringify(evt, null , 2)}`);
         this.debuggerTarget.send(evt);
     }
 
     private handleDebuggerTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        console.log("debugger -> target", evt);
+        this.logger(`debugger -> target: ${JSON.stringify(evt, null , 2)}`);
         this.applicationTarget.send(evt);
     }
 
     private handleApplicationTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        console.log("target -> debugger", evt);
+        this.logger(`target -> debugger: ${JSON.stringify(evt, null , 2)}`);
         this.debuggerTarget.send(evt);
     }
 
     private onDebuggerTargetError(err: Error) {
-        console.error("Error on debugger transport", err);
+        this.logger("Error on debugger transport: ${err.message}", err);
     }
 
     private onApplicationTargetError(err: Error) {
-        console.error("Error on debugger transport", err);
+        this.logger("Error on application transport", err);
     }
 
     private getBrowserInspectUri(request: any) {
@@ -97,9 +109,21 @@ export class RnCdpProxy {
         const browserInspectUri = url.searchParams.get("browser");
 
         if (!browserInspectUri) {
-            throw new Error("Can not parse debugger URL");
+            throw new Error("Cannot parse debugger URL");
         }
 
         return browserInspectUri;
+    }
+
+    private logger(message: string, error?: Error | string) {
+        if (error) {
+            if (error instanceof Error) {
+                this.outputChannelLogger.log(`${message}: ${error.message}`, LogLevel.Error);
+            } else {
+                this.outputChannelLogger.log(`${message}: ${error}`, LogLevel.Error);
+            }
+        } else {
+            this.outputChannelLogger.log(message, this.logLevel);
+        }
     }
 }

@@ -12,7 +12,6 @@ import {IIOSRunOptions} from "../launchArgs";
 import {PlistBuddy} from "./plistBuddy";
 import {IOSDebugModeManager} from "./iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
-// import {SettingsHelper} from "../settingsHelper";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";

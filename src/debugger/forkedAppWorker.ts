@@ -11,7 +11,6 @@ import {ScriptImporter, DownloadedScript}  from "./scriptImporter";
 import { logger } from "vscode-chrome-debug-core";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
-import { AppLauncher } from "../extension/appLauncher";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { getLoggingDirectory } from "../extension/log/LogHelper";
 
@@ -35,7 +34,6 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
     protected workerLoaded = Q.defer<void>();
     private bundleLoaded: Q.Deferred<void>;
-    private appLauncher: AppLauncher;
     private logWriteStream: fs.WriteStream;
     private logDirectory: string | null;
 
@@ -49,10 +47,6 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         private packagerLocalRoot?: string
     ) {
         this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, this.sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
-
-        this.appLauncher = AppLauncher.getAppLauncherByProjectRootPath(this.projectRootPath);
-
-        console.log({name: "temp", appLauncher: this.appLauncher}); // temp expression
 
         /*this.remoteExtension.api.Debugger.onShowDevMenu(() => {
             this.postMessage({
