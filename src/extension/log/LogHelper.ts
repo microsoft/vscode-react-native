@@ -59,15 +59,6 @@ export function getLoggingDirectory(): string | null {
     return null;
 }
 
-export function isVerboseLogLevel(logLevel: string | undefined): boolean {
-    if (!logLevel) {
-        return false;
-    }
-
-    logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
-    return LogLevel[logLevel] === 6; // if logLevel equals "Verbose"
-}
-
 function getLogLevel() {
     try {
         const SettingsHelper = require("../settingsHelper").SettingsHelper;
