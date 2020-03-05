@@ -12,6 +12,7 @@ import { ChildProcess } from "../../common/node/childProcess";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
+import { getFileNameWithoutExtension } from "../../common/utils";
 
 export class PlistBuddy {
     private static plistBuddyExecutable = "/usr/libexec/PlistBuddy";
@@ -48,7 +49,7 @@ export class PlistBuddy {
                     if (!scheme) {
                         throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundExecutableInFolder, configurationFolder);
                     }
-                    const projectWorkspaceConfigName = `${scheme}.xcworkspace`;
+                    const projectWorkspaceConfigName = this.getProjectWorkspaceConfigName(iosProjectRoot, projectRoot, rnVersions.reactNativeVersion);
                     configurationFolder = this.getBuildPath(
                         iosProjectRoot,
                         projectWorkspaceConfigName,
@@ -57,7 +58,8 @@ export class PlistBuddy {
                         sdkType
                     );
 
-                    executableList.push(`${scheme}.app`);
+                    const appName = getFileNameWithoutExtension(projectWorkspaceConfigName) + ".app";
+                    executableList.push(appName);
                 } else if (executableList.length > 1) {
                     throw ErrorHelper.getInternalError(InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder, configurationFolder);
                 }
@@ -128,6 +130,11 @@ export class PlistBuddy {
     }
 
     public getInferredScheme(iosProjectRoot: string, projectRoot: string, rnVersion: string) {
+        const projectWorkspaceConfigName = this.getProjectWorkspaceConfigName(iosProjectRoot, projectRoot, rnVersion);
+        return getFileNameWithoutExtension(projectWorkspaceConfigName);
+    }
+
+    public getProjectWorkspaceConfigName(iosProjectRoot: string, projectRoot: string, rnVersion: string): string {
         // Portion of code was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.js
         // and modified a little bit
         /**
@@ -153,11 +160,7 @@ export class PlistBuddy {
             );
         }
 
-        const inferredSchemeName = path.basename(
-            xcodeProject.name,
-            path.extname(xcodeProject.name)
-        );
-        return inferredSchemeName;
+        return xcodeProject.name;
     }
 
     /**
