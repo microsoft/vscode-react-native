@@ -1,3 +1,12 @@
+parameters:
+  vswdbotLogin: vswdbot@microsoft.com
+  appiumVersion: 1.16.0
+  basicOnly: false
+  expoCLIVersion: latest
+  nightlyBuild: false
+  smokeTestDirectory: test/smoke
+  srcDirectory: ./
+- group: vswdbot-password
 steps:
 - bash: 'rm -rf $(Agent.WorkFolder)/_tools/node'
   displayName: 'Clear Node cache'
@@ -66,7 +75,7 @@ steps:
     if [ $(BasicOnly) = true ]; then
       BASIC_ONLY="--basic-only"
     else
-      expo login -u '$(ExpoLogin)' -p '$(ExpoPassword)'
+      expo login -u '$(vswdbotLogin)' -p '$(expo-vswdbot-password)'
     fi
     yarn smoke-tests $BASIC_ONLY
   displayName: 'Run smoke tests'
