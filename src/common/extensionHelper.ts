@@ -8,3 +8,7 @@ export function getExtensionVersion() {
     const projectRoot = path.join(__dirname, "..", "..");
     return JSON.parse(fs.readFileSync(path.join(projectRoot, "package.json"), "utf-8")).version;
 }
+
+export function generateRandomPortNumber() {
+    return Math.round(Math.random() * 40000 + 3000);
+}

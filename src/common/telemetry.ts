@@ -196,7 +196,7 @@ export module Telemetry {
         sendTelemetryEvent(eventName: string, properties?: ITelemetryEventProperties, measures?: ITelemetryEventMeasures): void;
     }
 
-    export function sendExtensionTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string, properties: ITelemetryEventProperties, measures: ITelemetryEventMeasures): void {
+    export function sendExtensionTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string, properties?: ITelemetryEventProperties, measures?: ITelemetryEventMeasures): void {
         let extensionTelemetryReporter: ITelemetryReporter = Telemetry.reporterDictionary[extensionId];
 
         if (!extensionTelemetryReporter) {
