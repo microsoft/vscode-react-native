@@ -17,7 +17,6 @@ const RNDebugConfigName = "Debug iOS";
 const ExpoDebugConfigName = "Debug in Exponent";
 const ExpoLanDebugConfigName = "Debug in Exponent (LAN)";
 const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
-const RNStopPackagerCommandName = "React Native: Stop Packager";
 
 const RNSetBreakpointOnLine = 1;
 const ExpoSetBreakpointOnLine = 1;
@@ -59,9 +58,6 @@ export function setup(testParameters?: TestRunArguments) {
                 if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                     for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                         let expoLaunchStatus: ExpoLaunch;
-                        // Sometimes there is an issue with incorrect caching of exponentIndex.js file during debugging of pure RN app with Expo
-                        // reload packager in cases of restarts to avoid that
-                        await app.workbench.quickopen.runCommand(RNStopPackagerCommandName);
                         await app.workbench.quickopen.runDebugScenario(debugConfigName);
                         expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
                         if (expoLaunchStatus.successful) {
