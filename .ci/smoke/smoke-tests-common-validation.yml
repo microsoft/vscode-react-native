@@ -6,6 +6,7 @@ parameters:
   nightlyBuild: false
   smokeTestDirectory: test/smoke
   srcDirectory: ./
+variables:
 - group: vswdbot-password
 steps:
 - bash: 'rm -rf $(Agent.WorkFolder)/_tools/node'
