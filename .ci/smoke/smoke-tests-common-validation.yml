@@ -1,5 +1,5 @@
 parameters:
-vswdbotLogin: vswdbot@microsoft.com
+  vswdbotLogin: vswdbot@microsoft.com
   appiumVersion: 1.16.0
   basicOnly: false
   expoCLIVersion: latest
