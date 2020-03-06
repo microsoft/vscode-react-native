@@ -23,5 +23,5 @@ jobs:
         rm -rf ./Temp/haste-map-metro-*
         rm -rf ./Temp/react-native-*
         rm -rf ./Yarn/Cache
-      displayName: Clear RN, Yarn cache, Node Cache(Windows)
+      displayName: Clear RN, Yarn cache
     - template: smoke-tests-common-validation.yml
