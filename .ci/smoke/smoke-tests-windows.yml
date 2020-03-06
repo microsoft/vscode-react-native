@@ -7,7 +7,7 @@ jobs:
     pool:
       name: 'React Native smoke tests - Windows'
     steps:
-    - checkout:
+    - checkout: self
       clean: true
     - bash: |
         cd $APPDATA && cd ../Local

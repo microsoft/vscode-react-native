@@ -7,6 +7,6 @@ jobs:
     pool:
       name: 'React Native smoke tests - Linux'
     steps:
-    - checkout:
+    - checkout: self
       clean: true
     - template: smoke-tests-common-validation.yml

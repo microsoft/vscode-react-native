@@ -7,6 +7,6 @@ jobs:
     pool:
       name: 'React Native smoke tests - macOS'
     steps:
-    - checkout:
+    - checkout: self
       clean: true
     - template: smoke-tests-common-validation.yml
