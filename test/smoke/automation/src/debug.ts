@@ -7,6 +7,7 @@ import { Code, findElement } from "./code";
 import { Editors } from "./editors";
 import { Editor } from "./editor";
 import { IElement } from "../src/driver";
+import { QuickOpen } from ".";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
@@ -49,7 +50,7 @@ function toStackFrame(element: IElement): IStackFrame {
 
 export class Debug extends Viewlet {
 
-    constructor(code: Code, private commands: Commands, private editors: Editors, private editor: Editor) {
+    constructor(code: Code, private commands: Commands, private editors: Editors, private editor: Editor, private quickopen: QuickOpen) {
         super(code);
     }
 
@@ -84,6 +85,11 @@ export class Debug extends Viewlet {
 
     public async areStackFramesExist(): Promise<any> {
         return await this.code.waitForElement(STACK_FRAME);
+    }
+
+    public async runDebugScenario(debugOption: string): Promise<any> {
+        await this.quickopen.openQuickOpen();
+        await this.quickopen.submit(`debug ${debugOption}`);
     }
 
     public async stepOver(): Promise<any> {

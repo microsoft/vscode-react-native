@@ -179,7 +179,7 @@ export interface ExpoLaunch {
 export async function findExpoSuccessAndFailurePatterns(filePath: string, successPattern: string, failurePattern: string): Promise<ExpoLaunch> {
     let awaitRetries: number = SmokeTestsConstants.expoAppLaunchTimeout / 5000;
     let retry = 1;
-    return new Promise<ExpoLaunch>((resolve) => {
+    return new Promise<ExpoLaunch>((resolve, reject) => {
         let check = setInterval(async () => {
             let expoStarted = findStringInFile(filePath, successPattern);
             let expoFailed = findStringInFile(filePath, failurePattern);

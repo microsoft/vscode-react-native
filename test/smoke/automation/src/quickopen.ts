@@ -90,16 +90,6 @@ export class QuickOpen {
         await this.code.waitAndClick(QuickOpen.QUICK_OPEN_FOCUSED_ELEMENT);
     }
 
-    public async runDebugScenario(scenario: string): Promise<void> {
-        await this.openQuickOpen(`debug ${scenario}`);
-
-        // wait for the best choice to be focused
-        await this.code.waitForTextContent(QuickOpen.QUICK_OPEN_FOCUSED_ELEMENT, scenario);
-
-        // wait and click on the best choice
-        await this.code.waitAndClick(QuickOpen.QUICK_OPEN_FOCUSED_ELEMENT);
-    }
-
     public async openQuickOutline(): Promise<void> {
         let retries = 0;
 

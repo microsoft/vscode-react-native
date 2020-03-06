@@ -1,6 +1,6 @@
 trigger:
-    branches:
-      include: ['master']
+  branches:
+    include: ['master']
 
 jobs:
   - job: Windows

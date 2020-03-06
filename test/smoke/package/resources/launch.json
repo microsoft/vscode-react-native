@@ -40,22 +40,6 @@
             "type": "reactnative",
             "request": "launch",
             "platform": "exponent"
-        },
-        {
-            "name": "Debug in Exponent (LAN)",
-            "cwd": "${workspaceFolder}",
-            "type": "reactnative",
-            "request": "launch",
-            "platform": "exponent",
-            "expoHostType": "lan"
-        },
-        {
-            "name": "Debug in Exponent (Local)",
-            "cwd": "${workspaceFolder}",
-            "type": "reactnative",
-            "request": "launch",
-            "platform": "exponent",
-            "expoHostType": "local"
         }
     ]
 }
