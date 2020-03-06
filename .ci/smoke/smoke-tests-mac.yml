@@ -9,7 +9,7 @@ variables:
   expoCLIVersion: latest
   nightlyBuild: false
   smokeTestDirectory: test/smoke
-  - group: vswdbot-password
+- group: vswdbot-password
 
 jobs:
   - job: macOS
