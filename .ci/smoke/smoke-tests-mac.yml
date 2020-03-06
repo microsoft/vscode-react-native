@@ -3,6 +3,12 @@ trigger:
     include: ['master']
 
 variables:
+  vswdbotLogin: vswdbot
+  appiumVersion: 1.16.0
+  basicOnly: false
+  expoCLIVersion: latest
+  nightlyBuild: false
+  smokeTestDirectory: test/smoke
   group: vswdbot-password
 
 jobs:
