@@ -1,10 +1,10 @@
 parameters:
-  vswdbotLogin: vswdbot
-  appiumVersion: 1.16.0
+  vswdbotLogin: 'vswdbot'
+  appiumVersion: '1.16.0'
   basicOnly: false
-  expoCLIVersion: latest
+  expoCLIVersion: 'latest'
   nightlyBuild: false
-  smokeTestDirectory: test/smoke
+  smokeTestDirectory: 'test/smoke'
 
 steps:
 - bash: 'rm -rf $(Agent.WorkFolder)/_tools/node'
