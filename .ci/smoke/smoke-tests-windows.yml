@@ -1,0 +1,19 @@
+trigger:
+  branches:
+    include: ['master']
+
+jobs:
+  - job: Windows
+    pool:
+      name: 'React Native smoke tests - Windows'
+    steps:
+    - checkout: self
+      clean: true
+    - bash: |
+        cd $APPDATA && cd ../Local
+        rm -rf ./Temp/metro-cache
+        rm -rf ./Temp/haste-map-metro-*
+        rm -rf ./Temp/react-native-*
+        rm -rf ./Yarn/Cache
+      displayName: Clear RN, Yarn cache, Node Cache(Windows)
+    - template: smoke-tests-common-validation.yml

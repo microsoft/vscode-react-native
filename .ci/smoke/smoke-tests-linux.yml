@@ -1,0 +1,12 @@
+trigger:
+  branches:
+    include: ['master']
+
+jobs:
+  - job: Linux
+    pool:
+      name: 'React Native smoke tests - Linux'
+    steps:
+    - checkout: self
+      clean: true
+    - template: smoke-tests-common-validation.yml
