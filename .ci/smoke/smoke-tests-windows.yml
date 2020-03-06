@@ -7,6 +7,8 @@ jobs:
     pool:
       name: 'React Native smoke tests - Windows'
     steps:
+    - checkout:
+      clean: true
     - bash: |
         cd $APPDATA && cd ../Local
         rm -rf ./Temp/metro-cache
