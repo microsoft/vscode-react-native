@@ -1,4 +1,10 @@
+trigger:
+  branches:
+    include: ['master']
+
 jobs:
   - job: Linux
+    pool:
+      name: 'React Native smoke tests - Linux'
     steps:
-    - bash: echo 'abc'
+    - template: smoke-tests-common-validation.yml
