@@ -1,3 +1,6 @@
+variables:
+  group: vswdbot-password
+
 parameters:
   vswdbotLogin: vswdbot@microsoft.com
   appiumVersion: 1.16.0
@@ -5,9 +8,6 @@ parameters:
   expoCLIVersion: latest
   nightlyBuild: false
   smokeTestDirectory: test/smoke
-
-variables:
-  group: vswdbot-password
 
 steps:
 - bash: 'rm -rf $(Agent.WorkFolder)/_tools/node'
