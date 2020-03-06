@@ -13,6 +13,8 @@ variables:
 
 jobs:
   - job: macOS
+    variables:
+      - group: vswdbot-password
     pool:
       name: 'React Native smoke tests - macOS'
     steps:
