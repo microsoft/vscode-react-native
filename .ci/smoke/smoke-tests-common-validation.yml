@@ -1,3 +1,12 @@
+parameters:
+  vswdbotLogin: vswdbot@microsoft.com
+  appiumVersion: 1.16.0
+  basicOnly: false
+  expoCLIVersion: latest
+  nightlyBuild: false
+  smokeTestDirectory: test/smoke
+  srcDirectory: ./
+
 steps:
 - bash: 'rm -rf $(Agent.WorkFolder)/_tools/node'
   displayName: 'Clear Node cache'
