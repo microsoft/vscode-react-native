@@ -68,10 +68,10 @@ steps:
     export MOCHA_FILE=./ReactNativeSmokeTests.xml
     export BASIC_ONLY=""
     export NIGHTLY=""
-    if [ $(NightlyBuild) = true ]; then
+    if [ $(nightlyBuild) = true ]; then
       NIGHTLY="true"
     fi
-    if [ $(BasicOnly) = true ]; then
+    if [ $(basicOnly) = true ]; then
       BASIC_ONLY="--basic-only"
     else
       expo login -u '$(vswdbotLogin)' -p '$(expo-vswdbot-password)'
