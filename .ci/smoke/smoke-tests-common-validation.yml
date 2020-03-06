@@ -5,7 +5,6 @@ parameters:
   expoCLIVersion: latest
   nightlyBuild: false
   smokeTestDirectory: test/smoke
-  srcDirectory: ./
 
 steps:
 - bash: 'rm -rf $(Agent.WorkFolder)/_tools/node'
@@ -85,7 +84,7 @@ steps:
 - task: PublishTestResults@2
   displayName: 'Publish Test Results'
   inputs:
-    testResultsFiles: '$(srcDirectory)/$(smokeTestDirectory)/vscode/test/smoke/ReactNativeSmokeTests.xml'
+    testResultsFiles: './$(smokeTestDirectory)/vscode/test/smoke/ReactNativeSmokeTests.xml'
     failTaskOnFailedTests: true
     testRunTitle: join(variables['Agent.OS'], ' React Native extension smoke tests')
   condition: always()
