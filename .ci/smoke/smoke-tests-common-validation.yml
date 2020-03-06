@@ -56,8 +56,8 @@ steps:
 
 - bash: |
     npm install -g yarn react-native-cli
-    npm install -g appium@$(AppiumVersion)
-    npm install -g expo-cli@$(ExpoCLIVersion)
+    npm install -g appium@$(appiumVersion)
+    npm install -g expo-cli@$(expoCLIVersion)
   displayName: 'npm install -g yarn react-native-cli expo-cli appium'
 
 - bash: npm install --global windows-build-tools --vs2015
