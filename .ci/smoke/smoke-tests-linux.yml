@@ -2,6 +2,9 @@ trigger:
   branches:
     include: ['master']
 
+variables:
+  group: vswdbot-password
+
 jobs:
   - job: Linux
     pool:

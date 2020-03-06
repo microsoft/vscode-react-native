@@ -1,6 +1,3 @@
-variables:
-  group: vswdbot-password
-
 parameters:
   vswdbotLogin: vswdbot@microsoft.com
   appiumVersion: 1.16.0
