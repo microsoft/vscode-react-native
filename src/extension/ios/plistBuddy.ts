@@ -37,7 +37,9 @@ export class PlistBuddy {
             } else {
                 productsFolder = path.join(iosProjectRoot, "build", "Build", "Products");
             }
-            const sdkType = simulator ? "iphonesimulator" : "iphoneos";
+            const platform = (scheme && scheme.toLowerCase().includes("tvos")) ? "appletv" : "iphone";
+            const device = simulator ? "simulator" : "os";
+            const sdkType = `${platform}${device}`;
             let configurationFolder = path.join(productsFolder, `${configuration}-${sdkType}`);
             let executable = "";
             if (productName) {
