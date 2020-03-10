@@ -12,6 +12,8 @@ variables:
 
 jobs:
   - job: Windows
+    variables:
+    - group: vswdbot-password
     pool:
       name: 'React Native smoke tests - Windows'
     steps:
