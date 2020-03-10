@@ -1,11 +1,4 @@
 steps:
-- task: AzureKeyVault@1
-  displayName: 'Azure Key Vault: Get Secrets'
-  inputs:
-    azureSubscription: 'F12 Development'
-    KeyVaultName: 'vs-webdiag-vscode-extns'
-    SecretsFilter: 'expo-vswdbot-password'
-
 - bash: 'rm -rf $(Agent.WorkFolder)/_tools/node'
   displayName: 'Clear Node cache'
 
