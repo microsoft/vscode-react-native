@@ -13,7 +13,7 @@ variables:
 jobs:
   - job: Linux
     variables:
-    - group: ''
+    - group: 'pswd'
     pool:
       name: 'React Native smoke tests - Linux'
     steps:
