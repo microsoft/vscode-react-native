@@ -3,7 +3,6 @@ trigger:
     include: ['master']
 
 variables:
-  vswdbotLogin: vswdbot
   appiumVersion: 1.16.0
   basicOnly: false
   expoCLIVersion: latest
@@ -14,7 +13,10 @@ jobs:
   - job: Linux
     pool:
       name: 'React Native smoke tests - Linux'
+    variables:
+    - group: vswdbot-password
     steps:
+
     - checkout: self
       clean: true
     - template: smoke-tests-common-validation.yml

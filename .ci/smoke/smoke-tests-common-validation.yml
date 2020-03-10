@@ -1,3 +1,5 @@
+variables:
+  vswdbotLogin: vswdbot
 steps:
 - bash: 'rm -rf $(Agent.WorkFolder)/_tools/node'
   displayName: 'Clear Node cache'
