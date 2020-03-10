@@ -66,12 +66,13 @@ steps:
     if [ $(basicOnly) = true ]; then
       BASIC_ONLY="--basic-only"
     else
-      expo login -u '$(vswdbotLogin)' -p '$(expo-vswdbot-password)'
+      expo login -u '$(vswdbotLogin)' -p '$EXPO_PWD'
     fi
     yarn smoke-tests $BASIC_ONLY
   displayName: 'Run smoke tests'
   env:
     DISPLAY: ':99.0'
+    EXPO_PWD: $(expo-vswdbot-password)
 
 - task: PublishTestResults@2
   displayName: 'Publish Test Results'
