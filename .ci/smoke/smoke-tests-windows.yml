@@ -13,11 +13,10 @@ variables:
 jobs:
   - job: Windows
     variables:
-    - group: test-group
+    - group: vswdbot-password
     pool:
       name: 'React Native smoke tests - Windows'
     steps:
-    - bash: echo $(variable)
     - checkout: self
       clean: true
     - bash: |
