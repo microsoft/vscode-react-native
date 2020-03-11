@@ -35,7 +35,7 @@ export class AppLauncher {
     private logCatMonitor: LogCatMonitor | null = null;
 
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
-        const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLocaleLowerCase()];
+        const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
         if (!appLauncher) {
             throw new Error(`Could not find AppLauncher by the project root path ${projectRootPath}`);
         }
