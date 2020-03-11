@@ -123,6 +123,7 @@ export class RNDebugSession extends LoggingDebugSession {
                                                 type: "pwa-node",
                                                 request: "attach",
                                                 name: "Attach",
+                                                continueOnAttach: true,
                                                 port: port,
                                                 inspectUri: this.rnCdpProxy.getInspectUriTemplate(),
                                             };

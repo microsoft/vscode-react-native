@@ -35,11 +35,12 @@ export class AppLauncher {
     private logCatMonitor: LogCatMonitor | null = null;
 
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
-        try {
-            return ProjectsStorage.projectsCache[projectRootPath];
-        } catch (err) {
+        const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
+        if (!appLauncher) {
             throw new Error(`Could not find AppLauncher by the project root path ${projectRootPath}`);
         }
+
+        return appLauncher;
     }
 
     constructor(reactDirManager: ReactDirManager, workspaceFolder: vscode.WorkspaceFolder) {
