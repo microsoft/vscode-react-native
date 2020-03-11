@@ -15,7 +15,7 @@ jobs:
     variables:
     - group: 'vswdbot-password'
     pool:
-      name: 'React Native smoke tests - Linux'
+      vmImage: ubuntu-latest
     steps:
     - checkout: self
       clean: true
