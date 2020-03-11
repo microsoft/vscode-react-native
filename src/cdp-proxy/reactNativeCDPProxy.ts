@@ -10,9 +10,9 @@ import {
     IProtocolSuccess
 } from "vscode-cdp-proxy";
 import { URL } from "url";
+import { IncomingMessage } from "http";
 import { LogLevel } from "../extension/log/LogHelper";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
-import { IncomingMessage } from "http";
 
 export class ReactNativeCDPProxy {
     private server: Server | null;
@@ -67,6 +67,8 @@ export class ReactNativeCDPProxy {
         this.applicationTarget.onReply(this.handleApplicationTargetReply.bind(this));
         this.debuggerTarget.onReply(this.handleDebuggerTargetReply.bind(this));
 
+        this.applicationTarget.onEnd(this.onApplicationTargetClosed.bind(this));
+
         // dequeue any messages we got in the meantime
         this.debuggerTarget.unpause();
     }
@@ -97,6 +99,10 @@ export class ReactNativeCDPProxy {
 
     private onApplicationTargetError(err: Error) {
         this.logger("Error on application transport", err);
+    }
+
+    private async onApplicationTargetClosed() {
+        await this.debuggerTarget.close();
     }
 
     private getBrowserInspectUri(request: any) {
