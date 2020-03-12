@@ -49,6 +49,7 @@ export class RNDebugSession extends LoggingDebugSession {
 
     constructor(private session: vscode.DebugSession) {
         super();
+        this.isSettingsInitialized = false;
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
@@ -99,6 +100,7 @@ export class RNDebugSession extends LoggingDebugSession {
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
                             this.rnCdpProxy = new ReactNativeCDPProxy(this.CDP_PROXY_PORT, this.CDP_PROXY_HOST_ADDRESS, this.cdpProxyLogLevel);
+                            attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                             return this.rnCdpProxy.createServer()
                                 .then(() => {
                                     logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
