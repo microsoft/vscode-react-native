@@ -14,7 +14,7 @@ export enum LogLevel {
     Warning = 4,
     Error = 5,
     Verbose = 6,
-    Tag = 7,
+    Custom = 7,
 }
 
 export interface ILogger {

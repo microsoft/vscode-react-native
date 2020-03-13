@@ -196,10 +196,10 @@ export class RNDebugSession extends LoggingDebugSession {
             if (logLevel) {
                 logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
                 logger.setup(Logger.LogLevel[logLevel], chromeDebugCoreLogs || false);
-                this.cdpProxyLogLevel = LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Tag : LogLevel.None;
+                this.cdpProxyLogLevel = LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Custom : LogLevel.None;
             } else {
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
-                this.cdpProxyLogLevel = LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Tag : LogLevel.None;
+                this.cdpProxyLogLevel = LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Custom : LogLevel.None;
             }
 
             if (!args.sourceMaps) {

@@ -81,7 +81,7 @@ export class ReactNativeCDPProxy {
     }
 
     private handleDebuggerTargetCommand(evt: IProtocolCommand) {
-        this.logger.logWithTag(this.PROXY_LOG_TAGS.DEBUGGER_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
+        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
         this.applicationTarget.send(evt);
     }
 
@@ -89,7 +89,7 @@ export class ReactNativeCDPProxy {
         if (evt.method === "Debugger.paused" && this.firstStop) {
             evt.params = this.handleAppBundleFirstPauseEvent(evt);
         }
-        this.logger.logWithTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
+        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
         this.debuggerTarget.send(evt);
     }
 
@@ -110,12 +110,12 @@ export class ReactNativeCDPProxy {
     }
 
     private handleDebuggerTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        this.logger.logWithTag(this.PROXY_LOG_TAGS.DEBUGGER_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
+        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
         this.applicationTarget.send(evt);
     }
 
     private handleApplicationTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        this.logger.logWithTag(this.PROXY_LOG_TAGS.APPLICATION_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
+        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
         this.debuggerTarget.send(evt);
     }
 

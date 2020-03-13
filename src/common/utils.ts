@@ -6,9 +6,9 @@ export function isNullOrUndefined(value: any): boolean {
 }
 
 export function getFormattedTimeString(date: Date): string {
-    const hourString = _padZeroes(2, String(date.getUTCHours()));
-    const minuteString = _padZeroes(2, String(date.getUTCMinutes()));
-    const secondString = _padZeroes(2, String(date.getUTCSeconds()));
+    const hourString = padZeroes(2, String(date.getUTCHours()));
+    const minuteString = padZeroes(2, String(date.getUTCMinutes()));
+    const secondString = padZeroes(2, String(date.getUTCSeconds()));
     return `${hourString}:${minuteString}:${secondString}`;
 }
 
@@ -20,7 +20,7 @@ export function getFormattedDatetimeString(date: Date): string {
     return `${getFormattedDateString(date)} ${getFormattedTimeString(date)}`;
 }
 
-function _padZeroes(minDesiredLength: number, numberToPad: string): string {
+function padZeroes(minDesiredLength: number, numberToPad: string): string {
     if (numberToPad.length >= minDesiredLength) {
         return numberToPad;
     } else {

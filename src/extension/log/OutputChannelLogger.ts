@@ -74,12 +74,12 @@ export class OutputChannelLogger implements ILogger {
         }
     }
 
-    public logWithTag(tag: string, message: string, level: LogLevel): void {
+    public logWithCustomTag(tag: string, message: string, level: LogLevel): void {
         if (LogHelper.LOG_LEVEL === LogLevel.None) {
             return;
         }
 
-        if (level === LogLevel.Tag) {
+        if (level === LogLevel.Custom) {
             message = OutputChannelLogger.getFormattedMessage(message, tag, this.logTimestamps);
             this.channel.appendLine(message);
             if (this.channelLogFileStream) {
