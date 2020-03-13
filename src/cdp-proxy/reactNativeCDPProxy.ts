@@ -99,7 +99,7 @@ export class ReactNativeCDPProxy {
      *  and wait for the adapter to receive a signal to stop on that statement
      *  and then change pause reason to `Break on start` so js-debug can process all breakpoints in the bundle and
      *  continue the code execution using `continueOnAttach` flag
-     **/
+     */
     private handleAppBundleFirstPauseEvent(evt: IProtocolCommand): any {
         let params: any = evt.params;
         if (params.reason && params.reason === "other") {
