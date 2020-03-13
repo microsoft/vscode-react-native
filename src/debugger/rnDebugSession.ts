@@ -99,7 +99,12 @@ export class RNDebugSession extends LoggingDebugSession {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            this.rnCdpProxy = new ReactNativeCDPProxy(this.CDP_PROXY_PORT, this.CDP_PROXY_HOST_ADDRESS, this.cdpProxyLogLevel);
+                            this.rnCdpProxy = new ReactNativeCDPProxy(
+                                this.CDP_PROXY_PORT,
+                                this.CDP_PROXY_HOST_ADDRESS,
+                                this.cdpProxyLogLevel === LogLevel.Info
+                                );
+
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                             return this.rnCdpProxy.createServer()
                                 .then(() => {
@@ -115,7 +120,8 @@ export class RNDebugSession extends LoggingDebugSession {
                                         attachArgs,
                                         sourcesStoragePath,
                                         this.projectRootPath,
-                                        undefined);
+                                        undefined
+                                        );
 
                                     this.appWorker.on("connected", (port: number) => {
                                         logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));

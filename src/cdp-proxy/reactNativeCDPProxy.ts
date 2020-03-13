@@ -11,7 +11,6 @@ import {
 } from "vscode-cdp-proxy";
 import { URL } from "url";
 import { IncomingMessage } from "http";
-import { LogLevel } from "../extension/log/LogHelper";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 
 export class ReactNativeCDPProxy {
@@ -20,15 +19,23 @@ export class ReactNativeCDPProxy {
     private port: number;
     private debuggerTarget: Connection;
     private applicationTarget: Connection;
-    private outputChannelLogger: OutputChannelLogger;
-    private logLevel: LogLevel;
+    private logger: OutputChannelLogger;
 
-    constructor(port: number, hostAddress: string, logLevel: LogLevel) {
+    private readonly PROXY_LOG_TAGS = {
+        DEBUGGER_COMMAND: "Command Debugger To Target",
+        APPLICATION_COMMAND: "Command Target To Debugger",
+        DEBUGGER_REPLY: "Reply From Debugger To Target",
+        APPLICATION_REPLY: "Reply From Target To Debugger",
+    };
+
+    constructor(port: number, hostAddress: string, logsEnabled: boolean) {
         this.port = port;
         this.hostAddress = hostAddress;
-        this.logLevel = logLevel;
+        this.logger = OutputChannelLogger.getChannel("RN CDP Proxy", true, false, true);
 
-        this.outputChannelLogger = OutputChannelLogger.getChannel("RN CDP Proxy", true);
+        if (logsEnabled) {
+            this.logger.enableTags();
+        }
     }
 
     public createServer(): Promise<void> {
@@ -74,31 +81,31 @@ export class ReactNativeCDPProxy {
     }
 
     private handleDebuggerTargetCommand(evt: IProtocolCommand) {
-        this.logger(`debugger -> target: ${JSON.stringify(evt, null , 2)}`);
+        this.logger.logWithTag(this.PROXY_LOG_TAGS.DEBUGGER_COMMAND, JSON.stringify(evt, null , 2));
         this.applicationTarget.send(evt);
     }
 
     private handleApplicationTargetCommand(evt: IProtocolCommand) {
-        this.logger(`target -> debugger: ${JSON.stringify(evt, null , 2)}`);
+        this.logger.logWithTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(evt, null , 2));
         this.debuggerTarget.send(evt);
     }
 
     private handleDebuggerTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        this.logger(`debugger -> target: ${JSON.stringify(evt, null , 2)}`);
+        this.logger.logWithTag(this.PROXY_LOG_TAGS.DEBUGGER_REPLY, JSON.stringify(evt, null , 2));
         this.applicationTarget.send(evt);
     }
 
     private handleApplicationTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        this.logger(`target -> debugger: ${JSON.stringify(evt, null , 2)}`);
+        this.logger.logWithTag(this.PROXY_LOG_TAGS.APPLICATION_REPLY, JSON.stringify(evt, null , 2));
         this.debuggerTarget.send(evt);
     }
 
     private onDebuggerTargetError(err: Error) {
-        this.logger("Error on debugger transport: ${err.message}", err);
+        this.logger.error("Error on debugger transport", err);
     }
 
     private onApplicationTargetError(err: Error) {
-        this.logger("Error on application transport", err);
+        this.logger.error("Error on application transport", err);
     }
 
     private async onApplicationTargetClosed() {
@@ -114,17 +121,5 @@ export class ReactNativeCDPProxy {
         }
 
         return browserInspectUri;
-    }
-
-    private logger(message: string, error?: Error | string) {
-        if (error) {
-            if (error instanceof Error) {
-                this.outputChannelLogger.log(`${message}: ${error.message}`, LogLevel.Error);
-            } else {
-                this.outputChannelLogger.log(`${message}: ${error}`, LogLevel.Error);
-            }
-        } else {
-            this.outputChannelLogger.log(message, this.logLevel);
-        }
     }
 }

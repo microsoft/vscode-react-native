@@ -9,6 +9,7 @@ import * as vscode from "vscode";
 import { ILogger, LogLevel, LogHelper, getLoggingDirectory } from "./LogHelper";
 import * as fs from "fs";
 import * as path from "path";
+import { getFormattedDatetimeString } from "../../common/utils";
 
 
 const channels: { [channelName: string]: OutputChannelLogger } = {};
@@ -18,6 +19,8 @@ export class OutputChannelLogger implements ILogger {
     private readonly channelLogFilePath: string | undefined;
     private channelLogFileStream: fs.WriteStream;
     private outputChannel: vscode.OutputChannel;
+    private logTimestamps: boolean;
+    private tagsAllowed: boolean;
     private static forbiddenFileNameSymbols: RegExp = /\W/gi;
 
     public static disposeChannel(channelName: string): void {
@@ -34,14 +37,16 @@ export class OutputChannelLogger implements ILogger {
         return this.getChannel(this.MAIN_CHANNEL_NAME, true);
     }
 
-    public static getChannel(channelName: string, lazy?: boolean, preserveFocus?: boolean): OutputChannelLogger {
+    public static getChannel(channelName: string, lazy?: boolean, preserveFocus?: boolean, logTimestamps?: boolean): OutputChannelLogger {
         if (!channels[channelName]) {
-            channels[channelName] = new OutputChannelLogger(channelName, lazy, preserveFocus);
+            channels[channelName] = new OutputChannelLogger(channelName, lazy, preserveFocus, logTimestamps);
         }
         return channels[channelName];
     }
 
-    constructor(public readonly channelName: string, lazy: boolean = false, private preserveFocus: boolean = false) {
+    constructor(public readonly channelName: string, lazy: boolean = false, private preserveFocus: boolean = false, logTimestamps: boolean = false) {
+        this.logTimestamps = logTimestamps;
+        this.tagsAllowed = false;
         const channelLogFolder = getLoggingDirectory();
         if (channelLogFolder) {
             const filename = channelName.replace(OutputChannelLogger.forbiddenFileNameSymbols, "");
@@ -57,13 +62,35 @@ export class OutputChannelLogger implements ILogger {
         }
     }
 
+    public enableTags(): void {
+        this.tagsAllowed = true;
+    }
+
+    public disableTags(): void {
+        this.tagsAllowed = false;
+    }
+
     public log(message: string, level: LogLevel): void {
         if (LogHelper.LOG_LEVEL === LogLevel.None) {
             return;
         }
 
         if (level >= LogHelper.LOG_LEVEL) {
-            message = OutputChannelLogger.getFormattedMessage(message, level);
+            message = OutputChannelLogger.getFormattedMessage(message, LogLevel[level], this.logTimestamps);
+            this.channel.appendLine(message);
+            if (this.channelLogFileStream) {
+                this.channelLogFileStream.write(message);
+            }
+        }
+    }
+
+    public logWithTag(tag: string, message: string): void {
+        if (LogHelper.LOG_LEVEL === LogLevel.None) {
+            return;
+        }
+
+        if (this.tagsAllowed) {
+            message = OutputChannelLogger.getFormattedMessage(message, tag, this.logTimestamps);
             this.channel.appendLine(message);
             if (this.channelLogFileStream) {
                 this.channelLogFileStream.write(message);
@@ -80,7 +107,7 @@ export class OutputChannelLogger implements ILogger {
     }
 
     public error(errorMessage: string, error?: Error, logStack: boolean = true): void {
-        const message = OutputChannelLogger.getFormattedMessage(errorMessage, LogLevel.Error);
+        const message = OutputChannelLogger.getFormattedMessage(errorMessage, LogLevel[LogLevel.Error], this.logTimestamps);
         this.channel.appendLine(message);
         if (this.channelLogFileStream) {
             this.channelLogFileStream.write(message);
@@ -110,8 +137,14 @@ export class OutputChannelLogger implements ILogger {
         this.channel.show(false);
     }
 
-    protected static getFormattedMessage(message: string, level: LogLevel): string {
-        return `[${LogLevel[level]}] ${message}\n`;
+    protected static getFormattedMessage(message: string, tag: string, prependTimestamp: boolean = false): string {
+        let formattedMessage = `[${tag}] ${message}\n`;
+
+        if (prependTimestamp) {
+            formattedMessage = `[${getFormattedDatetimeString(new Date())}] ${formattedMessage}`;
+        }
+
+        return formattedMessage;
     }
 
     public getOutputChannel(): vscode.OutputChannel {
