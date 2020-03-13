@@ -99,7 +99,7 @@ export class RNDebugSession extends LoggingDebugSession {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            this.rnCdpProxy = new ReactNativeCDPProxy(this.CDP_PROXY_PORT, this.CDP_PROXY_HOST_ADDRESS, this.cdpProxyLogLevel);
+                            this.rnCdpProxy = new ReactNativeCDPProxy(this.CDP_PROXY_HOST_ADDRESS, this.CDP_PROXY_PORT, this.cdpProxyLogLevel);
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                             return this.rnCdpProxy.createServer()
                                 .then(() => {

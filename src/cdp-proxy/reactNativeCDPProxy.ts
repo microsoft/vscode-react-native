@@ -31,7 +31,7 @@ export class ReactNativeCDPProxy {
         APPLICATION_REPLY: "Reply From Target To Debugger",
     };
 
-    constructor(port: number, hostAddress: string, logLevel: LogLevel) {
+    constructor(hostAddress: string, port: number, logLevel: LogLevel) {
         this.port = port;
         this.hostAddress = hostAddress;
         this.logger = OutputChannelLogger.getChannel("React Native Chrome Proxy", true, false, true);
