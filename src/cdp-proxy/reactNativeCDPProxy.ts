@@ -95,7 +95,7 @@ export class ReactNativeCDPProxy {
      *  continue the code execution using `continueOnAttach` flag
      **/
     private handleAppBundleFirstPauseEvent(evt: IProtocolCommand): any {
-        let params:any = evt.params;
+        let params: any = evt.params;
         if (params.reason && params.reason === "other") {
             this.firstStop = false;
             params.reason = "Break on start";
