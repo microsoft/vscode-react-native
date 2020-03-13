@@ -49,6 +49,7 @@ export class RNDebugSession extends LoggingDebugSession {
 
     constructor(private session: vscode.DebugSession) {
         super();
+        this.isSettingsInitialized = false;
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
@@ -98,7 +99,8 @@ export class RNDebugSession extends LoggingDebugSession {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            this.rnCdpProxy = new ReactNativeCDPProxy(this.CDP_PROXY_PORT, this.CDP_PROXY_HOST_ADDRESS, this.cdpProxyLogLevel);
+                            this.rnCdpProxy = new ReactNativeCDPProxy(this.CDP_PROXY_HOST_ADDRESS, this.CDP_PROXY_PORT, this.cdpProxyLogLevel);
+                            attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                             return this.rnCdpProxy.createServer()
                                 .then(() => {
                                     logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
@@ -113,7 +115,8 @@ export class RNDebugSession extends LoggingDebugSession {
                                         attachArgs,
                                         sourcesStoragePath,
                                         this.projectRootPath,
-                                        undefined);
+                                        undefined
+                                        );
 
                                     this.appWorker.on("connected", (port: number) => {
                                         logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
@@ -193,10 +196,10 @@ export class RNDebugSession extends LoggingDebugSession {
             if (logLevel) {
                 logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
                 logger.setup(Logger.LogLevel[logLevel], chromeDebugCoreLogs || false);
-                this.cdpProxyLogLevel = LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Info : LogLevel.None;
+                this.cdpProxyLogLevel = LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Custom : LogLevel.None;
             } else {
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
-                this.cdpProxyLogLevel = LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Info : LogLevel.None;
+                this.cdpProxyLogLevel = LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Custom : LogLevel.None;
             }
 
             if (!args.sourceMaps) {
