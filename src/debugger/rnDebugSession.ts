@@ -99,12 +99,7 @@ export class RNDebugSession extends LoggingDebugSession {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            this.rnCdpProxy = new ReactNativeCDPProxy(
-                                this.CDP_PROXY_PORT,
-                                this.CDP_PROXY_HOST_ADDRESS,
-                                this.cdpProxyLogLevel === LogLevel.Info
-                                );
-
+                            this.rnCdpProxy = new ReactNativeCDPProxy(this.CDP_PROXY_PORT, this.CDP_PROXY_HOST_ADDRESS, this.cdpProxyLogLevel);
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                             return this.rnCdpProxy.createServer()
                                 .then(() => {
@@ -200,10 +195,10 @@ export class RNDebugSession extends LoggingDebugSession {
             if (logLevel) {
                 logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
                 logger.setup(Logger.LogLevel[logLevel], chromeDebugCoreLogs || false);
-                this.cdpProxyLogLevel = LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Info : LogLevel.None;
+                this.cdpProxyLogLevel = LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Tag : LogLevel.None;
             } else {
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
-                this.cdpProxyLogLevel = LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Info : LogLevel.None;
+                this.cdpProxyLogLevel = LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Tag : LogLevel.None;
             }
 
             if (!args.sourceMaps) {

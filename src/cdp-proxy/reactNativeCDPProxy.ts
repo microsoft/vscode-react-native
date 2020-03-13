@@ -12,6 +12,7 @@ import {
 import { URL } from "url";
 import { IncomingMessage } from "http";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
+import { LogLevel } from "../extension/log/LogHelper";
 
 export class ReactNativeCDPProxy {
     private server: Server | null;
@@ -20,6 +21,7 @@ export class ReactNativeCDPProxy {
     private debuggerTarget: Connection;
     private applicationTarget: Connection;
     private logger: OutputChannelLogger;
+    private logLevel: LogLevel;
 
     private readonly PROXY_LOG_TAGS = {
         DEBUGGER_COMMAND: "Command Debugger To Target",
@@ -28,14 +30,11 @@ export class ReactNativeCDPProxy {
         APPLICATION_REPLY: "Reply From Target To Debugger",
     };
 
-    constructor(port: number, hostAddress: string, logsEnabled: boolean) {
+    constructor(port: number, hostAddress: string, logLevel: LogLevel) {
         this.port = port;
         this.hostAddress = hostAddress;
-        this.logger = OutputChannelLogger.getChannel("RN CDP Proxy", true, false, true);
-
-        if (logsEnabled) {
-            this.logger.enableTags();
-        }
+        this.logger = OutputChannelLogger.getChannel("React Native Chrome Proxy", true, false, true);
+        this.logLevel = logLevel;
     }
 
     public createServer(): Promise<void> {
@@ -81,22 +80,22 @@ export class ReactNativeCDPProxy {
     }
 
     private handleDebuggerTargetCommand(evt: IProtocolCommand) {
-        this.logger.logWithTag(this.PROXY_LOG_TAGS.DEBUGGER_COMMAND, JSON.stringify(evt, null , 2));
+        this.logger.logWithTag(this.PROXY_LOG_TAGS.DEBUGGER_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
         this.applicationTarget.send(evt);
     }
 
     private handleApplicationTargetCommand(evt: IProtocolCommand) {
-        this.logger.logWithTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(evt, null , 2));
+        this.logger.logWithTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
         this.debuggerTarget.send(evt);
     }
 
     private handleDebuggerTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        this.logger.logWithTag(this.PROXY_LOG_TAGS.DEBUGGER_REPLY, JSON.stringify(evt, null , 2));
+        this.logger.logWithTag(this.PROXY_LOG_TAGS.DEBUGGER_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
         this.applicationTarget.send(evt);
     }
 
     private handleApplicationTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        this.logger.logWithTag(this.PROXY_LOG_TAGS.APPLICATION_REPLY, JSON.stringify(evt, null , 2));
+        this.logger.logWithTag(this.PROXY_LOG_TAGS.APPLICATION_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
         this.debuggerTarget.send(evt);
     }
 

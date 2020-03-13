@@ -20,7 +20,6 @@ export class OutputChannelLogger implements ILogger {
     private channelLogFileStream: fs.WriteStream;
     private outputChannel: vscode.OutputChannel;
     private logTimestamps: boolean;
-    private tagsAllowed: boolean;
     private static forbiddenFileNameSymbols: RegExp = /\W/gi;
 
     public static disposeChannel(channelName: string): void {
@@ -46,7 +45,6 @@ export class OutputChannelLogger implements ILogger {
 
     constructor(public readonly channelName: string, lazy: boolean = false, private preserveFocus: boolean = false, logTimestamps: boolean = false) {
         this.logTimestamps = logTimestamps;
-        this.tagsAllowed = false;
         const channelLogFolder = getLoggingDirectory();
         if (channelLogFolder) {
             const filename = channelName.replace(OutputChannelLogger.forbiddenFileNameSymbols, "");
@@ -60,14 +58,6 @@ export class OutputChannelLogger implements ILogger {
             this.channel = vscode.window.createOutputChannel(this.channelName);
             this.channel.show(this.preserveFocus);
         }
-    }
-
-    public enableTags(): void {
-        this.tagsAllowed = true;
-    }
-
-    public disableTags(): void {
-        this.tagsAllowed = false;
     }
 
     public log(message: string, level: LogLevel): void {
@@ -84,12 +74,12 @@ export class OutputChannelLogger implements ILogger {
         }
     }
 
-    public logWithTag(tag: string, message: string): void {
+    public logWithTag(tag: string, message: string, level: LogLevel): void {
         if (LogHelper.LOG_LEVEL === LogLevel.None) {
             return;
         }
 
-        if (this.tagsAllowed) {
+        if (level === LogLevel.Tag) {
             message = OutputChannelLogger.getFormattedMessage(message, tag, this.logTimestamps);
             this.channel.appendLine(message);
             if (this.channelLogFileStream) {
