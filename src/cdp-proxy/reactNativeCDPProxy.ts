@@ -22,6 +22,7 @@ export class ReactNativeCDPProxy {
     private applicationTarget: Connection;
     private logger: OutputChannelLogger;
     private logLevel: LogLevel;
+    private firstStop: boolean = true;
 
     private readonly PROXY_LOG_TAGS = {
         DEBUGGER_COMMAND: "Command Debugger To Target",
@@ -85,8 +86,27 @@ export class ReactNativeCDPProxy {
     }
 
     private handleApplicationTargetCommand(evt: IProtocolCommand) {
+        if (evt.method === "Debugger.paused" && this.firstStop) {
+            evt.params = this.handleAppBundleFirstPauseEvent(evt);
+        }
         this.logger.logWithTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
         this.debuggerTarget.send(evt);
+    }
+
+    /** Since the bundle runs inside the Node.js VM in `debuggerWorker.js` in runtime
+     *  Node debug adapter need time to parse new added code source maps
+     *  So we added `debugger;` statement at the start of the bundle code
+     *  and wait for the adapter to receive a signal to stop on that statement
+     *  and then change pause reason to `Break on start` so js-debug can process all breakpoints in the bundle and
+     *  continue the code execution using `continueOnAttach` flag
+     **/
+    private handleAppBundleFirstPauseEvent(evt: IProtocolCommand): any {
+        let params: any = evt.params;
+        if (params.reason && params.reason === "other") {
+            this.firstStop = false;
+            params.reason = "Break on start";
+        }
+        return params;
     }
 
     private handleDebuggerTargetReply(evt: IProtocolError | IProtocolSuccess) {
@@ -108,6 +128,7 @@ export class ReactNativeCDPProxy {
     }
 
     private async onApplicationTargetClosed() {
+        this.firstStop = true;
         await this.debuggerTarget.close();
     }
 
