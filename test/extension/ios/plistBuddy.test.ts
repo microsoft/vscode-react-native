@@ -6,6 +6,7 @@ import {PlistBuddy} from "../../../src/extension/ios/plistBuddy";
 import * as assert from "assert";
 import * as path from "path";
 import * as Q from "q";
+import * as fs from "fs";
 import * as sinon from "sinon";
 import { ProjectVersionHelper } from "../../../src/common/projectVersionHelper";
 
@@ -110,6 +111,37 @@ suite("plistBuddy", function() {
                 assert.equal(simulatorBundleId, simulatorId2);
                 assert.equal(deviceBundleId, deviceId1);
                 assert.equal(deviceBundleId, deviceId2);
+            });
+        });
+
+        suite("fetchParameterFromBuildSettings", function() {
+            const buildSettingsFile = path.join(__dirname, "..", "..", "resources", "auxiliaryFiles", "buildSettings.txt");
+            const plistBuddy = new PlistBuddy();
+            let buildSettings: string | Buffer;
+
+            suiteSetup(() => {
+                buildSettings = fs.readFileSync(buildSettingsFile);
+            });
+
+            test("fetchParameterFromBuildSettings should return parameter value", function () {
+                const targetBuildDirRef = "/Users/user/Library/Developer/Xcode/DerivedData/AwesomeProject0615-btdtcysqbddifyewiiztkumnopik/Build/Products/Debug-iphonesimulator";
+                const fullProductNameRef = "AwesomeProject0615.app";
+
+                const targetBuildDir = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "TARGET_BUILD_DIR");
+                const fullProductName = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "FULL_PRODUCT_NAME");
+
+                assert.equal(targetBuildDir, targetBuildDirRef);
+                assert.equal(fullProductName, fullProductNameRef);
+            });
+
+            test("fetchParameterFromBuildSettings should return null", function () {
+                const targetBuildDir = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "TARGET_BUILD_DIR1");
+                const testNull = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "TEST");
+                const emptyStringCase = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "");
+
+                assert.equal(targetBuildDir, null);
+                assert.equal(testNull, null);
+                assert.notEqual(emptyStringCase, null);
             });
         });
 

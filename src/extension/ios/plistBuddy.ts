@@ -22,6 +22,9 @@ interface ConfigurationData {
 export class PlistBuddy {
     private static plistBuddyExecutable = "/usr/libexec/PlistBuddy";
 
+    private readonly TARGET_BUILD_DIR_SEARCH_KEY = "TARGET_BUILD_DIR";
+    private readonly FULL_PRODUCT_NAME_SEARCH_KEY = "FULL_PRODUCT_NAME";
+
     private nodeChildProcess: ChildProcess;
 
     constructor({
@@ -136,8 +139,8 @@ export class PlistBuddy {
             }
         );
 
-        const targetBuildDir = this.getTargetBuildDir(<string>buildSettings);
-        const fullProductName = this.getFullProductName(<string>buildSettings);
+        const targetBuildDir = this.fetchParameterFromBuildSettings(<string>buildSettings, this.TARGET_BUILD_DIR_SEARCH_KEY);
+        const fullProductName = this.fetchParameterFromBuildSettings(<string>buildSettings, this.FULL_PRODUCT_NAME_SEARCH_KEY);
 
         if (!targetBuildDir) {
             throw new Error("Failed to get the target build directory.");
@@ -186,7 +189,7 @@ export class PlistBuddy {
         return xcodeProject.name;
     }
 
-    private getConfigurationData(
+    public getConfigurationData(
         projectRoot: string,
         reactNativeVersion: string,
         iosProjectRoot: string,
@@ -209,21 +212,12 @@ export class PlistBuddy {
     }
 
     /**
-     *
-     * The function was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
-     *
      * @param {string} buildSettings
+     * @param {string} parameterName
      * @returns {string | null}
      */
-    private getTargetBuildDir(buildSettings: string) {
-        const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
-        return targetBuildMatch && targetBuildMatch[1]
-            ? targetBuildMatch[1].trim()
-            : null;
-    }
-
-    private getFullProductName(buildSettings: string) {
-        const targetBuildMatch = /FULL_PRODUCT_NAME = (.+)$/m.exec(buildSettings);
+    public fetchParameterFromBuildSettings(buildSettings: string, parameterName: string) {
+        const targetBuildMatch = new RegExp(`${parameterName} = (.+)$`, "m").exec(buildSettings);
         return targetBuildMatch && targetBuildMatch[1]
             ? targetBuildMatch[1].trim()
             : null;
