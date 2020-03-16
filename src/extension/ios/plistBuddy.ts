@@ -14,7 +14,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { getFileNameWithoutExtension } from "../../common/utils";
 
-interface ConfigurationData {
+export interface ConfigurationData {
     fullProductName: string;
     configurationFolder: string;
 }

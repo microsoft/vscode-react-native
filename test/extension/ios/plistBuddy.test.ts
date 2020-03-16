@@ -8,6 +8,7 @@ import * as path from "path";
 import * as Q from "q";
 import * as fs from "fs";
 import * as sinon from "sinon";
+import { ConfigurationData } from "../../../src/extension/ios/plistBuddy";
 import { ProjectVersionHelper } from "../../../src/common/projectVersionHelper";
 
 suite("plistBuddy", function() {
@@ -75,6 +76,7 @@ suite("plistBuddy", function() {
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, undefined, simulatorBundleId, deviceBundleId);
 
             sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.58.5", reactNativeWindowsVersion: ""}));
+            sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
 
             return Q.all([
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
@@ -99,6 +101,7 @@ suite("plistBuddy", function() {
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, "myCustomScheme", simulatorBundleId, deviceBundleId);
 
             sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.59.0", reactNativeWindowsVersion: ""}));
+            sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
             return Q.all([
@@ -144,6 +147,21 @@ suite("plistBuddy", function() {
                 assert.notEqual(emptyStringCase, null);
             });
         });
+
+        function fakeGetConfigurationData(
+            projectRoot: string,
+            reactNativeVersion: string,
+            iosProjectRoot: string,
+            configuration: string,
+            scheme: string | undefined,
+            sdkType: string,
+            oldConfigurationFolder: string
+        ): ConfigurationData {
+            return {
+                fullProductName: "",
+                configurationFolder: oldConfigurationFolder,
+            };
+        }
 
         function getPlistBuddy(appName: string, iosProjectRoot: string, scheme: string | undefined, simulatorBundleId: string, deviceBundleId: string) {
             const infoPlistPath = (simulator: boolean) =>
