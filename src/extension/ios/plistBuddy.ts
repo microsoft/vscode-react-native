@@ -14,6 +14,11 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { getFileNameWithoutExtension } from "../../common/utils";
 
+interface ConfigurationData {
+    fullProductName: string;
+    configurationFolder: string;
+}
+
 export class PlistBuddy {
     private static plistBuddyExecutable = "/usr/libexec/PlistBuddy";
 
@@ -43,23 +48,33 @@ export class PlistBuddy {
             let executable = "";
             if (productName) {
                 executable = `${productName}.app`;
+                if (!fs.existsSync(path.join(configurationFolder, executable))) {
+                    const configurationData = this.getConfigurationData(
+                        projectRoot,
+                        rnVersions.reactNativeVersion,
+                        iosProjectRoot,
+                        configuration,
+                        scheme,
+                        sdkType,
+                        configurationFolder
+                    );
+                    configurationFolder = configurationData.configurationFolder;
+                }
             } else {
                 const executableList = this.findExecutable(configurationFolder);
                 if (!executableList.length) {
-                    if (!scheme) {
-                        throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundExecutableInFolder, configurationFolder);
-                    }
-                    const projectWorkspaceConfigName = this.getProjectWorkspaceConfigName(iosProjectRoot, projectRoot, rnVersions.reactNativeVersion);
-                    configurationFolder = this.getBuildPath(
+                    const configurationData = this.getConfigurationData(
+                        projectRoot,
+                        rnVersions.reactNativeVersion,
                         iosProjectRoot,
-                        projectWorkspaceConfigName,
                         configuration,
                         scheme,
-                        sdkType
+                        sdkType,
+                        configurationFolder
                     );
 
-                    const appName = getFileNameWithoutExtension(projectWorkspaceConfigName) + ".app";
-                    executableList.push(appName);
+                    configurationFolder = configurationData.configurationFolder;
+                    executableList.push(configurationData.fullProductName);
                 } else if (executableList.length > 1) {
                     throw ErrorHelper.getInternalError(InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder, configurationFolder);
                 }
@@ -95,13 +110,13 @@ export class PlistBuddy {
         return this.invokePlistBuddy(`Print ${property}`, plistFile);
     }
 
-    public getBuildPath(
+    public getBuildPathAndProductName(
         iosProjectRoot: string,
         projectWorkspaceConfigName: string,
         configuration: string,
         scheme: string,
         sdkType: string
-    ): string {
+    ): ConfigurationData {
         const buildSettings = this.nodeChildProcess.execFileSync(
             "xcodebuild",
             [
@@ -122,11 +137,19 @@ export class PlistBuddy {
         );
 
         const targetBuildDir = this.getTargetBuildDir(<string>buildSettings);
+        const fullProductName = this.getFullProductName(<string>buildSettings);
 
         if (!targetBuildDir) {
             throw new Error("Failed to get the target build directory.");
         }
-        return targetBuildDir;
+        if (!fullProductName) {
+            throw new Error("Failed to get full product name.");
+        }
+        
+        return {
+            fullProductName,
+            configurationFolder: targetBuildDir,
+        };
     }
 
     public getInferredScheme(iosProjectRoot: string, projectRoot: string, rnVersion: string) {
@@ -163,6 +186,28 @@ export class PlistBuddy {
         return xcodeProject.name;
     }
 
+    private getConfigurationData(
+        projectRoot: string,
+        reactNativeVersion: string,
+        iosProjectRoot: string,
+        configuration: string,
+        scheme: string | undefined,
+        sdkType: string,
+        oldConfigurationFolder: string
+    ): ConfigurationData {
+        if (!scheme) {
+            throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundExecutableInFolder, oldConfigurationFolder);
+        }
+        const projectWorkspaceConfigName = this.getProjectWorkspaceConfigName(iosProjectRoot, projectRoot, reactNativeVersion);
+        return this.getBuildPathAndProductName(
+            iosProjectRoot,
+            projectWorkspaceConfigName,
+            configuration,
+            scheme,
+            sdkType
+        );
+    }
+
     /**
      *
      * The function was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
@@ -172,6 +217,13 @@ export class PlistBuddy {
      */
     private getTargetBuildDir(buildSettings: string) {
         const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
+        return targetBuildMatch && targetBuildMatch[1]
+            ? targetBuildMatch[1].trim()
+            : null;
+    }
+
+    private getFullProductName(buildSettings: string) {
+        const targetBuildMatch = /FULL_PRODUCT_NAME = (.+)$/m.exec(buildSettings);
         return targetBuildMatch && targetBuildMatch[1]
             ? targetBuildMatch[1].trim()
             : null;
