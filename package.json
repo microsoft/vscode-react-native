@@ -727,7 +727,7 @@
 		"gulp-tslint": "^8.1.2",
 		"gulp-typescript": "^4.0.2",
 		"isparta": "^4.1.1",
-		"minimist": "^1.2.0",
+		"minimist": "^1.2.2",
 		"mocha": "^5.2.0",
 		"mocha-junit-reporter": "^1.22.0",
 		"mocha-multi-reporters": "^1.1.7",
