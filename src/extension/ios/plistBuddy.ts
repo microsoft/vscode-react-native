@@ -145,7 +145,7 @@ export class PlistBuddy {
         if (!fullProductName) {
             throw new Error("Failed to get full product name.");
         }
-        
+
         return {
             fullProductName,
             configurationFolder: targetBuildDir,
