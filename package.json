@@ -699,7 +699,7 @@
 		"vscode-debugadapter": "^1.39.1",
 		"vscode-debugprotocol": "^1.39.0",
 		"vscode-extension-telemetry": "0.0.5",
-		"vscode-nls": "^3.2.5",
+		"vscode-nls": "3.2.2",
 		"ws": "^3.2.0"
 	},
 	"devDependencies": {
