@@ -1,3 +1,9 @@
+## 0.14.2
+* Improved extension security [#1219](https://github.com/microsoft/vscode-react-native/pull/1219), [#1222](https://github.com/microsoft/vscode-react-native/pull/1222), [#1223](https://github.com/microsoft/vscode-react-native/pull/1223), [#1224](https://github.com/microsoft/vscode-react-native/pull/1224)
+* Updated extension dependencies [#1224](https://github.com/microsoft/vscode-react-native/pull/1224)
+* Added support for running iOS debugging on a specific device using flag `target: 'device=<iOS_device_name>'`. [More info](https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-on-ios-device). [#1207](https://github.com/microsoft/vscode-react-native/pull/1207)
+* Fixed launch of iOS apps where the names of the project and app bundle are not the same [#1213](https://github.com/microsoft/vscode-react-native/pull/1213)
+
 ## 0.14.1
 * Implemented Expo debugging without mandatory logging in and Internet connection [#1188](https://github.com/microsoft/vscode-react-native/issues/1188)
     * Added `expoHostType` parameter to Expo debug scenario configuration. See the [documentation](https://github.com/microsoft/vscode-react-native#react-native-debug-configuration-properties) for more details
