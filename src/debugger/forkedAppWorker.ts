@@ -48,18 +48,6 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         private packagerLocalRoot?: string
     ) {
         this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, this.sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
-
-        /*this.remoteExtension.api.Debugger.onShowDevMenu(() => {
-            this.postMessage({
-                method: "vscode_showDevMenu",
-            });
-        });
-
-        this.remoteExtension.api.Debugger.onReloadApp(() => {
-            this.postMessage({
-                method: "vscode_reloadApp",
-            });
-        });*/
     }
 
     public stop() {
