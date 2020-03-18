@@ -12,9 +12,18 @@ import { ChildProcess } from "../../common/node/childProcess";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
+import { getFileNameWithoutExtension } from "../../common/utils";
+
+export interface ConfigurationData {
+    fullProductName: string;
+    configurationFolder: string;
+}
 
 export class PlistBuddy {
     private static plistBuddyExecutable = "/usr/libexec/PlistBuddy";
+
+    private readonly TARGET_BUILD_DIR_SEARCH_KEY = "TARGET_BUILD_DIR";
+    private readonly FULL_PRODUCT_NAME_SEARCH_KEY = "FULL_PRODUCT_NAME";
 
     private nodeChildProcess: ChildProcess;
 
@@ -44,22 +53,33 @@ export class PlistBuddy {
             let executable = "";
             if (productName) {
                 executable = `${productName}.app`;
+                if (!fs.existsSync(path.join(configurationFolder, executable))) {
+                    const configurationData = this.getConfigurationData(
+                        projectRoot,
+                        rnVersions.reactNativeVersion,
+                        iosProjectRoot,
+                        configuration,
+                        scheme,
+                        sdkType,
+                        configurationFolder
+                    );
+                    configurationFolder = configurationData.configurationFolder;
+                }
             } else {
                 const executableList = this.findExecutable(configurationFolder);
                 if (!executableList.length) {
-                    if (!scheme) {
-                        throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundExecutableInFolder, configurationFolder);
-                    }
-                    const projectWorkspaceConfigName = `${scheme}.xcworkspace`;
-                    configurationFolder = this.getBuildPath(
+                    const configurationData = this.getConfigurationData(
+                        projectRoot,
+                        rnVersions.reactNativeVersion,
                         iosProjectRoot,
-                        projectWorkspaceConfigName,
                         configuration,
                         scheme,
-                        sdkType
+                        sdkType,
+                        configurationFolder
                     );
 
-                    executableList.push(`${scheme}.app`);
+                    configurationFolder = configurationData.configurationFolder;
+                    executableList.push(configurationData.fullProductName);
                 } else if (executableList.length > 1) {
                     throw ErrorHelper.getInternalError(InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder, configurationFolder);
                 }
@@ -95,13 +115,13 @@ export class PlistBuddy {
         return this.invokePlistBuddy(`Print ${property}`, plistFile);
     }
 
-    public getBuildPath(
+    public getBuildPathAndProductName(
         iosProjectRoot: string,
         projectWorkspaceConfigName: string,
         configuration: string,
         scheme: string,
         sdkType: string
-    ): string {
+    ): ConfigurationData {
         const buildSettings = this.nodeChildProcess.execFileSync(
             "xcodebuild",
             [
@@ -121,15 +141,28 @@ export class PlistBuddy {
             }
         );
 
-        const targetBuildDir = this.getTargetBuildDir(<string>buildSettings);
+        const targetBuildDir = this.fetchParameterFromBuildSettings(<string>buildSettings, this.TARGET_BUILD_DIR_SEARCH_KEY);
+        const fullProductName = this.fetchParameterFromBuildSettings(<string>buildSettings, this.FULL_PRODUCT_NAME_SEARCH_KEY);
 
         if (!targetBuildDir) {
             throw new Error("Failed to get the target build directory.");
         }
-        return targetBuildDir;
+        if (!fullProductName) {
+            throw new Error("Failed to get full product name.");
+        }
+
+        return {
+            fullProductName,
+            configurationFolder: targetBuildDir,
+        };
     }
 
     public getInferredScheme(iosProjectRoot: string, projectRoot: string, rnVersion: string) {
+        const projectWorkspaceConfigName = this.getProjectWorkspaceConfigName(iosProjectRoot, projectRoot, rnVersion);
+        return getFileNameWithoutExtension(projectWorkspaceConfigName);
+    }
+
+    public getProjectWorkspaceConfigName(iosProjectRoot: string, projectRoot: string, rnVersion: string): string {
         // Portion of code was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.js
         // and modified a little bit
         /**
@@ -155,22 +188,38 @@ export class PlistBuddy {
             );
         }
 
-        const inferredSchemeName = path.basename(
-            xcodeProject.name,
-            path.extname(xcodeProject.name)
+        return xcodeProject.name;
+    }
+
+    public getConfigurationData(
+        projectRoot: string,
+        reactNativeVersion: string,
+        iosProjectRoot: string,
+        configuration: string,
+        scheme: string | undefined,
+        sdkType: string,
+        oldConfigurationFolder: string
+    ): ConfigurationData {
+        if (!scheme) {
+            throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundExecutableInFolder, oldConfigurationFolder);
+        }
+        const projectWorkspaceConfigName = this.getProjectWorkspaceConfigName(iosProjectRoot, projectRoot, reactNativeVersion);
+        return this.getBuildPathAndProductName(
+            iosProjectRoot,
+            projectWorkspaceConfigName,
+            configuration,
+            scheme,
+            sdkType
         );
-        return inferredSchemeName;
     }
 
     /**
-     *
-     * The function was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
-     *
      * @param {string} buildSettings
+     * @param {string} parameterName
      * @returns {string | null}
      */
-    private getTargetBuildDir(buildSettings: string) {
-        const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
+    public fetchParameterFromBuildSettings(buildSettings: string, parameterName: string) {
+        const targetBuildMatch = new RegExp(`${parameterName} = (.+)$`, "m").exec(buildSettings);
         return targetBuildMatch && targetBuildMatch[1]
             ? targetBuildMatch[1].trim()
             : null;
