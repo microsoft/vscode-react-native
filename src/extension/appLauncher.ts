@@ -22,9 +22,11 @@ import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {ProjectsStorage} from "./projectsStorage";
 import * as nls from "vscode-nls";
+import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 const localize = nls.loadMessageBundle();
 
 export class AppLauncher {
+    private appWorker: MultipleLifetimesAppWorker | null;
     private packager: Packager;
     private exponentHelper: ExponentHelper;
     private reactDirManager: ReactDirManager;
@@ -79,6 +81,14 @@ export class AppLauncher {
 
     public setReactNativeVersions(reactNativeVersions: RNPackageVersions): void {
         this.reactNativeVersions = reactNativeVersions;
+    }
+
+    public setAppWorker(appWorker: MultipleLifetimesAppWorker): void {
+        this.appWorker = appWorker;
+    }
+
+    public getAppWorker(): MultipleLifetimesAppWorker | null {
+        return this.appWorker;
     }
 
     public dispose(): void {

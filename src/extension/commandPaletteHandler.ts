@@ -190,7 +190,7 @@ export class CommandPaletteHandler {
 
                 if (process.platform === "darwin") {
                     const iosPlatform = <IOSPlatform>this.createPlatform(appLauncher, "ios", IOSPlatform);
-                    iosPlatform.showDevMenu()
+                    iosPlatform.showDevMenu(appLauncher)
                         .catch(() => { }); // Ignore any errors
                 }
                 return Q.resolve(void 0);
@@ -206,7 +206,7 @@ export class CommandPaletteHandler {
 
                 if (process.platform === "darwin") {
                     const iosPlatform = <IOSPlatform>this.createPlatform(appLauncher, "ios", IOSPlatform);
-                    iosPlatform.reloadApp()
+                    iosPlatform.reloadApp(appLauncher)
                         .catch(() => { }); // Ignore any errors
                 }
                 return Q.resolve(void 0);

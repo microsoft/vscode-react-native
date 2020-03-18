@@ -15,6 +15,7 @@ import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
+import { AppLauncher } from "../appLauncher";
 const localize = nls.loadMessageBundle();
 
 export class IOSPlatform extends GeneralMobilePlatform {
@@ -42,13 +43,13 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private static readonly RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
-    public showDevMenu(deviceId?: string): Q.Promise<void> {
-        // return IOSPlatform.remote(this.runOptions.projectRoot).showDevMenu(deviceId); // TODO replace with a new implementation from appLauncher
+    public showDevMenu(appLauncher: AppLauncher): Q.Promise<void> {
+        appLauncher.getAppWorker()?.showDevMenuCommand();
         return Q.resolve(void 0);
     }
 
-    public reloadApp(deviceId?: string): Q.Promise<void> {
-        // return IOSPlatform.remote(this.runOptions.projectRoot).reloadApp(deviceId); // TODO replace with a new implementation from appLauncher
+    public reloadApp(appLauncher: AppLauncher): Q.Promise<void> {
+        appLauncher.getAppWorker()?.reloadAppCommand();
         return Q.resolve(void 0);
     }
 
