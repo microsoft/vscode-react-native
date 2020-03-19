@@ -30,5 +30,8 @@
     "puppeteer": "^1.19.0",
     "tmp": "0.1.0",
     "vscode-uri": "^2.0.3"
+  },
+  "resolutions": {
+    "**/minimist": "^1.2.3"
   }
 }
