@@ -122,14 +122,15 @@ export class RNDebugSession extends LoggingDebugSession {
                                         logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
 
                                         if (this.rnCdpProxy) {
+                                            this.rnCdpProxy.setApplicationTargetPort(port);
+
                                             const attachArguments = {
                                                 type: "pwa-node",
                                                 request: "attach",
                                                 name: "Attach",
                                                 continueOnAttach: true,
-                                                port: port,
+                                                port: this.CDP_PROXY_PORT,
                                                 smartStep: false,
-                                                inspectUri: this.rnCdpProxy.getInspectUriTemplate(),
                                             };
 
                                             vscode.debug.startDebugging(

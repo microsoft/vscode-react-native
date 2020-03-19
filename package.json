@@ -679,9 +679,11 @@
 		"quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
 	},
 	"dependencies": {
+		"@types/ip": "^1.1.0",
 		"extract-opts": "2.2.0",
 		"flatten-source-map": "0.0.2",
 		"glob": "^7.1.2",
+		"ip": "^1.1.5",
 		"mkdirp": "^0.5.1",
 		"noice-json-rpc": "^1.0.2",
 		"options": "0.0.6",
