@@ -747,6 +747,6 @@
 		"vscode-nls-dev": "^3.3.1"
 	},
 	"extensionDependencies": [
-		"ms-vscode.node-debug2"
+		"ms-vscode.js-debug-nightly"
 	]
 }

@@ -277,6 +277,22 @@ function fetch(url) {
             });
     }
 
+    public showDevMenuCommand(): void {
+        if (this.singleLifetimeWorker) {
+            this.singleLifetimeWorker.postMessage({
+                method: "vscode_showDevMenu",
+            });
+        }
+    }
+
+    public reloadAppCommand(): void {
+        if (this.singleLifetimeWorker) {
+            this.singleLifetimeWorker.postMessage({
+                method: "vscode_reloadApp",
+            });
+        }
+    }
+
     private startNewWorkerLifetime(): Q.Promise<void> {
         this.singleLifetimeWorker = new ForkedAppWorker(this.packagerAddress, this.packagerPort, this.sourcesStoragePath, this.projectRootPath,
             (message) => {

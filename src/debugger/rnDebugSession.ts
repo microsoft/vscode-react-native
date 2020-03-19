@@ -121,6 +121,7 @@ export class RNDebugSession extends LoggingDebugSession {
                                         this.projectRootPath,
                                         undefined
                                         );
+                                    this.appLauncher.setAppWorker(this.appWorker);
 
                                     this.appWorker.on("connected", (port: number) => {
                                         logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
@@ -156,7 +157,6 @@ export class RNDebugSession extends LoggingDebugSession {
                                             throw new Error("Cannot connect to debugger worker: Chrome debugger proxy is offline");
                                         }
                                     });
-
                                     return this.appWorker.start();
                                 });
                         })
