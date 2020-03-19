@@ -31,7 +31,7 @@ export class ReactNativeCDPProxy {
     private logger: OutputChannelLogger;
     private logLevel: LogLevel;
     private firstStop: boolean;
-    private dbgEndpointHelper: DebuggerEndpointHelper;
+    private debuggerEndpointHelper: DebuggerEndpointHelper;
     private applicationTargetPort: number;
 
     constructor(hostAddress: string, port: number, logLevel: LogLevel) {
@@ -40,7 +40,7 @@ export class ReactNativeCDPProxy {
         this.logger = OutputChannelLogger.getChannel("React Native Chrome Proxy", true, false, true);
         this.logLevel = logLevel;
         this.firstStop = true;
-        this.dbgEndpointHelper = new DebuggerEndpointHelper();
+        this.debuggerEndpointHelper = new DebuggerEndpointHelper();
     }
 
     public createServer(): Promise<void> {
@@ -67,7 +67,7 @@ export class ReactNativeCDPProxy {
 
         this.debuggerTarget.pause(); // don't listen for events until the target is ready
 
-        const browserInspectUri = await this.dbgEndpointHelper.getWSEndpoint(`http://localhost:${this.applicationTargetPort}`);
+        const browserInspectUri = await this.debuggerEndpointHelper.getWSEndpoint(`http://localhost:${this.applicationTargetPort}`);
 
         this.applicationTarget = new Connection(await WebSocketTransport.create(browserInspectUri));
 
