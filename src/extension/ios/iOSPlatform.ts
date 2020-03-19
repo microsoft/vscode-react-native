@@ -44,12 +44,19 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private static readonly RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
     public showDevMenu(appLauncher: AppLauncher): Q.Promise<void> {
-        appLauncher.getAppWorker()?.showDevMenuCommand();
+        const worker = appLauncher.getAppWorker();
+        if (worker) {
+            worker.showDevMenuCommand();
+        }
+
         return Q.resolve(void 0);
     }
 
     public reloadApp(appLauncher: AppLauncher): Q.Promise<void> {
-        appLauncher.getAppWorker()?.reloadAppCommand();
+        const worker = appLauncher.getAppWorker();
+        if (worker) {
+            worker.reloadAppCommand();
+        }
         return Q.resolve(void 0);
     }
 
