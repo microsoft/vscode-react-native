@@ -6,9 +6,8 @@ import * as ipModule from "ip";
 const dns = require("dns").promises;
 import * as http from "http";
 import * as https from "https";
-import { PromiseUtil } from "../common/node/promise";
 
-export class EndpointHelper {
+export class DebuggerEndpointHelper {
     private localv4: Buffer;
     private localv6: Buffer;
 
@@ -39,21 +38,6 @@ export class EndpointHelper {
         }
 
         throw new Error("Could not find any debuggable target");
-    }
-
-    /**
-     * Attempts to retrieve the debugger websocket URL for a process listening
-     * at the given address, retrying until available.
-     * @param browserURL -- Address like `http://localhost:1234`
-     */
-    public async retryGetWSEndpoint(browserURL: string): Promise<string> {
-        try {
-            return await this.getWSEndpoint(browserURL);
-        } catch (e) {
-            const pu: PromiseUtil = new PromiseUtil();
-            await pu.delay(200);
-            return this.retryGetWSEndpoint(browserURL);
-        }
     }
 
     /**
