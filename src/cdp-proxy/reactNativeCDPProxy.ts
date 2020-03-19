@@ -9,20 +9,12 @@ import {
     IProtocolError,
     IProtocolSuccess
 } from "vscode-cdp-proxy";
-import { URL } from "url";
 import { IncomingMessage } from "http";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { LogLevel } from "../extension/log/LogHelper";
+import { DebuggerEndpointHelper } from "./debuggerEndpointHelper";
 
 export class ReactNativeCDPProxy {
-    private server: Server | null;
-    private hostAddress: string;
-    private port: number;
-    private debuggerTarget: Connection;
-    private applicationTarget: Connection;
-    private logger: OutputChannelLogger;
-    private logLevel: LogLevel;
-    private firstStop: boolean = true;
 
     private readonly PROXY_LOG_TAGS = {
         DEBUGGER_COMMAND: "Command Debugger To Target",
@@ -31,11 +23,24 @@ export class ReactNativeCDPProxy {
         APPLICATION_REPLY: "Reply From Target To Debugger",
     };
 
+    private server: Server | null;
+    private hostAddress: string;
+    private port: number;
+    private debuggerTarget: Connection;
+    private applicationTarget: Connection;
+    private logger: OutputChannelLogger;
+    private logLevel: LogLevel;
+    private firstStop: boolean;
+    private debuggerEndpointHelper: DebuggerEndpointHelper;
+    private applicationTargetPort: number;
+
     constructor(hostAddress: string, port: number, logLevel: LogLevel) {
         this.port = port;
         this.hostAddress = hostAddress;
         this.logger = OutputChannelLogger.getChannel("React Native Chrome Proxy", true, false, true);
         this.logLevel = logLevel;
+        this.firstStop = true;
+        this.debuggerEndpointHelper = new DebuggerEndpointHelper();
     }
 
     public createServer(): Promise<void> {
@@ -53,15 +58,16 @@ export class ReactNativeCDPProxy {
         }
     }
 
-    public getInspectUriTemplate(): string {
-        return `ws://${this.hostAddress}:${this.port}?browser={browserInspectUri}`;
+    public setApplicationTargetPort(applicationTargetPort: number): void {
+        this.applicationTargetPort = applicationTargetPort;
     }
 
     private async onConnectionHandler([debuggerTarget, request]: [Connection, IncomingMessage]): Promise<void> {
         this.debuggerTarget = debuggerTarget;
-        const browserInspectUri = this.getBrowserInspectUri(request);
 
         this.debuggerTarget.pause(); // don't listen for events until the target is ready
+
+        const browserInspectUri = await this.debuggerEndpointHelper.getWSEndpoint(`http://localhost:${this.applicationTargetPort}`);
 
         this.applicationTarget = new Connection(await WebSocketTransport.create(browserInspectUri));
 
@@ -130,16 +136,5 @@ export class ReactNativeCDPProxy {
     private async onApplicationTargetClosed() {
         this.firstStop = true;
         await this.debuggerTarget.close();
-    }
-
-    private getBrowserInspectUri(request: any) {
-        const url = new URL("http://localhost" + request.url);
-        const browserInspectUri = url.searchParams.get("browser");
-
-        if (!browserInspectUri) {
-            throw new Error("Cannot parse debugger URL");
-        }
-
-        return browserInspectUri;
     }
 }
