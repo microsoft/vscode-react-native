@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@types/mkdirp@0.5.1":
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/@types/mkdirp/-/mkdirp-0.5.1.tgz#ea887cd024f691c1ca67cce20b7606b053e43b0f"
-  integrity sha512-XA4vNO6GCBz8Smq0hqSRo4yRWMqr4FPQrWjhJt6nKskzly4/p87SfuJMFYGRyYb6jo2WNIQU2FDBsY5r1BibUA==
+"@types/mkdirp@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/mkdirp/-/mkdirp-1.0.0.tgz#16ce0eabe4a9a3afe64557ad0ee6886ec3d32927"
+  integrity sha512-ONFY9//bCEr3DWKON3iDv/Q8LXnhaYYaNDeFSN0AtO5o4sLf9F0pstJKKKjQhXE0kJEeHs8eR6SAsROhhc2Csw==
   dependencies:
     "@types/node" "*"
 
@@ -198,12 +198,17 @@ minimist@0.0.8:
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.8.tgz#857fcabfc3397d2625b8228262e86aa7a011b05d"
   integrity sha1-hX/Kv8M5fSYluCKCYuhqp6ARsF0=
 
-mkdirp@0.5.1, mkdirp@^0.5.1:
+mkdirp@0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
   integrity sha1-MAV0OOrGz3+MR2fzhkjWaX11yQM=
   dependencies:
     minimist "0.0.8"
+
+mkdirp@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.3.tgz#4cf2e30ad45959dddea53ad97d518b6c8205e1ea"
+  integrity sha512-6uCP4Qc0sWsgMLy1EOqqS/3rjDHOEnsStVr/4vtAIK2Y5i2kA7lFFejYrpIyiN9w0pYf4ckeCYT9f1r1P9KX5g==
 
 ms@2.0.0:
   version "2.0.0"
