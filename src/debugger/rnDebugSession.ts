@@ -36,20 +36,24 @@ export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments
 
 export class RNDebugSession extends LoggingDebugSession {
 
-    private readonly CDP_PROXY_PORT = generateRandomPortNumber();
-    private readonly CDP_PROXY_HOST_ADDRESS = "127.0.0.1";
+    private readonly cdpProxyPort: number;
+    private readonly cdpProxyHostAddress: string;
 
     private appLauncher: AppLauncher;
-    private appWorker: MultipleLifetimesAppWorker | null = null;
+    private appWorker: MultipleLifetimesAppWorker | null;
     private projectRootPath: string;
     private isSettingsInitialized: boolean; // used to prevent parameters reinitialization when attach is called from launch function
     private previousAttachArgs: IAttachRequestArgs;
-    private rnCdpProxy: ReactNativeCDPProxy | null = null;
+    private rnCdpProxy: ReactNativeCDPProxy | null;
     private cdpProxyLogLevel: LogLevel;
 
     constructor(private session: vscode.DebugSession) {
         super();
         this.isSettingsInitialized = false;
+        this.appWorker = null;
+        this.rnCdpProxy = null;
+        this.cdpProxyPort = generateRandomPortNumber();
+        this.cdpProxyHostAddress = "127.0.0.1";
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
@@ -99,7 +103,7 @@ export class RNDebugSession extends LoggingDebugSession {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            this.rnCdpProxy = new ReactNativeCDPProxy(this.CDP_PROXY_HOST_ADDRESS, this.CDP_PROXY_PORT, this.cdpProxyLogLevel);
+                            this.rnCdpProxy = new ReactNativeCDPProxy(this.cdpProxyHostAddress, this.cdpProxyPort, this.cdpProxyLogLevel);
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                             return this.rnCdpProxy.createServer()
                                 .then(() => {
@@ -123,14 +127,15 @@ export class RNDebugSession extends LoggingDebugSession {
                                         logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
 
                                         if (this.rnCdpProxy) {
+                                            this.rnCdpProxy.setApplicationTargetPort(port);
+
                                             const attachArguments = {
                                                 type: "pwa-node",
                                                 request: "attach",
                                                 name: "Attach",
                                                 continueOnAttach: true,
-                                                port: port,
+                                                port: this.cdpProxyPort,
                                                 smartStep: false,
-                                                inspectUri: this.rnCdpProxy.getInspectUriTemplate(),
                                             };
 
                                             vscode.debug.startDebugging(
