@@ -46,10 +46,12 @@ export class RNDebugSession extends LoggingDebugSession {
     private previousAttachArgs: IAttachRequestArgs;
     private rnCdpProxy: ReactNativeCDPProxy | null;
     private cdpProxyLogLevel: LogLevel;
+    private firstDebugSession: boolean;
 
     constructor(private session: vscode.DebugSession) {
         super();
         this.isSettingsInitialized = false;
+        this.firstDebugSession = true;
         this.appWorker = null;
         this.rnCdpProxy = null;
         this.cdpProxyPort = generateRandomPortNumber();
@@ -103,7 +105,12 @@ export class RNDebugSession extends LoggingDebugSession {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            this.rnCdpProxy = new ReactNativeCDPProxy(this.cdpProxyHostAddress, this.cdpProxyPort, this.cdpProxyLogLevel);
+                            this.rnCdpProxy = new ReactNativeCDPProxy(
+                                this.cdpProxyHostAddress,
+                                this.cdpProxyPort,
+                                this.cdpProxyLogLevel,
+                                this.establishDebugSession.bind(this)
+                            );
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                             return this.rnCdpProxy.createServer()
                                 .then(() => {
@@ -127,33 +134,14 @@ export class RNDebugSession extends LoggingDebugSession {
 
                                         if (this.rnCdpProxy) {
                                             this.rnCdpProxy.setApplicationTargetPort(port);
+                                        }
 
-                                            const attachArguments = {
-                                                type: "pwa-node",
-                                                request: "attach",
-                                                name: "Attach",
-                                                continueOnAttach: true,
-                                                port: this.cdpProxyPort,
-                                                smartStep: false,
-                                            };
-
-                                            vscode.debug.startDebugging(
-                                                this.appLauncher.getWorkspaceFolder(),
-                                                attachArguments,
-                                                this.session
-                                            )
-                                            .then((childDebugSessionStarted: boolean) => {
-                                                if (childDebugSessionStarted) {
-                                                    resolve();
-                                                } else {
-                                                    reject(new Error("Cannot start child debug session"));
-                                                }
-                                            },
-                                            err => {
-                                                reject(err);
-                                            });
+                                        if (this.firstDebugSession) {
+                                            this.establishDebugSession(resolve, reject);
                                         } else {
-                                            throw new Error("Cannot connect to debugger worker: Chrome debugger proxy is offline");
+                                            if (this.rnCdpProxy) {
+                                                this.rnCdpProxy.closeProxyConnections();
+                                            }
                                         }
                                     });
 
@@ -189,7 +177,53 @@ export class RNDebugSession extends LoggingDebugSession {
         }
 
         super.disconnectRequest(response, args, request);
-   }
+    }
+
+    private establishDebugSession(
+        resolve?: (value?: void | PromiseLike<void> | undefined) => void,
+        reject?: (reason?: any) => void
+    ): void {
+        if (this.rnCdpProxy) {
+            const attachArguments = {
+                type: "pwa-node",
+                request: "attach",
+                name: "Attach",
+                continueOnAttach: true,
+                port: this.cdpProxyPort,
+                smartStep: false,
+            };
+
+            vscode.debug.startDebugging(
+                this.appLauncher.getWorkspaceFolder(),
+                attachArguments,
+                this.session
+            )
+            .then((childDebugSessionStarted: boolean) => {
+                if (childDebugSessionStarted) {
+                    if (resolve) {
+                        this.firstDebugSession = false;
+                        resolve();
+                    }
+                } else {
+                    const childDebugSessionError =  new Error("Cannot start child debug session");
+                    if (reject) {
+                        reject(childDebugSessionError);
+                    } else {
+                        throw childDebugSessionError;
+                    }
+                }
+            },
+            err => {
+                if (reject) {
+                    reject(err);
+                } else {
+                    throw err;
+                }
+            });
+        } else {
+            throw new Error("Cannot connect to debugger worker: Chrome debugger proxy is offline");
+        }
+    }
 
     private initializeSettings(args: any): Q.Promise<any> {
         if (!this.isSettingsInitialized) {

@@ -33,13 +33,17 @@ export class ReactNativeCDPProxy {
     private firstStop: boolean;
     private debuggerEndpointHelper: DebuggerEndpointHelper;
     private applicationTargetPort: number;
+    private isReload: boolean;
+    private onConnectionsClosed: () => void;
 
-    constructor(hostAddress: string, port: number, logLevel: LogLevel) {
+    constructor(hostAddress: string, port: number, logLevel: LogLevel, onConnectionsClosed: () => void) {
         this.port = port;
         this.hostAddress = hostAddress;
         this.logger = OutputChannelLogger.getChannel("React Native Chrome Proxy", true, false, true);
         this.logLevel = logLevel;
         this.firstStop = true;
+        this.isReload = false;
+        this.onConnectionsClosed = onConnectionsClosed;
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
     }
 
@@ -62,6 +66,13 @@ export class ReactNativeCDPProxy {
         this.applicationTargetPort = applicationTargetPort;
     }
 
+    public closeProxyConnections(): void {
+        if (this.debuggerTarget) {
+            this.isReload = true;
+            this.debuggerTarget.close();
+        }
+    }
+
     private async onConnectionHandler([debuggerTarget, request]: [Connection, IncomingMessage]): Promise<void> {
         this.debuggerTarget = debuggerTarget;
 
@@ -81,6 +92,7 @@ export class ReactNativeCDPProxy {
         this.debuggerTarget.onReply(this.handleDebuggerTargetReply.bind(this));
 
         this.applicationTarget.onEnd(this.onApplicationTargetClosed.bind(this));
+        this.debuggerTarget.onEnd(this.onDebuggerTargetClosed.bind(this));
 
         // dequeue any messages we got in the meantime
         this.debuggerTarget.unpause();
@@ -134,7 +146,16 @@ export class ReactNativeCDPProxy {
     }
 
     private async onApplicationTargetClosed() {
+        if (!this.isReload) {
+            this.debuggerTarget.close();
+        }
+    }
+
+    private async onDebuggerTargetClosed() {
         this.firstStop = true;
-        await this.debuggerTarget.close();
+        if (this.isReload) {
+            this.isReload = false;
+            this.onConnectionsClosed();
+        }
     }
 }
