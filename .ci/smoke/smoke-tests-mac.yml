@@ -1,6 +1,7 @@
 trigger:
-  branches:
-    include: ['master']
+  - master
+  pr:
+  - master
 
 variables:
   vswdbotLogin: vswdbot
@@ -12,8 +13,6 @@ variables:
 
 jobs:
   - job: macOS
-    variables:
-    - group: vswdbot-password
     pool:
       name: 'React Native smoke tests - macOS'
     steps:
