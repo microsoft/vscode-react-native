@@ -1,6 +1,6 @@
 trigger:
   - master
-  pr:
+pr:
   - master
 
 variables:
