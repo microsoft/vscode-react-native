@@ -65,6 +65,7 @@ steps:
     fi
     if [ $(basicOnly) = true ]; then
       BASIC_ONLY="--basic-only"
+    fi
     yarn smoke-tests $BASIC_ONLY
   displayName: 'Run smoke tests'
   env:
