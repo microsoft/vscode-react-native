@@ -1,6 +1,15 @@
 trigger:
-  branches:
-    include: ['master']
+  - master
+pr:
+  - master
+
+variables:
+  vswdbotLogin: vswdbot
+  appiumVersion: 1.16.0
+  basicOnly: false
+  expoCLIVersion: latest
+  nightlyBuild: false
+  smokeTestDirectory: test/smoke
 
 jobs:
   - job: Windows
@@ -15,5 +24,5 @@ jobs:
         rm -rf ./Temp/haste-map-metro-*
         rm -rf ./Temp/react-native-*
         rm -rf ./Yarn/Cache
-      displayName: Clear RN, Yarn cache, Node Cache(Windows)
+      displayName: Clear RN, Yarn cache
     - template: smoke-tests-common-validation.yml

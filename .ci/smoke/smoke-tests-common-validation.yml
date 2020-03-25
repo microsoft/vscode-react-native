@@ -1,11 +1,3 @@
-parameters:
-  vswdbotLogin: vswdbot@microsoft.com
-  appiumVersion: 1.16.0
-  basicOnly: false
-  expoCLIVersion: latest
-  nightlyBuild: false
-  smokeTestDirectory: test/smoke
-
 steps:
 - bash: 'rm -rf $(Agent.WorkFolder)/_tools/node'
   displayName: 'Clear Node cache'
@@ -56,8 +48,8 @@ steps:
 
 - bash: |
     npm install -g yarn react-native-cli
-    npm install -g appium@$(AppiumVersion)
-    npm install -g expo-cli@$(ExpoCLIVersion)
+    npm install -g appium@$(appiumVersion)
+    npm install -g expo-cli@$(expoCLIVersion)
   displayName: 'npm install -g yarn react-native-cli expo-cli appium'
 
 - bash: npm install --global windows-build-tools --vs2015
@@ -73,20 +65,19 @@ steps:
     fi
     if [ $(basicOnly) = true ]; then
       BASIC_ONLY="--basic-only"
-    else
-      expo login -u '$(vswdbotLogin)' -p '$(expo-vswdbot-password)'
     fi
     yarn smoke-tests $BASIC_ONLY
   displayName: 'Run smoke tests'
   env:
     DISPLAY: ':99.0'
+    EXPO_PWD: $(expo-vswdbot-password)
 
 - task: PublishTestResults@2
   displayName: 'Publish Test Results'
   inputs:
     testResultsFiles: './$(smokeTestDirectory)/vscode/test/smoke/ReactNativeSmokeTests.xml'
     failTaskOnFailedTests: true
-    testRunTitle: join(variables['Agent.OS'], ' React Native extension smoke tests')
+    testRunTitle: React Native extension smoke tests
   condition: always()
 
 - task: ArchiveFiles@2
