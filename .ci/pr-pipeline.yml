@@ -1,9 +1,5 @@
-trigger:
-  branches:
-    include: ['master']
-
-variables:
-
+pr:
+  - master
 jobs:
 - job: Linux
   pool:
