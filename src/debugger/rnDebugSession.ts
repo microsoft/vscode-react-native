@@ -217,21 +217,18 @@ export class RNDebugSession extends LoggingDebugSession {
                 this.session
             )
             .then((childDebugSessionStarted: boolean) => {
+                this.clearReloading();
                 if (childDebugSessionStarted) {
                     if (resolve) {
                         this.firstDebugSessionStatus = "used";
                         resolve();
                     }
-                    if (this.reloading) {
-                        this.reloading = null;
-                        this.reloadingResolve = null;
-                    }
                 } else {
-                    const childDebugSessionError =  new Error("Cannot start child debug session");
-                    throw childDebugSessionError;
+                    throw new Error("Cannot start child debug session");
                 }
             },
             err => {
+                this.clearReloading();
                 throw err;
             });
         } else {
@@ -285,6 +282,13 @@ export class RNDebugSession extends LoggingDebugSession {
     private handleTerminateDebugSession(debugSession: vscode.DebugSession) {
         if (this.reloading && this.reloadingResolve) {
             this.reloadingResolve();
+        }
+    }
+
+    private clearReloading() {
+        if (this.reloading) {
+            this.reloading = null;
+            this.reloadingResolve = null;
         }
     }
 }
