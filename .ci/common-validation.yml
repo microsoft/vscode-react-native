@@ -5,6 +5,8 @@ inputs:
   versionSpec: 10.x
 - bash: npm install gulp react-devtools -g
   displayName: 'npm install gulp react-devtools -g'
+- bash: npm ci
+  displayName: 'npm ci'
 - bash: npm run vscode:prepublish
   displayName: 'npm run vscode:prepublish'
 - bash: |
