@@ -47,7 +47,7 @@ jobs:
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
   - task: PublishBuildArtifacts@1
-  displayName: 'Publish artifacts: drop-win'
+    displayName: 'Publish artifacts: drop-win'
   inputs:
     ArtifactName: 'drop-win'
 
