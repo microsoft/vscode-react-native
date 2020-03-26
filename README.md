@@ -9,7 +9,7 @@ Using this extension, you can debug your code and quickly run `react-native` com
 
 ## Getting started
 
-* [Install VS Code](https://code.visualstudio.com).
+* [Install VS  Code](https://code.visualstudio.com).
 * [Install the extension](https://code.visualstudio.com/docs/editor/extension-gallery) in VS Code:
   1. Press `Ctrl + Shift + X` (`Cmd + Shift + X` on macOS), wait a moment while the list of available extensions is populated
   2. Type `react-native` and install **React Native Tools**
