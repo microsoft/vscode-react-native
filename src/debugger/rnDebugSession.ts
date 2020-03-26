@@ -46,7 +46,7 @@ export class RNDebugSession extends LoggingDebugSession {
     private previousAttachArgs: IAttachRequestArgs;
     private rnCdpProxy: ReactNativeCDPProxy | null;
     private cdpProxyLogLevel: LogLevel;
-    private firstDebugSession: boolean;
+    private firstDebugSessionStatus: "unused" | "pending" | "used";
     private nodeSession: vscode.DebugSession | null;
     private reloading: Promise<void> | null;
     private reloadingResolve: ((value?: void | PromiseLike<void> | undefined) => void) | null;
@@ -54,7 +54,7 @@ export class RNDebugSession extends LoggingDebugSession {
     constructor(private session: vscode.DebugSession) {
         super();
         this.isSettingsInitialized = false;
-        this.firstDebugSession = true;
+        this.firstDebugSessionStatus = "unused";
         this.appWorker = null;
         this.rnCdpProxy = null;
         this.cdpProxyPort = generateRandomPortNumber();
@@ -152,9 +152,10 @@ export class RNDebugSession extends LoggingDebugSession {
                                             return;
                                         }
 
-                                        if (this.firstDebugSession) {
+                                        if (this.firstDebugSessionStatus === "unused") {
+                                            this.firstDebugSessionStatus = "pending";
                                             this.establishDebugSession(resolve);
-                                        } else {
+                                        } else if (this.firstDebugSessionStatus === "used") {
                                             if (this.nodeSession) {
                                                 this.reloading = new Promise<void>((resolve) => { this.reloadingResolve = resolve; });
                                                 this.reloading.then(() => {
@@ -217,8 +218,8 @@ export class RNDebugSession extends LoggingDebugSession {
             )
             .then((childDebugSessionStarted: boolean) => {
                 if (childDebugSessionStarted) {
-                    if (this.firstDebugSession && resolve) {
-                        this.firstDebugSession = false;
+                    if (resolve) {
+                        this.firstDebugSessionStatus = "used";
                         resolve();
                     }
                     if (this.reloading) {
