@@ -9,7 +9,7 @@ jobs:
   steps:
   - checkout: self
     clean: true
-- template: common-validation.yml
+  - template: common-validation.yml
 
 - job: Windows
   pool:
