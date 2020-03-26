@@ -24,9 +24,13 @@ steps:
     export CODE_LOCALE=ru
     npm test
   displayName: 'Run localization tests'
+  env:
+    DISPLAY: ':99.0'
 
 - bash: 'npm test --verbose'
   displayName: 'Run host tests'
+  env:
+    DISPLAY: ':99.0'
 
 - bash: gulp test:coverage
   displayName: 'Run hostless tests'

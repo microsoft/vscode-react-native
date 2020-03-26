@@ -70,7 +70,6 @@ steps:
   displayName: 'Run smoke tests'
   env:
     DISPLAY: ':99.0'
-    EXPO_PWD: $(expo-vswdbot-password)
 
 - task: PublishTestResults@2
   displayName: 'Publish Test Results'
