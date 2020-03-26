@@ -33,17 +33,13 @@ export class ReactNativeCDPProxy {
     private firstStop: boolean;
     private debuggerEndpointHelper: DebuggerEndpointHelper;
     private applicationTargetPort: number;
-    private isReload: boolean;
-    private onConnectionsClosed: () => void;
 
-    constructor(hostAddress: string, port: number, logLevel: LogLevel, onConnectionsClosed: () => void) {
+    constructor(hostAddress: string, port: number, logLevel: LogLevel) {
         this.port = port;
         this.hostAddress = hostAddress;
         this.logger = OutputChannelLogger.getChannel("React Native Chrome Proxy", true, false, true);
         this.logLevel = logLevel;
         this.firstStop = true;
-        this.isReload = false;
-        this.onConnectionsClosed = onConnectionsClosed;
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
     }
 
@@ -64,13 +60,6 @@ export class ReactNativeCDPProxy {
 
     public setApplicationTargetPort(applicationTargetPort: number): void {
         this.applicationTargetPort = applicationTargetPort;
-    }
-
-    public closeProxyConnections(): void {
-        if (this.debuggerTarget) {
-            this.isReload = true;
-            this.debuggerTarget.close();
-        }
     }
 
     private async onConnectionHandler([debuggerTarget, request]: [Connection, IncomingMessage]): Promise<void> {
@@ -146,16 +135,10 @@ export class ReactNativeCDPProxy {
     }
 
     private async onApplicationTargetClosed() {
-        if (!this.isReload) {
-            this.debuggerTarget.close();
-        }
+        // do nothing
     }
 
     private async onDebuggerTargetClosed() {
         this.firstStop = true;
-        if (this.isReload) {
-            this.isReload = false;
-            this.onConnectionsClosed();
-        }
     }
 }

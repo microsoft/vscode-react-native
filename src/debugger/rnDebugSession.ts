@@ -47,6 +47,9 @@ export class RNDebugSession extends LoggingDebugSession {
     private rnCdpProxy: ReactNativeCDPProxy | null;
     private cdpProxyLogLevel: LogLevel;
     private firstDebugSession: boolean;
+    private nodeSession: vscode.DebugSession | null;
+    private reloading: Promise<void> | null;
+    private reloadingResolve: ((value?: void | PromiseLike<void> | undefined) => void) | null;
 
     constructor(private session: vscode.DebugSession) {
         super();
@@ -56,6 +59,16 @@ export class RNDebugSession extends LoggingDebugSession {
         this.rnCdpProxy = null;
         this.cdpProxyPort = generateRandomPortNumber();
         this.cdpProxyHostAddress = "127.0.0.1";
+        this.reloading = null;
+        this.reloadingResolve = null;
+
+        vscode.debug.onDidStartDebugSession(
+            this.handleStartDebugSession.bind(this)
+        );
+
+        vscode.debug.onDidTerminateDebugSession(
+            this.handleTerminateDebugSession.bind(this)
+        );
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
@@ -108,8 +121,7 @@ export class RNDebugSession extends LoggingDebugSession {
                             this.rnCdpProxy = new ReactNativeCDPProxy(
                                 this.cdpProxyHostAddress,
                                 this.cdpProxyPort,
-                                this.cdpProxyLogLevel,
-                                this.establishDebugSession.bind(this)
+                                this.cdpProxyLogLevel
                             );
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                             return this.rnCdpProxy.createServer()
@@ -136,11 +148,19 @@ export class RNDebugSession extends LoggingDebugSession {
                                             this.rnCdpProxy.setApplicationTargetPort(port);
                                         }
 
+                                        if (this.reloading) {
+                                            return;
+                                        }
+
                                         if (this.firstDebugSession) {
-                                            this.establishDebugSession(resolve, reject);
+                                            this.establishDebugSession(resolve);
                                         } else {
-                                            if (this.rnCdpProxy) {
-                                                this.rnCdpProxy.closeProxyConnections();
+                                            if (this.nodeSession) {
+                                                this.reloading = new Promise<void>((resolve) => { this.reloadingResolve = resolve; });
+                                                this.reloading.then(() => {
+                                                        this.establishDebugSession();
+                                                    });
+                                                this.nodeSession.customRequest("terminate");
                                             }
                                         }
                                     });
@@ -179,10 +199,7 @@ export class RNDebugSession extends LoggingDebugSession {
         super.disconnectRequest(response, args, request);
     }
 
-    private establishDebugSession(
-        resolve?: (value?: void | PromiseLike<void> | undefined) => void,
-        reject?: (reason?: any) => void
-    ): void {
+    private establishDebugSession(resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
         if (this.rnCdpProxy) {
             const attachArguments = {
                 type: "pwa-node",
@@ -200,25 +217,21 @@ export class RNDebugSession extends LoggingDebugSession {
             )
             .then((childDebugSessionStarted: boolean) => {
                 if (childDebugSessionStarted) {
-                    if (resolve) {
+                    if (this.firstDebugSession && resolve) {
                         this.firstDebugSession = false;
                         resolve();
                     }
+                    if (this.reloading) {
+                        this.reloading = null;
+                        this.reloadingResolve = null;
+                    }
                 } else {
                     const childDebugSessionError =  new Error("Cannot start child debug session");
-                    if (reject) {
-                        reject(childDebugSessionError);
-                    } else {
-                        throw childDebugSessionError;
-                    }
+                    throw childDebugSessionError;
                 }
             },
             err => {
-                if (reject) {
-                    reject(err);
-                } else {
-                    throw err;
-                }
+                throw err;
             });
         } else {
             throw new Error("Cannot connect to debugger worker: Chrome debugger proxy is offline");
@@ -259,6 +272,18 @@ export class RNDebugSession extends LoggingDebugSession {
                 });
         } else {
             return Q.resolve<void>(void 0);
+        }
+    }
+
+    private handleStartDebugSession(debugSession: vscode.DebugSession) {
+        if (debugSession.type === "pwa-node") {
+            this.nodeSession = debugSession;
+        }
+    }
+
+    private handleTerminateDebugSession(debugSession: vscode.DebugSession) {
+        if (this.reloading && this.reloadingResolve) {
+            this.reloadingResolve();
         }
     }
 }
