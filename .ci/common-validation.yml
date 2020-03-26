@@ -5,7 +5,7 @@ steps:
     versionSpec: 10.x
 
 - bash: npm install gulp react-devtools -g
-  displayName: 'npm install gulp react-devtools -g'
+  displayName: 'npm install gulp react-devtools -g --force'
 
 - bash: npm ci
   displayName: 'npm ci'
