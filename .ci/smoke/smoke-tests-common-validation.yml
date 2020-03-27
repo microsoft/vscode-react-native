@@ -76,7 +76,7 @@ steps:
   inputs:
     testResultsFiles: './$(smokeTestDirectory)/vscode/test/smoke/ReactNativeSmokeTests.xml'
     failTaskOnFailedTests: true
-    testRunTitle: $(Agent.OS) React Native extension smoke tests Attempt №$(System.JobAttempt)
+    testRunTitle: $(Agent.OS) React Native extension smoke tests - Attempt №$(System.JobAttempt)
   condition: always()
 
 - task: ArchiveFiles@2

@@ -40,7 +40,7 @@ steps:
   inputs:
     testResultsFiles: test/DebuggerTests.xml
     failTaskOnFailedTests: true
-    testRunTitle: '[Debugger Context] $(Agent.OS) React Native unit tests Attempt №$(System.JobAttempt)'
+    testRunTitle: '[Debugger Context] $(Agent.OS) React Native unit tests - Attempt №$(System.JobAttempt)'
   condition: always()
 
 - task: PublishTestResults@2
@@ -48,7 +48,7 @@ steps:
   inputs:
     testResultsFiles: test/ExtensionTests.xml
     failTaskOnFailedTests: true
-    testRunTitle: '[Extension Context] $(Agent.OS) React Native unit tests Attempt №$(System.JobAttempt)'
+    testRunTitle: '[Extension Context] $(Agent.OS) React Native unit tests - Attempt №$(System.JobAttempt)'
   condition: always()
 
 - task: PublishTestResults@2
@@ -56,9 +56,8 @@ steps:
   inputs:
     testResultsFiles: test/LocalizationTests.xml
     failTaskOnFailedTests: true
-    testRunTitle: '[Localization Context] $(Agent.OS) React Native unit tests Attempt №$(System.JobAttempt)'
+    testRunTitle: '[Localization Context] $(Agent.OS) React Native unit tests - Attempt №$(System.JobAttempt)'
   condition: always()
-
 
 
 
