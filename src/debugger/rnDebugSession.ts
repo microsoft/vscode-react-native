@@ -224,14 +224,17 @@ export class RNDebugSession extends LoggingDebugSession {
                         resolve();
                     }
                 } else {
+                    this.resetFirstDebugSessionStatus();
                     throw new Error("Cannot start child debug session");
                 }
             },
             err => {
                 this.clearReloading();
+                this.resetFirstDebugSessionStatus();
                 throw err;
             });
         } else {
+            this.resetFirstDebugSessionStatus();
             throw new Error("Cannot connect to debugger worker: Chrome debugger proxy is offline");
         }
     }
@@ -285,10 +288,16 @@ export class RNDebugSession extends LoggingDebugSession {
         }
     }
 
-    private clearReloading() {
+    private clearReloading(): void {
         if (this.reloading) {
             this.reloading = null;
             this.reloadingResolve = null;
+        }
+    }
+
+    private resetFirstDebugSessionStatus(): void {
+        if (this.firstDebugSessionStatus === "pending") {
+            this.firstDebugSessionStatus = "unused";
         }
     }
 }
