@@ -129,7 +129,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.awesomeproject062h"
+        applicationId "com.latestrnapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
