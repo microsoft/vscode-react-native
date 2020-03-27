@@ -58,6 +58,3 @@ steps:
     failTaskOnFailedTests: true
     testRunTitle: '[Localization Context] $(Agent.OS) React Native unit tests - Attempt №$(System.JobAttempt)'
   condition: always()
-
-
-
