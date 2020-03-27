@@ -24,6 +24,15 @@ import { LogLevel } from "../extension/log/LogHelper";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
+enum DebugSessionStatus {
+    FirstConnection,
+    FirstConnectionPending,
+    ConnectionAllowed,
+    ConnectionPending,
+    ConnectionDone,
+    ConnectionFailed,
+}
+
 export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments, ILaunchArgs {
     cwd: string; /* Automatically set by VS Code to the currently opened folder */
     port: number;
@@ -38,6 +47,7 @@ export class RNDebugSession extends LoggingDebugSession {
 
     private readonly cdpProxyPort: number;
     private readonly cdpProxyHostAddress: string;
+    private readonly terminateCommand: string;
 
     private appLauncher: AppLauncher;
     private appWorker: MultipleLifetimesAppWorker | null;
@@ -46,21 +56,22 @@ export class RNDebugSession extends LoggingDebugSession {
     private previousAttachArgs: IAttachRequestArgs;
     private rnCdpProxy: ReactNativeCDPProxy | null;
     private cdpProxyLogLevel: LogLevel;
-    private firstDebugSessionStatus: "unused" | "pending" | "used";
     private nodeSession: vscode.DebugSession | null;
     private reloading: Promise<void> | null;
     private reloadingResolve: ((value?: void | PromiseLike<void> | undefined) => void) | null;
+    private debugSessionStatus: DebugSessionStatus;
 
     constructor(private session: vscode.DebugSession) {
         super();
         this.isSettingsInitialized = false;
-        this.firstDebugSessionStatus = "unused";
         this.appWorker = null;
         this.rnCdpProxy = null;
         this.cdpProxyPort = generateRandomPortNumber();
         this.cdpProxyHostAddress = "127.0.0.1";
+        this.terminateCommand = "terminate";
         this.reloading = null;
         this.reloadingResolve = null;
+        this.debugSessionStatus = DebugSessionStatus.FirstConnection;
 
         vscode.debug.onDidStartDebugSession(
             this.handleStartDebugSession.bind(this)
@@ -148,20 +159,23 @@ export class RNDebugSession extends LoggingDebugSession {
                                             this.rnCdpProxy.setApplicationTargetPort(port);
                                         }
 
-                                        if (this.reloading) {
+                                        if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
                                             return;
                                         }
 
-                                        if (this.firstDebugSessionStatus === "unused") {
-                                            this.firstDebugSessionStatus = "pending";
+                                        if (this.debugSessionStatus === DebugSessionStatus.FirstConnection) {
+                                            this.debugSessionStatus = DebugSessionStatus.FirstConnectionPending;
                                             this.establishDebugSession(resolve);
-                                        } else if (this.firstDebugSessionStatus === "used") {
+                                        } else if (this.debugSessionStatus === DebugSessionStatus.ConnectionAllowed) {
                                             if (this.nodeSession) {
-                                                this.reloading = new Promise<void>((resolve) => { this.reloadingResolve = resolve; });
+                                                this.debugSessionStatus = DebugSessionStatus.ConnectionPending;
+                                                this.reloading = new Promise<void>((resolve) => {
+                                                    this.reloadingResolve = resolve;
+                                                });
                                                 this.reloading.then(() => {
                                                         this.establishDebugSession();
                                                     });
-                                                this.nodeSession.customRequest("terminate");
+                                                this.nodeSession.customRequest(this.terminateCommand);
                                             }
                                         }
                                     });
@@ -217,24 +231,28 @@ export class RNDebugSession extends LoggingDebugSession {
                 this.session
             )
             .then((childDebugSessionStarted: boolean) => {
-                this.clearReloading();
                 if (childDebugSessionStarted) {
+                    this.debugSessionStatus = DebugSessionStatus.ConnectionDone;
+                    this.clearReloading();
                     if (resolve) {
-                        this.firstDebugSessionStatus = "used";
+                        this.debugSessionStatus = DebugSessionStatus.ConnectionAllowed;
                         resolve();
                     }
                 } else {
-                    this.resetFirstDebugSessionStatus();
+                    this.debugSessionStatus = DebugSessionStatus.ConnectionFailed;
+                    this.clearReloading();
+                    this.resetFirstConnectionStatus();
                     throw new Error("Cannot start child debug session");
                 }
             },
             err => {
+                this.debugSessionStatus = DebugSessionStatus.ConnectionFailed;
                 this.clearReloading();
-                this.resetFirstDebugSessionStatus();
+                this.resetFirstConnectionStatus();
                 throw err;
             });
         } else {
-            this.resetFirstDebugSessionStatus();
+            this.resetFirstConnectionStatus();
             throw new Error("Cannot connect to debugger worker: Chrome debugger proxy is offline");
         }
     }
@@ -283,21 +301,27 @@ export class RNDebugSession extends LoggingDebugSession {
     }
 
     private handleTerminateDebugSession(debugSession: vscode.DebugSession) {
-        if (this.reloading && this.reloadingResolve) {
-            this.reloadingResolve();
+        if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
+            if (this.reloadingResolve) {
+                this.reloadingResolve();
+            }
         }
     }
 
     private clearReloading(): void {
-        if (this.reloading) {
+        if (
+            this.debugSessionStatus === DebugSessionStatus.ConnectionDone
+            || this.debugSessionStatus === DebugSessionStatus.ConnectionFailed
+        ) {
             this.reloading = null;
             this.reloadingResolve = null;
+            this.debugSessionStatus = DebugSessionStatus.ConnectionAllowed;
         }
     }
 
-    private resetFirstDebugSessionStatus(): void {
-        if (this.firstDebugSessionStatus === "pending") {
-            this.firstDebugSessionStatus = "unused";
+    private resetFirstConnectionStatus(): void {
+        if (this.debugSessionStatus === DebugSessionStatus.FirstConnectionPending) {
+            this.debugSessionStatus = DebugSessionStatus.FirstConnection;
         }
     }
 }
