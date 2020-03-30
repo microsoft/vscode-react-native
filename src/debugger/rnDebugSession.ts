@@ -48,6 +48,7 @@ export class RNDebugSession extends LoggingDebugSession {
     private readonly cdpProxyPort: number;
     private readonly cdpProxyHostAddress: string;
     private readonly terminateCommand: string;
+    private readonly pwaNodeSessionName: string;
 
     private appLauncher: AppLauncher;
     private appWorker: MultipleLifetimesAppWorker | null;
@@ -57,20 +58,21 @@ export class RNDebugSession extends LoggingDebugSession {
     private rnCdpProxy: ReactNativeCDPProxy | null;
     private cdpProxyLogLevel: LogLevel;
     private nodeSession: vscode.DebugSession | null;
-    private reloading: Promise<void> | null;
-    private reloadingResolve: ((value?: void | PromiseLike<void> | undefined) => void) | null;
     private debugSessionStatus: DebugSessionStatus;
 
     constructor(private session: vscode.DebugSession) {
         super();
+
+        // constants definition
+        this.cdpProxyPort = generateRandomPortNumber();
+        this.cdpProxyHostAddress = "127.0.0.1";
+        this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
+        this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
+
+        // variables definition
         this.isSettingsInitialized = false;
         this.appWorker = null;
         this.rnCdpProxy = null;
-        this.cdpProxyPort = generateRandomPortNumber();
-        this.cdpProxyHostAddress = "127.0.0.1";
-        this.terminateCommand = "terminate";
-        this.reloading = null;
-        this.reloadingResolve = null;
         this.debugSessionStatus = DebugSessionStatus.FirstConnection;
 
         vscode.debug.onDidStartDebugSession(
@@ -169,12 +171,6 @@ export class RNDebugSession extends LoggingDebugSession {
                                         } else if (this.debugSessionStatus === DebugSessionStatus.ConnectionAllowed) {
                                             if (this.nodeSession) {
                                                 this.debugSessionStatus = DebugSessionStatus.ConnectionPending;
-                                                this.reloading = new Promise<void>((resolve) => {
-                                                    this.reloadingResolve = resolve;
-                                                });
-                                                this.reloading.then(() => {
-                                                        this.establishDebugSession();
-                                                    });
                                                 this.nodeSession.customRequest(this.terminateCommand);
                                             }
                                         }
@@ -233,21 +229,21 @@ export class RNDebugSession extends LoggingDebugSession {
             .then((childDebugSessionStarted: boolean) => {
                 if (childDebugSessionStarted) {
                     this.debugSessionStatus = DebugSessionStatus.ConnectionDone;
-                    this.clearReloading();
+                    this.setConnectionAllowedIfPossible();
                     if (resolve) {
                         this.debugSessionStatus = DebugSessionStatus.ConnectionAllowed;
                         resolve();
                     }
                 } else {
                     this.debugSessionStatus = DebugSessionStatus.ConnectionFailed;
-                    this.clearReloading();
+                    this.setConnectionAllowedIfPossible();
                     this.resetFirstConnectionStatus();
                     throw new Error("Cannot start child debug session");
                 }
             },
             err => {
                 this.debugSessionStatus = DebugSessionStatus.ConnectionFailed;
-                this.clearReloading();
+                this.setConnectionAllowedIfPossible();
                 this.resetFirstConnectionStatus();
                 throw err;
             });
@@ -295,26 +291,25 @@ export class RNDebugSession extends LoggingDebugSession {
     }
 
     private handleStartDebugSession(debugSession: vscode.DebugSession) {
-        if (debugSession.type === "pwa-node") {
+        if (debugSession.type === this.pwaNodeSessionName) {
             this.nodeSession = debugSession;
         }
     }
 
     private handleTerminateDebugSession(debugSession: vscode.DebugSession) {
-        if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
-            if (this.reloadingResolve) {
-                this.reloadingResolve();
-            }
+        if (
+            this.debugSessionStatus === DebugSessionStatus.ConnectionPending
+            && debugSession.type === this.pwaNodeSessionName
+        ) {
+            this.establishDebugSession();
         }
     }
 
-    private clearReloading(): void {
+    private setConnectionAllowedIfPossible(): void {
         if (
             this.debugSessionStatus === DebugSessionStatus.ConnectionDone
             || this.debugSessionStatus === DebugSessionStatus.ConnectionFailed
         ) {
-            this.reloading = null;
-            this.reloadingResolve = null;
             this.debugSessionStatus = DebugSessionStatus.ConnectionAllowed;
         }
     }
