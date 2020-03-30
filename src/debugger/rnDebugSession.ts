@@ -219,6 +219,7 @@ export class RNDebugSession extends LoggingDebugSession {
                 continueOnAttach: true,
                 port: this.cdpProxyPort,
                 smartStep: false,
+                rnDebugSessionId: this.session.id,
             };
 
             vscode.debug.startDebugging(
@@ -292,9 +293,8 @@ export class RNDebugSession extends LoggingDebugSession {
 
     private handleStartDebugSession(debugSession: vscode.DebugSession) {
         if (
-            this.appLauncher
+            debugSession.configuration.rnDebugSessionId === this.session.id
             && debugSession.type === this.pwaNodeSessionName
-            && this.appLauncher.getWorkspaceFolderUri().fsPath === debugSession.workspaceFolder?.uri.fsPath
         ) {
             this.nodeSession = debugSession;
         }
@@ -302,7 +302,8 @@ export class RNDebugSession extends LoggingDebugSession {
 
     private handleTerminateDebugSession(debugSession: vscode.DebugSession) {
         if (
-            this.debugSessionStatus === DebugSessionStatus.ConnectionPending
+            debugSession.configuration.rnDebugSessionId === this.session.id
+            && this.debugSessionStatus === DebugSessionStatus.ConnectionPending
             && debugSession.type === this.pwaNodeSessionName
         ) {
             this.establishDebugSession();
