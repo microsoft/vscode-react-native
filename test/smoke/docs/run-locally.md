@@ -59,7 +59,7 @@ Tests are running using [VS Code automation package](https://github.com/microsof
     [System.EnvironmentVariableTarget]::Machine)
     ```
    * **Mac**:
-Add these lines to `~/.bash_profile` (create one if it don't exist):
+Add these lines to `~/.bash_profile` (create one if it doesn't exist):
     ```bash
     export JAVA_HOME="$(/usr/libexec/java_home)"
     export ANDROID_HOME=/Users/<username>/Library/Android/sdk
@@ -67,7 +67,7 @@ Add these lines to `~/.bash_profile` (create one if it don't exist):
     PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools/bin"
     ```
    * **Linux**:
-Add these lines to `~/.bash_profile` (create one if it don't exist):
+Add these lines to `~/.bash_profile` (create one if it doesn't exist):
     ```bash
     export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
     export ANDROID_HOME=/home/<username>/Android/sdk
