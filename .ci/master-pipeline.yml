@@ -48,8 +48,8 @@ jobs:
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish artifacts: drop-win'
-  inputs:
-    ArtifactName: 'drop-win'
+    inputs:
+      ArtifactName: 'drop-win'
 
 
 - job: macOS
