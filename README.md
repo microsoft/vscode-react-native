@@ -15,13 +15,13 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [Getting started](#getting-started)
 - [React Native commands in the Command Palette](#react-native-commands-in-the-command-palette)
 - [Debugging React Native applications](#debugging-react-native-applications)
-  - [Hermes](#hermes)
+  - [Hermes (Android)](#hermes-android)
   - [iOS devices](#ios-devices)
   - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
-  - [TypeScript and Haul](#typescript-and-haul)
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
-  - [React Native for Windows](#react-native-for-windows)
+  - [Windows applications](#react-native-for-windows)
+  - [TypeScript and Haul](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
 - [Customization](#customization)
   - [Logging](#logging)
@@ -92,7 +92,7 @@ Once app is loaded and running, [open the developer menu](https://reactnative.de
 
 The extension allows you to debug multiple devices and configurations, please read the following sections for more information for your particular use case.
 
-## Hermes
+## Hermes (Android)
 
 Hermes is the new JavaScript engine optimized for running React Native apps on Android. It improves app performance and decreases app size.
 
@@ -145,25 +145,6 @@ If you want to use a custom scheme for your application you can either pass it a
 ```
 Please be aware, specifying the scheme value as a part of the `runArguments` parameter arguments will override the `scheme` configuration parameter value, if it set.
 
-## TypeScript and Haul
-
-If you use Haul instead of the react-native packager, you must add `sourceMapPathOverrides` to the `launch.json` file.
-
-For example:
-
-```json
-{
-  // Other configurations
-  "sourceMapPathOverrides": {
-      "webpack:///./~/*":   "${workspaceRoot}/node_modules/*",
-      "webpack:///./*":   "${workspaceRoot}/*",
-      "webpack:///*":     "*"
-  }
-}
-```
-
-Learn more about source map overrides [here](https://github.com/Microsoft/vscode-node-debug2#sourcemappathoverrides)
-
 ## Expo applications
 
 To debug a project created using Expo or the create-react-native-app task, you can use embedded support for Expo.
@@ -214,33 +195,55 @@ If you want to change your app entrypoint (for example, from `index.js` to `inde
 
 **NOTE**: The extension caches the version of the exponent SDK used by your project. This is helpful since we don't want to install the SDK each time you run exponent. If you want the extension to update the SDK version based on your React Native version, just restart VS Code and if it is supported it should work. If it does not please open an issue.
 
-## React Native for Windows
+## Windows applications
 
-For UWP apps use `windows` target platform in `launch.json` configuration, e.g.:
+You can debug UWP and WPF React Native for Windows applications by changing the `platform` in your `launch.json` configuration:
+
+* For `UWP` use `windows`:
+
+  ```json
+  {
+      "name": "Debug UWP",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnative",
+      "request": "launch",
+      "platform": "windows"
+  }
+  ```
+
+* For `WPF` use `wpf`:
+
+  ```json
+  {
+      "name": "Debug WPF",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnative",
+      "request": "launch",
+      "platform": "wpf"
+  }
+  ```
+
+## TypeScript and Haul
+
+If you use [Haul](https://callstack.github.io/haul/users.html) as your React Native bundler instead of the default [Metro](https://facebook.github.io/metro/), you must add `sourceMapPathOverrides` to the `launch.json` file.
+
+For example:
 
 ```json
 {
-    "name": "Debug UWP",
-    "cwd": "${workspaceFolder}",
-    "type": "reactnative",
-    "request": "launch",
-    "platform": "windows"
+  // Other configurations
+  "sourceMapPathOverrides": {
+      "webpack:///./~/*":   "${workspaceRoot}/node_modules/*",
+      "webpack:///./*":   "${workspaceRoot}/*",
+      "webpack:///*":     "*"
+  }
 }
 ```
 
-For WPF apps use `wpf`, e.g.(WPF debugging available only for react-native-windows gt 0.55.0):
+Learn more about source map overrides [here](https://github.com/Microsoft/vscode-node-debug2#sourcemappathoverrides)
 
-```json
-{
-    "name": "Debug WPF",
-    "cwd": "${workspaceFolder}",
-    "type": "reactnative",
-    "request": "launch",
-    "platform": "wpf"
-}
-```
 
-## Debug configuration properties
+## Debugger configuration properties
 
 The following is a list of all the configuration properties the debugger accepts in `launch.json`:
 
