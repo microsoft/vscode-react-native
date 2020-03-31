@@ -1,6 +1,9 @@
 pr:
   - master
 
+trigger:
+  - none
+
 jobs:
 - job: Linux
   pool:
