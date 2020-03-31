@@ -70,14 +70,13 @@ steps:
   displayName: 'Run smoke tests'
   env:
     DISPLAY: ':99.0'
-    EXPO_PWD: $(expo-vswdbot-password)
 
 - task: PublishTestResults@2
   displayName: 'Publish Test Results'
   inputs:
     testResultsFiles: './$(smokeTestDirectory)/vscode/test/smoke/ReactNativeSmokeTests.xml'
     failTaskOnFailedTests: true
-    testRunTitle: React Native extension smoke tests
+    testRunTitle: $(Agent.OS) React Native extension smoke tests - Attempt №$(System.JobAttempt)
   condition: always()
 
 - task: ArchiveFiles@2

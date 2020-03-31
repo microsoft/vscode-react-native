@@ -5,7 +5,7 @@ pr:
 
 variables:
   vswdbotLogin: vswdbot
-  appiumVersion: 1.16.0
+  appiumVersion: 1.17.0
   basicOnly: false
   expoCLIVersion: latest
   nightlyBuild: false
@@ -15,6 +15,7 @@ jobs:
   - job: Linux
     pool:
       name: 'React Native smoke tests - Linux'
+    timeoutInMinutes: 30
     steps:
     - checkout: self
       clean: true
