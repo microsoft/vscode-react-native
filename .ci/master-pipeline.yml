@@ -40,6 +40,9 @@ jobs:
   - bash: gulp release
     displayName: 'gulp release'
 
+  - bash: 'node -e "console.log(require(''./package.json'').version)" -> version.txt'
+    displayName: 'Strip version from package.json and save to version.txt'
+
   - task: CopyFiles@2
     displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
     inputs:
