@@ -219,6 +219,9 @@ export class RNDebugSession extends LoggingDebugSession {
                 continueOnAttach: true,
                 port: this.cdpProxyPort,
                 smartStep: false,
+                // The unique identifier of the debug session. It is used to distinguish React Native extension's
+                // debug sessions from other ones. So we can save and process only the extension's debug sessions
+                // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
                 rnDebugSessionId: this.session.id,
             };
 
