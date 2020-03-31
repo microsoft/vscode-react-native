@@ -2,7 +2,7 @@
 
 [![Build status](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_apis/build/status/vscode-react-native%20%5Bmaster%5D)](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_build/latest?definitionId=2)
 
-This extension provides a development environment for React Native projects.
+This VS Code extension provides a development environment for React Native projects.
 Using this extension, you can **debug your code and quickly run `react-native` commands** from the command palette.
 
 ![React Native features](images/react-features.gif)
@@ -17,12 +17,12 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [Debugging React Native applications](#debugging-react-native-applications)
   - [Hermes](#hermes)
   - [iOS devices](#ios-devices)
-  - [Custmom scheme for iOS apps](#custom-scheme-for-ios-apps)
+  - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
   - [TypeScript and Haul](#typescript-and-haul)
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
   - [React Native for Windows](#react-native-for-windows)
-  - [Debug configuration properties](#debug-configuration-properties)
+  - [Debugger configuration properties](#debugger-configuration-properties)
 - [Customization](#customization)
   - [Logging](#logging)
   - [Build APK and generate bundle](#build-apk-and-generate-bundle)
@@ -38,7 +38,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 Before going any further make sure that you:
 
 * [have a working React Native environment](https://reactnative.dev/docs/environment-setup).
-* are using [VS Code](https://code.visualstudio.com) and [installed this extension from the Marketplace](https://marketplace.visualstudio.com/items?itemName=msjsdiag.vscode-react-native).
+* are using [VS Code](https://code.visualstudio.com) and have [installed this extension from the Marketplace](https://marketplace.visualstudio.com/items?itemName=msjsdiag.vscode-react-native).
 * have your React Native project root folder open in VS Code.
 
 Please notice that the extension uses `.vscode/.react` directory at the project root to store intermediate files required for debugging. Although these files usually get removed after debug session ends, you may want to add this directory to your project's `.gitignore` file.
@@ -126,16 +126,16 @@ To debug while using Hermes engine, please choose one of the following debug con
 
 ## iOS devices
 
-Debugging on an iOS device require following manual steps:
+Debugging on an iOS device requires following manual steps:
 * Install [ios-deploy](https://www.npmjs.com/package/ios-deploy) `npm install -g ios-deploy`.
-* Have a valid iOS Development certificate installed.
-* In your project's `launch.json` file set `target` to `device`. If you need to specify the exact device to run you can set `target` to `device=<iOS_device_name>` or you can also use `runArguments` property to specify particular device to run on in case of multiple devices connected, e.g. `"runArguments": [ "--device", "My iPhone" ]`
-* Choose **Debug iOS** configuration from the Configuration dropdown and press F5.
+* Install a valid iOS development certificate.
+* In your project's `launch.json` file set `target` to `device`. If you need to specify the exact device to run, you can set `target` to `device=<iOS_device_name>`, or you can also use `runArguments` property to specify a particular device to run on in case multiple devices are connected (e.g. `"runArguments": [ "--device", "My iPhone" ]`)
+* Choose the **Debug iOS** option from the "Configuration" dropdown and press F5.
 * Shake the device to open the development menu and select "Debug JS Remotely".
 
 ## Customs scheme for iOS apps
 
-If you want to use custom scheme for your application you can either pass it as part of `runArguments` parameter arguments or set `scheme` configuration parameter as shown below:
+If you want to use a custom scheme for your application you can either pass it as part of the `runArguments` parameter arguments, or set the `scheme` configuration parameter as shown below:
 ```js
 "runArguments": ["--scheme", "customScheme", ...]
 // or
@@ -143,7 +143,7 @@ If you want to use custom scheme for your application you can either pass it as 
 // or
 "scheme" : "customScheme"
 ```
-Please be aware, specifying scheme value as a part of `runArguments` parameter arguments will override `scheme` configuration parameter value if it set.
+Please be aware, specifying the scheme value as a part of the `runArguments` parameter arguments will override the `scheme` configuration parameter value, if it set.
 
 ## TypeScript and Haul
 
@@ -178,8 +178,8 @@ To start debugging in Expo follow these steps:
 1. Open your project in VS Code with this extension installed.
 1. Create a debug configuration (as described in [Debugging React Native applications](#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
 1. Wait while some dependencies are configured - the extension will install `xde` and `@expo/ngrok` when this feature is used for the first time.
-1. If you have not used exponent on this system before, you will be prompted for an exponent username and password.
-   If you have not created an exponent account, then specifying a new username and password will create one.
+1. If you have not used Exponent on this system before, you will be prompted for an Exponent username and password.
+   If you have not created an Exponent account, then specifying a new username and password will create one.
    Note that there is no e-mail associated with the account, and no way to recover a forgotten password.
 1. Once the packager starts, the extension will open a separate tab with QR code to scan from the Exponent app. Once you do so, the Exponent app will connect to the packager and begin running your app.
 1. Once the app is loaded and running, [open the developer menu](https://reactnative.dev/docs/debugging#accessing-the-in-app-developer-menu) and enable remote debugging by clicking on `Debug JS Remotely` button.
@@ -206,9 +206,9 @@ If you are running `Debug in Exponent` configuration or any of pallette commands
 }
 ```
 
-Full list of configurational parameters for `expo` section in `app.json` may be found on [official Expo documentation page](https://docs.expo.io/versions/latest/workflow/configuration).
+Full list of configuration parameters for `expo` section in `app.json` may be found on [official Expo documentation page](https://docs.expo.io/versions/latest/workflow/configuration).
 
-For running **pure React Native app**, extension, also, creates and uses `.vscode/exponentIndex.js` which is point to the app entrypoint (`index.js` or `index.android.js` or `index.ios.js`) file.
+For running **pure React Native app**, the extension, creates and uses `.vscode/exponentIndex.js` which points to the app entrypoint (`index.js` or `index.android.js` or `index.ios.js`) file.
 
 If you want to change your app entrypoint (for example, from `index.js` to `index.android.js`), delete `.vscode/exponentIndex.js` and then restart your debugging session.
 
@@ -266,11 +266,11 @@ The following is a list of all the configuration properties the debugger accepts
 |`envFile`|Absolute path to a file containing environment variable definitions|`string`|`${workspaceFolder}/.env`|
 |`variant`|A variant to be passed to `react-native run-android`, e.g. use `devDebug` to specify `--variant=devDebug`|`string`|n/a|
 |`scheme`|A scheme name to be passed to `react-native run-ios`, e.g. `devDebug` to specify `--scheme=devDebug`|`string`|n/a|
-|`productName`|iOS bundle display name e.g. `AwesomeProject` value means that extension will search for `AwesomeProject.app` bundle|`string`|n/a|
+|`productName`|iOS bundle display name e.g. `AwesomeProject` value means that the extension will search for `AwesomeProject.app` bundle|`string`|n/a|
 
 # Customization
 
-The extension can be further customized for other React Native scenarios, these are the most common ones:
+The extension can be further customized for other React Native scenarios. These are the most common:
 
 ## Logging
 
@@ -340,13 +340,13 @@ Place it in the `.vscode` folder in your project to use it:
 }
 ```
 
-To lear more about `tasks` in VSCode read [the official documentation](https://code.visualstudio.com/docs/editor/tasks).
+To learn more about `tasks` in VSCode read [the official documentation](https://code.visualstudio.com/docs/editor/tasks).
 
-Visit [generating Signed APK](https://reactnative.dev/docs/signed-apk-android.html) to know more about this subject.
+Visit [generating Signed APK](https://reactnative.dev/docs/signed-apk-android.html) to learn more about this subject.
 
 ## Specifying custom arguments for `react-native run-*` command
 
-For using custom run arguments for `react-native run-<platform>`:
+Using custom run arguments for `react-native run-<platform>`:
 **NOTE:** This overrides all other configuration parameters.
 
 ```json
@@ -358,7 +358,7 @@ For using custom run arguments for `react-native run-<platform>`:
 
 **NOTE:** You can get the list of installed simulator devices by:
 
-iOS devices(MacOS only):
+iOS devices (macOS only):
 
 ```
 xcrun simctl list --json devices
@@ -370,7 +370,7 @@ Android devices:
 adb devices
 ```
 
-**NOTE:** If you want run application on iOS devices make sure you have `ios-deploy` installed globally.
+**NOTE:** If you want to run the application on an iOS device, make sure you have `ios-deploy` installed globally.
 
 ```npm install -g ios-deploy```
 
@@ -388,14 +388,14 @@ To use a custom port for the `react-native` packager:
 }
 ```
 
-If you change this port, then for iOS device and simulator scenarios you will have to modify the native code files. Instruction [here](https://blog.binoy.io/running-react-native-on-a-different-port-7deb43887cd4).
+If you change this port, then for iOS device and simulator scenarios you will have to modify the native code files. [Instructions here](https://blog.binoy.io/running-react-native-on-a-different-port-7deb43887cd4).
 
-If you use android, you need to change debug server by:
+If you use Android, you need to change the debug server by:
 
 1. CTRL+M(CMD+M) in the emulator
 2. Go to Dev Settings
 3. Debug server host for device => enter ‘localhost:\<yourPortNumber\>’.
-4. Reload application (double R)
+4. Reload application (press `R` twice)
 
 **NOTE:** Some aspects of React Native hard-code the port to the default as specified in [this issue](https://github.com/facebook/react-native/issues/9145).
 
@@ -414,11 +414,11 @@ To specify a subfolder in which the react-native project is located, set `react-
 
 # Developing inside a Docker Container
 
-The extension supports [VS Code Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) features on Linux. Please follow the [VS Code official documentation](https://code.visualstudio.com/docs/remote/containers) to setup your environment to use remote development approach.
+The extension supports [VS Code Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) features on Linux. Please follow the [VS Code official documentation](https://code.visualstudio.com/docs/remote/containers) to setup your environment to use a remote development approach.
 
-You can use [official React Native Docker image](https://hub.docker.com/r/reactnativecommunity/react-native-android) provided by [react-native-community](https://github.com/react-native-community/docker-android).
+You can use [official React Native Docker image](https://hub.docker.com/r/reactnativecommunity/react-native-android) provided by the [react-native-community](https://github.com/react-native-community/docker-android).
 
-Here are the steps to run React Native debugging inside Docker Container on a real Android device:
+Here are the steps to run React Native debugging inside a Docker Container on a real Android device:
 
 1. Open Command Palette and run the following command
     ```
@@ -432,7 +432,7 @@ Here are the steps to run React Native debugging inside Docker Container on a re
     RUN npm install -g expo-cli react-native-cli
     ```
 
-1. Configure your `devcontainer.json` file just about like this: <br> **NOTE**: This is just a sample of configuration, you can modify your `devcontainer.json` file as you need.
+1. Configure your `devcontainer.json` file as needed. Below is an sample configuration:
     ```json
     {
         "name": "React Native Android Container",
@@ -462,14 +462,14 @@ Here are the steps to run React Native debugging inside Docker Container on a re
     }
     ```
 
-1. Open Command Palette and run the following command `Remote-Containers: Open Folder in Container` to reopen your project in container
-1. Connect your device via USB and start debugging the same way as on local machine
+1. Open Command Palette and run the following command `Remote-Containers: Open Folder in Container` to reopen your project in a container
+1. Connect your device via USB and start debugging the same way as on local machine.
 
 Currently the above scenario doesn't work on macOS and Windows. Docker Container implementation on these OS uses Virtual Machine tools which may have problems with USB forwarding for mobile devices.
 
 # Contributing
 
-Please see our [contributing guide](CONTRIBUTING.md) for more information
+Please see our [contributing guide](CONTRIBUTING.md) for more information.
 
 # Known Issues
 
