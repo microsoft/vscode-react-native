@@ -24,6 +24,15 @@ import { LogLevel } from "../extension/log/LogHelper";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
+enum DebugSessionStatus {
+    FirstConnection,
+    FirstConnectionPending,
+    ConnectionAllowed,
+    ConnectionPending,
+    ConnectionDone,
+    ConnectionFailed,
+}
+
 export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments, ILaunchArgs {
     cwd: string; /* Automatically set by VS Code to the currently opened folder */
     port: number;
@@ -38,6 +47,8 @@ export class RNDebugSession extends LoggingDebugSession {
 
     private readonly cdpProxyPort: number;
     private readonly cdpProxyHostAddress: string;
+    private readonly terminateCommand: string;
+    private readonly pwaNodeSessionName: string;
 
     private appLauncher: AppLauncher;
     private appWorker: MultipleLifetimesAppWorker | null;
@@ -46,14 +57,31 @@ export class RNDebugSession extends LoggingDebugSession {
     private previousAttachArgs: IAttachRequestArgs;
     private rnCdpProxy: ReactNativeCDPProxy | null;
     private cdpProxyLogLevel: LogLevel;
+    private nodeSession: vscode.DebugSession | null;
+    private debugSessionStatus: DebugSessionStatus;
 
     constructor(private session: vscode.DebugSession) {
         super();
+
+        // constants definition
+        this.cdpProxyPort = generateRandomPortNumber();
+        this.cdpProxyHostAddress = "127.0.0.1"; // localhost
+        this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
+        this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
+
+        // variables definition
         this.isSettingsInitialized = false;
         this.appWorker = null;
         this.rnCdpProxy = null;
-        this.cdpProxyPort = generateRandomPortNumber();
-        this.cdpProxyHostAddress = "127.0.0.1";
+        this.debugSessionStatus = DebugSessionStatus.FirstConnection;
+
+        vscode.debug.onDidStartDebugSession(
+            this.handleStartDebugSession.bind(this)
+        );
+
+        vscode.debug.onDidTerminateDebugSession(
+            this.handleTerminateDebugSession.bind(this)
+        );
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
@@ -103,7 +131,11 @@ export class RNDebugSession extends LoggingDebugSession {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            this.rnCdpProxy = new ReactNativeCDPProxy(this.cdpProxyHostAddress, this.cdpProxyPort, this.cdpProxyLogLevel);
+                            this.rnCdpProxy = new ReactNativeCDPProxy(
+                                this.cdpProxyHostAddress,
+                                this.cdpProxyPort,
+                                this.cdpProxyLogLevel
+                            );
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                             return this.rnCdpProxy.createServer()
                                 .then(() => {
@@ -128,33 +160,20 @@ export class RNDebugSession extends LoggingDebugSession {
 
                                         if (this.rnCdpProxy) {
                                             this.rnCdpProxy.setApplicationTargetPort(port);
+                                        }
 
-                                            const attachArguments = {
-                                                type: "pwa-node",
-                                                request: "attach",
-                                                name: "Attach",
-                                                continueOnAttach: true,
-                                                port: this.cdpProxyPort,
-                                                smartStep: false,
-                                            };
+                                        if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
+                                            return;
+                                        }
 
-                                            vscode.debug.startDebugging(
-                                                this.appLauncher.getWorkspaceFolder(),
-                                                attachArguments,
-                                                this.session
-                                            )
-                                            .then((childDebugSessionStarted: boolean) => {
-                                                if (childDebugSessionStarted) {
-                                                    resolve();
-                                                } else {
-                                                    reject(new Error("Cannot start child debug session"));
-                                                }
-                                            },
-                                            err => {
-                                                reject(err);
-                                            });
-                                        } else {
-                                            throw new Error("Cannot connect to debugger worker: Chrome debugger proxy is offline");
+                                        if (this.debugSessionStatus === DebugSessionStatus.FirstConnection) {
+                                            this.debugSessionStatus = DebugSessionStatus.FirstConnectionPending;
+                                            this.establishDebugSession(resolve);
+                                        } else if (this.debugSessionStatus === DebugSessionStatus.ConnectionAllowed) {
+                                            if (this.nodeSession) {
+                                                this.debugSessionStatus = DebugSessionStatus.ConnectionPending;
+                                                this.nodeSession.customRequest(this.terminateCommand);
+                                            }
                                         }
                                     });
                                     return this.appWorker.start();
@@ -189,7 +208,54 @@ export class RNDebugSession extends LoggingDebugSession {
         }
 
         super.disconnectRequest(response, args, request);
-   }
+    }
+
+    private establishDebugSession(resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
+        if (this.rnCdpProxy) {
+            const attachArguments = {
+                type: "pwa-node",
+                request: "attach",
+                name: "Attach",
+                continueOnAttach: true,
+                port: this.cdpProxyPort,
+                smartStep: false,
+                // The unique identifier of the debug session. It is used to distinguish React Native extension's
+                // debug sessions from other ones. So we can save and process only the extension's debug sessions
+                // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
+                rnDebugSessionId: this.session.id,
+            };
+
+            vscode.debug.startDebugging(
+                this.appLauncher.getWorkspaceFolder(),
+                attachArguments,
+                this.session
+            )
+            .then((childDebugSessionStarted: boolean) => {
+                if (childDebugSessionStarted) {
+                    this.debugSessionStatus = DebugSessionStatus.ConnectionDone;
+                    this.setConnectionAllowedIfPossible();
+                    if (resolve) {
+                        this.debugSessionStatus = DebugSessionStatus.ConnectionAllowed;
+                        resolve();
+                    }
+                } else {
+                    this.debugSessionStatus = DebugSessionStatus.ConnectionFailed;
+                    this.setConnectionAllowedIfPossible();
+                    this.resetFirstConnectionStatus();
+                    throw new Error("Cannot start child debug session");
+                }
+            },
+            err => {
+                this.debugSessionStatus = DebugSessionStatus.ConnectionFailed;
+                this.setConnectionAllowedIfPossible();
+                this.resetFirstConnectionStatus();
+                throw err;
+            });
+        } else {
+            this.resetFirstConnectionStatus();
+            throw new Error("Cannot connect to debugger worker: Chrome debugger proxy is offline");
+        }
+    }
 
     private initializeSettings(args: any): Q.Promise<any> {
         if (!this.isSettingsInitialized) {
@@ -225,6 +291,40 @@ export class RNDebugSession extends LoggingDebugSession {
                 });
         } else {
             return Q.resolve<void>(void 0);
+        }
+    }
+
+    private handleStartDebugSession(debugSession: vscode.DebugSession) {
+        if (
+            debugSession.configuration.rnDebugSessionId === this.session.id
+            && debugSession.type === this.pwaNodeSessionName
+        ) {
+            this.nodeSession = debugSession;
+        }
+    }
+
+    private handleTerminateDebugSession(debugSession: vscode.DebugSession) {
+        if (
+            debugSession.configuration.rnDebugSessionId === this.session.id
+            && this.debugSessionStatus === DebugSessionStatus.ConnectionPending
+            && debugSession.type === this.pwaNodeSessionName
+        ) {
+            this.establishDebugSession();
+        }
+    }
+
+    private setConnectionAllowedIfPossible(): void {
+        if (
+            this.debugSessionStatus === DebugSessionStatus.ConnectionDone
+            || this.debugSessionStatus === DebugSessionStatus.ConnectionFailed
+        ) {
+            this.debugSessionStatus = DebugSessionStatus.ConnectionAllowed;
+        }
+    }
+
+    private resetFirstConnectionStatus(): void {
+        if (this.debugSessionStatus === DebugSessionStatus.FirstConnectionPending) {
+            this.debugSessionStatus = DebugSessionStatus.FirstConnection;
         }
     }
 }

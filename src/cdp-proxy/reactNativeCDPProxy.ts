@@ -80,7 +80,7 @@ export class ReactNativeCDPProxy {
         this.applicationTarget.onReply(this.handleApplicationTargetReply.bind(this));
         this.debuggerTarget.onReply(this.handleDebuggerTargetReply.bind(this));
 
-        this.applicationTarget.onEnd(this.onApplicationTargetClosed.bind(this));
+        this.debuggerTarget.onEnd(this.onDebuggerTargetClosed.bind(this));
 
         // dequeue any messages we got in the meantime
         this.debuggerTarget.unpause();
@@ -133,8 +133,7 @@ export class ReactNativeCDPProxy {
         this.logger.error("Error on application transport", err);
     }
 
-    private async onApplicationTargetClosed() {
+    private async onDebuggerTargetClosed() {
         this.firstStop = true;
-        await this.debuggerTarget.close();
     }
 }
