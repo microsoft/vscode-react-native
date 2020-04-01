@@ -29,12 +29,12 @@ export class AppiumHelper {
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Reload JS Bundle']",
         },
         RN_ENABLE_REMOTE_DEBUGGING_BUTTON: {
-            [Platform.Android]:  "//*[@text='Debug JS Remotely' or @text='Debug']",
+            [Platform.Android]:  "//*[@text='Debug JS Remotely' or @text='Debug' or @text='Debug Remote JS']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely' or @name='Debug']",
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Debug Remote JS']",
         },
         RN_STOP_REMOTE_DEBUGGING_BUTTON: {
-            [Platform.Android]: "//*[@text='Stop Remote JS Debugging' or @text='Stop Debugging']",
+            [Platform.Android]: "//*[@text='Stop Remote JS Debugging' or @text='Stop Debugging' or @text='Stop Remote Debugging']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Stop Remote JS Debugging' or @name='Stop Debugging']",
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Stop Remote JS Debugging']",
         },
