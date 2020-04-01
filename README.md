@@ -147,12 +147,12 @@ Please be aware, specifying the scheme value as a part of the `runArguments` par
 
 ## Expo applications
 
-To debug a project created using Expo or the create-react-native-app task, you can use embedded support for Expo.
+To debug a project created using Expo or the `create-react-native-app` task, you can use embedded support for Expo.
 
 Your environment must meet the following prerequisites:
 
 - Install the [Expo app](https://getexponent.com/) on the target device or emulator
-- Ensure that the react-native-cli is installed globally (`npm install -g react-native-cli`)
+- Ensure that the `react-native-cli` is installed globally (`npm install -g react-native-cli`)
 
 To start debugging in Expo follow these steps:
 
@@ -160,8 +160,10 @@ To start debugging in Expo follow these steps:
 1. Create a debug configuration (as described in [Debugging React Native applications](#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
 1. Wait while some dependencies are configured - the extension will install `xde` and `@expo/ngrok` when this feature is used for the first time.
 1. If you have not used Exponent on this system before, you will be prompted for an Exponent username and password.
+   Exponent account allows you to use Expo cloud services. More info about how it works is available [here](https://docs.expo.io/versions/latest/workflow/how-expo-works/).
    If you have not created an Exponent account, then specifying a new username and password will create one.
    Note that there is no e-mail associated with the account, and no way to recover a forgotten password.
+   If you don't want to create an Exponent account, you can specify `expoHostType` parameter in your debug configuration to make Expo work locally (via LAN or on localhost).
 1. Once the packager starts, the extension will open a separate tab with QR code to scan from the Exponent app. Once you do so, the Exponent app will connect to the packager and begin running your app.
 1. Once the app is loaded and running, [open the developer menu](https://reactnative.dev/docs/debugging#accessing-the-in-app-developer-menu) and enable remote debugging by clicking on `Debug JS Remotely` button.
 
@@ -435,7 +437,7 @@ Here are the steps to run React Native debugging inside a Docker Container on a 
     RUN npm install -g expo-cli react-native-cli
     ```
 
-1. Configure your `devcontainer.json` file as needed. Below is an sample configuration:
+1. Configure your `devcontainer.json` file as needed. Below is a sample configuration:
     ```json
     {
         "name": "React Native Android Container",
