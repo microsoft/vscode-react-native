@@ -98,7 +98,7 @@ export function setup(testParameters?: TestRunArguments) {
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
 
             await AppiumHelper.disableExpoErrorRedBox(clientInited);
-            await AppiumHelper.disableDevMenuInformationalMsg(clientInited);
+            await AppiumHelper.disableDevMenuInformationalMsg(clientInited, Platform.iOS_Expo);
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS_Expo);
             await sleep(5 * 1000);
 
