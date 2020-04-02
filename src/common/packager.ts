@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import {IRunOptions} from "./../extension/launchArgs";
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
 import {ExponentHelper} from "../extension/exponent/exponentHelper";
@@ -15,6 +16,7 @@ import {ProjectVersionHelper} from "./projectVersionHelper";
 import {PackagerStatusIndicator, PackagerStatus} from "../extension/packagerStatusIndicator";
 import {SettingsHelper} from "../extension/settingsHelper";
 import * as Q from "q";
+import * as fs from "fs";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
@@ -45,6 +47,7 @@ export class Packager {
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
     private static fs: FileSystem = new Node.FileSystem();
     private expoHelper: ExponentHelper;
+    private runOptions: IRunOptions;
 
     constructor(private workspacePath: string, private projectPath: string, private packagerPort?: number, packagerStatusIndicator?: PackagerStatusIndicator) {
         this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
@@ -54,6 +57,10 @@ export class Packager {
 
     public get port(): number {
         return this.packagerPort || SettingsHelper.getPackagerPort(this.workspacePath);
+    }
+
+    public setRunOptions(runOptions: IRunOptions) {
+        this.runOptions = runOptions;
     }
 
     public static getHostForPort(port: number): string {
@@ -136,7 +143,12 @@ export class Packager {
                 //  This bug will be fixed in 0.41
                 const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
 
-                let reactEnv = Object.assign({}, process.env, {
+                let env = process.env;
+                if (this.runOptions) {
+                    env = this.getEnvArgument();
+                }
+
+                let reactEnv = Object.assign({}, env, {
                     REACT_DEBUGGER: "echo A debugger is not needed: ",
                     REACT_EDITOR: failedRNVersions.indexOf(rnVersion) < 0 ? "code" : this.openFileAtLocationCommand(),
                 });
@@ -144,6 +156,7 @@ export class Packager {
                 this.logger.info(localize("StartingPackager", "Starting Packager"));
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
+
 
                 let spawnOptions = { env: reactEnv };
 
@@ -169,6 +182,45 @@ export class Packager {
                 }
             }
         });
+    }
+
+    public getEnvArgument(): any {
+        let args = this.runOptions;
+        let env = process.env;
+
+        if (args.envFile) {
+            let buffer = fs.readFileSync(args.envFile, "utf8");
+
+            // Strip BOM
+            if (buffer && buffer[0] === "\uFEFF") {
+                buffer = buffer.substr(1);
+            }
+
+            buffer.split("\n").forEach((line: string) => {
+                const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
+                if (r !== null) {
+                    const key = r[1];
+                    if (!env[key]) {	// .env variables never overwrite existing variables
+                        let value = r[2] || "";
+                        if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
+                            value = value.replace(/\\n/gm, "\n");
+                        }
+                        env[key] = value.replace(/(^['"]|['"]$)/g, "");
+                    }
+                }
+            });
+        }
+
+        if (args.env) {
+            // launch config env vars overwrite .env vars
+            for (let key in args.env) {
+                if (args.env.hasOwnProperty(key)) {
+                    env[key] = args.env[key];
+                }
+            }
+        }
+
+        return env;
     }
 
     public stop(silent: boolean = false): Q.Promise<void> {
