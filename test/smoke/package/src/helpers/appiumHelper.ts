@@ -288,13 +288,13 @@ export class AppiumHelper {
         console.log(`*** Opening Expo app via Project URL`);
         console.log(`*** Pressing "Add" button...`);
 
-        const EXPO_ADD_BUTTON = `(//XCUIElementTypeOther[@name=""])[2]`;
+        const EXOP_PROJECTS_PAGE = "(//XCUIElementTypeOther[@name='CLIPBOARD Press ⌘+v to move clipboard to simulator. RECENTLY IN DEVELOPMENT HELP Sign in to your Expo account to see the projects you have recently been working on. RECENTLY OPENED CLEAR You haven't opened any projects recently. Device ID: bbcb-0dc2 Client version: 2.15.3.10122 Supported SDKs: 34, 35, 36, 37 Projects '])[3]";
         const FIND_A_PROJECT_ELEMENT = `//XCUIElementTypeTextField`;
         const OPEN_BUTTON = `//XCUIElementTypeButton[@name="Open"]`;
 
         await client
-            .waitForExist(EXPO_ADD_BUTTON, 30 * 1000)
-            .click(EXPO_ADD_BUTTON);
+            .waitForExist(EXOP_PROJECTS_PAGE, 30 * 1000)
+            .leftClick(EXOP_PROJECTS_PAGE, 365, 45);
 
         console.log(`*** Pasting ${expoURL} to search field...`);
         // Run Expo app by expoURL
