@@ -288,7 +288,7 @@ export class AppiumHelper {
         console.log(`*** Opening Expo app via Project URL`);
         console.log(`*** Pressing "Add" button...`);
 
-        const EXOP_PROJECTS_PAGE = "(//XCUIElementTypeOther[@name='CLIPBOARD Press ⌘+v to move clipboard to simulator. RECENTLY IN DEVELOPMENT HELP Sign in to your Expo account to see the projects you have recently been working on. RECENTLY OPENED CLEAR You haven't opened any projects recently. Device ID: bbcb-0dc2 Client version: 2.15.3.10122 Supported SDKs: 34, 35, 36, 37 Projects '])[3]";
+        const EXOP_PROJECTS_PAGE = "(//XCUIElementTypeOther[@name=\"CLIPBOARD Press ⌘+v to move clipboard to simulator. RECENTLY IN DEVELOPMENT HELP Sign in to your Expo account to see the projects you have recently been working on. RECENTLY OPENED CLEAR You haven't opened any projects recently. Device ID: bbcb-0dc2 Client version: 2.15.3.10122 Supported SDKs: 34, 35, 36, 37 Projects \"])[3]";
         const FIND_A_PROJECT_ELEMENT = `//XCUIElementTypeTextField`;
         const OPEN_BUTTON = `//XCUIElementTypeButton[@name="Open"]`;
 
