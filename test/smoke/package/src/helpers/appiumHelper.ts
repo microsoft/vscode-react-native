@@ -293,8 +293,8 @@ export class AppiumHelper {
         const OPEN_BUTTON = `//XCUIElementTypeButton[@name="Open"]`;
 
         await client
-            .waitForExist(EXOP_PROJECTS_PAGE, 30 * 1000)
-            .leftClick(EXOP_PROJECTS_PAGE, 365, 45);
+            .waitForExist(EXPO_PROJECTS_PAGE, 30 * 1000)
+            .leftClick(EXPO_PROJECTS_PAGE, 365, 45);
 
         console.log(`*** Pasting ${expoURL} to search field...`);
         // Run Expo app by expoURL
