@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+
 import * as assert from "assert";
 import { GeneralMobilePlatform } from "../../src/extension/generalMobilePlatform";
+import * as fs from "fs";
 
 suite("generalMobilePlatform", function () {
     suite("extensionContext", function () {
@@ -27,6 +29,39 @@ suite("generalMobilePlatform", function () {
                 assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "--param2"), "value2");
                 assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "param3", false), "value3");
                 assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "param4", false), undefined);
+            });
+        });
+
+        suite("getEnvArgument", function() {
+            let origEnv: any = {"test1": "origEnv", "test2": "origEnv", "test3": "origEnv"};
+            let env: any = {"test2": "env", "test3": "env", "test4": "env"};
+            let envForFile: string = "test3=envFile\ntest4=envFile\ntest5=envFile";
+            let envFile: string = ".env";
+
+            setup(() => {
+                fs.writeFileSync(envFile, envForFile);
+            });
+
+            teardown(() => {
+                fs.unlinkSync(envFile);
+            });
+
+            test("args from envFile should not overwrite existing variables", function() {
+                assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, null, envFile), {
+                    "test1": "origEnv",
+                     "test2": "origEnv",
+                      "test3": "origEnv",
+                       "test4": "envFile",
+                        "test5": "envFile"});
+            });
+
+            test("args from envFile and original args should be overwrited by env args", function() {
+                assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, env, envFile), {
+                    "test1": "origEnv",
+                     "test2": "env",
+                      "test3": "env",
+                       "test4": "env",
+                        "test5": "envFile"});
             });
         });
     });

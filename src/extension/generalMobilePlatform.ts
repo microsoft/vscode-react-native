@@ -133,12 +133,11 @@ export class GeneralMobilePlatform {
         throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArguments");
     }
 
-    public getEnvArgument(): any {
-        let args = this.runOptions;
-        let env = process.env;
+    public static getEnvArgument(processEnv: any, env?: any, envFile?: string): any {
+        let modifyEnv = processEnv;
 
-        if (args.envFile) {
-            let buffer = fs.readFileSync(args.envFile, "utf8");
+        if (envFile) {
+            let buffer = fs.readFileSync(envFile, "utf8");
 
             // Strip BOM
             if (buffer && buffer[0] === "\uFEFF") {
@@ -149,26 +148,26 @@ export class GeneralMobilePlatform {
                 const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
                 if (r !== null) {
                     const key = r[1];
-                    if (!env[key]) {	// .env variables never overwrite existing variables
+                    if (!modifyEnv[key]) {	// .env variables never overwrite existing variables
                         let value = r[2] || "";
                         if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
                             value = value.replace(/\\n/gm, "\n");
                         }
-                        env[key] = value.replace(/(^['"]|['"]$)/g, "");
+                        modifyEnv[key] = value.replace(/(^['"]|['"]$)/g, "");
                     }
                 }
             });
         }
 
-        if (args.env) {
+        if (env) {
             // launch config env vars overwrite .env vars
-            for (let key in args.env) {
-                if (args.env.hasOwnProperty(key)) {
-                    env[key] = args.env[key];
+            for (let key in env) {
+                if (env.hasOwnProperty(key)) {
+                    modifyEnv[key] = env[key];
                 }
             }
         }
 
-        return env;
+        return modifyEnv;
     }
 }

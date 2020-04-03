@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {IRunOptions} from "./../extension/launchArgs";
+import {GeneralMobilePlatform} from "./../extension/generalMobilePlatform";
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
 import {ExponentHelper} from "../extension/exponent/exponentHelper";
@@ -16,7 +17,6 @@ import {ProjectVersionHelper} from "./projectVersionHelper";
 import {PackagerStatusIndicator, PackagerStatus} from "../extension/packagerStatusIndicator";
 import {SettingsHelper} from "../extension/settingsHelper";
 import * as Q from "q";
-import * as fs from "fs";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
@@ -145,7 +145,7 @@ export class Packager {
 
                 let env = process.env;
                 if (this.runOptions) {
-                    env = this.getEnvArgument();
+                    env =  GeneralMobilePlatform.getEnvArgument(env, this.runOptions.env, this.runOptions.envFile);
                 }
 
                 let reactEnv = Object.assign({}, env, {
@@ -182,45 +182,6 @@ export class Packager {
                 }
             }
         });
-    }
-
-    public getEnvArgument(): any {
-        let args = this.runOptions;
-        let env = process.env;
-
-        if (args.envFile) {
-            let buffer = fs.readFileSync(args.envFile, "utf8");
-
-            // Strip BOM
-            if (buffer && buffer[0] === "\uFEFF") {
-                buffer = buffer.substr(1);
-            }
-
-            buffer.split("\n").forEach((line: string) => {
-                const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
-                if (r !== null) {
-                    const key = r[1];
-                    if (!env[key]) {	// .env variables never overwrite existing variables
-                        let value = r[2] || "";
-                        if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
-                            value = value.replace(/\\n/gm, "\n");
-                        }
-                        env[key] = value.replace(/(^['"]|['"]$)/g, "");
-                    }
-                }
-            });
-        }
-
-        if (args.env) {
-            // launch config env vars overwrite .env vars
-            for (let key in args.env) {
-                if (args.env.hasOwnProperty(key)) {
-                    env[key] = args.env[key];
-                }
-            }
-        }
-
-        return env;
     }
 
     public stop(silent: boolean = false): Q.Promise<void> {
