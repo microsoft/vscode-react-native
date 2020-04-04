@@ -133,7 +133,7 @@ export class AppiumHelper {
         return wdio.remote(attachArgs);
     }
 
-    public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string, projectFolder: string) {
+    public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string, projectFolder: string, firstLaunch?: boolean) {
         // There are two ways to run app in Expo app:
         // - via clipboard
         // - via expo android command
@@ -148,9 +148,8 @@ export class AppiumHelper {
                 return this.openExpoAppViaClipboardAndroid(client, expoURL);
             }
         } else if (platform === Platform.iOS) {
-            // Similar to openExpoAppViaClipboardAndroid approach
-            // but uses different XPath selectors
-            return this.openExpoAppViaProjectURL(client, expoURL);
+            // Launch Expo using "expo ios" command
+            return this.openExpoAppViaExpoIosCommand(client, projectFolder, firstLaunch);
         } else {
             throw new Error(`Unknown platform ${platform}`);
         }
@@ -284,35 +283,6 @@ export class AppiumHelper {
         console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
-    private static async openExpoAppViaProjectURL(client: AppiumClient, expoURL: string) {
-        console.log(`*** Opening Expo app via Project URL`);
-        console.log(`*** Pressing "Add" button...`);
-
-        const EXPO_PROJECTS_PAGE = `//XCUIElementTypeApplication[@name="Expo"]/XCUIElementTypeWindow[1]/XCUIElementTypeOther/XCUIElementTypeOther`;
-        const FIND_A_PROJECT_ELEMENT = `//XCUIElementTypeTextField`;
-        const OPEN_BUTTON = `//XCUIElementTypeButton[@name="Open"]`;
-
-        await sleep(5 * 1000);
-        await client
-            .waitForExist(EXPO_PROJECTS_PAGE, 30 * 1000)
-            .leftClick(EXPO_PROJECTS_PAGE, 365, 45);
-
-        console.log(`*** Pasting ${expoURL} to search field...`);
-        // Run Expo app by expoURL
-        await client
-            .waitForExist(FIND_A_PROJECT_ELEMENT, 30 * 1000)
-            .click(FIND_A_PROJECT_ELEMENT);
-
-        await sleep(5 * 1000);
-        client.keys(expoURL);
-        await sleep(2 * 1000);
-
-        console.log(`*** Clicking on Open button to run the app`);
-        await client
-            .waitForExist(OPEN_BUTTON, 30 * 1000)
-            .click(OPEN_BUTTON);
-    }
-
     private static async openExpoAppViaExpoAndroidCommand(client: AppiumClient, projectFolder: string) {
         console.log(`*** Opening Expo app via "expo android" command`);
         console.log(`*** Searching for the "Explore" button...`);
@@ -321,5 +291,26 @@ export class AppiumHelper {
             .waitForExist(EXPLORE_ELEMENT, 30 * 1000);
 
         cp.execSync("expo android", { cwd: projectFolder, stdio: "inherit" });
+    }
+
+    private static async openExpoAppViaExpoIosCommand(client: AppiumClient, projectFolder: string, firstLaunch?: boolean) {
+        console.log(`*** Opening Expo app via "expo ios" command`);
+        console.log(`*** Searching for the "Explore" button...`);
+        const EXPLORE_ELEMENT = `//XCUIElementTypeButton[@name="Explore, tab, 2 of 4"]`;
+        await client
+            .waitForExist(EXPLORE_ELEMENT, 30 * 1000);
+
+        cp.execSync("expo ios", { cwd: projectFolder, stdio: "inherit" });
+
+        if (firstLaunch) {
+            console.log(`*** First launch of Expo app`);
+            console.log(`*** Pressing "Open" button...`);
+
+            const OPEN_BUTTON = `//XCUIElementTypeButton[@name="Open"]`;
+
+            await client
+                .waitForExist(OPEN_BUTTON, 10 * 1000)
+                .leftClick(OPEN_BUTTON, 365, 45);
+        }
     }
 }
