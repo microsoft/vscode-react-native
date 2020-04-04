@@ -296,13 +296,14 @@ export class AppiumHelper {
     private static async openExpoAppViaExpoIosCommand(client: AppiumClient, projectFolder: string, firstLaunch?: boolean) {
         console.log(`*** Opening Expo app via "expo ios" command`);
         console.log(`*** Searching for the "Explore" button...`);
+
         const EXPLORE_ELEMENT = `//XCUIElementTypeButton[@name="Explore, tab, 2 of 4"]`;
         await client
             .waitForExist(EXPLORE_ELEMENT, 30 * 1000);
 
         cp.execSync("expo ios", { cwd: projectFolder, stdio: "inherit" });
 
-        if (firstLaunch) {
+        if (firstLaunch) { // it's required to allow launch of an Expo application when it's launched for the first time
             console.log(`*** First launch of Expo app`);
             console.log(`*** Pressing "Open" button...`);
 
@@ -310,7 +311,7 @@ export class AppiumHelper {
 
             await client
                 .waitForExist(OPEN_BUTTON, 10 * 1000)
-                .leftClick(OPEN_BUTTON, 365, 45);
+                .click(OPEN_BUTTON);
         }
     }
 }
