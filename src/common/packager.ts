@@ -55,7 +55,7 @@ export class Packager {
         this.expoHelper = new ExponentHelper(this.workspacePath, this.projectPath);
     }
 
-    public get port(): number {
+    public getPort(): number {
         return this.packagerPort || SettingsHelper.getPackagerPort(this.workspacePath);
     }
 
@@ -67,11 +67,11 @@ export class Packager {
         return `localhost:${port}`;
     }
 
-    public get statusIndicator(): PackagerStatusIndicator {
+    public getStatusIndicator(): PackagerStatusIndicator {
         return this.packagerStatusIndicator;
     }
     public getHost(): string {
-        return Packager.getHostForPort(this.port);
+        return Packager.getHostForPort(this.getPort());
     }
 
     public getPackagerStatus(): PackagerStatus {
@@ -83,7 +83,7 @@ export class Packager {
     }
 
     public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<string[]> {
-        let args: string[] = ["--port", this.port.toString()];
+        let args: string[] = ["--port", this.getPort().toString()];
 
         if (resetCache) {
             args = args.concat("--resetCache");
@@ -208,8 +208,8 @@ export class Packager {
     }
 
     public restart(port: number): Q.Promise<void> {
-        if (this.port && this.port !== port) {
-            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
+        if (this.getPort() && this.getPort() !== port) {
+            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.getPort()));
         }
 
         return this.isRunning()
