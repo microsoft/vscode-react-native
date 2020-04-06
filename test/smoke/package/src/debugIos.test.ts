@@ -25,6 +25,8 @@ const debugIosTestTime = SmokeTestsConstants.iosAppBuildAndInstallTimeout + 100 
 // Time for iOS Expo Debug Test before it reaches timeout
 const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
 
+let expoFirstLaunch = true;
+
 export function setup(testParameters?: TestRunArguments) {
     describe("Debugging iOS", () => {
         let app: Application;
@@ -93,7 +95,8 @@ export function setup(testParameters?: TestRunArguments) {
             const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
-            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL, workspacePath);
+            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL, workspacePath, expoFirstLaunch);
+            expoFirstLaunch = false;
             console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
 
