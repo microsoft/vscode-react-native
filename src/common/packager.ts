@@ -157,7 +157,6 @@ export class Packager {
                 // The packager will continue running while we debug the application, so we can"t
                 // wait for this command to finish
 
-
                 let spawnOptions = { env: reactEnv };
 
                 const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
