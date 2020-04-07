@@ -95,7 +95,7 @@ export function setup(testParameters?: TestRunArguments) {
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
             // TODO Add listener to trigger that main expo app has been ran
-            await AppiumHelper.openExpoApplication(Platform.Android_Expo, clientInited, expoURL, workspacePath);
+            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL, workspacePath);
             // TODO Add listener to trigger that child expo app has been ran instead of using timeout
             console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);

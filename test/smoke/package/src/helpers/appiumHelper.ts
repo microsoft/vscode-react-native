@@ -171,6 +171,7 @@ export class AppiumHelper {
     public static async callRNDevMenu(client: AppiumClient, platform: Platform) {
         switch (platform) {
             case Platform.Android:
+            case Platform.Android_Expo:
                 console.log("*** Opening DevMenu by calling 'adb shell input keyevent 82'...");
                 const devMenuCallCommand = "adb shell input keyevent 82";
                 cp.exec(devMenuCallCommand);
