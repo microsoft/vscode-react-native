@@ -95,12 +95,12 @@ export function setup(testParameters?: TestRunArguments) {
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
             // TODO Add listener to trigger that main expo app has been ran
-            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL, workspacePath);
+            await AppiumHelper.openExpoApplication(Platform.Android_Expo, clientInited, expoURL, workspacePath);
             // TODO Add listener to trigger that child expo app has been ran instead of using timeout
             console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
-            await AppiumHelper.disableDevMenuInformationalMsg(clientInited, Platform.Android);
-            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
+            await AppiumHelper.disableDevMenuInformationalMsg(clientInited, Platform.Android_Expo);
+            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android_Expo);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log(`${testName}: Debugging started`);
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for App.js and line ${ExpoSetBreakpointOnLine}`);

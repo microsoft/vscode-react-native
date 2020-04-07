@@ -14,6 +14,7 @@ let appiumProcess: null | cp.ChildProcess;
 export type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
 export enum Platform {
     Android,
+    Android_Expo,
     iOS,
     iOS_Expo,
 }
@@ -25,31 +26,37 @@ export class AppiumHelper {
     public static XPATH: XPathSelectors = {
         RN_RELOAD_BUTTON: {
             [Platform.Android]: "//*[@text='Reload']",
+            [Platform.Android_Expo]: "//*[@text='Reload']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Reload']",
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Reload JS Bundle']",
         },
         RN_ENABLE_REMOTE_DEBUGGING_BUTTON: {
-            [Platform.Android]:  "//*[@text='Debug JS Remotely' or @text='Debug' or @text='Debug Remote JS']",
+            [Platform.Android]:  "//*[@text='Debug JS Remotely' or @text='Debug']",
+            [Platform.Android_Expo]: "//*[@text='Debug Remote JS']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely' or @name='Debug']",
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name=' Debug Remote JS']",
         },
         RN_STOP_REMOTE_DEBUGGING_BUTTON: {
-            [Platform.Android]: "//*[@text='Stop Remote JS Debugging' or @text='Stop Debugging' or @text='Stop Remote Debugging']",
+            [Platform.Android]: "//*[@text='Stop Remote JS Debugging' or @text='Stop Debugging']",
+            [Platform.Android_Expo]: "//*[@text='Stop Remote Debugging']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Stop Remote JS Debugging' or @name='Stop Debugging']",
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name=' Stop Remote Debugging']",
         },
         RN_DEV_MENU_CANCEL: {
             [Platform.Android]: "//*[@text='Cancel']",
+            [Platform.Android_Expo]: "//*[@text='Cancel']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Cancel']",
             [Platform.iOS_Expo]: "(//XCUIElementTypeOther[@name='Cancel'])[1]",
         },
         EXPO_ELEMENT_LOAD_TRIGGER: {
-            [Platform.Android]: "//*[@text='Home']",
+            [Platform.Android]: "",
+            [Platform.Android_Expo]: "//*[@text='Home']",
             [Platform.iOS]: "", // todo
             [Platform.iOS_Expo]: "", // todo
         },
         GOT_IT_BUTTON: {
-            [Platform.Android]: "//*[@text='Got it']",
+            [Platform.Android]: "",
+            [Platform.Android_Expo]: "//*[@text='Got it']",
             [Platform.iOS]: "",
             [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Got it']",
         },
