@@ -51,7 +51,7 @@ In the Command Palette, type `React Native` and choose a command.
 
 The **Run Android** command triggers `react-native run-android` and starts your app for Android.
 
-The **Run iOS** command similarly triggers `react-native run-ios` and starts your app in the iOS simulator (iPhone 6).
+The **Run iOS** command similarly triggers `react-native run-ios` and starts your app in the iOS simulator (e.g. iPhone 6).
 
 The **Packager** commands allow you to start/stop the [**Metro Bundler**](https://github.com/facebook/metro-bundler) (formerly React Packager).
 
