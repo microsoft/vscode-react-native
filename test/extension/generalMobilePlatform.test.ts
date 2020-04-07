@@ -33,7 +33,7 @@ suite("generalMobilePlatform", function () {
         });
 
         suite("getEnvArgument", function() {
-            let origEnv: any = {"test1": "origEnv", "test2": "origEnv", "test3": "origEnv"};
+            const origEnv: any = {"test1": "origEnv", "test2": "origEnv", "test3": "origEnv"};
 
             let env: any = {"test2": "env", "test3": "env", "test4": "env"};
 
