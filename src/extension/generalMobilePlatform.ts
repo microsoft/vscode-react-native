@@ -137,26 +137,13 @@ export class GeneralMobilePlatform {
         let modifyEnv = processEnv;
 
         if (envFile) {
-            let buffer = fs.readFileSync(envFile, "utf8");
-
-            // Strip BOM
-            if (buffer && buffer[0] === "\uFEFF") {
-                buffer = buffer.substr(1);
-            }
-
-            buffer.split("\n").forEach((line: string) => {
-                const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
-                if (r !== null) {
-                    const key = r[1];
-                    if (!modifyEnv[key]) {	// .env variables never overwrite existing variables
-                        let value = r[2] || "";
-                        if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
-                            value = value.replace(/\\n/gm, "\n");
-                        }
-                        modifyEnv[key] = value.replace(/(^['"]|['"]$)/g, "");
-                    }
+            // .env variables never overwrite existing variables
+            const argsFromEnvFile = this.readEnvFile(envFile);
+            for (let key in argsFromEnvFile) {
+                if (!modifyEnv[key] && argsFromEnvFile.hasOwnProperty(key)) {
+                    modifyEnv[key] = argsFromEnvFile[key];
                 }
-            });
+            }
         }
 
         if (env) {
@@ -167,7 +154,30 @@ export class GeneralMobilePlatform {
                 }
             }
         }
-
         return modifyEnv;
+    }
+
+    private static readEnvFile(filePath: string): any {
+        let buffer = fs.readFileSync(filePath, "utf8");
+        let result = {};
+
+         // Strip BOM
+        if (buffer && buffer[0] === "\uFEFF") {
+            buffer = buffer.substr(1);
+        }
+
+        buffer.split("\n").forEach((line: string) => {
+            const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
+            if (r !== null) {
+                const key = r[1];
+                let value = r[2] || "";
+                if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
+                    value = value.replace(/\\n/gm, "\n");
+                }
+                result[key] = value.replace(/(^['"]|['"]$)/g, "");
+            }
+        });
+
+        return result;
     }
 }

@@ -146,6 +146,9 @@ export class Packager {
                 let env = process.env;
                 if (this.runOptions) {
                     env =  GeneralMobilePlatform.getEnvArgument(env, this.runOptions.env, this.runOptions.envFile);
+                } else {
+                    const rootEnv = path.join(this.getProjectPath(), ".env");
+                    env =  GeneralMobilePlatform.getEnvArgument(env, null, rootEnv);
                 }
 
                 let reactEnv = Object.assign({}, env, {

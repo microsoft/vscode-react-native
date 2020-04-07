@@ -4,6 +4,7 @@
 import * as assert from "assert";
 import { GeneralMobilePlatform } from "../../src/extension/generalMobilePlatform";
 import * as fs from "fs";
+import * as path from "path";
 
 suite("generalMobilePlatform", function () {
     suite("extensionContext", function () {
@@ -33,9 +34,11 @@ suite("generalMobilePlatform", function () {
 
         suite("getEnvArgument", function() {
             let origEnv: any = {"test1": "origEnv", "test2": "origEnv", "test3": "origEnv"};
+
             let env: any = {"test2": "env", "test3": "env", "test4": "env"};
+
             let envForFile: string = "test3=envFile\ntest4=envFile\ntest5=envFile";
-            let envFile: string = ".env";
+            let envFile: string = path.join(__dirname, "../resources/auxiliaryFiles/.env");
 
             setup(() => {
                 fs.writeFileSync(envFile, envForFile);
@@ -43,6 +46,13 @@ suite("generalMobilePlatform", function () {
 
             teardown(() => {
                 fs.unlinkSync(envFile);
+            });
+
+            test("existing args should not depends from null or undefined env and envFile", function() {
+                assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, undefined, undefined), {
+                    "test1": "origEnv",
+                     "test2": "origEnv",
+                      "test3": "origEnv"});
             });
 
             test("args from envFile should not overwrite existing variables", function() {
