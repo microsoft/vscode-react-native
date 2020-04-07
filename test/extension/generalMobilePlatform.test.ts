@@ -35,7 +35,7 @@ suite("generalMobilePlatform", function () {
         suite("getEnvArgument", function() {
             const origEnv: any = {"test1": "origEnv", "test2": "origEnv", "test3": "origEnv"};
 
-            let env: any = {"test2": "env", "test3": "env", "test4": "env"};
+            const env: any = {"test2": "env", "test3": "env", "test4": "env"};
 
             let envForFile: string = "test3=envFile\ntest4=envFile\ntest5=envFile";
             const envFile: string = path.join(__dirname, "..", "resources", "auxiliaryFiles", ".env");
