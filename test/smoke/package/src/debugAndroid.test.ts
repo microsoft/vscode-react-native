@@ -100,6 +100,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
             await AppiumHelper.disableDevMenuInformationalMsg(clientInited, Platform.Android_Expo);
+            await sleep(2 * 1000);
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android_Expo);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log(`${testName}: Debugging started`);
