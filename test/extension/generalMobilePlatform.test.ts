@@ -38,7 +38,7 @@ suite("generalMobilePlatform", function () {
             let env: any = {"test2": "env", "test3": "env", "test4": "env"};
 
             let envForFile: string = "test3=envFile\ntest4=envFile\ntest5=envFile";
-            let envFile: string = path.join(__dirname, "../resources/auxiliaryFiles/.env");
+            const envFile: string = path.join(__dirname, "..", "resources", "auxiliaryFiles", ".env");
 
             setup(() => {
                 fs.writeFileSync(envFile, envForFile);
