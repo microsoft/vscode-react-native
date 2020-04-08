@@ -411,7 +411,7 @@ Extension supports passing custom environment variables for the React Native Pac
 Variable1_name=Variable1_value
 Variable2_name=Variable2_value
 ```
-Variables that are declared in this .env file can override the original enviroment variables from process.env of the packager.
+Variables that are declared in this `.env` file can override the original environment variables from `process.env` of the Packager process.
 
 ## Change project root
 
