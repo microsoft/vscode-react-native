@@ -404,6 +404,13 @@ If you use Android, you need to change the debug server by:
 
 **NOTE:** Some aspects of React Native hard-code the port to the default as specified in [this issue](https://github.com/facebook/react-native/issues/9145).
 
+Extension supports passing custom enviroment variables for the `react-native` packager process context. To add custom variables you can create .env file in the root folder of your project and add needed environment variables in the following format:
+
+```
+Variable1_name=Variable1_value
+Variable2_name=Variable2_value
+```
+Variables that are declared in this .env file can override the original enviroment variables from process.env of the packager.
 
 ## Change project root
 
