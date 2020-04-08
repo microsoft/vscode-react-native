@@ -134,14 +134,16 @@ export class GeneralMobilePlatform {
     }
 
     public static getEnvArgument(processEnv: any, env?: any, envFile?: string): any {
-        let modifyEnv = processEnv;
+        let modifyEnv = Object.assign({}, processEnv);
 
         if (envFile) {
             // .env variables never overwrite existing variables
             const argsFromEnvFile = this.readEnvFile(envFile);
-            for (let key in argsFromEnvFile) {
-                if (!modifyEnv[key] && argsFromEnvFile.hasOwnProperty(key)) {
-                    modifyEnv[key] = argsFromEnvFile[key];
+            if (argsFromEnvFile != null) {
+                for (let key in argsFromEnvFile) {
+                    if (!modifyEnv[key] && argsFromEnvFile.hasOwnProperty(key)) {
+                        modifyEnv[key] = argsFromEnvFile[key];
+                    }
                 }
             }
         }
@@ -158,26 +160,30 @@ export class GeneralMobilePlatform {
     }
 
     private static readEnvFile(filePath: string): any {
-        let buffer = fs.readFileSync(filePath, "utf8");
-        let result = {};
+        if (fs.existsSync(filePath)) {
+            let buffer = fs.readFileSync(filePath, "utf8");
+            let result = {};
 
-         // Strip BOM
-        if (buffer && buffer[0] === "\uFEFF") {
-            buffer = buffer.substr(1);
-        }
-
-        buffer.split("\n").forEach((line: string) => {
-            const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
-            if (r !== null) {
-                const key = r[1];
-                let value = r[2] || "";
-                if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
-                    value = value.replace(/\\n/gm, "\n");
-                }
-                result[key] = value.replace(/(^['"]|['"]$)/g, "");
+            // Strip BOM
+            if (buffer && buffer[0] === "\uFEFF") {
+                buffer = buffer.substr(1);
             }
-        });
 
-        return result;
+            buffer.split("\n").forEach((line: string) => {
+                const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
+                if (r !== null) {
+                    const key = r[1];
+                    let value = r[2] || "";
+                    if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
+                        value = value.replace(/\\n/gm, "\n");
+                    }
+                    result[key] = value.replace(/(^['"]|['"]$)/g, "");
+                }
+            });
+
+            return result;
+        } else {
+            return null;
+        }
     }
 }

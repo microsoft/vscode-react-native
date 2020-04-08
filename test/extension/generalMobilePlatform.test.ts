@@ -39,6 +39,7 @@ suite("generalMobilePlatform", function () {
 
             const envForFile: string = "test3=envFile\ntest4=envFile\ntest5=envFile";
             const envFile: string = path.join(__dirname, "..", "resources", "auxiliaryFiles", ".env");
+            const fakeEnvFile: string = path.join(__dirname, "..", "resources", "auxiliaryFiles", ".envFake");
 
             setup(() => {
                 fs.writeFileSync(envFile, envForFile);
@@ -46,6 +47,13 @@ suite("generalMobilePlatform", function () {
 
             teardown(() => {
                 fs.unlinkSync(envFile);
+            });
+
+            test("existing args should not should not depend on the existence of the envFile", function() {
+                assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, undefined, fakeEnvFile), {
+                    "test1": "origEnv",
+                     "test2": "origEnv",
+                      "test3": "origEnv"});
             });
 
             test("existing args should not depend on null or undefined env and envFile", function() {

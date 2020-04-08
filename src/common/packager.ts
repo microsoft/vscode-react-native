@@ -144,7 +144,7 @@ export class Packager {
                 const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
 
                 let env = process.env;
-                if (this.runOptions) {
+                if (this.runOptions && (this.runOptions.env || this.runOptions.envFile)) {
                     env =  GeneralMobilePlatform.getEnvArgument(env, this.runOptions.env, this.runOptions.envFile);
                 } else {
                     const rootEnv = path.join(this.getProjectPath(), ".env");
