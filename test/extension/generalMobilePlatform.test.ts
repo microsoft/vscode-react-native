@@ -48,7 +48,7 @@ suite("generalMobilePlatform", function () {
                 fs.unlinkSync(envFile);
             });
 
-            test("existing args should not depends from null or undefined env and envFile", function() {
+            test("existing args should not depend on null or undefined env and envFile", function() {
                 assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, undefined, undefined), {
                     "test1": "origEnv",
                      "test2": "origEnv",
