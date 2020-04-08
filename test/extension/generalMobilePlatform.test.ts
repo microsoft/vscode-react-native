@@ -64,7 +64,7 @@ suite("generalMobilePlatform", function () {
                         "test5": "envFile"});
             });
 
-            test("args from envFile and original args should be overwrited by env args", function() {
+            test("args from envFile and original args should be overwritten by env args", function() {
                 assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, env, envFile), {
                     "test1": "origEnv",
                      "test2": "env",
