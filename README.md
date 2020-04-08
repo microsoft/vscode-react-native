@@ -413,7 +413,7 @@ Variable2_name=Variable2_value
 ```
 Variables that are declared in this `.env` file can override the original environment variables from `process.env` of the Packager process.
 
-It is possible to transfer environment variables (`env` and `envFile`) from the `launch` or `attach` to the Packager. If these variables are defined, then they will be used, otherwise the `.env` file is used. 
+It is possible to transfer environment variables (via `env` and `envFile` arguments in `launch.json`) from the `launch` or `attach` debug scenarios to the Packager. If these variables are defined, then they will be used, otherwise the `.env` file is used. 
 
 ## Change project root
 
