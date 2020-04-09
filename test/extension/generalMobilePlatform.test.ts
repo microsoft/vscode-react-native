@@ -3,6 +3,8 @@
 
 import * as assert from "assert";
 import { GeneralMobilePlatform } from "../../src/extension/generalMobilePlatform";
+import * as fs from "fs";
+import * as path from "path";
 
 suite("generalMobilePlatform", function () {
     suite("extensionContext", function () {
@@ -27,6 +29,56 @@ suite("generalMobilePlatform", function () {
                 assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "--param2"), "value2");
                 assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "param3", false), "value3");
                 assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "param4", false), undefined);
+            });
+        });
+
+        suite("getEnvArgument", function() {
+            const origEnv: any = {"test1": "origEnv", "test2": "origEnv", "test3": "origEnv"};
+
+            const env: any = {"test2": "env", "test3": "env", "test4": "env"};
+
+            const envForFile: string = "test3=envFile\ntest4=envFile\ntest5=envFile";
+            const envFile: string = path.join(__dirname, "..", "resources", "auxiliaryFiles", ".env");
+            const fakeEnvFile: string = path.join(__dirname, "..", "resources", "auxiliaryFiles", ".envFake");
+
+            setup(() => {
+                fs.writeFileSync(envFile, envForFile);
+            });
+
+            teardown(() => {
+                fs.unlinkSync(envFile);
+            });
+
+            test("existing args should not should not depend on the existence of the envFile", function() {
+                assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, undefined, fakeEnvFile), {
+                    "test1": "origEnv",
+                     "test2": "origEnv",
+                      "test3": "origEnv"});
+            });
+
+            test("existing args should not depend on null or undefined env and envFile", function() {
+                assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, undefined, undefined), {
+                    "test1": "origEnv",
+                     "test2": "origEnv",
+                      "test3": "origEnv"});
+            });
+
+            test("args from envFile should not overwrite existing variables", function() {
+                assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, null, envFile), {
+                    "test1": "origEnv",
+                     "test2": "origEnv",
+                      "test3": "origEnv",
+                       "test4": "envFile",
+                        "test5": "envFile"});
+            });
+
+            test("args from envFile and original args should be overwritten by env args", function() {
+                assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, env, envFile), {
+                    "test1": "origEnv",
+                     "test2": "env",
+                      "test3": "env",
+                       "test4": "env",
+                        "test5": "envFile"});
             });
         });
     });

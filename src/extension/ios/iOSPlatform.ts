@@ -95,7 +95,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
         return TelemetryHelper.generate("iOSPlatform.runApp", extProps, () => {
             // Compile, deploy, and launch the app on either a simulator or a device
-            const env = this.getEnvArgument();
+            const env = GeneralMobilePlatform.getEnvArgument(process.env, this.runOptions.env, this.runOptions.envFile);
 
             if (!semver.valid(this.runOptions.reactNativeVersions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(this.runOptions.reactNativeVersions.reactNativeVersion, IOSPlatform.NO_PACKAGER_VERSION)) {
                 this.runArguments.push("--no-packager");
