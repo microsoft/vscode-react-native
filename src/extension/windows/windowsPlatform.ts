@@ -44,7 +44,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
 
         return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
-            const env = this.getEnvArgument();
+            const env = GeneralMobilePlatform.getEnvArgument(process.env, this.runOptions.env, this.runOptions.envFile);
 
             if (enableDebug) {
                 this.runArguments.push("--proxy");
