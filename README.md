@@ -59,18 +59,18 @@ The full list of commands is:
 
 |Name|Description|
 |---|---|
-|RunAndroidSimulator|Run an Android application on Emulator|
-|RunAndroidDevice|Run an Android application on Device|
-|RunIosSimulator|Run an iOS application on Simulator|
-|RunIosDevice|Run an iOS application on Simulator|
-|RunExponent|Run Expo application|
-|StartPackager|Start Packager|
-|StopPackager|Stop Packager|
-|RestartPackager|Restart Packager|
-|PublishToExpHost|Publish to Expo|
-|ShowDevMenu|Show Dev Menu|
+|Run Android on Emulator|Run an Android application on Emulator. Launch order: check target platform support, load run arguments, start Packager, run app in all connected emulators|
+|Run Android on Device|Run an Android application on Device. Launch order: check target platform support, load run arguments, start Packager, run app in all connected devices|
+|Run iOS on Simulator|Run an iOS application on Simulator. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected emulator|
+|Run iOS on Device|Run an iOS application on Device. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected device|
+|Run Expo|Run Exponent application. Launch order: login to exponent, load run arguments, start Packager, run app|
+|Start Packager|Start Packager in context project workspace folder|
+|Stop Packager|Stop Packager|
+|Restart Packager|Restart Packager|
+|Publish To Expo|Publish to Exponent Host. Launch order: login to exponent, execute `Run Expo` command, then publish app to host|
+|Show Dev Menu|Show development menu for running aplication on iOS or Android device or emulator|
 |ReloadApp|Reload an application|
-|RunInspector|Run Element Inspector|
+|Run Element Inspector|Load development tools for inspect application UI elements|
 
 # Debugging React Native applications
 
