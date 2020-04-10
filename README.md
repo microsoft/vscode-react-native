@@ -149,11 +149,10 @@ Please be aware, specifying the scheme value as a part of the `runArguments` par
 
 To debug a project created using Expo or the `create-react-native-app` task, you can use embedded support for Expo.
 
-Your environment must meet the following prerequisites:
+Your environment must meet the following [prerequisites](https://reactnative.dev/docs/environment-setup):
 
 - Install the [Expo app](https://getexponent.com/) on the target device or emulator
 - Ensure that the `expo-cli` is installed globally (`npm install -g expo-cli`)
-- [More details](https://reactnative.dev/docs/environment-setup)
 
 To start debugging in Expo follow these steps:
 
