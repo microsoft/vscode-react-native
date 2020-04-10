@@ -152,13 +152,14 @@ To debug a project created using Expo or the `create-react-native-app` task, you
 Your environment must meet the following prerequisites:
 
 - Install the [Expo app](https://getexponent.com/) on the target device or emulator
-- Ensure that the `react-native-cli` is installed globally (`npm install -g react-native-cli`)
+- Ensure that the `expo-cli` is installed globally (`npm install -g expo-cli`)
+- [More details](https://reactnative.dev/docs/environment-setup)
 
 To start debugging in Expo follow these steps:
 
 1. Open your project in VS Code with this extension installed.
 1. Create a debug configuration (as described in [Debugging React Native applications](#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
-1. Wait while some dependencies are configured - the extension will install `xde` and `@expo/ngrok` when this feature is used for the first time.
+1. Wait while some dependencies are configured - the extension will install `xdl` and `@expo/ngrok` when this feature is used for the first time.
 1. If you have not used Exponent on this system before, you will be prompted for an Exponent username and password.
    Exponent account allows you to use Expo cloud services. More info about how it works is available [here](https://docs.expo.io/versions/latest/workflow/how-expo-works/).
    If you have not created an Exponent account, then specifying a new username and password will create one.
@@ -413,7 +414,7 @@ Variable2_name=Variable2_value
 ```
 Variables that are declared in this `.env` file can override the original environment variables from `process.env` of the Packager process.
 
-It is possible to transfer environment variables (via `env` and `envFile` arguments in `launch.json`) from the `launch` or `attach` debug scenarios to the Packager. If these variables are defined, then they will be used, otherwise the `.env` file is used. 
+It is possible to transfer environment variables (via `env` and `envFile` arguments in `launch.json`) from the `launch` or `attach` debug scenarios to the Packager. If these variables are defined, then they will be used, otherwise the `.env` file is used.
 
 ## Change project root
 
