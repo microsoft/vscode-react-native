@@ -152,6 +152,7 @@ To debug a project created using Expo or the `create-react-native-app` task, you
 Your environment must meet the following [prerequisites](https://reactnative.dev/docs/environment-setup):
 
 - Install the [Expo app](https://getexponent.com/) on the target device or emulator
+- Ensure that the `Android SDK` is installed on your computer (You may install it with [Android Studio](https://developer.android.com/studio))
 - Ensure that the `expo-cli` is installed globally (`npm install -g expo-cli`)
 
 To start debugging in Expo follow these steps:
