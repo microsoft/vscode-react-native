@@ -59,6 +59,8 @@ export class RNDebugSession extends LoggingDebugSession {
     private cdpProxyLogLevel: LogLevel;
     private nodeSession: vscode.DebugSession | null;
     private debugSessionStatus: DebugSessionStatus;
+    private onDidStartDebugSessionHandler: vscode.Disposable;
+    private onDidTerminateDebugSessionHandler: vscode.Disposable;
 
     constructor(private session: vscode.DebugSession) {
         super();
@@ -75,11 +77,11 @@ export class RNDebugSession extends LoggingDebugSession {
         this.rnCdpProxy = null;
         this.debugSessionStatus = DebugSessionStatus.FirstConnection;
 
-        vscode.debug.onDidStartDebugSession(
+        this.onDidStartDebugSessionHandler = vscode.debug.onDidStartDebugSession(
             this.handleStartDebugSession.bind(this)
         );
 
-        vscode.debug.onDidTerminateDebugSession(
+        this.onDidTerminateDebugSessionHandler = vscode.debug.onDidTerminateDebugSession(
             this.handleTerminateDebugSession.bind(this)
         );
     }
@@ -197,6 +199,9 @@ export class RNDebugSession extends LoggingDebugSession {
             this.rnCdpProxy.stopServer();
             this.rnCdpProxy = null;
         }
+
+        this.onDidStartDebugSessionHandler.dispose();
+        this.onDidTerminateDebugSessionHandler.dispose();
 
         // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
         if (this.previousAttachArgs.platform === "android") {
