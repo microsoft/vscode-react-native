@@ -149,7 +149,9 @@ Please be aware, specifying the scheme value as a part of the `runArguments` par
 
 To debug a project created using Expo or the `create-react-native-app` task, you can use embedded support for Expo.
 
-Prepare your environment using an [introduction](https://reactnative.dev/docs/environment-setup). Pay attention to:
+Prepare your environment the [Expo CLI Quickstart instruction](https://reactnative.dev/docs/environment-setup). 
+For correct work with Expo this extension **`requires Android SDK`**.
+So also pay attention to the `React Native CLI Quickstart` tab, where you can find the Android SDK installation guide:
 
 - Install the [Expo app](https://getexponent.com/) on the target device or emulator
 - Ensure that the `Android SDK` is installed on your computer (You may install it with [Android Studio](https://developer.android.com/studio))
