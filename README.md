@@ -154,7 +154,7 @@ For correct work with Expo this extension **`requires Android SDK`**.
 So also pay attention to the `React Native CLI Quickstart` tab, where you can find the Android SDK installation guide:
 
 - Install the [Expo app](https://getexponent.com/) on the target device or emulator
-- Ensure that the `Android SDK` is installed on your computer (You may install it with [Android Studio](https://developer.android.com/studio))
+- Ensure that the `Android SDK` is installed on your computer (You may install using the part of [`React Native CLI Quickstart` guide](https://reactnative.dev/docs/environment-setup))
 - Ensure that the `expo-cli` is installed globally (`npm install -g expo-cli`)
 
 You can verify that everything is working correctly and that the environment is ready for use with the `npx react-native doctor` command.
