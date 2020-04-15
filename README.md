@@ -149,16 +149,21 @@ Please be aware, specifying the scheme value as a part of the `runArguments` par
 
 To debug a project created using Expo or the `create-react-native-app` task, you can use embedded support for Expo.
 
-Your environment must meet the following prerequisites:
+Prepare your environment by following the [Expo CLI Quickstart instruction](https://reactnative.dev/docs/environment-setup).
+For correct work with Expo this extension **`requires Android SDK`**.
+So also pay attention to the `React Native CLI Quickstart` tab, where you can find the Android SDK installation guide:
 
 - Install the [Expo app](https://getexponent.com/) on the target device or emulator
-- Ensure that the `react-native-cli` is installed globally (`npm install -g react-native-cli`)
+- Ensure that the `Android SDK` is installed on your computer (You may install it using the [`React Native CLI Quickstart` guide](https://reactnative.dev/docs/environment-setup))
+- Ensure that the `expo-cli` is installed globally (`npm install -g expo-cli`)
+
+You can verify that everything is working correctly and that the environment is ready for use with the `npx react-native doctor` command.
 
 To start debugging in Expo follow these steps:
 
 1. Open your project in VS Code with this extension installed.
 1. Create a debug configuration (as described in [Debugging React Native applications](#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
-1. Wait while some dependencies are configured - the extension will install `xde` and `@expo/ngrok` when this feature is used for the first time.
+1. Wait while some dependencies are configured - the extension will install [`Expo Development Library(@expo/xdl)`](https://www.npmjs.com/package/@expo/xdl)  when this feature is used for the first time.
 1. If you have not used Exponent on this system before, you will be prompted for an Exponent username and password.
    Exponent account allows you to use Expo cloud services. More info about how it works is available [here](https://docs.expo.io/versions/latest/workflow/how-expo-works/).
    If you have not created an Exponent account, then specifying a new username and password will create one.
@@ -413,7 +418,7 @@ Variable2_name=Variable2_value
 ```
 Variables that are declared in this `.env` file can override the original environment variables from `process.env` of the Packager process.
 
-It is possible to transfer environment variables (via `env` and `envFile` arguments in `launch.json`) from the `launch` or `attach` debug scenarios to the Packager. If these variables are defined, then they will be used, otherwise the `.env` file is used. 
+It is possible to transfer environment variables (via `env` and `envFile` arguments in `launch.json`) from the `launch` or `attach` debug scenarios to the Packager. If these variables are defined, then they will be used, otherwise the `.env` file is used.
 
 ## Change project root
 
