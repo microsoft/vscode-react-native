@@ -34,6 +34,7 @@ export class GeneralMobilePlatform {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
         this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator());
+        this.packager.setRunOptions(runOptions);
         this.logger = OutputChannelLogger.getChannel(localize("ReactNativeRunPlatform", "React Native: Run {0}", this.platformName), true);
         this.logger.clear();
         this.runArguments = this.getRunArguments();
@@ -132,12 +133,36 @@ export class GeneralMobilePlatform {
         throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArguments");
     }
 
-    public getEnvArgument(): any {
-        let args = this.runOptions;
-        let env = process.env;
+    public static getEnvArgument(processEnv: any, env?: any, envFile?: string): any {
+        let modifyEnv = Object.assign({}, processEnv);
 
-        if (args.envFile) {
-            let buffer = fs.readFileSync(args.envFile, "utf8");
+        if (envFile) {
+            // .env variables never overwrite existing variables
+            const argsFromEnvFile = this.readEnvFile(envFile);
+            if (argsFromEnvFile != null) {
+                for (let key in argsFromEnvFile) {
+                    if (!modifyEnv[key] && argsFromEnvFile.hasOwnProperty(key)) {
+                        modifyEnv[key] = argsFromEnvFile[key];
+                    }
+                }
+            }
+        }
+
+        if (env) {
+            // launch config env vars overwrite .env vars
+            for (let key in env) {
+                if (env.hasOwnProperty(key)) {
+                    modifyEnv[key] = env[key];
+                }
+            }
+        }
+        return modifyEnv;
+    }
+
+    private static readEnvFile(filePath: string): any {
+        if (fs.existsSync(filePath)) {
+            let buffer = fs.readFileSync(filePath, "utf8");
+            let result = {};
 
             // Strip BOM
             if (buffer && buffer[0] === "\uFEFF") {
@@ -148,26 +173,17 @@ export class GeneralMobilePlatform {
                 const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
                 if (r !== null) {
                     const key = r[1];
-                    if (!env[key]) {	// .env variables never overwrite existing variables
-                        let value = r[2] || "";
-                        if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
-                            value = value.replace(/\\n/gm, "\n");
-                        }
-                        env[key] = value.replace(/(^['"]|['"]$)/g, "");
+                    let value = r[2] || "";
+                    if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
+                        value = value.replace(/\\n/gm, "\n");
                     }
+                    result[key] = value.replace(/(^['"]|['"]$)/g, "");
                 }
             });
-        }
 
-        if (args.env) {
-            // launch config env vars overwrite .env vars
-            for (let key in args.env) {
-                if (args.env.hasOwnProperty(key)) {
-                    env[key] = args.env[key];
-                }
-            }
+            return result;
+        } else {
+            return null;
         }
-
-        return env;
     }
 }
