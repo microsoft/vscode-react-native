@@ -5,7 +5,8 @@
 * Minor logging improvement [#1237](https://github.com/microsoft/vscode-react-native/pull/1237)
 * Internal changes:
     * Added YAML Azure Pipelines support for the extension repository
-    * Smoke tests are updated to work with React Native 0.62 and Expo SDK 37
+    * Smoke tests were updated to work with React Native 0.62 and Expo SDK 37
+
 
 ## 0.14.2
 * Improved extension security [#1219](https://github.com/microsoft/vscode-react-native/pull/1219), [#1222](https://github.com/microsoft/vscode-react-native/pull/1222), [#1223](https://github.com/microsoft/vscode-react-native/pull/1223), [#1224](https://github.com/microsoft/vscode-react-native/pull/1224)
