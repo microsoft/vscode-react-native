@@ -12,7 +12,7 @@ let mochaOption: any = {
     ui: "tdd",
     useColors: true,
     grep: "localizationContext",
-    reporter: "mocha-multi-reporters",
+    reporter: "cypress-multi-reporters",
     reporterOptions: {
         reporterEnabled: "spec, mocha-junit-reporter",
         mochaJunitReporterReporterOptions: {

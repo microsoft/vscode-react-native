@@ -109,7 +109,7 @@ function test() {
             useColors: true,
             invert: !options.pattern,
             grep: options.pattern || "(extensionContext|localizationContext)",
-            reporter: "mocha-multi-reporters",
+            reporter: "cypress-multi-reporters",
             reporterOptions: {
                 configFile: path.resolve("test/mochaReporterConfig.json"),
             },
