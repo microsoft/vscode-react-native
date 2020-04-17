@@ -7,7 +7,6 @@ import * as Mocha from "mocha";
 export function run(): Promise<void> {
     const mocha = new Mocha ({
         ui: "tdd",
-        useColors: true,
         grep: "localizationContext",
         reporter: "mocha-multi-reporters",
         reporterOptions: {
@@ -17,6 +16,8 @@ export function run(): Promise<void> {
             },
         },
     });
+
+    mocha.useColors(true);
 
     // Register Mocha options
     return new Promise((resolve, reject) => {

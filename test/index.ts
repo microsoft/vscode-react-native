@@ -11,7 +11,7 @@ export function run(): Promise<void> {
     const mocha = new Mocha ({
         ui: "tdd",
         grep: new RegExp("(debuggerContext|localizationContext)"), // Do not run tests intended for the debuggerContext and localizationContext
-        reporter: "cypress-multi-reporters",
+        reporter: "mocha-multi-reporters",
         reporterOptions: {
             reporterEnabled: "spec, mocha-junit-reporter",
             mochaJunitReporterReporterOptions: {
@@ -23,12 +23,12 @@ export function run(): Promise<void> {
     mocha.useColors(true);
     mocha.invert();
 
-    const testsRoot = path.resolve(__dirname, "..");
+    const testsRoot = path.resolve(__dirname);
     // Register Mocha options
-    return new Promise((c, e) => {
+    return new Promise((resolve, reject) => {
         glob("**/**.test.js", { cwd: testsRoot }, (err, files) => {
           if (err) {
-            return e(err);
+            return reject(err);
           }
 
           // Add files to the test suite
@@ -38,13 +38,13 @@ export function run(): Promise<void> {
             // Run the mocha test
             mocha.run((failures: any) => {
               if (failures > 0) {
-                e(new Error("${failures} tests failed."));
+                reject(new Error("${failures} tests failed."));
               } else {
-                c();
+                resolve();
               }
             });
           } catch (err) {
-            e(err);
+            reject(err);
           }
         });
       });
