@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import {IRunOptions} from "./../extension/launchArgs";
+import {GeneralMobilePlatform} from "./../extension/generalMobilePlatform";
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
 import {ExponentHelper} from "../extension/exponent/exponentHelper";
@@ -45,6 +47,7 @@ export class Packager {
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
     private static fs: FileSystem = new Node.FileSystem();
     private expoHelper: ExponentHelper;
+    private runOptions: IRunOptions;
 
     constructor(private workspacePath: string, private projectPath: string, private packagerPort?: number, packagerStatusIndicator?: PackagerStatusIndicator) {
         this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
@@ -52,19 +55,23 @@ export class Packager {
         this.expoHelper = new ExponentHelper(this.workspacePath, this.projectPath);
     }
 
-    public get port(): number {
+    public getPort(): number {
         return this.packagerPort || SettingsHelper.getPackagerPort(this.workspacePath);
+    }
+
+    public setRunOptions(runOptions: IRunOptions) {
+        this.runOptions = runOptions;
     }
 
     public static getHostForPort(port: number): string {
         return `localhost:${port}`;
     }
 
-    public get statusIndicator(): PackagerStatusIndicator {
+    public getStatusIndicator(): PackagerStatusIndicator {
         return this.packagerStatusIndicator;
     }
     public getHost(): string {
-        return Packager.getHostForPort(this.port);
+        return Packager.getHostForPort(this.getPort());
     }
 
     public getPackagerStatus(): PackagerStatus {
@@ -76,7 +83,7 @@ export class Packager {
     }
 
     public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<string[]> {
-        let args: string[] = ["--port", this.port.toString()];
+        let args: string[] = ["--port", this.getPort().toString()];
 
         if (resetCache) {
             args = args.concat("--resetCache");
@@ -136,7 +143,15 @@ export class Packager {
                 //  This bug will be fixed in 0.41
                 const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
 
-                let reactEnv = Object.assign({}, process.env, {
+                let env = process.env;
+                if (this.runOptions && (this.runOptions.env || this.runOptions.envFile)) {
+                    env =  GeneralMobilePlatform.getEnvArgument(env, this.runOptions.env, this.runOptions.envFile);
+                } else {
+                    const rootEnv = path.join(this.getProjectPath(), ".env");
+                    env =  GeneralMobilePlatform.getEnvArgument(env, null, rootEnv);
+                }
+
+                let reactEnv = Object.assign({}, env, {
                     REACT_DEBUGGER: "echo A debugger is not needed: ",
                     REACT_EDITOR: failedRNVersions.indexOf(rnVersion) < 0 ? "code" : this.openFileAtLocationCommand(),
                 });
@@ -196,8 +211,8 @@ export class Packager {
     }
 
     public restart(port: number): Q.Promise<void> {
-        if (this.port && this.port !== port) {
-            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
+        if (this.getPort() && this.getPort() !== port) {
+            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.getPort()));
         }
 
         return this.isRunning()

@@ -60,7 +60,7 @@ export class ExtensionServer implements vscode.Disposable {
             this.serverInstance = null;
         }
 
-        this.reactNativePackager.statusIndicator.dispose();
+        this.reactNativePackager.getStatusIndicator().dispose();
         this.reactNativePackager.stop(true);
         this.stopMonitoringLogCat();
     }

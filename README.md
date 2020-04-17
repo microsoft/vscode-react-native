@@ -59,18 +59,18 @@ The full list of commands is:
 
 |Name|Description|
 |---|---|
-|RunAndroidSimulator|Run an Android application on Emulator|
-|RunAndroidDevice|Run an Android application on Device|
-|RunIosSimulator|Run an iOS application on Simulator|
-|RunIosDevice|Run an iOS application on Simulator|
-|RunExponent|Run Expo application|
-|StartPackager|Start Packager|
-|StopPackager|Stop Packager|
-|RestartPackager|Restart Packager|
-|PublishToExpHost|Publish to Expo|
-|ShowDevMenu|Show Dev Menu|
+|Run Android on Emulator|Run an Android application on Emulator. Launch order: check target platform support, load run arguments, start Packager, run app in all connected emulators|
+|Run Android on Device|Run an Android application on Device. Launch order: check target platform support, load run arguments, start Packager, run app in all connected devices|
+|Run iOS on Simulator|Run an iOS application on Simulator. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected emulator|
+|Run iOS on Device|Run an iOS application on Device. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected device|
+|Run Expo|Run Exponent application. Launch order: login to exponent, load run arguments, start Packager, run app|
+|Start Packager|Start Packager in context project workspace folder|
+|Stop Packager|Stop Packager|
+|Restart Packager|Restart Packager|
+|Publish To Expo|Publish to Exponent Host. Launch order: login to exponent, execute `Run Expo` command, then publish app to host|
+|Show Dev Menu|Show development menu for running aplication on iOS or Android device or emulator|
 |ReloadApp|Reload an application|
-|RunInspector|Run Element Inspector|
+|Run Element Inspector|Load development tools for inspect application UI elements|
 
 # Debugging React Native applications
 
@@ -149,16 +149,21 @@ Please be aware, specifying the scheme value as a part of the `runArguments` par
 
 To debug a project created using Expo or the `create-react-native-app` task, you can use embedded support for Expo.
 
-Your environment must meet the following prerequisites:
+Prepare your environment by following the [Expo CLI Quickstart instruction](https://reactnative.dev/docs/environment-setup).
+For correct work with Expo this extension **`requires Android SDK`**.
+So also pay attention to the `React Native CLI Quickstart` tab, where you can find the Android SDK installation guide:
 
 - Install the [Expo app](https://getexponent.com/) on the target device or emulator
-- Ensure that the `react-native-cli` is installed globally (`npm install -g react-native-cli`)
+- Ensure that the `Android SDK` is installed on your computer (You may install it using the [`React Native CLI Quickstart` guide](https://reactnative.dev/docs/environment-setup))
+- Ensure that the `expo-cli` is installed globally (`npm install -g expo-cli`)
+
+You can verify that everything is working correctly and that the environment is ready for use with the `npx react-native doctor` command.
 
 To start debugging in Expo follow these steps:
 
 1. Open your project in VS Code with this extension installed.
 1. Create a debug configuration (as described in [Debugging React Native applications](#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
-1. Wait while some dependencies are configured - the extension will install `xde` and `@expo/ngrok` when this feature is used for the first time.
+1. Wait while some dependencies are configured - the extension will install [`Expo Development Library(@expo/xdl)`](https://www.npmjs.com/package/@expo/xdl)  when this feature is used for the first time.
 1. If you have not used Exponent on this system before, you will be prompted for an Exponent username and password.
    Exponent account allows you to use Expo cloud services. More info about how it works is available [here](https://docs.expo.io/versions/latest/workflow/how-expo-works/).
    If you have not created an Exponent account, then specifying a new username and password will create one.
@@ -404,6 +409,16 @@ If you use Android, you need to change the debug server by:
 
 **NOTE:** Some aspects of React Native hard-code the port to the default as specified in [this issue](https://github.com/facebook/react-native/issues/9145).
 
+### Custom environment variables
+Extension supports passing custom environment variables to the React Native Packager process context. To add custom variables you can create `.env` file in the root folder of your project and add needed environment variables in the following format:
+
+```
+Variable1_name=Variable1_value
+Variable2_name=Variable2_value
+```
+Variables that are declared in this `.env` file can override the original environment variables from `process.env` of the Packager process.
+
+It is possible to transfer environment variables (via `env` and `envFile` arguments in `launch.json`) from the `launch` or `attach` debug scenarios to the Packager. If these variables are defined, then they will be used, otherwise the `.env` file is used.
 
 ## Change project root
 
