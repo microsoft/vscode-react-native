@@ -7,7 +7,6 @@ import { runTests } from "vscode-test";
 
 async function goTest() {
   try {
-    process.env.CODE_LOCALE = "ru";
     // The folder containing the Extension Manifest package.json
     // Passed to `--extensionDevelopmentPath`
     const extensionDevelopmentPath = path.resolve(__dirname, "..", "..");
@@ -17,7 +16,11 @@ async function goTest() {
     const extensionTestsPath = path.resolve(__dirname, "index");
     console.log(extensionTestsPath);
     // Download VS Code, unzip it and run the integration test
-    await runTests({ extensionDevelopmentPath, extensionTestsPath });
+    await runTests({
+      extensionDevelopmentPath,
+      extensionTestsPath,
+      launchArgs: ["--locale", "ru"]
+    });
   } catch (err) {
     console.error(err);
     console.error("Failed to run tests");
