@@ -7,6 +7,7 @@ import { runTests } from "vscode-test";
 
 async function goTest() {
   try {
+    process.env.CODE_LOCALE = "ru";
     // The folder containing the Extension Manifest package.json
     // Passed to `--extensionDevelopmentPath`
     const extensionDevelopmentPath = path.resolve(__dirname, "..", "..");

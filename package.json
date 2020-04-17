@@ -674,7 +674,8 @@
 		"start": "node node_modules/react-native/local-cli/cli.js start",
 		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
 		"vscode:prepublish": "gulp",
-		"test": "node ./test/runTest.js && node ./test/localization/runTest.js",
+		"test": "node ./test/runTest.js",
+		"test-localization": "node ./test/localization/runTest.js",
 		"prepare-smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install",
 		"smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install && yarn --cwd ./vscode/test/smoke mocha",
 		"quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
