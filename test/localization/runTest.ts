@@ -19,7 +19,7 @@ async function goTest() {
     await runTests({
       extensionDevelopmentPath,
       extensionTestsPath,
-      launchArgs: ["--locale", "ru"]
+      launchArgs: ["--locale", "ru"],
     });
   } catch (err) {
     console.error(err);
