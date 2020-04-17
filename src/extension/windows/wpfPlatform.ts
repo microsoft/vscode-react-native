@@ -5,6 +5,7 @@ import * as Q from "q";
 import * as semver from "semver";
 import * as path from "path";
 
+import {GeneralMobilePlatform} from "../generalMobilePlatform";
 import {MobilePlatformDeps} from "../generalMobilePlatform";
 import {IWindowsRunOptions} from "../launchArgs";
 import {TelemetryHelper} from "../../common/telemetryHelper";
@@ -34,7 +35,7 @@ export class WpfPlatform extends WindowsPlatform {
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
 
         return TelemetryHelper.generate("WpfPlatform.runApp", extProps, () => {
-            const env = this.getEnvArgument();
+            const env = GeneralMobilePlatform.getEnvArgument(process.env, this.runOptions.env, this.runOptions.envFile);
 
             if (enableDebug) {
                 this.runArguments.push("--proxy");
