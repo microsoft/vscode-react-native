@@ -23,7 +23,7 @@ export function run(): Promise<void> {
     mocha.useColors(true);
     mocha.invert();
 
-    const testsRoot = path.resolve(__dirname);
+    const testsRoot = __dirname;
     // Register Mocha options
     return new Promise((resolve, reject) => {
         glob("**/**.test.js", { cwd: testsRoot }, (err, files) => {
@@ -38,7 +38,7 @@ export function run(): Promise<void> {
             // Run the mocha test
             mocha.run((failures: any) => {
               if (failures > 0) {
-                reject(new Error("${failures} tests failed."));
+                reject(new Error(`${failures} tests failed.`));
               } else {
                 resolve();
               }
