@@ -1,27 +1,39 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-// This file is used by VS Code's default test runner to configure Mocha before the test run.
-
-/* tslint:disable:no-var-keyword no-var-requires */
-var testRunner = require("vscode/lib/testrunner");
-/* tslint:enable:no-var-keyword no-var-requires */
 import * as path from "path";
+import * as Mocha from "mocha";
 
-let mochaOption: any = {
-    ui: "tdd",
-    useColors: true,
-    grep: "localizationContext",
-    reporter: "mocha-multi-reporters",
-    reporterOptions: {
-        reporterEnabled: "spec, mocha-junit-reporter",
-        mochaJunitReporterReporterOptions: {
-            mochaFile: path.join(__dirname, "..", "LocalizationTests.xml"),
+export function run(): Promise<void> {
+    const mocha = new Mocha ({
+        ui: "tdd",
+        grep: RegExp("localizationContext"),
+        reporter: "mocha-multi-reporters",
+        reporterOptions: {
+            reporterEnabled: "spec, mocha-junit-reporter",
+            mochaJunitReporterReporterOptions: {
+                mochaFile: path.join(__dirname, "..", "LocalizationTests.xml"),
+            },
         },
-    },
-};
+    });
 
-// Register Mocha options
-testRunner.configure(mochaOption);
+    mocha.useColors(true);
 
-module.exports = testRunner;
+    // Register Mocha options
+    return new Promise((resolve, reject) => {
+        mocha.addFile(path.resolve(__dirname, "localization.test.js"));
+
+        try {
+            // Run the mocha test
+            mocha.run((failures: any) => {
+                if (failures > 0) {
+                    reject(new Error(`${failures} tests failed.`));
+                } else {
+                    resolve();
+                }
+            });
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
