@@ -726,7 +726,7 @@
 		"gulp-preprocess": "^3.0.3",
 		"gulp-sourcemaps": "^2.6.5",
 		"gulp-tslint": "^8.1.4",
-		"gulp-typescript": "^4.0.2",
+		"gulp-typescript": "^5.0.1",
 		"isparta": "^4.1.1",
 		"minimist": "^1.2.5",
 		"mocha": "^7.1.1",
