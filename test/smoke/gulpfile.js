@@ -16,7 +16,7 @@ const CODE_ROOT = path.join(__dirname, CODE_FOLDER_NAME);
 const CODE_SMOKE_TESTS_FOLDER = path.join(CODE_ROOT, "test", "smoke");
 const CODE_AUTOMATION_FOLDER = path.join(CODE_ROOT, "test", "automation");
 
-gulp.task("prepare-environment", (done) => {
+gulp.task("remove-old-vscode", (done) => {
     console.log(`*** Removing old VS Code repo directory: ${CODE_ROOT}`);
     rimraf.sync(CODE_ROOT);
     done();
@@ -36,7 +36,7 @@ gulp.task("remove-vscode-smoke-tests", (done) => {
     done();
 });
 
-gulp.task("prepare-smoke-tests", gulp.series("prepare-environment", "download-vscode-repo", "remove-vscode-smoke-tests", function copyPackage (done) {
+gulp.task("prepare-smoke-tests", gulp.series("remove-old-vscode", "download-vscode-repo", "remove-vscode-smoke-tests", function copyPackage (done) {
     console.log(`*** Copying smoke tests package ${SMOKE_TESTS_PACKAGE_FOLDER} into directory: ${CODE_SMOKE_TESTS_FOLDER}`);
     ncp(SMOKE_TESTS_PACKAGE_FOLDER, CODE_SMOKE_TESTS_FOLDER, (err) => {
         if (err) {
