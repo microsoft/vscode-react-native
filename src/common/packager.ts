@@ -162,7 +162,7 @@ export class Packager {
 
                 let spawnOptions = { env: reactEnv };
 
-                if (this.runOptions.platform == "exponent") {
+                if (this.runOptions.platform === "exponent") {
                     let managedExtensions = this.getSourceExtensions();
 
                     args.push(
