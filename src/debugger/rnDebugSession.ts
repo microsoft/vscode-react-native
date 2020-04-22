@@ -23,12 +23,21 @@ import { RnCDPMessageHandler } from "../cdp-proxy/CDPMessageHandlers/rnCDPMessag
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
+/**
+ * Enum of possible status of debug session
+ */
 enum DebugSessionStatus {
+    /** A session has been just created */
     FirstConnection,
+    /** This status is required in order to exclude the possible creation of several debug sessions at the first start */
     FirstConnectionPending,
+    /** This status means that an application can be reloaded */
     ConnectionAllowed,
+    /** This status means that an application is reloading now, and we shouldn't terminate the current debug session */
     ConnectionPending,
+    /** A debuggee connected successfully */
     ConnectionDone,
+    /** A debuggee failed to connect */
     ConnectionFailed,
 }
 
