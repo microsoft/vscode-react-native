@@ -21,18 +21,23 @@ import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {LogCatMonitor} from "./android/logCatMonitor";
 import {ProjectsStorage} from "./projectsStorage";
+import {ReactNativeCDPProxy} from "../cdp-proxy/reactNativeCDPProxy";
+import {generateRandomPortNumber} from "../common/extensionHelper";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 const localize = nls.loadMessageBundle();
 
 export class AppLauncher {
+    private readonly cdpProxyPort: number;
+    private readonly cdpProxyHostAddress: string;
+
     private appWorker: MultipleLifetimesAppWorker | null;
     private packager: Packager;
     private exponentHelper: ExponentHelper;
     private reactDirManager: ReactDirManager;
     private workspaceFolder: vscode.WorkspaceFolder;
     private reactNativeVersions?: RNPackageVersions;
-
+    private rnCdpProxy: ReactNativeCDPProxy;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private logCatMonitor: LogCatMonitor | null = null;
 
@@ -46,6 +51,10 @@ export class AppLauncher {
     }
 
     constructor(reactDirManager: ReactDirManager, workspaceFolder: vscode.WorkspaceFolder) {
+        // constants definition
+        this.cdpProxyPort = generateRandomPortNumber();
+        this.cdpProxyHostAddress = "127.0.0.1"; // localhost
+
         const rootPath = workspaceFolder.uri.fsPath;
         const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
         this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
@@ -53,6 +62,18 @@ export class AppLauncher {
         this.packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(workspaceFolder.uri.fsPath), packagerStatusIndicator);
         this.reactDirManager = reactDirManager;
         this.workspaceFolder = workspaceFolder;
+        this.rnCdpProxy = new ReactNativeCDPProxy(
+            this.cdpProxyHostAddress,
+            this.cdpProxyPort
+        );
+    }
+
+    public getCdpProxyPort(): number {
+        return this.cdpProxyPort;
+    }
+
+    public getRnCdpProxy(): ReactNativeCDPProxy {
+        return this.rnCdpProxy;
     }
 
     public getPackager(): Packager {
