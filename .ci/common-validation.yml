@@ -19,10 +19,7 @@ steps:
   displayName: Start xvfb
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 
-- bash: |
-    export CODE_TESTS_PATH=${PWD}/test/localization
-    export CODE_LOCALE=ru
-    npm test
+- bash: npm run test-localization
   displayName: 'Run localization tests'
   env:
     DISPLAY: ':99.0'

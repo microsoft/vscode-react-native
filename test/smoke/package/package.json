@@ -29,7 +29,7 @@
     "gulp-untar": "^0.0.7",
     "gulp-vinyl-zip": "^2.1.2",
     "mkdirp": "^1.0.3",
-    "mocha": "^6.1.2",
+    "mocha": "6.2.3",
     "mocha-junit-reporter": "^1.18.0",
     "mocha-multi-reporters": "^1.1.7",
     "portastic": "^1.0.1",
