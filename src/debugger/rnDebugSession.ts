@@ -18,9 +18,8 @@ import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { AppLauncher } from "../extension/appLauncher";
 import { MultipleLifetimesAppWorker } from "./appWorker";
-import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
-import { generateRandomPortNumber } from "../common/extensionHelper";
 import { LogLevel } from "../extension/log/LogHelper";
+import { RnCDPMessageHandler } from "../cdp-proxy/CDPMessageHandlers/rnCDPMessageHandler";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -45,8 +44,6 @@ export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments
 
 export class RNDebugSession extends LoggingDebugSession {
 
-    private readonly cdpProxyPort: number;
-    private readonly cdpProxyHostAddress: string;
     private readonly terminateCommand: string;
     private readonly pwaNodeSessionName: string;
 
@@ -55,7 +52,6 @@ export class RNDebugSession extends LoggingDebugSession {
     private projectRootPath: string;
     private isSettingsInitialized: boolean; // used to prevent parameters reinitialization when attach is called from launch function
     private previousAttachArgs: IAttachRequestArgs;
-    private rnCdpProxy: ReactNativeCDPProxy | null;
     private cdpProxyLogLevel: LogLevel;
     private nodeSession: vscode.DebugSession | null;
     private debugSessionStatus: DebugSessionStatus;
@@ -66,15 +62,12 @@ export class RNDebugSession extends LoggingDebugSession {
         super();
 
         // constants definition
-        this.cdpProxyPort = generateRandomPortNumber();
-        this.cdpProxyHostAddress = "127.0.0.1"; // localhost
         this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
         this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
 
         // variables definition
         this.isSettingsInitialized = false;
         this.appWorker = null;
-        this.rnCdpProxy = null;
         this.debugSessionStatus = DebugSessionStatus.FirstConnection;
 
         this.onDidStartDebugSessionHandler = vscode.debug.onDidStartDebugSession(
@@ -84,10 +77,6 @@ export class RNDebugSession extends LoggingDebugSession {
         this.onDidTerminateDebugSessionHandler = vscode.debug.onDidTerminateDebugSession(
             this.handleTerminateDebugSession.bind(this)
         );
-    }
-
-    protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
-        super.initializeRequest(response, args);
     }
 
     protected launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
@@ -133,13 +122,9 @@ export class RNDebugSession extends LoggingDebugSession {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            this.rnCdpProxy = new ReactNativeCDPProxy(
-                                this.cdpProxyHostAddress,
-                                this.cdpProxyPort,
-                                this.cdpProxyLogLevel
-                            );
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
-                            return this.rnCdpProxy.createServer()
+                            this.appLauncher.getRnCdpProxy().stopServer();
+                            return this.appLauncher.getRnCdpProxy().initializeServer(new RnCDPMessageHandler(), this.cdpProxyLogLevel)
                                 .then(() => {
                                     logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
 
@@ -160,9 +145,7 @@ export class RNDebugSession extends LoggingDebugSession {
                                     this.appWorker.on("connected", (port: number) => {
                                         logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
 
-                                        if (this.rnCdpProxy) {
-                                            this.rnCdpProxy.setApplicationTargetPort(port);
-                                        }
+                                        this.appLauncher.getRnCdpProxy().setApplicationTargetPort(port);
 
                                         if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
                                             return;
@@ -195,10 +178,7 @@ export class RNDebugSession extends LoggingDebugSession {
             this.appWorker.stop();
         }
 
-        if (this.rnCdpProxy) {
-            this.rnCdpProxy.stopServer();
-            this.rnCdpProxy = null;
-        }
+        this.appLauncher.getRnCdpProxy().stopServer();
 
         this.onDidStartDebugSessionHandler.dispose();
         this.onDidTerminateDebugSessionHandler.dispose();
@@ -216,50 +196,45 @@ export class RNDebugSession extends LoggingDebugSession {
     }
 
     private establishDebugSession(resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
-        if (this.rnCdpProxy) {
-            const attachArguments = {
-                type: "pwa-node",
-                request: "attach",
-                name: "Attach",
-                continueOnAttach: true,
-                port: this.cdpProxyPort,
-                smartStep: false,
-                // The unique identifier of the debug session. It is used to distinguish React Native extension's
-                // debug sessions from other ones. So we can save and process only the extension's debug sessions
-                // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
-                rnDebugSessionId: this.session.id,
-            };
+        const attachArguments = {
+            type: "pwa-node",
+            request: "attach",
+            name: "Attach",
+            continueOnAttach: true,
+            port: this.appLauncher.getCdpProxyPort(),
+            smartStep: false,
+            // The unique identifier of the debug session. It is used to distinguish React Native extension's
+            // debug sessions from other ones. So we can save and process only the extension's debug sessions
+            // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
+            rnDebugSessionId: this.session.id,
+        };
 
-            vscode.debug.startDebugging(
-                this.appLauncher.getWorkspaceFolder(),
-                attachArguments,
-                this.session
-            )
-            .then((childDebugSessionStarted: boolean) => {
-                if (childDebugSessionStarted) {
-                    this.debugSessionStatus = DebugSessionStatus.ConnectionDone;
-                    this.setConnectionAllowedIfPossible();
-                    if (resolve) {
-                        this.debugSessionStatus = DebugSessionStatus.ConnectionAllowed;
-                        resolve();
-                    }
-                } else {
-                    this.debugSessionStatus = DebugSessionStatus.ConnectionFailed;
-                    this.setConnectionAllowedIfPossible();
-                    this.resetFirstConnectionStatus();
-                    throw new Error("Cannot start child debug session");
+        vscode.debug.startDebugging(
+            this.appLauncher.getWorkspaceFolder(),
+            attachArguments,
+            this.session
+        )
+        .then((childDebugSessionStarted: boolean) => {
+            if (childDebugSessionStarted) {
+                this.debugSessionStatus = DebugSessionStatus.ConnectionDone;
+                this.setConnectionAllowedIfPossible();
+                if (resolve) {
+                    this.debugSessionStatus = DebugSessionStatus.ConnectionAllowed;
+                    resolve();
                 }
-            },
-            err => {
+            } else {
                 this.debugSessionStatus = DebugSessionStatus.ConnectionFailed;
                 this.setConnectionAllowedIfPossible();
                 this.resetFirstConnectionStatus();
-                throw err;
-            });
-        } else {
+                throw new Error("Cannot start child debug session");
+            }
+        },
+        err => {
+            this.debugSessionStatus = DebugSessionStatus.ConnectionFailed;
+            this.setConnectionAllowedIfPossible();
             this.resetFirstConnectionStatus();
-            throw new Error("Cannot connect to debugger worker: Chrome debugger proxy is offline");
-        }
+            throw err;
+        });
     }
 
     private initializeSettings(args: any): Q.Promise<any> {

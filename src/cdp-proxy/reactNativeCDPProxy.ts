@@ -13,6 +13,7 @@ import { IncomingMessage } from "http";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { LogLevel } from "../extension/log/LogHelper";
 import { DebuggerEndpointHelper } from "./debuggerEndpointHelper";
+import { ICDPMessageHandler } from "./CDPMessageHandlers/ICDPMessageHandler";
 
 export class ReactNativeCDPProxy {
 
@@ -30,20 +31,22 @@ export class ReactNativeCDPProxy {
     private applicationTarget: Connection;
     private logger: OutputChannelLogger;
     private logLevel: LogLevel;
-    private firstStop: boolean;
     private debuggerEndpointHelper: DebuggerEndpointHelper;
+    private CDPMessageHandler: ICDPMessageHandler;
     private applicationTargetPort: number;
 
-    constructor(hostAddress: string, port: number, logLevel: LogLevel) {
+    constructor(hostAddress: string, port: number, logLevel: LogLevel = LogLevel.None) {
         this.port = port;
         this.hostAddress = hostAddress;
         this.logger = OutputChannelLogger.getChannel("React Native Chrome Proxy", true, false, true);
         this.logLevel = logLevel;
-        this.firstStop = true;
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
     }
 
-    public createServer(): Promise<void> {
+    public initializeServer(CDPMessageHandler: ICDPMessageHandler, logLevel: LogLevel): Promise<void> {
+        this.logLevel = logLevel;
+        this.CDPMessageHandler = CDPMessageHandler;
+
         return Server.create({ port: this.port, host: this.hostAddress })
             .then((server: Server) => {
                 this.server = server;
@@ -87,40 +90,25 @@ export class ReactNativeCDPProxy {
     }
 
     private handleDebuggerTargetCommand(evt: IProtocolCommand) {
+        this.CDPMessageHandler.processCDPMessage(evt);
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
         this.applicationTarget.send(evt);
     }
 
     private handleApplicationTargetCommand(evt: IProtocolCommand) {
-        if (evt.method === "Debugger.paused" && this.firstStop) {
-            evt.params = this.handleAppBundleFirstPauseEvent(evt);
-        }
+        this.CDPMessageHandler.processCDPMessage(evt);
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
         this.debuggerTarget.send(evt);
     }
 
-    /** Since the bundle runs inside the Node.js VM in `debuggerWorker.js` in runtime
-     *  Node debug adapter need time to parse new added code source maps
-     *  So we added `debugger;` statement at the start of the bundle code
-     *  and wait for the adapter to receive a signal to stop on that statement
-     *  and then change pause reason to `Break on start` so js-debug can process all breakpoints in the bundle and
-     *  continue the code execution using `continueOnAttach` flag
-     */
-    private handleAppBundleFirstPauseEvent(evt: IProtocolCommand): any {
-        let params: any = evt.params;
-        if (params.reason && params.reason === "other") {
-            this.firstStop = false;
-            params.reason = "Break on start";
-        }
-        return params;
-    }
-
     private handleDebuggerTargetReply(evt: IProtocolError | IProtocolSuccess) {
+        this.CDPMessageHandler.processCDPMessage(evt);
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
         this.applicationTarget.send(evt);
     }
 
     private handleApplicationTargetReply(evt: IProtocolError | IProtocolSuccess) {
+        this.CDPMessageHandler.processCDPMessage(evt);
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
         this.debuggerTarget.send(evt);
     }
@@ -134,6 +122,6 @@ export class ReactNativeCDPProxy {
     }
 
     private async onDebuggerTargetClosed() {
-        this.firstStop = true;
+        this.CDPMessageHandler.processCDPMessage({method: "close"});
     }
 }
