@@ -7,7 +7,7 @@ import * as WebSocket from "ws";
 import { EventEmitter } from "events";
 import { ensurePackagerRunning } from "../common/packagerStatus";
 import {ErrorHelper} from "../common/error/errorHelper";
-import { logger } from "vscode-chrome-debug-core";
+import { logger } from "vscode-debugadapter";
 import {ExecutionsLimiter} from "../common/executionsLimiter";
 import { FileSystem as NodeFileSystem} from "../common/node/fileSystem";
 import { ForkedAppWorker } from "./forkedAppWorker";

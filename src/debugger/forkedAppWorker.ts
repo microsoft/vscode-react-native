@@ -7,8 +7,7 @@ import * as url from "url";
 import * as child_process from "child_process";
 import * as fs from "fs";
 import {ScriptImporter, DownloadedScript}  from "./scriptImporter";
-
-import { logger } from "vscode-chrome-debug-core";
+import { logger } from "vscode-debugadapter";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 import { InternalErrorCode } from "../common/error/internalErrorCode";

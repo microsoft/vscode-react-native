@@ -696,7 +696,6 @@
 		"typechecker": "2.0.8",
 		"ultron": "1.0.2",
 		"vscode-cdp-proxy": "^0.2.0",
-		"vscode-chrome-debug-core": "^6.8.8",
 		"vscode-debugadapter": "^1.37.1",
 		"vscode-debugprotocol": "^1.37.0",
 		"vscode-extension-telemetry": "0.0.5",

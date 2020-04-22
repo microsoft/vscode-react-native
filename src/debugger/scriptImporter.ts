@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {FileSystem} from "../common/node/fileSystem";
-import { logger } from "vscode-chrome-debug-core";
+import { logger } from "vscode-debugadapter";
 import { ensurePackagerRunning } from "../common/packagerStatus";
 import path = require("path");
 import Q = require("q");
