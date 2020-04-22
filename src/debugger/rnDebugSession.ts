@@ -64,7 +64,7 @@ export class RNDebugSession extends LoggingDebugSession {
 
         // constants definition
         this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
-        this.disconnectCommand = "disconnect"; // The "disconnect" command is sent from the client to the debug adapter in order to stop debugging. It asks the debug adapter to disconnect from the debuggee and to terminate the debug adapter.
+        this.disconnectCommand = "disconnect"; // the "disconnect" command is sent from the client to the debug adapter in order to stop debugging. It asks the debug adapter to disconnect from the debuggee and to terminate the debug adapter.
         this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
 
         // variables definition
