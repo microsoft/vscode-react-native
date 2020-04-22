@@ -162,12 +162,14 @@ export class Packager {
 
                 let spawnOptions = { env: reactEnv };
 
-                let managedExtensions = this.getSourceExtensions();
+                if (this.runOptions.platform == "exponent") {
+                    let managedExtensions = this.getSourceExtensions();
 
-                args.push(
-                    "--sourceExts",
-                    managedExtensions
-                );
+                    args.push(
+                        "--sourceExts",
+                        managedExtensions
+                    );
+                }
 
                 const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
                 this.packagerProcess = packagerSpawnResult.spawnedProcess;
