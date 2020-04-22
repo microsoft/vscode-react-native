@@ -24,7 +24,7 @@ import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
 /**
- * Enum of possible status of debug session
+ * Enum of possible statuses of debug session
  */
 enum DebugSessionStatus {
     /** A session has been just created */
