@@ -45,6 +45,7 @@ export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments
 export class RNDebugSession extends LoggingDebugSession {
 
     private readonly terminateCommand: string;
+    private readonly disconnectCommand: string;
     private readonly pwaNodeSessionName: string;
 
     private appLauncher: AppLauncher;
@@ -63,6 +64,7 @@ export class RNDebugSession extends LoggingDebugSession {
 
         // constants definition
         this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
+        this.disconnectCommand = "disconnect"; // The "disconnect" command is sent from the client to the debug adapter in order to stop debugging. It asks the debug adapter to disconnect from the debuggee and to terminate the debug adapter.
         this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
 
         // variables definition
@@ -192,6 +194,7 @@ export class RNDebugSession extends LoggingDebugSession {
             }
         }
 
+        this.stop(); // stop current debug session
         super.disconnectRequest(response, args, request);
     }
 
@@ -286,10 +289,13 @@ export class RNDebugSession extends LoggingDebugSession {
     private handleTerminateDebugSession(debugSession: vscode.DebugSession) {
         if (
             debugSession.configuration.rnDebugSessionId === this.session.id
-            && this.debugSessionStatus === DebugSessionStatus.ConnectionPending
             && debugSession.type === this.pwaNodeSessionName
         ) {
-            this.establishDebugSession();
+            if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
+                this.establishDebugSession();
+            } else {
+                this.session.customRequest(this.disconnectCommand);
+            }
         }
     }
 
