@@ -82,8 +82,8 @@ export class Packager {
         return this.projectPath;
     }
 
-    public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<string[]> {
-        let args: string[] = ["--port", this.getPort().toString()];
+    public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<any[]> {
+        let args: any[] = ["--port", this.getPort()];
 
         if (resetCache) {
             args = args.concat("--resetCache");
@@ -161,6 +161,13 @@ export class Packager {
                 // wait for this command to finish
 
                 let spawnOptions = { env: reactEnv };
+
+                let managedExtensions = this.getSourceExtensions();
+
+                args.push(
+                    "--sourceExts",
+                    managedExtensions
+                );
 
                 const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
                 this.packagerProcess = packagerSpawnResult.spawnedProcess;
@@ -392,5 +399,9 @@ export class Packager {
         }
 
         return atomScript;
+    }
+
+    private getSourceExtensions(): Array<string> {
+        return ["expo.ts", "expo.tsx", "expo.js", "expo.jsx", "ts", "tsx", "js", "jsx", "json", "wasm"];
     }
 }
