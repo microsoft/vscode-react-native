@@ -3,12 +3,14 @@
 
 import * as vscode from "vscode";
 import * as Net from "net";
-import { RNDebugSession } from "../debugger/rnDebugSession";
+import { DebugSessionBase } from "../debugger/debugSessionBase";
 
-export class RNDebugAdapterDescriptorFactory implements vscode.DebugAdapterDescriptorFactory {
+export class RNDebugAdapterDescriptorFactory<T extends DebugSessionBase> implements vscode.DebugAdapterDescriptorFactory {
 
     private server?: Net.Server;
     private vscodeDebugSession: vscode.DebugSession;
+
+    constructor(private debugSessionConstructor: new(session: vscode.DebugSession) => T) { }
 
     public createDebugAdapterDescriptor(session: vscode.DebugSession, executable: vscode.DebugAdapterExecutable | undefined): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
         this.vscodeDebugSession = session;
@@ -16,7 +18,7 @@ export class RNDebugAdapterDescriptorFactory implements vscode.DebugAdapterDescr
         if (!this.server) {
             // start listening on a random port
             this.server = Net.createServer(socket => {
-                const rnDebugSession = new RNDebugSession(this.vscodeDebugSession);
+                const rnDebugSession = new this.debugSessionConstructor(this.vscodeDebugSession);
                 rnDebugSession.setRunAsServer(true);
                 rnDebugSession.start(<NodeJS.ReadableStream>socket, socket);
             }).listen(0);

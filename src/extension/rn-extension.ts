@@ -31,6 +31,8 @@ import {ReactNativeDebugConfigProvider} from "./debugConfigurationProvider";
 import {RNDebugAdapterDescriptorFactory} from "./rnDebugAdapterDescriptorFactory";
 import {ProjectsStorage} from "./projectsStorage";
 import {AppLauncher} from "./appLauncher";
+import {RNDebugSession} from "../debugger/rnDebugSession";
+import {DirectDebugSession} from "../debugger/direct/directDebugSession";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -67,8 +69,10 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
 
         debugConfigProvider = vscode.debug.registerDebugConfigurationProvider("reactnative", configProvider);
 
-        const rnFactory = new RNDebugAdapterDescriptorFactory();
+        const rnFactory = new RNDebugAdapterDescriptorFactory(RNDebugSession);
+        const directFactory = new RNDebugAdapterDescriptorFactory(DirectDebugSession);
         context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory("reactnative", rnFactory));
+        context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory("reactnativedirect", directFactory));
 
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
