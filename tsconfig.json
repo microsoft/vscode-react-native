@@ -39,8 +39,7 @@
         "ReactTypings",
         "tools/",
         "test/resources/sampleReactNative022Project/",
-        "test/smoke/",
-        "src/debugger/direct"
+        "test/smoke/"
     ],
     "compileOnSave": false,
     "buildOnSave":false
