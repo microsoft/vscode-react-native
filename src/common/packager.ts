@@ -408,7 +408,7 @@ export class Packager {
     }
 
     // Since expo 37, the packager in expo scripts has stopped correctly finding additional resources, such as custom fonts.
-    // In order to solve this problem, you need to configure the packer to work with additional file extensions,
+    // In order to solve this problem, you need to configure the packager to work with additional file extensions,
     // similar to how it was done in expo / xdl.
     private getSourceExtensions(): Array<string> {
         // Since the array is determined by parameters (as pointed by link below)
