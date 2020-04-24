@@ -162,7 +162,7 @@ export class Packager {
 
                 let spawnOptions = { env: reactEnv };
 
-                // Since expo@37, you must specify the sourceExts parameter so that the packager can load additional files, such as custom fonts:
+                // Since Expo 37, you must specify the sourceExts parameter so that the packager can load additional files, such as custom fonts:
                 // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1720).
                 // Related to https://github.com/microsoft/vscode-react-native/issues/1252
                 if (this.runOptions.platform === "exponent") {
