@@ -407,7 +407,7 @@ export class Packager {
         return atomScript;
     }
 
-    // Since expo 37, the packager in expo scripts has stopped correctly finding additional resources, such as custom fonts.
+    // Since Expo 37, the packager in expo scripts has stopped correctly finding additional resources, such as custom fonts.
     // In order to solve this problem, you need to configure the packager to work with additional file extensions,
     // similar to how it was done in expo / xdl.
     private getSourceExtensions(): Array<string> {
