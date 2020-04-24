@@ -163,7 +163,7 @@ export class Packager {
                 let spawnOptions = { env: reactEnv };
 
                 if (this.runOptions.platform === "exponent") {
-                    let managedExtensions = this.getSourceExtensions();
+                    const managedExtensions = this.getSourceExtensions();
 
                     args.push(
                         "--sourceExts",
