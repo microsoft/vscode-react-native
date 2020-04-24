@@ -70,7 +70,7 @@ export class ReactNativeCDPProxy {
 
         this.debuggerTarget.pause(); // don't listen for events until the target is ready
 
-        const browserInspectUri = await this.debuggerEndpointHelper.getWSEndpoint(`http://localhost:${this.applicationTargetPort}`);
+        const browserInspectUri = await this.debuggerEndpointHelper.retryGetWSEndpoint(`http://localhost:${this.applicationTargetPort}`, 100);
 
         this.applicationTarget = new Connection(await WebSocketTransport.create(browserInspectUri));
 

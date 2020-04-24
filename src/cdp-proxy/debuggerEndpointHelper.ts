@@ -6,14 +6,35 @@ import * as ipModule from "ip";
 const dns = require("dns").promises;
 import * as http from "http";
 import * as https from "https";
+import { PromiseUtil } from "../common/node/promise";
 
 export class DebuggerEndpointHelper {
     private localv4: Buffer;
     private localv6: Buffer;
+    private pu: PromiseUtil;
 
     constructor() {
         this.localv4 = ipModule.toBuffer("127.0.0.1");
         this.localv6 = ipModule.toBuffer("::1");
+        this.pu = new PromiseUtil();
+    }
+
+    /**
+     * Attempts to retrieve the debugger websocket URL for a process listening
+     * at the given address, retrying until available.
+     * @param browserURL -- Address like `http://localhost:1234`
+     */
+    public async retryGetWSEndpoint(browserURL: string, attemptNumber: number): Promise<string> {
+        try {
+            return await this.getWSEndpoint(browserURL);
+        } catch (e) {
+            if (attemptNumber < 1) {
+                throw new Error(`Could not connect to debug target at ${browserURL}: ${e.message}`);
+              }
+
+            await this.pu.delay(300);
+            return await this.retryGetWSEndpoint(browserURL, --attemptNumber);
+        }
     }
 
     /**
