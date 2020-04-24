@@ -82,8 +82,8 @@ export class Packager {
         return this.projectPath;
     }
 
-    public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<any[]> {
-        let args: any[] = ["--port", this.getPort()];
+    public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<string[]> {
+        let args: string[] = ["--port", this.getPort().toString()];
 
         if (resetCache) {
             args = args.concat("--resetCache");
@@ -162,12 +162,15 @@ export class Packager {
 
                 let spawnOptions = { env: reactEnv };
 
+                // Since expo@37, you must specify the sourceExts parameter for the normal loading of additional files.
+                // Related to https://github.com/microsoft/vscode-react-native/issues/1252
                 if (this.runOptions.platform === "exponent") {
                     const managedExtensions = this.getSourceExtensions();
 
+                    // For normal operation, you must pass an array as an argument
                     args.push(
                         "--sourceExts",
-                        managedExtensions
+                        <any>managedExtensions
                     );
                 }
 
@@ -403,6 +406,12 @@ export class Packager {
         return atomScript;
     }
 
+    // Since the array is determined either by the fact that target is bare,
+    // which is impossible in this context, or by parameters
+    // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1719),
+    // which are always the same, the array obtained using the getManagedExtensions
+    // (https://github.com/expo/expo-cli/blob/30844f1083d0b0804478a7dc6c7cbd19dc7254df/packages/config/src/paths/extensions.ts#L54)
+    // function is always the same
     private getSourceExtensions(): Array<string> {
         return ["expo.ts", "expo.tsx", "expo.js", "expo.jsx", "ts", "tsx", "js", "jsx", "json", "wasm"];
     }
