@@ -411,7 +411,7 @@ export class Packager {
     // In order to solve this problem, you need to configure the packer to work with additional file extensions,
     // similar to how it was done in expo / xdl.
     private getSourceExtensions(): Array<string> {
-        // Since the array is determined by parameters as pointed by link below
+        // Since the array is determined by parameters (as pointed by link below)
         // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1719),
         // which are always the same, since the array that we receive in expo/xdl
         // (https://github.com/expo/expo-cli/blob/30844f1083d0b0804478a7dc6c7cbd19dc7254df/packages/config/src/paths/extensions.ts#L54)
