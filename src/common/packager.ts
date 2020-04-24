@@ -413,7 +413,7 @@ export class Packager {
     private getSourceExtensions(): Array<string> {
         // Since the array is determined by parameters (as pointed by link below)
         // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1719),
-        // which are always the same, since the array that we receive in expo/xdl
+        // which are always the same, since the array that we receive in `expo/xdl`
         // (https://github.com/expo/expo-cli/blob/30844f1083d0b0804478a7dc6c7cbd19dc7254df/packages/config/src/paths/extensions.ts#L54)
         // is always the same, return constant here
         return ["expo.ts", "expo.tsx", "expo.js", "expo.jsx", "ts", "tsx", "js", "jsx", "json", "wasm"];
