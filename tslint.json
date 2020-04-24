@@ -105,10 +105,5 @@
             "check-separator",
             "check-type"
         ]
-    },
-    "linterOptions": {
-        "exclude": [
-          "src/debugger/direct/*.ts"
-        ]
     }
 }

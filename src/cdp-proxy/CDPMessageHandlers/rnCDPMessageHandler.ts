@@ -6,7 +6,6 @@ import {
 } from "vscode-cdp-proxy";
 import { ICDPMessageHandler, ProtocolMessage } from "./ICDPMessageHandler";
 
-
 export class RnCDPMessageHandler implements ICDPMessageHandler {
     private firstStop: boolean;
 
