@@ -408,7 +408,7 @@ export class Packager {
     }
 
     // Since the array is determined either by the fact that target is bare,
-    // which is impossible in this context, or by parameters
+    // which is impossible in this context, or by parameters as pointed by link below
     // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1719),
     // which are always the same, the array obtained using the getManagedExtensions
     // (https://github.com/expo/expo-cli/blob/30844f1083d0b0804478a7dc6c7cbd19dc7254df/packages/config/src/paths/extensions.ts#L54)
