@@ -11,11 +11,17 @@ export class RnCDPMessageHandler implements ICDPMessageHandler {
         this.firstStop = true;
     }
 
-    public processCDPMessage(evt: any): ProtocolMessage {
+    public processDebuggerCDPMessage(evt: any): ProtocolMessage {
+        if (evt.method === "close") {
+            this.handleDebuggerDisconnect();
+        }
+
+        return evt;
+    }
+
+    public processApplicationCDPMessage(evt: any): ProtocolMessage {
         if (evt.method === "Debugger.paused" && this.firstStop) {
             evt.params = this.handleAppBundleFirstPauseEvent(evt);
-        } else if (evt.method === "close") {
-            this.handleDebuggerDisconnect();
         }
 
         return evt;

@@ -8,7 +8,7 @@ export class DirectCDPMessageHandler implements ICDPMessageHandler {
 
     constructor() { }
 
-    public processCDPMessage(evt: any): ProtocolMessage {
+    public processDebuggerCDPMessage(evt: any): ProtocolMessage {
         if (evt.method === "Debugger.setBreakpoint") {
             evt = this.handleBreakpointSetting(evt);
         }
@@ -16,9 +16,13 @@ export class DirectCDPMessageHandler implements ICDPMessageHandler {
         return evt;
     }
 
+    public processApplicationCDPMessage(evt: any): ProtocolMessage {
+        return evt;
+    }
+
     private handleBreakpointSetting(evt: any) {
         if (evt.params) {
-            evt.params.location.columnNumber = undefined;
+            delete evt.params.location.columnNumber;
         }
         return evt;
     }

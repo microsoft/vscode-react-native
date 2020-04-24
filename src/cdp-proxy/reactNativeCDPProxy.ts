@@ -90,25 +90,25 @@ export class ReactNativeCDPProxy {
     }
 
     private handleDebuggerTargetCommand(evt: IProtocolCommand) {
-        this.CDPMessageHandler.processCDPMessage(evt);
+        this.CDPMessageHandler.processDebuggerCDPMessage(evt);
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
         this.applicationTarget.send(evt);
     }
 
     private handleApplicationTargetCommand(evt: IProtocolCommand) {
-        this.CDPMessageHandler.processCDPMessage(evt);
+        this.CDPMessageHandler.processApplicationCDPMessage(evt);
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
         this.debuggerTarget.send(evt);
     }
 
     private handleDebuggerTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        this.CDPMessageHandler.processCDPMessage(evt);
+        this.CDPMessageHandler.processDebuggerCDPMessage(evt);
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
         this.applicationTarget.send(evt);
     }
 
     private handleApplicationTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        this.CDPMessageHandler.processCDPMessage(evt);
+        this.CDPMessageHandler.processApplicationCDPMessage(evt);
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
         this.debuggerTarget.send(evt);
     }
@@ -122,6 +122,6 @@ export class ReactNativeCDPProxy {
     }
 
     private async onDebuggerTargetClosed() {
-        this.CDPMessageHandler.processCDPMessage({method: "close"});
+        this.CDPMessageHandler.processDebuggerCDPMessage({method: "close"});
     }
 }
