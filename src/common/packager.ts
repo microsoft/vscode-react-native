@@ -168,7 +168,7 @@ export class Packager {
                 if (this.runOptions.platform === "exponent") {
                     const managedExtensions = this.getSourceExtensions();
 
-                    // For normal operation, you must pass an array as an argument
+                    // In order for the arguments to be processed normally, it is necessary to pass an array as an argument
                     args.push(
                         "--sourceExts",
                         <any>managedExtensions
