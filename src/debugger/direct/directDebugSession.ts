@@ -14,18 +14,6 @@ const localize = nls.loadMessageBundle();
 
 export class DirectDebugSession extends DebugSessionBase {
 
-    /**
-     * @description The Hermes native functions calls mark in call stack
-     * @type {string}
-     */
-    // private static HERMES_NATIVE_FUNCTION_NAME: string = "(native)";
-
-    /**
-     * @description Equals to 0xfffffff - the scriptId returned by Hermes debugger, that means "invalid script ID"
-     * @type {string}
-     */
-    // private static HERMES_NATIVE_FUNCTION_SCRIPT_ID: string = "4294967295";
-
     private readonly terminateCommand: string;
     private readonly pwaNodeSessionName: string;
 
@@ -244,14 +232,4 @@ export class DirectDebugSession extends DebugSessionBase {
             this.establishDebugSession();
         }
     }
-
-    /*protected async onPaused(notification: Crdp.Debugger.PausedEvent, expectingStopReason = this._expectingStopReason): Promise<IOnPausedResult> {
-        // Excluding Hermes native function calls from call stack, since VS Code can't process them properly
-        // More info: https://github.com/facebook/hermes/issues/168
-        notification.callFrames = notification.callFrames.filter(callFrame =>
-            callFrame.functionName !== DirectDebugAdapter.HERMES_NATIVE_FUNCTION_NAME &&
-            callFrame.location.scriptId !== DirectDebugAdapter.HERMES_NATIVE_FUNCTION_SCRIPT_ID
-            );
-        return super.onPaused(notification, expectingStopReason);
-    }*/
 }
