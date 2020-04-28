@@ -89,28 +89,48 @@ export class ReactNativeCDPProxy {
         this.debuggerTarget.unpause();
     }
 
-    private handleDebuggerTargetCommand(evt: IProtocolCommand) {
-        this.CDPMessageHandler.processDebuggerCDPMessage(evt);
-        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
-        this.applicationTarget.send(evt);
+    private handleDebuggerTargetCommand(event: IProtocolCommand) {
+        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_COMMAND, JSON.stringify(event, null , 2), this.logLevel);
+        const processedMessage = this.CDPMessageHandler.processDebuggerCDPMessage(event);
+
+        if (processedMessage.reverseDirection) {
+            this.debuggerTarget.send(processedMessage.event);
+        } else {
+            this.applicationTarget.send(processedMessage.event);
+        }
     }
 
-    private handleApplicationTargetCommand(evt: IProtocolCommand) {
-        this.CDPMessageHandler.processApplicationCDPMessage(evt);
-        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(evt, null , 2), this.logLevel);
-        this.debuggerTarget.send(evt);
+    private handleApplicationTargetCommand(event: IProtocolCommand) {
+        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(event, null , 2), this.logLevel);
+        const processedMessage = this.CDPMessageHandler.processApplicationCDPMessage(event);
+
+        if (processedMessage.reverseDirection) {
+            this.applicationTarget.send(processedMessage.event);
+        } else {
+            this.debuggerTarget.send(processedMessage.event);
+        }
     }
 
-    private handleDebuggerTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        this.CDPMessageHandler.processDebuggerCDPMessage(evt);
-        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
-        this.applicationTarget.send(evt);
+    private handleDebuggerTargetReply(event: IProtocolError | IProtocolSuccess) {
+        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_REPLY, JSON.stringify(event, null , 2), this.logLevel);
+        const processedMessage = this.CDPMessageHandler.processDebuggerCDPMessage(event);
+
+        if (processedMessage.reverseDirection) {
+            this.debuggerTarget.send(processedMessage.event);
+        } else {
+            this.applicationTarget.send(processedMessage.event);
+        }
     }
 
-    private handleApplicationTargetReply(evt: IProtocolError | IProtocolSuccess) {
-        this.CDPMessageHandler.processApplicationCDPMessage(evt);
-        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_REPLY, JSON.stringify(evt, null , 2), this.logLevel);
-        this.debuggerTarget.send(evt);
+    private handleApplicationTargetReply(event: IProtocolError | IProtocolSuccess) {
+        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_REPLY, JSON.stringify(event, null , 2), this.logLevel);
+        const processedMessage = this.CDPMessageHandler.processApplicationCDPMessage(event);
+
+        if (processedMessage.reverseDirection) {
+            this.applicationTarget.send(processedMessage.event);
+        } else {
+            this.debuggerTarget.send(processedMessage.event);
+        }
     }
 
     private onDebuggerTargetError(err: Error) {

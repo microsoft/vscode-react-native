@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { IProtocolCommand } from "vscode-cdp-proxy";
-import { ICDPMessageHandler, ProtocolMessage } from "./ICDPMessageHandler";
+import { ICDPMessageHandler, ProcessedCDPMessage } from "./ICDPMessageHandler";
 
 export class RnCDPMessageHandler implements ICDPMessageHandler {
     private firstStop: boolean;
@@ -11,20 +11,28 @@ export class RnCDPMessageHandler implements ICDPMessageHandler {
         this.firstStop = true;
     }
 
-    public processDebuggerCDPMessage(evt: any): ProtocolMessage {
-        if (evt.method === "close") {
+    public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
+        let reverseDirection = false;
+        if (event.method === "close") {
             this.handleDebuggerDisconnect();
         }
 
-        return evt;
+        return {
+            event,
+            reverseDirection,
+        };
     }
 
-    public processApplicationCDPMessage(evt: any): ProtocolMessage {
-        if (evt.method === "Debugger.paused" && this.firstStop) {
-            evt.params = this.handleAppBundleFirstPauseEvent(evt);
+    public processApplicationCDPMessage(event: any): ProcessedCDPMessage {
+        let reverseDirection = false;
+        if (event.method === "Debugger.paused" && this.firstStop) {
+            event.params = this.handleAppBundleFirstPauseEvent(event);
         }
 
-        return evt;
+        return {
+            event,
+            reverseDirection,
+        };
     }
 
     /** Since the bundle runs inside the Node.js VM in `debuggerWorker.js` in runtime
@@ -34,8 +42,8 @@ export class RnCDPMessageHandler implements ICDPMessageHandler {
      *  and then change pause reason to `Break on start` so js-debug can process all breakpoints in the bundle and
      *  continue the code execution using `continueOnAttach` flag
      */
-    private handleAppBundleFirstPauseEvent(evt: IProtocolCommand): any {
-        let params: any = evt.params;
+    private handleAppBundleFirstPauseEvent(event: IProtocolCommand): any {
+        let params: any = event.params;
         if (params.reason && params.reason === "other") {
             this.firstStop = false;
             params.reason = "Break on start";
