@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import Cdp = require("../../typings/cdp-proxy/cdp");
+import { Protocol as Cdp } from "devtools-protocol/types/protocol";
 import { ICDPMessageHandler, ProcessedCDPMessage } from "./ICDPMessageHandler";
 
 export class DirectCDPMessageHandler implements ICDPMessageHandler {
@@ -66,7 +66,7 @@ export class DirectCDPMessageHandler implements ICDPMessageHandler {
 
     private handleFunctionTypeResult(event: any): any {
         if (Array.isArray(event.result.result)) {
-            let results: Cdp.Protocol.Runtime.PropertyDescriptor[] = event.result.result;
+            let results: Cdp.Runtime.PropertyDescriptor[] = event.result.result;
             results.forEach((resultObj) => {
                 if (resultObj.value && resultObj.value.type === "function" && !resultObj.value.description) {
                     resultObj.value.description = "function() { … }";
@@ -79,7 +79,7 @@ export class DirectCDPMessageHandler implements ICDPMessageHandler {
     }
 
     private handlePausedEvent(event: any): any {
-        let callFrames: Cdp.Protocol.Debugger.CallFrame[] = event.params.callFrames;
+        let callFrames: Cdp.Debugger.CallFrame[] = event.params.callFrames;
 
         callFrames = callFrames.filter(callFrame =>
             callFrame.functionName !== this.HERMES_NATIVE_FUNCTION_NAME &&
