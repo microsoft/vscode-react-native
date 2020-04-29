@@ -70,7 +70,7 @@ export class ReactNativeCDPProxy {
 
         this.debuggerTarget.pause(); // don't listen for events until the target is ready
 
-        const browserInspectUri = await this.debuggerEndpointHelper.retryGetWSEndpoint(`http://localhost:${this.applicationTargetPort}`, 1000);
+        const browserInspectUri = await this.debuggerEndpointHelper.retryGetWSEndpoint(`http://localhost:${this.applicationTargetPort}`, 100);
 
         this.applicationTarget = new Connection(await WebSocketTransport.create(browserInspectUri));
 
@@ -93,7 +93,7 @@ export class ReactNativeCDPProxy {
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_COMMAND, JSON.stringify(event, null , 2), this.logLevel);
         const processedMessage = this.CDPMessageHandler.processDebuggerCDPMessage(event);
 
-        if (processedMessage.reverseDirection) {
+        if (processedMessage.sendBack) {
             this.debuggerTarget.send(processedMessage.event);
         } else {
             this.applicationTarget.send(processedMessage.event);
@@ -104,7 +104,7 @@ export class ReactNativeCDPProxy {
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(event, null , 2), this.logLevel);
         const processedMessage = this.CDPMessageHandler.processApplicationCDPMessage(event);
 
-        if (processedMessage.reverseDirection) {
+        if (processedMessage.sendBack) {
             this.applicationTarget.send(processedMessage.event);
         } else {
             this.debuggerTarget.send(processedMessage.event);
@@ -115,7 +115,7 @@ export class ReactNativeCDPProxy {
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_REPLY, JSON.stringify(event, null , 2), this.logLevel);
         const processedMessage = this.CDPMessageHandler.processDebuggerCDPMessage(event);
 
-        if (processedMessage.reverseDirection) {
+        if (processedMessage.sendBack) {
             this.debuggerTarget.send(processedMessage.event);
         } else {
             this.applicationTarget.send(processedMessage.event);
@@ -126,7 +126,7 @@ export class ReactNativeCDPProxy {
         this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_REPLY, JSON.stringify(event, null , 2), this.logLevel);
         const processedMessage = this.CDPMessageHandler.processApplicationCDPMessage(event);
 
-        if (processedMessage.reverseDirection) {
+        if (processedMessage.sendBack) {
             this.applicationTarget.send(processedMessage.event);
         } else {
             this.debuggerTarget.send(processedMessage.event);

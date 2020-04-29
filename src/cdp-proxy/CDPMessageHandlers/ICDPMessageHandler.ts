@@ -11,7 +11,7 @@ export declare type ProtocolMessage = IProtocolCommand | IProtocolSuccess | IPro
 
 export interface ProcessedCDPMessage {
     event: ProtocolMessage;
-    reverseDirection: boolean;
+    sendBack: boolean;
 }
 
 export interface ICDPMessageHandler {

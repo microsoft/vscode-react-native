@@ -11,12 +11,12 @@ import { PromiseUtil } from "../common/node/promise";
 export class DebuggerEndpointHelper {
     private localv4: Buffer;
     private localv6: Buffer;
-    private pu: PromiseUtil;
+    private promiseUtil: PromiseUtil;
 
     constructor() {
         this.localv4 = ipModule.toBuffer("127.0.0.1");
         this.localv6 = ipModule.toBuffer("::1");
-        this.pu = new PromiseUtil();
+        this.promiseUtil = new PromiseUtil();
     }
 
     /**
@@ -32,7 +32,7 @@ export class DebuggerEndpointHelper {
                 throw new Error(`Could not connect to debug target at ${browserURL}: ${e.message}`);
               }
 
-            await this.pu.delay(300);
+            await this.promiseUtil.delay(1000);
             return await this.retryGetWSEndpoint(browserURL, --attemptNumber);
         }
     }
