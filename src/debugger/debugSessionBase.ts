@@ -65,6 +65,8 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.debugSessionStatus = DebugSessionStatus.FirstConnection;
     }
 
+    protected abstract establishDebugSession(resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;
+
     protected initializeSettings(args: any): Q.Promise<any> {
         if (!this.isSettingsInitialized) {
             let chromeDebugCoreLogs = getLoggingDirectory();

@@ -9,6 +9,12 @@ import {
 
 export declare type ProtocolMessage = IProtocolCommand | IProtocolSuccess | IProtocolError;
 
+export interface ProcessedCDPMessage {
+    event: ProtocolMessage;
+    sendBack: boolean;
+}
+
 export interface ICDPMessageHandler {
-    processCDPMessage: (evt: any) => ProtocolMessage;
+    processDebuggerCDPMessage: (event: any) => ProcessedCDPMessage;
+    processApplicationCDPMessage: (event: any) => ProcessedCDPMessage;
 }

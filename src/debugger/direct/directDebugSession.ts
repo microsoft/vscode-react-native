@@ -13,18 +13,6 @@ const localize = nls.loadMessageBundle();
 
 export class DirectDebugSession extends DebugSessionBase {
 
-    /**
-     * @description The Hermes native functions calls mark in call stack
-     * @type {string}
-     */
-    // private static HERMES_NATIVE_FUNCTION_NAME: string = "(native)";
-
-    /**
-     * @description Equals to 0xfffffff - the scriptId returned by Hermes debugger, that means "invalid script ID"
-     * @type {string}
-     */
-    // private static HERMES_NATIVE_FUNCTION_SCRIPT_ID: string = "4294967295";
-
     constructor(session: vscode.DebugSession) {
         super(session);
     }
@@ -101,7 +89,8 @@ export class DirectDebugSession extends DebugSessionBase {
                             logger.log(`Connecting to ${attachArgs.port} port`);
                             return this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel)
                                 .then(() => {
-                                    resolve();
+                                    this.appLauncher.getRnCdpProxy().setApplicationTargetPort(attachArgs.port);
+                                    this.establishDebugSession(resolve);
                                 });
                         })
                         .catch((err) => {
@@ -131,13 +120,36 @@ export class DirectDebugSession extends DebugSessionBase {
         super.disconnectRequest(response, args, request);
     }
 
-    /*protected async onPaused(notification: Crdp.Debugger.PausedEvent, expectingStopReason = this._expectingStopReason): Promise<IOnPausedResult> {
-        // Excluding Hermes native function calls from call stack, since VS Code can't process them properly
-        // More info: https://github.com/facebook/hermes/issues/168
-        notification.callFrames = notification.callFrames.filter(callFrame =>
-            callFrame.functionName !== DirectDebugAdapter.HERMES_NATIVE_FUNCTION_NAME &&
-            callFrame.location.scriptId !== DirectDebugAdapter.HERMES_NATIVE_FUNCTION_SCRIPT_ID
-            );
-        return super.onPaused(notification, expectingStopReason);
-    }*/
+    protected establishDebugSession(resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
+        const attachArguments = {
+            type: "pwa-node",
+            request: "attach",
+            name: "Attach",
+            continueOnAttach: true,
+            port: this.appLauncher.getCdpProxyPort(),
+            smartStep: false,
+            // The unique identifier of the debug session. It is used to distinguish React Native extension's
+            // debug sessions from other ones. So we can save and process only the extension's debug sessions
+            // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
+            rnDebugSessionId: this.session.id,
+        };
+
+        vscode.debug.startDebugging(
+            this.appLauncher.getWorkspaceFolder(),
+            attachArguments,
+            this.session
+        )
+        .then((childDebugSessionStarted: boolean) => {
+            if (childDebugSessionStarted) {
+                if (resolve) {
+                    resolve();
+                }
+            } else {
+                throw new Error("Cannot start child debug session");
+            }
+        },
+        err => {
+            throw err;
+        });
+    }
 }
