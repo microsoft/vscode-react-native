@@ -18,6 +18,8 @@ export enum Platform {
     iOS,
     iOS_Expo,
 }
+const XDL = require("@expo/xdl");
+
 type XPathSelector = { [TKey in Platform]: string };
 type XPathSelectors = { [key: string]: XPathSelector };
 
@@ -143,20 +145,20 @@ export class AppiumHelper {
     public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string, projectFolder: string, firstLaunch?: boolean) {
         // There are two ways to run app in Expo app:
         // - via clipboard
-        // - via expo android command
+        // - via expo XDL function
         if (platform === Platform.Android) {
             if (process.platform === "darwin") {
                 // Longer way to open Expo app, but
                 // it certainly works on Mac
-                return this.openExpoAppViaExpoAndroidCommand(client, projectFolder);
+                return this.openExpoAppViaExpoXDLAndroidFunction(client, projectFolder);
             } else {
                 // The quickest way to open Expo app,
                 // it doesn't work on Mac though
                 return this.openExpoAppViaClipboardAndroid(client, expoURL);
             }
         } else if (platform === Platform.iOS) {
-            // Launch Expo using "expo ios" command
-            return this.openExpoAppViaExpoIosCommand(client, projectFolder, firstLaunch);
+            // Launch Expo using XDL.Simulator function
+            return this.openExpoAppViaExpoXDLSimulatorFunction(client, projectFolder, firstLaunch);
         } else {
             throw new Error(`Unknown platform ${platform}`);
         }
@@ -297,25 +299,25 @@ export class AppiumHelper {
         console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
-    private static async openExpoAppViaExpoAndroidCommand(client: AppiumClient, projectFolder: string) {
-        console.log(`*** Opening Expo app via "expo android" command`);
+    private static async openExpoAppViaExpoXDLAndroidFunction(client: AppiumClient, projectFolder: string) {
+        console.log(`*** Opening Expo app via XDL.Android function`);
         console.log(`*** Searching for the "Explore" button...`);
         const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc='Explore' or @content-desc='Explore, tab, 2 of 3']";
         await client
             .waitForExist(EXPLORE_ELEMENT, 30 * 1000);
 
-        cp.execSync("expo android", { cwd: projectFolder, stdio: "inherit" });
+        await XDL.Android.openProjectAsync(projectFolder);
     }
 
-    private static async openExpoAppViaExpoIosCommand(client: AppiumClient, projectFolder: string, firstLaunch?: boolean) {
-        console.log(`*** Opening Expo app via "expo ios" command`);
+    private static async openExpoAppViaExpoXDLSimulatorFunction(client: AppiumClient, projectFolder: string, firstLaunch?: boolean) {
+        console.log(`*** Opening Expo app via XDL.Simulator function`);
         console.log(`*** Searching for the "Explore" button...`);
 
         const EXPLORE_ELEMENT = `//XCUIElementTypeButton[@name="Explore, tab, 2 of 4"]`;
         await client
             .waitForExist(EXPLORE_ELEMENT, 30 * 1000);
 
-        cp.execSync("expo ios", { cwd: projectFolder, stdio: "inherit" });
+        await XDL.Simulator.openProjectAsync(projectFolder);
 
         if (firstLaunch) { // it's required to allow launch of an Expo application when it's launched for the first time
             console.log(`*** First launch of Expo app`);
