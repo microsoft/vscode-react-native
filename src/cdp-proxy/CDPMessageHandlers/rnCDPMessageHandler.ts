@@ -3,7 +3,7 @@
 
 import { IProtocolCommand } from "vscode-cdp-proxy";
 import { ICDPMessageHandler, ProcessedCDPMessage } from "./ICDPMessageHandler";
-import { METHODS_NAMES } from "./methodsNames";
+import { CDP_API_NAMES } from "./CDPAPINames";
 
 export class RnCDPMessageHandler implements ICDPMessageHandler {
     private firstStop: boolean;
@@ -14,7 +14,7 @@ export class RnCDPMessageHandler implements ICDPMessageHandler {
 
     public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
         let sendBack = false;
-        if (event.method === METHODS_NAMES.CLOSE) {
+        if (event.method === CDP_API_NAMES.CLOSE) {
             this.handleDebuggerDisconnect();
         }
 
@@ -26,7 +26,7 @@ export class RnCDPMessageHandler implements ICDPMessageHandler {
 
     public processApplicationCDPMessage(event: any): ProcessedCDPMessage {
         let sendBack = false;
-        if (event.method === METHODS_NAMES.DEBUGGER_PAUSED && this.firstStop) {
+        if (event.method === CDP_API_NAMES.DEBUGGER_PAUSED && this.firstStop) {
             event.params = this.handleAppBundleFirstPauseEvent(event);
         }
 

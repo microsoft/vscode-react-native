@@ -3,7 +3,7 @@
 
 import { Protocol as Cdp } from "devtools-protocol/types/protocol";
 import { ICDPMessageHandler, ProcessedCDPMessage } from "./ICDPMessageHandler";
-import { METHODS_NAMES } from "./methodsNames";
+import { CDP_API_NAMES } from "./CDPAPINames";
 
 export class DirectCDPMessageHandler implements ICDPMessageHandler {
 
@@ -25,9 +25,9 @@ export class DirectCDPMessageHandler implements ICDPMessageHandler {
 
     public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
         let sendBack = false;
-        if (event.method === METHODS_NAMES.DEBUGGER_SET_BREAKPOINT) {
+        if (event.method === CDP_API_NAMES.DEBUGGER_SET_BREAKPOINT) {
             event = this.handleBreakpointSetting(event);
-        } else if (event.method === METHODS_NAMES.RUNTIME_CALL_FUNCTION_ON) {
+        } else if (event.method === CDP_API_NAMES.RUNTIME_CALL_FUNCTION_ON) {
             if (event.params.functionDeclaration.includes(this.ARRAY_REQUEST_PHRASE_MARKER)) {
                 event = this.handleCallFunctionOnEvent(event);
                 sendBack = true;
@@ -42,7 +42,7 @@ export class DirectCDPMessageHandler implements ICDPMessageHandler {
 
     public processApplicationCDPMessage(event: any): ProcessedCDPMessage {
         let sendBack = false;
-        if (event.method === METHODS_NAMES.DEBUGGER_PAUSED) {
+        if (event.method === CDP_API_NAMES.DEBUGGER_PAUSED) {
             event = this.handlePausedEvent(event);
         } else if (event.result && event.result.result) {
             event = this.handleFunctionTypeResult(event);
