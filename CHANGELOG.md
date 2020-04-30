@@ -1,6 +1,5 @@
 ## 0.15.0
 * Improved extension security [#1227](https://github.com/microsoft/vscode-react-native/pull/1227)
-* Fix usage of custom fonts for Expo 37 [#1260](https://github.com/microsoft/vscode-react-native/pull/1260)
 * Added an option to add environment variables to the React Native packager process. [More info](https://github.com/microsoft/vscode-react-native#custom-environment-variables) [#1248](https://github.com/microsoft/vscode-react-native/pull/1248)
 * Readme extension homepage has been updated [#1243](https://github.com/microsoft/vscode-react-native/pull/1243), [#1250](https://github.com/microsoft/vscode-react-native/pull/1250), [#1251](https://github.com/microsoft/vscode-react-native/pull/1251)
 * Minor logging improvement [#1237](https://github.com/microsoft/vscode-react-native/pull/1237)
