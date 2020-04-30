@@ -10,7 +10,7 @@ import * as glob from "glob";
 export function run(): Promise<void> {
     const mocha = new Mocha ({
         ui: "tdd",
-        grep: new RegExp("(debuggerContext|localizationContext)"), // Do not run tests intended for the debuggerContext and localizationContext
+        grep: new RegExp("reactNativeCDPProxy"), // Do not run tests intended for the debuggerContext and localizationContext
         reporter: "mocha-multi-reporters",
         reporterOptions: {
             reporterEnabled: "spec, mocha-junit-reporter",
@@ -21,7 +21,7 @@ export function run(): Promise<void> {
     });
 
     mocha.useColors(true);
-    mocha.invert();
+    // mocha.invert();
 
     const testsRoot = __dirname;
     // Register Mocha options
