@@ -674,7 +674,6 @@
 		"vscode:prepublish": "gulp",
 		"test": "node ./test/runTest.js",
 		"test-localization": "node ./test/localization/runTest.js",
-		"postinstall": "node ./node_modules/vscode/bin/install",
 		"prepare-smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install",
 		"smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install && yarn --cwd ./vscode/test/smoke mocha",
 		"quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
@@ -719,6 +718,7 @@
 		"@types/ws": "^0.0.39",
 		"ansi-colors": "^3.1.0",
 		"del": "^2.2.0",
+		"devtools-protocol": "0.0.762508",
 		"event-stream": "3.3.4",
 		"fancy-log": "^1.3.2",
 		"gulp": "^4.0.0",
