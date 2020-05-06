@@ -21,7 +21,7 @@ export function run(): Promise<void> {
     });
 
     mocha.useColors(true);
-    // mocha.invert();
+    mocha.invert();
 
     const testsRoot = __dirname;
     // Register Mocha options
