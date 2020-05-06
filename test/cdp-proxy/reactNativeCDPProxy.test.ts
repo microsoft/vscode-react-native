@@ -6,15 +6,16 @@ import {
     Server,
     WebSocketTransport,
     IProtocolCommand,
-    IProtocolError,
-    IProtocolSuccess
 } from "vscode-cdp-proxy";
 import {ReactNativeCDPProxy} from "./../../src/cdp-proxy/reactNativeCDPProxy";
 import {generateRandomPortNumber} from "./../../src/common/extensionHelper";
 import {RnCDPMessageHandler} from "../../src/cdp-proxy/CDPMessageHandlers/rnCDPMessageHandler";
-import { LogLevel, LogHelper} from "../../src/extension/log/LogHelper";
-import { DebuggerEndpointHelper } from "./../../src/cdp-proxy/debuggerEndpointHelper";
-import { Request } from "../../src/common/node/request";
+import {ICDPMessageHandler} from "../../src/cdp-proxy/CDPMessageHandlers/ICDPMessageHandler";
+import {DirectCDPMessageHandler} from "../../src/cdp-proxy/CDPMessageHandlers/directCDPMessageHandler";
+import {LogLevel, LogHelper} from "../../src/extension/log/LogHelper";
+import {DebuggerEndpointHelper} from "./../../src/cdp-proxy/debuggerEndpointHelper";
+import {Request} from "../../src/common/node/request";
+import * as assert from "assert";
 
 suite("reactNativeCDPProxy", function () {
     const cdpProxyHostAddress = "127.0.0.1"; // localhost
@@ -22,44 +23,102 @@ suite("reactNativeCDPProxy", function () {
     const cdpProxyLogLevel = LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Custom : LogLevel.None;
     const proxy = new ReactNativeCDPProxy(cdpProxyHostAddress, cdpProxyPort);
 
-    const wsAppPort = generateRandomPortNumber();
+    const wsTargetPort = generateRandomPortNumber();
+    let wsTargetServer: Server | null;
 
-    let appConnection: Connection;
-    let debugConnection: Connection;
+    let targetConnection: Connection | null;
+    let debugConnection: Connection | null;
 
-    teardown(() => {
-      proxy.stopServer();
+    const sleep = async function (ms: number) {
+      await new Promise((res) => {setTimeout(res, ms); });
+    };
+
+    suiteSetup(async () => {
+      console.log("Start connection");
+      proxy.setApplicationTargetPort(wsTargetPort);
+      await proxy.initializeServer(new RnCDPMessageHandler(), cdpProxyLogLevel);
+
+      await Server.create({ host: "localhost", port: wsTargetPort })
+        .then((server: Server) => {
+          console.log("Target server created");
+          wsTargetServer = server;
+
+          server.onConnection(([connection, request]: [Connection, Request]) => {
+            console.log("Target server connected");
+
+            targetConnection = connection;
+          });
+        });
+
+      const proxyUri = await new DebuggerEndpointHelper().getWSEndpoint(`http://${cdpProxyHostAddress}:${cdpProxyPort}`);
+      debugConnection = new Connection(await WebSocketTransport.create(proxyUri));
+
+      while (!targetConnection) {
+        await sleep(1000);
+      }
+
+      console.log("End connection");
     });
 
-    suite("messagesHandlers", async () => {
+    suiteTeardown(() => {
+      console.log("Start disconnection");
+      if (targetConnection) {
+        targetConnection.close();
+        targetConnection = null;
+      }
+      if (debugConnection) {
+        debugConnection.close();
+        debugConnection = null;
+      }
+      proxy.stopServer();
+      if (wsTargetServer) {
+        wsTargetServer.dispose();
+        wsTargetServer = null;
+      }
 
-        proxy.setApplicationTargetPort(wsAppPort);
-        await proxy.initializeServer(new RnCDPMessageHandler(), cdpProxyLogLevel);
-        await Server.create({ host: "localhost", port: wsAppPort })
-          .then((server: Server) => {
-            console.log("App server created");
+      console.log("End disconnection");
+    });
 
-            server.onConnection(([connection, request]: [Connection, Request]) => {
-              console.log("App server connected");
+    suite("messageHandlers", () => {
 
-              appConnection = connection;
+      const deliverlyTest = function (messageHandler: ICDPMessageHandler) {
+        Object.assign(proxy, {CDPMessageHandler: messageHandler});
 
-              appConnection.onCommand((evt: IProtocolCommand) => {console.log(`App connection: ${evt.method}`); });
-              appConnection.onReply((evt: IProtocolError | IProtocolSuccess) => {console.log(`App connection: ${evt}`); });
-              appConnection.onError((evt: Error) => {console.log(`App connection: ${evt.message}`); });
+        return test(`Messages should be delivered correctly with ${(<Object>messageHandler).constructor.name}`, async () => {
+          const targetMessageStart = {method: "Target.start", params: {reason: "other"}};
+          const debuggerMessageStart = {method: "Debugger.start", params: {reason: "other"}};
 
-              appConnection.send({method: "App.start", params: {reason: "other"}});
-              appConnection.send({method: "App.run", params: {reason: "other"}});
+          const messageFromTarget = await new Promise((resolve) => {
+            targetConnection?.send(targetMessageStart);
+
+            debugConnection?.onCommand((evt: IProtocolCommand) => {
+              resolve(evt);
             });
+          })
+           .then((evt) => {
+            console.log(evt);
+            return evt;
           });
-          
-        const proxyUri = await new DebuggerEndpointHelper().getWSEndpoint(`http://${cdpProxyHostAddress}:${cdpProxyPort}`);
-        debugConnection = new Connection(await WebSocketTransport.create(proxyUri));
-        debugConnection.onCommand((evt: IProtocolCommand) => {console.log(`Debug connection: ${evt.method}`); });
-        debugConnection.onReply((evt: IProtocolError | IProtocolSuccess) => {console.log(`Debug connection: ${evt}`); });
-        debugConnection.onError((evt: Error) => {console.log(`Debug connection: ${evt.message}`); });
 
-        debugConnection.send({method: "Debugger.start", params: {reason: "other"}});
-        debugConnection.send({method: "Debugger.run", params: {reason: "other"}});
-  });
+          const messageFromDebugger = await new Promise((resolve) => {
+            debugConnection?.send(debuggerMessageStart);
+
+            targetConnection?.onCommand((evt: IProtocolCommand) => {
+              resolve(evt);
+            });
+          })
+           .then((evt) => {
+            console.log(evt);
+            return evt;
+          });
+
+          assert.deepEqual(messageFromTarget, targetMessageStart);
+          assert.deepEqual(messageFromDebugger, debuggerMessageStart);
+        });
+      };
+
+      deliverlyTest(new RnCDPMessageHandler());
+      deliverlyTest(new DirectCDPMessageHandler());
+    });
+
 });
