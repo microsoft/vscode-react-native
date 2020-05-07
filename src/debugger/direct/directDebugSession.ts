@@ -85,9 +85,9 @@ export class DirectDebugSession extends DebugSessionBase {
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
-                            this.appLauncher.getRnCdpProxy().stopServer();
                             logger.log(`Connecting to ${attachArgs.port} port`);
-                            return this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel)
+                            return this.appLauncher.getRnCdpProxy().stopServer()
+                                .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel))
                                 .then(() => {
                                     this.appLauncher.getRnCdpProxy().setApplicationTargetPort(attachArgs.port);
                                     this.establishDebugSession(resolve);

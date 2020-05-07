@@ -28,7 +28,7 @@ export class ReactNativeCDPProxy {
     private hostAddress: string;
     private port: number;
     private debuggerTarget: Connection;
-    private applicationTarget: Connection;
+    private applicationTarget: Connection | null;
     private logger: OutputChannelLogger;
     private logLevel: LogLevel;
     private debuggerEndpointHelper: DebuggerEndpointHelper;
@@ -54,10 +54,15 @@ export class ReactNativeCDPProxy {
             });
     }
 
-    public stopServer(): void {
+    public async stopServer(): Promise<void> {
         if (this.server) {
             this.server.dispose();
             this.server = null;
+        }
+
+        if (this.applicationTarget) {
+            await this.applicationTarget.close();
+            this.applicationTarget = null;
         }
     }
 
@@ -96,7 +101,7 @@ export class ReactNativeCDPProxy {
         if (processedMessage.sendBack) {
             this.debuggerTarget.send(processedMessage.event);
         } else {
-            this.applicationTarget.send(processedMessage.event);
+            this.applicationTarget?.send(processedMessage.event);
         }
     }
 
@@ -105,7 +110,7 @@ export class ReactNativeCDPProxy {
         const processedMessage = this.CDPMessageHandler.processApplicationCDPMessage(event);
 
         if (processedMessage.sendBack) {
-            this.applicationTarget.send(processedMessage.event);
+            this.applicationTarget?.send(processedMessage.event);
         } else {
             this.debuggerTarget.send(processedMessage.event);
         }
@@ -118,7 +123,7 @@ export class ReactNativeCDPProxy {
         if (processedMessage.sendBack) {
             this.debuggerTarget.send(processedMessage.event);
         } else {
-            this.applicationTarget.send(processedMessage.event);
+            this.applicationTarget?.send(processedMessage.event);
         }
     }
 
@@ -127,7 +132,7 @@ export class ReactNativeCDPProxy {
         const processedMessage = this.CDPMessageHandler.processApplicationCDPMessage(event);
 
         if (processedMessage.sendBack) {
-            this.applicationTarget.send(processedMessage.event);
+            this.applicationTarget?.send(processedMessage.event);
         } else {
             this.debuggerTarget.send(processedMessage.event);
         }

@@ -84,8 +84,8 @@ export class RNDebugSession extends DebugSessionBase {
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
-                            this.appLauncher.getRnCdpProxy().stopServer();
-                            return this.appLauncher.getRnCdpProxy().initializeServer(new RnCDPMessageHandler(), this.cdpProxyLogLevel)
+                            return this.appLauncher.getRnCdpProxy().stopServer()
+                                .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new RnCDPMessageHandler(), this.cdpProxyLogLevel))
                                 .then(() => {
                                     logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
 
