@@ -301,7 +301,7 @@ export class Packager {
             });
     }
 
-    private awaitStart(retryCount = 90, delay = 2000): Q.Promise<boolean> {
+    private awaitStart(retryCount = 60, delay = 3000): Q.Promise<boolean> {
         let pu: PromiseUtil = new PromiseUtil();
         return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, localize("CouldNotStartPackager", "Could not start the packager."));
     }
