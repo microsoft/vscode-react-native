@@ -116,7 +116,7 @@ suite("reactNativeCDPProxy", function () {
           Object.assign(proxy, {CDPMessageHandler: rnHandler});
         });
 
-        deliverlyTest(rnHandler);
+        deliveryTest(rnHandler);
 
         test(`Message from target with method '${CDP_API_NAMES.DEBUGGER_PAUSED}' in first time should transorm reason to 'Break on start'`, async () => {
           const targetMessagePaused = {method: CDP_API_NAMES.DEBUGGER_PAUSED, params: {reason: "other"}};
