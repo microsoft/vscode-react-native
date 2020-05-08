@@ -135,7 +135,6 @@ suite("reactNativeCDPProxy", function () {
 
           assert.deepEqual(messageFromTarget, targetMessagePaused);
         });
-
       });
 
       suite(`${(<Object>directHandler).constructor.name}`, () => {
