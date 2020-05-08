@@ -149,7 +149,7 @@ suite("reactNativeCDPProxy", function () {
 
         deliveryTest(directHandler);
 
-        test(`Message from target with method '${CDP_API_NAMES.DEBUGGER_PAUSED}' should filter callFrames with Hermes function name and script id`, async () => {
+        test(`Message from target with method '${CDP_API_NAMES.DEBUGGER_PAUSED}' should filter callFrames with Hermes Native function name and script id`, async () => {
           const callFrames: any = [
             {
               functionName: HERMES_NATIVE_FUNCTION_NAME,
