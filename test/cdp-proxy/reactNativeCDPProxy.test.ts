@@ -76,7 +76,7 @@ suite("reactNativeCDPProxy", function () {
       let rnHandler = new RnCDPMessageHandler();
       let directHandler = new DirectCDPMessageHandler();
 
-      const deliverlyTest = function (messageHandler: ICDPMessageHandler) {
+      const deliveryTest = function (messageHandler: ICDPMessageHandler) {
 
         return test(`Messages should be delivered correctly with ${(<Object>messageHandler).constructor.name}`, async () => {
           const targetMessageStart = {method: "Target.start", params: {reason: "test"}};
