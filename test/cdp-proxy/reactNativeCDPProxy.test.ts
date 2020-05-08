@@ -20,6 +20,13 @@ import {Request} from "../../src/common/node/request";
 import * as assert from "assert";
 import {CDP_API_NAMES} from "../../src/cdp-proxy/CDPMessageHandlers/CDPAPINames";
 import {PromiseUtil} from "../../src/common/node/promise";
+import {
+  HERMES_NATIVE_FUNCTION_NAME,
+  HERMES_NATIVE_FUNCTION_SCRIPT_ID,
+  ARRAY_REQUEST_PHRASE_MARKER,
+  mockCallFrames,
+  mockResults
+} from "./cdpConstants";
 
 suite("reactNativeCDPProxy", function () {
     const promiseUtil = new PromiseUtil();
@@ -35,7 +42,11 @@ suite("reactNativeCDPProxy", function () {
     let targetConnection: Connection | null;
     let debugConnection: Connection | null;
 
+    // For all hooks and tests set a time limit
+    this.timeout(5000);
+
     suiteSetup(async () => {
+
       proxy.setApplicationTargetPort(wsTargetPort);
       await proxy.initializeServer(new RnCDPMessageHandler(), cdpProxyLogLevel);
 
@@ -51,6 +62,7 @@ suite("reactNativeCDPProxy", function () {
       const proxyUri = await new DebuggerEndpointHelper().getWSEndpoint(`http://${cdpProxyHostAddress}:${cdpProxyPort}`);
       debugConnection = new Connection(await WebSocketTransport.create(proxyUri));
 
+      // Due to the time limit, sooner or later this cycle will end
       while (!targetConnection) {
         await promiseUtil.delay(1000);
       }
@@ -78,7 +90,7 @@ suite("reactNativeCDPProxy", function () {
 
       const deliveryTest = function (messageHandler: ICDPMessageHandler) {
 
-        return test(`Messages should be delivered correctly with ${(<Object>messageHandler).constructor.name}`, async () => {
+        return test(`Messages should be delivered correctly with ${messageHandler.constructor.name}`, async () => {
           const targetMessageStart = {method: "Target.start", params: {reason: "test"}};
           const debuggerMessageStart = {method: "Debugger.start", params: {reason: "test"}};
 
@@ -90,7 +102,7 @@ suite("reactNativeCDPProxy", function () {
             });
           })
            .then((evt) => {
-            return evt;
+              return evt;
           });
 
           const messageFromDebugger = await new Promise((resolve) => {
@@ -101,7 +113,7 @@ suite("reactNativeCDPProxy", function () {
             });
           })
            .then((evt) => {
-            return evt;
+              return evt;
           });
 
           assert.deepEqual(messageFromTarget, targetMessageStart);
@@ -109,7 +121,7 @@ suite("reactNativeCDPProxy", function () {
         });
       };
 
-      suite(`${(<Object>rnHandler).constructor.name}`, () => {
+      suite(`${rnHandler.constructor.name}`, () => {
 
         suiteSetup(async () => {
           rnHandler = new RnCDPMessageHandler();
@@ -129,18 +141,15 @@ suite("reactNativeCDPProxy", function () {
             });
           })
            .then((evt) => {
-             targetMessagePaused.params.reason = "Break on start";
-             return evt;
+              targetMessagePaused.params.reason = "Break on start";
+              return evt;
           });
 
           assert.deepEqual(messageFromTarget, targetMessagePaused);
         });
       });
 
-      suite(`${(<Object>directHandler).constructor.name}`, () => {
-        const HERMES_NATIVE_FUNCTION_NAME: string = "(native)";
-        const HERMES_NATIVE_FUNCTION_SCRIPT_ID: string = "4294967295";
-        const ARRAY_REQUEST_PHRASE_MARKER: string = "Object.getOwnPropertyDescriptor";
+      suite(`${directHandler.constructor.name}`, () => {
 
         suiteSetup(async () => {
           directHandler = new DirectCDPMessageHandler();
@@ -150,37 +159,11 @@ suite("reactNativeCDPProxy", function () {
         deliveryTest(directHandler);
 
         test(`Message from target with method '${CDP_API_NAMES.DEBUGGER_PAUSED}' should filter callFrames with Hermes Native function name and script id`, async () => {
-          const callFrames: any = [
-            {
-              functionName: HERMES_NATIVE_FUNCTION_NAME,
-              location: {
-                scriptId: "1",
-              },
-            },
-            {
-              functionName: "name",
-              location: {
-                scriptId: HERMES_NATIVE_FUNCTION_SCRIPT_ID,
-              },
-            },
-            {
-              functionName: "name",
-              location: {
-                scriptId: "2",
-              },
-            },
-            {
-              functionName: "name1",
-              location: {
-                scriptId: "3",
-              },
-            },
-          ];
           const targetMessagePaused = {
             method: CDP_API_NAMES.DEBUGGER_PAUSED,
             params: {
               reason: "other",
-              callFrames: callFrames,
+              callFrames: mockCallFrames,
             },
           };
 
@@ -192,12 +175,12 @@ suite("reactNativeCDPProxy", function () {
             });
           })
            .then((evt) => {
-             const filteredCallFrames = callFrames.filter((callFrame: any) =>
-              callFrame.functionName !== HERMES_NATIVE_FUNCTION_NAME &&
-              callFrame.location.scriptId !== HERMES_NATIVE_FUNCTION_SCRIPT_ID
-             );
-             targetMessagePaused.params.callFrames = filteredCallFrames;
-             return evt;
+              const filteredCallFrames = mockCallFrames.filter((callFrame: any) =>
+                callFrame.functionName !== HERMES_NATIVE_FUNCTION_NAME &&
+                callFrame.location.scriptId !== HERMES_NATIVE_FUNCTION_SCRIPT_ID
+              );
+              targetMessagePaused.params.callFrames = filteredCallFrames;
+              return evt;
           });
 
           assert.deepEqual(messageFromTarget, targetMessagePaused);
@@ -209,22 +192,7 @@ suite("reactNativeCDPProxy", function () {
             params: {
               reason: "test",
             },
-            result: {
-              result: [
-                {
-                  value: {
-                    type: "function",
-                    description: undefined,
-                  },
-                },
-                {
-                  value: {
-                    type: "function",
-                    description: "description",
-                  },
-                },
-              ],
-            },
+            result: mockResults,
           };
 
           const messageFromTarget = await new Promise((resolve) => {
@@ -235,12 +203,12 @@ suite("reactNativeCDPProxy", function () {
             });
           })
            .then((evt) => {
-            targetMessage.result.result.forEach((resultObj) => {
-              if (resultObj.value && resultObj.value.type === "function" && !resultObj.value.description) {
+              targetMessage.result.result.forEach((resultObj) => {
+                if (resultObj.value && resultObj.value.type === "function" && !resultObj.value.description) {
                   resultObj.value.description = "function() { … }";
-              }
-            });
-            return evt;
+                }
+              });
+              return evt;
           });
 
           assert.deepEqual(messageFromTarget, targetMessage);
@@ -266,8 +234,8 @@ suite("reactNativeCDPProxy", function () {
             });
           })
            .then((evt) => {
-            delete debuggerMessage.params.location.columnNumber;
-            return evt;
+              delete debuggerMessage.params.location.columnNumber;
+              return evt;
           });
 
           assert.deepEqual(messageFromDebugger, debuggerMessage);
@@ -288,9 +256,9 @@ suite("reactNativeCDPProxy", function () {
           };
           let resultMessage = {
             result: {
-                result: {
-                    objectId: debuggerMessage.params.objectId,
-                },
+              result: {
+                objectId: debuggerMessage.params.objectId,
+              },
             },
             id: debuggerMessage.id,
           };
@@ -303,15 +271,11 @@ suite("reactNativeCDPProxy", function () {
             });
           })
            .then((evt) => {
-            return evt;
+              return evt;
           });
 
           assert.deepEqual(messageFromDebugger, resultMessage);
         });
-
       });
-
-
     });
-
 });
