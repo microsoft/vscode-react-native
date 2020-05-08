@@ -148,7 +148,7 @@ suite("reactNativeCDPProxy", function () {
           Object.assign(proxy, {CDPMessageHandler: directHandler});
         });
 
-        deliverlyTest(directHandler);
+        deliveryTest(directHandler);
 
         test(`Message from target with method '${CDP_API_NAMES.DEBUGGER_PAUSED}' should filter callFrames with Hermes function name and script id`, async () => {
           const callFrames: any = [
