@@ -55,10 +55,10 @@ PASTE OUTPUT OF DEVELOPER TOOLS CONSOLE (Help -> Toggle Developer Tools -> Selec
 
 Please tell us about your system and your project:
 
-* `npx react-native doctor`:
+* `npx react-native doctor` or `npx expo doctor` if your project is using Expo:
 
 ```text
-PASTE OUTPUT OF `npx react-native doctor`
+PASTE OUTPUT OF `npx react-native doctor` or `npx expo doctor`
 ```
 
 * `envinfo`:
