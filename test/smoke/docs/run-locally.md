@@ -160,7 +160,7 @@ To create environment variable you can use this commands:
    export YOUR_VARIABLE=VALUE
    ```
 
-In the directory `test/smoke` there is a `config.json` configuration file with pre-settings for evironment variables.
+In the directory `test/smoke/package` there is a `config.json` configuration file with predefined settings for environment variables.
 This approach would be more suited for CI.
 
 For local runs is more convenient to create file `config.dev.json` inside `test/smoke/package` directory and specify variables there. Example:
