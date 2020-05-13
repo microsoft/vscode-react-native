@@ -131,7 +131,7 @@ Add these lines to `~/.bash_profile` (create one if it doesn't exist):
    ```sh
    yarn install
    ```
-1. Copy extension VSIX to `test/smoke/resources/drop-win` directory
+1. Copy extension VSIX to `test/smoke/package/resources/drop-win` directory
 
 ## Running tests
 
