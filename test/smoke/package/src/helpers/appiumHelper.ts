@@ -215,6 +215,7 @@ export class AppiumHelper {
                 console.log("*** Debug JS Remotely button found...");
                 await client.click(this.XPATH.RN_ENABLE_REMOTE_DEBUGGING_BUTTON[platform]);
                 console.log("*** Debug JS Remotely button clicked...");
+                await sleep(1000);
                 if (await client.isExisting(this.XPATH.RN_ENABLE_REMOTE_DEBUGGING_BUTTON[platform])) {
                     await client.click(this.XPATH.RN_ENABLE_REMOTE_DEBUGGING_BUTTON[platform]);
                     console.log("*** Debug JS Remotely button clicked second time...");
