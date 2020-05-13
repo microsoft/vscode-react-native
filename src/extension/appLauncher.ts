@@ -113,7 +113,7 @@ export class AppLauncher {
     }
 
     public dispose(): void {
-        this.packager.statusIndicator.dispose();
+        this.packager.getStatusIndicator().dispose();
         this.packager.stop(true);
         this.stopMonitoringLogCat();
     }
