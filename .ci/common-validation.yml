@@ -1,0 +1,57 @@
+steps:
+- task: NodeTool@0
+  displayName: 'Use Node 10.x'
+  inputs:
+    versionSpec: 10.x
+
+- bash: npm install gulp react-devtools vsce -g --force
+  displayName: 'npm install gulp react-devtools vsce -g'
+
+- bash: npm ci
+  displayName: 'npm ci'
+
+- bash: npm run vscode:prepublish
+  displayName: 'npm run vscode:prepublish'
+
+- bash: |
+    /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+    echo ">>> Started xvfb"
+  displayName: Start xvfb
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+
+- bash: npm run test-localization
+  displayName: 'Run localization tests'
+  env:
+    DISPLAY: ':99.0'
+
+- bash: 'npm test --verbose'
+  displayName: 'Run host tests'
+  env:
+    DISPLAY: ':99.0'
+
+- bash: gulp test:coverage
+  displayName: 'Run hostless tests'
+
+- task: PublishTestResults@2
+  displayName: 'Publish Debugger Test Results'
+  inputs:
+    testResultsFiles: test/DebuggerTests.xml
+    failTaskOnFailedTests: true
+    testRunTitle: '[Debugger Context] $(Agent.OS) React Native unit tests - Attempt №$(System.JobAttempt)'
+  condition: always()
+
+- task: PublishTestResults@2
+  displayName: 'Publish Extension Test Results'
+  inputs:
+    testResultsFiles: test/ExtensionTests.xml
+    failTaskOnFailedTests: true
+    testRunTitle: '[Extension Context] $(Agent.OS) React Native unit tests - Attempt №$(System.JobAttempt)'
+  condition: always()
+
+- task: PublishTestResults@2
+  displayName: 'Publish Localization Test Results'
+  inputs:
+    testResultsFiles: test/LocalizationTests.xml
+    failTaskOnFailedTests: true
+    testRunTitle: '[Localization Context] $(Agent.OS) React Native unit tests - Attempt №$(System.JobAttempt)'
+  condition: always()

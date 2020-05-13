@@ -55,5 +55,17 @@ suite("iOSPlatform", function () {
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.runArguments, expected);
         });
+        test("getRunArgument device Contoso iPhone", function () {
+            runOptions.target = "device=Contoso iPhone";
+            const expected = ["--device", "Contoso iPhone"];
+            let platform = new IOSPlatform(runOptions);
+            assert.deepEqual(platform.runArguments, expected);
+        });
+        test("getRunArgument device with incorrect 'device' field", function () {
+            runOptions.target = "device Contoso iPhone";
+            const expected = ["--device"];
+            let platform = new IOSPlatform(runOptions);
+            assert.deepEqual(platform.runArguments, expected);
+        });
     });
 });

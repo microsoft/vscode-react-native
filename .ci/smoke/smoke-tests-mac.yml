@@ -1,0 +1,22 @@
+trigger:
+  - master
+pr:
+  - master
+
+variables:
+  vswdbotLogin: vswdbot
+  appiumVersion: 1.17.0
+  basicOnly: false
+  expoCLIVersion: latest
+  nightlyBuild: false
+  smokeTestDirectory: test/smoke
+
+jobs:
+  - job: macOS
+    pool:
+      name: 'React Native smoke tests - macOS'
+    timeoutInMinutes: 60
+    steps:
+    - checkout: self
+      clean: true
+    - template: smoke-tests-common-validation.yml

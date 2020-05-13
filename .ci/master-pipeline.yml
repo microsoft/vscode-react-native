@@ -1,0 +1,68 @@
+trigger:
+  - master
+
+pr:
+  - none
+
+jobs:
+- job: Linux
+  pool:
+    vmImage: ubuntu-latest
+  timeoutInMinutes: 20
+  steps:
+  - checkout: self
+    clean: true
+  - template: common-validation.yml
+
+- job: Windows
+  pool:
+    vmImage: windows-latest
+  timeoutInMinutes: 20
+  steps:
+  - checkout: self
+    clean: true
+  - template: common-validation.yml
+
+  - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+    displayName: 'Component Detection'
+    inputs:
+      ignoreDirectories: '.vscode-test'
+
+  - task: msospo.ospo-extension.8d7f9abb-6896-461d-9e25-4f74ed65ddb2.notice@0
+    displayName: 'NOTICE File Generator'
+    inputs:
+      outputfile: 'ThirdPartyNotices_Generated.txt'
+      additionaldata: release/AdditionalAttributions.txt
+
+  - script: 'move ThirdPartyNotices_Generated.txt $(Build.ArtifactStagingDirectory)\ThirdPartyNotices.txt'
+    displayName: 'Move generated TPN to: $(Build.ArtifactStagingDirectory)'
+
+  - bash: gulp release
+    displayName: 'gulp release'
+
+  - bash: 'node -e "console.log(require(''./package.json'').version)" -> version.txt'
+    displayName: 'Strip version from package.json and save to version.txt'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
+    inputs:
+      Contents: |
+        *.vsix
+        CHANGELOG.md
+        version.txt
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish artifacts: drop-win'
+    inputs:
+      ArtifactName: 'drop-win'
+
+
+- job: macOS
+  pool:
+    vmImage: macOS-latest
+  timeoutInMinutes: 20
+  steps:
+  - checkout: self
+    clean: true
+  - template: common-validation.yml
