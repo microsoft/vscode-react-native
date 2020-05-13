@@ -6,7 +6,7 @@ import * as Q from "q";
 import * as path from "path";
 import * as fs from "fs";
 import stripJsonComments = require("strip-json-comments");
-import { LoggingDebugSession, Logger, logger } from "vscode-debugadapter";
+import { LoggingDebugSession, Logger, logger, ErrorDestination } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 import { getLoggingDirectory, LogHelper } from "../extension/log/LogHelper";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
@@ -102,6 +102,16 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         } else {
             return Q.resolve<void>(void 0);
         }
+    }
+
+    protected showError(message: string, response: DebugProtocol.Response): void {
+        this.sendErrorResponse(
+            response,
+            { format: message, id: 1 },
+            undefined,
+            undefined,
+            ErrorDestination.User
+        );
     }
 }
 

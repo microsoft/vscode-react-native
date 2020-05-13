@@ -40,7 +40,7 @@ export class RNDebugSession extends DebugSessionBase {
         );
     }
 
-    protected launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
+    protected async launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
         return new Promise<void>((resolve, reject) => this.initializeSettings(launchArgs)
             .then(() => {
                 logger.log("Launching the application");
@@ -60,10 +60,11 @@ export class RNDebugSession extends DebugSessionBase {
                         logger.error("An error occurred while launching the application. " + err.message || err);
                         reject(err);
                     });
-            }));
+            }))
+            .catch(err => this.showError(err.message, response));
     }
 
-    protected attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {
+    protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {
         let extProps = {
             platform: {
                 value: attachArgs.platform,
@@ -130,16 +131,17 @@ export class RNDebugSession extends DebugSessionBase {
                             reject(err);
                         });
                     });
-        }));
+        }))
+        .catch(err => this.showError(err.message, response));
     }
 
-    protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
+    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
         // The client is about to disconnect so first we need to stop app worker
         if (this.appWorker) {
             this.appWorker.stop();
         }
 
-        this.appLauncher.getRnCdpProxy().stopServer();
+        await this.appLauncher.getRnCdpProxy().stopServer();
 
         this.onDidStartDebugSessionHandler.dispose();
         this.onDidTerminateDebugSessionHandler.dispose();

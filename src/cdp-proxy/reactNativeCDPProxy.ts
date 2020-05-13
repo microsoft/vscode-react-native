@@ -34,12 +34,14 @@ export class ReactNativeCDPProxy {
     private debuggerEndpointHelper: DebuggerEndpointHelper;
     private CDPMessageHandler: ICDPMessageHandler;
     private applicationTargetPort: number;
+    private browserInspectUri: string;
 
     constructor(hostAddress: string, port: number, logLevel: LogLevel = LogLevel.None) {
         this.port = port;
         this.hostAddress = hostAddress;
         this.logger = OutputChannelLogger.getChannel("React Native Chrome Proxy", true, false, true);
         this.logLevel = logLevel;
+        this.browserInspectUri = "";
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
     }
 
@@ -64,6 +66,12 @@ export class ReactNativeCDPProxy {
             await this.applicationTarget.close();
             this.applicationTarget = null;
         }
+
+        this.browserInspectUri = "";
+    }
+
+    public setBrowserInspectUri(browserInspectUri: string) {
+        this.browserInspectUri = browserInspectUri;
     }
 
     public setApplicationTargetPort(applicationTargetPort: number): void {
@@ -75,9 +83,11 @@ export class ReactNativeCDPProxy {
 
         this.debuggerTarget.pause(); // don't listen for events until the target is ready
 
-        const browserInspectUri = await this.debuggerEndpointHelper.retryGetWSEndpoint(`http://localhost:${this.applicationTargetPort}`, 100);
+        if (!this.browserInspectUri) {
+            this.browserInspectUri = await this.debuggerEndpointHelper.retryGetWSEndpoint(`http://localhost:${this.applicationTargetPort}`, 90);
+        }
 
-        this.applicationTarget = new Connection(await WebSocketTransport.create(browserInspectUri));
+        this.applicationTarget = new Connection(await WebSocketTransport.create(this.browserInspectUri));
 
         this.applicationTarget.onError(this.onApplicationTargetError.bind(this));
         this.debuggerTarget.onError(this.onDebuggerTargetError.bind(this));
@@ -147,6 +157,7 @@ export class ReactNativeCDPProxy {
     }
 
     private async onDebuggerTargetClosed() {
+        this.browserInspectUri = "";
         this.CDPMessageHandler.processDebuggerCDPMessage({method: "close"});
     }
 }
