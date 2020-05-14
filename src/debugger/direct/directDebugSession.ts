@@ -3,21 +3,25 @@
 
 import * as vscode from "vscode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
-import {logger } from "vscode-debugadapter";
+import { logger } from "vscode-debugadapter";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { DebugProtocol } from "vscode-debugprotocol";
 import { DirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/directCDPMessageHandler";
 import { DebugSessionBase, IAttachRequestArgs, ILaunchRequestArgs } from "../debugSessionBase";
+import { DebuggerEndpointHelper } from "../../cdp-proxy/debuggerEndpointHelper";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
 export class DirectDebugSession extends DebugSessionBase {
 
+    private debuggerEndpointHelper: DebuggerEndpointHelper;
+
     constructor(session: vscode.DebugSession) {
         super(session);
+        this.debuggerEndpointHelper = new DebuggerEndpointHelper();
     }
 
-    protected launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
+    protected async launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
         let extProps = {
             platform: {
                 value: launchArgs.platform,
@@ -56,10 +60,11 @@ export class DirectDebugSession extends DebugSessionBase {
                             reject(err);
                         });
                     });
-        }));
+        }))
+        .catch(err => this.showError(err.message, response));
     }
 
-    protected attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {
+    protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {
         let extProps = {
             platform: {
                 value: attachArgs.platform,
@@ -85,11 +90,12 @@ export class DirectDebugSession extends DebugSessionBase {
                         }
                         return TelemetryHelper.generate("attach", extProps, (generator) => {
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
-                            this.appLauncher.getRnCdpProxy().stopServer();
                             logger.log(`Connecting to ${attachArgs.port} port`);
-                            return this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel)
-                                .then(() => {
-                                    this.appLauncher.getRnCdpProxy().setApplicationTargetPort(attachArgs.port);
+                            return this.appLauncher.getRnCdpProxy().stopServer()
+                                .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel))
+                                .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(`http://localhost:${attachArgs.port}`, 90))
+                                .then((browserInspectUri) => {
+                                    this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
                                     this.establishDebugSession(resolve);
                                 });
                         })
@@ -98,16 +104,17 @@ export class DirectDebugSession extends DebugSessionBase {
                             reject(err);
                         });
                     });
-        }));
+        }))
+        .catch(err => this.showError(err.message, response));
     }
 
-    protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
+    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
         // The client is about to disconnect so first we need to stop app worker
         if (this.appWorker) {
             this.appWorker.stop();
         }
 
-        this.appLauncher.getRnCdpProxy().stopServer();
+        await this.appLauncher.getRnCdpProxy().stopServer();
 
         if (this.previousAttachArgs.platform === "android") {
             try {
