@@ -10,6 +10,7 @@ import {
     IProtocolSuccess
 } from "vscode-cdp-proxy";
 import { IncomingMessage } from "http";
+import { CancellationToken } from "vscode";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { LogLevel } from "../extension/log/LogHelper";
 import { DebuggerEndpointHelper } from "./debuggerEndpointHelper";
@@ -35,6 +36,7 @@ export class ReactNativeCDPProxy {
     private CDPMessageHandler: ICDPMessageHandler;
     private applicationTargetPort: number;
     private browserInspectUri: string;
+    private cancellationToken: CancellationToken | undefined;
 
     constructor(hostAddress: string, port: number, logLevel: LogLevel = LogLevel.None) {
         this.port = port;
@@ -45,9 +47,14 @@ export class ReactNativeCDPProxy {
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
     }
 
-    public initializeServer(CDPMessageHandler: ICDPMessageHandler, logLevel: LogLevel): Promise<void> {
+    public initializeServer(
+        CDPMessageHandler: ICDPMessageHandler,
+        logLevel: LogLevel,
+        cancellationToken?: CancellationToken
+    ): Promise<void> {
         this.logLevel = logLevel;
         this.CDPMessageHandler = CDPMessageHandler;
+        this.cancellationToken = cancellationToken;
 
         return Server.create({ port: this.port, host: this.hostAddress })
             .then((server: Server) => {
@@ -68,6 +75,7 @@ export class ReactNativeCDPProxy {
         }
 
         this.browserInspectUri = "";
+        this.cancellationToken = undefined;
     }
 
     public setBrowserInspectUri(browserInspectUri: string) {
@@ -84,7 +92,15 @@ export class ReactNativeCDPProxy {
         this.debuggerTarget.pause(); // don't listen for events until the target is ready
 
         if (!this.browserInspectUri) {
-            this.browserInspectUri = await this.debuggerEndpointHelper.retryGetWSEndpoint(`http://localhost:${this.applicationTargetPort}`, 90);
+            if (this.cancellationToken) {
+                this.browserInspectUri = await this.debuggerEndpointHelper.retryGetWSEndpoint(
+                    `http://localhost:${this.applicationTargetPort}`,
+                    90,
+                    this.cancellationToken
+                );
+            } else {
+                this.browserInspectUri = await this.debuggerEndpointHelper.getWSEndpoint(`http://localhost:${this.applicationTargetPort}`);
+            }
         }
 
         this.applicationTarget = new Connection(await WebSocketTransport.create(this.browserInspectUri));

@@ -14,7 +14,6 @@ import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ILaunchArgs } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
-import { MultipleLifetimesAppWorker } from "./appWorker";
 import { LogLevel } from "../extension/log/LogHelper";
 
 /**
@@ -48,7 +47,6 @@ export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments
 export abstract class DebugSessionBase extends LoggingDebugSession {
 
     protected appLauncher: AppLauncher;
-    protected appWorker: MultipleLifetimesAppWorker | null;
     protected projectRootPath: string;
     protected isSettingsInitialized: boolean; // used to prevent parameters reinitialization when attach is called from launch function
     protected previousAttachArgs: IAttachRequestArgs;
@@ -61,8 +59,18 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
 
         this.session = session;
         this.isSettingsInitialized = false;
-        this.appWorker = null;
         this.debugSessionStatus = DebugSessionStatus.FirstConnection;
+    }
+
+    protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
+        response.body = response.body || {};
+
+        response.body.supportsConfigurationDoneRequest = true;
+        response.body.supportsEvaluateForHovers = true;
+        response.body.supportTerminateDebuggee = true;
+        response.body.supportsCancelRequest = true;
+
+        this.sendResponse(response);
     }
 
     protected abstract establishDebugSession(resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;

@@ -19,6 +19,7 @@ export class RNDebugSession extends DebugSessionBase {
     private readonly terminateCommand: string;
     private readonly pwaNodeSessionName: string;
 
+    private appWorker: MultipleLifetimesAppWorker | null;
     private nodeSession: vscode.DebugSession | null;
     private onDidStartDebugSessionHandler: vscode.Disposable;
     private onDidTerminateDebugSessionHandler: vscode.Disposable;
@@ -31,6 +32,8 @@ export class RNDebugSession extends DebugSessionBase {
         this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
 
         // variables definition
+        this.appWorker = null;
+
         this.onDidStartDebugSessionHandler = vscode.debug.onDidStartDebugSession(
             this.handleStartDebugSession.bind(this)
         );

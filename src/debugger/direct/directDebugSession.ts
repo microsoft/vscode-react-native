@@ -15,10 +15,12 @@ const localize = nls.loadMessageBundle();
 export class DirectDebugSession extends DebugSessionBase {
 
     private debuggerEndpointHelper: DebuggerEndpointHelper;
+    private cancellationTokenSource: vscode.CancellationTokenSource;
 
     constructor(session: vscode.DebugSession) {
         super(session);
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
+        this.cancellationTokenSource = new vscode.CancellationTokenSource();
     }
 
     protected async launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
@@ -93,7 +95,11 @@ export class DirectDebugSession extends DebugSessionBase {
                             logger.log(`Connecting to ${attachArgs.port} port`);
                             return this.appLauncher.getRnCdpProxy().stopServer()
                                 .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel))
-                                .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(`http://localhost:${attachArgs.port}`, 90))
+                                .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(
+                                    `http://localhost:${attachArgs.port}`,
+                                    90,
+                                    this.cancellationTokenSource.token
+                                ))
                                 .then((browserInspectUri) => {
                                     this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
                                     this.establishDebugSession(resolve);
@@ -109,12 +115,10 @@ export class DirectDebugSession extends DebugSessionBase {
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
-        // The client is about to disconnect so first we need to stop app worker
-        if (this.appWorker) {
-            this.appWorker.stop();
-        }
-
         await this.appLauncher.getRnCdpProxy().stopServer();
+
+        this.cancellationTokenSource.cancel();
+        this.cancellationTokenSource.dispose();
 
         if (this.previousAttachArgs.platform === "android") {
             try {
