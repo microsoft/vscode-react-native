@@ -165,7 +165,7 @@ To create environment variable you can use this commands:
 In the directory `test/smoke/package` there is a `config.json` configuration file with predefined settings for environment variables.
 This approach would be more suited for CI.
 
-For local runs is more convenient to create file `config.dev.json` inside `test/smoke/package` directory and specify variables there. Example:
+For local runs, it is more convenient to create file `config.dev.json` inside `test/smoke/package` directory and specify variables there. Example:
 ```js
 {
     "ANDROID_EMULATOR": "Nexus_5X_API_28_x86",
