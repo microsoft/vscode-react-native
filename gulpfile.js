@@ -20,6 +20,7 @@ const remapIstanbul = require("remap-istanbul/lib/gulpRemapIstanbul");
 const nls = require("vscode-nls-dev");
 const libtslint = require("tslint");
 const tslint = require("gulp-tslint");
+const vscodeTest = require("vscode-test");
 
 const copyright = GulpExtras.checkCopyright;
 const imports = GulpExtras.checkImports;
@@ -93,7 +94,8 @@ function build(failOnError, buildNls) {
         });
 }
 
-function test() {
+async function test() {
+
     // Check if arguments were passed
     if (options.pattern) {
         log(`\nTesting cases that match pattern: ${options.pattern}`);
@@ -101,19 +103,25 @@ function test() {
         log("\nTesting cases that don't match pattern: extensionContext|localizationContext");
     }
 
-    const testResultsPath = path.join(__dirname, "test", "DebuggerTests.xml");
-    process.env.MOCHA_FILE = testResultsPath;
-    return gulp.src(["test/**/*.test.js", "!test/extension/**"])
-        .pipe(mocha({
-            ui: "tdd",
-            useColors: true,
-            invert: !options.pattern,
-            grep: options.pattern || "(extensionContext|localizationContext)",
-            reporter: "mocha-multi-reporters",
-            reporterOptions: {
-                configFile: path.resolve("test/mochaReporterConfig.json"),
-            },
-        }));
+    try {
+        // The folder containing the Extension Manifest package.json
+        // Passed to `--extensionDevelopmentPath`
+        const extensionDevelopmentPath = __dirname;
+
+        // The path to the extension test runner script
+        // Passed to --extensionTestsPath
+        const extensionTestsPath = path.resolve(__dirname, "test", "index");
+        console.log(extensionTestsPath);
+        // Download VS Code, unzip it and run the integration test
+        await vscodeTest.runTests({
+          extensionDevelopmentPath,
+          extensionTestsPath,
+        });
+    } catch (err) {
+        console.error(err);
+        console.error("Failed to run tests");
+        process.exit(1);
+    }
 }
 
 gulp.task("check-imports", () => {
