@@ -116,7 +116,6 @@ export class Debug extends Viewlet {
     }
 
     public async waitForStackFrame(func: (stackFrame: IStackFrame) => boolean, message: string): Promise<IStackFrame> {
-        await this.code.waitAndClick("#list_id_13_0 > div > div.monaco-tl-twistie.codicon.codicon-chevron-down.collapsible");
         const elements = await this.code.waitForElements(STACK_FRAME, true, elements => elements.some(e => func(toStackFrame(e))));
         return elements.map(toStackFrame).filter(s => func(s))[0];
     }
