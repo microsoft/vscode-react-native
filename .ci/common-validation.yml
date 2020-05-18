@@ -30,11 +30,11 @@ steps:
     DISPLAY: ':99.0'
 
 - task: PublishTestResults@2
-  displayName: 'Publish Debugger Test Results'
+  displayName: 'Publish Extension Test Results'
   inputs:
-    testResultsFiles: test/DebuggerTests.xml
+    testResultsFiles: test/ExtensionTests.xml
     failTaskOnFailedTests: true
-    testRunTitle: '[Debugger Context] $(Agent.OS) React Native unit tests - Attempt №$(System.JobAttempt)'
+    testRunTitle: '[Extension Context] $(Agent.OS) React Native unit tests - Attempt №$(System.JobAttempt)'
   condition: always()
 
 - task: PublishTestResults@2
