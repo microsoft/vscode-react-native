@@ -1,3 +1,20 @@
+## 0.15.0
+* Improved extension security [#1227](https://github.com/microsoft/vscode-react-native/pull/1227)
+* Added an option to add environment variables to the React Native packager process. [More info](https://github.com/microsoft/vscode-react-native#custom-environment-variables) [#1248](https://github.com/microsoft/vscode-react-native/pull/1248)
+* Readme extension homepage has been updated [#1243](https://github.com/microsoft/vscode-react-native/pull/1243), [#1250](https://github.com/microsoft/vscode-react-native/pull/1250), [#1251](https://github.com/microsoft/vscode-react-native/pull/1251)
+* Minor logging improvement [#1237](https://github.com/microsoft/vscode-react-native/pull/1237)
+* Internal changes:
+    * Added YAML Azure Pipelines support for the extension repository
+    * Smoke tests were updated to work with React Native 0.62 and Expo SDK 37
+
+
+## 0.14.2
+* Improved extension security [#1219](https://github.com/microsoft/vscode-react-native/pull/1219), [#1222](https://github.com/microsoft/vscode-react-native/pull/1222), [#1223](https://github.com/microsoft/vscode-react-native/pull/1223), [#1224](https://github.com/microsoft/vscode-react-native/pull/1224)
+* Updated extension dependencies [#1224](https://github.com/microsoft/vscode-react-native/pull/1224)
+* Added support for running iOS debugging on a specific device using flag `target: 'device=<iOS_device_name>'`. [More info](https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-on-ios-device). [#1207](https://github.com/microsoft/vscode-react-native/pull/1207)
+* Fixed launch of iOS apps with custom project's configuration: custom scheme name, custom app bundle name. [#1213](https://github.com/microsoft/vscode-react-native/pull/1213)
+
+
 ## 0.14.1
 * Implemented Expo debugging without mandatory logging in and Internet connection [#1188](https://github.com/microsoft/vscode-react-native/issues/1188)
     * Added `expoHostType` parameter to Expo debug scenario configuration. See the [documentation](https://github.com/microsoft/vscode-react-native#react-native-debug-configuration-properties) for more details
