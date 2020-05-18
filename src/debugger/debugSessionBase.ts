@@ -73,6 +73,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         response.body.supportsConfigurationDoneRequest = true;
         response.body.supportsEvaluateForHovers = true;
         response.body.supportTerminateDebuggee = true;
+        response.body.supportsTerminateRequest = true;
         response.body.supportsCancelRequest = true;
 
         this.sendResponse(response);

@@ -35,16 +35,15 @@ export class DebuggerEndpointHelper {
     ): Promise<string> {
         try {
             return await this.getWSEndpoint(browserURL);
-        } catch (e) {
+        } catch (err) {
             if (attemptNumber < 1 || cancellationToken.isCancellationRequested) {
-                const error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotConnectToDebugTarget, browserURL, e.message);
+                const internalError = ErrorHelper.getInternalError(InternalErrorCode.CouldNotConnectToDebugTarget, browserURL, err.message);
 
                 if (cancellationToken.isCancellationRequested) {
-                    const nestedError = ErrorHelper.getNestedError(error, InternalErrorCode.CancellationTokenTriggered);
-                    throw nestedError;
+                    throw ErrorHelper.getNestedError(internalError, InternalErrorCode.CancellationTokenTriggered);
                 }
 
-                throw error;
+                throw internalError;
             }
 
             await this.promiseUtil.delay(1000);
