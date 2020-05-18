@@ -62,6 +62,7 @@ export enum InternalErrorCode {
         CouldNotParsePackageVersion = 713,
         PackageNotFound = 714,
         ReactDevtoolsIsNotInstalled = 715,
+        CancellationTokenTriggered = 716,
 
         // Activation errors
         CouldNotFindLocationOfNodeDebugger = 801,
@@ -102,5 +103,8 @@ export enum InternalErrorCode {
         ReactNativeWorkerProcessThrownAnError = 1407,
         CouldntImportScriptAt = 1408,
         RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty = 1409,
+
+        // CDP Proxy errors
+        CouldNotConnectToDebugTarget = 1501,
 
     }

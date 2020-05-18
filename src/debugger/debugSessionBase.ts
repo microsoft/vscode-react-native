@@ -12,9 +12,12 @@ import { getLoggingDirectory, LogHelper } from "../extension/log/LogHelper";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { InternalError, NestedError } from "../common/error/internalError";
 import { ILaunchArgs } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 /**
  * Enum of possible statuses of debug session
@@ -53,6 +56,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     protected cdpProxyLogLevel: LogLevel;
     protected debugSessionStatus: DebugSessionStatus;
     protected session: vscode.DebugSession;
+    protected cancellationTokenSource: vscode.CancellationTokenSource;
 
     constructor(session: vscode.DebugSession) {
         super();
@@ -60,6 +64,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.session = session;
         this.isSettingsInitialized = false;
         this.debugSessionStatus = DebugSessionStatus.FirstConnection;
+        this.cancellationTokenSource = new vscode.CancellationTokenSource();
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
@@ -112,10 +117,34 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         }
     }
 
-    protected showError(message: string, response: DebugProtocol.Response): void {
+    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
+        await this.appLauncher.getRnCdpProxy().stopServer();
+
+        this.cancellationTokenSource.cancel();
+        this.cancellationTokenSource.dispose();
+
+        // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
+        if (this.previousAttachArgs.platform === "android") {
+            try {
+                this.appLauncher.stopMonitoringLogCat();
+            } catch (err) {
+                logger.warn(localize("CouldNotStopMonitoringLogcat", "Couldn't stop monitoring logcat: {0}", err.message || err));
+            }
+        }
+
+        super.disconnectRequest(response, args, request);
+    }
+
+    protected showError(error: Error, response: DebugProtocol.Response): void {
+        if ((error instanceof InternalError || error instanceof NestedError)
+            && error.errorCode === InternalErrorCode.CancellationTokenTriggered
+        ) {
+            return;
+        }
+
         this.sendErrorResponse(
             response,
-            { format: message, id: 1 },
+            { format: error.message, id: 1 },
             undefined,
             undefined,
             ErrorDestination.User

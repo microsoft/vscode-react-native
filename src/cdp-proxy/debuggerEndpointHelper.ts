@@ -7,6 +7,8 @@ const dns = require("dns").promises;
 import * as http from "http";
 import * as https from "https";
 import { PromiseUtil } from "../common/node/promise";
+import { ErrorHelper } from "../common/error/errorHelper";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { CancellationToken } from "vscode";
 
 export class DebuggerEndpointHelper {
@@ -35,7 +37,14 @@ export class DebuggerEndpointHelper {
             return await this.getWSEndpoint(browserURL);
         } catch (e) {
             if (attemptNumber < 1 || cancellationToken.isCancellationRequested) {
-                throw new Error(`Could not connect to debug target at ${browserURL}: ${e.message}`);
+                const error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotConnectToDebugTarget, browserURL, e.message);
+
+                if (cancellationToken.isCancellationRequested) {
+                    const nestedError = ErrorHelper.getNestedError(error, InternalErrorCode.CancellationTokenTriggered);
+                    throw nestedError;
+                }
+
+                throw error;
             }
 
             await this.promiseUtil.delay(1000);

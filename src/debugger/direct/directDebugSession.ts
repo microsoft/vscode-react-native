@@ -15,12 +15,10 @@ const localize = nls.loadMessageBundle();
 export class DirectDebugSession extends DebugSessionBase {
 
     private debuggerEndpointHelper: DebuggerEndpointHelper;
-    private cancellationTokenSource: vscode.CancellationTokenSource;
 
     constructor(session: vscode.DebugSession) {
         super(session);
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
-        this.cancellationTokenSource = new vscode.CancellationTokenSource();
     }
 
     protected async launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
@@ -63,7 +61,7 @@ export class DirectDebugSession extends DebugSessionBase {
                         });
                     });
         }))
-        .catch(err => this.showError(err.message, response));
+        .catch(err => this.showError(err, response));
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {
@@ -103,7 +101,8 @@ export class DirectDebugSession extends DebugSessionBase {
                                 .then((browserInspectUri) => {
                                     this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
                                     this.establishDebugSession(resolve);
-                                });
+                                })
+                                .catch(e => reject(e));
                         })
                         .catch((err) => {
                             logger.error("An error occurred while attaching to the debugger. " + err.message || err);
@@ -111,23 +110,10 @@ export class DirectDebugSession extends DebugSessionBase {
                         });
                     });
         }))
-        .catch(err => this.showError(err.message, response));
+        .catch(err => this.showError(err, response));
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
-        await this.appLauncher.getRnCdpProxy().stopServer();
-
-        this.cancellationTokenSource.cancel();
-        this.cancellationTokenSource.dispose();
-
-        if (this.previousAttachArgs.platform === "android") {
-            try {
-                this.appLauncher.stopMonitoringLogCat();
-            } catch (err) {
-                logger.warn(localize("CouldNotStopMonitoringLogcat", "Couldn't stop monitoring logcat: {0}", err.message || err));
-            }
-        }
-
         super.disconnectRequest(response, args, request);
     }
 
@@ -156,7 +142,7 @@ export class DirectDebugSession extends DebugSessionBase {
                     resolve();
                 }
             } else {
-                throw new Error("Cannot start child debug session");
+                throw new Error(localize("CouldNotStartChildDebugSession", "Couldn't start child debug session"));
             }
         },
         err => {
