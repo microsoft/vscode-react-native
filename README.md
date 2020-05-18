@@ -20,7 +20,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
-  - [Windows applications](#react-native-for-windows)
+  - [Windows applications](#windows-applications)
   - [TypeScript and Haul](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
 - [Customization](#customization)
@@ -133,7 +133,7 @@ Debugging on an iOS device requires following manual steps:
 * Choose the **Debug iOS** option from the "Configuration" dropdown and press F5.
 * Shake the device to open the development menu and select "Debug JS Remotely".
 
-## Customs scheme for iOS apps
+## Custom scheme for iOS apps
 
 If you want to use a custom scheme for your application you can either pass it as part of the `runArguments` parameter arguments, or set the `scheme` configuration parameter as shown below:
 ```js
