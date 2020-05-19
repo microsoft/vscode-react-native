@@ -26,7 +26,7 @@ export class DebuggerEndpointHelper {
      * Attempts to retrieve the debugger websocket URL for a process listening
      * at the given address, retrying until available.
      * @param browserURL -- Address like `http://localhost:1234`
-     * @param cancellationToken -- Optional cancellation for this operation
+     * @param cancellationToken -- Cancellation for this operation
      */
     public async retryGetWSEndpoint(
         browserURL: string,
