@@ -137,6 +137,8 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     }
 
     protected showError(error: Error, response: DebugProtocol.Response): void {
+
+        // We can't print error messages after the debugging session is stopped. This could break the extension work.
         if ((error instanceof InternalError || error instanceof NestedError)
             && error.errorCode === InternalErrorCode.CancellationTokenTriggered
         ) {
