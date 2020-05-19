@@ -66,6 +66,7 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.IOSCouldNotFoundExecutableInFolder]: localize("IOSCouldNotFoundExecutableInFolder", "Could not found executable in {0}"),
     [InternalErrorCode.WinRNMPPluginIsNotInstalled]: localize("WinRNMPPluginIsNotInstalled", "'rnpm-plugin-windows' is not installed."),
     [InternalErrorCode.ReactDevtoolsIsNotInstalled]: localize("ReactDevtoolsIsNotInstalled", "React Devtools is not installed. Run `npm install -g react-devtools` command in your terminal to install it."),
+    [InternalErrorCode.CancellationTokenTriggered]: localize("CancellationTokenTriggered", "Operation canceled"),
     [InternalErrorCode.DebuggingWontWorkReloadJSAndReconnect]: localize("DebuggingWontWorkReloadJSAndReconnect", "{0}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger"),
     [InternalErrorCode.ReconnectionToPackagerFailedCheckForErrorsOrRestartReactNative]: localize("ReconnectionToPackagerFailedCheckForErrorsOrRestartReactNative", "Reconnection to the proxy (Packager) failed. Please check the output window for Packager errors, if any. If failure persists, please restart the React Native debugger."),
     [InternalErrorCode.FailedToProcessMessageFromReactNativeApp]: localize("FailedToProcessMessageFromReactNativeApp", "Failed to process message from the React Native app. Message:\n{0}"),
@@ -74,4 +75,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.ReactNativeWorkerProcessThrownAnError]: localize("ReactNativeWorkerProcessThrownAnError", "React Native worker process thrown an error"),
     [InternalErrorCode.CouldntImportScriptAt]: localize("CouldntImportScriptAt", "Couldn't import script at <{0}>"),
     [InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty]: localize("RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty", "RNMessage with method 'executeApplicationScript' doesn't have 'url' property"),
+    [InternalErrorCode.CouldNotConnectToDebugTarget]: localize("CouldNotConnectToDebugTarget", "Could not connect to the debug target at {0}: {1}"),
 };

@@ -61,7 +61,7 @@ export class DirectDebugSession extends DebugSessionBase {
                         });
                     });
         }))
-        .catch(err => this.showError(err.message, response));
+        .catch(err => this.showError(err, response));
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {
@@ -93,11 +93,16 @@ export class DirectDebugSession extends DebugSessionBase {
                             logger.log(`Connecting to ${attachArgs.port} port`);
                             return this.appLauncher.getRnCdpProxy().stopServer()
                                 .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel))
-                                .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(`http://localhost:${attachArgs.port}`, 90))
+                                .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(
+                                    `http://localhost:${attachArgs.port}`,
+                                    90,
+                                    this.cancellationTokenSource.token
+                                ))
                                 .then((browserInspectUri) => {
                                     this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
                                     this.establishDebugSession(resolve);
-                                });
+                                })
+                                .catch(e => reject(e));
                         })
                         .catch((err) => {
                             logger.error("An error occurred while attaching to the debugger. " + err.message || err);
@@ -105,25 +110,10 @@ export class DirectDebugSession extends DebugSessionBase {
                         });
                     });
         }))
-        .catch(err => this.showError(err.message, response));
+        .catch(err => this.showError(err, response));
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
-        // The client is about to disconnect so first we need to stop app worker
-        if (this.appWorker) {
-            this.appWorker.stop();
-        }
-
-        await this.appLauncher.getRnCdpProxy().stopServer();
-
-        if (this.previousAttachArgs.platform === "android") {
-            try {
-                this.appLauncher.stopMonitoringLogCat();
-            } catch (err) {
-                logger.warn(localize("CouldNotStopMonitoringLogcat", "Couldn't stop monitoring logcat: {0}", err.message || err));
-            }
-        }
-
         super.disconnectRequest(response, args, request);
     }
 
@@ -152,7 +142,7 @@ export class DirectDebugSession extends DebugSessionBase {
                     resolve();
                 }
             } else {
-                throw new Error("Cannot start child debug session");
+                throw new Error(localize("CouldNotStartChildDebugSession", "Couldn't start child debug session"));
             }
         },
         err => {

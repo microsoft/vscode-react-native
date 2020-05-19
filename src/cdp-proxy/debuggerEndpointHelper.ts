@@ -7,6 +7,9 @@ const dns = require("dns").promises;
 import * as http from "http";
 import * as https from "https";
 import { PromiseUtil } from "../common/node/promise";
+import { ErrorHelper } from "../common/error/errorHelper";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { CancellationToken } from "vscode";
 
 export class DebuggerEndpointHelper {
     private localv4: Buffer;
@@ -23,17 +26,28 @@ export class DebuggerEndpointHelper {
      * Attempts to retrieve the debugger websocket URL for a process listening
      * at the given address, retrying until available.
      * @param browserURL -- Address like `http://localhost:1234`
+     * @param cancellationToken -- Cancellation for this operation
      */
-    public async retryGetWSEndpoint(browserURL: string, attemptNumber: number): Promise<string> {
+    public async retryGetWSEndpoint(
+        browserURL: string,
+        attemptNumber: number,
+        cancellationToken: CancellationToken
+    ): Promise<string> {
         try {
             return await this.getWSEndpoint(browserURL);
-        } catch (e) {
-            if (attemptNumber < 1) {
-                throw new Error(`Could not connect to debug target at ${browserURL}: ${e.message}`);
-              }
+        } catch (err) {
+            if (attemptNumber < 1 || cancellationToken.isCancellationRequested) {
+                const internalError = ErrorHelper.getInternalError(InternalErrorCode.CouldNotConnectToDebugTarget, browserURL, err.message);
+
+                if (cancellationToken.isCancellationRequested) {
+                    throw ErrorHelper.getNestedError(internalError, InternalErrorCode.CancellationTokenTriggered);
+                }
+
+                throw internalError;
+            }
 
             await this.promiseUtil.delay(1000);
-            return await this.retryGetWSEndpoint(browserURL, --attemptNumber);
+            return await this.retryGetWSEndpoint(browserURL, --attemptNumber, cancellationToken);
         }
     }
 

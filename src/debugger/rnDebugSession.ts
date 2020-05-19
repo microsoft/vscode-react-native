@@ -19,6 +19,7 @@ export class RNDebugSession extends DebugSessionBase {
     private readonly terminateCommand: string;
     private readonly pwaNodeSessionName: string;
 
+    private appWorker: MultipleLifetimesAppWorker | null;
     private nodeSession: vscode.DebugSession | null;
     private onDidStartDebugSessionHandler: vscode.Disposable;
     private onDidTerminateDebugSessionHandler: vscode.Disposable;
@@ -31,6 +32,8 @@ export class RNDebugSession extends DebugSessionBase {
         this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
 
         // variables definition
+        this.appWorker = null;
+
         this.onDidStartDebugSessionHandler = vscode.debug.onDidStartDebugSession(
             this.handleStartDebugSession.bind(this)
         );
@@ -61,7 +64,7 @@ export class RNDebugSession extends DebugSessionBase {
                         reject(err);
                     });
             }))
-            .catch(err => this.showError(err.message, response));
+            .catch(err => this.showError(err, response));
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {
@@ -132,7 +135,7 @@ export class RNDebugSession extends DebugSessionBase {
                         });
                     });
         }))
-        .catch(err => this.showError(err.message, response));
+        .catch(err => this.showError(err, response));
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
@@ -141,19 +144,8 @@ export class RNDebugSession extends DebugSessionBase {
             this.appWorker.stop();
         }
 
-        await this.appLauncher.getRnCdpProxy().stopServer();
-
         this.onDidStartDebugSessionHandler.dispose();
         this.onDidTerminateDebugSessionHandler.dispose();
-
-        // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
-        if (this.previousAttachArgs.platform === "android") {
-            try {
-                this.appLauncher.stopMonitoringLogCat();
-            } catch (err) {
-                logger.warn(localize("CouldNotStopMonitoringLogcat", "Couldn't stop monitoring logcat: {0}", err.message || err));
-            }
-        }
 
         super.disconnectRequest(response, args, request);
     }
