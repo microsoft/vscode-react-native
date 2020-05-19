@@ -131,7 +131,7 @@ Add these lines to `~/.bash_profile` (create one if it doesn't exist):
    ```sh
    yarn install
    ```
-1. Copy extension VSIX to `test/smoke/resources/drop-win` directory
+1. Copy extension VSIX to `test/smoke/package/resources/drop-win` directory
 
 ## Running tests
 
@@ -162,9 +162,10 @@ To create environment variable you can use this commands:
    export YOUR_VARIABLE=VALUE
    ```
 
+In the directory `test/smoke/package` there is a `config.json` configuration file with predefined settings for environment variables.
 This approach would be more suited for CI.
 
-For local runs is more convenient to create file `config.json` inside `test/smoke` directory and specify variables there. Example:
+For local runs, it is more convenient to create file `config.dev.json` inside `test/smoke/package` directory and specify variables there. For example:
 ```js
 {
     "ANDROID_EMULATOR": "Nexus_5X_API_28_x86",
@@ -175,9 +176,9 @@ For local runs is more convenient to create file `config.json` inside `test/smok
 }
 ```
 
-To run tests simply go to smoke tests directory and run command:
+To run tests simply go to root directory and run command:
 ```sh
-yarn mocha
+yarn smoke-tests
 ```
 These command will perform pre-tests setup (creating applications, downloading VS Code, cleaning up, etc) and then run Android and iOS tests.
 
