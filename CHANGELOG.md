@@ -2,7 +2,6 @@
 * Improve extension security [#1253](https://github.com/microsoft/vscode-react-native/pull/1253)
 * Update extension license to MIT [#1286](https://github.com/microsoft/vscode-react-native/pull/1286)
 * Fix fonts usage with Expo SDK 37 [#1260](https://github.com/microsoft/vscode-react-native/pull/1260), [#1264](https://github.com/microsoft/vscode-react-native/pull/1264)
-
 * Increase packager starting time and fix handling of StatusBar items click [#1268](https://github.com/microsoft/vscode-react-native/pull/1268)
 * Fix links in Table of Contents and typos, thanks to [Max von Webel(@343max)](https://github.com/343max) [#1284](https://github.com/microsoft/vscode-react-native/pull/1284)
 * Internal changes:
