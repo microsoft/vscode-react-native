@@ -134,7 +134,10 @@ export class DirectDebugSession extends DebugSessionBase {
         vscode.debug.startDebugging(
             this.appLauncher.getWorkspaceFolder(),
             attachArguments,
-            this.session
+            {
+                parentSession: this.session,
+                consoleMode: vscode.DebugConsoleMode.MergeWithParent,
+            }
         )
         .then((childDebugSessionStarted: boolean) => {
             if (childDebugSessionStarted) {
