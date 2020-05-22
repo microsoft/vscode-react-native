@@ -76,4 +76,14 @@ export class QuickAccess {
             await new Promise(c => setTimeout(c, 250));
         }
     }
+
+    public async runDebugScenario(scenario: string): Promise<void> {
+        await this.openQuickAccess(`debug ${scenario}`);
+
+        // wait for the best choice to be focused
+        await this.code.waitForTextContent(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT, scenario);
+
+        // wait and click on the best choice
+        await this.code.waitAndClick(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT);
+    }
 }
