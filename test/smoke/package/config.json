@@ -3,7 +3,7 @@
     "ANDROID_VERSION": "9",
     "IOS_SIMULATOR": "iPhone8",
     "IOS_VERSION": "12.4",
-    "CODE_VERSION": "1.40.2",
+    "CODE_VERSION": "1.45.1",
     "EXPO_XDL_VERSION": "57.8.32",
     "RN_VERSION": "0.62.0",
     "PURE_RN_VERSION": "0.59.8",

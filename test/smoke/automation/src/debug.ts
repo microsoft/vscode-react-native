@@ -9,8 +9,8 @@ import { Editor } from "./editor";
 import { IElement } from "../src/driver";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
-const DEBUG_VIEW = `${VIEWLET} .debug-view-content`;
-const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .configure`;
+const DEBUG_VIEW = `${VIEWLET}`;
+const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .codicon-gear`;
 const STOP = `.debug-toolbar .action-label[title*="Stop"]`;
 const STEP_OVER = `.debug-toolbar .action-label[title*="Step Over"]`;
 const STEP_IN = `.debug-toolbar .action-label[title*="Step Into"]`;
@@ -18,7 +18,8 @@ const STEP_OUT = `.debug-toolbar .action-label[title*="Step Out"]`;
 const CONTINUE = `.debug-toolbar .action-label[title*="Continue"]`;
 const DISCONNECT = `.debug-toolbar .action-label[title*="Disconnect"]`;
 const GLYPH_AREA = ".margin-view-overlays>:nth-child";
-const BREAKPOINT_GLYPH = ".debug-breakpoint";
+const BREAKPOINT_GLYPH = ".codicon-debug-breakpoint";
+const PAUSE = `.debug-toolbar .action-label[title*="Pause"]`;
 const DEBUG_STATUS_BAR = `.statusbar.debugging`;
 const NOT_DEBUG_STATUS_BAR = `.statusbar:not(debugging)`;
 const TOOLBAR_HIDDEN = `.debug-toolbar[aria-hidden="true"]`;
@@ -74,8 +75,16 @@ export class Debug extends Viewlet {
         await this.code.waitForElement(BREAKPOINT_GLYPH);
     }
 
-    public async startDebugging(): Promise<void> {
+    public async startDebugging(): Promise<number> {
         await this.code.dispatchKeybinding("f5");
+        await this.code.waitForElement(PAUSE);
+        await this.code.waitForElement(DEBUG_STATUS_BAR);
+        const portPrefix = "Port: ";
+
+        const output = await this.waitForOutput(output => output.some(line => line.indexOf(portPrefix) >= 0));
+        const lastOutput = output.filter(line => line.indexOf(portPrefix) >= 0)[0];
+
+        return lastOutput ? parseInt(lastOutput.substr(portPrefix.length)) : 3000;
     }
 
     public async waitForDebuggingToStart(): Promise<void> {
