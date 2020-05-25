@@ -7,6 +7,11 @@ import { Telemetry } from "../common/telemetry";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
+export const DEBUG_TYPES = {
+    REACT_NATIVE: "reactnative",
+    REACT_NATIVE_DIRECT: "reactnativedirect",
+};
+
 export class ReactNativeDebugConfigProvider implements vscode.DebugConfigurationProvider {
     private debugConfigurations = {
         "Debug Android": {

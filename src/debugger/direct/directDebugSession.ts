@@ -15,10 +15,15 @@ const localize = nls.loadMessageBundle();
 export class DirectDebugSession extends DebugSessionBase {
 
     private debuggerEndpointHelper: DebuggerEndpointHelper;
+    private onDidTerminateDebugSessionHandler: vscode.Disposable;
 
     constructor(session: vscode.DebugSession) {
         super(session);
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
+
+        this.onDidTerminateDebugSessionHandler = vscode.debug.onDidTerminateDebugSession(
+            this.handleTerminateDebugSession.bind(this)
+        );
     }
 
     protected async launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
@@ -114,6 +119,8 @@ export class DirectDebugSession extends DebugSessionBase {
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
+        this.onDidTerminateDebugSessionHandler.dispose();
+
         super.disconnectRequest(response, args, request);
     }
 
@@ -151,5 +158,14 @@ export class DirectDebugSession extends DebugSessionBase {
         err => {
             throw err;
         });
+    }
+
+    private handleTerminateDebugSession(debugSession: vscode.DebugSession) {
+        if (
+            debugSession.configuration.rnDebugSessionId === this.session.id
+            && debugSession.type === this.pwaNodeSessionName
+        ) {
+            this.session.customRequest(this.disconnectCommand, {forcedStop: true});
+        }
     }
 }
