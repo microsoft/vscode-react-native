@@ -55,7 +55,7 @@ export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments
 export abstract class DebugSessionBase extends LoggingDebugSession {
 
     protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> = new vscode.EventEmitter<TerminateEventArgs>();
-    public static onDidTerminateRootDebugSession = DebugSessionBase.rootSessionTerminatedEventEmitter.event;
+    public static readonly onDidTerminateRootDebugSession = DebugSessionBase.rootSessionTerminatedEventEmitter.event;
 
     protected readonly disconnectCommand: string;
     protected readonly pwaNodeSessionName: string;

@@ -8,7 +8,7 @@ import { RNDebugSession } from "../debugger/rnDebugSession";
 import { DebugSessionBase, TerminateEventArgs } from "../debugger/debugSessionBase";
 import { DirectDebugSession } from "../debugger/direct/directDebugSession";
 
-export class VSCodeSessionManager implements vscode.DebugAdapterDescriptorFactory, vscode.Disposable {
+export class ReactNativeSessionManager implements vscode.DebugAdapterDescriptorFactory, vscode.Disposable {
 
     private servers = new Map<string, Net.Server>();
     private connections = new Map<string, Net.Socket>();
@@ -39,9 +39,7 @@ export class VSCodeSessionManager implements vscode.DebugAdapterDescriptorFactor
         let connection = this.connections.get(terminateEvent.debugSession.id);
         if (connection) {
             if (terminateEvent.args.forcedStop) {
-                connection.removeAllListeners();
-                connection.on("error", () => undefined);
-                connection.destroy();
+                this.destroyConnection(connection);
             }
             this.connections.delete(terminateEvent.debugSession.id);
         }
@@ -50,6 +48,19 @@ export class VSCodeSessionManager implements vscode.DebugAdapterDescriptorFactor
     }
 
     public dispose() {
-        this.servers.forEach(server => server.close());
+        this.servers.forEach((server, key) => {
+            server.close();
+            this.servers.delete(key);
+        });
+        this.connections.forEach((conn, key) => {
+            this.destroyConnection(conn);
+            this.connections.delete(key);
+        });
+    }
+
+    private destroyConnection(connection: Net.Socket) {
+        connection.removeAllListeners();
+        connection.on("error", () => undefined);
+        connection.destroy();
     }
 }

@@ -29,7 +29,7 @@ import {TelemetryHelper, ICommandTelemetryProperties} from "../common/telemetryH
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ReactNativeDebugConfigProvider, DEBUG_TYPES} from "./debugConfigurationProvider";
 import {DebugSessionBase} from "../debugger/debugSessionBase";
-import {VSCodeSessionManager} from "./VSCodeSessionManager";
+import {ReactNativeSessionManager} from "./ReactNativeSessionManager";
 import {ProjectsStorage} from "./projectsStorage";
 import {AppLauncher} from "./appLauncher";
 import * as nls from "vscode-nls";
@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
 
         debugConfigProvider = vscode.debug.registerDebugConfigurationProvider(DEBUG_TYPES.REACT_NATIVE, configProvider);
 
-        const sessionManager = new VSCodeSessionManager();
+        const sessionManager = new ReactNativeSessionManager();
 
         context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory(DEBUG_TYPES.REACT_NATIVE, sessionManager));
         context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory(DEBUG_TYPES.REACT_NATIVE_DIRECT, sessionManager));
