@@ -16,7 +16,7 @@ export class Editors {
     }
 
     public async selectTab(fileName: string): Promise<void> {
-        await this.code.waitAndClick(`.tabs-container div.tab[data-resource-name$="${fileName}"]`);
+        await this.code.waitAndClick(`.tabs-container div.tab[aria-label="${fileName}"]`);
         await this.waitForEditorFocus(fileName);
     }
 
