@@ -8,7 +8,7 @@ import * as fs from "fs";
 import * as mkdirp from "mkdirp";
 import { tmpNameSync } from "tmp";
 import { IDriver, connect as connectElectronDriver, IDisposable, IElement, Thenable } from "./driver";
-import { connect as connectPlaywrightDriver, launch } from './playwrightDriver';
+import { connect as connectPlaywrightDriver, launch } from "./playwrightDriver";
 import { Logger } from "./logger";
 import { ncp } from "ncp";
 import { URI } from "vscode-uri";
