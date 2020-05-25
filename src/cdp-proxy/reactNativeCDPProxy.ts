@@ -28,7 +28,7 @@ export class ReactNativeCDPProxy {
     private server: Server | null;
     private hostAddress: string;
     private port: number;
-    private debuggerTarget: Connection;
+    private debuggerTarget: Connection | null;
     private applicationTarget: Connection | null;
     private logger: OutputChannelLogger;
     private logLevel: LogLevel;
@@ -114,6 +114,7 @@ export class ReactNativeCDPProxy {
         this.applicationTarget.onReply(this.handleApplicationTargetReply.bind(this));
         this.debuggerTarget.onReply(this.handleDebuggerTargetReply.bind(this));
 
+        this.applicationTarget.onEnd(this.onApplicationTargetClosed.bind(this));
         this.debuggerTarget.onEnd(this.onDebuggerTargetClosed.bind(this));
 
         // dequeue any messages we got in the meantime
@@ -125,7 +126,7 @@ export class ReactNativeCDPProxy {
         const processedMessage = this.CDPMessageHandler.processDebuggerCDPMessage(event);
 
         if (processedMessage.sendBack) {
-            this.debuggerTarget.send(processedMessage.event);
+            this.debuggerTarget?.send(processedMessage.event);
         } else {
             this.applicationTarget?.send(processedMessage.event);
         }
@@ -138,7 +139,7 @@ export class ReactNativeCDPProxy {
         if (processedMessage.sendBack) {
             this.applicationTarget?.send(processedMessage.event);
         } else {
-            this.debuggerTarget.send(processedMessage.event);
+            this.debuggerTarget?.send(processedMessage.event);
         }
     }
 
@@ -147,7 +148,7 @@ export class ReactNativeCDPProxy {
         const processedMessage = this.CDPMessageHandler.processDebuggerCDPMessage(event);
 
         if (processedMessage.sendBack) {
-            this.debuggerTarget.send(processedMessage.event);
+            this.debuggerTarget?.send(processedMessage.event);
         } else {
             this.applicationTarget?.send(processedMessage.event);
         }
@@ -160,7 +161,7 @@ export class ReactNativeCDPProxy {
         if (processedMessage.sendBack) {
             this.applicationTarget?.send(processedMessage.event);
         } else {
-            this.debuggerTarget.send(processedMessage.event);
+            this.debuggerTarget?.send(processedMessage.event);
         }
     }
 
@@ -172,8 +173,13 @@ export class ReactNativeCDPProxy {
         this.logger.error("Error on application transport", err);
     }
 
+    private async onApplicationTargetClosed() {
+        this.applicationTarget = null;
+    }
+
     private async onDebuggerTargetClosed() {
         this.browserInspectUri = "";
         this.CDPMessageHandler.processDebuggerCDPMessage({method: "close"});
+        this.debuggerTarget = null;
     }
 }
