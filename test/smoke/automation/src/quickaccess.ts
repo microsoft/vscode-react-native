@@ -9,7 +9,7 @@ export class QuickAccess {
 
     constructor(private code: Code, private editors: Editors, private quickInput: QuickInput) { }
 
-    async openQuickAccess(value: string): Promise<void> {
+    public async openQuickAccess(value: string): Promise<void> {
         let retries = 0;
 
         // other parts of code might steal focus away from quickinput :(
@@ -37,7 +37,7 @@ export class QuickAccess {
         }
     }
 
-    async openFile(fileName: string): Promise<void> {
+    public async openFile(fileName: string): Promise<void> {
         await this.openQuickAccess(fileName);
 
         await this.quickInput.waitForQuickInputElements(names => names[0] === fileName);
@@ -46,7 +46,7 @@ export class QuickAccess {
         await this.editors.waitForEditorFocus(fileName);
     }
 
-    async runCommand(commandId: string): Promise<void> {
+    public async runCommand(commandId: string): Promise<void> {
         await this.openQuickAccess(`>${commandId}`);
 
         // wait for best choice to be focused
@@ -56,7 +56,7 @@ export class QuickAccess {
         await this.quickInput.selectQuickInputElement(0);
     }
 
-    async openQuickOutline(): Promise<void> {
+    public async openQuickOutline(): Promise<void> {
         let retries = 0;
 
         while (++retries < 10) {
