@@ -1218,7 +1218,7 @@ THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 -------------------------------------------------------------------
 
-ultron 1.0.2 - MIT
+ultron 1.1.1 - MIT
 https://github.com/unshiftio/ultron
 Copyright (c) 2015 Unshift.io, Arnout Kazemier
 
@@ -1250,7 +1250,7 @@ SOFTWARE.
 
 -------------------------------------------------------------------
 
-ultron 1.1.1 - MIT
+ultron 1.0.2 - MIT
 https://github.com/unshiftio/ultron
 Copyright (c) 2015 Unshift.io, Arnout Kazemier
 
@@ -1461,7 +1461,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 -------------------------------------------------------------------
 
-ws 6.2.1 - MIT
+ws 3.3.3 - MIT
 https://github.com/websockets/ws
 Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>
 
@@ -1492,7 +1492,7 @@ SOFTWARE.
 
 -------------------------------------------------------------------
 
-ws 3.3.3 - MIT
+ws 6.2.1 - MIT
 https://github.com/websockets/ws
 Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>
 
