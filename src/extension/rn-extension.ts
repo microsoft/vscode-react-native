@@ -29,7 +29,7 @@ import {TelemetryHelper, ICommandTelemetryProperties} from "../common/telemetryH
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ReactNativeDebugConfigProvider, DEBUG_TYPES} from "./debugConfigurationProvider";
 import {DebugSessionBase} from "../debugger/debugSessionBase";
-import {ReactNativeSessionManager} from "./VSReactNativeSessionManager";
+import {ReactNativeSessionManager} from "./reactNativeSessionManager";
 import {ProjectsStorage} from "./projectsStorage";
 import {AppLauncher} from "./appLauncher";
 import * as nls from "vscode-nls";
