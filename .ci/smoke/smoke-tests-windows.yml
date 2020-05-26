@@ -1,7 +1,9 @@
 trigger:
   - master
+  - dev/js-debug-migration
 pr:
   - master
+  - dev/js-debug-migration
 
 variables:
   vswdbotLogin: vswdbot
