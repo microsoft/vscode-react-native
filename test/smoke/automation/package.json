@@ -17,6 +17,7 @@
     "prepublishOnly": "npm run copy-package-version"
   },
   "devDependencies": {
+    "@types/debug": "4.1.5",
     "@types/mkdirp": "^1.0.0",
     "@types/ncp": "2.0.1",
     "@types/node": "^12.11.7",
