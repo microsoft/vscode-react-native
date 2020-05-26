@@ -17,7 +17,6 @@ const localize = nls.loadMessageBundle();
 export class RNDebugSession extends DebugSessionBase {
 
     private readonly terminateCommand: string;
-    private readonly pwaNodeSessionName: string;
 
     private appWorker: MultipleLifetimesAppWorker | null;
     private nodeSession: vscode.DebugSession | null;
@@ -29,7 +28,6 @@ export class RNDebugSession extends DebugSessionBase {
 
         // constants definition
         this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
-        this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
 
         // variables definition
         this.appWorker = null;
@@ -167,7 +165,10 @@ export class RNDebugSession extends DebugSessionBase {
         vscode.debug.startDebugging(
             this.appLauncher.getWorkspaceFolder(),
             attachArguments,
-            this.session
+            {
+                parentSession: this.session,
+                consoleMode: vscode.DebugConsoleMode.MergeWithParent,
+            }
         )
         .then((childDebugSessionStarted: boolean) => {
             if (childDebugSessionStarted) {
@@ -204,10 +205,13 @@ export class RNDebugSession extends DebugSessionBase {
     private handleTerminateDebugSession(debugSession: vscode.DebugSession) {
         if (
             debugSession.configuration.rnDebugSessionId === this.session.id
-            && this.debugSessionStatus === DebugSessionStatus.ConnectionPending
             && debugSession.type === this.pwaNodeSessionName
         ) {
-            this.establishDebugSession();
+            if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
+                this.establishDebugSession();
+            } else {
+                this.session.customRequest(this.disconnectCommand, {forcedStop: true});
+            }
         }
     }
 

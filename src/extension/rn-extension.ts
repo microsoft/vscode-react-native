@@ -27,12 +27,11 @@ import {ReactDirManager} from "./reactDirManager";
 import {Telemetry} from "../common/telemetry";
 import {TelemetryHelper, ICommandTelemetryProperties} from "../common/telemetryHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
-import {ReactNativeDebugConfigProvider} from "./debugConfigurationProvider";
-import {RNDebugAdapterDescriptorFactory} from "./rnDebugAdapterDescriptorFactory";
+import {ReactNativeDebugConfigProvider, DEBUG_TYPES} from "./debugConfigurationProvider";
+import {DebugSessionBase} from "../debugger/debugSessionBase";
+import {ReactNativeSessionManager} from "./reactNativeSessionManager";
 import {ProjectsStorage} from "./projectsStorage";
 import {AppLauncher} from "./appLauncher";
-import {RNDebugSession} from "../debugger/rnDebugSession";
-import {DirectDebugSession} from "../debugger/direct/directDebugSession";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -67,12 +66,20 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
 
-        debugConfigProvider = vscode.debug.registerDebugConfigurationProvider("reactnative", configProvider);
+        debugConfigProvider = vscode.debug.registerDebugConfigurationProvider(DEBUG_TYPES.REACT_NATIVE, configProvider);
 
-        const rnFactory = new RNDebugAdapterDescriptorFactory(RNDebugSession);
-        const directFactory = new RNDebugAdapterDescriptorFactory(DirectDebugSession);
-        context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory("reactnative", rnFactory));
-        context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory("reactnativedirect", directFactory));
+        const sessionManager = new ReactNativeSessionManager();
+
+        context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory(DEBUG_TYPES.REACT_NATIVE, sessionManager));
+        context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory(DEBUG_TYPES.REACT_NATIVE_DIRECT, sessionManager));
+
+        context.subscriptions.push(sessionManager);
+
+        context.subscriptions.push(
+            DebugSessionBase.onDidTerminateRootDebugSession(terminateEvent => {
+                sessionManager.terminate(terminateEvent);
+            })
+        );
 
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
         Telemetry.send(activateExtensionEvent);
