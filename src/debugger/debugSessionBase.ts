@@ -37,6 +37,11 @@ export enum DebugSessionStatus {
     ConnectionFailed,
 }
 
+export interface TerminateEventArgs {
+    debugSession: vscode.DebugSession;
+    args: any;
+}
+
 export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments, ILaunchArgs {
     cwd: string; /* Automatically set by VS Code to the currently opened folder */
     port: number;
@@ -48,6 +53,12 @@ export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments
 export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments, IAttachRequestArgs { }
 
 export abstract class DebugSessionBase extends LoggingDebugSession {
+
+    protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> = new vscode.EventEmitter<TerminateEventArgs>();
+    public static readonly onDidTerminateRootDebugSession = DebugSessionBase.rootSessionTerminatedEventEmitter.event;
+
+    protected readonly disconnectCommand: string;
+    protected readonly pwaNodeSessionName: string;
 
     protected appLauncher: AppLauncher;
     protected projectRootPath: string;
@@ -61,6 +72,11 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     constructor(session: vscode.DebugSession) {
         super();
 
+        // constants definition
+        this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
+        this.disconnectCommand = "disconnect";
+
+        // variables definition
         this.session = session;
         this.isSettingsInitialized = false;
         this.debugSessionStatus = DebugSessionStatus.FirstConnection;
@@ -73,7 +89,6 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         response.body.supportsConfigurationDoneRequest = true;
         response.body.supportsEvaluateForHovers = true;
         response.body.supportTerminateDebuggee = true;
-        response.body.supportsTerminateRequest = true;
         response.body.supportsCancelRequest = true;
 
         this.sendResponse(response);
@@ -133,7 +148,14 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             }
         }
 
-        super.disconnectRequest(response, args, request);
+        DebugSessionBase.rootSessionTerminatedEventEmitter.fire({
+            debugSession: this.session,
+            args: {
+                forcedStop: (<any>args).forcedStop,
+            },
+        });
+
+        this.sendResponse(response);
     }
 
     protected showError(error: Error, response: DebugProtocol.Response): void {

@@ -7,53 +7,58 @@ import { Telemetry } from "../common/telemetry";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
+export const DEBUG_TYPES = {
+    REACT_NATIVE: "reactnative",
+    REACT_NATIVE_DIRECT: "reactnativedirect",
+};
+
 export class ReactNativeDebugConfigProvider implements vscode.DebugConfigurationProvider {
     private debugConfigurations = {
         "Debug Android": {
             "name": "Debug Android",
             "cwd": "${workspaceFolder}",
-            "type": "reactnative",
+            "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": "android",
         },
         "Debug iOS": {
             "name": "Debug iOS",
             "cwd": "${workspaceFolder}",
-            "type": "reactnative",
+            "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": "ios",
         },
         "Debug Windows": {
             "name": "Debug Windows",
             "cwd": "${workspaceFolder}",
-            "type": "reactnative",
+            "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": "windows",
         },
         "Attach to packager": {
             "name": "Attach to packager",
             "cwd": "${workspaceFolder}",
-            "type": "reactnative",
+            "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "attach",
         },
         "Debug in Exponent": {
             "name": "Debug in Exponent",
             "cwd": "${workspaceFolder}",
-            "type": "reactnative",
+            "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": "exponent",
         },
         "Debug Android (Hermes) - Experimental": {
             "name": "Debug Android (Hermes) - Experimental",
             "cwd": "${workspaceFolder}",
-            "type": "reactnativedirect",
+            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
             "platform": "android",
         },
         "Attach to Hermes application - Experimental": {
             "name": "Attach to Hermes application - Experimental",
             "cwd": "${workspaceFolder}",
-            "type": "reactnativedirect",
+            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "attach",
         },
     };
