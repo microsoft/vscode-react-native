@@ -35,7 +35,8 @@ export class ReactNativeSessionManager implements vscode.DebugAdapterDescriptorF
     }
 
     public terminate(terminateEvent: TerminateEventArgs) {
-        this.servers.get(terminateEvent.debugSession.id)?.close();
+        this.destroyServer(terminateEvent.debugSession.id, this.servers.get(terminateEvent.debugSession.id));
+
         let connection = this.connections.get(terminateEvent.debugSession.id);
         if (connection) {
             if (terminateEvent.args.forcedStop) {
@@ -43,14 +44,11 @@ export class ReactNativeSessionManager implements vscode.DebugAdapterDescriptorF
             }
             this.connections.delete(terminateEvent.debugSession.id);
         }
-
-        this.servers.delete(terminateEvent.debugSession.id);
     }
 
     public dispose() {
         this.servers.forEach((server, key) => {
-            server.close();
-            this.servers.delete(key);
+            this.destroyServer(key, server);
         });
         this.connections.forEach((conn, key) => {
             this.destroyConnection(conn);
@@ -62,5 +60,12 @@ export class ReactNativeSessionManager implements vscode.DebugAdapterDescriptorF
         connection.removeAllListeners();
         connection.on("error", () => undefined);
         connection.destroy();
+    }
+
+    private destroyServer(sessionId: string, server?: Net.Server) {
+        if (server) {
+            server.close();
+            this.servers.delete(sessionId);
+        }
     }
 }
