@@ -4,47 +4,47 @@
         {
             "name": "Debug Android",
             "cwd": "${workspaceFolder}",
-            "type": "reactnative",
+            "type": "reactnative-preview",
             "request": "launch",
             "platform": "android"
         },
         {
             "name": "Debug Android (Hermes) - Experimental",
             "cwd": "${workspaceFolder}",
-            "type": "reactnativedirect",
+            "type": "reactnativedirect-preview",
             "request": "launch",
             "platform": "android"
         },
         {
             "name": "Attach to Hermes application - Experimental",
             "cwd": "${workspaceFolder}",
-            "type": "reactnativedirect",
+            "type": "reactnativedirect-preview",
             "request": "attach"
         },
         {
             "name": "Debug iOS",
             "cwd": "${workspaceFolder}",
-            "type": "reactnative",
+            "type": "reactnative-preview",
             "request": "launch",
             "platform": "ios"
         },
         {
             "name": "Attach to packager",
             "cwd": "${workspaceFolder}",
-            "type": "reactnative",
+            "type": "reactnative-preview",
             "request": "attach"
         },
         {
             "name": "Debug in Exponent",
             "cwd": "${workspaceFolder}",
-            "type": "reactnative",
+            "type": "reactnative-preview",
             "request": "launch",
             "platform": "exponent"
         },
         {
             "name": "Debug in Exponent (LAN)",
             "cwd": "${workspaceFolder}",
-            "type": "reactnative",
+            "type": "reactnative-preview",
             "request": "launch",
             "platform": "exponent",
             "expoHostType": "lan"
@@ -52,7 +52,7 @@
         {
             "name": "Debug in Exponent (Local)",
             "cwd": "${workspaceFolder}",
-            "type": "reactnative",
+            "type": "reactnative-preview",
             "request": "launch",
             "platform": "exponent",
             "expoHostType": "local"

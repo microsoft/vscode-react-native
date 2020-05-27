@@ -1,6 +1,6 @@
 {
-	"name": "vscode-react-native",
-	"displayName": "React Native Tools",
+	"name": "vscode-react-native-preview",
+	"displayName": "React Native Tools (Preview)",
 	"version": "0.15.0",
 	"private": true,
 	"publisher": "msjsdiag",
@@ -28,90 +28,90 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onDebugResolve:reactnative",
-		"onDebugResolve:reactnativedirect",
+		"onDebugResolve:reactnative-preview",
+		"onDebugResolve:reactnativedirect-preview",
 		"onDebugInitialConfigurations",
-		"onCommand:reactNative.runAndroidSimulator",
-		"onCommand:reactNative.runAndroidDevice",
-		"onCommand:reactNative.runIosSimulator",
-		"onCommand:reactNative.runIosDevice",
-		"onCommand:reactNative.runExponent",
-		"onCommand:reactNative.startPackager",
-		"onCommand:reactNative.stopPackager",
-		"onCommand:reactNative.restartPackager",
-		"onCommand:reactNative.publishToExpHost",
-		"onCommand:reactNative.showDevMenu",
-		"onCommand:reactNative.reloadApp",
-		"onCommand:reactNative.runInspector"
+		"onCommand:reactNative.runAndroidSimulator-preview",
+		"onCommand:reactNative.runAndroidDevice-preview",
+		"onCommand:reactNative.runIosSimulator-preview",
+		"onCommand:reactNative.runIosDevice-preview",
+		"onCommand:reactNative.runExponent-preview",
+		"onCommand:reactNative.startPackager-preview",
+		"onCommand:reactNative.stopPackager-preview",
+		"onCommand:reactNative.restartPackager-preview",
+		"onCommand:reactNative.publishToExpHost-preview",
+		"onCommand:reactNative.showDevMenu-preview",
+		"onCommand:reactNative.reloadApp-preview",
+		"onCommand:reactNative.runInspector-preview"
 	],
 	"main": "./src/extension/rn-extension",
 	"contributes": {
 		"commands": [
 			{
-				"command": "reactNative.runAndroidSimulator",
+				"command": "reactNative.runAndroidSimulator-preview",
 				"title": "%reactNative.command.runAndroidSimulator.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			},
 			{
-				"command": "reactNative.runAndroidDevice",
+				"command": "reactNative.runAndroidDevice-preview",
 				"title": "%reactNative.command.runAndroidDevice.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			},
 			{
-				"command": "reactNative.runIosSimulator",
+				"command": "reactNative.runIosSimulator-preview",
 				"title": "%reactNative.command.runIosSimulator.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			},
 			{
-				"command": "reactNative.runIosDevice",
+				"command": "reactNative.runIosDevice-preview",
 				"title": "%reactNative.command.runIosDevice.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			},
 			{
-				"command": "reactNative.runExponent",
+				"command": "reactNative.runExponent-preview",
 				"title": "%reactNative.command.runExponent.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			},
 			{
-				"command": "reactNative.startPackager",
+				"command": "reactNative.startPackager-preview",
 				"title": "%reactNative.command.startPackager.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			},
 			{
-				"command": "reactNative.stopPackager",
+				"command": "reactNative.stopPackager-preview",
 				"title": "%reactNative.command.stopPackager.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			},
 			{
-				"command": "reactNative.restartPackager",
+				"command": "reactNative.restartPackager-preview",
 				"title": "%reactNative.command.restartPackager.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			},
 			{
-				"command": "reactNative.publishToExpHost",
+				"command": "reactNative.publishToExpHost-preview",
 				"title": "%reactNative.command.publishToExpHost.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			},
 			{
-				"command": "reactNative.showDevMenu",
+				"command": "reactNative.showDevMenu-preview",
 				"title": "%reactNative.command.showDevMenu.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			},
 			{
-				"command": "reactNative.reloadApp",
+				"command": "reactNative.reloadApp-preview",
 				"title": "%reactNative.command.reloadApp.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			},
 			{
-				"command": "reactNative.runInspector",
+				"command": "reactNative.runInspector-preview",
 				"title": "%reactNative.command.runInspector.title%",
-				"category": "React Native"
+				"category": "React Native (Preview)"
 			}
 		],
 		"debuggers": [
 			{
-				"type": "reactnative",
-				"label": "React Native",
+				"type": "reactnative-preview",
+				"label": "React Native (Preview)",
 				"runtime": "node",
 				"enableBreakpointsFor": {
 					"languageIds": [
@@ -123,55 +123,55 @@
 				},
 				"configurationSnippets": [
 					{
-						"label": "React Native: Debug Android",
+						"label": "React Native (Preview): Debug Android",
 						"description": "%reactNative.snippets.debugAndroid.description%",
 						"body": {
-							"name": "Debug Android",
+							"name": "Debug Android (Preview)",
 							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative",
+							"type": "reactnative-preview",
 							"request": "launch",
 							"platform": "android"
 						}
 					},
 					{
-						"label": "React Native: Debug iOS",
+						"label": "React Native (Preview): Debug iOS",
 						"description": "%reactNative.snippets.debugiOS.description%",
 						"body": {
-							"name": "Debug iOS",
+							"name": "Debug iOS (Preview)",
 							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative",
+							"type": "reactnative-preview",
 							"request": "launch",
 							"platform": "ios"
 						}
 					},
 					{
-						"label": "React Native: Debug Windows",
+						"label": "React Native (Preview): Debug Windows",
 						"description": "%reactNative.snippets.debugWindows.description%",
 						"body": {
-							"name": "Debug Windows",
+							"name": "Debug Windows (Preview)",
 							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative",
+							"type": "reactnative-preview",
 							"request": "launch",
 							"platform": "windows"
 						}
 					},
 					{
-						"label": "React Native: Attach to packager",
+						"label": "React Native (Preview): Attach to packager",
 						"description": "%reactNative.snippets.attachPackager.description%",
 						"body": {
-							"name": "Attach to packager",
+							"name": "Attach to packager (Preview)",
 							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative",
+							"type": "reactnative-preview",
 							"request": "attach"
 						}
 					},
 					{
-						"label": "React Native: Debug in Exponent",
+						"label": "React Native (Preview): Debug in Exponent",
 						"description": "%reactNative.snippets.debugExpo.description%",
 						"body": {
-							"name": "Debug in Exponent",
+							"name": "Debug in Exponent (Preview)",
 							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative",
+							"type": "reactnative-preview",
 							"request": "launch",
 							"platform": "exponent"
 						}
@@ -378,8 +378,8 @@
 				}
 			},
 			{
-				"type": "reactnativedirect",
-				"label": "React Native Direct - Experimental",
+				"type": "reactnativedirect-preview",
+				"label": "React Native Direct (Preview) - Experimental",
 				"runtime": "node",
 				"enableBreakpointsFor": {
 					"languageIds": [
@@ -391,23 +391,23 @@
 				},
 				"configurationSnippets": [
 					{
-						"label": "React Native (Hermes): Debug Android - Experimental",
+						"label": "React Native Hermes (Preview): Debug Android - Experimental",
 						"description": "%reactNative.snippets.debugAndroidHermes.description%",
 						"body": {
-							"name": "Debug Android (Hermes) - Experimental",
+							"name": "Debug Android Hermes (Preview) - Experimental",
 							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnativedirect",
+							"type": "reactnativedirect-preview",
 							"request": "launch",
 							"platform": "android"
 						}
 					},
 					{
-						"label": "React Native (Hermes): Attach to Hermes application - Experimental",
+						"label": "React Native Hermes (Preview): Attach to Hermes application - Experimental",
 						"description": "%reactNative.snippets.attachPackagerHermes.description%",
 						"body": {
-							"name": "Attach to Hermes application - Experimental",
+							"name": "Attach to Hermes application (Preview) - Experimental",
 							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnativedirect",
+							"type": "reactnativedirect-preview",
 							"request": "attach"
 						}
 					}
