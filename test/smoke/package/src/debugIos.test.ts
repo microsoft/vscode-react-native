@@ -117,7 +117,6 @@ export function setup(testParameters?: TestRunArguments) {
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log(`${testName}: \"Test output from debuggee\" string is found`);
             await app.workbench.debug.disconnectFromDebugger();
-            await app.workbench.debug.stopDebugging();
             console.log(`${testName}: Debugging is stopped`);
         }
 
@@ -163,7 +162,6 @@ export function setup(testParameters?: TestRunArguments) {
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("iOS Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.disconnectFromDebugger();
-            await app.workbench.debug.stopDebugging();
             console.log("iOS Debug test: Debugging is stopped");
         });
 

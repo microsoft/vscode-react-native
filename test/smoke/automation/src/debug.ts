@@ -120,8 +120,8 @@ export class Debug extends Viewlet {
 
     public async disconnectFromDebugger(): Promise<any> {
         await this.code.waitAndClick(DISCONNECT);
-        // await this.code.waitForElement(TOOLBAR_HIDDEN);
-        // await this.code.waitForElement(NOT_DEBUG_STATUS_BAR);
+        await this.code.waitForElement(TOOLBAR_HIDDEN);
+        await this.code.waitForElement(NOT_DEBUG_STATUS_BAR);
     }
 
     public async waitForStackFrame(func: (stackFrame: IStackFrame) => boolean, message: string): Promise<IStackFrame> {

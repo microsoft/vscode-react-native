@@ -114,7 +114,6 @@ export function setup(testParameters?: TestRunArguments) {
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log(`${testName}: \"Test output from debuggee\" string is found`);
             await app.workbench.debug.disconnectFromDebugger();
-            await app.workbench.debug.stopDebugging();
             console.log(`${testName}: Debugging is stopped`);
         }
 
@@ -147,7 +146,6 @@ export function setup(testParameters?: TestRunArguments) {
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.disconnectFromDebugger();
-            await app.workbench.debug.stopDebugging();
             console.log("Android Debug test: Debugging is stopped");
         });
 
@@ -175,7 +173,6 @@ export function setup(testParameters?: TestRunArguments) {
             assert.equal(isHermesWorking, true);
             console.log("Android Debug Hermes test: Reattaching to Hermes app");
             await app.workbench.debug.disconnectFromDebugger();
-            await app.workbench.debug.stopDebugging();
             await app.workbench.quickaccess.runDebugScenario(RNHermesAttachConfigName);
             console.log("Android Debug Hermes test: Reattached successfully");
             await sleep(7000);
