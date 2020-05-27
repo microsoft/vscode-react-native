@@ -152,7 +152,7 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("Hermes RN app Debug test", async function () {
-            if (skipHermesTest){
+            if (skipHermesTest) {
                 this.skip();
             }
             this.timeout(debugAndroidTestTime);
