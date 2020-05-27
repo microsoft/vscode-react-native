@@ -191,7 +191,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
             await app.workbench.debug.disconnectFromDebugger();
             console.log("Android Debug Hermes test: Debugging is stopped");
-        });
+        }).skip();
 
         it("Expo app Debug test(Tunnel)", async function () {
             if (testParameters && testParameters.RunBasicTests) {
