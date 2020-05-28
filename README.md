@@ -2,7 +2,7 @@
 
 [![Build Status](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_apis/build/status/%5BUnit%20tests%5D%20vscode-react-native%20%5Bmaster%5D?branchName=master)](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_build/latest?definitionId=60&branchName=master)
 
-This is a preview version of the updated React Native Tools extension. It's not recommended to use the preview version and the legacy one at the same time.
+This is a preview version of the updated React Native Tools extension. It's not recommended to use the preview version and the stable one at the same time.
 
 This VS Code extension provides a development environment for React Native projects.
 Using this extension, you can **debug your code and quickly run `react-native` commands** from the command palette.

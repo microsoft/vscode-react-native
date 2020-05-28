@@ -9,6 +9,7 @@
 		"color": "#3B3738",
 		"theme": "dark"
 	},
+	"preview": true,
 	"description": "%reactNative.description%",
 	"keywords": [
 		"react-native",
