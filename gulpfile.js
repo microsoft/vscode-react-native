@@ -32,11 +32,6 @@ const executeCommand = GulpExtras.executeCommand;
  */
 const isNightly = process.argv.includes('--nightly');
 
-/**
- * Extension ID to build. Appended with '-nightly' as necessary.
- */
-const extensionName = isNightly ? "vscode-react-native-preview" : "vscode-react-native";
-
 const translationProjectName  = "vscode-extensions";
 const translationExtensionName  = "vscode-react-native";
 const defaultLanguages = [
@@ -306,9 +301,7 @@ gulp.task("release", gulp.series("build", function prepareLicenses() {
             if (isNightly) {
                 log("Performing nightly release...");
                 let packageJson = readJson("package.json");
-                packageJson.displayName += ' (Nightly)';
                 packageJson.version = getVersionNumber();
-                packageJson.preview = true;
                 writeJson("package.json", packageJson);
             }
             log("Creating release package...");
