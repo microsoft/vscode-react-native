@@ -17,11 +17,11 @@ jobs:
       arguments: --nightly
 
   - task: CopyFiles@2
-  displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
-  inputs:
-    Contents: |
-      *.vsix
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
+    inputs:
+      Contents: |
+        *.vsix
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish artifacts: Nightly Extension'
