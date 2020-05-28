@@ -266,7 +266,6 @@ function writeJson(file, jsonObj) {
 
 const getVersionNumber = () => {
     const date = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-    const monthMinutes = (date.getDate() - 1) * 24 * 60 + date.getHours() * 60 + date.getMinutes();
 
     return [
       // YY
