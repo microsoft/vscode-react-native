@@ -185,6 +185,27 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             ErrorDestination.User
         );
     }
+
+    protected getExistingExtraArgs(extraArgs: ExtraDebugRequestArgs): any {
+        let existingExtraArgs: any = {};
+        if (extraArgs.env) {
+            existingExtraArgs.env = extraArgs.env;
+        }
+        if (extraArgs.envFile) {
+            existingExtraArgs.envFile = extraArgs.envFile;
+        }
+        if (extraArgs.sourceMaps) {
+            existingExtraArgs.sourceMaps = extraArgs.sourceMaps;
+        }
+        if (extraArgs.sourceMapPathOverrides) {
+            existingExtraArgs.sourceMapPathOverrides = extraArgs.sourceMapPathOverrides;
+        }
+        if (extraArgs.skipFiles) {
+            existingExtraArgs.skipFiles = extraArgs.skipFiles;
+        }
+
+        return existingExtraArgs;
+    }
 }
 
 /**
