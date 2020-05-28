@@ -15,29 +15,27 @@ export class Editors {
         }
     }
 
-    public async selectTab(tabName: string, untitled: boolean = false, isEditor?: boolean): Promise<void> {
-        await this.code.waitAndClick(`.tabs-container div.tab[aria-label="${tabName}, tab"]`);
-        if (isEditor) {
-            await this.waitForEditorFocus(tabName, untitled);
-        }
+    public async selectTab(fileName: string): Promise<void> {
+        await this.code.waitAndClick(`.tabs-container div.tab[aria-label="${fileName}"]`);
+        await this.waitForEditorFocus(fileName);
     }
 
-    public async waitForActiveEditor(filename: string): Promise<any> {
-        const selector = `.editor-instance .monaco-editor[data-uri$="${filename}"] textarea`;
+    public async waitForActiveEditor(fileName: string): Promise<any> {
+        const selector = `.editor-instance .monaco-editor[data-uri$="${fileName}"] textarea`;
         return this.code.waitForActiveElement(selector);
     }
 
-    public async waitForEditorFocus(fileName: string, untitled: boolean = false): Promise<void> {
+    public async waitForEditorFocus(fileName: string): Promise<void> {
         await this.waitForActiveTab(fileName);
         await this.waitForActiveEditor(fileName);
     }
 
     public async waitForActiveTab(fileName: string, isDirty: boolean = false): Promise<void> {
-        await this.code.waitForElement(`.tabs-container div.tab.active${isDirty ? ".dirty" : ""}[aria-selected="true"][aria-label="${fileName}, tab"]`);
+        await this.code.waitForElement(`.tabs-container div.tab.active${isDirty ? ".dirty" : ""}[aria-selected="true"][aria-label="${fileName}"]`);
     }
 
     public async waitForTab(fileName: string, isDirty: boolean = false): Promise<void> {
-        await this.code.waitForElement(`.tabs-container div.tab${isDirty ? ".dirty" : ""}[aria-label="${fileName}, tab"]`);
+        await this.code.waitForElement(`.tabs-container div.tab${isDirty ? ".dirty" : ""}[aria-label="${fileName}"]`);
     }
 
     public async newUntitledFile(): Promise<void> {
@@ -47,7 +45,7 @@ export class Editors {
             await this.code.dispatchKeybinding("ctrl+n");
         }
 
-        await this.waitForEditorFocus("Untitled-1", true);
+        await this.waitForEditorFocus("Untitled-1");
     }
 
     public async scrollTop(): Promise<void> {

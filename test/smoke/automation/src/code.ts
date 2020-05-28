@@ -8,7 +8,7 @@ import * as fs from "fs";
 import * as mkdirp from "mkdirp";
 import { tmpNameSync } from "tmp";
 import { IDriver, connect as connectElectronDriver, IDisposable, IElement, Thenable } from "./driver";
-import { connect as connectPuppeteerDriver, launch } from "./puppeteerDriver";
+import { connect as connectPlaywrightDriver, launch } from "./playwrightDriver";
 import { Logger } from "./logger";
 import { ncp } from "ncp";
 import { URI } from "vscode-uri";
@@ -99,6 +99,8 @@ export interface SpawnOptions {
     remote?: boolean;
     /** Run in the web */
     web?: boolean;
+    /** A specific browser to use (requires web: true) */
+    browser?: "chromium" | "webkit" | "firefox";
     /** Run in headless mode (only applies when web is true) */
     headless?: boolean;
 }
@@ -128,6 +130,7 @@ export async function spawn(options: SpawnOptions): Promise<Code> {
         "--disable-crash-reporter",
         `--extensions-dir=${options.extensionsPath}`,
         `--user-data-dir=${options.userDataDir}`,
+        "--disable-restore-windows",
         "--driver", handle,
     ];
 
@@ -171,8 +174,9 @@ export async function spawn(options: SpawnOptions): Promise<Code> {
     let connectDriver: typeof connectElectronDriver;
 
     if (options.web) {
-        await launch(args);
-        connectDriver = connectPuppeteerDriver.bind(connectPuppeteerDriver, !!options.headless);
+        await launch(options.userDataDir, options.workspacePath, options.codePath);
+        connectDriver = connectPlaywrightDriver.bind(connectPlaywrightDriver, options.browser);
+        return connect(connectDriver, child, "", handle, options.logger);
     } else {
         const spawnOptions: cp.SpawnOptions = { env };
         child = cp.spawn(electronPath, args, spawnOptions);
@@ -378,4 +382,3 @@ export function findElements(element: IElement, fn: (element: IElement) => boole
 
     return result;
 }
-
