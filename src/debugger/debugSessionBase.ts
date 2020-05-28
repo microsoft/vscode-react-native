@@ -42,20 +42,15 @@ export interface TerminateEventArgs {
     args: any;
 }
 
-export interface ExtraDebugRequestArgs {
-    skipFiles?: [];
-    sourceMaps?: boolean;
-    sourceMapPathOverrides?: { [key: string]: string };
-    env?: any;
-    envFile?: string;
-}
-
-export interface IAttachRequestArgs extends ExtraDebugRequestArgs, DebugProtocol.AttachRequestArguments, ILaunchArgs {
+export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments, ILaunchArgs {
     cwd: string; /* Automatically set by VS Code to the currently opened folder */
     port: number;
     url?: string;
     address?: string;
     trace?: string;
+    skipFiles?: [];
+    sourceMaps?: boolean;
+    sourceMapPathOverrides?: { [key: string]: string };
 }
 
 export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments, IAttachRequestArgs { }
@@ -102,9 +97,9 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    protected abstract establishDebugSession(extraArgs: ExtraDebugRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;
+    protected abstract establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;
 
-    protected abstract createJsDebugDebuggingConfiguration(extraArgs: ExtraDebugRequestArgs): any;
+    protected abstract createJsDebugDebuggingConfiguration(attachArgs: IAttachRequestArgs): any;
 
     protected initializeSettings(args: any): Q.Promise<any> {
         if (!this.isSettingsInitialized) {
@@ -186,22 +181,22 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         );
     }
 
-    protected getExistingExtraArgs(extraArgs: ExtraDebugRequestArgs): any {
+    protected getExistingExtraArgs(attachArgs: IAttachRequestArgs): any {
         let existingExtraArgs: any = {};
-        if (extraArgs.env) {
-            existingExtraArgs.env = extraArgs.env;
+        if (attachArgs.env) {
+            existingExtraArgs.env = attachArgs.env;
         }
-        if (extraArgs.envFile) {
-            existingExtraArgs.envFile = extraArgs.envFile;
+        if (attachArgs.envFile) {
+            existingExtraArgs.envFile = attachArgs.envFile;
         }
-        if (extraArgs.sourceMaps) {
-            existingExtraArgs.sourceMaps = extraArgs.sourceMaps;
+        if (attachArgs.sourceMaps) {
+            existingExtraArgs.sourceMaps = attachArgs.sourceMaps;
         }
-        if (extraArgs.sourceMapPathOverrides) {
-            existingExtraArgs.sourceMapPathOverrides = extraArgs.sourceMapPathOverrides;
+        if (attachArgs.sourceMapPathOverrides) {
+            existingExtraArgs.sourceMapPathOverrides = attachArgs.sourceMapPathOverrides;
         }
-        if (extraArgs.skipFiles) {
-            existingExtraArgs.skipFiles = extraArgs.skipFiles;
+        if (attachArgs.skipFiles) {
+            existingExtraArgs.skipFiles = attachArgs.skipFiles;
         }
 
         return existingExtraArgs;

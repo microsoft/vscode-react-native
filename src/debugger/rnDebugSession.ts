@@ -10,7 +10,7 @@ import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 import { RnCDPMessageHandler } from "../cdp-proxy/CDPMessageHandlers/rnCDPMessageHandler";
-import { DebugSessionBase, DebugSessionStatus, IAttachRequestArgs, ILaunchRequestArgs, ExtraDebugRequestArgs } from "./debugSessionBase";
+import { DebugSessionBase, DebugSessionStatus, IAttachRequestArgs, ILaunchRequestArgs } from "./debugSessionBase";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -148,8 +148,8 @@ export class RNDebugSession extends DebugSessionBase {
         super.disconnectRequest(response, args, request);
     }
 
-    protected createJsDebugDebuggingConfiguration(extraArgs: ExtraDebugRequestArgs): any {
-        return Object.assign({}, this.getExistingExtraArgs(extraArgs), {
+    protected createJsDebugDebuggingConfiguration(attachArgs: IAttachRequestArgs): any {
+        return Object.assign({}, this.getExistingExtraArgs(attachArgs), {
             type: "pwa-node",
             request: "attach",
             name: "Attach",
@@ -163,8 +163,8 @@ export class RNDebugSession extends DebugSessionBase {
         });
     }
 
-    protected establishDebugSession(extraArgs: ExtraDebugRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
-        const attachConfiguration = this.createJsDebugDebuggingConfiguration(extraArgs);
+    protected establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
+        const attachConfiguration = this.createJsDebugDebuggingConfiguration(attachArgs);
 
         vscode.debug.startDebugging(
             this.appLauncher.getWorkspaceFolder(),

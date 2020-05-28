@@ -7,7 +7,7 @@ import { logger } from "vscode-debugadapter";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { DebugProtocol } from "vscode-debugprotocol";
 import { DirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/directCDPMessageHandler";
-import { DebugSessionBase, IAttachRequestArgs, ILaunchRequestArgs, ExtraDebugRequestArgs } from "../debugSessionBase";
+import { DebugSessionBase, IAttachRequestArgs, ILaunchRequestArgs } from "../debugSessionBase";
 import { DebuggerEndpointHelper } from "../../cdp-proxy/debuggerEndpointHelper";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
@@ -124,14 +124,13 @@ export class DirectDebugSession extends DebugSessionBase {
         super.disconnectRequest(response, args, request);
     }
 
-    protected createJsDebugDebuggingConfiguration(extraArgs: ExtraDebugRequestArgs): any {
-        return Object.assign({}, this.getExistingExtraArgs(extraArgs), {
+    protected createJsDebugDebuggingConfiguration(attachArgs: IAttachRequestArgs): any {
+        return Object.assign({}, this.getExistingExtraArgs(attachArgs), {
             type: "pwa-node",
             request: "attach",
             name: "Attach",
             continueOnAttach: true,
             port: this.appLauncher.getCdpProxyPort(),
-            smartStep: false,
             // The unique identifier of the debug session. It is used to distinguish React Native extension's
             // debug sessions from other ones. So we can save and process only the extension's debug sessions
             // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
@@ -139,8 +138,8 @@ export class DirectDebugSession extends DebugSessionBase {
         });
     }
 
-    protected establishDebugSession(extraArgs: ExtraDebugRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
-        const attachConfiguration = this.createJsDebugDebuggingConfiguration(extraArgs);
+    protected establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
+        const attachConfiguration = this.createJsDebugDebuggingConfiguration(attachArgs);
 
         vscode.debug.startDebugging(
             this.appLauncher.getWorkspaceFolder(),
