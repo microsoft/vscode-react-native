@@ -105,7 +105,7 @@ export class DirectDebugSession extends DebugSessionBase {
                                 ))
                                 .then((browserInspectUri) => {
                                     this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
-                                    this.establishDebugSession(resolve);
+                                    this.establishDebugSession(attachArgs, resolve);
                                 })
                                 .catch(e => reject(e));
                         })
@@ -124,7 +124,7 @@ export class DirectDebugSession extends DebugSessionBase {
         super.disconnectRequest(response, args, request);
     }
 
-    protected establishDebugSession(resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
+    protected establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
         const attachArguments = {
             type: "pwa-node",
             request: "attach",
@@ -132,6 +132,7 @@ export class DirectDebugSession extends DebugSessionBase {
             continueOnAttach: true,
             port: this.appLauncher.getCdpProxyPort(),
             smartStep: false,
+            skipFiles: attachArgs.skipFiles || [],
             // The unique identifier of the debug session. It is used to distinguish React Native extension's
             // debug sessions from other ones. So we can save and process only the extension's debug sessions
             // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
