@@ -42,13 +42,20 @@ export interface TerminateEventArgs {
     args: any;
 }
 
-export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments, ILaunchArgs {
+export interface ExtraDebugRequestArgs {
+    skipFiles?: [];
+    sourceMaps?: boolean;
+    sourceMapPathOverrides?: { [key: string]: string };
+    env?: any;
+    envFile?: string;
+}
+
+export interface IAttachRequestArgs extends ExtraDebugRequestArgs, DebugProtocol.AttachRequestArguments, ILaunchArgs {
     cwd: string; /* Automatically set by VS Code to the currently opened folder */
     port: number;
     url?: string;
     address?: string;
     trace?: string;
-    skipFiles?: [];
 }
 
 export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments, IAttachRequestArgs { }
@@ -95,7 +102,9 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    protected abstract establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;
+    protected abstract establishDebugSession(extraArgs: ExtraDebugRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;
+
+    protected abstract createJsDebugDebuggingConfiguration(extraArgs: ExtraDebugRequestArgs): any;
 
     protected initializeSettings(args: any): Q.Promise<any> {
         if (!this.isSettingsInitialized) {
