@@ -8,6 +8,7 @@ import { TelemetryHelper } from "../../common/telemetryHelper";
 import { DebugProtocol } from "vscode-debugprotocol";
 import { DirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/directCDPMessageHandler";
 import { DebugSessionBase, IAttachRequestArgs, ILaunchRequestArgs } from "../debugSessionBase";
+import { JsDebugConfigAdapter } from "../jsDebugConfigAdapter";
 import { DebuggerEndpointHelper } from "../../cdp-proxy/debuggerEndpointHelper";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
@@ -105,7 +106,7 @@ export class DirectDebugSession extends DebugSessionBase {
                                 ))
                                 .then((browserInspectUri) => {
                                     this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
-                                    this.establishDebugSession(resolve);
+                                    this.establishDebugSession(attachArgs, resolve);
                                 })
                                 .catch(e => reject(e));
                         })
@@ -124,23 +125,16 @@ export class DirectDebugSession extends DebugSessionBase {
         super.disconnectRequest(response, args, request);
     }
 
-    protected establishDebugSession(resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
-        const attachArguments = {
-            type: "pwa-node",
-            request: "attach",
-            name: "Attach",
-            continueOnAttach: true,
-            port: this.appLauncher.getCdpProxyPort(),
-            smartStep: false,
-            // The unique identifier of the debug session. It is used to distinguish React Native extension's
-            // debug sessions from other ones. So we can save and process only the extension's debug sessions
-            // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
-            rnDebugSessionId: this.session.id,
-        };
+    protected establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
+        const attachConfiguration = JsDebugConfigAdapter.createDebuggingConfigForRNHermes(
+            attachArgs,
+            this.appLauncher.getCdpProxyPort(),
+            this.session.id
+        );
 
         vscode.debug.startDebugging(
             this.appLauncher.getWorkspaceFolder(),
-            attachArguments,
+            attachConfiguration,
             {
                 parentSession: this.session,
                 consoleMode: vscode.DebugConsoleMode.MergeWithParent,

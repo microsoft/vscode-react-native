@@ -11,6 +11,7 @@ import { TelemetryHelper } from "../common/telemetryHelper";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 import { RnCDPMessageHandler } from "../cdp-proxy/CDPMessageHandlers/rnCDPMessageHandler";
 import { DebugSessionBase, DebugSessionStatus, IAttachRequestArgs, ILaunchRequestArgs } from "./debugSessionBase";
+import { JsDebugConfigAdapter } from "./jsDebugConfigAdapter";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -116,7 +117,7 @@ export class RNDebugSession extends DebugSessionBase {
 
                                         if (this.debugSessionStatus === DebugSessionStatus.FirstConnection) {
                                             this.debugSessionStatus = DebugSessionStatus.FirstConnectionPending;
-                                            this.establishDebugSession(resolve);
+                                            this.establishDebugSession(attachArgs, resolve);
                                         } else if (this.debugSessionStatus === DebugSessionStatus.ConnectionAllowed) {
                                             if (this.nodeSession) {
                                                 this.debugSessionStatus = DebugSessionStatus.ConnectionPending;
@@ -148,23 +149,16 @@ export class RNDebugSession extends DebugSessionBase {
         super.disconnectRequest(response, args, request);
     }
 
-    protected establishDebugSession(resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
-        const attachArguments = {
-            type: "pwa-node",
-            request: "attach",
-            name: "Attach",
-            continueOnAttach: true,
-            port: this.appLauncher.getCdpProxyPort(),
-            smartStep: false,
-            // The unique identifier of the debug session. It is used to distinguish React Native extension's
-            // debug sessions from other ones. So we can save and process only the extension's debug sessions
-            // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
-            rnDebugSessionId: this.session.id,
-        };
+    protected establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void {
+        const attachConfiguration = JsDebugConfigAdapter.createDebuggingConfigForPureRN(
+            attachArgs,
+            this.appLauncher.getCdpProxyPort(),
+            this.session.id
+        );
 
         vscode.debug.startDebugging(
             this.appLauncher.getWorkspaceFolder(),
-            attachArguments,
+            attachConfiguration,
             {
                 parentSession: this.session,
                 consoleMode: vscode.DebugConsoleMode.MergeWithParent,
@@ -208,7 +202,7 @@ export class RNDebugSession extends DebugSessionBase {
             && debugSession.type === this.pwaNodeSessionName
         ) {
             if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
-                this.establishDebugSession();
+                this.establishDebugSession(this.previousAttachArgs);
             } else {
                 this.session.customRequest(this.disconnectCommand, {forcedStop: true});
             }

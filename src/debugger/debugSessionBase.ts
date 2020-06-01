@@ -48,6 +48,9 @@ export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments
     url?: string;
     address?: string;
     trace?: string;
+    skipFiles?: [];
+    sourceMaps?: boolean;
+    sourceMapPathOverrides?: { [key: string]: string };
 }
 
 export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments, IAttachRequestArgs { }
@@ -94,7 +97,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    protected abstract establishDebugSession(resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;
+    protected abstract establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;
 
     protected initializeSettings(args: any): Q.Promise<any> {
         if (!this.isSettingsInitialized) {
@@ -140,7 +143,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.cancellationTokenSource.dispose();
 
         // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
-        if (this.previousAttachArgs.platform === "android") {
+        if (this.previousAttachArgs && this.previousAttachArgs.platform === "android") {
             try {
                 this.appLauncher.stopMonitoringLogCat();
             } catch (err) {

@@ -75,10 +75,10 @@ export class PackagerStatusIndicator implements Disposable {
                 this.packagerStatusItem.text = PackagerStatusIndicator.PACKAGER_STATUS_STOPPING;
 
                 this.togglePackagerItem.text = PackagerStatusIndicator.ACTIVITY_ICON;
-                this.togglePackagerItem.command = "";
+                this.togglePackagerItem.command = undefined;
                 this.togglePackagerItem.tooltip = "";
 
-                this.restartPackagerItem.command = "";
+                this.restartPackagerItem.command = undefined;
                 break;
             case PackagerStatus.PACKAGER_STARTED:
                 this.packagerStatusItem.text = PackagerStatusIndicator.PACKAGER_STATUS_STARTED;
@@ -93,10 +93,10 @@ export class PackagerStatusIndicator implements Disposable {
                 this.packagerStatusItem.text = PackagerStatusIndicator.PACKAGER_STATUS_STARTING;
 
                 this.togglePackagerItem.text = PackagerStatusIndicator.ACTIVITY_ICON;
-                this.togglePackagerItem.command = "";
+                this.togglePackagerItem.command = undefined;
                 this.togglePackagerItem.tooltip = "";
 
-                this.restartPackagerItem.command = "";
+                this.restartPackagerItem.command = undefined;
                 break;
             default:
                 break;

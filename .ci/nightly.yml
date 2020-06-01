@@ -1,0 +1,35 @@
+# Run on a schedule
+trigger: none
+pr: none
+
+jobs:
+- job: nightly_release
+  displayName: Nightly Release
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - template: common-validation.yml
+
+  - task: Gulp@0
+    displayName: gulp release
+    inputs:
+      targets: release
+      arguments: --nightly
+
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
+    inputs:
+      Contents: |
+        *.vsix
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish artifacts: Nightly Extension'
+    inputs:
+      ArtifactName: 'Extension (nightly)'
+
+  - bash: |
+      VSIX=`ls *.vsix`
+      vsce publish --pat $(publishPAT) --packagePath $VSIX
+    displayName: 'VSCE publish'
+    condition: and(succeeded(), eq(variables['dryrun'], 'false'))

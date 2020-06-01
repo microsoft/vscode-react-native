@@ -26,6 +26,12 @@ const copyright = GulpExtras.checkCopyright;
 const imports = GulpExtras.checkImports;
 const executeCommand = GulpExtras.executeCommand;
 
+
+/**
+ * Whether we're running a nightly build.
+ */
+const isNightly = process.argv.includes('--nightly');
+
 const translationProjectName  = "vscode-extensions";
 const translationExtensionName  = "vscode-react-native";
 const defaultLanguages = [
@@ -248,6 +254,29 @@ gulp.task("package", (callback) => {
     executeCommand(command, args, callback);
 });
 
+function readJson(file) {
+    const contents = fs.readFileSync(path.join(__dirname, file), 'utf-8').toString();
+    return JSON.parse(contents);
+}
+
+function writeJson(file, jsonObj) {
+    const content = JSON.stringify(jsonObj, null , 2);
+    fs.writeFileSync(path.join(__dirname, file), content);
+}
+
+const getVersionNumber = () => {
+    const date = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+
+    return [
+      // YY
+      date.getFullYear(),
+      // MM,
+      date.getMonth() + 1,
+      //DDHH
+      `${date.getDate()}${String(date.getHours()).padStart(2, '0')}`,
+    ].join('.');
+};
+
 gulp.task("release", gulp.series("build", function prepareLicenses() {
     const licenseFiles = ["LICENSE.txt", "ThirdPartyNotices.txt"];
     const backupFolder = path.resolve(path.join(os.tmpdir(), "vscode-react-native"));
@@ -268,6 +297,12 @@ gulp.task("release", gulp.series("build", function prepareLicenses() {
             fs.writeFileSync("LICENSE.txt", fs.readFileSync("release/LICENSE.txt"));
             fs.writeFileSync("ThirdPartyNotices.txt", fs.readFileSync("release/ThirdPartyNotices.txt"));
         }).then(() => {
+            if (isNightly) {
+                log("Performing nightly release...");
+                let packageJson = readJson("package.json");
+                packageJson.version = getVersionNumber();
+                writeJson("package.json", packageJson);
+            }
             log("Creating release package...");
             var deferred = Q.defer();
             // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.

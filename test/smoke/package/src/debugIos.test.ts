@@ -45,7 +45,7 @@ export function setup(testParameters?: TestRunArguments) {
         async function expoTest(testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
-            await app.workbench.quickopen.openFile("App.js");
+            await app.workbench.quickaccess.openFile("App.js");
             await app.workbench.editors.scrollTop();
             console.log(`${testName}: App.js file is opened`);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
@@ -55,12 +55,12 @@ export function setup(testParameters?: TestRunArguments) {
             const device = <string>IosSimulatorHelper.getDevice();
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
-                await app.workbench.quickopen.runDebugScenario(debugConfigName);
+                await app.workbench.quickaccess.runDebugScenario(debugConfigName);
             } else {
                 if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                     for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                         let expoLaunchStatus: ExpoLaunch;
-                        await app.workbench.quickopen.runDebugScenario(debugConfigName);
+                        await app.workbench.quickaccess.runDebugScenario(debugConfigName);
                         expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
                         if (expoLaunchStatus.successful) {
                             break;
@@ -76,8 +76,8 @@ export function setup(testParameters?: TestRunArguments) {
                 }
             }
 
-            await app.workbench.editors.waitForTab("Expo QR Code");
-            await app.workbench.editors.waitForActiveTab("Expo QR Code");
+            await app.workbench.editors.waitForTab("Expo QR Code readonly");
+            await app.workbench.editors.waitForActiveTab("Expo QR Code readonly");
             console.log(`${testName}: 'Expo QR Code' tab found`);
 
             let expoURL;
@@ -116,14 +116,14 @@ export function setup(testParameters?: TestRunArguments) {
             let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log(`${testName}: \"Test output from debuggee\" string is found`);
-            await app.workbench.debug.stopDebugging();
+            await app.workbench.debug.disconnectFromDebugger();
             console.log(`${testName}: Debugging is stopped`);
         }
 
         it("RN app Debug test", async function () {
             this.timeout(debugIosTestTime);
             app = await runVSCode(RNworkspacePath);
-            await app.workbench.quickopen.openFile("App.js");
+            await app.workbench.quickaccess.openFile("App.js");
             await app.workbench.editors.scrollTop();
             console.log("iOS Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
@@ -132,7 +132,7 @@ export function setup(testParameters?: TestRunArguments) {
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
             SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
             console.log("iOS Debug test: Starting debugging");
-            await app.workbench.quickopen.runDebugScenario(RNDebugConfigName);
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
 
             await IosSimulatorHelper.waitUntilIosAppIsInstalled(RnAppBundleId, SmokeTestsConstants.iosAppBuildAndInstallTimeout, 40 * 1000);
             const device = <string>IosSimulatorHelper.getDevice();
@@ -161,7 +161,7 @@ export function setup(testParameters?: TestRunArguments) {
             let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
             console.log("iOS Debug test: \"Test output from debuggee\" string is found");
-            await app.workbench.debug.stopDebugging();
+            await app.workbench.debug.disconnectFromDebugger();
             console.log("iOS Debug test: Debugging is stopped");
         });
 
