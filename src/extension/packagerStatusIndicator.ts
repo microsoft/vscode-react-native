@@ -31,9 +31,9 @@ export class PackagerStatusIndicator implements Disposable {
     private static RESTART_ICON = "$(sync)";
     private static ACTIVITY_ICON = "$(watch)";
 
-    private static START_COMMAND = "reactNative.startPackager";
-    private static STOP_COMMAND = "reactNative.stopPackager";
-    private static RESTART_COMMAND = "reactNative.restartPackager";
+    private static START_COMMAND = "reactNative.startPackager-preview";
+    private static STOP_COMMAND = "reactNative.stopPackager-preview";
+    private static RESTART_COMMAND = "reactNative.restartPackager-preview";
 
     public constructor() {
         this.packagerStatusItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);

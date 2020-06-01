@@ -8,55 +8,55 @@ import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
 export const DEBUG_TYPES = {
-    REACT_NATIVE: "reactnative",
-    REACT_NATIVE_DIRECT: "reactnativedirect",
+    REACT_NATIVE: "reactnative-preview",
+    REACT_NATIVE_DIRECT: "reactnativedirect-preview",
 };
 
 export class ReactNativeDebugConfigProvider implements vscode.DebugConfigurationProvider {
     private debugConfigurations = {
-        "Debug Android": {
-            "name": "Debug Android",
+        "Debug Android (Preview)": {
+            "name": "Debug Android (Preview)",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": "android",
         },
-        "Debug iOS": {
-            "name": "Debug iOS",
+        "Debug iOS (Preview)": {
+            "name": "Debug iOS (Preview)",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": "ios",
         },
-        "Debug Windows": {
-            "name": "Debug Windows",
+        "Debug Windows (Preview)": {
+            "name": "Debug Windows (Preview)",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": "windows",
         },
-        "Attach to packager": {
-            "name": "Attach to packager",
+        "Attach to packager (Preview)": {
+            "name": "Attach to packager (Preview)",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "attach",
         },
-        "Debug in Exponent": {
-            "name": "Debug in Exponent",
+        "Debug in Exponent (Preview)": {
+            "name": "Debug in Exponent (Preview)",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": "exponent",
         },
-        "Debug Android (Hermes) - Experimental": {
-            "name": "Debug Android (Hermes) - Experimental",
+        "Debug Android Hermes (Preview) - Experimental": {
+            "name": "Debug Android Hermes (Preview) - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
             "platform": "android",
         },
-        "Attach to Hermes application - Experimental": {
-            "name": "Attach to Hermes application - Experimental",
+        "Attach to Hermes application (Preview) - Experimental": {
+            "name": "Attach to Hermes application (Preview) - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "attach",
@@ -65,31 +65,31 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
 
     private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
         {
-            label: "Debug Android",
+            label: "Debug Android (Preview)",
             description: localize("DebugAndroidConfigDesc", "Run and debug Android application"),
         },
         {
-            label: "Debug iOS",
+            label: "Debug iOS (Preview)",
             description: localize("DebugiOSConfigDesc", "Run and debug iOS application"),
         },
         {
-            label: "Debug Windows",
+            label: "Debug Windows (Preview)",
             description: localize("DebugWindowsConfigDesc", "Run and debug Windows application"),
         },
         {
-            label: "Attach to packager",
+            label: "Attach to packager (Preview)",
             description: localize("AttachToPackagerConfigDesc", "Attach to already working application packager"),
         },
         {
-            label: "Debug in Exponent",
+            label: "Debug in Exponent (Preview)",
             description: localize("DebugExpoConfigDesc", "Debug Expo application or React Native application in Expo"),
         },
         {
-            label: "Debug Android (Hermes) - Experimental",
+            label: "Debug Android Hermes (Preview) - Experimental",
             description: localize("DebugAndroidHermesConfigDesc", "Run and debug Android Hermes application"),
         },
         {
-            label: "Attach to Hermes application - Experimental",
+            label: "Attach to Hermes application (Preview) - Experimental",
             description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working Android Hermes application packager"),
         },
     ];
