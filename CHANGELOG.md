@@ -1,3 +1,14 @@
+## 0.16.0
+* Improved extension security [#1253](https://github.com/microsoft/vscode-react-native/pull/1253)
+* Updated extension license to MIT [#1286](https://github.com/microsoft/vscode-react-native/pull/1286)
+* Fixed fonts usage with Expo SDK 37 [#1260](https://github.com/microsoft/vscode-react-native/pull/1260), [#1264](https://github.com/microsoft/vscode-react-native/pull/1264)
+* Increased packager starting time and fixed handling of StatusBar items click [#1268](https://github.com/microsoft/vscode-react-native/pull/1268)
+* Fixed links in Table of Contents and typos, thanks to [Max von Webel(@343max)](https://github.com/343max) [#1284](https://github.com/microsoft/vscode-react-native/pull/1284)
+* Internal changes:
+    * Migrated unit tests to vscode-test [#1256](https://github.com/microsoft/vscode-react-native/pull/1256)
+    * Updated smoke tests docs [#1281](https://github.com/microsoft/vscode-react-native/pull/1281)
+
+
 ## 0.15.0
 * Improved extension security [#1227](https://github.com/microsoft/vscode-react-native/pull/1227)
 * Added an option to add environment variables to the React Native packager process. [More info](https://github.com/microsoft/vscode-react-native#custom-environment-variables) [#1248](https://github.com/microsoft/vscode-react-native/pull/1248)

@@ -51,7 +51,7 @@ export function setup(testParameters?: TestRunArguments) {
         async function expoTest(testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
-            await app.workbench.quickopen.openFile("App.js");
+            await app.workbench.quickaccess.openFile("App.js");
             await app.workbench.editors.scrollTop();
             console.log(`${testName}: App.js file is opened`);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
@@ -60,12 +60,12 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`${testName}: Starting debugging`);
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
-                await app.workbench.quickopen.runDebugScenario(debugConfigName);
+                await app.workbench.quickaccess.runDebugScenario(debugConfigName);
             } else {
                 if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                     for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                         let expoLaunchStatus: ExpoLaunch;
-                        await app.workbench.quickopen.runDebugScenario(debugConfigName);
+                        await app.workbench.quickaccess.runDebugScenario(debugConfigName);
                         expoLaunchStatus = await findExpoSuccessAndFailurePatterns(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
                         if (expoLaunchStatus.successful) {
                             break;
@@ -81,8 +81,8 @@ export function setup(testParameters?: TestRunArguments) {
                 }
             }
 
-            await app.workbench.editors.waitForTab("Expo QR Code");
-            await app.workbench.editors.waitForActiveTab("Expo QR Code");
+            await app.workbench.editors.waitForTab("Expo QR Code readonly");
+            await app.workbench.editors.waitForActiveTab("Expo QR Code readonly");
             console.log(`${testName}: 'Expo QR Code' tab found`);
 
             let expoURL;
@@ -120,14 +120,14 @@ export function setup(testParameters?: TestRunArguments) {
         it("RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
             app = await runVSCode(RNworkspacePath);
-            await app.workbench.quickopen.openFile("App.js");
+            await app.workbench.quickaccess.openFile("App.js");
             await app.workbench.editors.scrollTop();
             console.log("Android Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
             console.log(`Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
             console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             console.log("Android Debug test: Starting debugging");
-            await app.workbench.quickopen.runDebugScenario(RNDebugConfigName);
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = AppiumHelper.webdriverAttach(opts);
@@ -154,14 +154,14 @@ export function setup(testParameters?: TestRunArguments) {
             prepareReactNativeProjectForHermesTesting();
             AndroidEmulatorHelper.uninstallTestAppFromEmulator(RN_APP_PACKAGE_NAME);
             app = await runVSCode(RNworkspacePath);
-            await app.workbench.quickopen.openFile("AppTestButton.js");
+            await app.workbench.quickaccess.openFile("AppTestButton.js");
             await app.workbench.editors.scrollTop();
             console.log("Android Debug Hermes test: AppTestButton.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
             console.log(`Android Debug Hermes test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`);
             console.log(`Android Debug Hermes test: Chosen debug configuration: ${RNHermesDebugConfigName}`);
             console.log("Android Debug Hermes test: Starting debugging");
-            await app.workbench.quickopen.runDebugScenario(RNHermesDebugConfigName);
+            await app.workbench.quickaccess.runDebugScenario(RNHermesDebugConfigName);
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
             let client = AppiumHelper.webdriverAttach(opts);
@@ -173,7 +173,7 @@ export function setup(testParameters?: TestRunArguments) {
             assert.equal(isHermesWorking, true);
             console.log("Android Debug Hermes test: Reattaching to Hermes app");
             await app.workbench.debug.stopDebugging();
-            await app.workbench.quickopen.runDebugScenario(RNHermesAttachConfigName);
+            await app.workbench.quickaccess.runDebugScenario(RNHermesAttachConfigName);
             console.log("Android Debug Hermes test: Reattached successfully");
             await sleep(7000);
             console.log("Android Debug Hermes test: Click Test Button");
