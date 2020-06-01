@@ -99,8 +99,6 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
 
     protected abstract establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;
 
-    protected abstract createJsDebugDebuggingConfiguration(attachArgs: IAttachRequestArgs): any;
-
     protected initializeSettings(args: any): Q.Promise<any> {
         if (!this.isSettingsInitialized) {
             let chromeDebugCoreLogs = getLoggingDirectory();
@@ -179,27 +177,6 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             undefined,
             ErrorDestination.User
         );
-    }
-
-    protected getExistingExtraArgs(attachArgs: IAttachRequestArgs): any {
-        let existingExtraArgs: any = {};
-        if (attachArgs.env) {
-            existingExtraArgs.env = attachArgs.env;
-        }
-        if (attachArgs.envFile) {
-            existingExtraArgs.envFile = attachArgs.envFile;
-        }
-        if (attachArgs.sourceMaps) {
-            existingExtraArgs.sourceMaps = attachArgs.sourceMaps;
-        }
-        if (attachArgs.sourceMapPathOverrides) {
-            existingExtraArgs.sourceMapPathOverrides = attachArgs.sourceMapPathOverrides;
-        }
-        if (attachArgs.skipFiles) {
-            existingExtraArgs.skipFiles = attachArgs.skipFiles;
-        }
-
-        return existingExtraArgs;
     }
 }
 
