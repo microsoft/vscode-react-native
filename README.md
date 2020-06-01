@@ -1,6 +1,8 @@
 # React Native Tools (Preview)
 
-[![Build Status](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_apis/build/status/%5BUnit%20tests%5D%20vscode-react-native%20%5Bmaster%5D?branchName=master)](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_build/latest?definitionId=60&branchName=master)
+[![Build Status](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_apis/build/status/%5BUnit%20tests%5D%20vscode-react-native%20%5Bmaster%5D?branchName=preview)](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_build/latest?definitionId=60&branchName=preview)
+<img src="https://vsmarketplacebadge.apphb.com/version-short/msjsdiag.vscode-react-native-preview.svg">
+<img src="https://vsmarketplacebadge.apphb.com/rating-star/msjsdiag.vscode-react-native-preview.svg">
 
 > This is a preview version of the updated React Native Tools extension. It's not recommended to use the preview version and the stable one at the same time.
 
