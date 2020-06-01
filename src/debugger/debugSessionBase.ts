@@ -49,6 +49,8 @@ export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments
     address?: string;
     trace?: string;
     skipFiles?: [];
+    sourceMaps?: boolean;
+    sourceMapPathOverrides?: { [key: string]: string };
 }
 
 export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments, IAttachRequestArgs { }

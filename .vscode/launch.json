@@ -16,42 +16,6 @@
             "preLaunchTask": "gulp: build"
         },
         {
-            "name": "Debug Debugger",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/src/debugger/reactNativeDebugEntryPoint.ts",
-            "runtimeArgs": [
-                "--harmony"
-            ],
-            "stopOnEntry": false,
-            "args": [
-                "--server=4712"
-            ], // Use "debugServer": "4712", on launch.json of the instance to debug
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/src/**/*.js"
-            ],
-            "preLaunchTask": "gulp: build"
-        },
-        {
-            "name": "Debug Direct Debugger",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/src/debugger/direct/reactNativeDirectDebugEntryPoint.ts",
-            "runtimeArgs": [
-                "--harmony"
-            ],
-            "stopOnEntry": false,
-            "args": [
-                "--server=4712"
-            ], // Use "debugServer": "4712", on launch.json of the instance to debug
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/src/**/*.js"
-            ],
-            "preLaunchTask": "gulp: build"
-        },
-        {
             "name": "Quick Launch Extension",
             "type": "extensionHost",
             "request": "launch",
@@ -59,42 +23,6 @@
             "args": [
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/src/**/*.js"
-            ],
-            "preLaunchTask": "gulp: quick-build"
-        },
-        {
-            "name": "Quick Debug Debugger",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/src/debugger/reactNativeDebugEntryPoint.ts",
-            "runtimeArgs": [
-                "--harmony"
-            ],
-            "stopOnEntry": false,
-            "args": [
-                "--server=4712"
-            ], // Use "debugServer": "4712", on launch.json of the instance to debug
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/src/**/*.js"
-            ],
-            "preLaunchTask": "gulp: quick-build"
-        },
-        {
-            "name": "Quick Debug Direct Debugger",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/src/debugger/direct/reactNativeDirectDebugEntryPoint.ts",
-            "runtimeArgs": [
-                "--harmony"
-            ],
-            "stopOnEntry": false,
-            "args": [
-                "--server=4712"
-            ], // Use "debugServer": "4712", on launch.json of the instance to debug
             "sourceMaps": true,
             "outFiles": [
                 "${workspaceRoot}/src/**/*.js"
@@ -161,10 +89,10 @@
             "preLaunchTask": "gulp: quick-build"
         },
         {
+            "name": "Launch All Smoke Tests",
             "type": "node",
             "request": "launch",
             "protocol": "inspector",
-            "name": "Launch All Smoke Tests",
             "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
             "args": [ "--dont-delete-vsix" ],
@@ -177,10 +105,10 @@
             "preLaunchTask": "Prepare Smoke Tests"
         },
         {
+            "name": "Launch Android Smoke Tests",
             "type": "node",
             "request": "launch",
             "protocol": "inspector",
-            "name": "Launch Android Smoke Tests",
             "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
             "args": [
@@ -196,10 +124,10 @@
             "preLaunchTask": "Prepare Smoke Tests"
         },
         {
+            "name": "Launch iOS Smoke Tests",
             "type": "node",
             "request": "launch",
             "protocol": "inspector",
-            "name": "Launch iOS Smoke Tests",
             "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
             "args": [
@@ -215,10 +143,10 @@
             "preLaunchTask": "Prepare Smoke Tests"
         },
         {
+            "name": "Launch All Smoke Tests (skip setup)",
             "type": "node",
             "request": "launch",
             "protocol": "inspector",
-            "name": "Launch All Smoke Tests (skip setup)",
             "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
             "args": [
@@ -234,10 +162,10 @@
             "preLaunchTask": "Build Smoke Tests"
         },
         {
+            "name": "Launch Android Smoke Tests (skip setup)",
             "type": "node",
             "request": "launch",
             "protocol": "inspector",
-            "name": "Launch Android Smoke Tests (skip setup)",
             "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
             "args": [
@@ -254,10 +182,10 @@
             "preLaunchTask": "Build Smoke Tests"
         },
         {
+            "name": "Launch iOS Smoke Tests (skip setup)",
             "type": "node",
             "request": "launch",
             "protocol": "inspector",
-            "name": "Launch iOS Smoke Tests (skip setup)",
             "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
             "args": [
@@ -274,20 +202,5 @@
             "preLaunchTask": "Build Smoke Tests"
         },
     ],
-    "compounds": [
-        {
-            "name": "Quick Extension + Debugger",
-            "configurations": [
-                "Quick Launch Extension",
-                "Quick Debug Debugger"
-            ]
-        },
-        {
-            "name": "Quick Extension + Direct Debugger",
-            "configurations": [
-                "Quick Launch Extension",
-                "Quick Debug Direct Debugger"
-            ]
-        }
-    ]
+    "compounds": []
 }
