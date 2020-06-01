@@ -1,9 +1,9 @@
 trigger:
   - master
-  - dev/js-debug-adaptation
+  - preview
 pr:
   - master
-  - dev/js-debug-adaptation
+  - preview
 
 variables:
   vswdbotLogin: vswdbot
