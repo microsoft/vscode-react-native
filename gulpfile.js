@@ -20,6 +20,7 @@ const remapIstanbul = require("remap-istanbul/lib/gulpRemapIstanbul");
 const nls = require("vscode-nls-dev");
 const libtslint = require("tslint");
 const tslint = require("gulp-tslint");
+const webpack = require('webpack');
 const vscodeTest = require("vscode-test");
 
 const copyright = GulpExtras.checkCopyright;
@@ -54,6 +55,9 @@ const defaultLanguages = [
 
 const srcPath = "src";
 const testPath = "test";
+const buildDir = "src";
+const distDir = "dist";
+const distSrcDir = `${distDir}/src`;
 
 const sources = [srcPath, testPath].map((tsFolder) => tsFolder + "/**/*.ts");
 
@@ -71,6 +75,66 @@ lintSources = lintSources.concat([
     "!test/smoke/**",
     "!/SmokeTestLogs/**"
 ]);
+
+async function runWebpack({
+    packages = [],
+    devtool = false,
+    compileInPlace = false,
+    mode = process.argv.includes('watch') ? 'development' : 'production',
+  } = options) {
+
+    let configs = [];
+    for (const { entry, library, filename } of packages) {
+      const config = {
+        mode,
+        target: 'node',
+        entry: path.resolve(entry),
+        output: {
+          path: compileInPlace ? path.resolve(path.dirname(entry)) : path.resolve(distDir),
+          filename: filename || path.basename(entry).replace('.js', '.bundle.js'),
+          devtoolModuleFilenameTemplate: '../[resource-path]',
+        },
+        devtool: devtool,
+        resolve: {
+          extensions: ['.js', '.json'],
+        },
+        node: {
+          __dirname: false,
+          __filename: false,
+        },
+        externals: {
+          vscode: 'commonjs vscode',
+        },
+      };
+
+      if (library) {
+        config.output.libraryTarget = 'commonjs2';
+      }
+
+      if (process.argv.includes('--analyze-size')) {
+        config.plugins = [
+          new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)({
+            analyzerMode: 'static',
+            reportFilename: path.resolve(distSrcDir, path.basename(entry) + '.html'),
+          }),
+        ];
+      }
+
+      configs.push(config);
+    }
+
+    await new Promise((resolve, reject) =>
+      webpack(configs, (err, stats) => {
+        if (err) {
+          reject(err);
+        } else if (stats.hasErrors()) {
+          reject(stats);
+        } else {
+          resolve();
+        }
+      }),
+    );
+}
 
 function build(failOnError, buildNls) {
     const tsProject = ts.createProject("tsconfig.json");
@@ -149,7 +213,8 @@ gulp.task("check-copyright", () => {
         "!test/smoke/package/node_modules/**",
         "!test/smoke/automation/node_modules/**",
         "!test/smoke/resources/**",
-        "!test/smoke/vscode/**"
+        "!test/smoke/vscode/**",
+        "!dist/**"
     ])
         .pipe(copyright());
 });
@@ -173,6 +238,15 @@ gulp.task("build", gulp.series("check-imports", "check-copyright", "tslint", fun
             done();
         });
 }));
+
+/** Run webpack to bundle the extension output files */
+gulp.task('webpack-bundle', gulp.series("build", async () => {
+    const packages = [
+      { entry: `${buildDir}/extension/rn-extension.js`, filename: 'rn-extension.js', library: true },
+    ];
+    return runWebpack({ packages });
+  })
+);
 
 gulp.task("build-dev", gulp.series("check-imports", "check-copyright", function runBuild(done) {
     build(false, false)
@@ -264,6 +338,9 @@ function writeJson(file, jsonObj) {
     fs.writeFileSync(path.join(__dirname, file), content);
 }
 
+/**
+ * Generate version number for a nightly build.
+ */
 const getVersionNumber = () => {
     const date = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
 
@@ -277,7 +354,7 @@ const getVersionNumber = () => {
     ].join('.');
 };
 
-gulp.task("release", gulp.series("build", function prepareLicenses() {
+gulp.task("release", gulp.series("webpack-bundle", function prepareLicenses() {
     const licenseFiles = ["LICENSE.txt", "ThirdPartyNotices.txt"];
     const backupFolder = path.resolve(path.join(os.tmpdir(), "vscode-react-native"));
     if (!fs.existsSync(backupFolder)) {

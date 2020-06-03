@@ -45,7 +45,7 @@
 		"onCommand:reactNative.reloadApp-preview",
 		"onCommand:reactNative.runInspector-preview"
 	],
-	"main": "./src/extension/rn-extension",
+	"main": "./dist/rn-extension",
 	"contributes": {
 		"commands": [
 			{
@@ -742,7 +742,8 @@
 		"vsce": "^1.74.0",
 		"vscode-debugprotocol": "^1.40.0",
 		"vscode-nls-dev": "^3.3.1",
-		"vscode-test": "^1.3.0"
+		"vscode-test": "^1.3.0",
+		"webpack": "^4.43.0"
 	},
 	"extensionDependencies": [
 		"ms-vscode.js-debug-nightly"

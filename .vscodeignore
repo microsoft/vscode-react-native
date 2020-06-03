@@ -6,7 +6,9 @@
 test/**
 out/**
 src/**
-!src/**/*.js
+i18n/**
+.ci/**
+node_modules/**
 **/*.js.map
 SampleApplication/**
 tools/**

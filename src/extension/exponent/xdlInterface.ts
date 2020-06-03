@@ -36,7 +36,7 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
             throw e;
         }
     }
-    let commandExecutor = new CommandExecutor(path.dirname(require.resolve("../../../")), logger);
+    let commandExecutor = new CommandExecutor(path.dirname(path.join(__dirname, "..", "..", "..")), logger);
     xdlPackage = commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"),
         ["install", ...EXPO_DEPS, "--verbose", "--no-save"],
         { verbosity: CommandVerbosity.PROGRESS })
