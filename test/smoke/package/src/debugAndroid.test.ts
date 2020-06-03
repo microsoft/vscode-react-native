@@ -31,8 +31,6 @@ const ExpoSetBreakpointOnLine = 1;
 const debugAndroidTestTime = SmokeTestsConstants.androidAppBuildAndInstallTimeout + 100 * 1000;
 // Time for Android Expo Debug Test before it reaches timeout
 const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
-// need for avoid tslint error while skip Hermes test
-let skipHermesTest = true;
 
 export function setup(testParameters?: TestRunArguments) {
 
@@ -152,9 +150,6 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("Hermes RN app Debug test", async function () {
-            if (skipHermesTest) {
-                this.skip();
-            }
             this.timeout(debugAndroidTestTime);
             prepareReactNativeProjectForHermesTesting();
             AndroidEmulatorHelper.uninstallTestAppFromEmulator(RN_APP_PACKAGE_NAME);
