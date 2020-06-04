@@ -6,7 +6,6 @@
 test/**
 out/**
 src/**
-i18n/**
 .ci/**
 node_modules/**
 **/*.js.map

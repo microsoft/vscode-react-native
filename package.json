@@ -45,7 +45,7 @@
 		"onCommand:reactNative.reloadApp-preview",
 		"onCommand:reactNative.runInspector-preview"
 	],
-	"main": "./dist/rn-extension",
+	"main": "./dist/src/rn-extension",
 	"contributes": {
 		"commands": [
 			{
@@ -713,6 +713,7 @@
 		"@types/websocket": "0.0.33",
 		"@types/ws": "^0.0.39",
 		"ansi-colors": "^3.2.4",
+		"copy-webpack-plugin": "^6.0.2",
 		"del": "^2.2.0",
 		"devtools-protocol": "0.0.762508",
 		"event-stream": "3.3.4",
@@ -737,6 +738,7 @@
 		"sinon": "^1.17.3",
 		"source-map-support": "^0.4.0",
 		"through2": "^2.0.1",
+		"ts-loader": "^7.0.5",
 		"tslint": "^5.20.1",
 		"typescript": "^3.7.5",
 		"vsce": "^1.74.0",

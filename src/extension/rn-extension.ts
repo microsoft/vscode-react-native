@@ -49,7 +49,7 @@ interface ISetupableDisposable extends vscode.Disposable {
 
 export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
     outputChannelLogger.debug("Begin to activate...");
-    const appVersion = require(path.resolve(__dirname, "../../package.json")).version;
+    const appVersion = require(path.join(__dirname, "..", "..", "package.json")).version;
     outputChannelLogger.debug(`Extension version: ${appVersion}`);
     const ExtensionTelemetryReporter = require("vscode-extension-telemetry").default;
     const reporter = new ExtensionTelemetryReporter(APP_NAME, appVersion, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY);

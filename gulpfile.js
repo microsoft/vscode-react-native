@@ -20,7 +20,9 @@ const remapIstanbul = require("remap-istanbul/lib/gulpRemapIstanbul");
 const nls = require("vscode-nls-dev");
 const libtslint = require("tslint");
 const tslint = require("gulp-tslint");
-const webpack = require('webpack');
+const webpack = require("webpack");
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { NLSBundlePlugin } = require('vscode-nls-dev/lib/webpack-bundler');
 const vscodeTest = require("vscode-test");
 
 const copyright = GulpExtras.checkCopyright;
@@ -31,10 +33,10 @@ const executeCommand = GulpExtras.executeCommand;
 /**
  * Whether we're running a nightly build.
  */
-const isNightly = process.argv.includes('--nightly');
+const isNightly = process.argv.includes("--nightly");
 
 const translationProjectName  = "vscode-extensions";
-const translationExtensionName  = "vscode-react-native";
+const translationExtensionName  = isNightly ? "vscode-react-native-preview" : "vscode-react-native";
 const defaultLanguages = [
     { id: "zh-tw", folderName: "cht", transifexId: "zh-hant" },
     { id: "zh-cn", folderName: "chs", transifexId: "zh-hans" },
@@ -80,42 +82,68 @@ async function runWebpack({
     packages = [],
     devtool = false,
     compileInPlace = false,
-    mode = process.argv.includes('watch') ? 'development' : 'production',
+    mode = process.argv.includes("watch") ? "development" : "production",
   } = options) {
 
     let configs = [];
     for (const { entry, library, filename } of packages) {
       const config = {
         mode,
-        target: 'node',
+        target: "node",
         entry: path.resolve(entry),
         output: {
-          path: compileInPlace ? path.resolve(path.dirname(entry)) : path.resolve(distDir),
-          filename: filename || path.basename(entry).replace('.js', '.bundle.js'),
-          devtoolModuleFilenameTemplate: '../[resource-path]',
+          path: compileInPlace ? path.resolve(path.dirname(entry)) : path.resolve(distSrcDir),
+          filename: filename || path.basename(entry).replace(".js", ".bundle.js"),
+          devtoolModuleFilenameTemplate: "../[resource-path]",
         },
         devtool: devtool,
         resolve: {
-          extensions: ['.js', '.json'],
+          extensions: [".js", ".ts", ".json"],
+        },
+        module: {
+            rules: [{
+                test: /\.ts$/,
+                exclude: /node_modules/,
+                use: [{
+                    // vscode-nls-dev loader:
+                    // * rewrite nls-calls
+                    loader: 'vscode-nls-dev/lib/webpack-loader',
+                    options: {
+                        base: path.join(__dirname, 'src')
+                    }
+                }, {
+                    // configure TypeScript loader:
+                    // * enable sources maps for end-to-end source maps
+                    loader: 'ts-loader',
+                    options: {
+                        compilerOptions: {
+                            "sourceMap": true,
+                        }
+                    }
+                }]
+            }]
         },
         node: {
           __dirname: false,
           __filename: false,
         },
         externals: {
-          vscode: 'commonjs vscode',
+          vscode: "commonjs vscode",
         },
+        plugins: [
+            new NLSBundlePlugin(translationExtensionName)
+        ]
       };
 
       if (library) {
-        config.output.libraryTarget = 'commonjs2';
+        config.output.libraryTarget = "commonjs2";
       }
 
-      if (process.argv.includes('--analyze-size')) {
+      if (process.argv.includes("--analyze-size")) {
         config.plugins = [
-          new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)({
-            analyzerMode: 'static',
-            reportFilename: path.resolve(distSrcDir, path.basename(entry) + '.html'),
+          new (require("webpack-bundle-analyzer").BundleAnalyzerPlugin)({
+            analyzerMode: "static",
+            reportFilename: path.resolve(distSrcDir, path.basename(entry) + ".html"),
           }),
         ];
       }
@@ -130,7 +158,7 @@ async function runWebpack({
         } else if (stats.hasErrors()) {
           reject(stats);
         } else {
-          resolve();
+          resolve(stats);
         }
       }),
     );
@@ -170,7 +198,7 @@ async function test() {
     if (options.pattern) {
         log(`\nTesting cases that match pattern: ${options.pattern}`);
     } else {
-        log("\nTesting cases that don't match pattern: extensionContext|localizationContext");
+        log(`\nTesting cases that don't match pattern: extensionContext|localizationContext`);
     }
 
     try {
@@ -240,13 +268,12 @@ gulp.task("build", gulp.series("check-imports", "check-copyright", "tslint", fun
 }));
 
 /** Run webpack to bundle the extension output files */
-gulp.task('webpack-bundle', gulp.series("build", async () => {
+gulp.task("webpack-bundle", async () => {
     const packages = [
-      { entry: `${buildDir}/extension/rn-extension.js`, filename: 'rn-extension.js', library: true },
+      { entry: `${buildDir}/extension/rn-extension.ts`, filename: "rn-extension.js", library: true },
     ];
     return runWebpack({ packages });
-  })
-);
+});
 
 gulp.task("build-dev", gulp.series("check-imports", "check-copyright", function runBuild(done) {
     build(false, false)
@@ -329,7 +356,7 @@ gulp.task("package", (callback) => {
 });
 
 function readJson(file) {
-    const contents = fs.readFileSync(path.join(__dirname, file), 'utf-8').toString();
+    const contents = fs.readFileSync(path.join(__dirname, file), "utf-8").toString();
     return JSON.parse(contents);
 }
 
@@ -342,7 +369,7 @@ function writeJson(file, jsonObj) {
  * Generate version number for a nightly build.
  */
 const getVersionNumber = () => {
-    const date = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    const date = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
 
     return [
       // YY
@@ -350,8 +377,8 @@ const getVersionNumber = () => {
       // MM,
       date.getMonth() + 1,
       //DDHH
-      `${date.getDate()}${String(date.getHours()).padStart(2, '0')}`,
-    ].join('.');
+      `${date.getDate()}${String(date.getHours()).padStart(2, "0")}`,
+    ].join(".");
 };
 
 gulp.task("release", gulp.series("webpack-bundle", function prepareLicenses() {
@@ -418,8 +445,8 @@ gulp.task("translations-import", (done) => {
     });
     es.merge(defaultLanguages.map((language) => {
         let id = language.transifexId || language.id;
-        log(path.join(options.location, id, 'vscode-extensions', `${translationExtensionName}.xlf`));
-        return gulp.src(path.join(options.location, id, 'vscode-extensions', `${translationExtensionName}.xlf`))
+        log(path.join(options.location, id, "vscode-extensions", `${translationExtensionName}.xlf`));
+        return gulp.src(path.join(options.location, id, "vscode-extensions", `${translationExtensionName}.xlf`))
             .pipe(nls.prepareJsonFiles())
             .pipe(gulp.dest(path.join("./i18n", language.folderName)));
     }))
