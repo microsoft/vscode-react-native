@@ -21,6 +21,7 @@ const nls = require("vscode-nls-dev");
 const libtslint = require("tslint");
 const tslint = require("gulp-tslint");
 const webpack = require("webpack");
+const del = require("del");
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { NLSBundlePlugin } = require('vscode-nls-dev/lib/webpack-bundler');
 const vscodeTest = require("vscode-test");
@@ -82,42 +83,68 @@ async function runWebpack({
     packages = [],
     devtool = false,
     compileInPlace = false,
-    mode = process.argv.includes('watch') ? 'development' : 'production',
+    mode = process.argv.includes("watch") ? "development" : "production",
   } = options) {
 
     let configs = [];
     for (const { entry, library, filename } of packages) {
       const config = {
         mode,
-        target: 'node',
+        target: "node",
         entry: path.resolve(entry),
         output: {
           path: compileInPlace ? path.resolve(path.dirname(entry)) : path.resolve(distDir),
-          filename: filename || path.basename(entry).replace('.js', '.bundle.js'),
-          devtoolModuleFilenameTemplate: '../[resource-path]',
+          filename: filename || path.basename(entry).replace(".js", ".bundle.js"),
+          devtoolModuleFilenameTemplate: "../[resource-path]",
         },
         devtool: devtool,
         resolve: {
-          extensions: ['.js', '.json'],
+          extensions: [".js", ".ts", ".json"],
+        },
+        module: {
+            rules: [{
+                test: /\.ts$/,
+                exclude: /node_modules/,
+                use: [{
+                    // vscode-nls-dev loader:
+                    // * rewrite nls-calls
+                    loader: 'vscode-nls-dev/lib/webpack-loader',
+                    options: {
+                        base: path.join(__dirname, 'src')
+                    }
+                }, {
+                    // configure TypeScript loader:
+                    // * enable sources maps for end-to-end source maps
+                    loader: 'ts-loader',
+                    options: {
+                        compilerOptions: {
+                            "sourceMap": true,
+                        }
+                    }
+                }]
+            }]
         },
         node: {
           __dirname: false,
           __filename: false,
         },
         externals: {
-          vscode: 'commonjs vscode',
+          vscode: "commonjs vscode",
         },
+        plugins: [
+            new NLSBundlePlugin(translationExtensionName)
+        ]
       };
 
       if (library) {
-        config.output.libraryTarget = 'commonjs2';
+        config.output.libraryTarget = "commonjs2";
       }
 
-      if (process.argv.includes('--analyze-size')) {
+      if (process.argv.includes("--analyze-size")) {
         config.plugins = [
-          new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)({
-            analyzerMode: 'static',
-            reportFilename: path.resolve(distSrcDir, path.basename(entry) + '.html'),
+          new (require("webpack-bundle-analyzer").BundleAnalyzerPlugin)({
+            analyzerMode: "static",
+            reportFilename: path.resolve(distSrcDir, path.basename(entry) + ".html"),
           }),
         ];
       }
@@ -151,8 +178,8 @@ function build(failOnError, buildNls) {
 
     return tsResult.js
         .pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
-        .pipe(buildNls ? nls.createAdditionalLanguageFiles(defaultLanguages, "i18n", isNightly ? "dist/src" : ".") : es.through())
-        .pipe(buildNls ? nls.bundleMetaDataFiles(translationExtensionName, isNightly ? "dist/src" : ".") : es.through())
+        .pipe(buildNls ? nls.createAdditionalLanguageFiles(defaultLanguages, "i18n", ".") : es.through())
+        .pipe(buildNls ? nls.bundleMetaDataFiles(translationExtensionName, ".") : es.through())
         .pipe(buildNls ? nls.bundleLanguageFiles() : es.through())
         .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: "." }))
         .pipe(gulp.dest((file) => file.cwd))
@@ -244,10 +271,12 @@ gulp.task("build", gulp.series("check-imports", "check-copyright", "tslint", fun
 /** Run webpack to bundle the extension output files */
 gulp.task("webpack-bundle", async () => {
     const packages = [
-      { entry: `${buildDir}/extension/rn-extension.js`, filename: "rn-extension.js", library: true },
+      { entry: `${buildDir}/extension/rn-extension.ts`, filename: "rn-extension.js", library: true },
     ];
     return runWebpack({ packages });
 });
+
+
 
 gulp.task("build-dev", gulp.series("check-imports", "check-copyright", function runBuild(done) {
     build(false, false)
@@ -264,13 +293,14 @@ gulp.task("watch", gulp.series("build", function runWatch() {
 }));
 
 gulp.task("clean", () => {
-    const del = require("del");
+
     const pathsToDelete = [
         "src/**/*.js",
         "src/**/*.js.map",
         "test/**/*.js",
         "test/**/*.js.map",
         "out/",
+        "dist",
         "!test/resources/sampleReactNative022Project/**/*.js",
         ".vscode-test/",
         "nls.*.json",
@@ -280,7 +310,9 @@ gulp.task("clean", () => {
     return del(pathsToDelete, { force: true });
 });
 
-gulp.task("default", gulp.series("clean", "build", "webpack-bundle"));
+gulp.task("prod-build", gulp.series("clean", "webpack-bundle"));
+
+gulp.task("default", gulp.series("clean", "prod-build"));
 
 gulp.task("test", gulp.series("build", "tslint", test));
 
@@ -375,13 +407,13 @@ gulp.task("release", function prepareLicenses() {
             fs.writeFileSync("LICENSE.txt", fs.readFileSync("release/LICENSE.txt"));
             fs.writeFileSync("ThirdPartyNotices.txt", fs.readFileSync("release/ThirdPartyNotices.txt"));
         }).then(() => {
+            let packageJson = readJson("package.json");
+            packageJson.main = "./dist/rn-extension";
             if (isNightly) {
                 log("Performing nightly release...");
-                let packageJson = readJson("package.json");
                 packageJson.version = getVersionNumber();
-                packageJson.main = path.join(".", "dist", "rn-extension");
-                writeJson("package.json", packageJson);
             }
+            writeJson("package.json", packageJson);
             log("Creating release package...");
             var deferred = Q.defer();
             // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.

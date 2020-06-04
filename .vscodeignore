@@ -9,6 +9,7 @@ src/**
 .ci/**
 node_modules/**
 **/*.js.map
+i18n/**
 SampleApplication/**
 tools/**
 .vscodeignore
