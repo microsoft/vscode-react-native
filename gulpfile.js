@@ -266,20 +266,6 @@ gulp.task("webpack-bundle", async () => {
     return runWebpack({ packages });
 });
 
-gulp.task("build-dev", gulp.series("check-imports", "check-copyright", function runBuild(done) {
-    build(false, false)
-        .once("finish", () => {
-            done();
-        });
-}));
-
-gulp.task("quick-build", gulp.series("build-dev"));
-
-gulp.task("watch", gulp.series("build", function runWatch() {
-    log("Watching build sources...");
-    return gulp.watch(sources, gulp.series("build"));
-}));
-
 gulp.task("clean", () => {
 
     const pathsToDelete = [
@@ -306,6 +292,20 @@ gulp.task("build", gulp.series("clean", "check-imports", "check-copyright", "tsl
         .once("finish", () => {
             done();
         });
+}));
+
+gulp.task("build-dev", gulp.series("check-imports", "check-copyright", function runBuild(done) {
+    build(false, false)
+        .once("finish", () => {
+            done();
+        });
+}));
+
+gulp.task("quick-build", gulp.series("build-dev"));
+
+gulp.task("watch", gulp.series("build", function runWatch() {
+    log("Watching build sources...");
+    return gulp.watch(sources, gulp.series("build"));
 }));
 
 gulp.task("prod-build", gulp.series("clean", "webpack-bundle"));
