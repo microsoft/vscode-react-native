@@ -258,16 +258,6 @@ gulp.task("tslint", () => {
         .pipe(tslint.report());
 });
 
-// TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
-// We should also make sure that we always generate urls in all the path properties (We shouldn"t have \\s. This seems to
-// be an issue on Windows platforms)
-gulp.task("build", gulp.series("clean", "check-imports", "check-copyright", "tslint", function runBuild(done) {
-    build(true, true)
-        .once("finish", () => {
-            done();
-        });
-}));
-
 /** Run webpack to bundle the extension output files */
 gulp.task("webpack-bundle", async () => {
     const packages = [
@@ -275,8 +265,6 @@ gulp.task("webpack-bundle", async () => {
     ];
     return runWebpack({ packages });
 });
-
-
 
 gulp.task("build-dev", gulp.series("check-imports", "check-copyright", function runBuild(done) {
     build(false, false)
@@ -309,6 +297,16 @@ gulp.task("clean", () => {
     ]
     return del(pathsToDelete, { force: true });
 });
+
+// TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
+// We should also make sure that we always generate urls in all the path properties (We shouldn"t have \\s. This seems to
+// be an issue on Windows platforms)
+gulp.task("build", gulp.series("clean", "check-imports", "check-copyright", "tslint", function runBuild(done) {
+    build(true, true)
+        .once("finish", () => {
+            done();
+        });
+}));
 
 gulp.task("prod-build", gulp.series("clean", "webpack-bundle"));
 
