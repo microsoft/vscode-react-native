@@ -681,6 +681,7 @@
 		"quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
 	},
 	"dependencies": {
+		"configstore": "^5.0.1",
 		"extract-opts": "2.2.0",
 		"flatten-source-map": "0.0.2",
 		"glob": "^7.1.6",
@@ -703,6 +704,7 @@
 		"ws": "^3.2.0"
 	},
 	"devDependencies": {
+		"@types/configstore": "^4.0.0",
 		"@types/mkdirp": "^1.0.0",
 		"@types/mocha": "^7.0.2",
 		"@types/ncp": "^2.0.3",
