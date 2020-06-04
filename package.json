@@ -45,7 +45,7 @@
 		"onCommand:reactNative.reloadApp-preview",
 		"onCommand:reactNative.runInspector-preview"
 	],
-	"main": "./dist/src/rn-extension",
+	"main": "./src/extension/rn-extension",
 	"contributes": {
 		"commands": [
 			{
