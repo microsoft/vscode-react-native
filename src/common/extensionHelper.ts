@@ -32,7 +32,7 @@ export function findFileInFolderHierarchy(dir: string, filename: string): string
     }
 
     if (atFsRoot) {
-        // We reached the fs root, so the project path passed was not a Cordova-based project directory
+        // We reached the fs root
         return null;
     }
 

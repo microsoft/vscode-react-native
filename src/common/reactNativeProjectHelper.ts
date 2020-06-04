@@ -28,11 +28,12 @@ export class ReactNativeProjectHelper {
     }
 
     public static isHaulProject(projectRoot: string): boolean {
-        if (!projectRoot || !fs.existsSync(path.join(projectRoot, "package.json"))) {
+        const packageJsonPath = path.join(projectRoot, "package.json");
+        if (!projectRoot || !fs.existsSync(packageJsonPath)) {
             return false;
         }
 
-        const packageJson = require(path.join(projectRoot, "package.json"));
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
         const haulVersion = packageJson.devDependencies && (packageJson.devDependencies.haul || packageJson.devDependencies["@haul-bundler/cli"]);
         return !!haulVersion;
     }
