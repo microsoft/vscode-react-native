@@ -36,7 +36,7 @@ const executeCommand = GulpExtras.executeCommand;
 const isNightly = process.argv.includes("--nightly");
 
 const translationProjectName  = "vscode-extensions";
-const translationExtensionName  = isNightly ? "vscode-react-native-preview" : "vscode-react-native";
+const translationExtensionName  = isNightly ? "msjsdiag.vscode-react-native-preview" : "msjsdiag.vscode-react-native";
 const defaultLanguages = [
     { id: "zh-tw", folderName: "cht", transifexId: "zh-hant" },
     { id: "zh-cn", folderName: "chs", transifexId: "zh-hans" },
@@ -177,8 +177,8 @@ function build(failOnError, buildNls) {
 
     return tsResult.js
         .pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
-        .pipe(buildNls ? nls.createAdditionalLanguageFiles(defaultLanguages, "i18n", ".") : es.through())
-        .pipe(buildNls ? nls.bundleMetaDataFiles("msjsdiag.vscode-react-native", ".") : es.through())
+        .pipe(buildNls ? nls.createAdditionalLanguageFiles(defaultLanguages, "i18n", isNightly ? "dist/src" : ".") : es.through())
+        .pipe(buildNls ? nls.bundleMetaDataFiles(translationExtensionName, isNightly ? "dist/src" : ".") : es.through())
         .pipe(buildNls ? nls.bundleLanguageFiles() : es.through())
         .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: "." }))
         .pipe(gulp.dest((file) => file.cwd))
