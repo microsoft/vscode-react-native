@@ -261,7 +261,7 @@ gulp.task("tslint", () => {
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn"t have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task("build", gulp.series("check-imports", "check-copyright", "tslint", function runBuild(done) {
+gulp.task("build", gulp.series("clean", "check-imports", "check-copyright", "tslint", function runBuild(done) {
     build(true, true)
         .once("finish", () => {
             done();
@@ -312,7 +312,7 @@ gulp.task("clean", () => {
 
 gulp.task("prod-build", gulp.series("clean", "webpack-bundle"));
 
-gulp.task("default", gulp.series("clean", "prod-build"));
+gulp.task("default", gulp.series("prod-build"));
 
 gulp.task("test", gulp.series("build", "tslint", test));
 
