@@ -129,7 +129,7 @@ export class RNDebugSession extends DebugSessionBase {
                                 });
                         })
                         .catch((err) => {
-                            logger.error("An error occurred while attaching to the debugger. " + err);
+                            logger.error("An error occurred while attaching to the debugger. " + err.message || err);
                             reject(err);
                         });
                     });
