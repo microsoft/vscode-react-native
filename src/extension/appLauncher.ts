@@ -25,6 +25,7 @@ import {ReactNativeCDPProxy} from "../cdp-proxy/reactNativeCDPProxy";
 import {generateRandomPortNumber} from "../common/extensionHelper";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 export class AppLauncher {

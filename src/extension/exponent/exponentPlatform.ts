@@ -14,6 +14,7 @@ import * as Q from "q";
 import * as XDL from "./xdlInterface";
 import * as url from "url";
 import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 

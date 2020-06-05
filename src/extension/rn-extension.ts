@@ -32,6 +32,7 @@ import {ProjectsStorage} from "./projectsStorage";
 import {AppLauncher} from "./appLauncher";
 import * as nls from "vscode-nls";
 import { getExtensionVersion } from "../common/extensionHelper";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 /* all components use the same packager instance */

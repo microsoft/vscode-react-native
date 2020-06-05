@@ -3,6 +3,7 @@
 
 import {window, Disposable, StatusBarItem, StatusBarAlignment} from "vscode";
 import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 /**

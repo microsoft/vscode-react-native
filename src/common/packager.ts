@@ -23,6 +23,7 @@ import * as semver from "semver";
 import { FileSystem } from "./node/fileSystem";
 import * as nls from "vscode-nls";
 import { findFileInFolderHierarchy } from "./extensionHelper";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 export class Packager {

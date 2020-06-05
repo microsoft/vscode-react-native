@@ -12,6 +12,7 @@ import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {WindowsPlatform} from "./windowsPlatform";
 import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 /**

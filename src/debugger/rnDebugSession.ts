@@ -13,6 +13,7 @@ import { RnCDPMessageHandler } from "../cdp-proxy/CDPMessageHandlers/rnCDPMessag
 import { DebugSessionBase, DebugSessionStatus, IAttachRequestArgs, ILaunchRequestArgs } from "./debugSessionBase";
 import { JsDebugConfigAdapter } from "./jsDebugConfigAdapter";
 import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 export class RNDebugSession extends DebugSessionBase {

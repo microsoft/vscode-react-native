@@ -12,6 +12,7 @@ import {ChildProcess} from "../../common/node/childProcess";
 
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 export class SimulatorPlist {

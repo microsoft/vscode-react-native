@@ -17,6 +17,7 @@ import { ILaunchArgs } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
 import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 /**

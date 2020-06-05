@@ -11,6 +11,7 @@ import { DebugSessionBase, IAttachRequestArgs, ILaunchRequestArgs } from "../deb
 import { JsDebugConfigAdapter } from "../jsDebugConfigAdapter";
 import { DebuggerEndpointHelper } from "../../cdp-proxy/debuggerEndpointHelper";
 import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 export class DirectDebugSession extends DebugSessionBase {

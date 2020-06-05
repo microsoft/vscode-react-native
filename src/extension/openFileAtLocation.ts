@@ -8,6 +8,7 @@ import {ErrorHelper} from "../common/error/errorHelper";
 import * as path from "path";
 import * as Q from "q";
 import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 /* Usage:
