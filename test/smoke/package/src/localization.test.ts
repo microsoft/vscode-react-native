@@ -19,7 +19,7 @@ export function setup() {
         it("Test localization", async function () {
             app = await runVSCode(RNworkspacePath, "ru");
             console.log("Localization test: Starting packager");
-            await app.workbench.quickaccess.runDebugScenario(startPackagerCommand);
+            await app.workbench.quickaccess.runCommand(startPackagerCommand);
             console.log(`Localization test: Search for '${packagerStartedCheck}' string output`);
             await app.workbench.statusbar.waitForStatusbarLabel(packagerStartedCheck);
             console.log(`Localization test: Output found`);
