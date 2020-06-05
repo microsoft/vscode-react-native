@@ -9,7 +9,8 @@ import { PROMPT_TITLES } from "./promptStrings";
 export interface PromptParameters {
     promptShown: boolean;
     threshold: number;
-    name: string;
+    experimentName: string;
+    extensionId: string;
 }
 
 export class PromptService {
@@ -20,7 +21,7 @@ export class PromptService {
 
     constructor() {
         this.endpointURL = "https://microsoft.github.io/vscode-react-native/experiments/experimentsConfig.json";
-        this.configName = "reactNativeToolsConf";
+        this.configName = "reactNativeToolsConfig";
         this.experimentName = "RNTPreview";
         this.config = new Configstore(this.configName);
     }
@@ -38,36 +39,39 @@ export class PromptService {
         .then((promptConfig: any) => {
             let promptParameters: PromptParameters | undefined = this.config.get(this.experimentName);
 
-
             if (promptParameters) {
                 if (promptParameters.promptShown) {
                     return;
                 } else if (promptConfig.RNTPreview !== promptParameters.threshold) {
-                    this.showPrompIfThresholdIsExceeded(promptConfig, promptParameters);
+                    this.showPrompIfThresholdIsNotExceeded(promptConfig, promptParameters);
                 }
             }
 
-            this.showPrompIfThresholdIsExceeded(promptConfig, promptParameters);
+            this.showPrompIfThresholdIsNotExceeded(promptConfig, promptParameters);
         });
     }
 
-    private showPrompIfThresholdIsExceeded(promptConfig: any, promptParameters?: PromptParameters) {
+    private showPrompIfThresholdIsNotExceeded(promptConfig: any, promptParameters?: PromptParameters) {
         if (promptParameters) {
             promptParameters.threshold = promptConfig.RNTPreview;
         } else {
             promptParameters = {
                 promptShown: false,
                 threshold: promptConfig.RNTPreview,
-                name: this.experimentName,
+                experimentName: this.experimentName,
+                extensionId: "msjsdiag.vscode-react-native-preview",
             };
         }
 
         if (promptConfig.RNTPreview > Math.random()) {
-            const buttonText = "See migration guide";
+            const buttonText = "Open extension";
             vscode.window.showInformationMessage(PROMPT_TITLES.RNT_PREVIEW_PROMPT, buttonText)
                 .then(selection => {
                     if (selection === buttonText) {
-                        vscode.env.openExternal(vscode.Uri.parse(""));
+                        if (promptParameters) {
+                            vscode.commands.executeCommand("workbench.extensions.search", promptParameters.extensionId);
+                            vscode.commands.executeCommand("extension.open", promptParameters.extensionId);
+                        }
                     }
                 });
 
