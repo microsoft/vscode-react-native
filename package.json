@@ -718,6 +718,7 @@
 		"event-stream": "3.3.4",
 		"fancy-log": "^1.3.3",
 		"gulp": "^4.0.2",
+		"gulp-filter": "^6.0.0",
 		"gulp-istanbul": "^1.1.3",
 		"gulp-mocha": "^7.0.2",
 		"gulp-preprocess": "^3.0.3",

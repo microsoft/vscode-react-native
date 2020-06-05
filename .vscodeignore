@@ -7,6 +7,7 @@ test/**
 out/**
 src/**
 .ci/**
+dist/src
 node_modules/**
 **/*.js.map
 i18n/**

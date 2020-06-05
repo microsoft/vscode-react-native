@@ -21,14 +21,14 @@ const nls = require("vscode-nls-dev");
 const libtslint = require("tslint");
 const tslint = require("gulp-tslint");
 const webpack = require("webpack");
+const filter = require('gulp-filter');
 const del = require("del");
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { NLSBundlePlugin } = require('vscode-nls-dev/lib/webpack-bundler');
 const vscodeTest = require("vscode-test");
 
 const copyright = GulpExtras.checkCopyright;
 const imports = GulpExtras.checkImports;
 const executeCommand = GulpExtras.executeCommand;
+const tsProject = ts.createProject("tsconfig.json");
 
 
 /**
@@ -36,8 +36,8 @@ const executeCommand = GulpExtras.executeCommand;
  */
 const isNightly = process.argv.includes("--nightly");
 
+const ExtensionName  = isNightly ? "msjsdiag.vscode-react-native-preview" : "msjsdiag.vscode-react-native";
 const translationProjectName  = "vscode-extensions";
-const translationExtensionName  = isNightly ? "msjsdiag.vscode-react-native-preview" : "msjsdiag.vscode-react-native";
 const defaultLanguages = [
     { id: "zh-tw", folderName: "cht", transifexId: "zh-hant" },
     { id: "zh-cn", folderName: "chs", transifexId: "zh-hans" },
@@ -110,7 +110,7 @@ async function runWebpack({
                     // * rewrite nls-calls
                     loader: 'vscode-nls-dev/lib/webpack-loader',
                     options: {
-                        base: path.join(__dirname, 'src')
+                        base: path.join(__dirname)
                     }
                 }, {
                     // configure TypeScript loader:
@@ -130,10 +130,7 @@ async function runWebpack({
         },
         externals: {
           vscode: "commonjs vscode",
-        },
-        plugins: [
-            new NLSBundlePlugin(translationExtensionName)
-        ]
+        }
       };
 
       if (library) {
@@ -165,8 +162,23 @@ async function runWebpack({
     );
 }
 
+// Generates ./dist/nls.bundle.<language_id>.json from files in ./i18n/** *//<src_path>/<filename>.i18n.json
+// Localized strings are read from these files at runtime.
+const generateSrcLocBundle = () => {
+    // Transpile the TS to JS, and let vscode-nls-dev scan the files for calls to localize.
+    return tsProject.src()
+        .pipe(sourcemaps.init())
+        .pipe(tsProject()).js
+        .pipe(nls.createMetaDataFiles())
+        .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, "i18n"))
+        .pipe(nls.bundleMetaDataFiles(ExtensionName, 'dist'))
+        .pipe(nls.bundleLanguageFiles())
+        .pipe(filter(['**/nls.bundle.*.json', '**/nls.metadata.header.json', '**/nls.metadata.json', "!src/**"]))
+        .pipe(gulp.dest('dist'));
+};
+
 function build(failOnError, buildNls) {
-    const tsProject = ts.createProject("tsconfig.json");
+
     const isProd = options.env === "production";
     const preprocessorContext = isProd ? { PROD: true } : { DEBUG: true };
     let gotError = false;
@@ -179,7 +191,7 @@ function build(failOnError, buildNls) {
     return tsResult.js
         .pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
         .pipe(buildNls ? nls.createAdditionalLanguageFiles(defaultLanguages, "i18n", ".") : es.through())
-        .pipe(buildNls ? nls.bundleMetaDataFiles(translationExtensionName, ".") : es.through())
+        .pipe(buildNls ? nls.bundleMetaDataFiles(ExtensionName, ".") : es.through())
         .pipe(buildNls ? nls.bundleLanguageFiles() : es.through())
         .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: "." }))
         .pipe(gulp.dest((file) => file.cwd))
@@ -308,7 +320,7 @@ gulp.task("watch", gulp.series("build", function runWatch() {
     return gulp.watch(sources, gulp.series("build"));
 }));
 
-gulp.task("prod-build", gulp.series("clean", "webpack-bundle"));
+gulp.task("prod-build", gulp.series("clean", "webpack-bundle", generateSrcLocBundle));
 
 gulp.task("default", gulp.series("prod-build"));
 
@@ -436,7 +448,7 @@ gulp.task("add-i18n", () => {
 // Creates MLCP readable .xliff file and saves it locally
 gulp.task("translations-export", gulp.series("build", function runTranslationExport() {
     return gulp.src(["package.nls.json", "nls.metadata.header.json", "nls.metadata.json"])
-        .pipe(nls.createXlfFiles(translationProjectName, translationExtensionName))
+        .pipe(nls.createXlfFiles(translationProjectName, ExtensionName))
         .pipe(gulp.dest(path.join("..", `${translationProjectName}-localization-export`)));
 }));
 
@@ -450,8 +462,8 @@ gulp.task("translations-import", (done) => {
     });
     es.merge(defaultLanguages.map((language) => {
         let id = language.transifexId || language.id;
-        log(path.join(options.location, id, "vscode-extensions", `${translationExtensionName}.xlf`));
-        return gulp.src(path.join(options.location, id, "vscode-extensions", `${translationExtensionName}.xlf`))
+        log(path.join(options.location, id, "vscode-extensions", `${ExtensionName}.xlf`));
+        return gulp.src(path.join(options.location, id, "vscode-extensions", `${ExtensionName}.xlf`))
             .pipe(nls.prepareJsonFiles())
             .pipe(gulp.dest(path.join("./i18n", language.folderName)));
     }))
