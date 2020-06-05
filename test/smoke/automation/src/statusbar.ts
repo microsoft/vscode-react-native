@@ -37,6 +37,10 @@ export class StatusBar {
         await this.code.waitForTextContent(`${this.mainSelector} .statusbar-item[title="${title}"]`, text);
     }
 
+    public async waitForStatusbarLabel(text: string): Promise<void> {
+        await this.code.waitForElement(`${this.mainSelector} .statusbar-item[aria-label="${text}"]`);
+    }
+
     private getSelector(element: StatusBarElement): string {
         switch (element) {
             case StatusBarElement.BRANCH_STATUS:
