@@ -6,6 +6,23 @@
 
 > This is a preview version of the updated React Native Tools extension. It's not recommended to use the preview version and the stable one at the same time.
 
+## React Native Tools Preview migration guide
+
+In the Preview version of the extension we changed debug types in debug configurations. The table below shows the difference between debug configuration of the stable and the preview version.
+
+|RNT stable|RNT preview|
+|---|---|
+|```"type": "reactnative"```|```"type": "reactnative-preview"```|
+|```"type": "reactnativedirect"```|```"type": "reactnativedirect-preview"```|
+
+It's just required to add `-preview` suffix in `type` field of a debug configuration of the RNT stable extension to be able to use the preview version of the extension.
+
+We also added `(Preview)` suffix to Command Palette command names.
+
+![React Native commands preview](images/command-palette-preview.png)
+
+To avoid conflicts, it's not recommended to use Command Palette commands of the preview version and the stable one at the same time.
+
 This VS Code extension provides a development environment for React Native projects.
 Using this extension, you can **debug your code and quickly run `react-native` commands** from the command palette.
 
@@ -37,17 +54,6 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [Developing inside a Docker Container](#developing-inside-a-docker-container)
 - [Contributing](#contributing)
 - [Known Issues](#known-issues)
-
-# React Native Tools Preview migration guide
-
-In the Preview version of the extension we changed debug types in debug configurations. The table below shows the difference between debug configuration of the stable and the preview version.
-
-|RNT stable|RNT preview|
-|---|---|
-|```"type": "reactnative"```|```"type": "reactnative-preview"```|
-|```"type": "reactnativedirect"```|```"type": "reactnativedirect-preview"```|
-
-It's just required to add `-preview` suffix in `type` field of a debug configuration of the RNT stable extension to be able to use the preview version of the extension.
 
 # Getting started
 
