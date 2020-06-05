@@ -4,7 +4,7 @@
 import { Application } from "../../automation";
 import { runVSCode, RNworkspacePath } from "./main";
 
-const startPackagerCommand = "Запустить упаковщик";
+const startPackagerCommand = "Start Packager";
 const packagerStartedCheck = "Упаковщик React Native: запущен";
 export function setup() {
     describe("Localization test", () => {
