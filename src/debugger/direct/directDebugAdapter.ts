@@ -125,6 +125,8 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
 
         this.previousAttachArgs = attachArgs;
 
+        this.remoteExtension.showPromptIfNeeded();
+
         return new Promise<void>((resolve, reject) => this.initializeSettings(attachArgs)
             .then(() => {
                 this.outputLogger("Attaching to the application");

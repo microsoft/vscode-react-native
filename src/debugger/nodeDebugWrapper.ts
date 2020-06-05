@@ -195,6 +195,8 @@ export function makeSession(
                 },
             };
 
+            this.remoteExtension.showPromptIfNeeded();
+
             return ProjectVersionHelper.getReactNativeVersions(request.arguments.cwd, true)
                 .then(versions => {
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);

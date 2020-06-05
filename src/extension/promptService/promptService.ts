@@ -19,7 +19,7 @@ export class PromptService {
     private config: Configstore;
 
     constructor() {
-        this.endpointURL = "";
+        this.endpointURL = "https://microsoft.github.io/vscode-react-native/experiments/experimentsConfig.json";
         this.configName = "reactNativeToolsConf";
         this.experimentName = "RNTPreview";
         this.config = new Configstore(this.configName);
@@ -36,7 +36,6 @@ export class PromptService {
             }).on("error", reject);
         })
         .then((promptConfig: any) => {
-            this.config.delete(this.experimentName);
             let promptParameters: PromptParameters | undefined = this.config.get(this.experimentName);
 
 
