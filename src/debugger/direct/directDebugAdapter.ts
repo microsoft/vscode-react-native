@@ -125,10 +125,9 @@ export class DirectDebugAdapter extends ChromeDebugAdapter {
 
         this.previousAttachArgs = attachArgs;
 
-        this.remoteExtension.showPromptIfNeeded();
-
         return new Promise<void>((resolve, reject) => this.initializeSettings(attachArgs)
             .then(() => {
+                this.remoteExtension.showPromptIfNeeded();
                 this.outputLogger("Attaching to the application");
                 logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null , 2)}`);
                 return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, true)
