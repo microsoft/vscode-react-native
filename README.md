@@ -16,6 +16,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 
 # Table of Contents
 
+- [React Native Tools Preview migration guide](#react-native-tools-preview-migration-guide)
 - [Getting started](#getting-started)
 - [React Native commands in the Command Palette](#react-native-commands-in-the-command-palette)
 - [Debugging React Native applications](#debugging-react-native-applications)
@@ -36,6 +37,17 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [Developing inside a Docker Container](#developing-inside-a-docker-container)
 - [Contributing](#contributing)
 - [Known Issues](#known-issues)
+
+# React Native Tools Preview migration guide
+
+In the Preview version of the extension we changed debug types in debug configurations. The table below shows the difference between debug configuration of the stable and the preview version.
+
+|RNT stable|RNT preview|
+|---|---|
+|```"type": "reactnative"```|```"type": "reactnative-preview"```|
+|```"type": "reactnativedirect"```|```"type": "reactnativedirect-preview"```|
+
+It's just required to add `-preview` suffix in `type` field of a debug configuration of the RNT stable extension to be able to use the preview version of the extension.
 
 # Getting started
 
