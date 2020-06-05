@@ -67,11 +67,9 @@ export class PromptService {
             const buttonText = "Open extension";
             vscode.window.showInformationMessage(PROMPT_TITLES.RNT_PREVIEW_PROMPT, buttonText)
                 .then(selection => {
-                    if (selection === buttonText) {
-                        if (promptParameters) {
-                            vscode.commands.executeCommand("workbench.extensions.search", promptParameters.extensionId);
-                            vscode.commands.executeCommand("extension.open", promptParameters.extensionId);
-                        }
+                    if (selection === buttonText && promptParameters) {
+                        vscode.commands.executeCommand("workbench.extensions.search", promptParameters.extensionId);
+                        vscode.commands.executeCommand("extension.open", promptParameters.extensionId);
                     }
                 });
 
