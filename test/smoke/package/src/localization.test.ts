@@ -9,7 +9,7 @@ import { sleep, findStringInFile } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 
 const startPackagerCommand = "Start Packager";
-const packagerStartedCheck = "Упаковщик запущен";
+const packagerStartedCheck = "Запуск упаковщика";
 export function setup() {
     describe("Localization test", () => {
         let app: Application;
