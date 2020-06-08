@@ -33,6 +33,7 @@ steps:
   displayName: 'gulp release'
   inputs:
     targets: release
+    arguments: --nightly
 
 - task: CopyFiles@2
   displayName: 'Copy Files to: test/smoke/package/resources/drop-win'
