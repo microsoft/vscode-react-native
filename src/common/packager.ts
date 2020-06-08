@@ -39,7 +39,7 @@ export class Packager {
         old: "opn-main.js",
     };
     private static RN_VERSION_WITH_OPEN_PKG = "0.60.0";
-    private static JS_INJECTOR_DIRPATH = findFileInFolderHierarchy(__dirname, "js-patched") || "";
+    private static JS_INJECTOR_DIRPATH = findFileInFolderHierarchy(__dirname, "js-patched") || __dirname;
     private static NODE_MODULES_FODLER_NAME = "node_modules";
     private static OPN_PACKAGE_NAME = {
         new: "open",
