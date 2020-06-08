@@ -404,6 +404,7 @@ gulp.task("release", function prepareLicenses() {
         fs.mkdirSync(backupFolder);
     }
 
+    let packageJson = readJson("package.json");
     return Q({})
         .then(() => {
             /* back up LICENSE.txt, ThirdPartyNotices.txt, README.md */
@@ -417,13 +418,13 @@ gulp.task("release", function prepareLicenses() {
             fs.writeFileSync("LICENSE.txt", fs.readFileSync("release/LICENSE.txt"));
             fs.writeFileSync("ThirdPartyNotices.txt", fs.readFileSync("release/ThirdPartyNotices.txt"));
         }).then(() => {
-            let packageJson = readJson("package.json");
-            packageJson.main = "./dist/rn-extension";
+            let tmpPackageJson = Object.assign({}, packageJson);
+            tmpPackageJson.main = "./dist/rn-extension";
             if (isNightly) {
                 log("Performing nightly release...");
-                packageJson.version = getVersionNumber();
+                tmpPackageJson.version = getVersionNumber();
             }
-            writeJson("package.json", packageJson);
+            writeJson("package.json", tmpPackageJson);
             log("Creating release package...");
             var deferred = Q.defer();
             // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.
@@ -432,6 +433,7 @@ gulp.task("release", function prepareLicenses() {
         }).finally(() => {
             /* restore backed up files */
             log("Restoring modified files...");
+            writeJson("package.json", packageJson);
             licenseFiles.forEach((fileName) => {
                 fs.writeFileSync(path.join(__dirname, fileName), fs.readFileSync(path.join(backupFolder, fileName)));
             });
