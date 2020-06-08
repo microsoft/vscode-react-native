@@ -2,7 +2,7 @@
 2.	TACO Tools for Apache Cordova (https://github.com/Microsoft/TACO)
 3.	React Native command line tools (https://github.com/react-native-community/react-native-cli)
 4.	Expo XDL (https://github.com/expo/expo-cli/tree/master/packages/xdl)
-5.      OW (https://github.com/sindresorhus/ow)
+5.	OW (https://github.com/sindresorhus/ow)
 
 
 %% DefinitelyTyped NOTICES, INFORMATION, AND LICENSE BEGIN HERE
