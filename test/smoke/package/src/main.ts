@@ -248,6 +248,7 @@ describe("Extension smoke tests", () => {
         }
         AppiumHelper.terminateAppium();
     });
+    setupLocalizationTests();
     if (process.platform === "darwin") {
         const noSelectArgs = !testParams.RunAndroidTests && !testParams.RunIosTests && !testParams.RunBasicTests;
         if (noSelectArgs) {
@@ -272,6 +273,6 @@ describe("Extension smoke tests", () => {
         } else {
             setupReactNativeDebugAndroidTests();
         }
-        setupLocalizationTests();
+
     }
 });
