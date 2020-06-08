@@ -8,6 +8,8 @@ import {OutputChannelLogger} from "../log/OutputChannelLogger";
 import * as XDLPackage from "xdl";
 import * as path from "path";
 import * as Q from "q";
+import { findFileInFolderHierarchy } from "../../common/extensionHelper";
+import customRequire from "../../common/customRequire";
 
 const logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
@@ -26,7 +28,7 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
     // Don't do the require if we don't actually need it
     try {
         logger.debug("Getting exponent dependency.");
-        const xdl = require(XDL_PACKAGE);
+        const xdl = customRequire(XDL_PACKAGE);
         xdlPackage = Q(xdl);
         return xdlPackage;
     } catch (e) {
@@ -36,12 +38,12 @@ function getPackage(): Q.Promise<typeof XDLPackage> {
             throw e;
         }
     }
-    let commandExecutor = new CommandExecutor(path.dirname(path.join(__dirname, "..", "..", "..")), logger);
+    let commandExecutor = new CommandExecutor(path.dirname(findFileInFolderHierarchy(__dirname, "package.json") || ""), logger);
     xdlPackage = commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"),
         ["install", ...EXPO_DEPS, "--verbose", "--no-save"],
         { verbosity: CommandVerbosity.PROGRESS })
         .then((): typeof XDLPackage => {
-            return require(XDL_PACKAGE);
+            return customRequire(XDL_PACKAGE);
         });
     return xdlPackage;
 }
