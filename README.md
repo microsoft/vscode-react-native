@@ -23,6 +23,8 @@ We also added `(Preview)` suffix to Command Palette command names.
 
 To avoid conflicts, it's not recommended to use Command Palette commands of the preview version and the stable one at the same time.
 
+## About the extension
+
 This VS Code extension provides a development environment for React Native projects.
 Using this extension, you can **debug your code and quickly run `react-native` commands** from the command palette.
 
@@ -34,6 +36,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 # Table of Contents
 
 - [React Native Tools Preview migration guide](#react-native-tools-preview-migration-guide)
+- [About the extension](#about-the-extension)
 - [Getting started](#getting-started)
 - [React Native commands in the Command Palette](#react-native-commands-in-the-command-palette)
 - [Debugging React Native applications](#debugging-react-native-applications)
