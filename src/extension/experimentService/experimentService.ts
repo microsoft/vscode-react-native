@@ -33,6 +33,8 @@ export class ExperimentService {
     private readonly configName: string;
     private readonly availableExperiments: any;
     private config: Configstore;
+    private downloadedExperimentsConfig: Array<ExperimentConfig> | null;
+    private downloadConfigProm: Promise<ExperimentConfig[]> | null;
 
     constructor() {
         this.endpointURL = "https://microsoft.github.io/vscode-react-native/experiments/experimentsConfig.json";
@@ -42,17 +44,28 @@ export class ExperimentService {
         };
 
         this.config = new Configstore(this.configName);
+        this.downloadedExperimentsConfig = null;
+        this.downloadConfigProm = null;
+    }
+
+    public async initialize(): Promise<void> {
+        this.downloadConfigProm = this.downloadExperimentsConfig();
     }
 
     public async runExperiments(): Promise<void> {
-        let experimentsConfig = [];
-        try {
-            experimentsConfig = await this.downloadExperimentsConfig();
-        } catch (err) {
-            throw new Error("Failed to download experiments config");
+        if (!this.downloadedExperimentsConfig) {
+            if (!this.downloadConfigProm) {
+                throw new Error("Experiment Service is not initialized");
+            }
+            try {
+                this.downloadedExperimentsConfig = await this.downloadConfigProm;
+            } catch (err) {
+                this.downloadConfigProm = this.downloadExperimentsConfig();
+                throw new Error("Failed to download experiments config");
+            }
         }
 
-        let experimentResults: Array<ExperimentResult> = await Promise.all(experimentsConfig
+        let experimentResults: Array<ExperimentResult> = await Promise.all(this.downloadedExperimentsConfig
             .filter(expConfig => expConfig.enabled)
             .map(async (expConfig) => await this.executeExperiment(expConfig))
         );
@@ -90,7 +103,13 @@ export class ExperimentService {
                 let data = "";
                 response.setEncoding("utf8");
                 response.on("data", (chunk: string) => (data += chunk));
-                response.on("end", () => resolve(JSON.parse(data)));
+                response.on("end", () => {
+                    try {
+                        resolve(JSON.parse(data));
+                    } catch (err) {
+                        reject(err);
+                    }
+                });
                 response.on("error", reject);
             }).on("error", reject);
         });
