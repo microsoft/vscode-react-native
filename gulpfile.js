@@ -398,18 +398,18 @@ const getVersionNumber = () => {
 };
 
 gulp.task("release", function prepareLicenses() {
-    const licenseFiles = ["LICENSE.txt", "ThirdPartyNotices.txt"];
+    const backupFiles = ["LICENSE.txt", "ThirdPartyNotices.txt", "package.json"];
     const backupFolder = path.resolve(path.join(os.tmpdir(), "vscode-react-native"));
     if (!fs.existsSync(backupFolder)) {
         fs.mkdirSync(backupFolder);
     }
 
-    let packageJson = readJson("package.json");
+
     return Q({})
         .then(() => {
             /* back up LICENSE.txt, ThirdPartyNotices.txt, README.md */
             log("Backing up license files to " + backupFolder + "...");
-            licenseFiles.forEach((fileName) => {
+            backupFiles.forEach((fileName) => {
                 fs.writeFileSync(path.join(backupFolder, fileName), fs.readFileSync(fileName));
             });
 
@@ -418,13 +418,13 @@ gulp.task("release", function prepareLicenses() {
             fs.writeFileSync("LICENSE.txt", fs.readFileSync("release/LICENSE.txt"));
             fs.writeFileSync("ThirdPartyNotices.txt", fs.readFileSync("release/ThirdPartyNotices.txt"));
         }).then(() => {
-            let tmpPackageJson = Object.assign({}, packageJson);
-            tmpPackageJson.main = "./dist/rn-extension";
+            let packageJson = readJson("package.json");
+            packageJson.main = "./dist/rn-extension";
             if (isNightly) {
                 log("Performing nightly release...");
-                tmpPackageJson.version = getVersionNumber();
+                packageJson.version = getVersionNumber();
             }
-            writeJson("package.json", tmpPackageJson);
+            writeJson("package.json", packageJson);
             log("Creating release package...");
             var deferred = Q.defer();
             // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.
@@ -433,8 +433,7 @@ gulp.task("release", function prepareLicenses() {
         }).finally(() => {
             /* restore backed up files */
             log("Restoring modified files...");
-            writeJson("package.json", packageJson);
-            licenseFiles.forEach((fileName) => {
+            backupFiles.forEach((fileName) => {
                 fs.writeFileSync(path.join(__dirname, fileName), fs.readFileSync(path.join(backupFolder, fileName)));
             });
         });
