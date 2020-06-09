@@ -11,7 +11,6 @@ export function getExtensionVersion() {
     } else {
         return null;
     }
-
 }
 
 export function findFileInFolderHierarchy(dir: string, filename: string): string | null {
