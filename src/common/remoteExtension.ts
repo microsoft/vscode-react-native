@@ -24,7 +24,6 @@ export interface IExtensionApi extends ICommonApi {
     launch(request: any): Q.Promise<any>;
     showDevMenu(deviceId?: string): Q.Promise<any>;
     reloadApp(deviceId?: string): Q.Promise<any>;
-    showPromptIfNeeded(): Q.Promise<void>;
 }
 
 export interface IDebuggerApi extends ICommonApi {
@@ -99,9 +98,5 @@ export class RemoteExtension {
 
     public reloadApp(deviceId?: string): Q.Promise<any> {
         return this._api.Extension.reloadApp(deviceId);
-    }
-
-    public showPromptIfNeeded(): Q.Promise<void> {
-        return this._api.Extension.showPromptIfNeeded();
     }
 }

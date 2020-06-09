@@ -17,8 +17,6 @@ import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
-import {PromptService} from "./promptService/promptService";
-import {LogLevel} from "./log/LogHelper";
 import {IRemoteExtension, OpenFileRequest} from "../common/remoteExtension";
 import * as rpc from "noice-json-rpc";
 import * as WebSocket from "ws";
@@ -33,14 +31,12 @@ export class ExtensionServer implements vscode.Disposable {
     private serverInstance: WebSocketServer | null;
     private reactNativePackager: Packager;
     private pipePath: string;
-    private promptService: PromptService;
     private logCatMonitor: LogCatMonitor | null = null;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     public constructor(projectRootPath: string, reactNativePackager: Packager) {
         this.pipePath = MessagingHelper.getPath(projectRootPath);
         this.reactNativePackager = reactNativePackager;
-        this.promptService = new PromptService();
     }
 
     /**
@@ -99,7 +95,6 @@ export class ExtensionServer implements vscode.Disposable {
         methods.launch = this.launch.bind(this);
         methods.showDevMenu = this.showDevMenu.bind(this);
         methods.reloadApp = this.reloadApp.bind(this);
-        methods.showPromptIfNeeded = this.showPromptIfNeeded.bind(this);
 
         this.api.Extension.expose(methods);
     }
@@ -187,13 +182,6 @@ export class ExtensionServer implements vscode.Disposable {
      */
     private showInformationMessage(message: string): void {
         vscode.window.showInformationMessage(message);
-    }
-
-    private showPromptIfNeeded(): Promise<void> {
-        return this.promptService.showPromptIfNeeded()
-            .catch(err => {
-                this.logger.log(`An error occurred while prompt displaying: ${err && err.message}`, LogLevel.Trace);
-            });
     }
 
     private launch(request: any): Promise<any> {
