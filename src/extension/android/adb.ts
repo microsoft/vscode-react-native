@@ -10,6 +10,7 @@ import * as fs from "fs";
 import { ILogger } from "../log/LogHelper";
 import * as os from "os";
 import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 // See android versions usage at: http://developer.android.com/about/dashboards/index.html

@@ -11,11 +11,9 @@ try {
 }
 // @endif
 import * as Q from "q";
-import * as path from "path";
 import * as vscode from "vscode";
 import * as semver from "semver";
 
-import {FileSystem} from "../common/node/fileSystem";
 import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 import {ErrorHelper} from "../common/error/errorHelper";
@@ -33,12 +31,13 @@ import {ReactNativeSessionManager} from "./reactNativeSessionManager";
 import {ProjectsStorage} from "./projectsStorage";
 import {AppLauncher} from "./appLauncher";
 import * as nls from "vscode-nls";
+import { getExtensionVersion } from "../common/extensionHelper";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 /* all components use the same packager instance */
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
-const fsUtil = new FileSystem();
 let debugConfigProvider: vscode.Disposable;
 
 const APP_NAME = "react-native-tools";
@@ -47,9 +46,13 @@ interface ISetupableDisposable extends vscode.Disposable {
     setup(): Q.Promise<any>;
 }
 
+
 export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
     outputChannelLogger.debug("Begin to activate...");
-    const appVersion = require(path.resolve(__dirname, "../../package.json")).version;
+    const appVersion = getExtensionVersion();
+    if (!appVersion) {
+        throw new Error(localize("ExtensionVersionNotFound", "Extension version is not found"));
+    }
     outputChannelLogger.debug(`Extension version: ${appVersion}`);
     const ExtensionTelemetryReporter = require("vscode-extension-telemetry").default;
     const reporter = new ExtensionTelemetryReporter(APP_NAME, appVersion, Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY);
@@ -166,10 +169,6 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                             return void 0;
                         });
                 }));
-                promises.push(entryPointHandler.runFunction("debugger.setupNodeDebuggerLocation",
-                    ErrorHelper.getInternalError(InternalErrorCode.NodeDebuggerConfigurationFailed), () => {
-                        return configureNodeDebuggerLocation();
-                    }));
             } else {
                 outputChannelLogger.debug(`react-native@${versions.reactNativeVersion} isn't supported`);
             }
@@ -199,14 +198,7 @@ function onFolderRemoved(context: vscode.ExtensionContext, folder: vscode.Worksp
     }
 }
 
-function configureNodeDebuggerLocation(): Q.Promise<void> {
-    const nodeDebugExtension = vscode.extensions.getExtension("ms-vscode.node-debug2");
-    if (!nodeDebugExtension) {
-        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindLocationOfNodeDebugger));
-    }
-    const nodeDebugPath = nodeDebugExtension.extensionPath;
-    return fsUtil.writeFile(path.resolve(__dirname, "../", "debugger", "nodeDebugLocation.json"), JSON.stringify({ nodeDebugPath }));
-}
+
 
 function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T, context: vscode.ExtensionContext): Q.Promise<T> {
     return setuptableDisposable.setup()

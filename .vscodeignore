@@ -6,8 +6,11 @@
 test/**
 out/**
 src/**
-!src/**/*.js
+.ci/**
+dist/src
+node_modules/**
 **/*.js.map
+i18n/**
 SampleApplication/**
 tools/**
 .vscodeignore

@@ -13,6 +13,7 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { getFileNameWithoutExtension } from "../../common/utils";
+import customRequire from "../../common/customRequire";
 
 export interface ConfigurationData {
     fullProductName: string;
@@ -178,7 +179,7 @@ export class PlistBuddy {
         } else {
             iOSCliFolderName = "cli";
         }
-        const findXcodeProject = require(path.join(projectRoot, `node_modules/@react-native-community/${iOSCliFolderName}/build/commands/runIOS/findXcodeProject`)).default;
+        const findXcodeProject = customRequire(path.join(projectRoot, `node_modules/@react-native-community/${iOSCliFolderName}/build/commands/runIOS/findXcodeProject`)).default;
         const xcodeProject = findXcodeProject(fs.readdirSync(iosProjectRoot));
         if (!xcodeProject) {
             throw new Error(

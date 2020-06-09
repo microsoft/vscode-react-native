@@ -11,6 +11,7 @@ test/resources/projects/*
 
 # Compiled files
 src/**/*.js
+dist/**
 !src/extension/appcenter/lib/**/*.js
 test/**/*.js
 test/smoke/vscode

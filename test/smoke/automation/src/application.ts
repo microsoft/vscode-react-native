@@ -122,7 +122,7 @@ export class Application {
             logger: this.options.logger,
             verbose: this.options.verbose,
             log: this.options.log,
-            extraArgs,
+            extraArgs: this.options.extraArgs || extraArgs,
             remote: this.options.remote,
             web: this.options.web,
             browser: this.options.browser,

@@ -10,6 +10,7 @@ import {PackagerStatusIndicator, PackagerStatus} from "./packagerStatusIndicator
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 export interface MobilePlatformDeps {

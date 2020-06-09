@@ -9,6 +9,7 @@ import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ExecutionsFilterBeforeTimestamp } from "../../common/executionsLimiter";
 import { AdbHelper } from "./adb";
 import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
 /* This class will print the LogCat messages to an Output Channel. The configuration for logcat can be cutomized in

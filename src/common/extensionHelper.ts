@@ -5,8 +5,37 @@ import * as path from "path";
 import * as fs from "fs";
 
 export function getExtensionVersion() {
-    const projectRoot = path.join(__dirname, "..", "..");
-    return JSON.parse(fs.readFileSync(path.join(projectRoot, "package.json"), "utf-8")).version;
+    const packageJsonPath = findFileInFolderHierarchy(__dirname, "package.json");
+    if (packageJsonPath) {
+        return JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")).version;
+    } else {
+        return null;
+    }
+}
+
+export function findFileInFolderHierarchy(dir: string, filename: string): string | null {
+    let parentPath: string;
+    let projectRoot: string = dir;
+    let atFsRoot: boolean = false;
+
+    while (!fs.existsSync(path.join(projectRoot, filename))) {
+        // Navigate up one level until either config.xml is found
+        parentPath = path.resolve(projectRoot, "..");
+        if (parentPath !== projectRoot) {
+            projectRoot = parentPath;
+        } else {
+            // we have reached the filesystem root
+            atFsRoot = true;
+            break;
+        }
+    }
+
+    if (atFsRoot) {
+        // We reached the fs root
+        return null;
+    }
+
+    return path.join(projectRoot, filename);
 }
 
 export function generateRandomPortNumber() {

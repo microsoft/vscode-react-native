@@ -10,8 +10,8 @@ steps:
 - bash: npm ci
   displayName: 'npm ci'
 
-- bash: npm run vscode:prepublish
-  displayName: 'npm run vscode:prepublish'
+- bash: npm run build
+  displayName: 'npm run build'
 
 - bash: |
     /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
