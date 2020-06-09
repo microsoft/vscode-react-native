@@ -12,16 +12,16 @@ In the Preview version of the extension we changed debug types in debug configur
 
 |RNT stable|RNT preview|
 |---|---|
-|```"type": "reactnative"```|```"type": "reactnative-preview"```|
-|```"type": "reactnativedirect"```|```"type": "reactnativedirect-preview"```|
+|```"type": "reactnative"```<br>![Android debug config stable](images/debug-config-android-stable.png)|```"type": "reactnative-preview"```<br>![Android debug config preview](images/debug-config-android-preview.png)|
+|```"type": "reactnativedirect"```<br>![Hermes debug config stable](images/debug-config-hermes-stable.png)|```"type": "reactnativedirect-preview"```<br>![Hermes debug config preview](images/debug-config-hermes-preview.png)|
 
-It's just required to add `-preview` suffix in `type` field of a debug configuration of the RNT stable extension to be able to use the preview version of the extension.
+In order to use the preview version of the extension it's required to add `-preview` suffix in `type` field of a debug configuration of the RNT stable extension.
 
 We also added `(Preview)` suffix to Command Palette command names.
 
 ![React Native commands preview](images/command-palette-preview.png)
 
-To avoid conflicts, it's not recommended to use Command Palette commands of the preview version and the stable one at the same time.
+To avoid conflicts, it's not recommended to use Command Palette commands and debug configurations of the preview version and the stable one at the same time.
 
 ## About the extension
 
