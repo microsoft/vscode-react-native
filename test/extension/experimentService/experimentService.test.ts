@@ -12,12 +12,8 @@ import * as assert from "assert";
 
 suite("experimentService", function () {
     const configName = "reactNativeToolsConfig";
-    const experimentName = "testName";
+    const testExperimentName = "testName";
     const config = new Configstore(configName);
-
-    suiteTeardown(() => {
-        config.delete(experimentName);
-    });
 
     suite("initializationAndExperimentConfig", function () {
         test("should return correct experiment config", async () => {
@@ -36,27 +32,40 @@ suite("experimentService", function () {
     });
 
     suite("executeExperiment", function () {
-        let expConfig = {
-            experimentName: experimentName,
+        const expTestConfig = {
+            experimentName: testExperimentName,
             popCoveragePercent: 0.5,
             enabled: true,
         };
 
+        const RNTPreviewPromptExp = {
+            experimentName: "RNTPreviewPrompt",
+            popCoveragePercent: 1,
+            enabled: true,
+        };
+
         teardown(() => {
-            config.delete(experimentName);
+            config.delete(testExperimentName);
+            config.delete(RNTPreviewPromptExp.experimentName);
         });
 
         test("should skip the experiment", async () => {
-            config.set(experimentName, expConfig);
+            config.set(testExperimentName, expTestConfig);
             let experimentService = <any>(new ExperimentService());
-            let experimentResult: ExperimentResult = await experimentService.executeExperiment(expConfig);
+            let experimentResult: ExperimentResult = await experimentService.executeExperiment(expTestConfig);
             assert.equal(experimentResult.resultStatus, ExperimentStatuses.SKIPPED);
         });
 
         test("should fail the experiment", async () => {
             let experimentService = <any>(new ExperimentService());
-            let experimentResult: ExperimentResult = await experimentService.executeExperiment(expConfig);
+            let experimentResult: ExperimentResult = await experimentService.executeExperiment(expTestConfig);
             assert.equal(experimentResult.resultStatus, ExperimentStatuses.FAILURE);
+        });
+
+        test("should succeed the experiment", async () => {
+            let experimentService = <any>(new ExperimentService());
+            let experimentResult: ExperimentResult = await experimentService.executeExperiment(RNTPreviewPromptExp);
+            assert.equal(experimentResult.resultStatus, ExperimentStatuses.SUCCESS);
         });
     });
 });
