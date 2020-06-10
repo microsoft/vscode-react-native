@@ -34,7 +34,7 @@ export class ExperimentService {
     private readonly availableExperiments: any;
     private config: Configstore;
     private downloadedExperimentsConfig: Array<ExperimentConfig> | null;
-    private downloadConfigProm: Promise<ExperimentConfig[]> | null;
+    private downloadConfigRequest: Promise<ExperimentConfig[]> | null;
 
     constructor() {
         this.endpointURL = "https://microsoft.github.io/vscode-react-native/experiments/experimentsConfig.json";
@@ -45,22 +45,22 @@ export class ExperimentService {
 
         this.config = new Configstore(this.configName);
         this.downloadedExperimentsConfig = null;
-        this.downloadConfigProm = null;
+        this.downloadConfigRequest = null;
     }
 
     public async initialize(): Promise<void> {
-        this.downloadConfigProm = this.downloadExperimentsConfig();
+        this.downloadConfigRequest = this.downloadExperimentsConfig();
     }
 
     public async runExperiments(): Promise<void> {
         if (!this.downloadedExperimentsConfig) {
-            if (!this.downloadConfigProm) {
+            if (!this.downloadConfigRequest) {
                 throw new Error("Experiment Service is not initialized");
             }
             try {
-                this.downloadedExperimentsConfig = await this.downloadConfigProm;
+                this.downloadedExperimentsConfig = await this.downloadConfigRequest;
             } catch (err) {
-                this.downloadConfigProm = this.downloadExperimentsConfig();
+                this.downloadConfigRequest = this.downloadExperimentsConfig();
                 throw new Error("Failed to download experiments config");
             }
         }
@@ -75,8 +75,17 @@ export class ExperimentService {
 
     private async executeExperiment(expConfig: ExperimentConfig): Promise<ExperimentResult> {
         let curExperimentParameters = this.config.get(expConfig.experimentName);
-        let expResult: ExperimentResult;
+        if (
+            curExperimentParameters
+            && (curExperimentParameters.popCoveragePercent === expConfig.popCoveragePercent)
+        ) {
+            return {
+                resultStatus: ExperimentStatuses.SKIPPED,
+                updatedExperimentParameters: expConfig,
+            };
+        }
 
+        let expResult: ExperimentResult;
         try {
             switch (expConfig.experimentName) {
                 case this.availableExperiments.RNT_PREVIEW_PROMPT:

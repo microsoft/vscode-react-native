@@ -9,18 +9,14 @@ import { PROMPT_TITLES } from "../experimentsStrings";
 export class PreviewVersionPromotion implements IExperiment {
 
     public async run(newExpConfig: ExperimentConfig, curExpParameters?: ExperimentParameters): Promise<ExperimentResult> {
-        if (curExpParameters) {
-            if (curExpParameters.promptShown) {
-                return {
-                    resultStatus: ExperimentStatuses.SKIPPED,
-                    updatedExperimentParameters: curExpParameters,
-                };
-            } else if (newExpConfig.popCoveragePercent !== curExpParameters.popCoveragePercent) {
-                this.showPrompIfThresholdIsNotExceeded(newExpConfig, curExpParameters);
-            }
+        if (curExpParameters && curExpParameters.promptShown) {
+            return {
+                resultStatus: ExperimentStatuses.SKIPPED,
+                updatedExperimentParameters: curExpParameters,
+            };
         }
 
-        const updatedExperimentParameters = this.showPrompIfThresholdIsNotExceeded(newExpConfig, curExpParameters);
+        const updatedExperimentParameters = this.showPromptIfThresholdIsNotExceeded(newExpConfig, curExpParameters);
 
         return {
             resultStatus: ExperimentStatuses.SUCCESS,
@@ -28,9 +24,9 @@ export class PreviewVersionPromotion implements IExperiment {
         };
     }
 
-    private showPrompIfThresholdIsNotExceeded(newExpConfig: ExperimentConfig, promptParameters?: ExperimentParameters) {
+    private showPromptIfThresholdIsNotExceeded(newExpConfig: ExperimentConfig, promptParameters?: ExperimentParameters) {
         if (promptParameters) {
-            promptParameters.threshold = newExpConfig.popCoveragePercent;
+            promptParameters.popCoveragePercent = newExpConfig.popCoveragePercent;
         } else {
             promptParameters = Object.assign(
                 {},
