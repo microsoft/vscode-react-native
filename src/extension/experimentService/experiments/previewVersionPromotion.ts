@@ -16,7 +16,7 @@ export class PreviewVersionPromotion implements IExperiment {
             };
         }
 
-        const updatedExperimentParameters = this.showPromptIfThresholdIsNotExceeded(newExpConfig, curExpParameters);
+        const updatedExperimentParameters = this.showPrompt(newExpConfig, curExpParameters);
 
         return {
             resultStatus: ExperimentStatuses.SUCCESS,
@@ -32,7 +32,7 @@ export class PreviewVersionPromotion implements IExperiment {
         };
     }
 
-    private showPromptIfThresholdIsNotExceeded(newExpConfig: ExperimentConfig, promptParameters?: ExperimentParameters) {
+    private showPrompt(newExpConfig: ExperimentConfig, promptParameters?: ExperimentParameters) {
         promptParameters = this.preUpdatePromptParameters(newExpConfig, promptParameters);
 
         const buttonText = "Open extension";
