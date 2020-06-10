@@ -37,11 +37,12 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         };
 
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
+        extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.expoHostType, "expoHostType", extProps);
 
         return TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
             return this.loginToExponentOrSkip(this.runOptions.expoHostType)
                 .then(() =>
-                    XDL.setOptions(this.projectPath, { packagerPort: this.packager.port })
+                    XDL.setOptions(this.projectPath, { packagerPort: this.packager.getPort() })
                 )
                 .then(() =>
                     XDL.startExponentServer(this.projectPath)

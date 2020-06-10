@@ -1,0 +1,34 @@
+pr:
+  branches:
+    include: ['*']
+
+trigger:
+  - none
+
+jobs:
+- job: Linux
+  pool:
+    vmImage: ubuntu-latest
+  timeoutInMinutes: 20
+  steps:
+  - checkout: self
+    clean: true
+  - template: common-validation.yml
+
+- job: Windows
+  pool:
+    vmImage: windows-latest
+  timeoutInMinutes: 20
+  steps:
+  - checkout: self
+    clean: true
+  - template: common-validation.yml
+
+- job: macOS
+  pool:
+    vmImage: macOS-latest
+  timeoutInMinutes: 20
+  steps:
+  - checkout: self
+    clean: true
+  - template: common-validation.yml

@@ -21,7 +21,7 @@ export async function mkdirp(path: string, mode?: number): Promise<boolean> {
             if (err.code === "EEXIST") {
                 const stat = await nfcall<fs.Stats>(fs.stat, path);
 
-                if (stat.isDirectory) {
+                if (stat.isDirectory()) {
                     return;
                 }
 
@@ -179,7 +179,7 @@ export interface ExpoLaunch {
 export async function findExpoSuccessAndFailurePatterns(filePath: string, successPattern: string, failurePattern: string): Promise<ExpoLaunch> {
     let awaitRetries: number = SmokeTestsConstants.expoAppLaunchTimeout / 5000;
     let retry = 1;
-    return new Promise<ExpoLaunch>((resolve, reject) => {
+    return new Promise<ExpoLaunch>((resolve) => {
         let check = setInterval(async () => {
             let expoStarted = findStringInFile(filePath, successPattern);
             let expoFailed = findStringInFile(filePath, failurePattern);
@@ -208,4 +208,52 @@ export function findExpoURLInLogFile(filePath: string) {
         let expoURL = match[0];
         console.log(`Found Expo URL: ${expoURL}`);
         return expoURL;
+}
+
+export function getIOSBuildPath(
+    iosProjectRoot: string,
+    projectWorkspaceConfigName: string,
+    configuration: string,
+    scheme: string,
+    sdkType: string
+): string {
+    const buildSettings = cp.execFileSync(
+        "xcodebuild",
+        [
+            "-workspace",
+            projectWorkspaceConfigName,
+            "-scheme",
+            scheme,
+            "-sdk",
+            sdkType,
+            "-configuration",
+            configuration,
+            "-showBuildSettings",
+        ],
+        {
+            encoding: "utf8",
+            cwd: iosProjectRoot,
+        }
+    );
+
+    const targetBuildDir = getTargetBuildDir(<string>buildSettings);
+
+    if (!targetBuildDir) {
+        throw new Error("Failed to get the target build directory.");
+    }
+    return targetBuildDir;
+}
+
+/**
+ *
+ * The function was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
+ *
+ * @param {string} buildSettings
+ * @returns {string | null}
+ */
+function getTargetBuildDir(buildSettings: string) {
+    const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
+    return targetBuildMatch && targetBuildMatch[1]
+        ? targetBuildMatch[1].trim()
+        : null;
 }

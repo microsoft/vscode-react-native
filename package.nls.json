@@ -35,7 +35,7 @@
     "reactNative.launch.platform.description":"The platform to target. Possible values: 'android', 'ios', 'exponent', 'windows', 'wpf'",
     "reactNative.launch.program.description":"[DEPRECATED. USE cwd INSTEAD] The path to launchReactNative.js in the vscode folder",
     "reactNative.launch.cwd.description":"The path to the project root folder",
-    "reactNative.launch.target.description":"Target to run on. Possible values: 'simulator', 'device', '<Android emulator/device id>', '<iOS simulator/device name>'",
+    "reactNative.launch.target.description":"Target to run on. Possible values: 'simulator', 'device', 'device=<iOS device name>', '<Android emulator/device id>', '<iOS simulator name>'",
     "reactNative.launch.sourceMaps.description":"Whether to use JavaScript source maps to map the generated bundled code back to its original sources",
     "reactNative.launch.logCatArguments.description":"Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can be an array such as: [\":S\", \"ReactNative:V\", \"ReactNativeJS:V\"]",
     "reactNative.launch.outDir.description":"The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",

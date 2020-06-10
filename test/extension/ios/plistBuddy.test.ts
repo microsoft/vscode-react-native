@@ -6,7 +6,9 @@ import {PlistBuddy} from "../../../src/extension/ios/plistBuddy";
 import * as assert from "assert";
 import * as path from "path";
 import * as Q from "q";
+import * as fs from "fs";
 import * as sinon from "sinon";
+import { ConfigurationData } from "../../../src/extension/ios/plistBuddy";
 import { ProjectVersionHelper } from "../../../src/common/projectVersionHelper";
 
 suite("plistBuddy", function() {
@@ -74,6 +76,7 @@ suite("plistBuddy", function() {
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, undefined, simulatorBundleId, deviceBundleId);
 
             sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.58.5", reactNativeWindowsVersion: ""}));
+            sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
 
             return Q.all([
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
@@ -98,6 +101,7 @@ suite("plistBuddy", function() {
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, "myCustomScheme", simulatorBundleId, deviceBundleId);
 
             sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.59.0", reactNativeWindowsVersion: ""}));
+            sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
             return Q.all([
@@ -112,6 +116,52 @@ suite("plistBuddy", function() {
                 assert.equal(deviceBundleId, deviceId2);
             });
         });
+
+        suite("fetchParameterFromBuildSettings", function() {
+            const buildSettingsFile = path.join(__dirname, "..", "..", "resources", "auxiliaryFiles", "buildSettings.txt");
+            const plistBuddy = new PlistBuddy();
+            let buildSettings: string | Buffer;
+
+            suiteSetup(() => {
+                buildSettings = fs.readFileSync(buildSettingsFile);
+            });
+
+            test("fetchParameterFromBuildSettings should return parameter value", function () {
+                const targetBuildDirRef = "/Users/user/Library/Developer/Xcode/DerivedData/AwesomeProject0615-btdtcysqbddifyewiiztkumnopik/Build/Products/Debug-iphonesimulator";
+                const fullProductNameRef = "AwesomeProject0615.app";
+
+                const targetBuildDir = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "TARGET_BUILD_DIR");
+                const fullProductName = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "FULL_PRODUCT_NAME");
+
+                assert.equal(targetBuildDir, targetBuildDirRef);
+                assert.equal(fullProductName, fullProductNameRef);
+            });
+
+            test("fetchParameterFromBuildSettings should return null", function () {
+                const targetBuildDir = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "TARGET_BUILD_DIR1");
+                const testNull = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "TEST");
+                const emptyStringCase = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "");
+
+                assert.equal(targetBuildDir, null);
+                assert.equal(testNull, null);
+                assert.notEqual(emptyStringCase, null);
+            });
+        });
+
+        function fakeGetConfigurationData(
+            projectRoot: string,
+            reactNativeVersion: string,
+            iosProjectRoot: string,
+            configuration: string,
+            scheme: string | undefined,
+            sdkType: string,
+            oldConfigurationFolder: string
+        ): ConfigurationData {
+            return {
+                fullProductName: "",
+                configurationFolder: oldConfigurationFolder,
+            };
+        }
 
         function getPlistBuddy(appName: string, iosProjectRoot: string, scheme: string | undefined, simulatorBundleId: string, deviceBundleId: string) {
             const infoPlistPath = (simulator: boolean) =>

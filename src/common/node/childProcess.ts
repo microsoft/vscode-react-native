@@ -67,6 +67,10 @@ export class ChildProcess {
         return this.exec(command, options).outcome.then(stdout => stdout.toString());
     }
 
+    public execFileSync(command: string, args: string[] = [], options: IExecOptions = {}): Buffer | string {
+        return this.childProcess.execFileSync(command, args, options);
+    }
+
     public spawn(command: string, args: string[] = [], options: ISpawnOptions = {}): ISpawnResult {
         const startup = Q.defer<void>();
         const outcome = Q.defer<void>();

@@ -6,8 +6,11 @@ import { Code } from "./code";
 export class QuickInput {
 
     public static QUICK_INPUT = ".quick-input-widget";
+    public static QUICK_INPUT_ROW = `${QuickInput.QUICK_INPUT} .quick-input-list .monaco-list-row`;
     public static QUICK_INPUT_INPUT = `${QuickInput.QUICK_INPUT} .quick-input-box input`;
-    public static QUICK_INPUT_FOCUSED_ELEMENT = `${QuickInput.QUICK_INPUT} .quick-open-tree .monaco-tree-row.focused .monaco-highlighted-label`;
+    public static QUICK_INPUT_FOCUSED_ELEMENT = `${QuickInput.QUICK_INPUT_ROW}.focused .monaco-highlighted-label`;
+    public static QUICK_INPUT_ENTRY_LABEL = `${QuickInput.QUICK_INPUT_ROW} .label-name`;
+    public static QUICK_INPUT_ENTRY_LABEL_SPAN = `${QuickInput.QUICK_INPUT_ROW} .monaco-highlighted-label span`;
 
     constructor(private code: Code) { }
 
@@ -32,4 +35,15 @@ export class QuickInput {
     private async waitForQuickInputClosed(): Promise<void> {
         await this.code.waitForElement(QuickInput.QUICK_INPUT, r => !!r && r.attributes.style.indexOf("display: none;") !== -1);
     }
+
+    public async submit(text: string): Promise<void> {
+        await this.code.waitForSetValue(QuickInput.QUICK_INPUT_INPUT, text);
+        await this.code.dispatchKeybinding("enter");
+        await this.waitForQuickInputClosed();
+    }
+
+    public async waitForQuickInputElements(accept: (names: string[]) => boolean): Promise<void> {
+        await this.code.waitForElements(QuickInput.QUICK_INPUT_ENTRY_LABEL, false, els => accept(els.map(e => e.textContent)));
+    }
+
 }

@@ -1,3 +1,36 @@
+## 0.16.0
+* Improved extension security [#1253](https://github.com/microsoft/vscode-react-native/pull/1253)
+* Updated extension license to MIT [#1286](https://github.com/microsoft/vscode-react-native/pull/1286)
+* Fixed fonts usage with Expo SDK 37 [#1260](https://github.com/microsoft/vscode-react-native/pull/1260), [#1264](https://github.com/microsoft/vscode-react-native/pull/1264)
+* Increased packager starting time and fixed handling of StatusBar items click [#1268](https://github.com/microsoft/vscode-react-native/pull/1268)
+* Fixed links in Table of Contents and typos, thanks to [Max von Webel(@343max)](https://github.com/343max) [#1284](https://github.com/microsoft/vscode-react-native/pull/1284)
+* Internal changes:
+    * Migrated unit tests to vscode-test [#1256](https://github.com/microsoft/vscode-react-native/pull/1256)
+    * Updated smoke tests docs [#1281](https://github.com/microsoft/vscode-react-native/pull/1281)
+
+
+## 0.15.0
+* Improved extension security [#1227](https://github.com/microsoft/vscode-react-native/pull/1227)
+* Added an option to add environment variables to the React Native packager process. [More info](https://github.com/microsoft/vscode-react-native#custom-environment-variables) [#1248](https://github.com/microsoft/vscode-react-native/pull/1248)
+* Readme extension homepage has been updated [#1243](https://github.com/microsoft/vscode-react-native/pull/1243), [#1250](https://github.com/microsoft/vscode-react-native/pull/1250), [#1251](https://github.com/microsoft/vscode-react-native/pull/1251)
+* Minor logging improvement [#1237](https://github.com/microsoft/vscode-react-native/pull/1237)
+* Internal changes:
+    * Added YAML Azure Pipelines support for the extension repository
+    * Smoke tests were updated to work with React Native 0.62 and Expo SDK 37
+
+
+## 0.14.2
+* Improved extension security [#1219](https://github.com/microsoft/vscode-react-native/pull/1219), [#1222](https://github.com/microsoft/vscode-react-native/pull/1222), [#1223](https://github.com/microsoft/vscode-react-native/pull/1223), [#1224](https://github.com/microsoft/vscode-react-native/pull/1224)
+* Updated extension dependencies [#1224](https://github.com/microsoft/vscode-react-native/pull/1224)
+* Added support for running iOS debugging on a specific device using flag `target: 'device=<iOS_device_name>'`. [More info](https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-on-ios-device). [#1207](https://github.com/microsoft/vscode-react-native/pull/1207)
+* Fixed launch of iOS apps with custom project's configuration: custom scheme name, custom app bundle name. [#1213](https://github.com/microsoft/vscode-react-native/pull/1213)
+
+
+## 0.14.1
+* Implemented Expo debugging without mandatory logging in and Internet connection [#1188](https://github.com/microsoft/vscode-react-native/issues/1188)
+    * Added `expoHostType` parameter to Expo debug scenario configuration. See the [documentation](https://github.com/microsoft/vscode-react-native#react-native-debug-configuration-properties) for more details
+* Fixed iOS debugging according to [XCode build caching changes in React Native CLI v3.1.0](https://github.com/react-native-community/cli/releases/tag/v3.1.0) [#1198](https://github.com/microsoft/vscode-react-native/issues/1198)
+
 ## 0.14.0
 * Enhanced extension security [#1171](https://github.com/microsoft/vscode-react-native/pull/1171)
 * Deps: `vscode-chrome-debug-core@6.8.8` [#1193](https://github.com/microsoft/vscode-react-native/pull/1193)
