@@ -39,6 +39,7 @@ export class ErrorHelper {
         }
 
         let result: string = <string> errorMessage;
+        /* eslint-disable prefer-rest-params */
         let args: string[] = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
         if (args) {
             for (let i: number = 0; i < args.length; i++) {
