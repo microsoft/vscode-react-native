@@ -3,7 +3,8 @@
 
 import * as Configstore from "configstore";
 import * as https from "https";
-import { PreviewVersionPromotion} from "./experiments/previewVersionPromotion";
+import { PreviewVersionPromotion } from "./experiments/previewVersionPromotion";
+import { IExperiment } from "./experiments/IExperiment";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 
 export enum ExperimentStatuses {
@@ -87,13 +88,19 @@ export class ExperimentService {
 
         let expResult: ExperimentResult;
         try {
+            let experiment: IExperiment;
             switch (expConfig.experimentName) {
                 case this.availableExperiments.RNT_PREVIEW_PROMPT:
-                    let previewPromptExp = new PreviewVersionPromotion();
-                    expResult = await previewPromptExp.run(expConfig, curExperimentParameters);
+                    experiment = new PreviewVersionPromotion();
                     break;
                 default:
                     throw new Error("Cannot run the experiment. There is no such experiment.");
+            }
+
+            if (expConfig.popCoveragePercent > Math.random()) {
+                expResult = await experiment.run(expConfig, curExperimentParameters);
+            } else {
+                expResult = await experiment.skip(expConfig, curExperimentParameters);
             }
         } catch (err) {
             return {

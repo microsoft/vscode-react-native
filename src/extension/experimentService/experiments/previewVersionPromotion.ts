@@ -24,7 +24,30 @@ export class PreviewVersionPromotion implements IExperiment {
         };
     }
 
+    public skip(newExpConfig: ExperimentConfig, curExpParameters?: ExperimentParameters): ExperimentResult {
+        const updatedExperimentParameters = this.preUpdatePromptParameters(newExpConfig, curExpParameters);
+        return {
+            resultStatus: ExperimentStatuses.SKIPPED,
+            updatedExperimentParameters,
+        };
+    }
+
     private showPromptIfThresholdIsNotExceeded(newExpConfig: ExperimentConfig, promptParameters?: ExperimentParameters) {
+        promptParameters = this.preUpdatePromptParameters(newExpConfig, promptParameters);
+
+        const buttonText = "Open extension";
+        vscode.window.showInformationMessage(PROMPT_TITLES.RNT_PREVIEW_PROMPT, buttonText)
+            .then(selection => {
+                if (selection === buttonText && promptParameters) {
+                    vscode.commands.executeCommand("workbench.extensions.search", promptParameters.extensionId);
+                    vscode.commands.executeCommand("extension.open", promptParameters.extensionId);
+                }
+            });
+        promptParameters.promptShown = true;
+        return promptParameters;
+    }
+
+    private preUpdatePromptParameters(newExpConfig: ExperimentConfig, promptParameters?: ExperimentParameters): ExperimentParameters {
         if (promptParameters) {
             promptParameters.popCoveragePercent = newExpConfig.popCoveragePercent;
         } else {
@@ -36,21 +59,6 @@ export class PreviewVersionPromotion implements IExperiment {
                     promptShown: false,
                 }
             );
-        }
-
-        if (newExpConfig.popCoveragePercent > Math.random()) {
-            const buttonText = "Open extension";
-            vscode.window.showInformationMessage(PROMPT_TITLES.RNT_PREVIEW_PROMPT, buttonText)
-                .then(selection => {
-                    if (selection === buttonText && promptParameters) {
-                        vscode.commands.executeCommand("workbench.extensions.search", promptParameters.extensionId);
-                        vscode.commands.executeCommand("extension.open", promptParameters.extensionId);
-                    }
-                });
-
-            promptParameters.promptShown = true;
-        } else {
-            promptParameters.promptShown = false;
         }
 
         return promptParameters;

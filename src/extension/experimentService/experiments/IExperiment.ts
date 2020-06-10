@@ -5,4 +5,5 @@ import { ExperimentResult, ExperimentConfig, ExperimentParameters } from "../exp
 
 export interface IExperiment {
     run: (newExpConfig: ExperimentConfig, curExpParameters?: ExperimentParameters) => Promise<ExperimentResult>;
+    skip: (newExpConfig: ExperimentConfig, curExpParameters?: ExperimentParameters) => ExperimentResult;
 }
