@@ -6,7 +6,7 @@ import {ISpawnResult} from "./node/childProcess";
 import { ErrorHelper } from "./error/errorHelper";
 import { InternalErrorCode } from "./error/internalErrorCode";
 
-export type PatternToFailure = {
+export interface PatternToFailure {
     pattern: string | RegExp;
     errorCode: number;
 };

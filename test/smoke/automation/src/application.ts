@@ -72,7 +72,7 @@ export class Application {
         }
     }
 
-    public async restart(options: { workspaceOrFolder?: string; extraArgs?: string[] }): Promise<any> {
+    public async restart(options: { workspaceOrFolder?: string, extraArgs?: string[] }): Promise<any> {
         await this.stop();
         await new Promise(c => setTimeout(c, 1000));
         await this._start(options.workspaceOrFolder, options.extraArgs);

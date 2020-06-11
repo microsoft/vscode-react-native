@@ -28,11 +28,29 @@ module.exports = {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-inferrable-types": "off",
       "@typescript-eslint/consistent-type-assertions": "off",
-      "@typescript-eslint/no-empty-function": "off",
-      "@typescript-eslint/no-empty-interface": "off",
+      "@typescript-eslint/no-empty-function": "warn",
+      "@typescript-eslint/no-empty-interface": "warn",
       "@typescript-eslint/no-var-requires": "off",
       "@typescript-eslint/triple-slash-reference": "off",
       "@typescript-eslint/no-namespace": "off",
+      "@typescript-eslint/member-delimiter-style": ["error", {
+        multiline: {
+          delimiter: 'comma',
+          requireLast: true,
+        },
+        singleline: {
+          delimiter: 'comma',
+          requireLast: false,
+        },
+        overrides: {
+          interface: {
+              multiline: {
+                  delimiter: "semi",
+                  requireLast: true
+              }
+          }
+      }
+      }],
       "prefer-const": "off",
       "header/header": [
         "error",
