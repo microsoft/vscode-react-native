@@ -54,7 +54,6 @@ export class ExperimentService implements vscode.Disposable {
     }
 
     public async runExperiments(): Promise<void> {
-        this.config.clear();
         if (!this.downloadedExperimentsConfig) {
             this.downloadedExperimentsConfig = await this.downloadConfigRequest;
         }
