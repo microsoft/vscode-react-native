@@ -13,6 +13,7 @@ test/resources/projects/*
 src/**/*.js
 !src/extension/appcenter/lib/**/*.js
 test/**/*.js
+!test/**/.eslintrc.js
 test/smoke/vscode
 !gulpfile.js
 SmokeTestLogs
