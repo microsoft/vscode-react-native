@@ -31,7 +31,6 @@ import {TelemetryHelper, ICommandTelemetryProperties} from "../common/telemetryH
 import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ExponentHelper} from "./exponent/exponentHelper";
-import {ExperimentService} from "./experimentService/experimentService";
 import {ReactNativeDebugConfigProvider} from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
@@ -40,7 +39,6 @@ const localize = nls.loadMessageBundle();
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
 const fsUtil = new FileSystem();
-let experimentService: ExperimentService;
 let debugConfigProvider: vscode.Disposable;
 
 const APP_NAME = "react-native-tools";
@@ -63,9 +61,6 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
             ["workspaceFoldersCount"]: {value: workspaceFolders.length, isPii: false},
         };
     }
-
-    experimentService = new ExperimentService();
-    experimentService.initialize();
 
     return entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, function activateRunApp() {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));

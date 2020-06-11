@@ -15,12 +15,14 @@ suite("experimentService", function () {
     const testExperimentName = "testName";
     const config = new Configstore(configName);
 
+    teardown(() => {
+        (<any>ExperimentService).instance = null;
+    });
+
     suite("initializationAndExperimentConfig", function () {
         test("should return correct experiment config", async () => {
-            let experimentService = new ExperimentService();
-            experimentService.initialize();
+            let experimentService = ExperimentService.create();
             let downloadedExperimentsConfig: ExperimentConfig[] = await (<any>experimentService).downloadConfigRequest;
-
             let result = downloadedExperimentsConfig.every(expConfig =>
                 typeof expConfig.enabled === "boolean"
                 && typeof expConfig.experimentName === "string"
@@ -45,27 +47,22 @@ suite("experimentService", function () {
         };
 
         teardown(() => {
+            (<any>ExperimentService).instance = null;
             config.delete(testExperimentName);
             config.delete(RNTPreviewPromptExp.experimentName);
         });
 
         test("should skip the experiment", async () => {
             config.set(testExperimentName, expTestConfig);
-            let experimentService = <any>(new ExperimentService());
+            let experimentService = <any>(ExperimentService.create());
             let experimentResult: ExperimentResult = await experimentService.executeExperiment(expTestConfig);
-            assert.equal(experimentResult.resultStatus, ExperimentStatuses.SKIPPED);
-        });
-
-        test("should fail the experiment", async () => {
-            let experimentService = <any>(new ExperimentService());
-            let experimentResult: ExperimentResult = await experimentService.executeExperiment(expTestConfig);
-            assert.equal(experimentResult.resultStatus, ExperimentStatuses.FAILURE);
+            assert.equal(experimentResult.resultStatus, ExperimentStatuses.DISABLED);
         });
 
         test("should succeed the experiment", async () => {
-            let experimentService = <any>(new ExperimentService());
+            let experimentService = <any>(ExperimentService.create());
             let experimentResult: ExperimentResult = await experimentService.executeExperiment(RNTPreviewPromptExp);
-            assert.equal(experimentResult.resultStatus, ExperimentStatuses.SUCCESS);
+            assert.equal(experimentResult.resultStatus, ExperimentStatuses.ENABLED);
         });
     });
 });
