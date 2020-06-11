@@ -4,7 +4,7 @@
 import * as Q from "q";
 import * as path from "path";
 import * as url from "url";
-import * as child_process from "child_process";
+import * as cp from "child_process";
 import * as fs from "fs";
 import {ScriptImporter, DownloadedScript}  from "./scriptImporter";
 import { logger } from "vscode-debugadapter";
@@ -30,7 +30,7 @@ function printDebuggingError(error: Error, reason: any) {
 export class ForkedAppWorker implements IDebuggeeWorker {
 
     protected scriptImporter: ScriptImporter;
-    protected debuggeeProcess: child_process.ChildProcess | null = null;
+    protected debuggeeProcess: cp.ChildProcess | null = null;
     /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
     protected workerLoaded = Q.defer<void>();
     private bundleLoaded: Q.Deferred<void>;
@@ -70,7 +70,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         // Start child Node process in debugging mode
         // Using fork instead of spawn causes breakage of piping between app worker and VS Code debug console, e.g. console.log() in application
         // wouldn't work. Please see https://github.com/Microsoft/vscode-react-native/issues/758
-        this.debuggeeProcess = child_process.spawn("node", nodeArgs, {
+        this.debuggeeProcess = cp.spawn("node", nodeArgs, {
             stdio: ["pipe", "pipe", "pipe", "ipc"],
         })
         .on("message", (message: any) => {

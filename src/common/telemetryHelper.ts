@@ -53,7 +53,7 @@ export class TelemetryHelper {
 
     public static sendErrorEvent(eventName: string, error: Error, errorDescription?: string, isPii: boolean = true) {
         const event = TelemetryHelper.createTelemetryEvent(eventName);
-        let errorWithErrorCode: IHasErrorCode = <IHasErrorCode> <Object> error;
+        let errorWithErrorCode: IHasErrorCode = <IHasErrorCode> <Record<string, any>> error;
         if (errorWithErrorCode.errorCode) {
             this.addTelemetryEventProperty(event, "error.code", errorWithErrorCode.errorCode, false);
             if (errorDescription) {
