@@ -2,12 +2,6 @@ module.exports = {
     ignorePatterns: [
       "**/*.d.ts",
       "**/*.js",
-      "node_modules/**",
-      "test/resources/sampleReactNative022Project/**/*.js",
-      "test/smoke/package/node_modules/**",
-      "test/smoke/automation/node_modules/**",
-      "test/smoke/resources/**",
-      "test/smoke/vscode/**",
     ],
     parser: "@typescript-eslint/parser",
     extends: [

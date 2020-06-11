@@ -2,7 +2,6 @@ module.exports = {
     ignorePatterns: [
       "**/*.d.ts",
       "**/*.js",
-      "node_modules/**",
     ],
     parser: "@typescript-eslint/parser",
     extends: [
