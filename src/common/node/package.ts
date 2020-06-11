@@ -66,7 +66,7 @@ export class Package {
         return this.parsePackageInformation()
             .then(packageInformation => {
                 packageInformation.main = value;
-                return this.fileSystem.writeFile(this.informationJsonFilePath(), JSON.stringify(<Object>packageInformation));
+                return this.fileSystem.writeFile(this.informationJsonFilePath(), JSON.stringify(<Record<string, any>>packageInformation));
             });
     }
 

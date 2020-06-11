@@ -14,9 +14,9 @@ let appiumProcess: null | cp.ChildProcess;
 export type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
 export enum Platform {
     Android,
-    Android_Expo,
+    AndroidExpo,
     iOS,
-    iOS_Expo,
+    iOSExpo,
 }
 const XDL = require("@expo/xdl");
 
@@ -28,39 +28,39 @@ export class AppiumHelper {
     public static XPATH: XPathSelectors = {
         RN_RELOAD_BUTTON: {
             [Platform.Android]: "//*[@text='Reload']",
-            [Platform.Android_Expo]: "//*[@text='Reload']",
+            [Platform.AndroidExpo]: "//*[@text='Reload']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Reload']",
-            [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Reload JS Bundle']",
+            [Platform.iOSExpo]: "//XCUIElementTypeOther[@name='Reload JS Bundle']",
         },
         RN_ENABLE_REMOTE_DEBUGGING_BUTTON: {
             [Platform.Android]:  "//*[@text='Debug JS Remotely' or @text='Debug']",
-            [Platform.Android_Expo]: "//*[@text='Debug Remote JS']",
+            [Platform.AndroidExpo]: "//*[@text='Debug Remote JS']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely' or @name='Debug']",
-            [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name=' Debug Remote JS']",
+            [Platform.iOSExpo]: "//XCUIElementTypeOther[@name=' Debug Remote JS']",
         },
         RN_STOP_REMOTE_DEBUGGING_BUTTON: {
             [Platform.Android]: "//*[@text='Stop Remote JS Debugging' or @text='Stop Debugging']",
-            [Platform.Android_Expo]: "//*[@text='Stop Remote Debugging']",
+            [Platform.AndroidExpo]: "//*[@text='Stop Remote Debugging']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Stop Remote JS Debugging' or @name='Stop Debugging']",
-            [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name=' Stop Remote Debugging']",
+            [Platform.iOSExpo]: "//XCUIElementTypeOther[@name=' Stop Remote Debugging']",
         },
         RN_DEV_MENU_CANCEL: {
             [Platform.Android]: "//*[@text='Cancel']",
-            [Platform.Android_Expo]: "//*[@text='Cancel']",
+            [Platform.AndroidExpo]: "//*[@text='Cancel']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Cancel']",
-            [Platform.iOS_Expo]: "(//XCUIElementTypeOther[@name='Cancel'])[1]",
+            [Platform.iOSExpo]: "(//XCUIElementTypeOther[@name='Cancel'])[1]",
         },
         EXPO_ELEMENT_LOAD_TRIGGER: {
             [Platform.Android]: "",
-            [Platform.Android_Expo]: "//*[@text='Home']",
+            [Platform.AndroidExpo]: "//*[@text='Home']",
             [Platform.iOS]: "", // todo
-            [Platform.iOS_Expo]: "", // todo
+            [Platform.iOSExpo]: "", // todo
         },
         GOT_IT_BUTTON: {
             [Platform.Android]: "",
-            [Platform.Android_Expo]: "//*[@text='Got it']",
+            [Platform.AndroidExpo]: "//*[@text='Got it']",
             [Platform.iOS]: "",
-            [Platform.iOS_Expo]: "//XCUIElementTypeOther[@name='Got it']",
+            [Platform.iOSExpo]: "//XCUIElementTypeOther[@name='Got it']",
         },
     };
 
@@ -173,14 +173,14 @@ export class AppiumHelper {
     public static async callRNDevMenu(client: AppiumClient, platform: Platform) {
         switch (platform) {
             case Platform.Android:
-            case Platform.Android_Expo:
+            case Platform.AndroidExpo:
                 console.log("*** Opening DevMenu by calling 'adb shell input keyevent 82'...");
                 const devMenuCallCommand = "adb shell input keyevent 82";
                 cp.exec(devMenuCallCommand);
                 await sleep(10 * 1000);
                 break;
             case Platform.iOS:
-            case Platform.iOS_Expo:
+            case Platform.iOSExpo:
                 // Sending Cmd+D doesn't work sometimes but shake gesture works flawlessly
                 console.log("*** Opening DevMenu by sending shake gesture...");
                 client.shake();
