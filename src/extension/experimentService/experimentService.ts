@@ -10,6 +10,7 @@ import { getFileNameWithoutExtension } from "../../common/utils";
 import { IExperiment } from "./IExperiment";
 import { PromiseUtil } from "../../common/node/promise";
 import { TelemetryHelper } from "../../common/telemetryHelper";
+import { Telemetry } from "../../common/telemetry";
 
 export enum ExperimentStatuses {
     ENABLED = "enabled",
@@ -31,6 +32,7 @@ export interface ExperimentParameters extends ExperimentConfig {
 export interface ExperimentResult {
     resultStatus: ExperimentStatuses;
     updatedExperimentParameters: ExperimentParameters;
+    error?: Error;
 }
 
 export class ExperimentService implements vscode.Disposable {
@@ -102,6 +104,7 @@ export class ExperimentService implements vscode.Disposable {
                 expResult = {
                     resultStatus: ExperimentStatuses.FAILED,
                     updatedExperimentParameters: expConfig,
+                    error: err,
                 };
             }
         } else {
@@ -161,15 +164,29 @@ export class ExperimentService implements vscode.Disposable {
     }
 
     private sendExperimentTelemetry(experimentsResults: ExperimentResult[]): void {
-        const telemetryProps = experimentsResults.reduce((tProps, expResult) => {
-            return Object.assign(
-                tProps,
-                {
-                    [expResult.updatedExperimentParameters.experimentName]: expResult.resultStatus,
-                }
-            );
-        }, {});
+        const runExperimentsEvent = TelemetryHelper.createTelemetryEvent("runExperiments");
 
-        TelemetryHelper.sendSimpleEvent("runExperiments", telemetryProps);
+        experimentsResults.forEach(expResult => {
+            if (
+                expResult.resultStatus === ExperimentStatuses.FAILED
+                && expResult.error
+            ) {
+                TelemetryHelper.addTelemetryEventErrorProperty(
+                    runExperimentsEvent,
+                    expResult.error,
+                    undefined,
+                    `${expResult.updatedExperimentParameters.experimentName}.`
+                );
+            } else {
+                TelemetryHelper.addTelemetryEventProperty(
+                    runExperimentsEvent,
+                    expResult.updatedExperimentParameters.experimentName,
+                    expResult.resultStatus,
+                    false
+                );
+            }
+        });
+
+        Telemetry.send(runExperimentsEvent);
     }
 }
