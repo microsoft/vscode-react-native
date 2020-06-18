@@ -46,6 +46,11 @@ suite("experimentService", function () {
             enabled: true,
         };
 
+        async function configureExperimentService(experimentService: any, expConfig: ExperimentConfig) {
+            experimentService.downloadedExperimentsConfig = [ expConfig ];
+            experimentService.experimentsInstances = await experimentService.initializeExperimentsInstances();
+        }
+
         teardown(() => {
             (<any>ExperimentService).instance = null;
             config.delete(testExperimentName);
@@ -55,12 +60,14 @@ suite("experimentService", function () {
         test("should skip the experiment", async () => {
             config.set(testExperimentName, expTestConfig);
             let experimentService = <any>(ExperimentService.create());
+            await configureExperimentService(experimentService, expTestConfig);
             let experimentResult: ExperimentResult = await experimentService.executeExperiment(expTestConfig);
             assert.equal(experimentResult.resultStatus, ExperimentStatuses.DISABLED);
         });
 
         test("should succeed the experiment", async () => {
             let experimentService = <any>(ExperimentService.create());
+            await configureExperimentService(experimentService, RNTPreviewPromptExp);
             let experimentResult: ExperimentResult = await experimentService.executeExperiment(RNTPreviewPromptExp);
             assert.equal(experimentResult.resultStatus, ExperimentStatuses.ENABLED);
         });
