@@ -67,7 +67,7 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
 
     return entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, function activateRunApp() {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
-        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
+        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => onChangeConfiguration(context)));
 
         debugConfigProvider = vscode.debug.registerDebugConfigurationProvider(DEBUG_TYPES.REACT_NATIVE, configProvider);
 

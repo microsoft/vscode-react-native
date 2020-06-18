@@ -122,7 +122,7 @@ export class ScriptImporter {
     /**
      * Writes the script file to the project temporary location.
      */
-    private writeAppScript(scriptBody: string, scriptUrl: IStrictUrl): Q.Promise<String> {
+    private writeAppScript(scriptBody: string, scriptUrl: IStrictUrl): Q.Promise<string> {
         let scriptFilePath = path.join(this.sourcesStoragePath, path.basename(scriptUrl.pathname)); // scriptFilePath = "$TMPDIR/index.ios.bundle"
         return new FileSystem().writeFile(scriptFilePath, scriptBody)
             .then(() => scriptFilePath);
