@@ -3,10 +3,7 @@
 
 import * as Configstore from "configstore";
 import * as https from "https";
-import * as glob from "glob";
 import * as vscode from "vscode";
-import * as path from "path";
-import { getFileNameWithoutExtension } from "../../common/utils";
 import { IExperiment } from "./IExperiment";
 import { PromiseUtil } from "../../common/node/promise";
 import { TelemetryHelper } from "../../common/telemetryHelper";
@@ -58,6 +55,7 @@ export class ExperimentService implements vscode.Disposable {
     public async runExperiments(): Promise<void> {
         if (!this.downloadedExperimentsConfig) {
             this.downloadedExperimentsConfig = await this.downloadConfigRequest;
+            this.experimentsInstances = await this.initializeExperimentsInstances();
         }
 
         let experimentResults: Array<ExperimentResult> = await Promise.all(this.downloadedExperimentsConfig
@@ -81,14 +79,7 @@ export class ExperimentService implements vscode.Disposable {
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
         this.downloadedExperimentsConfig = null;
 
-        this.experimentsInstances = this.initializeExperimentsInstances();
         this.downloadConfigRequest = this.retryDownloadExperimentsConfig();
-    }
-
-    private getAvailableExperiments(): Array<string> {
-        const cwd = path.join(__dirname, "experiments");
-        return glob.sync("*.js", { cwd })
-        .map(fullExpName => path.join(cwd, fullExpName));
     }
 
     private async executeExperiment(expConfig: ExperimentConfig): Promise<ExperimentResult> {
@@ -130,17 +121,22 @@ export class ExperimentService implements vscode.Disposable {
         }
     }
 
-    private initializeExperimentsInstances(): Map<string, IExperiment> {
+    private async initializeExperimentsInstances(): Promise<Map<string, IExperiment>> {
         let expInstances = new Map<string, IExperiment>();
-        const availableExperiments = this.getAvailableExperiments();
 
-        availableExperiments.forEach(expPath => {
-            let expClass = require(expPath);
-            expInstances.set(
-                getFileNameWithoutExtension(expPath),
-                new expClass.default()
-            );
-        });
+        if (this.downloadedExperimentsConfig) {
+            for (let expConfig of this.downloadedExperimentsConfig) {
+                try {
+                    let expClass = await import(`./experiments/${expConfig.experimentName}`);
+                    expInstances.set(
+                        expConfig.experimentName,
+                        new expClass.default()
+                    );
+                } catch (err) {
+                    expConfig.enabled = false;
+                }
+            }
+        }
 
         return expInstances;
     }
