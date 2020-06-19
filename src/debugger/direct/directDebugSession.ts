@@ -53,22 +53,24 @@ export class DirectDebugSession extends DebugSessionBase {
                         return TelemetryHelper.generate("launch", extProps, (generator) => {
                             return this.appLauncher.launch(launchArgs)
                                 .then(() => {
-                                    return this.appLauncher.getPackagerPort(launchArgs.cwd);
-                                })
-                                .then((packagerPort: number) => {
-                                    launchArgs.port = launchArgs.port || packagerPort;
-                                    this.attachRequest(response, launchArgs).then(() => {
+                                    if (launchArgs.debuggingEnabled) {
+                                        launchArgs.port = launchArgs.port || this.appLauncher.getPackagerPort(launchArgs.cwd);
+                                        this.attachRequest(response, launchArgs).then(() => {
+                                            resolve();
+                                        }).catch((e) => reject(e));
+                                    } else {
+                                        this.sendResponse(response);
                                         resolve();
-                                    }).catch((e) => reject(e));
-                                }).catch((e) => reject(e));
-                        })
-                        .catch((err) => {
-                            logger.error("An error occurred while launching the application. " + err.message || err);
-                            reject(err);
+                                    }
+                                })
+                                .catch((err) => {
+                                    logger.error("An error occurred while launching the application. " + err.message || err);
+                                    reject(err);
+                                });
                         });
                     });
-        }))
-        .catch(err => this.showError(err, response));
+            }))
+            .catch(err => this.showError(err, response));
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {

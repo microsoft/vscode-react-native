@@ -169,7 +169,7 @@ export class AppLauncher {
             mobilePlatformOptions.debugLaunchActivity = launchArgs.launchActivity;
         }
 
-        if (launchArgs.type === "reactnativedirect") {
+        if (launchArgs.type === "reactnativedirect-preview") {
             mobilePlatformOptions.isDirect = true;
         }
 
@@ -247,6 +247,10 @@ export class AppLauncher {
                                 resolve();
                             })
                             .catch(error => {
+                                if (!mobilePlatformOptions.debuggingEnabled && launchArgs.platform === "ios") {
+                                    // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+                                    return resolve();
+                                }
                                 generator.addError(error);
                                 this.logger.error(error);
                                 reject(error);

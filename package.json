@@ -136,7 +136,7 @@
 					},
 					{
 						"label": "React Native (Preview): Run Android",
-						"description": "%reactNative.snippets.debugAndroid.description%",
+						"description": "%reactNative.snippets.runAndroid.description%",
 						"body": {
 							"name": "Run Android (Preview)",
 							"cwd": "^\"\\${workspaceFolder}\"",
@@ -159,7 +159,7 @@
 					},
 					{
 						"label": "React Native (Preview): Run iOS",
-						"description": "%reactNative.snippets.debugiOS.description%",
+						"description": "%reactNative.snippets.runiOS.description%",
 						"body": {
 							"name": "Run iOS (Preview)",
 							"cwd": "^\"\\${workspaceFolder}\"",
@@ -432,6 +432,18 @@
 						}
 					},
 					{
+						"label": "React Native Hermes (Preview): Run Android - Experimental",
+						"description": "%reactNative.snippets.runAndroidHermes.description%",
+						"body": {
+							"name": "Run Android Hermes (Preview) - Experimental",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnativedirect-preview",
+							"request": "launch",
+							"platform": "android",
+							"debuggingEnabled": false
+						}
+					},
+					{
 						"label": "React Native Hermes (Preview): Attach to Hermes application - Experimental",
 						"description": "%reactNative.snippets.attachPackagerHermes.description%",
 						"body": {
@@ -574,6 +586,11 @@
 								"type": "string",
 								"description": "%reactNative.launch.launchActivity.description%",
 								"default": "MainActivity"
+							},
+							"debuggingEnabled": {
+								"type": "boolean",
+								"description": "%reactNative.launch.debuggingEnabled.description%",
+								"default": true
 							}
 						}
 					}

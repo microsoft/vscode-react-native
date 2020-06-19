@@ -28,7 +28,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": "android",
-            "debuggingEnabled": false
+            "debuggingEnabled": false,
         },
         "Debug iOS (Preview)": {
             "name": "Debug iOS (Preview)",
@@ -43,7 +43,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": "ios",
-            "debuggingEnabled": false
+            "debuggingEnabled": false,
         },
         "Debug Windows (Preview)": {
             "name": "Debug Windows (Preview)",
@@ -71,6 +71,14 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
             "platform": "android",
+        },
+        "Run Android Hermes (Preview) - Experimental": {
+            "name": "Run Android Hermes (Preview) - Experimental",
+            "cwd": "${workspaceFolder}",
+            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            "request": "launch",
+            "platform": "android",
+            "debuggingEnabled": false,
         },
         "Attach to Hermes application (Preview) - Experimental": {
             "name": "Attach to Hermes application (Preview) - Experimental",
