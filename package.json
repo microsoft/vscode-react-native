@@ -135,6 +135,18 @@
 						}
 					},
 					{
+						"label": "React Native (Preview): Run Android",
+						"description": "%reactNative.snippets.debugAndroid.description%",
+						"body": {
+							"name": "Run Android (Preview)",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnative-preview",
+							"request": "launch",
+							"platform": "android",
+							"debuggingEnabled": false
+						}
+					},
+					{
 						"label": "React Native (Preview): Debug iOS",
 						"description": "%reactNative.snippets.debugiOS.description%",
 						"body": {
@@ -143,6 +155,18 @@
 							"type": "reactnative-preview",
 							"request": "launch",
 							"platform": "ios"
+						}
+					},
+					{
+						"label": "React Native (Preview): Run iOS",
+						"description": "%reactNative.snippets.debugiOS.description%",
+						"body": {
+							"name": "Run iOS (Preview)",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnative-preview",
+							"request": "launch",
+							"platform": "ios",
+							"debuggingEnabled": false
 						}
 					},
 					{
@@ -373,6 +397,11 @@
 								],
 								"default": "tunnel",
 								"description": "%reactNative.launch.expoHostType.description%"
+							},
+							"debuggingEnabled": {
+								"type": "boolean",
+								"description": "%reactNative.launch.debuggingEnabled.description%",
+								"default": true
 							}
 						}
 					}

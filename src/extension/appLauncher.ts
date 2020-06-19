@@ -225,10 +225,17 @@ export class AppLauncher {
                                 return mobilePlatform.runApp();
                             })
                             .then(() => {
-                                if (mobilePlatformOptions.isDirect) {
-                                    generator.step("mobilePlatform.enableDirectDebuggingMode");
-                                    if (launchArgs.platform === "android") {
-                                        this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
+                                if (mobilePlatformOptions.isDirect || !mobilePlatformOptions.debuggingEnabled) {
+                                    if (mobilePlatformOptions.isDirect && launchArgs.platform === "android") {
+                                        generator.step("mobilePlatform.enableDirectDebuggingMode");
+                                        if (mobilePlatformOptions.debuggingEnabled) {
+                                            this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
+                                        } else {
+                                            this.logger.info(localize("PrepareHermesLaunch", "Prepare Hermes launch (experimental)"));
+                                        }
+                                    } else {
+                                        generator.step("mobilePlatform.disableJSDebuggingMode");
+                                        this.logger.info(localize("DisableJSDebugging", "Disable JS Debugging"));
                                     }
                                     return mobilePlatform.disableJSDebuggingMode();
                                 }
@@ -276,6 +283,7 @@ export class AppLauncher {
             env: args.env,
             envFile: args.envFile,
             target: args.target || "simulator",
+            debuggingEnabled: args.debuggingEnabled,
         };
 
         if (args.platform === "exponent") {

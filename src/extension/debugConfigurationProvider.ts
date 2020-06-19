@@ -22,12 +22,28 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "request": "launch",
             "platform": "android",
         },
+        "Run Android (Preview)": {
+            "name": "Run Android (Preview)",
+            "cwd": "${workspaceFolder}",
+            "type": DEBUG_TYPES.REACT_NATIVE,
+            "request": "launch",
+            "platform": "android",
+            "debuggingEnabled": false
+        },
         "Debug iOS (Preview)": {
             "name": "Debug iOS (Preview)",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": "ios",
+        },
+        "Run iOS (Preview)": {
+            "name": "Run iOS (Preview)",
+            "cwd": "${workspaceFolder}",
+            "type": DEBUG_TYPES.REACT_NATIVE,
+            "request": "launch",
+            "platform": "ios",
+            "debuggingEnabled": false
         },
         "Debug Windows (Preview)": {
             "name": "Debug Windows (Preview)",
@@ -70,8 +86,16 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             description: localize("DebugAndroidConfigDesc", "Run and debug Android application"),
         },
         {
+            label: "Run Android (Preview)",
+            description: localize("RunAndroidConfigDesc", "Run Android application"),
+        },
+        {
             label: "Debug iOS (Preview)",
             description: localize("DebugiOSConfigDesc", "Run and debug iOS application"),
+        },
+        {
+            label: "Run iOS (Preview)",
+            description: localize("RuniOSConfigDesc", "Run iOS application"),
         },
         {
             label: "Debug Windows (Preview)",
