@@ -90,6 +90,9 @@ export class RNDebugSession extends DebugSessionBase {
                             attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                             return this.appLauncher.getRnCdpProxy().stopServer()
                                 .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new RnCDPMessageHandler(), this.cdpProxyLogLevel))
+                                .then(async () => {
+                                    await this.appLauncher.getPackager().start();
+                                })
                                 .then(() => {
                                     logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
 
@@ -106,7 +109,6 @@ export class RNDebugSession extends DebugSessionBase {
                                         undefined
                                         );
                                     this.appLauncher.setAppWorker(this.appWorker);
-
                                     this.appWorker.on("connected", (port: number) => {
                                         logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
 
