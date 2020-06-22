@@ -21,7 +21,7 @@
 		"url": "https://github.com/Microsoft/vscode-react-native"
 	},
 	"engines": {
-		"vscode": "^1.26.0"
+		"vscode": "^1.31.0"
 	},
 	"categories": [
 		"Debuggers",
@@ -681,6 +681,7 @@
 		"quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
 	},
 	"dependencies": {
+		"configstore": "^5.0.1",
 		"extract-opts": "2.2.0",
 		"flatten-source-map": "0.0.2",
 		"glob": "^7.1.6",
@@ -703,6 +704,7 @@
 		"ws": "^3.2.0"
 	},
 	"devDependencies": {
+		"@types/configstore": "^4.0.0",
 		"@types/mkdirp": "^1.0.0",
 		"@types/mocha": "^7.0.2",
 		"@types/ncp": "^2.0.3",
@@ -713,7 +715,7 @@
 		"@types/shelljs": "^0.7.0",
 		"@types/source-map": "0.5.2",
 		"@types/source-map-support": "^0.2.28",
-		"@types/vscode": "1.26.0",
+		"@types/vscode": "^1.31.0",
 		"@types/websocket": "0.0.33",
 		"@types/ws": "^0.0.39",
 		"@typescript-eslint/eslint-plugin": "^2.19.0",

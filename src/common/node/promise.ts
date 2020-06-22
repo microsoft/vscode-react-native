@@ -42,6 +42,10 @@ export class PromiseUtil {
         });
     }
 
+    public delay(duration: number): Promise<void> {
+        return new Promise<void>(resolve => setTimeout(resolve, duration));
+    }
+
     private retryAsyncIteration<T>(operation: () => Q.Promise<T>, condition: (result: T) => boolean | Q.Promise<boolean>, maxRetries: number, iteration: number, delay: number, failure: string): Q.Promise<T> {
         return operation()
             .then(result => {
