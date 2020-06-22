@@ -100,6 +100,9 @@ export class DirectDebugSession extends DebugSessionBase {
                             logger.log(`Connecting to ${attachArgs.port} port`);
                             return this.appLauncher.getRnCdpProxy().stopServer()
                                 .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel))
+                                .then(async () => {
+                                    await this.appLauncher.getPackager().start();
+                                })
                                 .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(
                                     `http://localhost:${attachArgs.port}`,
                                     90,
