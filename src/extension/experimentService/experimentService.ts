@@ -58,8 +58,8 @@ export class ExperimentService implements vscode.Disposable {
             this.experimentsInstances = await this.initializeExperimentsInstances();
         }
 
-        let experimentResults: Array<ExperimentResult> = await Promise.all(this.downloadedExperimentsConfig
-            .map(async (expConfig) => await this.executeExperiment(expConfig))
+        let experimentResults: Array<ExperimentResult> = await Promise.all(
+            this.downloadedExperimentsConfig.map(expConfig => this.executeExperiment(expConfig))
         );
 
         this.sendExperimentTelemetry(experimentResults);
