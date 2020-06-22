@@ -10,6 +10,8 @@ import { DirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/dire
 import { DebugSessionBase, IAttachRequestArgs, ILaunchRequestArgs } from "../debugSessionBase";
 import { JsDebugConfigAdapter } from "../jsDebugConfigAdapter";
 import { DebuggerEndpointHelper } from "../../cdp-proxy/debuggerEndpointHelper";
+import { ErrorHelper } from "../../common/error/errorHelper";
+import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
@@ -53,7 +55,7 @@ export class DirectDebugSession extends DebugSessionBase {
                         return TelemetryHelper.generate("launch", extProps, (generator) => {
                             return this.appLauncher.launch(launchArgs)
                                 .then(() => {
-                                    if (launchArgs.debuggingEnabled) {
+                                    if (launchArgs.enableDebug) {
                                         launchArgs.port = launchArgs.port || this.appLauncher.getPackagerPort(launchArgs.cwd);
                                         this.attachRequest(response, launchArgs).then(() => {
                                             resolve();
@@ -64,8 +66,7 @@ export class DirectDebugSession extends DebugSessionBase {
                                     }
                                 })
                                 .catch((err) => {
-                                    logger.error("An error occurred while launching the application. " + err.message || err);
-                                    reject(err);
+                                    reject(ErrorHelper.getInternalError(InternalErrorCode.ApplicationLaunchFailed, err.message || err));
                                 });
                         });
                     });
@@ -114,8 +115,7 @@ export class DirectDebugSession extends DebugSessionBase {
                                 .catch(e => reject(e));
                         })
                         .catch((err) => {
-                            logger.error("An error occurred while attaching to the debugger. " + err.message || err);
-                            reject(err);
+                            reject(ErrorHelper.getInternalError(InternalErrorCode.CouldNotAttachToDebugger, err.message || err));
                         });
                     });
         }))

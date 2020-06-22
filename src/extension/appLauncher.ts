@@ -23,6 +23,7 @@ import {LogCatMonitor} from "./android/logCatMonitor";
 import {ProjectsStorage} from "./projectsStorage";
 import {ReactNativeCDPProxy} from "../cdp-proxy/reactNativeCDPProxy";
 import {generateRandomPortNumber} from "../common/extensionHelper";
+import {DEBUG_TYPES} from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
@@ -169,7 +170,7 @@ export class AppLauncher {
             mobilePlatformOptions.debugLaunchActivity = launchArgs.launchActivity;
         }
 
-        if (launchArgs.type === "reactnativedirect-preview") {
+        if (launchArgs.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
             mobilePlatformOptions.isDirect = true;
         }
 
@@ -225,10 +226,10 @@ export class AppLauncher {
                                 return mobilePlatform.runApp();
                             })
                             .then(() => {
-                                if (mobilePlatformOptions.isDirect || !mobilePlatformOptions.debuggingEnabled) {
+                                if (mobilePlatformOptions.isDirect || !mobilePlatformOptions.enableDebug) {
                                     if (mobilePlatformOptions.isDirect && launchArgs.platform === "android") {
                                         generator.step("mobilePlatform.enableDirectDebuggingMode");
-                                        if (mobilePlatformOptions.debuggingEnabled) {
+                                        if (mobilePlatformOptions.enableDebug) {
                                             this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
                                         } else {
                                             this.logger.info(localize("PrepareHermesLaunch", "Prepare Hermes launch (experimental)"));
@@ -247,8 +248,9 @@ export class AppLauncher {
                                 resolve();
                             })
                             .catch(error => {
-                                if (!mobilePlatformOptions.debuggingEnabled && launchArgs.platform === "ios") {
-                                    // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+                                if (!mobilePlatformOptions.enableDebug && launchArgs.platform === "ios") {
+                                    // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the run ios command anyways,
+                                    // since the error doesn't affects an application launch process
                                     return resolve();
                                 }
                                 generator.addError(error);
@@ -287,7 +289,7 @@ export class AppLauncher {
             env: args.env,
             envFile: args.envFile,
             target: args.target || "simulator",
-            debuggingEnabled: args.debuggingEnabled,
+            enableDebug: args.enableDebug,
         };
 
         if (args.platform === "exponent") {

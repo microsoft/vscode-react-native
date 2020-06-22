@@ -22,7 +22,7 @@ export enum InternalErrorCode {
         // Device Runner errors
         DeviceNotPluggedIn = 301,
         DeveloperDiskImgNotMountable = 302,
-        UnableToLaunchApplication = 303,
+        ApplicationLaunchFailed = 303,
         ApplicationLaunchTimedOut = 304,
 
         // iOS Platform errors
@@ -103,6 +103,7 @@ export enum InternalErrorCode {
         ReactNativeWorkerProcessThrownAnError = 1407,
         CouldntImportScriptAt = 1408,
         RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty = 1409,
+        CouldNotAttachToDebugger = 1410,
 
         // CDP Proxy errors
         CouldNotConnectToDebugTarget = 1501,

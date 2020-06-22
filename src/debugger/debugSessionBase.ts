@@ -120,8 +120,8 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 args.sourceMaps = true;
             }
 
-            if (typeof args.debuggingEnabled !== "boolean") {
-                args.debuggingEnabled = true;
+            if (typeof args.enableDebug !== "boolean") {
+                args.enableDebug = true;
             }
 
             const projectRootPath = getProjectRoot(args);

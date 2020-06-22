@@ -12,6 +12,8 @@ import { MultipleLifetimesAppWorker } from "./appWorker";
 import { RnCDPMessageHandler } from "../cdp-proxy/CDPMessageHandlers/rnCDPMessageHandler";
 import { DebugSessionBase, DebugSessionStatus, IAttachRequestArgs, ILaunchRequestArgs } from "./debugSessionBase";
 import { JsDebugConfigAdapter } from "./jsDebugConfigAdapter";
+import { ErrorHelper } from "../common/error/errorHelper";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
@@ -51,7 +53,7 @@ export class RNDebugSession extends DebugSessionBase {
 
                 this.appLauncher.launch(launchArgs)
                     .then(() => {
-                        if (launchArgs.debuggingEnabled) {
+                        if (launchArgs.enableDebug) {
                             launchArgs.port = launchArgs.port || this.appLauncher.getPackagerPort(launchArgs.cwd);
                             this.attachRequest(response, launchArgs).then(() => {
                                 resolve();
@@ -62,8 +64,7 @@ export class RNDebugSession extends DebugSessionBase {
                         }
                     })
                     .catch((err) => {
-                        logger.error("An error occurred while launching the application. " + err.message || err);
-                        reject(err);
+                        reject(ErrorHelper.getInternalError(InternalErrorCode.ApplicationLaunchFailed, err.message || err));
                     });
             }))
             .catch(err => this.showError(err, response));
@@ -132,8 +133,7 @@ export class RNDebugSession extends DebugSessionBase {
                                 });
                         })
                         .catch((err) => {
-                            logger.error("An error occurred while attaching to the debugger. " + err.message || err);
-                            reject(err);
+                            reject(ErrorHelper.getInternalError(InternalErrorCode.CouldNotAttachToDebugger, err.message || err));
                         });
                     });
         }))
