@@ -698,8 +698,8 @@
 		"ws": "^7.3.0"
 	},
 	"devDependencies": {
-		"@types/ip": "^1.1.0",
 		"@types/configstore": "^4.0.0",
+		"@types/ip": "^1.1.0",
 		"@types/mkdirp": "^1.0.0",
 		"@types/mocha": "^7.0.2",
 		"@types/ncp": "^2.0.3",
