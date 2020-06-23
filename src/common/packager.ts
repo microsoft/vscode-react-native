@@ -292,7 +292,7 @@ export class Packager {
             });
     }
 
-    public isRunning(): Q.Promise<boolean> {
+    public isRunning(): Promise<boolean> {
         let statusURL = `http://${this.getHost()}/status`;
         return Request.request(statusURL)
             .then((body: string) => {

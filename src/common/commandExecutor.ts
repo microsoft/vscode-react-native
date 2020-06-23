@@ -75,7 +75,7 @@ export class CommandExecutor {
         return this.spawnReactCommand("start", args, options);
     }
 
-    public getReactNativeVersion(): Q.Promise<string> {
+    public getReactNativeVersion(): Promise<string> {
         return ProjectVersionHelper.getReactNativeVersions(this.currentWorkingDirectory)
             .then(versions => versions.reactNativeVersion);
     }

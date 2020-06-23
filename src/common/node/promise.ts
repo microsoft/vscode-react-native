@@ -27,7 +27,7 @@ export class PromiseUtil {
      * @param delay - time between iterations, in milliseconds.
      * @param failure - error description.
      */
-    public retryAsync<T>(operation: () => Q.Promise<T>, condition: (result: T) => boolean | Q.Promise<boolean>, maxRetries: number, delay: number, failure: string): Q.Promise<T> {
+    public retryAsync<T>(operation: () => Promise<T>, condition: (result: T) => boolean | Promise<boolean>, maxRetries: number, delay: number, failure: string): Promise<T> {
         return this.retryAsyncIteration(operation, condition, maxRetries, 0, delay, failure);
     }
 
@@ -50,16 +50,17 @@ export class PromiseUtil {
         return new Promise<void>(resolve => setTimeout(resolve, duration));
     }
 
-    private retryAsyncIteration<T>(operation: () => Q.Promise<T>, condition: (result: T) => boolean | Q.Promise<boolean>, maxRetries: number, iteration: number, delay: number, failure: string): Q.Promise<T> {
+    private retryAsyncIteration<T>(operation: () => Promise<T>, condition: (result: T) => boolean | Promise<boolean>, maxRetries: number, iteration: number, delay: number, failure: string): Promise<T> {
         return operation()
             .then(result => {
-                return Q(result).then(condition).then((conditionResult => {
+                return Promise.resolve(result).then(condition).then((conditionResult => {
+
                     if (conditionResult) {
                         return result;
                     }
 
                     if (iteration < maxRetries) {
-                        return Q.delay(delay).then(() => this.retryAsyncIteration(operation, condition, maxRetries, iteration + 1, delay, failure));
+                        return this.delay(delay).then(() => this.retryAsyncIteration(operation, condition, maxRetries, iteration + 1, delay, failure));
                     }
 
                     throw new Error(failure);
