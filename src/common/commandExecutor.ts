@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as path from "path";
 import {ChildProcess} from "child_process";
 import {ILogger} from "../extension/log/LogHelper";
@@ -84,14 +83,14 @@ export class CommandExecutor {
     /**
      * Kills the React Native packager in a child process.
      */
-    public killReactPackager(packagerProcess?: ChildProcess): Q.Promise<void> {
+    public killReactPackager(packagerProcess?: ChildProcess): Promise<void> {
         if (packagerProcess) {
-            return Q({}).then(() => {
+            return new Promise((resolve) => {
                 if (HostPlatform.getPlatformId() === HostPlatformId.WINDOWS) {
                     return this.childProcess.exec("taskkill /pid " + packagerProcess.pid + " /T /F").outcome;
                 } else {
                     packagerProcess.kill();
-                    return Q.resolve(void 0);
+                    return resolve();
                 }
             }).then(() => {
                 this.logger.info(localize("PackagerStopped", "Packager stopped"));
@@ -99,7 +98,7 @@ export class CommandExecutor {
 
         } else {
             this.logger.warning(localize("PackagerNotFound", "Packager not found"));
-            return Q.resolve<void>(void 0);
+            return Promise.resolve();
         }
     }
 
