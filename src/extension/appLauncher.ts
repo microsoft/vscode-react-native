@@ -249,7 +249,7 @@ export class AppLauncher {
                             })
                             .catch(error => {
                                 if (!mobilePlatformOptions.enableDebug && launchArgs.platform === "ios") {
-                                    // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the run ios command anyways,
+                                    // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
                                     // since the error doesn't affects an application launch process
                                     return resolve();
                                 }

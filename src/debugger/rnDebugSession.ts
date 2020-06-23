@@ -66,8 +66,12 @@ export class RNDebugSession extends DebugSessionBase {
                     .catch((err) => {
                         reject(ErrorHelper.getInternalError(InternalErrorCode.ApplicationLaunchFailed, err.message || err));
                     });
-            }))
-            .catch(err => this.showError(err, response));
+            })
+            .catch((err) => {
+                reject(ErrorHelper.getInternalError(InternalErrorCode.ApplicationLaunchFailed, err.message || err));
+            })
+        )
+        .catch(err => this.showError(err, response));
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {
@@ -83,60 +87,61 @@ export class RNDebugSession extends DebugSessionBase {
             .then(() => {
                 logger.log("Attaching to the application");
                 logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null , 2)}`);
-                return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, true)
-                    .then(versions => {
-                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                        if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
-                            extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
-                        }
-                        return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
-                            return this.appLauncher.getRnCdpProxy().stopServer()
-                                .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new RnCDPMessageHandler(), this.cdpProxyLogLevel))
-                                .then(() => {
-                                    logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
+                return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, true);
+            })
+            .then(versions => {
+                extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
+                if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
+                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
+                }
+                return TelemetryHelper.generate("attach", extProps, (generator) => {
+                    attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
+                    return this.appLauncher.getRnCdpProxy().stopServer()
+                        .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new RnCDPMessageHandler(), this.cdpProxyLogLevel))
+                        .then(() => {
+                            logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
 
-                                    const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
-                                    // Create folder if not exist to avoid problems if
-                                    // RN project root is not a ${workspaceFolder}
-                                    mkdirp.sync(sourcesStoragePath);
+                            const sourcesStoragePath = path.join(this.projectRootPath, ".vscode", ".react");
+                            // Create folder if not exist to avoid problems if
+                            // RN project root is not a ${workspaceFolder}
+                            mkdirp.sync(sourcesStoragePath);
 
-                                    // If launch is invoked first time, appWorker is undefined, so create it here
-                                    this.appWorker = new MultipleLifetimesAppWorker(
-                                        attachArgs,
-                                        sourcesStoragePath,
-                                        this.projectRootPath,
-                                        undefined
-                                        );
-                                    this.appLauncher.setAppWorker(this.appWorker);
+                            // If launch is invoked first time, appWorker is undefined, so create it here
+                            this.appWorker = new MultipleLifetimesAppWorker(
+                                attachArgs,
+                                sourcesStoragePath,
+                                this.projectRootPath,
+                                undefined
+                                );
+                            this.appLauncher.setAppWorker(this.appWorker);
 
-                                    this.appWorker.on("connected", (port: number) => {
-                                        logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
+                            this.appWorker.on("connected", (port: number) => {
+                                logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
 
-                                        this.appLauncher.getRnCdpProxy().setApplicationTargetPort(port);
+                                this.appLauncher.getRnCdpProxy().setApplicationTargetPort(port);
 
-                                        if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
-                                            return;
-                                        }
+                                if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
+                                    return;
+                                }
 
-                                        if (this.debugSessionStatus === DebugSessionStatus.FirstConnection) {
-                                            this.debugSessionStatus = DebugSessionStatus.FirstConnectionPending;
-                                            this.establishDebugSession(attachArgs, resolve);
-                                        } else if (this.debugSessionStatus === DebugSessionStatus.ConnectionAllowed) {
-                                            if (this.nodeSession) {
-                                                this.debugSessionStatus = DebugSessionStatus.ConnectionPending;
-                                                this.nodeSession.customRequest(this.terminateCommand);
-                                            }
-                                        }
-                                    });
-                                    return this.appWorker.start();
-                                });
-                        })
-                        .catch((err) => {
-                            reject(ErrorHelper.getInternalError(InternalErrorCode.CouldNotAttachToDebugger, err.message || err));
+                                if (this.debugSessionStatus === DebugSessionStatus.FirstConnection) {
+                                    this.debugSessionStatus = DebugSessionStatus.FirstConnectionPending;
+                                    this.establishDebugSession(attachArgs, resolve);
+                                } else if (this.debugSessionStatus === DebugSessionStatus.ConnectionAllowed) {
+                                    if (this.nodeSession) {
+                                        this.debugSessionStatus = DebugSessionStatus.ConnectionPending;
+                                        this.nodeSession.customRequest(this.terminateCommand);
+                                    }
+                                }
+                            });
+                            return this.appWorker.start();
                         });
-                    });
-        }))
+                });
+            })
+            .catch((err) => {
+                reject(ErrorHelper.getInternalError(InternalErrorCode.CouldNotAttachToDebugger, err.message || err));
+            })
+        )
         .catch(err => this.showError(err, response));
     }
 

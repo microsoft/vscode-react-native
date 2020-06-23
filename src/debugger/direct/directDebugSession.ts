@@ -46,32 +46,33 @@ export class DirectDebugSession extends DebugSessionBase {
             .then(() => {
                 logger.log("Launching the application");
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null , 2)}`);
-                return ProjectVersionHelper.getReactNativeVersions(launchArgs.cwd, launchArgs.platform === "windows")
-                    .then(versions => {
-                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                        if (launchArgs.platform === "windows") {
-                            extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
-                        }
-                        return TelemetryHelper.generate("launch", extProps, (generator) => {
-                            return this.appLauncher.launch(launchArgs)
-                                .then(() => {
-                                    if (launchArgs.enableDebug) {
-                                        launchArgs.port = launchArgs.port || this.appLauncher.getPackagerPort(launchArgs.cwd);
-                                        this.attachRequest(response, launchArgs).then(() => {
-                                            resolve();
-                                        }).catch((e) => reject(e));
-                                    } else {
-                                        this.sendResponse(response);
-                                        resolve();
-                                    }
-                                })
-                                .catch((err) => {
-                                    reject(ErrorHelper.getInternalError(InternalErrorCode.ApplicationLaunchFailed, err.message || err));
-                                });
+                return ProjectVersionHelper.getReactNativeVersions(launchArgs.cwd, launchArgs.platform === "windows");
+            })
+            .then(versions => {
+                extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
+                if (launchArgs.platform === "windows") {
+                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
+                }
+                return TelemetryHelper.generate("launch", extProps, (generator) => {
+                    return this.appLauncher.launch(launchArgs)
+                        .then(() => {
+                            if (launchArgs.enableDebug) {
+                                launchArgs.port = launchArgs.port || this.appLauncher.getPackagerPort(launchArgs.cwd);
+                                this.attachRequest(response, launchArgs).then(() => {
+                                    resolve();
+                                }).catch((e) => reject(e));
+                            } else {
+                                this.sendResponse(response);
+                                resolve();
+                            }
                         });
-                    });
-            }))
-            .catch(err => this.showError(err, response));
+                });
+            })
+            .catch((err) => {
+                reject(ErrorHelper.getInternalError(InternalErrorCode.ApplicationLaunchFailed, err.message || err));
+            })
+        )
+        .catch(err => this.showError(err, response));
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {
@@ -92,33 +93,34 @@ export class DirectDebugSession extends DebugSessionBase {
             .then(() => {
                 logger.log("Attaching to the application");
                 logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null , 2)}`);
-                return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, true)
-                    .then(versions => {
-                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                        if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
-                            extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
-                        }
-                        return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
-                            logger.log(`Connecting to ${attachArgs.port} port`);
-                            return this.appLauncher.getRnCdpProxy().stopServer()
-                                .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel))
-                                .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(
-                                    `http://localhost:${attachArgs.port}`,
-                                    90,
-                                    this.cancellationTokenSource.token
-                                ))
-                                .then((browserInspectUri) => {
-                                    this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
-                                    this.establishDebugSession(attachArgs, resolve);
-                                })
-                                .catch(e => reject(e));
+                return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, true);
+            })
+            .then(versions => {
+                extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
+                if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
+                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
+                }
+                return TelemetryHelper.generate("attach", extProps, (generator) => {
+                    attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
+                    logger.log(`Connecting to ${attachArgs.port} port`);
+                    return this.appLauncher.getRnCdpProxy().stopServer()
+                        .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel))
+                        .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(
+                            `http://localhost:${attachArgs.port}`,
+                            90,
+                            this.cancellationTokenSource.token
+                        ))
+                        .then((browserInspectUri) => {
+                            this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
+                            this.establishDebugSession(attachArgs, resolve);
                         })
-                        .catch((err) => {
-                            reject(ErrorHelper.getInternalError(InternalErrorCode.CouldNotAttachToDebugger, err.message || err));
-                        });
-                    });
-        }))
+                        .catch(e => reject(e));
+                });
+            })
+            .catch((err) => {
+                reject(ErrorHelper.getInternalError(InternalErrorCode.CouldNotAttachToDebugger, err.message || err));
+            })
+        )
         .catch(err => this.showError(err, response));
     }
 

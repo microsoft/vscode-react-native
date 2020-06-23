@@ -14,7 +14,7 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.DeviceNotPluggedIn]: localize("DeviceNotPluggedIn", "Unable to mount developer disk image."),
     [InternalErrorCode.DeveloperDiskImgNotMountable]: localize("DeveloperDiskImgNotMountable", "Unable to mount developer disk image."),
     [InternalErrorCode.ApplicationLaunchFailed]: localize("ApplicationLaunchFailed", "An error occurred while launching the application. {0}"),
-    [InternalErrorCode.CouldNotAttachToDebugger]: localize("CouldNotAttachToDebugger", "An error occurred while attaching to the debugger. {0}"),
+    [InternalErrorCode.CouldNotAttachToDebugger]: localize("CouldNotAttachToDebugger", "An error occurred while attaching debugger to the application. {0}"),
     [InternalErrorCode.ApplicationLaunchTimedOut]: localize("ApplicationLaunchTimedOut", "Timeout launching application. Is the device locked?"),
     [InternalErrorCode.IOSSimulatorNotLaunchable]: localize("IOSSimulatorNotLaunchable", "Unable to launch iOS simulator. Try specifying a different target."),
     [InternalErrorCode.OpnPackagerLocationNotFound]: localize("OpnPackagerLocationNotFound", "Opn package location not found"),
