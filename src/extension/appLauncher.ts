@@ -23,6 +23,7 @@ import {LogCatMonitor} from "./android/logCatMonitor";
 import {ProjectsStorage} from "./projectsStorage";
 import {ReactNativeCDPProxy} from "../cdp-proxy/reactNativeCDPProxy";
 import {generateRandomPortNumber} from "../common/extensionHelper";
+import {DEBUG_TYPES} from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
@@ -169,7 +170,7 @@ export class AppLauncher {
             mobilePlatformOptions.debugLaunchActivity = launchArgs.launchActivity;
         }
 
-        if (launchArgs.type === "reactnativedirect") {
+        if (launchArgs.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
             mobilePlatformOptions.isDirect = true;
         }
 
@@ -225,10 +226,17 @@ export class AppLauncher {
                                 return mobilePlatform.runApp();
                             })
                             .then(() => {
-                                if (mobilePlatformOptions.isDirect) {
-                                    generator.step("mobilePlatform.enableDirectDebuggingMode");
-                                    if (launchArgs.platform === "android") {
-                                        this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
+                                if (mobilePlatformOptions.isDirect || !mobilePlatformOptions.enableDebug) {
+                                    if (mobilePlatformOptions.isDirect && launchArgs.platform === "android") {
+                                        generator.step("mobilePlatform.enableDirectDebuggingMode");
+                                        if (mobilePlatformOptions.enableDebug) {
+                                            this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
+                                        } else {
+                                            this.logger.info(localize("PrepareHermesLaunch", "Prepare Hermes launch (experimental)"));
+                                        }
+                                    } else {
+                                        generator.step("mobilePlatform.disableJSDebuggingMode");
+                                        this.logger.info(localize("DisableJSDebugging", "Disable JS Debugging"));
                                     }
                                     return mobilePlatform.disableJSDebuggingMode();
                                 }
@@ -240,6 +248,11 @@ export class AppLauncher {
                                 resolve();
                             })
                             .catch(error => {
+                                if (!mobilePlatformOptions.enableDebug && launchArgs.platform === "ios") {
+                                    // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
+                                    // since the error doesn't affects an application launch process
+                                    return resolve();
+                                }
                                 generator.addError(error);
                                 this.logger.error(error);
                                 reject(error);
@@ -276,6 +289,7 @@ export class AppLauncher {
             env: args.env,
             envFile: args.envFile,
             target: args.target || "simulator",
+            enableDebug: args.enableDebug,
         };
 
         if (args.platform === "exponent") {

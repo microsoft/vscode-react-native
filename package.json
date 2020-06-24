@@ -135,6 +135,18 @@
 						}
 					},
 					{
+						"label": "React Native (Preview): Run Android",
+						"description": "%reactNative.snippets.runAndroid.description%",
+						"body": {
+							"name": "Run Android (Preview)",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnative-preview",
+							"request": "launch",
+							"platform": "android",
+							"enableDebug": false
+						}
+					},
+					{
 						"label": "React Native (Preview): Debug iOS",
 						"description": "%reactNative.snippets.debugiOS.description%",
 						"body": {
@@ -143,6 +155,18 @@
 							"type": "reactnative-preview",
 							"request": "launch",
 							"platform": "ios"
+						}
+					},
+					{
+						"label": "React Native (Preview): Run iOS",
+						"description": "%reactNative.snippets.runiOS.description%",
+						"body": {
+							"name": "Run iOS (Preview)",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnative-preview",
+							"request": "launch",
+							"platform": "ios",
+							"enableDebug": false
 						}
 					},
 					{
@@ -373,6 +397,11 @@
 								],
 								"default": "tunnel",
 								"description": "%reactNative.launch.expoHostType.description%"
+							},
+							"enableDebug": {
+								"type": "boolean",
+								"description": "%reactNative.launch.enableDebug.description%",
+								"default": true
 							}
 						}
 					}
@@ -400,6 +429,18 @@
 							"type": "reactnativedirect-preview",
 							"request": "launch",
 							"platform": "android"
+						}
+					},
+					{
+						"label": "React Native Hermes (Preview): Run Android - Experimental",
+						"description": "%reactNative.snippets.runAndroidHermes.description%",
+						"body": {
+							"name": "Run Android Hermes (Preview) - Experimental",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnativedirect-preview",
+							"request": "launch",
+							"platform": "android",
+							"enableDebug": false
 						}
 					},
 					{
@@ -545,6 +586,11 @@
 								"type": "string",
 								"description": "%reactNative.launch.launchActivity.description%",
 								"default": "MainActivity"
+							},
+							"enableDebug": {
+								"type": "boolean",
+								"description": "%reactNative.launch.enableDebug.description%",
+								"default": true
 							}
 						}
 					}

@@ -19,6 +19,7 @@ export interface ILaunchArgs {
     env?: any;
     envFile?: string;
     isDirect?: boolean;
+    enableDebug?: boolean;
 }
 
 /**
