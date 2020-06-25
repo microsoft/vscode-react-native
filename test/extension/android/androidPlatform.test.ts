@@ -404,11 +404,15 @@ suite("androidPlatform", function () {
                 assert.equal(resultPath, expectedPath);
             }
 
-            const os = require("os");
+            const mockPath = require("path");
             function mockPlatform(platform: NodeJS.Platform) {
                 sandbox.restore();
-                sandbox.stub(os, "platform", function () {
-                    return platform;
+                sandbox.stub(path, "join", function (paths: any[]) {
+                    if (platform === "win32") {
+                        return path.win32.join(paths);
+                    } else {
+                        return path.posix.join(paths);
+                    }
                 });
             }
 
