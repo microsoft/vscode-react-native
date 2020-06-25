@@ -396,6 +396,30 @@ suite("androidPlatform", function () {
             testPaths(String.raw`/Users/User1/home/path/Android SDK`, String.raw`/Users/User1/home/path/Android SDK`);
             testPaths(String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`, String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`);
         });
+
+        test("AdbHelper getAdbPath should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
+            function testPaths(expectedPath: string, projectRoot: string) {
+                const adbHelper = new adb.AdbHelper(projectRoot);
+                const resultPath = adbHelper.getAdbPath(projectRoot);
+                assert.equal(resultPath, expectedPath);
+            }
+
+            const os = require("os");
+            function mockPlatform(platform: NodeJS.Platform) {
+                sandbox.restore();
+                sandbox.stub(os, "platform", function () {
+                    return platform;
+                });
+            }
+
+            let mockProjectRoot = path.join(__dirname, "..", "resources", "auxiliaryFiles", "templateProject", "win");
+            mockPlatform("win32");
+            testPaths(String.raw`"C:\Android\android sdk\"`, mockProjectRoot);
+
+            mockProjectRoot = path.join(__dirname, "..", "resources", "auxiliaryFiles", "templateProject", "others");
+            mockPlatform("darwin");
+            testPaths(String.raw`"/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools"`, mockProjectRoot);
+        });
     });
 });
 

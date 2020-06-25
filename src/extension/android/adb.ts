@@ -53,11 +53,7 @@ export class AdbHelper {
     private launchActivity: string;
 
     constructor(projectRoot: string, logger?: ILogger, launchActivity: string = "MainActivity") {
-
-        // Trying to read sdk location from local.properties file and if we succueded then
-        // we would run adb from inside it, otherwise we would rely to PATH
-        const sdkLocation = this.getSdkLocationFromLocalPropertiesFile(projectRoot, logger);
-        this.adbExecutable = sdkLocation ? `${path.join(sdkLocation, "platform-tools", "adb")}` : "adb";
+        this.adbExecutable = this.getAdbPath(projectRoot, logger);
         this.launchActivity = launchActivity;
     }
 
@@ -65,7 +61,7 @@ export class AdbHelper {
      * Gets the list of Android connected devices and emulators.
      */
     public getConnectedDevices(): Q.Promise<IDevice[]> {
-        return this.childProcess.execToString(`"${this.adbExecutable}" devices`)
+        return this.childProcess.execToString(`${this.adbExecutable} devices`)
             .then(output => {
                 return this.parseConnectedDevices(output);
             });
@@ -79,7 +75,7 @@ export class AdbHelper {
      * Broadcasts an intent to reload the application in debug mode.
      */
     public switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Q.Promise<void> {
-        let enableDebugCommand = `"${this.adbExecutable}" ${debugTarget ? "-s " + debugTarget : ""} shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
+        let enableDebugCommand = `${this.adbExecutable} ${debugTarget ? "-s " + debugTarget : ""} shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
         return new CommandExecutor(projectRoot).execute(enableDebugCommand)
             .then(() => { // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
                 let deferred = Q.defer();
@@ -101,12 +97,12 @@ export class AdbHelper {
      * Sends an intent which launches the main activity of the application.
      */
     public launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
-        let launchAppCommand = `"${this.adbExecutable}" ${debugTarget ? "-s " + debugTarget : ""} shell am start -n ${packageName}/.${this.launchActivity}`;
+        let launchAppCommand = `${this.adbExecutable} ${debugTarget ? "-s " + debugTarget : ""} shell am start -n ${packageName}/.${this.launchActivity}`;
         return new CommandExecutor(projectRoot).execute(launchAppCommand);
     }
 
     public stopApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
-        let stopAppCommand = `"${this.adbExecutable}" ${debugTarget ? "-s " + debugTarget : ""} shell am force-stop ${packageName}`;
+        let stopAppCommand = `${this.adbExecutable} ${debugTarget ? "-s " + debugTarget : ""} shell am force-stop ${packageName}`;
         return new CommandExecutor(projectRoot).execute(stopAppCommand);
     }
 
@@ -120,12 +116,12 @@ export class AdbHelper {
     }
 
     public showDevMenu(deviceId?: string): Q.Promise<void> {
-        let command = `"${this.adbExecutable}" ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_MENU}`;
+        let command = `${this.adbExecutable} ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_MENU}`;
         return this.commandExecutor.execute(command);
     }
 
     public reloadApp(deviceId?: string): Q.Promise<void> {
-        let command = `"${this.adbExecutable}" ${deviceId ? "-s " + deviceId : ""} shell input text "RR"`;
+        let command = `${this.adbExecutable} ${deviceId ? "-s " + deviceId : ""} shell input text "RR"`;
         return this.commandExecutor.execute(command);
     }
 
@@ -137,7 +133,7 @@ export class AdbHelper {
     }
 
     public startLogCat(adbParameters: string[]): ISpawnResult {
-        return new ChildProcess().spawn(`"${this.adbExecutable}"`, adbParameters);
+        return new ChildProcess().spawn(`${this.adbExecutable}`, adbParameters);
     }
 
     public parseSdkLocation(fileContent: string, logger?: ILogger) {
@@ -159,6 +155,13 @@ export class AdbHelper {
         }
 
         return sdkLocation;
+    }
+
+    public getAdbPath(projectRoot: string, logger?: ILogger): string {
+        // Trying to read sdk location from local.properties file and if we succueded then
+        // we would run adb from inside it, otherwise we would rely to PATH
+        const sdkLocation = this.getSdkLocationFromLocalPropertiesFile(projectRoot, logger);
+        return sdkLocation ? `"${path.join(sdkLocation, "platform-tools", "adb")}"` : "adb";
     }
 
     private parseConnectedDevices(input: string): IDevice[] {
@@ -187,7 +190,7 @@ export class AdbHelper {
     }
 
     private generateCommandForDevice(deviceId: string, adbCommand: string): string {
-        return `"${this.adbExecutable}" -s "${deviceId}" ${adbCommand}`;
+        return `${this.adbExecutable} -s "${deviceId}" ${adbCommand}`;
     }
 
     private getSdkLocationFromLocalPropertiesFile(projectRoot: string, logger?: ILogger): string | null {
