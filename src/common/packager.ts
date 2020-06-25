@@ -118,7 +118,7 @@ export class Packager {
         });
     }
 
-    public start(resetCache: boolean = false): Q.Promise<void> {
+    public start(resetCache: boolean = false): Promise<void> {
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTING);
         let executedStartPackagerCmd = false;
         let rnVersion: string;
@@ -201,7 +201,7 @@ export class Packager {
         });
     }
 
-    public stop(silent: boolean = false): Q.Promise<void> {
+    public stop(silent: boolean = false): Promise<void> {
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPING);
         return this.isRunning()
             .then(running => {

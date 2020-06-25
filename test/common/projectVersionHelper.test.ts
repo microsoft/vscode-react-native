@@ -19,7 +19,7 @@ suite("projectVersionHelper", function() {
             assert.equal(versions.reactNativeVersion, "0.22.2");
             assert.equal(versions.reactNativeWindowsVersion, "0.60.0-vnext.68");
         })
-        .then(() => done)
+        .then(() => done);
     });
 
     suite("getReactNativeVersionsFromProjectWithIncorrectPackageJson", function() {
@@ -43,7 +43,8 @@ suite("projectVersionHelper", function() {
             .then(versions => {
                 assert.equal(versions.reactNativeVersion, "errorMissingDependenciesFieldsInProjectPackageFile");
                 assert.equal(versions.reactNativeWindowsVersion, "errorMissingDependenciesFieldsInProjectPackageFile");
-            }).done(() => done(), done);
+            })
+            .then(() => done);
         });
     });
 
@@ -78,7 +79,8 @@ suite("projectVersionHelper", function() {
             .then(versions => {
                 assert.equal(versions.reactNativeVersion, "0.20.0");
                 assert.equal(versions.reactNativeWindowsVersion, "0.60.0-vnext.68");
-            }).done(() => done(), done);
+            })
+            .then(() => done);
         });
 
         test("getReactNativePackageVersionsFromNodeModules should return object containing strings if version field is an URL", (done: MochaDone) => {
@@ -91,7 +93,8 @@ suite("projectVersionHelper", function() {
             ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(sampleReactNative022ProjectDir)
             .then(versions => {
                 assert.equal(versions.reactNativeVersion, "SemverInvalid: URL");
-            }).done(() => done(), done);
+            })
+            .then(() => done);
         });
     });
 
@@ -99,7 +102,8 @@ suite("projectVersionHelper", function() {
         ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(sampleReactNative022ProjectDir)
         .catch(error => {
             assert.equal(error.errorCode, 606);
-        }).done(() => done(), done);
+        })
+        .then(() => done);
     });
 
     test("isVersionError should return true if a version string contains an error substring", (done: MochaDone) => {
