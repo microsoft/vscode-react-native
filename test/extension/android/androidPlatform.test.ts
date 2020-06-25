@@ -409,9 +409,9 @@ suite("androidPlatform", function () {
                 sandbox.restore();
                 sandbox.stub(mockPath, "join", function (paths: any[]) {
                     if (platform === "win32") {
-                        return path.win32.join(paths);
+                        return path.win32.join(...paths);
                     } else {
-                        return path.posix.join(paths);
+                        return path.posix.join(...paths);
                     }
                 });
             }
