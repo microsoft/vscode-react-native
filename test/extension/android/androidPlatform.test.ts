@@ -397,7 +397,7 @@ suite("androidPlatform", function () {
             testPaths(String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`, String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`);
         });
 
-        test("AdbHelper getAdbPath should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
+        test("AdbHelper getAdbPath function should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
             function testPaths(expectedPath: string, projectRoot: string) {
                 const adbHelper = new adb.AdbHelper(projectRoot);
                 const resultPath = adbHelper.getAdbPath(projectRoot);
