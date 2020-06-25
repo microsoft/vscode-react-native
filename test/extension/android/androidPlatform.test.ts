@@ -404,25 +404,21 @@ suite("androidPlatform", function () {
                 assert.equal(resultPath, expectedPath);
             }
 
-            const mockPath = require("path");
+            const os = require("os");
             function mockPlatform(platform: NodeJS.Platform) {
                 sandbox.restore();
-                sandbox.stub(mockPath, "join", function (paths: any[]) {
-                    if (platform === "win32") {
-                        return path.win32.join(...paths);
-                    } else {
-                        return path.posix.join(...paths);
-                    }
+                sandbox.stub(os, "platform", function () {
+                    return platform;
                 });
             }
 
             mockPlatform("win32");
             let mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "win");
-            testPaths(String.raw`"C:\Android\android sdk\platform-tools\adb"`, mockProjectRoot);
+            testPaths(String.raw`"${path.resolve(`C:/Android/android sdk/platform-tools/adb`)}"`, mockProjectRoot);
 
             mockPlatform("darwin");
             mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "others");
-            testPaths(String.raw`"/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools/adb"`, mockProjectRoot);
+            testPaths(String.raw`${path.resolve(`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools/adb`)}`, mockProjectRoot);
         });
     });
 });
