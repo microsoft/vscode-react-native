@@ -116,6 +116,10 @@ export class RNDebugSession extends DebugSessionBase {
                             this.appLauncher.setAppWorker(this.appWorker);
 
                             this.appWorker.on("connected", (port: number) => {
+                                if (this.cancellationTokenSource.token.isCancellationRequested) {
+                                    return this.appWorker?.stop();
+                                }
+
                                 logger.log(localize("DebuggerWorkerLoadedRuntimeOnPort", "Debugger worker loaded runtime on port {0}", port));
 
                                 this.appLauncher.getRnCdpProxy().setApplicationTargetPort(port);
@@ -134,6 +138,9 @@ export class RNDebugSession extends DebugSessionBase {
                                     }
                                 }
                             });
+                            if (this.cancellationTokenSource.token.isCancellationRequested) {
+                                return this.appWorker.stop();
+                            }
                             return this.appWorker.start();
                         });
                 });
