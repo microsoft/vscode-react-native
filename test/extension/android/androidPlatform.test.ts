@@ -414,7 +414,7 @@ suite("androidPlatform", function () {
 
             mockPlatform("win32");
             let mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "win");
-            testPaths(String.raw`"C:\Android\android sdk\platform-tools\adb"`, mockProjectRoot);
+            testPaths(String.raw`"C:\Android\android sdk/platform-tools/adb"`, mockProjectRoot);
 
             mockPlatform("darwin");
             mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "others");
