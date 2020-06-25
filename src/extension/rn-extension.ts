@@ -32,6 +32,7 @@ import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ExponentHelper} from "./exponent/exponentHelper";
 import {ReactNativeDebugConfigProvider} from "./debugConfigurationProvider";
+import {ExperimentService} from "./experimentService/experimentService";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -65,6 +66,7 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
     return entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, function activateRunApp() {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => onChangeConfiguration(context)));
+        context.subscriptions.push(ExperimentService.create());
 
         debugConfigProvider = vscode.debug.registerDebugConfigurationProvider("reactnative", configProvider);
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
