@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "用户已取消登录。",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "无法附加到包生成工具。确定存在包生成工具并且其正在端口 {0} 中运行吗? 如果包生成工具被配置为在另一个端口中运行，请确保将该端口添加到 settings.json。",
 	"AnotherDebuggerConnectedToPackager": "另一个调试器已连接到包生成工具。请先将其关闭，然后再尝试使用 VSCode 进行调试。",
-	"NotInReactNativeFolderError": "似乎你尝试在不是 React Native 项目根目录的目录中进行调试。\n 如果是这样，请遵循以下说明: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure。",
+	"NotInReactNativeFolderError": "似乎你尝试在不是 React Native 项目根目录的目录中进行调试。\n 如果是这样，请遵循以下说明: https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure。",
 	"SourcesStoragePathIsNullOrEmpty": "SourcesStoragePath 参数为 null 或为空",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "无法在任何可用的设备上安装该应用。请确保已正确配置 \n 设备或运行模拟器。请参阅 https://facebook.github.io/react-native/docs/android-setup.html。",
 	"AndroidShellCommandTimedOut": "Android shell 命令超时。请重试该操作。",

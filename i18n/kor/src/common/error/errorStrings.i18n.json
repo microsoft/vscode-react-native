@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "사용자가 로그인을 취소했습니다.",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "패키지 작성 도구에 연결할 수 없습니다. 패키지 작성 도구가 있고 포트 {0}에서 실행 중인가요? 패키지 작성 도구가 다른 포트에서 실행되도록 구성된 경우에는 settings.json에 해당 구성을 추가해야 합니다.",
 	"AnotherDebuggerConnectedToPackager": "다른 디버거가 패키지 작성 도구에 이미 연결되어 있습니다. VSCode로 디버그를 시도하기 전에 해당 디버거를 닫으세요.",
-	"NotInReactNativeFolderError": "React Native 프로젝트 루트가 아닌 디렉터리 내에서 디버그하려고 하는 것 같습니다. \n 그런 경우 다음 지침을 따르세요. https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure",
+	"NotInReactNativeFolderError": "React Native 프로젝트 루트가 아닌 디렉터리 내에서 디버그하려고 하는 것 같습니다. \n 그런 경우 다음 지침을 따르세요. https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure",
 	"SourcesStoragePathIsNullOrEmpty": "sourcesStoragePath 인수가 null이거나 비어 있습니다.",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "사용 가능한 디바이스에 앱을 설치할 수 없습니다. 올바르게 구성된 디바이스 또는 에뮬레이터가 \n 실행되고 있는지 확인하세요. https://facebook.github.io/react-native/docs/android-setup.html을 참조하세요.",
 	"AndroidShellCommandTimedOut": "Android 셸 명령 시간이 초과되었습니다. 작업을 다시 시도하세요.",

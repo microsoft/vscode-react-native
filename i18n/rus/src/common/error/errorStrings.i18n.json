@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "Пользователь отменил вход.",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "Не удается подключить к упаковщику. Вы уверены, что существует упаковщик, работающий через порт {0}? Если упаковщик настроен для работы через другой порт, добавьте его в файл settings.json.",
 	"AnotherDebuggerConnectedToPackager": "К упаковщику уже подключен другой отладчик. Закройте его, прежде чем пытаться выполнить отладку с помощью VS Code.",
-	"NotInReactNativeFolderError": "Похоже, что вы пытаетесь выполнить отладку из каталога, не являющегося корневым каталогом проекта React Native. \n Если это так, следуйте указанным инструкциям: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
+	"NotInReactNativeFolderError": "Похоже, что вы пытаетесь выполнить отладку из каталога, не являющегося корневым каталогом проекта React Native. \n Если это так, следуйте указанным инструкциям: https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
 	"SourcesStoragePathIsNullOrEmpty": "Аргумент sourcesStoragePath имел значение null или был пуст",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "Не удалось установить приложение на любом из доступных устройств. Убедитесь в наличии \n правильно настроенного и работающего устройства или эмулятора. См. статью https://facebook.github.io/react-native/docs/android-setup.html.",
 	"AndroidShellCommandTimedOut": "Истекло время ожидания для команды оболочки Android. Повторите операцию.",

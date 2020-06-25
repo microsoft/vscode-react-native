@@ -25,7 +25,7 @@
 	"reactNative.attach.program.description": "[DEPRECATED. USE cwd INSTEAD] Der Pfad zu \"launchReactNative.js\" im Ordner \"vscode\".",
 	"reactNative.attach.cwd.description": "Der Pfad zum Projektstammordner.",
 	"reactNative.attach.sourceMaps.description": "Gibt an, ob JavaScript-Quellzuordnungsdateien verwendet werden, um den generierten Bundlecode wieder den ursprünglichen Quellen zuzuordnen.",
-	"reactNative.attach.sourceMapsPathOverrides.description": "Eine Reihe von Zuordnungen zum Umschreiben der Speicherorte von Quelldateien gemäß Quellzuordnungsdatei in die Speicherorte auf dem Datenträger. Ausführliche Informationen finden Sie unter https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul.",
+	"reactNative.attach.sourceMapsPathOverrides.description": "Eine Reihe von Zuordnungen zum Umschreiben der Speicherorte von Quelldateien gemäß Quellzuordnungsdatei in die Speicherorte auf dem Datenträger. Ausführliche Informationen finden Sie unter https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul.",
 	"reactNative.attach.trace.description": "Protokolliergrad im Debuggerprozess. Kann für die Diagnose hilfreich sein. Bei Festlegung auf \"Trace\" stehen alle Debuggerprozessprotokolle im Ausgabefenster \"Debugging-Konsole\" zur Verfügung.",
 	"reactNative.attach.address.description": "Die TCP/IP-Adresse des Paketerstellungs-Managers, an den zum Debuggen angefügt werden soll. Der Standardwert ist \"localhost\".",
 	"reactNative.attach.port.description": "Der Port des Paketerstellungs-Managers, an den zum Debuggen angefügt werden soll. Der Standardwert ist \"8081\".",

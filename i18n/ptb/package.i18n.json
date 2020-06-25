@@ -25,7 +25,7 @@
 	"reactNative.attach.program.description": "[PRETERIDO. EM VEZ DISSO, USE cwd] O caminho para launchReactNative.js na pasta vscode",
 	"reactNative.attach.cwd.description": "O caminho para a pasta raiz do projeto",
 	"reactNative.attach.sourceMaps.description": "Se os source maps JavaScript devem ser usados para mapear o código em pacote gerado novamente para suas origens originais",
-	"reactNative.attach.sourceMapsPathOverrides.description": "Um conjunto de mapeamentos para regravar os locais dos arquivos de origem indicados pelo source map, em seus respectivos locais no disco. Confira https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul para obter detalhes",
+	"reactNative.attach.sourceMapsPathOverrides.description": "Um conjunto de mapeamentos para regravar os locais dos arquivos de origem indicados pelo source map, em seus respectivos locais no disco. Confira https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul para obter detalhes",
 	"reactNative.attach.trace.description": "Nível de registros em log no processo do depurador. Pode ser útil para diagnóstico. Se definido como \"Rastrear\", todos os logs de processo do depurador estarão disponíveis na janela de saída do 'Console de Depuração'.",
 	"reactNative.attach.address.description": "Endereço TCP/IP do empacotador a ser anexado para depuração. O padrão é 'localhost'.",
 	"reactNative.attach.port.description": "Porta do empacotador a ser anexada para depuração. O padrão é 8081.",
