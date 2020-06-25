@@ -404,19 +404,9 @@ suite("androidPlatform", function () {
                 assert.equal(resultPath, expectedPath);
             }
 
-            const os = require("os");
-            function mockPlatform(platform: NodeJS.Platform) {
-                sandbox.restore();
-                sandbox.stub(os, "platform", function () {
-                    return platform;
-                });
-            }
-
-            mockPlatform("win32");
             let mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "win");
             testPaths(String.raw`"${path.resolve(`C:/Android/android sdk/platform-tools/adb`)}"`, mockProjectRoot);
 
-            mockPlatform("darwin");
             mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "others");
             testPaths(String.raw`${path.resolve(`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools/adb`)}`, mockProjectRoot);
         });
