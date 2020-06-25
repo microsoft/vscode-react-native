@@ -407,7 +407,7 @@ suite("androidPlatform", function () {
             const mockPath = require("path");
             function mockPlatform(platform: NodeJS.Platform) {
                 sandbox.restore();
-                sandbox.stub(path, "join", function (paths: any[]) {
+                sandbox.stub(mockPath, "join", function (paths: any[]) {
                     if (platform === "win32") {
                         return path.win32.join(paths);
                     } else {
