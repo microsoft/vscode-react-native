@@ -414,11 +414,11 @@ suite("androidPlatform", function () {
 
             let mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "win");
             mockPlatform("win32");
-            testPaths(String.raw`"C:\Android\android sdk\"`, mockProjectRoot);
+            testPaths(String.raw`"C:\Android\android sdk\platform-tools\adb"`, mockProjectRoot);
 
             mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "others");
             mockPlatform("darwin");
-            testPaths(String.raw`"/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools"`, mockProjectRoot);
+            testPaths(String.raw`"/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools/adb"`, mockProjectRoot);
         });
     });
 });
