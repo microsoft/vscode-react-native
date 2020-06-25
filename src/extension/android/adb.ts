@@ -57,7 +57,7 @@ export class AdbHelper {
         // Trying to read sdk location from local.properties file and if we succueded then
         // we would run adb from inside it, otherwise we would rely to PATH
         const sdkLocation = this.getSdkLocationFromLocalPropertiesFile(projectRoot, logger);
-        this.adbExecutable = sdkLocation ? `"${path.join(sdkLocation, "platform-tools", "adb")}"` : "adb";
+        this.adbExecutable = sdkLocation ? `${path.join(sdkLocation, "platform-tools", "adb")}` : "adb";
         this.launchActivity = launchActivity;
     }
 
