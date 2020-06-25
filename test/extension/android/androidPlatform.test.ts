@@ -404,11 +404,13 @@ suite("androidPlatform", function () {
                 assert.equal(resultPath, expectedPath);
             }
 
-            let mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "win");
-            testPaths(String.raw`"${path.resolve(`C:/Android/android sdk/platform-tools/adb`)}"`, mockProjectRoot);
-
-            mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "others");
-            testPaths(String.raw`"${path.resolve(`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools/adb`)}"`, mockProjectRoot);
+            if (process.platform == "win32") {
+                const mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "win");
+                testPaths(String.raw`"C:\Android\android sdk\platform-tools\adb"`, mockProjectRoot);
+            } else {
+                const mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "others");
+                testPaths(String.raw`"/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools/adb"`, mockProjectRoot);
+            }
         });
     });
 });
