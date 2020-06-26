@@ -386,11 +386,31 @@ suite("androidPlatform", function () {
             mockPlatform("win32");
             testPaths(String.raw`C\:\\Users\\User1\\AndroidSdk`, String.raw`C:\Users\User1\AndroidSdk`);
             testPaths(String.raw`\\\\Network\\Shared\\Folder`, String.raw`\\Network\Shared\Folder`);
+            testPaths(String.raw`\\\\Network\\Shared\\Folder\\Android SDK`, String.raw`\\Network\Shared\Folder\Android SDK`);
+            testPaths(String.raw`C\:\\Users\\User1\\Android Sdk`, String.raw`C:\Users\User1\Android Sdk`);
 
             mockPlatform("darwin");
             testPaths(String.raw`/var/lib/some/path`, String.raw`/var/lib/some/path`);
             testPaths(String.raw`~/Library`, String.raw`~/Library`);
             testPaths(String.raw`/Users/User1/home/path`, String.raw`/Users/User1/home/path`);
+            testPaths(String.raw`/Users/User1/home/path/Android SDK`, String.raw`/Users/User1/home/path/Android SDK`);
+            testPaths(String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`, String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`);
+        });
+
+        test("AdbHelper getAdbPath function should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
+            function testPaths(expectedPath: string, projectRoot: string) {
+                const adbHelper = new adb.AdbHelper(projectRoot);
+                const resultPath = adbHelper.getAdbPath(projectRoot);
+                assert.equal(resultPath, expectedPath);
+            }
+
+            if (process.platform == "win32") {
+                const mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "win");
+                testPaths(String.raw`"C:\Android\android sdk\platform-tools\adb"`, mockProjectRoot);
+            } else {
+                const mockProjectRoot = path.join(__dirname, "..", "..", "..", "test", "resources", "auxiliaryFiles", "templateProject", "others");
+                testPaths(String.raw`"/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools/adb"`, mockProjectRoot);
+            }
         });
     });
 });
