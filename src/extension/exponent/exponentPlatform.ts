@@ -25,7 +25,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
 
     constructor(runOptions: IExponentRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
-        this.exponentHelper = new ExponentHelper(runOptions.workspaceRoot, runOptions.projectRoot);
+        this.exponentHelper = this.packager.getExponentHelper();
         this.exponentTunnelPath = null;
     }
 
