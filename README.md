@@ -34,7 +34,7 @@ In order to use the preview version of the extension it's required to add `-prev
 
 We also added `(Preview)` suffix to Command Palette command names.
 
-![React Native commands preview](images/command-palette-preview.png)
+![React Native commands preview](https://raw.githubusercontent.com/Microsoft/vscode-react-native/preview/images/command-palette-preview.png)
 
 To avoid conflicts, it's not recommended to use Command Palette commands and debug configurations of the preview version and the stable one at the same time.
 
@@ -299,6 +299,7 @@ The following is a list of all the configuration properties the debugger accepts
 |`cwd`|The path to the project root folder|`string`|`${workspaceFolder}`|
 |`sourceMaps`|Whether to use JavaScript source maps to map the generated bundled code back to its original sources|`boolean`|`true`|
 |`sourceMapPathOverrides`|A set of mappings for rewriting the locations of source files from what the source map says, to their locations on disk. See [Debugging with TypeScript and Haul](#typescript-and-haul) for details|`object`|n/a|
+|`enableDebug`|Whether to enable debug mode. If set to "false", an application will be launched without debugging|`boolean`|`true`|
 |`trace`|Logging level in debugger process. May be useful for diagnostics. If set to "Trace" all debugger process logs will be available in `Debug Console` output window|`string`|`log`|
 |`address`|TCP/IP address of packager to attach to for debugging|`string`|`localhost`|
 |`port`|Port of packager to attach to for debugging|`string`|`8081`|

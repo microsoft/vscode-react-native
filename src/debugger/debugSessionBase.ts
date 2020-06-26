@@ -120,6 +120,10 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 args.sourceMaps = true;
             }
 
+            if (typeof args.enableDebug !== "boolean") {
+                args.enableDebug = true;
+            }
+
             const projectRootPath = getProjectRoot(args);
             return ReactNativeProjectHelper.isReactNativeProject(projectRootPath)
                 .then((result) => {
