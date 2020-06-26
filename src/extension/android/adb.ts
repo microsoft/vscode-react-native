@@ -53,11 +53,7 @@ export class AdbHelper {
     private launchActivity: string;
 
     constructor(projectRoot: string, logger?: ILogger, launchActivity: string = "MainActivity") {
-
-        // Trying to read sdk location from local.properties file and if we succueded then
-        // we would run adb from inside it, otherwise we would rely to PATH
-        const sdkLocation = this.getSdkLocationFromLocalPropertiesFile(projectRoot, logger);
-        this.adbExecutable = sdkLocation ? `${path.join(sdkLocation, "platform-tools", "adb")}` : "adb";
+        this.adbExecutable = this.getAdbPath(projectRoot, logger);
         this.launchActivity = launchActivity;
     }
 
@@ -159,6 +155,13 @@ export class AdbHelper {
         }
 
         return sdkLocation;
+    }
+
+    public getAdbPath(projectRoot: string, logger?: ILogger): string {
+        // Trying to read sdk location from local.properties file and if we succueded then
+        // we would run adb from inside it, otherwise we would rely to PATH
+        const sdkLocation = this.getSdkLocationFromLocalPropertiesFile(projectRoot, logger);
+        return sdkLocation ? `"${path.join(sdkLocation, "platform-tools", "adb")}"` : "adb";
     }
 
     private parseConnectedDevices(input: string): IDevice[] {
