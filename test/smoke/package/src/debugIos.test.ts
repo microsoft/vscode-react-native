@@ -45,9 +45,9 @@ export function setup(testParameters?: TestRunArguments) {
         async function expoTest(testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
-            await app.workbench.quickaccess.openFile("App.js");
+            await app.workbench.quickaccess.openFile("App.tsx");
             await app.workbench.editors.scrollTop();
-            console.log(`${testName}: App.js file is opened`);
+            console.log(`${testName}: App.tsx file is opened`);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
             console.log(`${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
             console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
