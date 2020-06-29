@@ -167,7 +167,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ false, this.runOptions.configuration, this.runOptions.productName);
     }
 
-    public prewarmBundleCache(): Q.Promise<void> {
+    public prewarmBundleCache(): Promise<void> {
         return this.packager.prewarmBundleCache("ios");
     }
 

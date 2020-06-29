@@ -147,7 +147,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return this.adbHelper.switchDebugMode(this.runOptions.projectRoot, this.packageName, false, this.debugTarget.id);
     }
 
-    public prewarmBundleCache(): Q.Promise<void> {
+    public prewarmBundleCache(): Promise<void> {
         return this.packager.prewarmBundleCache("android");
     }
 

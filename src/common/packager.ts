@@ -20,7 +20,7 @@ import * as Q from "q";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
-import { FileSystem } from "./node/fileSystem";
+import { FileSystemNode } from "./node/fileSystemNode";
 import * as nls from "vscode-nls";
 import { findFileInFolderHierarchy } from "./extensionHelper";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
@@ -47,7 +47,7 @@ export class Packager {
     };
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
-    private static fs: FileSystem = new Node.FileSystem();
+    private static fs: FileSystemNode = new FileSystemNode();
     private expoHelper: ExponentHelper;
     private runOptions: IRunOptions;
 
@@ -84,7 +84,7 @@ export class Packager {
         return this.projectPath;
     }
 
-    public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<string[]> {
+    public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Promise<string[]> {
         let args: string[] = ["--port", this.getPort().toString()];
 
         if (resetCache) {
@@ -136,7 +136,7 @@ export class Packager {
                 rnVersion = versions.reactNativeVersion;
                 return this.monkeyPatchOpnForRNPackager(rnVersion);
             })
-            .then((version) => {
+            .then(() => {
                 return this.getPackagerArgs(rnVersion, resetCache);
             })
             .then((args) => {
@@ -201,7 +201,7 @@ export class Packager {
         });
     }
 
-    public stop(silent: boolean = false): Promise<void> {
+    public stop(silent: boolean = false): Promise<any> {
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPING);
         return this.isRunning()
             .then(running => {
@@ -210,14 +210,14 @@ export class Packager {
                         if (!silent) {
                             this.logger.warning(ErrorHelper.getWarning(localize("PackagerIsStillRunning", "Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager.")));
                         }
-                        return Q.resolve<void>(void 0);
+                        return Promise.resolve();
                     }
                     return this.killPackagerProcess();
                 } else {
                     if (!silent) {
                         this.logger.warning(ErrorHelper.getWarning(localize("PackagerIsNotRunning", "Packager is not running")));
                     }
-                    return Q.resolve<void>(void 0);
+                    return Promise.resolve();
                 }
             }).then(() => {
                 this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
@@ -253,9 +253,9 @@ export class Packager {
             });
     }
 
-    public prewarmBundleCache(platform: string): Q.Promise<void> {
+    public prewarmBundleCache(platform: string): Promise<void> {
         if (platform === "exponent") {
-            return Q.resolve(void 0);
+            return Promise.resolve();
         }
 
         return this.isRunning()
@@ -308,7 +308,7 @@ export class Packager {
         return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, localize("CouldNotStartPackager", "Could not start the packager."));
     }
 
-    private findOpnPackage(ReactNativeVersion: string): Q.Promise<string> {
+    private findOpnPackage(ReactNativeVersion: string): Promise<string> {
         try {
             let OPN_PACKAGE_NAME: string;
             if (semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)) {
@@ -337,7 +337,7 @@ export class Packager {
         }
     }
 
-    private monkeyPatchOpnForRNPackager(ReactNativeVersion: string): Q.Promise<void> {
+    private monkeyPatchOpnForRNPackager(ReactNativeVersion: string): Promise<void> {
         let opnPackage: Package;
         let destnFilePath: string;
 
@@ -369,7 +369,7 @@ export class Packager {
             });
     }
 
-    private killPackagerProcess(): Q.Promise<void> {
+    private killPackagerProcess(): Promise<void> {
         this.logger.info(localize("StoppingPackager", "Stopping Packager"));
         return new CommandExecutor(this.projectPath, this.logger).killReactPackager(this.packagerProcess).then(() => {
             this.packagerProcess = undefined;

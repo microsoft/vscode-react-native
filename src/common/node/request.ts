@@ -22,6 +22,6 @@ export class Request {
             req.on("error", (err: Error) => {
                 reject(err);
             });
-        })
+        });
     }
 }
