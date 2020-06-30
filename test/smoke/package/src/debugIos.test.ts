@@ -186,7 +186,7 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.js", "iOS Expo Debug test(LAN)", ExpoWorkspacePath, ExpoLanDebugConfigName, 1);
+            await expoTest("App.tsx", "iOS Expo Debug test(LAN)", ExpoWorkspacePath, ExpoLanDebugConfigName, 1);
         });
 
         it("Expo app Debug test(localhost)", async function () {
