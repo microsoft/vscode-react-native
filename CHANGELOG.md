@@ -1,10 +1,12 @@
 ## 0.16.1
 * Improved extension security [#1310](https://github.com/microsoft/vscode-react-native/pull/1310), [#1329](https://github.com/microsoft/vscode-react-native/pull/1329)
-* Fixed the bug of incorrect handling of spaces in `adb` path from `local.properties`
+* Fixed the incorrect handling of spaces in `adb` path from `local.properties`
+
 * Internal changes:
     * Migrated from TSLint to ESLint [#1315](https://github.com/microsoft/vscode-react-native/pull/1315)
     * Implemented service for running different checks of the extension work [#1309](https://github.com/microsoft/vscode-react-native/pull/1309), [#1322](https://github.com/microsoft/vscode-react-native/pull/1322)
-    * Smoke tests were updated to work with VC Code 1.45.1 and Expo SDK 38
+    * Smoke tests were updated to work with VS Code 1.45.1 and Expo SDK 38
+
 
 ## 0.16.0
 * Improved extension security [#1253](https://github.com/microsoft/vscode-react-native/pull/1253)
