@@ -5,7 +5,7 @@
     "IOS_VERSION": "12.4",
     "CODE_VERSION": "1.45.1",
     "EXPO_XDL_VERSION": "57.8.32",
-    "RN_VERSION": "0.62.0",
-    "PURE_RN_VERSION": "0.59.8",
+    "RN_VERSION": "0.62.2",
+    "PURE_RN_VERSION": "0.62.2",
     "PURE_EXPO_VERSION": "38.0.4"
 }
