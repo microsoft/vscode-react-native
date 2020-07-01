@@ -50,7 +50,7 @@ export class SmokeTestsConstants {
     // Log string in case of Expo launch failed
     public static ExpoFailurePattern = "XDLError";
     // Log string in case of Metro Packager has started
-    public static PackagerStartedPattern = "XDLError";
+    public static PackagerStartedPattern = "Packager started";
     // File name where logs from React Native output channel will be saved
     public static ReactNativeLogFileName = "ReactNative.txt";
     // File name where logs from React Native: Run exponent output channel will be saved
