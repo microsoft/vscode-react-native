@@ -181,7 +181,7 @@ export async function waitForRunningPackager(filePath: string) {
     let retry = 1;
     return new Promise<void>((resolve, reject) => {
         let check = setInterval(async () => {
-            let packagerStarted = findStringInFile(filePath, SmokeTestsConstants.ExpoSuccessPattern);
+            let packagerStarted = findStringInFile(filePath, SmokeTestsConstants.PackagerStartedPattern);
             console.log(`Searching for Packager started logging pattern for ${retry} time...`);
             if (packagerStarted) {
                 clearInterval(check);
@@ -190,9 +190,9 @@ export async function waitForRunningPackager(filePath: string) {
             } else {
                 retry++;
                 if (retry > awaitRetries) {
-                    console.log(`Packager started logging pattern is not found after ${retry} retries:`);
+                    console.log(`Packager started logging pattern is not found after ${retry} retries`);
                     clearInterval(check);
-                    reject(`Packager started logging pattern is not found after ${retry} retries:`);
+                    reject(`Packager started logging pattern is not found after ${retry} retries`);
                 }
             }
         }, 5000);
