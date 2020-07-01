@@ -86,6 +86,9 @@ export function setup(testParameters?: TestRunArguments) {
                 assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
             }
             await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
+            // We stop and start Pure Expo debug scenario again, since we faced Metro cache processing problem on
+            // Expo SDK 38. The debug scenario works fine only on the second and further launches of the packager.
+            // As soon as this problem is fixed, this condition won't be needed.
             if (isPureExpo) {
                 await waitForRunningPackager(logFilePath);
                 await app.workbench.debug.stopDebugging();

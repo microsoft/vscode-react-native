@@ -177,7 +177,7 @@ export interface ExpoLaunch {
 }
 
 export async function waitForRunningPackager(filePath: string) {
-    let awaitRetries: number = 3;
+    let awaitRetries: number = 5;
     let retry = 1;
     return new Promise<void>((resolve, reject) => {
         let check = setInterval(async () => {
@@ -189,7 +189,7 @@ export async function waitForRunningPackager(filePath: string) {
                 resolve();
             } else {
                 retry++;
-                if (retry > awaitRetries) {
+                if (retry >= awaitRetries) {
                     console.log(`Packager started logging pattern is not found after ${retry} retries`);
                     clearInterval(check);
                     reject(`Packager started logging pattern is not found after ${retry} retries`);
