@@ -747,7 +747,7 @@
 		"through2": "^2.0.1",
 		"typescript": "^3.9.5",
 		"vsce": "^1.74.0",
-		"vscode-nls-dev": "^3.3.1",
+		"vscode-nls-dev": "^3.3.2",
 		"vscode-test": "^1.3.0"
 	},
 	"extensionDependencies": [
