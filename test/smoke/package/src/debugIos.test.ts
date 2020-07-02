@@ -17,7 +17,7 @@ const RNDebugConfigName = "Debug iOS";
 const ExpoDebugConfigName = "Debug in Exponent";
 const ExpoLanDebugConfigName = "Debug in Exponent (LAN)";
 const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
-const STOP_PACKAGER_COMMAND = "React Native: Stop Packager";
+const STOP_PACKAGER_COMMAND = "React Native (Preview): Stop Packager";
 
 const RNSetBreakpointOnLine = 1;
 const ExpoSetBreakpointOnLine = 1;
