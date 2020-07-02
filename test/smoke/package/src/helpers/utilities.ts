@@ -176,6 +176,29 @@ export interface ExpoLaunch {
     failed: boolean;
 }
 
+export async function waitForRunningPackager(filePath: string) {
+    let awaitRetries: number = 5;
+    let retry = 1;
+    return new Promise<void>((resolve, reject) => {
+        let check = setInterval(async () => {
+            let packagerStarted = findStringInFile(filePath, SmokeTestsConstants.PackagerStartedPattern);
+            console.log(`Searching for Packager started logging pattern for ${retry} time...`);
+            if (packagerStarted) {
+                clearInterval(check);
+                console.log(`Packager started pattern is found`);
+                resolve();
+            } else {
+                retry++;
+                if (retry >= awaitRetries) {
+                    console.log(`Packager started logging pattern is not found after ${retry} retries`);
+                    clearInterval(check);
+                    reject(`Packager started logging pattern is not found after ${retry} retries`);
+                }
+            }
+        }, 5000);
+    });
+}
+
 export async function findExpoSuccessAndFailurePatterns(filePath: string, successPattern: string, failurePattern: string): Promise<ExpoLaunch> {
     let awaitRetries: number = SmokeTestsConstants.expoAppLaunchTimeout / 5000;
     let retry = 1;
