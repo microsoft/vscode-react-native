@@ -116,7 +116,7 @@ if (process.platform === "win32") {
 export const RNworkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNAppName);
 const RNworkspaceFilePath = path.join(RNworkspacePath, SmokeTestsConstants.AppjsFileName);
 export const ExpoWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.ExpoAppName);
-const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.AppjsFileName);
+const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.ApptsxFileName);
 export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.pureRNExpoApp);
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
 

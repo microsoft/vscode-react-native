@@ -28,7 +28,7 @@ Tests are running using [VS Code automation package](https://github.com/microsof
    * **Mac**:
     ```bash
     brew tap caskroom/versions
-    brew cask install java8
+    brew cask install adoptopenjdk/openjdk/adoptopenjdk8
     brew cask install android-studio
     brew install git
     brew install watchman
