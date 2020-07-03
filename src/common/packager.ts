@@ -60,8 +60,8 @@ export class Packager {
         this.expoHelper = expoHelper;
     }
 
-    public getExponentHelper(): ExponentHelper{
-        if (!this.expoHelper){
+    public getExponentHelper(): ExponentHelper {
+        if (!this.expoHelper) {
             this.expoHelper = new ExponentHelper(this.workspacePath, this.projectPath);
         }
         return this.expoHelper;
