@@ -69,7 +69,7 @@ export class SetupEnvironmentHelper {
         console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
-        const customEntryPointFile = path.join(resourcesPath, "ExpoSample", "App.js");
+        const customEntryPointFile = path.join(resourcesPath, "ExpoSample", "App.tsx");
         const launchConfigFile = path.join(resourcesPath, "launch.json");
         const vsCodeConfigPath = path.join(workspacePath, ".vscode");
 

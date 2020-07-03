@@ -120,6 +120,10 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 args.sourceMaps = true;
             }
 
+            if (typeof args.enableDebug !== "boolean") {
+                args.enableDebug = true;
+            }
+
             const projectRootPath = getProjectRoot(args);
             return ReactNativeProjectHelper.isReactNativeProject(projectRootPath)
                 .then((result) => {
@@ -151,6 +155,8 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 logger.warn(localize("CouldNotStopMonitoringLogcat", "Couldn't stop monitoring logcat: {0}", err.message || err));
             }
         }
+
+        await logger.dispose();
 
         DebugSessionBase.rootSessionTerminatedEventEmitter.fire({
             debugSession: this.session,
