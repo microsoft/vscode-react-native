@@ -91,6 +91,7 @@ export function setup(testParameters?: TestRunArguments) {
             // As soon as this problem is fixed, this condition won't be needed.
             if (isPureExpo) {
                 await waitForRunningPackager(logFilePath);
+                await sleep(2 * 1000);
                 await app.workbench.debug.stopDebugging();
                 await app.workbench.quickaccess.runCommand(STOP_PACKAGER_COMMAND);
                 await sleep(2 * 1000);
