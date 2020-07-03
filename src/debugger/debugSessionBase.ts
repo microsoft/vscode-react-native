@@ -156,6 +156,8 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             }
         }
 
+        await logger.dispose();
+
         DebugSessionBase.rootSessionTerminatedEventEmitter.fire({
             debugSession: this.session,
             args: {
