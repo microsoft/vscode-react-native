@@ -62,6 +62,7 @@ export class AppLauncher {
         this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
         const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
         this.packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(workspaceFolder.uri.fsPath), packagerStatusIndicator);
+        this.packager.setExponentHelper(this.exponentHelper);
         this.reactDirManager = reactDirManager;
         this.workspaceFolder = workspaceFolder;
         this.rnCdpProxy = new ReactNativeCDPProxy(
