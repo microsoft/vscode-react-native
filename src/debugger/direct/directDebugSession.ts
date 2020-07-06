@@ -50,21 +50,23 @@ export class DirectDebugSession extends DebugSessionBase {
                         if (launchArgs.platform === "windows") {
                             extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                         }
-                        return TelemetryHelper.generate("launch", extProps, (generator) => {
-                            return this.appLauncher.launch(launchArgs)
-                                .then(() => {
-                                    return this.appLauncher.getPackagerPort(launchArgs.cwd);
-                                })
-                                .then((packagerPort: number) => {
-                                    launchArgs.port = launchArgs.port || packagerPort;
-                                    this.attachRequest(response, launchArgs).then(() => {
-                                        resolve();
+                        return new Promise(() => {
+                            return TelemetryHelper.generate("launch", extProps, (generator) => {
+                                return this.appLauncher.launch(launchArgs)
+                                    .then(() => {
+                                        return this.appLauncher.getPackagerPort(launchArgs.cwd);
+                                    })
+                                    .then((packagerPort: number) => {
+                                        launchArgs.port = launchArgs.port || packagerPort;
+                                        this.attachRequest(response, launchArgs).then(() => {
+                                            resolve();
+                                        }).catch((e) => reject(e));
                                     }).catch((e) => reject(e));
-                                }).catch((e) => reject(e));
-                        })
-                        .catch((err) => {
-                            logger.error("An error occurred while launching the application. " + err.message || err);
-                            reject(err);
+                            })
+                            .catch((err) => {
+                                logger.error("An error occurred while launching the application. " + err.message || err);
+                                reject(err);
+                            });
                         });
                     });
         }))
@@ -91,29 +93,31 @@ export class DirectDebugSession extends DebugSessionBase {
                 logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null , 2)}`);
                 return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, true)
                     .then(versions => {
-                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                        if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
-                            extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
-                        }
-                        return TelemetryHelper.generate("attach", extProps, (generator) => {
-                            attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
-                            logger.log(`Connecting to ${attachArgs.port} port`);
-                            return this.appLauncher.getRnCdpProxy().stopServer()
-                                .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel))
-                                .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(
-                                    `http://localhost:${attachArgs.port}`,
-                                    90,
-                                    this.cancellationTokenSource.token
-                                ))
-                                .then((browserInspectUri) => {
-                                    this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
-                                    this.establishDebugSession(attachArgs, resolve);
-                                })
-                                .catch(e => reject(e));
-                        })
-                        .catch((err) => {
-                            logger.error("An error occurred while attaching to the debugger. " + err.message || err);
-                            reject(err);
+                        return new Promise(() => {
+                            extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
+                            if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
+                                extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
+                            }
+                            return TelemetryHelper.generate("attach", extProps, (generator) => {
+                                attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
+                                logger.log(`Connecting to ${attachArgs.port} port`);
+                                return this.appLauncher.getRnCdpProxy().stopServer()
+                                    .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel))
+                                    .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(
+                                        `http://localhost:${attachArgs.port}`,
+                                        90,
+                                        this.cancellationTokenSource.token
+                                    ))
+                                    .then((browserInspectUri) => {
+                                        this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
+                                        this.establishDebugSession(attachArgs, resolve);
+                                    })
+                                    .catch(e => reject(e));
+                            })
+                            .catch((err) => {
+                                logger.error("An error occurred while attaching to the debugger. " + err.message || err);
+                                reject(err);
+                            });
                         });
                     });
         }))

@@ -6,7 +6,7 @@ import * as Q from "q";
 /**
  * Utilities for working with promises.
  */
-export class PromiseUtil {
+export class PromiseUtilNode {
     public forEach<T>(sourcesMaybePromise: Q.Promise<T[]> | T[], promiseGenerator: (source: T) => Q.Promise<void>): Q.Promise<void> {
         const sourcesPromise = <Q.Promise<T[]>>Q(sourcesMaybePromise);
         return Q(sourcesPromise).then(sources => {

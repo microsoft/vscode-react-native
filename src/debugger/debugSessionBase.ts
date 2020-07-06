@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import * as Q from "q";
 import * as path from "path";
 import * as fs from "fs";
 import stripJsonComments = require("strip-json-comments");
@@ -100,7 +99,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
 
     protected abstract establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;
 
-    protected initializeSettings(args: any): Q.Promise<any> {
+    protected initializeSettings(args: any): Promise<any> {
         if (!this.isSettingsInitialized) {
             let chromeDebugCoreLogs = getLoggingDirectory();
             if (chromeDebugCoreLogs) {
@@ -133,7 +132,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                     return void 0;
                 });
         } else {
-            return Q.resolve<void>(void 0);
+            return Promise.resolve<void>(void 0);
         }
     }
 

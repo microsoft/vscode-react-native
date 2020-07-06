@@ -40,26 +40,26 @@ export class GeneralMobilePlatform {
         this.runArguments = this.getRunArguments();
     }
 
-    public runApp(): Promise<void> | Q.Promise<void> {
+    public runApp(): Promise<void> {
         this.logger.info(localize("ConnectedToPackager", "Connected to packager. You can now open your app in the simulator."));
         return Promise.resolve<void>(void 0);
     }
 
-    public enableJSDebuggingMode(): Promise<void> | Q.Promise<void> {
+    public enableJSDebuggingMode(): Promise<void> {
         this.logger.info(localize("DebuggerReadyEnableRemoteDebuggingInApp", "Debugger ready. Enable remote debugging in app."));
         return Promise.resolve<void>(void 0);
     }
 
-    public disableJSDebuggingMode(): Promise<void> | Q.Promise<void> {
+    public disableJSDebuggingMode(): Promise<void> {
         this.logger.info(localize("DebuggerReadyDisableRemoteDebuggingInApp", "Debugger ready. Disable remote debugging in app."));
         return Promise.resolve<void>(void 0);
     }
 
-    public beforeStartPackager(): Promise<void> | Q.Promise<void> {
+    public beforeStartPackager(): Promise<void> {
         return Promise.resolve<void>(void 0);
     }
 
-    public startPackager(): Promise<void> | Q.Promise<void>{
+    public startPackager(): Promise<void> {
         this.logger.info(localize("StartingReactNativePackager", "Starting React Native Packager."));
         return this.packager.isRunning()
         .then((running) => {
@@ -77,7 +77,7 @@ export class GeneralMobilePlatform {
         });
     }
 
-    public prewarmBundleCache(): Promise<void> | Q.Promise<void> {
+    public prewarmBundleCache(): Promise<void> {
         // generalMobilePlatform should do nothing here. Method should be overriden by children for specific behavior.
         return Promise.resolve<void>(void 0);
     }
