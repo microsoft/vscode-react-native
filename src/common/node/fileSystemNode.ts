@@ -48,13 +48,8 @@ export class FileSystemNode {
     /**
      *  Helper function to check if a file or directory exists
      */
-    public existsSync(filename: string) {
-        try {
-            this.fs.statSync(filename);
-            return true;
-        } catch (error) {
-            return false;
-        }
+    public existsSync(filename: string): boolean {
+            return this.fs.existsSync(filename);
     }
 
     /**
@@ -142,27 +137,22 @@ export class FileSystemNode {
         return this.fs.promises.rmdir(dirPath);
     }
 
-    public removePathRecursivelyAsync(p: string): Promise<void> {
-        return this.exists(p).then(exists => {
-            if (exists) {
-                return this.stat(p)
-                    .then((stats: nodeFs.Stats) => {
-                    if (stats.isDirectory()) {
-                        return this.readDir(p)
-                            .then((childPaths: string[]) => {
-                                childPaths.forEach(childPath => {
-                                    return new Promise(() => this.removePathRecursivelyAsync(path.join(p, childPath)));
-                                });
-                        }).then(() =>
-                            this.rmdir(p));
-                         } else {
-                        /* file */
-                        return this.unlink(p);
-                    }
-                });
-            }
-            return Promise.resolve();
-        });
+    public async removePathRecursivelyAsync(p: string): Promise<void> {
+        const exists = await this.exists(p);
+        if (exists) {
+            const stats = await this.stat(p);
+                if (stats.isDirectory()) {
+                    const childPaths = await this.readDir(p);
+                        childPaths.forEach(childPath => {
+                            return new Promise(() => this.removePathRecursivelyAsync(path.join(p, childPath)));
+                        });
+                        this.rmdir(p);
+                } else {
+                    /* file */
+                    return this.unlink(p);
+                }
+        }
+        return Promise.resolve();
     }
 
     public removePathRecursivelySync(p: string): void {

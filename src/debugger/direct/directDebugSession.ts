@@ -46,31 +46,6 @@ export class DirectDebugSession extends DebugSessionBase {
             .then(() => {
                 logger.log("Launching the application");
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null , 2)}`);
-<<<<<<< HEAD
-                return ProjectVersionHelper.getReactNativeVersions(launchArgs.cwd, launchArgs.platform === "windows")
-                    .then(versions => {
-                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                        if (launchArgs.platform === "windows") {
-                            extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
-                        }
-                        return new Promise(() => {
-                            return TelemetryHelper.generate("launch", extProps, (generator) => {
-                                return this.appLauncher.launch(launchArgs)
-                                    .then(() => {
-                                        return this.appLauncher.getPackagerPort(launchArgs.cwd);
-                                    })
-                                    .then((packagerPort: number) => {
-                                        launchArgs.port = launchArgs.port || packagerPort;
-                                        this.attachRequest(response, launchArgs).then(() => {
-                                            resolve();
-                                        }).catch((e) => reject(e));
-                                    }).catch((e) => reject(e));
-                            })
-                            .catch((err) => {
-                                logger.error("An error occurred while launching the application. " + err.message || err);
-                                reject(err);
-                            });
-=======
                 return ProjectVersionHelper.getReactNativeVersions(launchArgs.cwd, launchArgs.platform === "windows");
             })
             .then(versions => {
@@ -90,7 +65,6 @@ export class DirectDebugSession extends DebugSessionBase {
                                 this.sendResponse(response);
                                 resolve();
                             }
->>>>>>> q-package-removal
                         });
                 });
             })

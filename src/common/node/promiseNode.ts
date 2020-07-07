@@ -31,10 +31,6 @@ export class PromiseUtilNode {
         return this.retryAsyncIteration(operation, condition, maxRetries, 0, delay, failure);
     }
 
-    public retryAsyncPromise<T>(operation: () => Promise<T>, condition: (result: T) => boolean | Promise<boolean>, maxRetries: number, delay: number, failure: string): Promise<T> {
-        return this.retryAsyncIterationRawPromise(operation, condition, maxRetries, 0, delay, failure);
-    }
-
     public reduce<T>(sources: T[]|Q.Promise<T[]>, generateAsyncOperation: (value: T) => Q.Promise<void>): Q.Promise<void> {
         const promisedSources = <Q.Promise<T[]>>Q(sources);
         return promisedSources.then(resolvedSources => {
@@ -61,23 +57,6 @@ export class PromiseUtilNode {
 
                     if (iteration < maxRetries) {
                         return this.delay(delay).then(() => this.retryAsyncIteration(operation, condition, maxRetries, iteration + 1, delay, failure));
-                    }
-
-                    throw new Error(failure);
-                }));
-            });
-    }
-
-    private retryAsyncIterationRawPromise<T>(operation: () => Promise<T>, condition: (result: T) => boolean | Promise<boolean>, maxRetries: number, iteration: number, delay: number, failure: string): Promise<T> {
-        return operation()
-            .then(result => {
-                return Promise.resolve(result).then(condition).then((conditionResult => {
-                    if (conditionResult) {
-                        return result;
-                    }
-
-                    if (iteration < maxRetries) {
-                        return this.delay(delay).then(() => this.retryAsyncIterationRawPromise(operation, condition, maxRetries, iteration + 1, delay, failure));
                     }
 
                     throw new Error(failure);

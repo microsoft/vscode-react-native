@@ -40,7 +40,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.expoHostType, "expoHostType", extProps);
 
-        return new Promise(() => {
+        return new Promise((resolve, reject) => {
                 TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
                 return this.loginToExponentOrSkip(this.runOptions.expoHostType)
                     .then(() =>
@@ -83,9 +83,6 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     .then(exponentUrl => {
                         return "exp://" + url.parse(exponentUrl).host;
                     })
-                    .catch(reason => {
-                        return Promise.reject<string>(reason);
-                    })
                     .then(exponentUrl => {
                         let exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, { });
                         exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(vscode.Uri.parse(exponentUrl));
@@ -93,13 +90,16 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                     })
                     .then(exponentUrl => {
                         if (!exponentUrl) {
-                            return Promise.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath));
+                            return reject(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath));
                         }
                         this.exponentTunnelPath = exponentUrl;
                         const outputMessage = localize("ApplicationIsRunningOnExponentOpenToSeeIt", "Application is running on Expo. Open your Expo app at {0} to see it.", this.exponentTunnelPath);
                         this.logger.info(outputMessage);
 
-                        return Promise.resolve();
+                        return resolve();
+                    })
+                    .catch(reason => {
+                        return reject(reason);
                     });
             });
         });
