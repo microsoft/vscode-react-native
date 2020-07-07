@@ -54,7 +54,17 @@ export class Packager {
     constructor(private workspacePath: string, private projectPath: string, private packagerPort?: number, packagerStatusIndicator?: PackagerStatusIndicator) {
         this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
         this.packagerStatusIndicator = packagerStatusIndicator || new PackagerStatusIndicator();
-        this.expoHelper = new ExponentHelper(this.workspacePath, this.projectPath);
+    }
+
+    public setExponentHelper(expoHelper: ExponentHelper) {
+        this.expoHelper = expoHelper;
+    }
+
+    public getExponentHelper(): ExponentHelper {
+        if (!this.expoHelper) {
+            this.expoHelper = new ExponentHelper(this.workspacePath, this.projectPath);
+        }
+        return this.expoHelper;
     }
 
     public getPort(): number {
@@ -91,7 +101,7 @@ export class Packager {
             args = args.concat("--resetCache");
         }
 
-        return this.expoHelper.isExpoApp(false)
+        return this.getExponentHelper().isExpoApp(false)
         .then((isExpo) => {
             if (!isExpo) {
                 return args;
@@ -102,7 +112,7 @@ export class Packager {
                 args.push("--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode")));
             }
 
-            return this.expoHelper.getExpPackagerOptions()
+            return this.getExponentHelper().getExpPackagerOptions()
             .then((options: ExpConfigPackager) => {
                 Object.keys(options).forEach(key => {
                     args = args.concat([`--${key}`, options[key]]);
