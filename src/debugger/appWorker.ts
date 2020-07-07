@@ -9,12 +9,13 @@ import { ensurePackagerRunning } from "../common/packagerStatus";
 import {ErrorHelper} from "../common/error/errorHelper";
 import { logger } from "vscode-debugadapter";
 import {ExecutionsLimiter} from "../common/executionsLimiter";
-import { FileSystem as NodeFileSystem} from "../common/node/fileSystem";
+import { FileSystemNode } from "../common/node/fileSystemNode";
 import { ForkedAppWorker } from "./forkedAppWorker";
 import { ScriptImporter } from "./scriptImporter";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import * as nls from "vscode-nls";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { PromiseUtilNode } from "../common/node/promiseNode";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -211,7 +212,7 @@ function fetch(url) {
     private webSocketConstructor: (url: string) => WebSocket;
 
     private executionLimiter = new ExecutionsLimiter();
-    private nodeFileSystem = new NodeFileSystem();
+    private nodeFileSystem = new FileSystemNode();
     private scriptImporter: ScriptImporter;
 
     constructor(
@@ -235,13 +236,13 @@ function fetch(url) {
         this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
     }
 
-    public start(retryAttempt: boolean = false): Q.Promise<any> {
+    public start(retryAttempt: boolean = false): Promise<any> {
         const errPackagerNotRunning = ErrorHelper.getInternalError(InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort, this.packagerPort);
 
         return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
             .then(() => {
                 // Don't fetch debugger worker on socket disconnect
-                return retryAttempt ? Q.resolve<void>(void 0) :
+                return retryAttempt ? Promise.resolve<void>(void 0) :
                     this.downloadAndPatchDebuggerWorker();
             })
             .then(() => this.createSocketToApp(retryAttempt));
@@ -258,7 +259,7 @@ function fetch(url) {
         }
     }
 
-    public downloadAndPatchDebuggerWorker(): Q.Promise<void> {
+    public downloadAndPatchDebuggerWorker(): Promise<void> {
         let scriptToRunPath = path.resolve(this.sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
         return this.scriptImporter.downloadDebuggerWorker(this.sourcesStoragePath, this.projectRootPath, this.debuggerWorkerUrlPath)
             .then(() => this.nodeFileSystem.readFile(scriptToRunPath, "utf8"))
@@ -307,45 +308,45 @@ function fetch(url) {
             });
     }
 
-    private createSocketToApp(retryAttempt: boolean = false): Q.Promise<void> {
-        let deferred = Q.defer<void>();
-        this.socketToApp = this.webSocketConstructor(this.debuggerProxyUrl());
-        this.socketToApp.on("open", () => {
-            this.onSocketOpened();
-        });
-        this.socketToApp.on("close",
-            () => {
-                this.executionLimiter.execute("onSocketClose.msg", /*limitInSeconds*/ 10, () => {
-                    /*
-                     * It is not the best idea to compare with the message, but this is the only thing React Native gives that is unique when
-                     * it closes the socket because it already has a connection to a debugger.
-                     * https://github.com/facebook/react-native/blob/588f01e9982775f0699c7bfd56623d4ed3949810/local-cli/server/util/webSocketProxy.js#L38
-                     */
-                    let msgKey = "_closeMessage";
-                    if (this.socketToApp[msgKey] === "Another debugger is already connected") {
-                        deferred.reject(ErrorHelper.getInternalError(InternalErrorCode.AnotherDebuggerConnectedToPackager));
-                    }
-                    logger.log(localize("DisconnectedFromThePackagerToReactNative", "Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon..."));
+    private createSocketToApp(retryAttempt: boolean = false): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.socketToApp = this.webSocketConstructor(this.debuggerProxyUrl());
+            this.socketToApp.on("open", () => {
+                this.onSocketOpened();
+            });
+            this.socketToApp.on("close",
+                () => {
+                    this.executionLimiter.execute("onSocketClose.msg", /*limitInSeconds*/ 10, () => {
+                        /*
+                         * It is not the best idea to compare with the message, but this is the only thing React Native gives that is unique when
+                         * it closes the socket because it already has a connection to a debugger.
+                         * https://github.com/facebook/react-native/blob/588f01e9982775f0699c7bfd56623d4ed3949810/local-cli/server/util/webSocketProxy.js#L38
+                         */
+                        let msgKey = "_closeMessage";
+                        if (this.socketToApp[msgKey] === "Another debugger is already connected") {
+                            reject(ErrorHelper.getInternalError(InternalErrorCode.AnotherDebuggerConnectedToPackager));
+                        }
+                        logger.log(localize("DisconnectedFromThePackagerToReactNative", "Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon..."));
+                    });
+                    setTimeout(() => {
+                      this.start(true /* retryAttempt */);
+                    }, 100);
                 });
-                setTimeout(() => {
-                  this.start(true /* retryAttempt */);
-                }, 100);
-            });
-        this.socketToApp.on("message",
-            (message: any) => this.onMessage(message));
-        this.socketToApp.on("error",
-            (error: Error) => {
-                if (retryAttempt) {
-                    printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.ReconnectionToPackagerFailedCheckForErrorsOrRestartReactNative), error);
-                }
+            this.socketToApp.on("message",
+                (message: any) => this.onMessage(message));
+            this.socketToApp.on("error",
+                (error: Error) => {
+                    if (retryAttempt) {
+                        printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.ReconnectionToPackagerFailedCheckForErrorsOrRestartReactNative), error);
+                    }
 
-                deferred.reject(error);
-            });
+                    reject(error);
+                });
 
-        // In an attempt to catch failures in starting the packager on first attempt,
-        // wait for 300 ms before resolving the promise
-        Q.delay(300).done(() => deferred.resolve(void 0));
-        return deferred.promise;
+            // In an attempt to catch failures in starting the packager on first attempt,
+            // wait for 300 ms before resolving the promise
+            new PromiseUtilNode().delay(300).then(() => resolve(void 0));
+        });
     }
 
     private debuggerProxyUrl() {

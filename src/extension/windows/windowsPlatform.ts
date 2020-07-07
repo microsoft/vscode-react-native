@@ -60,7 +60,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         });
     }
 
-    public prewarmBundleCache(): Q.Promise<void> {
+    public prewarmBundleCache(): Promise<void> {
         return this.packager.prewarmBundleCache("windows");
     }
 

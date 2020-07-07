@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
 import {ProjectVersionHelper} from "./projectVersionHelper";
@@ -17,9 +16,9 @@ export class ReactNativeProjectHelper {
      * Ensures that we are in a React Native project
      * Otherwise, displays an error message banner
      */
-    public static isReactNativeProject(projectRoot: string): Q.Promise<boolean> {
+    public static isReactNativeProject(projectRoot: string): Promise<boolean> {
         if (!projectRoot || !fs.existsSync(path.join(projectRoot, "package.json"))) {
-            return Q<boolean>(false);
+            return Promise.resolve(false);
         }
         return ProjectVersionHelper.getReactNativeVersions(projectRoot)
             .then(versions => {
