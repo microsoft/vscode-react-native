@@ -143,10 +143,10 @@ export class FileSystemNode {
             const stats = await this.stat(p);
                 if (stats.isDirectory()) {
                     const childPaths = await this.readDir(p);
-                        childPaths.forEach(childPath => {
-                            return new Promise(() => this.removePathRecursivelyAsync(path.join(p, childPath)));
-                        });
-                        this.rmdir(p);
+                    childPaths.forEach(childPath => {
+                        return new Promise(() => this.removePathRecursivelyAsync(path.join(p, childPath)));
+                    });
+                    this.rmdir(p);
                 } else {
                     /* file */
                     return this.unlink(p);
