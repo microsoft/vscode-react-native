@@ -252,7 +252,11 @@ module.exports.cacheStores = [
 ];
 
 // Redirect Haste Map cache
-module.exports.hasteMapCacheDirectory = ".cache";`;
+module.exports.hasteMapCacheDirectory = ".cache";
+
+// Due to the fact that Metro bundler on MacOS has problems with scanning files and folders starting with a dot (hidden folders), for example './vscode',
+// the first time when the packager starts, it cannot find the './vscode/exponentIndex.js' file. So we add this folder to scanning manually.
+module.exports.watchFolders = ['.vscode'];`;
         fs.appendFileSync(metroConfigPath, patchContent);
         const contentAfterPatching = fs.readFileSync(metroConfigPath);
         console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
