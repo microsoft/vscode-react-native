@@ -19,12 +19,12 @@ export enum PackagerStatus {
 export class PackagerStatusIndicator implements Disposable {
     private togglePackagerItem: StatusBarItem;
     private restartPackagerItem: StatusBarItem;
-    private static PACKAGER_NAME: string = localize("ReactNativePackager", "RN Packager");
+    private static PACKAGER_LABEL: string = `$(package) ${localize("ReactNativePackager", "RN Packager")}`;
 
-    private static START_ICON = `${PackagerStatusIndicator.PACKAGER_NAME} $(triangle-right)`;
-    private static STOP_ICON = `${PackagerStatusIndicator.PACKAGER_NAME} $(primitive-square)`;
+    private static START_ICON = `${PackagerStatusIndicator.PACKAGER_LABEL} $(triangle-right)`;
+    private static STOP_ICON = `${PackagerStatusIndicator.PACKAGER_LABEL} $(primitive-square)`;
     private static RESTART_ICON = "$(sync)";
-    private static ACTIVITY_ICON = `${PackagerStatusIndicator.PACKAGER_NAME} $(watch)`;
+    private static ACTIVITY_ICON = `${PackagerStatusIndicator.PACKAGER_LABEL} $(watch)`;
 
     private static START_COMMAND = "reactNative.startPackager";
     private static STOP_COMMAND = "reactNative.stopPackager";
