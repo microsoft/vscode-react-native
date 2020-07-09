@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "El usuario ha cancelado el inicio de sesión.",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "No se puede asociar al empaquetador. ¿Seguro que hay un empaquetador y que se está ejecutando en el puerto {0}? Si el empaquetador está configurado para ejecutarse en otro puerto, asegúrese de agregarlo a settings.json.",
 	"AnotherDebuggerConnectedToPackager": "Ya hay otro depurador conectado al empaquetador. Ciérrelo antes de intentar depurar con VSCode.",
-	"NotInReactNativeFolderError": "Parece que está intentando depurar desde un directorio que no es raíz del proyecto de React Native. \n En ese caso, siga estas instrucciones: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
+	"NotInReactNativeFolderError": "Parece que está intentando depurar desde un directorio que no es raíz del proyecto de React Native. \n En ese caso, siga estas instrucciones: https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
 	"SourcesStoragePathIsNullOrEmpty": "El argumento sourcesStoragePath era nulo o estaba vacío.",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "No se pudo instalar la aplicación en ningún dispositivo disponible. Asegúrese de tener un emulador o un dispositivo \n configurado correctamente en ejecución. Consulte https://facebook.github.io/react-native/docs/android-setup.html.",
 	"AndroidShellCommandTimedOut": "Se agotó el tiempo de espera de un comando shell de Android. Reintente la operación.",

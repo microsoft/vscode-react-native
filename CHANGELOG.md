@@ -122,17 +122,17 @@
 * Fixed `Show Dev Menu` and `Reload App` Command Pallette commands for iOS ([#978](https://github.com/microsoft/vscode-react-native/issues/978))
 * Fixed debugging functionality on Node.js 12 due to deprecating of Node cli argument `--debug-brk` ([#1000](https://github.com/microsoft/vscode-react-native/issues/1000))
 * Fixed scheme configuration variable handling for iOS native apps, added instruction for using `scheme` variable ([#989](https://github.com/microsoft/vscode-react-native/issues/989))
-* Added debug configuration setup instruction[(#986)](https://github.com/Microsoft/vscode-react-native/pull/986), thanks to [Peadar Coyle(@springcoil)](https://github.com/springcoil)
+* Added debug configuration setup instruction[(#986)](https://github.com/microsoft/vscode-react-native/pull/986), thanks to [Peadar Coyle(@springcoil)](https://github.com/springcoil)
 * Changed extension publisher from `vsmobile` to `msjsdiag`
 
 ## 0.9.2
-* Fixed issue when using `console.trace()` caused error on native app [#974](https://github.com/Microsoft/vscode-react-native/issues/974)
+* Fixed issue when using `console.trace()` caused error on native app [#974](https://github.com/microsoft/vscode-react-native/issues/974)
 * Fixed [tar security vulnerabilities](https://www.npmjs.com/advisories/803)
 * Fixed logging for `attach` event
 * Updated documentation
 
 ## 0.9.1
-* Added debugger configuration parameter `debuggerWorkerUrlPath` that provides the ability to change path to the React Native `debuggerWorker.js` file [#947](https://github.com/Microsoft/vscode-react-native/issues/947)
+* Added debugger configuration parameter `debuggerWorkerUrlPath` that provides the ability to change path to the React Native `debuggerWorker.js` file [#947](https://github.com/microsoft/vscode-react-native/issues/947)
 * Fixed [js-yaml security vulnerability](https://www.npmjs.com/advisories/788)
 * Bumped debug core dependencies versions to the more recent ones
 * Fixed wording for "Run Android on Emulator" command, thanks to [Frieder Bluemle(@friederbluemle)](https://github.com/friederbluemle)
@@ -148,8 +148,8 @@
 * Improved extension security
 * Improved error logging
 * Improved Expo login workflow
-* Added warning if RN application is being ran using `Debug In Exponent` configuration and `expo` package is not installed [#882](https://github.com/Microsoft/vscode-react-native/issues/882)
-* Fixed debugger url problem for haul projects [#875](https://github.com/Microsoft/vscode-react-native/issues/875)
+* Added warning if RN application is being ran using `Debug In Exponent` configuration and `expo` package is not installed [#882](https://github.com/microsoft/vscode-react-native/issues/882)
+* Fixed debugger url problem for haul projects [#875](https://github.com/microsoft/vscode-react-native/issues/875)
 * Added localization for next languages:
     * Chinese Simplified
     * Chinese Traditional

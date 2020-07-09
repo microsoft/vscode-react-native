@@ -20,7 +20,7 @@
 	"reactNative.attach.program.description": "[DÉPRÉCIÉ. UTILISER cwd À LA PLACE] Chemin de launchReactNative.js dans le dossier vscode",
 	"reactNative.attach.cwd.description": "Chemin au dossier racine du projet",
 	"reactNative.attach.sourceMaps.description": "Utilisation ou non de mappages de sources JavaScript pour mapper le code en bundle généré vers ses sources d'origine",
-	"reactNative.attach.sourceMapsPathOverrides.description": "Ensemble de mappages pour la réécriture des emplacements des fichiers sources à partir des indications du mappage de source vers les emplacements appropriés sur le disque. Pour plus d'informations, consultez https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
+	"reactNative.attach.sourceMapsPathOverrides.description": "Ensemble de mappages pour la réécriture des emplacements des fichiers sources à partir des indications du mappage de source vers les emplacements appropriés sur le disque. Pour plus d'informations, consultez https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
 	"reactNative.attach.trace.description": "Niveau de journalisation dans le processus du débogueur. Peut être utile pour les diagnostics. Si la valeur est \"Trace\", tous les journaux de processus du débogueur seront disponibles dans la fenêtre de sortie 'Console de débogage'.",
 	"reactNative.attach.address.description": "Adresse TCP/IP du packager auquel effectuer l'attachement à des fins de débogage. La valeur par défaut est 'localhost'.",
 	"reactNative.attach.port.description": "Port du packager auquel effectuer l'attachement à des fins de débogage. La valeur par défaut est 8081.",
