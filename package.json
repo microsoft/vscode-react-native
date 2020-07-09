@@ -15,11 +15,11 @@
 		"react-native",
 		"multi-root ready"
 	],
-	"bugs": "https://github.com/Microsoft/vscode-react-native/issues",
+	"bugs": "https://github.com/microsoft/vscode-react-native/issues",
 	"license": "%reactNative.license%",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-react-native"
+		"url": "https://github.com/microsoft/vscode-react-native"
 	},
 	"engines": {
 		"vscode": "^1.40.0"

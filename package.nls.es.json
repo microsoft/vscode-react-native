@@ -20,7 +20,7 @@
 	"reactNative.attach.program.description": "[EN DESUSO. UTILICE cwd EN SU LUGAR] Ruta de acceso a launchReactNative.js en la carpeta vscode.",
 	"reactNative.attach.cwd.description": "Ruta de acceso a la carpeta raíz del proyecto.",
 	"reactNative.attach.sourceMaps.description": "Indica si se deben usar los mapas de origen de JavaScript para reasignar el código integrado ya generado a sus orígenes iniciales.",
-	"reactNative.attach.sourceMapsPathOverrides.description": "Conjunto de asignaciones para reescribir las ubicaciones de los archivos de origen en sus ubicaciones en el disco, a partir de lo que indica el mapa de origen. Consulte https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul para obtener más detalles.",
+	"reactNative.attach.sourceMapsPathOverrides.description": "Conjunto de asignaciones para reescribir las ubicaciones de los archivos de origen en sus ubicaciones en el disco, a partir de lo que indica el mapa de origen. Consulte https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul para obtener más detalles.",
 	"reactNative.attach.trace.description": "Nivel de registro en el proceso del depurador. Puede ser útil para los diagnósticos. Si se establece en \"Seguimiento\", todos los registros del proceso del depurador estarán disponibles en la ventana de salida \"Consola de depuración\".",
 	"reactNative.attach.address.description": "Dirección TCP/IP del empaquetador al que se va a asociar para la depuración. El valor predeterminado es \"localhost\".",
 	"reactNative.attach.port.description": "Puerto del empaquetador al que se va a asociar para la depuración. El valor predeterminado es 8081.",

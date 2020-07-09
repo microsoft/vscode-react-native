@@ -179,7 +179,7 @@ declare module Q {
 
     /**
      * Currently "impossible" (and I use the term loosely) to implement due to TypeScript limitations as it is now.
-     * See: https://github.com/Microsoft/TypeScript/issues/1784 for discussion on it.
+     * See: https://github.com/microsoft/TypeScript/issues/1784 for discussion on it.
      */
     // export function try(method: Function, ...args: any[]): Promise<any>;
 
