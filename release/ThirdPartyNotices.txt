@@ -555,7 +555,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 -------------------------------------------------------------------
 
 applicationinsights 0.15.6 - MIT
-https://github.com/Microsoft/ApplicationInsights-node.js#readme
+https://github.com/microsoft/ApplicationInsights-node.js#readme
 Copyright (c) 2014 Microsoft Corporation
 
 ﻿The MIT License (MIT)
@@ -1591,7 +1591,7 @@ THE SOFTWARE.
 -------------------------------------------------------------------
 
 vscode-debugadapter 1.41.0 - MIT
-https://github.com/Microsoft/vscode-debugadapter-node#readme
+https://github.com/microsoft/vscode-debugadapter-node#readme
 Copyright (c) Microsoft Corporation.
 
 Copyright (c) Microsoft Corporation
@@ -1612,7 +1612,7 @@ THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 -------------------------------------------------------------------
 
 vscode-debugprotocol 1.41.0 - MIT
-https://github.com/Microsoft/vscode-debugadapter-node#readme
+https://github.com/microsoft/vscode-debugadapter-node#readme
 Copyright (c) Microsoft Corporation.
 
 Copyright (c) Microsoft Corporation
@@ -1633,7 +1633,7 @@ THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 -------------------------------------------------------------------
 
 vscode-extension-telemetry 0.0.5 - MIT
-https://github.com/Microsoft/vscode-extension-telemetry#readme
+https://github.com/microsoft/vscode-extension-telemetry#readme
 Copyright (c) Microsoft Corporation.
 
 vscode-extension-telemetry
@@ -1665,7 +1665,7 @@ SOFTWARE.
 -------------------------------------------------------------------
 
 vscode-nls 3.2.2 - MIT
-https://github.com/Microsoft/vscode-nls#readme
+https://github.com/microsoft/vscode-nls#readme
 Copyright (c) Microsoft Corporation.
 
 The MIT License (MIT)
@@ -1692,7 +1692,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 -------------------------------------------------------------------
 
 vscode-nls 4.1.1 - MIT
-https://github.com/Microsoft/vscode-nls#readme
+https://github.com/microsoft/vscode-nls#readme
 Copyright (c) Microsoft Corporation.
 
 The MIT License (MIT)
@@ -1719,7 +1719,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 -------------------------------------------------------------------
 
 vscode-uri 2.1.1 - MIT
-https://github.com/Microsoft/vscode-uri#readme
+https://github.com/microsoft/vscode-uri#readme
 Copyright (c) Microsoft
 Copyright (c) Microsoft Corporation.
 
@@ -1822,7 +1822,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 Additional  -
 
 1.	DefinitelyTyped (https://github.com/DefinitelyTyped/DefinitelyTyped)
-2.	TACO Tools for Apache Cordova (https://github.com/Microsoft/TACO)
+2.	TACO Tools for Apache Cordova (https://github.com/microsoft/TACO)
 3.	React Native command line tools (https://github.com/react-native-community/react-native-cli)
 4.	Expo XDL (https://github.com/expo/expo-cli/tree/master/packages/xdl)
 

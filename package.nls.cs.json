@@ -20,7 +20,7 @@
 	"reactNative.attach.program.description": "[ZASTARALÉ. POUŽIJTE MÍSTO TOHO cwd] Cesta k souboru launchReactNative.js ve složce vscode",
 	"reactNative.attach.cwd.description": "Cesta ke kořenové složce projektu",
 	"reactNative.attach.sourceMaps.description": "Určuje, jestli se mají použít soubory sourcemap JavaScriptu k namapování vygenerovaného balíku kódu zpět na jeho původní zdroje.",
-	"reactNative.attach.sourceMapsPathOverrides.description": "Sada mapování pro přepsání umístění zdrojových souborů z umístění podle souboru sourcemap na jejich umístění na disku. Podrobnosti viz https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
+	"reactNative.attach.sourceMapsPathOverrides.description": "Sada mapování pro přepsání umístění zdrojových souborů z umístění podle souboru sourcemap na jejich umístění na disku. Podrobnosti viz https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
 	"reactNative.attach.trace.description": "Úroveň protokolování v procesu ladicího programu. Může být užitečná při diagnostice. Pokud se nastaví na Trasovat, budou ve výstupním okně Konzola ladění k dispozici všechny protokoly procesu ladicího programu.",
 	"reactNative.attach.address.description": "Adresa TCP/IP nástroje pro sestavování balíčků, který se má připojit pro ladění. Výchozí je localhost.",
 	"reactNative.attach.port.description": "Port nástroje pro sestavování balíčků, který se má připojit pro ladění. Výchozí je 8081.",
