@@ -63,8 +63,8 @@ export class CommandExecutor {
      * {args} - Arguments to be passed to the command
      * {options} - additional options with which the child process needs to be spawned
      */
-    public spawn(command: string, args: string[], options: Options = {}): ISpawnResult {
-        return this.spawnChildProcess(command, args, options);
+    public spawn(command: string, args: string[], options: Options = {}): Promise<any> {
+        return this.spawnChildProcess(command, args, options).outcome;
     }
 
     /**
