@@ -25,7 +25,7 @@
 	"reactNative.attach.program.description": "[已取代。請改用 cwd] vscode 資料夾中的 launchReactNative.js 路徑",
 	"reactNative.attach.cwd.description": "專案根資料夾的路徑",
 	"reactNative.attach.sourceMaps.description": "是否要使用 JavaScript 來源對應，將產生的組合程式碼對應回其原始來源",
-	"reactNative.attach.sourceMapsPathOverrides.description": "一組對應，用於將來源檔案的位置從 sourcemap 指出的位置重寫成磁碟上的位置。如需詳細資料，請參閱 https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
+	"reactNative.attach.sourceMapsPathOverrides.description": "一組對應，用於將來源檔案的位置從 sourcemap 指出的位置重寫成磁碟上的位置。如需詳細資料，請參閱 https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
 	"reactNative.attach.trace.description": "偵錯工具處理序中的記錄層級。可能適用於診斷。如果設定為 [追蹤]，所有偵錯工具處理序記錄都會提供在 [偵錯主控台] 輸出視窗中。",
 	"reactNative.attach.address.description": "要附加以偵錯之目標封裝工具的 TCP/IP 位址。預設為 'localhost'。",
 	"reactNative.attach.port.description": "要附加以偵錯之封裝工具的連接埠。預設值為 8081。",

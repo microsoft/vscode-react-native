@@ -20,7 +20,7 @@
 	"reactNative.attach.program.description": "[Устарело. Используйте cwd] Путь к launchReactNative.js в папке vscode",
 	"reactNative.attach.cwd.description": "Путь к корневой папке проекта",
 	"reactNative.attach.sourceMaps.description": "Следует ли использовать сопоставители с исходным кодом JavaScript, чтобы сопоставить сформированный пакетный код обратно с исходными источниками",
-	"reactNative.attach.sourceMapsPathOverrides.description": "Набор сопоставлений для перезаписи расположений исходных файлов из указанных в сопоставителе с исходным кодом на реальные расположения на диске. Дополнительные сведения: https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul.",
+	"reactNative.attach.sourceMapsPathOverrides.description": "Набор сопоставлений для перезаписи расположений исходных файлов из указанных в сопоставителе с исходным кодом на реальные расположения на диске. Дополнительные сведения: https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul.",
 	"reactNative.attach.trace.description": "Уровень ведения журнала в процессе отладчика. Может быть полезно для диагностики. Если задано значение \"Trace\", все журналы процесса отладчика будут доступны в окне вывода \"Консоль отладки\".",
 	"reactNative.attach.address.description": "Адрес TCP/IP упаковщика, к которому нужно подключиться для отладки. Значение по умолчанию — \"localhost\".",
 	"reactNative.attach.port.description": "Порт упаковщика, к которому нужно подключиться для отладки. Значение по умолчанию — 8081.",

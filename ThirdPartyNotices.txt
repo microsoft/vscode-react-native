@@ -3,8 +3,8 @@ THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
 React Native Tools incorporates third party material from the projects listed below. The original copyright notice and the license under which Microsoft received such third party material are set forth below. Microsoft reserves all other rights not expressly granted, whether by implication, estoppel or otherwise.
 
 1.	DefinitelyTyped (https://github.com/DefinitelyTyped/DefinitelyTyped)
-2.	TACO Tools for Apache Cordova (https://github.com/Microsoft/TACO)
-3.  Visual Studio Code (https://github.com/Microsoft/vscode)
+2.	TACO Tools for Apache Cordova (https://github.com/microsoft/TACO)
+3.  Visual Studio Code (https://github.com/microsoft/vscode)
 
 %% DefinitelyTyped NOTICES, INFORMATION, AND LICENSE BEGIN HERE
 =========================================

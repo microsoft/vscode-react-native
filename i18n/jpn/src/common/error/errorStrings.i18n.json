@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "ユーザーはログインをキャンセルしました。",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "パッケージャーにアタッチできません。パッケージャーは存在しており、ポート {0} で実行されていますか? パッケージャーが別のポートで実行されるように構成されている場合は、必ずそれを settings.json に追加してください。",
 	"AnotherDebuggerConnectedToPackager": "別のデバッガーが既にパッケージャーに接続されています。VSCode でデバッグを試行する前に閉じてください。",
-	"NotInReactNativeFolderError": "React Native のプロジェクト ルートではないディレクトリ内からデバッグしようとしているようです。\n その場合は、次の手順に従ってください: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure。",
+	"NotInReactNativeFolderError": "React Native のプロジェクト ルートではないディレクトリ内からデバッグしようとしているようです。\n その場合は、次の手順に従ってください: https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure。",
 	"SourcesStoragePathIsNullOrEmpty": "sourcesStoragePath 引数が null か空でした",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "利用可能などのデバイスにもアプリをインストールできませんでした。正しく構成された \n デバイスまたはエミュレーターが実行されていることをご確認ください。https://facebook.github.io/react-native/docs/android-setup.html をご覧ください。",
 	"AndroidShellCommandTimedOut": "Android シェル コマンドがタイムアウトになりました。操作をもう一度お試しください。",
