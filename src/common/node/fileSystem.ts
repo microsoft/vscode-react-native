@@ -3,7 +3,6 @@
 
 import * as nodeFs from "fs";
 import * as path from "path";
-import * as Q from "q";
 
 export class FileSystem {
     private fs: typeof nodeFs;
@@ -12,22 +11,22 @@ export class FileSystem {
         this.fs = fs;
     }
 
-    public ensureDirectory(dir: string): Q.Promise<void> {
-        return Q.nfcall(this.fs.stat, dir).then((stat: nodeFs.Stats): void => {
+    public ensureDirectory(dir: string): Promise<void> {
+        return this.stat(dir).then((stat: nodeFs.Stats): void => {
             if (stat.isDirectory()) {
                 return;
             }
             throw new Error(`Expected ${dir} to be a directory`);
-        }, (err: Error & { code?: string }): Q.Promise<any> => {
+        }, (err: Error & { code?: string }): Promise<any> => {
             if (err && err.code === "ENOENT") {
-                return Q.nfcall(this.fs.mkdir, dir);
+                return this.mkDir(dir);
             }
             throw err;
         });
     }
 
-    public ensureFileWithContents(file: string, contents: string): Q.Promise<void> {
-        return Q.nfcall(this.fs.stat, file).then((stat: nodeFs.Stats) => {
+    public ensureFileWithContents(file: string, contents: string): Promise<void> {
+        return this.stat(file).then((stat: nodeFs.Stats) => {
             if (!stat.isFile()) {
                 throw new Error(`Expected ${file} to be a file`);
             }
@@ -36,11 +35,11 @@ export class FileSystem {
                 if (contents !== existingContents) {
                     return this.writeFile(file, contents);
                 }
-                return Q.resolve(void 0);
+                return Promise.resolve(void 0);
             });
-        }, (err: Error & { code?: string }): Q.Promise<any> => {
+        }, (err: Error & { code?: string }): Promise<any> => {
             if (err && err.code === "ENOENT") {
-                return Q.nfcall(this.fs.writeFile, file, contents);
+                return this.writeFile(file, contents);
             }
             throw err;
         });
@@ -49,33 +48,28 @@ export class FileSystem {
     /**
      *  Helper function to check if a file or directory exists
      */
-    public existsSync(filename: string) {
-        try {
-            this.fs.statSync(filename);
-            return true;
-        } catch (error) {
-            return false;
-        }
+    public existsSync(filename: string): boolean {
+            return this.fs.existsSync(filename);
     }
 
     /**
      *  Helper (asynchronous) function to check if a file or directory exists
      */
-    public exists(filename: string): Q.Promise<boolean> {
-        return Q.nfcall(this.fs.stat, filename)
-            .then(function() {
-                return Q.resolve(true);
+    public exists(filename: string): Promise<boolean> {
+        return this.stat(filename)
+            .then(() => {
+                return Promise.resolve(true);
             })
-            .catch(function(err) {
-                return Q.resolve(false);
+            .catch((err) => {
+                return Promise.resolve(false);
             });
     }
 
     /**
      *  Helper async function to read the contents of a directory
      */
-    public readDir(directory: string): Q.Promise<string[]> {
-        return Q.nfcall<string[]>(this.fs.readdir, directory);
+    public readDir(directory: string): Promise<string[]> {
+        return this.fs.promises.readdir(directory);
     }
 
     /**
@@ -93,24 +87,8 @@ export class FileSystem {
     /**
      *  Helper function to asynchronously copy a file
      */
-    public copyFile(from: string, to: string, encoding?: string): Q.Promise<void> {
-        let deferred: Q.Deferred<void> = Q.defer<void>();
-        let destFile: nodeFs.WriteStream = this.fs.createWriteStream(to, { encoding: encoding });
-        let srcFile: nodeFs.ReadStream = this.fs.createReadStream(from, { encoding: encoding });
-        destFile.on("finish", function(): void {
-            deferred.resolve(void 0);
-        });
-
-        destFile.on("error", function(e: Error): void {
-            deferred.reject(e);
-        });
-
-        srcFile.on("error", function(e: Error): void {
-            deferred.reject(e);
-        });
-
-        srcFile.pipe(destFile);
-        return deferred.promise;
+    public copyFile(from: string, to: string): Promise<void> {
+        return this.fs.promises.copyFile(from, to);
     }
 
     public deleteFileIfExistsSync(filename: string) {
@@ -119,36 +97,35 @@ export class FileSystem {
         }
     }
 
-    public readFile(filename: string, encoding: string = "utf8"): Q.Promise<string> {
-        return Q.nfcall<string>(this.fs.readFile, filename, encoding);
+    public readFile(filename: string, encoding: string = "utf8"): Promise<string | Buffer> {
+        return this.fs.promises.readFile(filename, { encoding });
     }
 
-    public writeFile(filename: string, data: any): Q.Promise<void> {
-        return Q.nfcall<void>(this.fs.writeFile, filename, data);
+    public writeFile(filename: string, data: any): Promise<void> {
+        return this.fs.promises.writeFile(filename, data);
     }
 
-    public unlink(filename: string): Q.Promise<void> {
-        return Q.nfcall<void>(this.fs.unlink, filename);
+    public unlink(filename: string): Promise<void> {
+        return this.fs.promises.unlink(filename);
     }
 
-    public mkDir(p: string): Q.Promise<void> {
-        return Q.nfcall<void>(this.fs.mkdir, p);
+    public mkDir(p: string): Promise<void> {
+        return this.fs.promises.mkdir(p);
     }
 
-    public stat(fsPath: string): Q.Promise<nodeFs.Stats> {
-        return Q.nfcall<nodeFs.Stats>(this.fs.stat, fsPath);
+    public stat(fsPath: string): Promise<nodeFs.Stats> {
+        return this.fs.promises.stat(fsPath);
     }
 
-    public directoryExists(directoryPath: string): Q.Promise<boolean> {
+    public directoryExists(directoryPath: string): Promise<boolean> {
         return this.stat(directoryPath).then(stats => {
             return stats.isDirectory();
         }).catch(reason => {
             return reason.code === "ENOENT"
                 ? false
-                : Q.reject<boolean>(reason);
+                : Promise.reject<boolean>(reason);
         });
     }
-
 
     /**
      * Delete 'dirPath' if it's an empty folder. If not fail.
@@ -156,58 +133,26 @@ export class FileSystem {
      * @param {dirPath} path to the folder
      * @returns {void} Nothing
      */
-    public rmdir(dirPath: string): Q.Promise<void> {
-        return Q.nfcall<void>(this.fs.rmdir, dirPath);
+    public rmdir(dirPath: string): Promise<void> {
+        return this.fs.promises.rmdir(dirPath);
     }
 
-    /**
-     * Recursively copy 'source' to 'target' asynchronously
-     *
-     * @param {string} source Location to copy from
-     * @param {string} target Location to copy to
-     * @returns {Q.Promise} A promise which is fulfilled when the copy completes, and is rejected on error
-     */
-    public copyRecursive(source: string, target: string): Q.Promise<void> {
-        return Q.nfcall<nodeFs.Stats>(this.fs.stat, source).then(stats => {
-            if (stats.isDirectory()) {
-                return this.exists(target)
-                    .then(exists => {
-                        return exists ? void 0 : Q.nfcall<void>(this.fs.mkdir, target);
-                    })
-                    .then(() => {
-                        return Q.nfcall<string[]>(this.fs.readdir, source);
-                    })
-                    .then(contents => {
-                        Q.all(contents.map((childPath: string): Q.Promise<void> => {
-                            return this.copyRecursive(path.join(source, childPath), path.join(target, childPath));
-                        }));
+    public async removePathRecursivelyAsync(p: string): Promise<void> {
+        const exists = await this.exists(p);
+        if (exists) {
+            const stats = await this.stat(p);
+                if (stats.isDirectory()) {
+                    const childPaths = await this.readDir(p);
+                    childPaths.forEach(childPath => {
+                        return new Promise(() => this.removePathRecursivelyAsync(path.join(p, childPath)));
                     });
-            } else {
-                return this.copyFile(source, target);
-            }
-        });
-    }
-
-    public removePathRecursivelyAsync(p: string): Q.Promise<void> {
-        return this.exists(p).then(exists => {
-            if (exists) {
-                return Q.nfcall<nodeFs.Stats>(this.fs.stat, p).then((stats: nodeFs.Stats) => {
-                    if (stats.isDirectory()) {
-                        return Q.nfcall<string[]>(this.fs.readdir, p).then((childPaths: string[]) => {
-                            let result = Q<void>(void 0);
-                            childPaths.forEach(childPath =>
-                                result = result.then<void>(() => this.removePathRecursivelyAsync(path.join(p, childPath))));
-                            return result;
-                        }).then(() =>
-                            Q.nfcall<void>(this.fs.rmdir, p));
-                    } else {
-                        /* file */
-                        return Q.nfcall<void>(this.fs.unlink, p);
-                    }
-                });
-            }
-            return Q.resolve(void 0);
-        });
+                    this.rmdir(p);
+                } else {
+                    /* file */
+                    return this.unlink(p);
+                }
+        }
+        return Promise.resolve();
     }
 
     public removePathRecursivelySync(p: string): void {

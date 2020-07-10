@@ -3,7 +3,7 @@
 
 import * as pathModule from "path";
 
-import { FileSystemNode } from "./fileSystemNode";
+import { FileSystem } from "./fileSystem";
 import { ErrorHelper } from "../error/errorHelper";
 import { InternalErrorCode } from "../error/internalErrorCode";
 
@@ -24,11 +24,11 @@ export class Package {
     private INFORMATION_PACKAGE_FILENAME = "package.json";
     private DEPENDENCIES_SUBFOLDER = "node_modules";
 
-    private fileSystem: FileSystemNode;
+    private fileSystem: FileSystem;
 
     private _path: string;
 
-    constructor(path: string, { fileSystem = new FileSystemNode() } = {}) {
+    constructor(path: string, { fileSystem = new FileSystem() } = {}) {
         this._path = path;
         this.fileSystem = fileSystem;
     }
