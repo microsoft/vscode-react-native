@@ -187,7 +187,7 @@ export class Packager {
 
                 const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
                 this.packagerProcess = packagerSpawnResult.spawnedProcess;
-                packagerSpawnResult.outcome.then(() => { }, () => { });
+                packagerSpawnResult.outcome.then(() => { }, () => { }); // We ignore all outcome errors
 
                 return Promise.resolve();
             });

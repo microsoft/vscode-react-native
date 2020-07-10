@@ -68,11 +68,14 @@ export abstract class TelemetryGeneratorBase {
         let startTime: [number, number] = process.hrtime();
 
         return new Promise<T>((resolve) => {
-            codeToMeasure();
-            resolve();
+            if (codeToMeasure instanceof Promise) {
+                codeToMeasure.then(() => resolve)
+            } else {
+                resolve();
+            }
         })
         .finally(() => this.finishTime(name, startTime))
-        .catch((reason:any) => {
+        .catch((reason: any) => {
             this.addError(reason);
             return Promise.reject(reason);
         });
