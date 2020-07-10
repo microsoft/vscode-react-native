@@ -159,7 +159,7 @@ export class CommandExecutor {
                         this.logger.debug(CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End));
                     }
                     this.logger.logStream("\n", process.stdout);
-                    resolve(void 0);
+                    resolve();
                 },
                 reason => {
                     reject(reason);
