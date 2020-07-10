@@ -17,10 +17,10 @@ import {SettingsHelper} from "../extension/settingsHelper";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
-import { FileSystemNode } from "./node/fileSystemNode";
 import * as nls from "vscode-nls";
 import { findFileInFolderHierarchy } from "./extensionHelper";
-import { PromiseUtilNode } from "./node/promiseNode";
+import { FileSystem } from "./node/fileSystem";
+import { PromiseUtil } from "./node/promise";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -45,7 +45,7 @@ export class Packager {
     };
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
-    private static fs: FileSystemNode = new FileSystemNode();
+    private static fs: FileSystem = new FileSystem();
     private expoHelper: ExponentHelper;
     private runOptions: IRunOptions;
 
@@ -187,14 +187,9 @@ export class Packager {
 
                 const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
                 this.packagerProcess = packagerSpawnResult.spawnedProcess;
-                packagerSpawnResult.outcome.done(() => { }, () => { }); // Q prints a warning if we don't call .done(). We ignore all outcome errors
+                packagerSpawnResult.outcome.then(() => { }, () => { });
 
-                return new Promise((resolve) => {
-                    packagerSpawnResult.startup
-                    .then(() => {
-                        resolve();
-                    });
-                });
+                return Promise.resolve();
             });
         })
         .then(() => {
@@ -317,7 +312,7 @@ export class Packager {
     }
 
     private awaitStart(retryCount = 60, delay = 3000): Promise<boolean> {
-        let pu: PromiseUtilNode = new PromiseUtilNode();
+        let pu: PromiseUtil = new PromiseUtil();
         return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, localize("CouldNotStartPackager", "Could not start the packager."));
     }
 
@@ -335,7 +330,7 @@ export class Packager {
             let nestedDependencyPackagePath = path.resolve(this.projectPath, Packager.NODE_MODULES_FODLER_NAME,
                 Packager.REACT_NATIVE_PACKAGE_NAME, Packager.NODE_MODULES_FODLER_NAME, OPN_PACKAGE_NAME, Packager.OPN_PACKAGE_MAIN_FILENAME);
 
-            let fsHelper = new FileSystemNode();
+            let fsHelper = new FileSystem();
 
             // Attempt to find the 'opn' package directly under the project's node_modules folder (node4 +)
             // Else, attempt to find the package within the dependent node_modules of react-native package
@@ -372,7 +367,7 @@ export class Packager {
                 JS_INJECTOR_FILEPATH = path.resolve(Packager.JS_INJECTOR_DIRPATH, JS_INJECTOR_FILENAME);
                 if (packageJson.main !== JS_INJECTOR_FILENAME) {
                     // Copy over the patched 'opn' main file
-                    return new FileSystemNode().copyFile(JS_INJECTOR_FILEPATH, path.resolve(path.dirname(destnFilePath), JS_INJECTOR_FILENAME))
+                    return new FileSystem().copyFile(JS_INJECTOR_FILEPATH, path.resolve(path.dirname(destnFilePath), JS_INJECTOR_FILENAME))
                         .then(() => {
                             // Write/over-write the "main" attribute with the new file
                             return opnPackage.setMainFile(JS_INJECTOR_FILENAME);

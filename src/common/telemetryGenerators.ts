@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import { Telemetry } from "./telemetry";
 import { ICommandTelemetryProperties, TelemetryHelper } from "./telemetryHelper";
 
@@ -65,14 +64,19 @@ export abstract class TelemetryGeneratorBase {
         return this;
     }
 
-    public time<T>(name: string, codeToMeasure: { (): Q.Promise<T>|T }): Q.Promise<T> {
+    public time<T>(name: string, codeToMeasure: { (): Promise<T>|T }): Promise<T> {
         let startTime: [number, number] = process.hrtime();
-        return Q(codeToMeasure())
+
+        return new Promise<T>((resolve) => {
+            codeToMeasure();
+            resolve();
+        })
         .finally(() => this.finishTime(name, startTime))
-        .fail((reason: any): Q.Promise<T> => {
+        .catch((reason:any) => {
             this.addError(reason);
-            return Q.reject<T>(reason);
+            return Promise.reject(reason);
         });
+        ;
     }
 
     public step(name: string): TelemetryGeneratorBase {

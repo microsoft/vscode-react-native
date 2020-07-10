@@ -4,7 +4,6 @@
 import {ChildProcess} from "./node/childProcess";
 import {TargetPlatformId} from "./targetPlatformHelper";
 import * as path from "path";
-import * as Q from "q";
 
 /**
  * Interface defining the host (desktop) platform specific operations.
@@ -13,9 +12,8 @@ interface IHostPlatform {
     getUserHomePath(): string;
     getSettingsHome(): string;
     getNpmCliCommand(packageName: string): string;
-    getPipePath(pipeName: string): string;
     getPlatformId(): HostPlatformId;
-    setEnvironmentVariable(name: string, value: string): Q.Promise<void>;
+    setEnvironmentVariable(name: string, value: string): Promise<void>;
     getUserID(): string;
     isCompatibleWithTarget(targetPlatformId: TargetPlatformId): boolean;
 }
@@ -37,8 +35,8 @@ class WindowsHostPlatform implements IHostPlatform {
         return process.env.USERPROFILE || "";
     }
 
-    public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
-        return new ChildProcess().exec(`setx ${name} ${value}`).outcome;
+    public setEnvironmentVariable(name: string, value: string): Promise<any> {
+        return new ChildProcess().exec(`setx ${name} ${value}`).then(res => res.outcome);
     }
 
     public getSettingsHome(): string {
@@ -47,10 +45,6 @@ class WindowsHostPlatform implements IHostPlatform {
 
     public getNpmCliCommand(cliName: string): string {
         return `${cliName}.cmd`;
-    }
-
-    public getPipePath(pipeName: string): string {
-        return `//?/pipe/${pipeName}`;
     }
 
     public getPlatformId(): HostPlatformId {
@@ -78,7 +72,7 @@ abstract class UnixHostPlatform implements IHostPlatform {
         return process.env.HOME || "";
     }
 
-    public abstract setEnvironmentVariable(name: string, value: string): Q.Promise<any>;
+    public abstract setEnvironmentVariable(name: string, value: string): Promise<any>;
 
     public getSettingsHome(): string {
         return path.join(process.env.HOME || "", ".vscode-react-native");
@@ -86,10 +80,6 @@ abstract class UnixHostPlatform implements IHostPlatform {
 
     public getNpmCliCommand(packageName: string): string {
         return packageName;
-    }
-
-    public getPipePath(pipeName: string): string {
-        return `/tmp/${pipeName}.sock`;
     }
 
     public abstract getPlatformId(): HostPlatformId;
@@ -103,8 +93,8 @@ abstract class UnixHostPlatform implements IHostPlatform {
  * IHostPlatform implemenation for the OSX platform.
  */
 class OSXHostPlatform extends UnixHostPlatform {
-    public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
-        return new ChildProcess().exec(`launchctl setenv ${name} ${value}`).outcome;
+    public setEnvironmentVariable(name: string, value: string): Promise<any> {
+        return new ChildProcess().exec(`launchctl setenv ${name} ${value}`).then(res => res.outcome);
     }
 
     public getPlatformId(): HostPlatformId {
@@ -131,8 +121,8 @@ class OSXHostPlatform extends UnixHostPlatform {
  * IHostPlatform implemenation for the Linux platform.
  */
 class LinuxHostPlatform extends UnixHostPlatform {
-    public setEnvironmentVariable(name: string, value: string): Q.Promise<any> {
-        return new ChildProcess().exec(`export ${name}=${value}`).outcome;
+    public setEnvironmentVariable(name: string, value: string): Promise<any> {
+        return new ChildProcess().exec(`export ${name}=${value}`).then(res => res.outcome);
     }
 
     public getPlatformId(): HostPlatformId {
@@ -197,15 +187,11 @@ export class HostPlatform {
         return HostPlatform.platform.getNpmCliCommand(packageName);
     }
 
-    public static getPipePath(pipeName: string): string {
-        return HostPlatform.platform.getPipePath(pipeName);
-    }
-
     public static getPlatformId(): HostPlatformId {
         return HostPlatform.platform.getPlatformId();
     }
 
-    public static setEnvironmentVariable(name: string, value: string): Q.Promise<void> {
+    public static setEnvironmentVariable(name: string, value: string): Promise<void> {
         return HostPlatform.platform.setEnvironmentVariable(name, value);
     }
 
