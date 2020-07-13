@@ -11,7 +11,7 @@ import * as semver from "semver";
 import {ProjectVersionHelper, RNPackageVersions} from "../common/projectVersionHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
-import { FileSystemNode } from "../common/node/fileSystemNode";
+import { FileSystem } from "../common/node/fileSystem";
 
 export interface DownloadedScript {
     contents: string;
@@ -98,7 +98,7 @@ export class ScriptImporter {
 
                 return Request.request(debuggerWorkerURL, true)
                     .then((body: string) => {
-                        return new FileSystemNode().writeFile(debuggerWorkerLocalPath, body);
+                        return new FileSystem().writeFile(debuggerWorkerLocalPath, body);
                     });
             });
     }
@@ -123,7 +123,7 @@ export class ScriptImporter {
      */
     private writeAppScript(scriptBody: string, scriptUrl: IStrictUrl): Promise<string> {
         let scriptFilePath = path.join(this.sourcesStoragePath, path.basename(scriptUrl.pathname)); // scriptFilePath = "$TMPDIR/index.ios.bundle"
-        return new FileSystemNode().writeFile(scriptFilePath, scriptBody)
+        return new FileSystem().writeFile(scriptFilePath, scriptBody)
             .then(() => scriptFilePath);
     }
 
@@ -136,7 +136,7 @@ export class ScriptImporter {
                 let sourceMappingLocalPath = path.join(this.sourcesStoragePath, path.basename(sourceMapUrl.pathname)); // sourceMappingLocalPath = "$TMPDIR/index.ios.map"
                 let scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
                 let updatedContent = this.sourceMapUtil.updateSourceMapFile(sourceMapBody, scriptFileRelativePath, this.sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
-                return new FileSystemNode().writeFile(sourceMappingLocalPath, updatedContent);
+                return new FileSystem().writeFile(sourceMappingLocalPath, updatedContent);
             });
     }
 
