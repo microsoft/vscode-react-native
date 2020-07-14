@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as path from "path";
 import * as semver from "semver";
 
@@ -44,21 +43,21 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private static readonly RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
-    public showDevMenu(appLauncher: AppLauncher): Q.Promise<void> {
+    public showDevMenu(appLauncher: AppLauncher): Promise<void> {
         const worker = appLauncher.getAppWorker();
         if (worker) {
             worker.showDevMenuCommand();
         }
 
-        return Q.resolve(void 0);
+        return Promise.resolve();
     }
 
-    public reloadApp(appLauncher: AppLauncher): Q.Promise<void> {
+    public reloadApp(appLauncher: AppLauncher): Promise<void> {
         const worker = appLauncher.getAppWorker();
         if (worker) {
             worker.reloadAppCommand();
         }
-        return Q.resolve(void 0);
+        return Promise.resolve();
     }
 
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
@@ -91,7 +90,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         this.targetType = this.runOptions.target || IOSPlatform.simulatorString;
     }
 
-    public runApp(): Q.Promise<void> {
+    public runApp(): Promise<void> {
         let extProps = {
             platform: {
                 value: "ios",
@@ -114,27 +113,27 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 this.runArguments.push("--verbose");
             }
             const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", this.runArguments, {env});
-            return new OutputVerifier(() => this.generateSuccessPatterns(this.runOptions.reactNativeVersions.reactNativeVersion), () => Q(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
+            return new OutputVerifier(() => this.generateSuccessPatterns(this.runOptions.reactNativeVersions.reactNativeVersion), () => Promise.resolve(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
                 .process(runIosSpawn);
         });
     }
 
-    public enableJSDebuggingMode(): Q.Promise<void> {
+    public enableJSDebuggingMode(): Promise<void> {
         // Configure the app for debugging
         if (this.targetType === IOSPlatform.deviceString) {
             // Note that currently we cannot automatically switch the device into debug mode.
             this.logger.info("Application is running on a device, please shake device and select 'Debug JS Remotely' to enable debugging.");
-            return Q.resolve<void>(void 0);
+            return Promise.resolve();
         }
 
         // Wait until the configuration file exists, and check to see if debugging is enabled
-        return Q.all<boolean | string>([
+        return Promise.all<boolean | string>([
             this.iosDebugModeManager.getSimulatorRemoteDebuggingSetting(this.runOptions.configuration, this.runOptions.productName),
             this.getBundleId(),
         ])
-            .spread((debugModeEnabled: boolean, bundleId: string) => {
+            .then(([debugModeEnabled, bundleId]) => {
                 if (debugModeEnabled) {
-                    return Q.resolve(void 0);
+                    return Promise.resolve();
                 }
 
                 // Debugging must still be enabled
@@ -163,7 +162,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             });
     }
 
-    public disableJSDebuggingMode(): Q.Promise<void> {
+    public disableJSDebuggingMode(): Promise<void> {
         return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ false, this.runOptions.configuration, this.runOptions.productName);
     }
 
@@ -216,7 +215,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         }
     }
 
-    private generateSuccessPatterns(version: string): Q.Promise<string[]> {
+    private generateSuccessPatterns(version: string): Promise<string[]> {
         // Clone RUN_IOS_SUCCESS_PATTERNS to avoid its runtime mutation
         let successPatterns = [...IOSPlatform.RUN_IOS_SUCCESS_PATTERNS];
         if (this.targetType === IOSPlatform.deviceString) {
@@ -225,7 +224,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             } else {
                 successPatterns.push("INSTALLATION SUCCEEDED");
             }
-            return Q(successPatterns);
+            return Promise.resolve(successPatterns);
         } else {
             return this.getBundleId()
             .then(bundleId => {
@@ -244,7 +243,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         return IOSPlatform.getOptFromRunArgs(this.runArguments, this.configurationArgumentName) || this.defaultConfiguration;
     }
 
-    private getBundleId(): Q.Promise<string> {
+    private getBundleId(): Promise<string> {
         let scheme = this.runOptions.scheme;
         if (!scheme) {
             const schemeFromArgs = IOSPlatform.getOptFromRunArgs(this.runArguments, "--scheme", false);

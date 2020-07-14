@@ -69,7 +69,7 @@ export abstract class TelemetryGeneratorBase {
 
         return new Promise<T>((resolve) => {
             if (codeToMeasure instanceof Promise) {
-                codeToMeasure.then(() => resolve)
+                codeToMeasure.then(() => resolve);
             } else {
                 codeToMeasure();
                 resolve();

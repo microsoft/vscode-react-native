@@ -59,7 +59,7 @@ export class ChildProcess {
                     });
                     resolveRes({process: process, outcome: outcome});
                 });
-        })
+        });
 
     }
 

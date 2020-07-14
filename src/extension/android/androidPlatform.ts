@@ -1,14 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as semver from "semver";
 
 import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import {IAndroidRunOptions} from "../launchArgs";
 import {AdbHelper, AndroidAPILevel, IDevice} from "./adb";
 import {Package} from "../../common/node/package";
-import {PromiseUtil} from "../../common/node/promise";
 import {PackageNameResolver} from "./packageNameResolver";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {TelemetryHelper} from "../../common/telemetryHelper";
@@ -55,11 +53,11 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
     private needsToLaunchApps: boolean = false;
 
-    public showDevMenu(deviceId?: string): Q.Promise<void> {
+    public showDevMenu(deviceId?: string): Promise<void> {
         return this.adbHelper.showDevMenu(deviceId);
     }
 
-    public reloadApp(deviceId?: string): Q.Promise<void> {
+    public reloadApp(deviceId?: string): Promise<void> {
         return this.adbHelper.reloadApp(deviceId);
     }
 
@@ -74,7 +72,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         this.adbHelper = adbHelper;
     }
 
-    public runApp(shouldLaunchInAllDevices: boolean = false): Q.Promise<void> {
+    public runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {
         let extProps: any = {
             platform: {
                 value: "android",
@@ -113,9 +111,9 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             const runAndroidSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-android", this.runArguments, {env});
             const output = new OutputVerifier(
                 () =>
-                    Q(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
+                    Promise.resolve(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
                 () =>
-                    Q(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS),
+                    Promise.resolve(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS),
                 "android").process(runAndroidSpawn);
 
             return output
@@ -127,23 +125,23 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         this.needsToLaunchApps = true;
                         return shouldLaunchInAllDevices
                             ? this.adbHelper.getOnlineDevices()
-                            : Q([this.debugTarget]);
+                            : Promise.resolve([this.debugTarget]);
                     } else {
-                        return Q.reject<IDevice[]>(reason);
+                        return Promise.reject<IDevice[]>(reason);
                     }
                 }).then(devices => {
-                    return new PromiseUtil().forEach(devices, device => {
+                    return devices.forEach(device => {
                         return this.launchAppWithADBReverseAndLogCat(device);
                     });
                 });
         });
     }
 
-    public enableJSDebuggingMode(): Q.Promise<void> {
+    public enableJSDebuggingMode(): Promise<void> {
         return this.adbHelper.switchDebugMode(this.runOptions.projectRoot, this.packageName, true, this.debugTarget.id);
     }
 
-    public disableJSDebuggingMode(): Q.Promise<void> {
+    public disableJSDebuggingMode(): Promise<void> {
         return this.adbHelper.switchDebugMode(this.runOptions.projectRoot, this.packageName, false, this.debugTarget.id);
     }
 
@@ -177,7 +175,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return runArguments;
     }
 
-    private initializeTargetDevicesAndPackageName(): Q.Promise<void> {
+    private initializeTargetDevicesAndPackageName(): Promise<void> {
         return this.adbHelper.getConnectedDevices().then(devices => {
             this.devices = devices;
             this.debugTarget = this.getTargetEmulator(devices);
@@ -187,21 +185,22 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         });
     }
 
-    private launchAppWithADBReverseAndLogCat(device: IDevice): Q.Promise<void> {
-        return Q({})
+    private launchAppWithADBReverseAndLogCat(device: IDevice): Promise<void> {
+        return new Promise(() => {
+            return this.configureADBReverseWhenApplicable(device);
+            })
             .then(() => {
-                return this.configureADBReverseWhenApplicable(device);
-            }).then(() => {
                 return this.needsToLaunchApps
                     ? this.adbHelper.launchApp(this.runOptions.projectRoot, this.packageName, device.id)
-                    : Q<void>(void 0);
-            }).then(() => {
+                    : Promise.resolve();
+            })
+            .then(() => {
                 return this.startMonitoringLogCat(device, this.runOptions.logCatArguments);
             });
     }
 
-    private configureADBReverseWhenApplicable(device: IDevice): Q.Promise<void> {
-        return Q({}) // For other emulators and devices we try to enable adb reverse
+    private configureADBReverseWhenApplicable(device: IDevice): Promise<void> {
+        return Promise.resolve()// For other emulators and devices we try to enable adb reverse
             .then(() => this.adbHelper.apiVersion(device.id))
             .then(apiVersion => {
                 if (apiVersion >= AndroidAPILevel.LOLLIPOP) { // If we support adb reverse
@@ -216,7 +215,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             });
     }
 
-    private getPackageName(): Q.Promise<string> {
+    private getPackageName(): Promise<string> {
         return new Package(this.runOptions.projectRoot).name().then(appName =>
                 new PackageNameResolver(appName).resolvePackageName(this.runOptions.projectRoot));
     }
@@ -254,8 +253,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         // this.logCatMonitor can be mutated, so we store it locally too
         this.logCatMonitor = new LogCatMonitor(device.id, logCatArguments, this.adbHelper);
         this.logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
-            .catch(error => this.logger.warning(localize("ErrorWhileMonitoringLogCat", "Error while monitoring LogCat"), error)) // The LogCatMonitor failing won't stop the debugging experience
-            .done();
+            .catch(error => this.logger.warning(localize("ErrorWhileMonitoringLogCat", "Error while monitoring LogCat"), error)); // The LogCatMonitor failing won't stop the debugging experience
     }
 
     private stopMonitoringLogCat(): void {
