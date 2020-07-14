@@ -185,7 +185,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
     private launchAppWithADBReverseAndLogCat(device: IDevice): Promise<void> {
         return new Promise(() => {
-            return this.configureADBReverseWhenApplicable(device);
+                return this.configureADBReverseWhenApplicable(device);
             })
             .then(() => {
                 return this.needsToLaunchApps
