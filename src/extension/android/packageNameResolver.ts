@@ -2,9 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {FileSystem} from "../../common/node/fileSystem";
-import Q = require("q");
 import * as path from "path";
-import { FileSystemNode } from "../../common/node/fileSystemNode";
 
 export class PackageNameResolver {
 
@@ -34,7 +32,7 @@ export class PackageNameResolver {
      */
     private readPackageName(manifestPath: string): Promise<string> {
         if (manifestPath) {
-            let fs = new FileSystemNode();
+            let fs = new FileSystem();
             return fs.exists(manifestPath).then(exists => {
                 if (exists) {
                     return fs.readFile(manifestPath)

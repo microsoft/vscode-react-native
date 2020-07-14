@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import * as Q from "q";
 import * as glob from "glob";
 import * as fs from "fs";
 import * as semver from "semver";
@@ -34,7 +33,7 @@ export class PlistBuddy {
         this.nodeChildProcess = nodeChildProcess;
     }
 
-    public getBundleId(iosProjectRoot: string, projectRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string, scheme?: string): Q.Promise<string> {
+    public getBundleId(iosProjectRoot: string, projectRoot: string, simulator: boolean = true, configuration: string = "Debug", productName?: string, scheme?: string): Promise<string> {
         return ProjectVersionHelper.getReactNativeVersions(projectRoot)
         .then((rnVersions) => {
             let productsFolder;
@@ -90,27 +89,27 @@ export class PlistBuddy {
         });
     }
 
-    public setPlistProperty(plistFile: string, property: string, value: string): Q.Promise<void> {
+    public setPlistProperty(plistFile: string, property: string, value: string): Promise<void> {
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
-        return this.invokePlistBuddy(`Set ${property} ${value}`, plistFile).fail(() =>
+        return this.invokePlistBuddy(`Set ${property} ${value}`, plistFile).catch(() =>
             this.invokePlistBuddy(`Add ${property} string ${value}`, plistFile)
         ).then(() => { });
     }
 
-    public setPlistBooleanProperty(plistFile: string, property: string, value: boolean): Q.Promise<void> {
+    public setPlistBooleanProperty(plistFile: string, property: string, value: boolean): Promise<void> {
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
         return this.invokePlistBuddy(`Set ${property} ${value}`, plistFile)
-            .fail(() =>
+            .catch(() =>
                 this.invokePlistBuddy(`Add ${property} bool ${value}`, plistFile)
             )
             .then(() => { });
     }
 
-    public deletePlistProperty(plistFile: string, property: string): Q.Promise<void> {
+    public deletePlistProperty(plistFile: string, property: string): Promise<void> {
         return this.invokePlistBuddy(`Delete ${property}`, plistFile).then(() => { });
     }
 
-    public readPlistProperty(plistFile: string, property: string): Q.Promise<string> {
+    public readPlistProperty(plistFile: string, property: string): Promise<string> {
         return this.invokePlistBuddy(`Print ${property}`, plistFile);
     }
 
@@ -230,9 +229,9 @@ export class PlistBuddy {
         });
     }
 
-    private invokePlistBuddy(command: string, plistFile: string): Q.Promise<string> {
-        return this.nodeChildProcess.exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`).outcome.then((result: string) => {
+    private invokePlistBuddy(command: string, plistFile: string): Promise<string> {
+        return this.nodeChildProcess.exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`).then(res => res.outcome.then((result: string) => {
             return result.toString().trim();
-        });
+        }));
     }
 }

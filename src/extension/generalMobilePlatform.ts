@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
-
 import {IRunOptions} from "./launchArgs";
 import {Packager} from "../common/packager";
 import {PackagerStatusIndicator, PackagerStatus} from "./packagerStatusIndicator";
@@ -42,21 +41,21 @@ export class GeneralMobilePlatform {
 
     public runApp(): Promise<void> {
         this.logger.info(localize("ConnectedToPackager", "Connected to packager. You can now open your app in the simulator."));
-        return Promise.resolve<void>(void 0);
+        return Promise.resolve();
     }
 
     public enableJSDebuggingMode(): Promise<void> {
         this.logger.info(localize("DebuggerReadyEnableRemoteDebuggingInApp", "Debugger ready. Enable remote debugging in app."));
-        return Promise.resolve<void>(void 0);
+        return Promise.resolve();
     }
 
     public disableJSDebuggingMode(): Promise<void> {
         this.logger.info(localize("DebuggerReadyDisableRemoteDebuggingInApp", "Debugger ready. Disable remote debugging in app."));
-        return Promise.resolve<void>(void 0);
+        return Promise.resolve();
     }
 
     public beforeStartPackager(): Promise<void> {
-        return Promise.resolve<void>(void 0);
+        return Promise.resolve();
     }
 
     public startPackager(): Promise<void> {
@@ -79,7 +78,7 @@ export class GeneralMobilePlatform {
 
     public prewarmBundleCache(): Promise<void> {
         // generalMobilePlatform should do nothing here. Method should be overriden by children for specific behavior.
-        return Promise.resolve<void>(void 0);
+        return Promise.resolve();
     }
 
     public static getOptFromRunArgs(runArguments: any[], optName: string, binary: boolean = false): any {
