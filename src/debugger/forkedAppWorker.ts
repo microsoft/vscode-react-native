@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as path from "path";
 import * as url from "url";
 import * as cp from "child_process";
@@ -31,9 +30,9 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     protected scriptImporter: ScriptImporter;
     protected debuggeeProcess: cp.ChildProcess | null = null;
-    /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
-    protected workerLoaded = Q.defer<void>();
-    private bundleLoaded: Q.Deferred<void>;
+    /** A promise that we use to make sure that worker has been loaded completely before start sending IPC messages */
+    protected workerLoaded: Promise<void>;
+    private bundleLoaded: Promise<void>;
     private logWriteStream: fs.WriteStream;
     private logDirectory: string | null;
 
@@ -57,7 +56,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         }
     }
 
-    public start(): Q.Promise<number> {
+    public start(): Promise<number> {
         let scriptToRunPath = path.resolve(this.sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
         const port = generateRandomPortNumber();
 
@@ -74,12 +73,13 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             stdio: ["pipe", "pipe", "pipe", "ipc"],
         })
         .on("message", (message: any) => {
+
             // 'workerLoaded' is a special message that indicates that worker is done with loading.
             // We need to wait for it before doing any IPC because process.send doesn't seems to care
             // about whether the message has been received or not and the first messages are often get
             // discarded by spawned process
             if (message && message.workerLoaded) {
-                this.workerLoaded.resolve(void 0);
+                this.workerLoaded = Promise.resolve();
                 return;
             }
 
@@ -108,24 +108,23 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         // This will be sent to subscribers of MLAppWorker in "connected" event
         logger.verbose(`Spawned debuggee process with pid ${this.debuggeeProcess.pid} listening to ${port}`);
 
-        return Q.resolve(port);
+        return Promise.resolve(port);
     }
 
-    public postMessage(rnMessage: RNAppMessage): Q.Promise<RNAppMessage> {
+    public postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage> {
         // Before sending messages, make sure that the worker is loaded
-        const promise = this.workerLoaded.promise
+        const promise = this.workerLoaded
             .then(() => {
                 if (rnMessage.method !== "executeApplicationScript") {
                     // Before sending messages, make sure that the app script executed
                     if (this.bundleLoaded) {
-                        return this.bundleLoaded.promise.then(() => {
+                        return this.bundleLoaded.then(() => {
                             return rnMessage;
                         });
                     } else {
                         return rnMessage;
                     }
                 } else {
-                    this.bundleLoaded = Q.defer<void>();
                     // When packager asks worker to load bundle we download that bundle and
                     // then set url field to point to that downloaded bundle, so the worker
                     // will take our modified bundle
@@ -139,7 +138,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                         logger.verbose(`Packager requested runtime to load script from ${rnMessage.url}`);
                         return this.scriptImporter.downloadAppScript(<string>rnMessage.url, this.projectRootPath)
                             .then((downloadedScript: DownloadedScript) => {
-                                this.bundleLoaded.resolve(void 0);
+                                this.bundleLoaded = Promise.resolve();
                                 return Object.assign({}, rnMessage, { url: `${this.pathToFileUrl(downloadedScript.filepath)}`});
                             });
                     } else {
@@ -147,7 +146,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                     }
                 }
             });
-        promise.done(
+        promise.then(
             (message: RNAppMessage) => {
                 if (this.debuggeeProcess) {
                     this.debuggeeProcess.send({ data: message });

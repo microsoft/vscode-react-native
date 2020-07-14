@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as path from "path";
 import * as WebSocket from "ws";
 import { EventEmitter } from "events";
@@ -9,13 +8,13 @@ import { ensurePackagerRunning } from "../common/packagerStatus";
 import {ErrorHelper} from "../common/error/errorHelper";
 import { logger } from "vscode-debugadapter";
 import {ExecutionsLimiter} from "../common/executionsLimiter";
-import { FileSystemNode } from "../common/node/fileSystemNode";
 import { ForkedAppWorker } from "./forkedAppWorker";
 import { ScriptImporter } from "./scriptImporter";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import * as nls from "vscode-nls";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
-import { PromiseUtilNode } from "../common/node/promiseNode";
+import { FileSystem } from "../common/node/fileSystem";
+import { PromiseUtil } from "../common/node/promise";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -26,7 +25,7 @@ export interface RNAppMessage {
 }
 
 export interface IDebuggeeWorker {
-    start(): Q.Promise<any>;
+    start(): Promise<any>;
     stop(): void;
     postMessage(message: RNAppMessage): void;
 }
@@ -212,7 +211,7 @@ function fetch(url) {
     private webSocketConstructor: (url: string) => WebSocket;
 
     private executionLimiter = new ExecutionsLimiter();
-    private nodeFileSystem = new FileSystemNode();
+    private nodeFileSystem = new FileSystem();
     private scriptImporter: ScriptImporter;
 
     constructor(
@@ -242,7 +241,7 @@ function fetch(url) {
         return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
             .then(() => {
                 // Don't fetch debugger worker on socket disconnect
-                return retryAttempt ? Promise.resolve<void>(void 0) :
+                return retryAttempt ? Promise.resolve() :
                     this.downloadAndPatchDebuggerWorker();
             })
             .then(() => this.createSocketToApp(retryAttempt));
@@ -295,7 +294,7 @@ function fetch(url) {
         }
     }
 
-    private startNewWorkerLifetime(): Q.Promise<void> {
+    private startNewWorkerLifetime(): Promise<void> {
         this.singleLifetimeWorker = new ForkedAppWorker(this.packagerAddress, this.packagerPort, this.sourcesStoragePath, this.projectRootPath,
             (message) => {
                 this.sendMessageToApp(message);
@@ -345,7 +344,7 @@ function fetch(url) {
 
             // In an attempt to catch failures in starting the packager on first attempt,
             // wait for 300 ms before resolving the promise
-            new PromiseUtilNode().delay(300).then(() => resolve(void 0));
+            new PromiseUtil().delay(300).then(() => resolve());
         });
     }
 
@@ -393,7 +392,7 @@ function fetch(url) {
 
     private gotPrepareJSRuntime(message: any): void {
         // Create the sandbox, and replay that we finished processing the message
-        this.startNewWorkerLifetime().done(() => {
+        this.startNewWorkerLifetime().then(() => {
             this.sendMessageToApp({ replyID: parseInt(message.id, 10) });
         }, error => printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.FailedToPrepareJSRuntimeEnvironment, message), error));
     }

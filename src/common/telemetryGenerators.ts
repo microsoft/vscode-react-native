@@ -80,7 +80,6 @@ export abstract class TelemetryGeneratorBase {
             this.addError(reason);
             return Promise.reject(reason);
         });
-        ;
     }
 
     public step(name: string): TelemetryGeneratorBase {
