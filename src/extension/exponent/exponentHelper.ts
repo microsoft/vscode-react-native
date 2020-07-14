@@ -12,7 +12,7 @@ import stripJSONComments = require("strip-json-comments");
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { FileSystemNode } from "../../common/node/fileSystemNode";
+import { FileSystem } from "../../common/node/fileSystem";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -29,11 +29,11 @@ const DBL_SLASHES = /\\/g;
 export class ExponentHelper {
     private workspaceRootPath: string;
     private projectRootPath: string;
-    private fs: FileSystemNode;
+    private fs: FileSystem;
     private hasInitialized: boolean;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
-    public constructor(workspaceRootPath: string, projectRootPath: string, fs: FileSystemNode = new FileSystemNode()) {
+    public constructor(workspaceRootPath: string, projectRootPath: string, fs: FileSystem = new FileSystem()) {
         this.workspaceRootPath = workspaceRootPath;
         this.projectRootPath = projectRootPath;
         this.fs = fs;

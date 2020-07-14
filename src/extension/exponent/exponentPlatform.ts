@@ -10,7 +10,6 @@ import { TelemetryHelper } from "../../common/telemetryHelper";
 import { QRCodeContentProvider } from "../qrCodeContentProvider";
 
 import * as vscode from "vscode";
-import * as Q from "q";
 import * as XDL from "./xdlInterface";
 import * as url from "url";
 import * as nls from "vscode-nls";
@@ -138,9 +137,9 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         return this.exponentHelper.configureExponentEnvironment();
     }
 
-    public enableJSDebuggingMode(): Q.Promise<void> {
+    public enableJSDebuggingMode(): Promise<void> {
         this.logger.info(localize("ApplicationIsRunningOnExponentShakeDeviceForRemoteDebugging", "Application is running on Expo. Please shake device and select 'Debug JS Remotely' to enable debugging."));
-        return Q.resolve<void>(void 0);
+        return Promise.resolve();
     }
 
     public getRunArguments(): string[] {
