@@ -130,10 +130,8 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         return Promise.reject<IDevice[]>(reason);
                     }
                 }).then(devices => {
-                    return devices.forEach(device => {
-                        return this.launchAppWithADBReverseAndLogCat(device);
-                    });
-                });
+                    return Promise.all(devices.map(device => this.launchAppWithADBReverseAndLogCat(device)));
+                }).then(() => {});
         });
     }
 
