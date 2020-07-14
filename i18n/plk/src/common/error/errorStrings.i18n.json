@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "Logowanie anulowane przez użytkownika.",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "Nie można dołączyć do narzędzia do tworzenia pakietów. Czy narzędzie do tworzenia pakietów istnieje i działa na porcie {0}? Jeśli narzędzie do tworzenia pakietów jest skonfigurowane do uruchamiania na innym porcie, to ustawienie musi zostać dodane do pliku settings.json.",
 	"AnotherDebuggerConnectedToPackager": "Inny debuger jest już połączony z narzędziem do tworzenia pakietów. Zamknij go przed podjęciem próby debugowania za pomocą programu VSCode.",
-	"NotInReactNativeFolderError": "Wygląda na to, że próbujesz debugować z katalogu, który nie jest katalogiem głównym projektu platformy React Native. \n Jeśli tak, wykonaj instrukcje podane tutaj: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
+	"NotInReactNativeFolderError": "Wygląda na to, że próbujesz debugować z katalogu, który nie jest katalogiem głównym projektu platformy React Native. \n Jeśli tak, wykonaj instrukcje podane tutaj: https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
 	"SourcesStoragePathIsNullOrEmpty": "Argument SourcesStoragePath ma wartość null lub jest pusty",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "Nie można zainstalować aplikacji na żadnym dostępnym urządzeniu. Upewnij się, że masz działające \n prawidłowo skonfigurowane urządzenie lub emulator. Zobacz https://facebook.github.io/react-native/docs/android-setup.html.",
 	"AndroidShellCommandTimedOut": "Przekroczono limit czasu polecenia powłoki systemu Android. Spróbuj ponownie wykonać operację.",

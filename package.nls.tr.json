@@ -20,7 +20,7 @@
 	"reactNative.attach.program.description": "[KULLANIM DIŞI. BUNUN YERİNE cwd KULLANIN] launchReactNative.js dosyasının vscode klasöründeki yolu",
 	"reactNative.attach.cwd.description": "Proje kök klasörünün yolu",
 	"reactNative.attach.sourceMaps.description": "Oluşturulan paket gruplu kodu özgün kaynaklarına geri eşlemek için JavaScript kaynak eşlemelerinin kullanılıp kullanılmayacağı",
-	"reactNative.attach.sourceMapsPathOverrides.description": "Kaynak dosyalarının konumlarını yeniden yazmak için, kaynak eşlemesinde belirtilen konumlardan dosyaların diskteki konumlarına yönelik bir dizi eşleme. Ayrıntılı bilgi için bkz. https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
+	"reactNative.attach.sourceMapsPathOverrides.description": "Kaynak dosyalarının konumlarını yeniden yazmak için, kaynak eşlemesinde belirtilen konumlardan dosyaların diskteki konumlarına yönelik bir dizi eşleme. Ayrıntılı bilgi için bkz. https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
 	"reactNative.attach.trace.description": "Hata ayıklayıcısı işleminde günlüğe kaydetme düzeyi. Tanılama için kullanışlı olabilir. \"Trace\" olarak ayarlanırsa tüm hata ayıklayıcısı işlem günlükleri 'Hata Ayıklama Konsolu' çıkış penceresinde kullanılabilir.",
 	"reactNative.attach.address.description": "Hata ayıklama için eklenecek paketleyicinin TCP/IP adresi. Varsayılan: 'localhost'.",
 	"reactNative.attach.port.description": "Hata ayıklama için eklenecek paketleyicinin bağlantı noktası. Varsayılan: 8081.",

@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "L'utilisateur a annulé la connexion.",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "Impossible d'effectuer l'attachement au packager. Êtes-vous sûr qu'il existe un packager et qu'il s'exécute sur le port {0} ? Si votre packager est configuré pour s'exécuter sur un autre port, ajoutez-le à settings.json.",
 	"AnotherDebuggerConnectedToPackager": "Un autre débogueur est déjà connecté au packager. Fermez-le avant d'essayer d'effectuer le débogage avec VSCode.",
-	"NotInReactNativeFolderError": "Apparemment, vous tentez d'effectuer le débogage à partir d'un répertoire qui n'est pas une racine de projet React Native. \n Si tel est le cas, suivez ces instructions : https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
+	"NotInReactNativeFolderError": "Apparemment, vous tentez d'effectuer le débogage à partir d'un répertoire qui n'est pas une racine de projet React Native. \n Si tel est le cas, suivez ces instructions : https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
 	"SourcesStoragePathIsNullOrEmpty": "L'argument sourcesStoragePath a une valeur null ou est vide",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "Impossible d'installer l'application sur un appareil disponible. Vérifiez qu'un appareil ou un émulateur correctement \n configuré est en cours d'exécution. Consultez https://facebook.github.io/react-native/docs/android-setup.html.",
 	"AndroidShellCommandTimedOut": "Une commande d'interpréteur de commandes Android a expiré. Réessayez l'opération.",

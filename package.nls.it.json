@@ -20,7 +20,7 @@
 	"reactNative.attach.program.description": "[DEPRECATO. IN ALTERNATIVA USARE cwd] Percorso di launchReactNative.js nella cartella vscode",
 	"reactNative.attach.cwd.description": "Percorso della cartella radice del progetto",
 	"reactNative.attach.sourceMaps.description": "Indica se usare i source map JavaScript per eseguire il mapping del codice in bundle generato alle origini iniziali",
-	"reactNative.attach.sourceMapsPathOverrides.description": "Set di mapping per riscrivere i percorsi dei file di origine dalle posizioni indicate nel source map alle relative posizioni sul disco. Per dettagli, vedere https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
+	"reactNative.attach.sourceMapsPathOverrides.description": "Set di mapping per riscrivere i percorsi dei file di origine dalle posizioni indicate nel source map alle relative posizioni sul disco. Per dettagli, vedere https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
 	"reactNative.attach.trace.description": "Livello di registrazione nel processo del debugger. Può essere utile per la diagnostica. Se è impostato su \"Traccia\", tutti i log del processo del debugger saranno disponibili nella finestra di output 'Console di debug'.",
 	"reactNative.attach.address.description": "Indirizzo TCP/IP dello strumento per la creazione di pacchetti a cui collegarsi per il debug. Il valore predefinito è 'localhost'.",
 	"reactNative.attach.port.description": "Porta dello strumento per la creazione di pacchetti a cui connettersi per il debug. Il valore predefinito è 8081.",

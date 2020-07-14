@@ -217,7 +217,7 @@ export class CommandPaletteHandler {
     public static runElementInspector(): Q.Promise<void> {
         if (!CommandPaletteHandler.elementInspector) {
             // Remove the following env variables to prevent running electron app in node mode.
-            // https://github.com/Microsoft/vscode/issues/3011#issuecomment-184577502
+            // https://github.com/microsoft/vscode/issues/3011#issuecomment-184577502
             let env = Object.assign({}, process.env);
             delete env.ATOM_SHELL_INTERNAL_RUN_AS_NODE;
             delete env.ELECTRON_RUN_AS_NODE;

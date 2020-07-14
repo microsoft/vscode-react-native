@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "使用者已取消登入。",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "無法連結至封裝工具。確定目前確有封裝工具，且其執行於連接埠 {0} 中? 若您的封裝工具已設定為在另一個連接埠中執行，請務必將其新增至 settings.json。",
 	"AnotherDebuggerConnectedToPackager": "其他偵錯工具已連線至封裝工具。請將其關閉，然後再嘗試利用 VSCode 進行偵錯。",
-	"NotInReactNativeFolderError": "看來您正在嘗試從不是 React Native 專案根目錄的目錄中進行偵錯。\n 如果是的話，請遵循以下連結中的指示: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure。",
+	"NotInReactNativeFolderError": "看來您正在嘗試從不是 React Native 專案根目錄的目錄中進行偵錯。\n 如果是的話，請遵循以下連結中的指示: https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure。",
 	"SourcesStoragePathIsNullOrEmpty": "SourcesStoragePath 引數為 null 或空白",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "無法在任何可用的裝置上安裝應用程式。請確定您有設定正確的 \n 裝置或模擬器正在執行。請參閱 https://facebook.github.io/react-native/docs/android-setup.html。",
 	"AndroidShellCommandTimedOut": "Android 的命令殼層逾時。請重試一次該作業。",

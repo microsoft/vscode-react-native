@@ -22,7 +22,7 @@ export interface RNPackageVersions {
 export class ProjectVersionHelper {
 
     public static getRNVersionsWithBrokenMetroBundler() {
-        // https://github.com/Microsoft/vscode-react-native/issues/660 for details
+        // https://github.com/microsoft/vscode-react-native/issues/660 for details
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
 
