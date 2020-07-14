@@ -3,7 +3,6 @@
 
 import * as assert from "assert";
 import * as child_process from "child_process";
-import * as Q from "q";
 
 import {ISpawnResult, ChildProcess} from "../../../src/common/node/childProcess";
 import {PromiseUtil} from "../../../src/common/node/promise";
@@ -17,16 +16,16 @@ export type Recording = recording.Recording;
 
 export interface ISimulationResult {
     simulatedProcess: child_process.ChildProcess;
-    simulationEnded: Q.Promise<void> | void;
+    simulationEnded: Promise<void> | void;
 }
 
 /* The side effects definition has rule to identify when an event with side effects happened in the simulation,
    and the callback that must be called for the simulator to simulate that side-effect during the tests.
    e.g.: When the 'projectWasCreated' event happens, we call a callback to actually create the project */
 export interface ISideEffectsDefinition {
-    beforeStart: () => Q.Promise<void>;
+    beforeStart: () => Promise<void>;
     outputBased: IOutputBasedSideEffectDefinition[];
-    beforeSuccess: (stdout: string, stderr: string) => Q.Promise<void>;
+    beforeSuccess: (stdout: string, stderr: string) => Promise<void>;
 }
 
 type IOutputBasedSideEffectDefinition = IOutputSingleEventBasedSideEffectDefinition | IWholeOutputBasedSideEffectDefinition;
@@ -34,13 +33,13 @@ type IOutputBasedSideEffectDefinition = IOutputSingleEventBasedSideEffectDefinit
 // Side effects based on analyzing each stdout event individually
 export interface IOutputSingleEventBasedSideEffectDefinition {
     eventPattern: RegExp;
-    action: () => Q.Promise<void>;
+    action: () => Promise<void>;
 }
 
 // Side effects based on analyzing the whole stdout of the recording
 export interface IWholeOutputBasedSideEffectDefinition {
     wholeOutputPattern: RegExp;
-    action: () => Q.Promise<void>;
+    action: () => Promise<void>;
 }
 
 /* We use this class to replay the events that we captured from a real execution of a process, to get
@@ -79,14 +78,14 @@ export class Simulator {
         return new ChildProcess({ childProcess: fakeChildProcessModule }).spawn("", []);
     }
 
-    public simulate(simRecording: Recording): Q.Promise<void> {
+    public simulate(simRecording: Recording): Promise<void> {
         assert(simRecording, "recording shouldn't be null");
         return this.sideEffectsDefinition.beforeStart().then(() => {
             return this.simulateAllEvents(simRecording.events);
         });
     }
 
-    public simulateAllEvents(events: IEventArguments[]): Q.Promise<void> {
+    public simulateAllEvents(events: IEventArguments[]): Promise<void> {
         return new PromiseUtil().reduce(events, (event: IEventArguments) => this.simulateSingleEvent(event));
     }
 
@@ -98,7 +97,7 @@ export class Simulator {
         return definition.hasOwnProperty("wholeOutputPattern");
     }
 
-    private simulateOutputSideEffects(data: string, previousOutputLength: number): Q.Promise<void> {
+    private simulateOutputSideEffects(data: string, previousOutputLength: number): Promise<void> {
         /* We store the applicable side effects with the index where they were applicable, so we execute the
            ones that were detected earlier in the recording first */
         const applicableSideEffectDefinitions: { index: number, definition: IOutputBasedSideEffectDefinition }[] = [];
@@ -134,10 +133,10 @@ export class Simulator {
         return new PromiseUtil().reduce(applicableSideEffectDefinitions, definition => definition.definition.action());
     }
 
-    private simulateSingleEvent(event: IEventArguments): Q.Promise<void> {
+    private simulateSingleEvent(event: IEventArguments): Promise<void> {
         /* TODO: Implement proper timing logic based on return Q.delay(event.at).then(() => {
             using sinon fake timers to simulate time passing by */
-        return Q.delay(0).then(() => {
+        return new PromiseUtil().delay(0).then(() => {
             this.allSimulatedEvents.push(event);
             const key = Object.keys(event).find(eventKey => eventKey !== "after"); // At the moment we are only using a single key/parameter per event
             switch (key) {
@@ -162,9 +161,9 @@ export class Simulator {
                 case "exit":
                     const code = (<IExitEvent>event).exit.code;
 
-                    let beforeFinishing = Q<void>(void 0);
+                    let beforeFinishing = Promise.resolve();
                     if (code === 0) {
-                        beforeFinishing = Q(this.sideEffectsDefinition.beforeSuccess(this.allStdout, this.allStderr));
+                        beforeFinishing = Promise.resolve(this.sideEffectsDefinition.beforeSuccess(this.allStdout, this.allStderr));
                     }
 
                     beforeFinishing.then(() => {
@@ -176,7 +175,7 @@ export class Simulator {
                 default:
                     throw new Error(`Unknown event to simulate: ${key} from:\n\t${event}`);
             }
-            return Q.resolve<void>(void 0);
+            return Promise.resolve();
         });
     }
 }

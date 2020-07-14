@@ -2,10 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {PlistBuddy} from "../../../src/extension/ios/plistBuddy";
-
 import * as assert from "assert";
 import * as path from "path";
-import * as Q from "q";
 import * as fs from "fs";
 import * as sinon from "sinon";
 import { ConfigurationData } from "../../../src/extension/ios/plistBuddy";
@@ -27,8 +25,8 @@ suite("plistBuddy", function() {
             const addCallArgs = `/usr/libexec/PlistBuddy -c 'Add ${plistProperty} string ${plistValue}' '${plistFileName}'`;
 
             const mockedExecFunc = sandbox.stub();
-            mockedExecFunc.withArgs(setCallArgs).returns({ outcome: Q.reject(new Error("Setting does not exist")) });
-            mockedExecFunc.withArgs(addCallArgs).returns({ outcome: Q.resolve("stdout") });
+            mockedExecFunc.withArgs(setCallArgs).returns({ outcome: Promise.reject(new Error("Setting does not exist")) });
+            mockedExecFunc.withArgs(addCallArgs).returns({ outcome: Promise.resolve("stdout") });
             mockedExecFunc.throws();
 
             const mockChildProcess: any = {
@@ -52,7 +50,7 @@ suite("plistBuddy", function() {
             const setCallArgs = `/usr/libexec/PlistBuddy -c 'Set ${plistProperty} ${plistValue}' '${plistFileName}'`;
 
             const mockedExecFunc = sandbox.stub();
-            mockedExecFunc.withArgs(setCallArgs).returns({ outcome: Q.resolve("stdout") });
+            mockedExecFunc.withArgs(setCallArgs).returns({ outcome: Promise.resolve("stdout") });
             mockedExecFunc.throws();
 
             const mockChildProcess: any = {
@@ -75,15 +73,15 @@ suite("plistBuddy", function() {
             const deviceBundleId = "com.contoso.device";
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, undefined, simulatorBundleId, deviceBundleId);
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.58.5", reactNativeWindowsVersion: ""}));
+            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Promise.resolve({reactNativeVersion: "0.58.5", reactNativeWindowsVersion: ""}));
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
 
-            return Q.all([
+            return Promise.all([
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName, "whateverScheme"),
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName, "whateverScheme"),
-            ]).spread((simulatorId1, simulatorId2, deviceId1, deviceId2) => {
+            ]).then(([simulatorId1, simulatorId2, deviceId1, deviceId2]) => {
                 assert.equal(simulatorBundleId, simulatorId1);
                 assert.equal(simulatorBundleId, simulatorId2);
                 assert.equal(deviceBundleId, deviceId1);
@@ -100,16 +98,16 @@ suite("plistBuddy", function() {
             const deviceBundleId = "com.contoso.device";
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, "myCustomScheme", simulatorBundleId, deviceBundleId);
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Q.resolve({reactNativeVersion: "0.59.0", reactNativeWindowsVersion: ""}));
+            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Promise.resolve({reactNativeVersion: "0.59.0", reactNativeWindowsVersion: ""}));
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
-            return Q.all([
+            return Promise.all([
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName, scheme),
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName, scheme),
-            ]).spread((simulatorId1, simulatorId2, deviceId1, deviceId2) => {
+            ]).then(([simulatorId1, simulatorId2, deviceId1, deviceId2]) => {
                 assert.equal(simulatorBundleId, simulatorId1);
                 assert.equal(simulatorBundleId, simulatorId2);
                 assert.equal(deviceBundleId, deviceId1);
@@ -177,8 +175,8 @@ suite("plistBuddy", function() {
 
             const printExecCall = (simulator: boolean) => `/usr/libexec/PlistBuddy -c 'Print:CFBundleIdentifier' '${infoPlistPath(simulator)}'`;
             const mockedExecFunc = sandbox.stub();
-            mockedExecFunc.withArgs(printExecCall(true)).returns({outcome: Q.resolve(simulatorBundleId)});
-            mockedExecFunc.withArgs(printExecCall(false)).returns({outcome: Q.resolve(deviceBundleId)});
+            mockedExecFunc.withArgs(printExecCall(true)).returns({outcome: Promise.resolve(simulatorBundleId)});
+            mockedExecFunc.withArgs(printExecCall(false)).returns({outcome: Promise.resolve(deviceBundleId)});
             const mockChildProcess: any = {
                 exec: mockedExecFunc,
             };

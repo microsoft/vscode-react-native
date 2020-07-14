@@ -14,7 +14,6 @@ const GulpExtras = require("./tools/gulp-extras");
 const minimist = require("minimist");
 const os = require("os");
 const fs = require("fs");
-const Q = require("q");
 const es = require("event-stream");
 const remapIstanbul = require("remap-istanbul/lib/gulpRemapIstanbul");
 const nls = require("vscode-nls-dev");
@@ -411,7 +410,7 @@ gulp.task("release", function prepareLicenses() {
     }
 
 
-    return Q({})
+    return Promise.resolve()
         .then(() => {
             /* back up LICENSE.txt, ThirdPartyNotices.txt, README.md */
             log("Backing up license files to " + backupFolder + "...");
@@ -432,10 +431,10 @@ gulp.task("release", function prepareLicenses() {
             }
             writeJson("package.json", packageJson);
             log("Creating release package...");
-            var deferred = Q.defer();
-            // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.
-            executeCommand("vsce", ["package"], (arg) => { if (arg) { deferred.reject(arg); } deferred.resolve() }, { cwd: path.resolve(__dirname) });
-            return deferred.promise;
+            return new Promise(() => {
+                // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.
+                executeCommand("vsce", ["package"], (arg) => { if (arg) { deferred.reject(arg); } deferred.resolve() }, { cwd: path.resolve(__dirname) });
+            })
         }).finally(() => {
             /* restore backed up files */
             log("Restoring modified files...");

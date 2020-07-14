@@ -3,16 +3,13 @@
 
 import { CommandExecutor } from "../../src/common/commandExecutor";
 import { ConsoleLogger } from "../../src/extension/log/ConsoleLogger";
-
 import { Node } from "../../src/common/node/node";
 import { ChildProcess } from "../../src/common/node/childProcess";
-
 import { EventEmitter } from "events";
 import { Crypto } from "../../src/common/node/crypto";
 import * as assert from "assert";
 import * as semver from "semver";
 import * as sinon from "sinon";
-import * as Q from "q";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -91,10 +88,10 @@ suite("commandExecutor", function() {
                 console.log(message);
             });
 
-            Q({})
+            Promise.resolve()
                 .then(function () {
                     return ce.spawn("node", ["-v"]);
-                }).done(() => done(), done);
+                }).then(() => done(), done);
         });
 
         test("spawn should reject a bad command", function(done: MochaDone) {
@@ -103,7 +100,7 @@ suite("commandExecutor", function() {
                 console.log(message);
             });
 
-            Q({})
+            Promise.resolve()
                 .then(function() {
                     return ce.spawn("bar", ["-v"]);
                 })
@@ -111,7 +108,7 @@ suite("commandExecutor", function() {
                     console.log(reason.message);
                     assert.equal(reason.errorCode, 101);
                     assert.equal(reason.errorLevel, 0);
-                }).done(() => done(), done);
+                }).then(() => done(), done);
         });
 
         test("should not fail on react-native command without arguments", function (done: MochaDone) {
@@ -153,7 +150,7 @@ suite("commandExecutor", function() {
                 commandExecutor.getReactNativeVersion()
                 .then(version => {
                     assert.equal(version, "0.22.0");
-                }).done(() => done(), done);
+                }).then(() => done(), done);
             });
 
             test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", (done: MochaDone) => {
@@ -167,7 +164,7 @@ suite("commandExecutor", function() {
                 commandExecutor.getReactNativeVersion()
                 .then(version => {
                     assert.equal(version, "0.22.2");
-                }).done(() => done(), done);
+                }).then(() => done(), done);
             });
         });
 
