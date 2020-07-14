@@ -113,7 +113,11 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 this.runArguments.push("--verbose");
             }
             const runIosSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand("run-ios", this.runArguments, {env});
-            return new OutputVerifier(() => this.generateSuccessPatterns(this.runOptions.reactNativeVersions.reactNativeVersion), () => Promise.resolve(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
+            return new OutputVerifier(
+                () =>
+                    this.generateSuccessPatterns(this.runOptions.reactNativeVersions.reactNativeVersion),
+                () =>
+                    Promise.resolve(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
                 .process(runIosSpawn);
         });
     }
