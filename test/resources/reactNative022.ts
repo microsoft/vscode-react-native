@@ -131,10 +131,9 @@ export class ReactNative022 {
         return this.fileSystem.directoryExists(this.getAndroidProjectPath());
     }
 
-    private installAppInAllDevices(): Promise<void> {
+    private async installAppInAllDevices(): Promise<void> {
         let devices = this.adbHelper.getConnectedDevices();
-        return Promise.all(devices.reduce(device => this.installAppInDevice(device)));
-        return new PromiseUtil().reduce(devices, device => this.installAppInDevice(device.id));
+        return new PromiseUtil().reduce(await devices, device => this.installAppInDevice(device.id));
     }
 
     private installAppInDevice(deviceId: string): Promise<void> {

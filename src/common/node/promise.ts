@@ -20,6 +20,16 @@ export class PromiseUtil {
         return this.retryAsyncIteration(operation, condition, maxRetries, 0, delay, failure);
     }
 
+    public reduce<T>(sources: T[], generateAsyncOperation: (value: T) => Promise<void>): Promise<void> {
+        return new Promise(() => {
+                return sources.reduce((previousReduction: Promise<void>, newSource: T) => {
+                    return previousReduction.then(() => {
+                        return generateAsyncOperation(newSource);
+                    });
+                }, Promise.resolve());
+        });
+    }
+
     public delay(duration: number): Promise<void> {
         return new Promise<void>(resolve => setTimeout(resolve, duration));
     }
