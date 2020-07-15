@@ -49,14 +49,14 @@ suite("androidPlatform", function () {
             return new AndroidPlatform(runOptions);
         }
 
-        setup(async () => {
+        setup(() => {
             sandbox = sinon.sandbox.create();
 
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
 
             adbHelper = new adb.AdbHelper(genericRunOptions.projectRoot);
-            sandbox.stub(adbHelper, "launchApp", function (projectRoot_: string, packageName: string, debugTarget?: string) {
+            sandbox.stub(adbHelper, "launchApp", (projectRoot_: string, packageName: string, debugTarget?: string) => {
                 devices = devices.map((device: any) => {
                     if (!debugTarget) {
                         device.installedApplications[androidPackageName] = { isInDebugMode: false };
@@ -116,7 +116,7 @@ suite("androidPlatform", function () {
             // Delete existing React Native project before creating
             rimraf.sync(projectsFolder);
             // Create a React-Native project we'll use in our tests
-            return await reactNative
+            return reactNative
                 .fromProjectFileContent(rnProjectContent)
                 .createProject(projectRoot, applicationName);
         });
@@ -139,8 +139,8 @@ suite("androidPlatform", function () {
                 devices = fillDevices(["Nexus_5"]);
 
                 return Promise.resolve()
-                    .then(() => {
-                        return androidPlatform.runApp();
+                    .then(async () => {
+                        return await androidPlatform.runApp();
                     }).then(() => {
                         return devices[0].installedApplications[androidPackageName].isInDebugMode === false;
                     }).then(isRunning => {
