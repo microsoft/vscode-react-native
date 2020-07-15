@@ -16,6 +16,7 @@ import * as nls from "vscode-nls";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { isNullOrUndefined } from "util";
+import { PromiseUtil } from "../../common/node/promise";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -130,9 +131,9 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                         return Promise.reject<IDevice[]>(reason);
                     }
                 }).then(devices => {
-                    return Promise.all(devices.map(device => this.launchAppWithADBReverseAndLogCat(device)));
-                }).then(() => {}).catch((err) => {
-                    console.log(123);
+                    return new PromiseUtil().forEach(devices, device => {
+                        return this.launchAppWithADBReverseAndLogCat(device);
+                    });
                 });
         });
     }
