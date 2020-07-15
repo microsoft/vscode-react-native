@@ -49,7 +49,7 @@ suite("androidPlatform", function () {
             return new AndroidPlatform(runOptions);
         }
 
-        setup(() => {
+        setup(async () => {
             sandbox = sinon.sandbox.create();
 
             // Configure all the dependencies we'll use in our tests
@@ -116,7 +116,7 @@ suite("androidPlatform", function () {
             // Delete existing React Native project before creating
             rimraf.sync(projectsFolder);
             // Create a React-Native project we'll use in our tests
-            return reactNative
+            return await reactNative
                 .fromProjectFileContent(rnProjectContent)
                 .createProject(projectRoot, applicationName);
         });
