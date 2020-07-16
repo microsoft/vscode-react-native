@@ -17,8 +17,6 @@ import "should";
 import * as sinon from "sinon";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
 
-// TODO: Launch the extension server
-
 suite("androidPlatform", function () {
     suite("extensionContext", function () {
         const projectRoot = path.join(__dirname, "..", "..", "resources", "projects", "SampleApplication_21");
@@ -139,8 +137,8 @@ suite("androidPlatform", function () {
                 devices = fillDevices(["Nexus_5"]);
 
                 return Promise.resolve()
-                    .then(async () => {
-                        return await androidPlatform.runApp();
+                    .then(() => {
+                        return androidPlatform.runApp();
                     }).then(() => {
                         return devices[0].installedApplications[androidPackageName].isInDebugMode === false;
                     }).then(isRunning => {
