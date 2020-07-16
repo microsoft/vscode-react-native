@@ -3,7 +3,6 @@
 
 import * as path from "path";
 import * as assert from "assert";
-import * as fs from "fs";
 import {PromiseUtil} from "../../src/common/node/promise";
 import {IAndroidRunOptions} from "../../src/extension/launchArgs";
 import {ISpawnResult} from "../../src/common/node/childProcess";
@@ -79,16 +78,21 @@ export class ReactNative022 {
         this.recording = recording;
     }
 
-    public createProject(projectRoot: string, projectName: string): void {
-        this.fileSystem.makeDirectoryRecursiveSync(projectRoot);
-        const defaultContents = this.projectFileContent !== undefined ?
-            this.projectFileContent :
-            this.readDefaultProjectFile();
-        const reactNativeConfiguration = JSON.parse(defaultContents.toString());
-        reactNativeConfiguration.name = projectName;
-        const reactNativeConfigurationFormatted = JSON.stringify(reactNativeConfiguration);
-        fs.writeFileSync(this.getPackageJsonPath(projectRoot), reactNativeConfigurationFormatted);
-        fs.mkdirSync(this.getAndroidProjectPath(projectRoot));
+    public createProject(projectRoot: string, projectName: string): Promise<void> {
+        return Promise.resolve()
+            .then(() => {
+                this.fileSystem.makeDirectoryRecursiveSync(projectRoot);
+                return this.projectFileContent !== undefined ?
+                    this.projectFileContent :
+                    this.readDefaultProjectFile();
+            }).then(defaultContents => {
+                const reactNativeConfiguration = JSON.parse(defaultContents.toString());
+                reactNativeConfiguration.name = projectName;
+                const reactNativeConfigurationFormatted = JSON.stringify(reactNativeConfiguration);
+                return this.fileSystem.writeFile(this.getPackageJsonPath(projectRoot), reactNativeConfigurationFormatted);
+            }).then(() => {
+                return this.fileSystem.mkDir(this.getAndroidProjectPath(projectRoot));
+            });
     }
 
     public runAndroid(runOptions: IAndroidRunOptions): ISpawnResult {
