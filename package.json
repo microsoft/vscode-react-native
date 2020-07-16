@@ -29,6 +29,7 @@
 		"Other"
 	],
 	"activationEvents": [
+		"workspaceContains:node_modules/react-native",
 		"onDebugResolve:reactnative-preview",
 		"onDebugResolve:reactnativedirect-preview",
 		"onDebugInitialConfigurations",
