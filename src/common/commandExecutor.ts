@@ -6,11 +6,12 @@ import * as cp from "child_process";
 import {ILogger} from "../extension/log/LogHelper";
 import {NullLogger} from "../extension/log/NullLogger";
 import {ProjectVersionHelper} from "../common/projectVersionHelper";
-import {ISpawnResult, ChildProcess} from "./node/childProcess";
+import {ISpawnResult} from "./node/childProcess";
 import {HostPlatform, HostPlatformId} from "./hostPlatform";
 import {ErrorHelper} from "./error/errorHelper";
 import {InternalErrorCode} from "./error/internalErrorCode";
 import * as nls from "vscode-nls";
+import { Node } from "./node/node";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -38,7 +39,7 @@ export enum CommandStatus {
 export class CommandExecutor {
 
     public static ReactNativeCommand: string | null;
-    private childProcess = new ChildProcess();
+    private childProcess = new Node.ChildProcess();
 
     constructor(
         private currentWorkingDirectory: string = process.cwd(),
