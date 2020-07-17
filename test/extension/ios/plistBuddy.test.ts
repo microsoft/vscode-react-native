@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {PlistBuddy} from "../../../src/extension/ios/plistBuddy";
+import { PlistBuddy } from "../../../src/extension/ios/plistBuddy";
 import * as assert from "assert";
 import * as path from "path";
 import * as fs from "fs";
@@ -9,14 +9,14 @@ import * as sinon from "sinon";
 import { ConfigurationData } from "../../../src/extension/ios/plistBuddy";
 import { ProjectVersionHelper } from "../../../src/common/projectVersionHelper";
 
-suite("plistBuddy", function() {
-    suite("extensionContext", function() {
+suite("plistBuddy", function () {
+    suite("extensionContext", function () {
         const sandbox = sinon.sandbox.create();
         teardown(() => {
             sandbox.restore();
         });
 
-        test("setPlistProperty should attempt to modify, then add, plist properties", function() {
+        test("setPlistProperty should attempt to modify, then add, plist properties", function () {
             const plistFileName = "testFile.plist";
             const plistProperty = ":RCTDevMenu:ExecutorClass";
             const plistValue = "RCTWebSocketExecutor";
@@ -25,8 +25,8 @@ suite("plistBuddy", function() {
             const addCallArgs = `/usr/libexec/PlistBuddy -c 'Add ${plistProperty} string ${plistValue}' '${plistFileName}'`;
 
             const mockedExecFunc = sandbox.stub();
-            mockedExecFunc.withArgs(setCallArgs).returns({ outcome: Promise.reject(new Error("Setting does not exist")) });
-            mockedExecFunc.withArgs(addCallArgs).returns({ outcome: Promise.resolve("stdout") });
+            mockedExecFunc.withArgs(setCallArgs).returns(Promise.resolve({ outcome: Promise.reject(new Error("Setting does not exist")) }));
+            mockedExecFunc.withArgs(addCallArgs).returns(Promise.resolve({ outcome: Promise.resolve("stdout") }));
             mockedExecFunc.throws();
 
             const mockChildProcess: any = {
@@ -42,7 +42,7 @@ suite("plistBuddy", function() {
                 });
         });
 
-        test("setPlistProperty should stop after modifying if the attempt succeeds", function() {
+        test("setPlistProperty should stop after modifying if the attempt succeeds", function () {
             const plistFileName = "testFile.plist";
             const plistProperty = ":RCTDevMenu:ExecutorClass";
             const plistValue = "RCTWebSocketExecutor";
@@ -50,7 +50,7 @@ suite("plistBuddy", function() {
             const setCallArgs = `/usr/libexec/PlistBuddy -c 'Set ${plistProperty} ${plistValue}' '${plistFileName}'`;
 
             const mockedExecFunc = sandbox.stub();
-            mockedExecFunc.withArgs(setCallArgs).returns({ outcome: Promise.resolve("stdout") });
+            mockedExecFunc.withArgs(setCallArgs).returns(Promise.resolve({ outcome: Promise.resolve("stdout") }));
             mockedExecFunc.throws();
 
             const mockChildProcess: any = {
@@ -65,7 +65,7 @@ suite("plistBuddy", function() {
                 });
         });
 
-        test("getBundleId should return the bundle ID for RN <0.59", function() {
+        test("getBundleId should return the bundle ID for RN <0.59", function () {
             const projectRoot = path.join("/", "userHome", "rnProject");
             const iosProjectRoot = path.join(projectRoot, "ios");
             const appName = "myApp";
@@ -73,7 +73,7 @@ suite("plistBuddy", function() {
             const deviceBundleId = "com.contoso.device";
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, undefined, simulatorBundleId, deviceBundleId);
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Promise.resolve({reactNativeVersion: "0.58.5", reactNativeWindowsVersion: ""}));
+            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Promise.resolve({ reactNativeVersion: "0.58.5", reactNativeWindowsVersion: "" }));
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
 
             return Promise.all([
@@ -89,7 +89,7 @@ suite("plistBuddy", function() {
             });
         });
 
-        test("getBundleId should return the bundle ID for RN >=0.59", function() {
+        test("getBundleId should return the bundle ID for RN >=0.59", function () {
             const projectRoot = path.join("/", "userHome", "rnProject");
             const iosProjectRoot = path.join(projectRoot, "ios");
             const appName = "myApp";
@@ -98,7 +98,7 @@ suite("plistBuddy", function() {
             const deviceBundleId = "com.contoso.device";
             const plistBuddy = getPlistBuddy(appName, iosProjectRoot, "myCustomScheme", simulatorBundleId, deviceBundleId);
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Promise.resolve({reactNativeVersion: "0.59.0", reactNativeWindowsVersion: ""}));
+            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Promise.resolve({ reactNativeVersion: "0.59.0", reactNativeWindowsVersion: "" }));
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
@@ -115,7 +115,7 @@ suite("plistBuddy", function() {
             });
         });
 
-        suite("fetchParameterFromBuildSettings", function() {
+        suite("fetchParameterFromBuildSettings", function () {
             const buildSettingsFile = path.join(__dirname, "..", "..", "resources", "auxiliaryFiles", "buildSettings.txt");
             const plistBuddy = new PlistBuddy();
             let buildSettings: string | Buffer;
@@ -175,8 +175,8 @@ suite("plistBuddy", function() {
 
             const printExecCall = (simulator: boolean) => `/usr/libexec/PlistBuddy -c 'Print:CFBundleIdentifier' '${infoPlistPath(simulator)}'`;
             const mockedExecFunc = sandbox.stub();
-            mockedExecFunc.withArgs(printExecCall(true)).returns({outcome: Promise.resolve(simulatorBundleId)});
-            mockedExecFunc.withArgs(printExecCall(false)).returns({outcome: Promise.resolve(deviceBundleId)});
+            mockedExecFunc.withArgs(printExecCall(true)).returns(Promise.resolve({ outcome: Promise.resolve(simulatorBundleId) }));
+            mockedExecFunc.withArgs(printExecCall(false)).returns(Promise.resolve({ outcome: Promise.resolve(deviceBundleId) }));
             const mockChildProcess: any = {
                 exec: mockedExecFunc,
             };
