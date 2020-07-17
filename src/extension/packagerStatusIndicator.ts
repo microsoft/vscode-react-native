@@ -31,6 +31,7 @@ export class PackagerStatusIndicator implements Disposable {
     private static RESTART_ICON = "$(sync)";
 
     private static START_COMMAND = "reactNative.startPackager";
+    private static RESTART_COMMAND = "reactNative.restartPackager";
     private static STOP_COMMAND = "reactNative.stopPackager";
 
     public static FULL_VERSION = "Full";
