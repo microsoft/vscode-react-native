@@ -431,9 +431,9 @@ gulp.task("release", function prepareLicenses() {
             }
             writeJson("package.json", packageJson);
             log("Creating release package...");
-            return new Promise(() => {
+            return new Promise((resolve, reject) => {
                 // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.
-                executeCommand("vsce", ["package"], (arg) => { if (arg) { deferred.reject(arg); } deferred.resolve() }, { cwd: path.resolve(__dirname) });
+                executeCommand("vsce", ["package"], (arg) => { if (arg) { reject(arg); } resolve(); }, { cwd: path.resolve(__dirname) });
             })
         }).finally(() => {
             /* restore backed up files */
