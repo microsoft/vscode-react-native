@@ -3,6 +3,7 @@
 
 import {window, Disposable, StatusBarItem, StatusBarAlignment} from "vscode";
 import * as nls from "vscode-nls";
+import { SettingsHelper } from "./settingsHelper";
 const localize = nls.loadMessageBundle();
 
 /**
@@ -18,48 +19,80 @@ export enum PackagerStatus {
 
 export class PackagerStatusIndicator implements Disposable {
     private togglePackagerItem: StatusBarItem;
+    private restartPackagerItem: StatusBarItem;
+    private displayVersion: string = PackagerStatusIndicator.FULL_VERSION;
+    private projectRoot: string|undefined = undefined;
+
     private static PACKAGER_NAME: string = localize("ReactNativePackager", "React Native Packager");
 
     private static START_ICON = "$(play)";
     private static STOP_ICON = "$(primitive-square)";
     private static ACTIVITY_ICON = "$(loading)";
+    private static RESTART_ICON = "$(sync)";
 
     private static START_COMMAND = "reactNative.startPackager";
     private static STOP_COMMAND = "reactNative.stopPackager";
+    private static RESTART_COMMAND = "reactNative.restartPackager";
 
-    public constructor() {
+    public static FULL_VERSION = "Full";
+    public static SHORT_VERSION = "Short";
+
+    public constructor(projectRoot: string|undefined = undefined) {
+        this.projectRoot = projectRoot;
+
+        this.restartPackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
+        this.restartPackagerItem.text = PackagerStatusIndicator.RESTART_ICON;
+        this.restartPackagerItem.command = PackagerStatusIndicator.RESTART_COMMAND;
+        this.restartPackagerItem.tooltip = localize("RestartPackager", "Restart Packager");
+
         this.togglePackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
-        this.togglePackagerItem.text = `${PackagerStatusIndicator.START_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
-        this.togglePackagerItem.command = PackagerStatusIndicator.START_COMMAND;
-        this.togglePackagerItem.tooltip = localize("StartPackager", "Start Packager");
-        this.togglePackagerItem.show();
+        this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, localize("StartPackager", "Start Packager"));
+    }
+
+    public updateDisplayVersion(){
+        let version = PackagerStatusIndicator.FULL_VERSION;
+        if (this.projectRoot) {
+            version = SettingsHelper.getPackagerStatusIndicatorPattern(this.projectRoot);
+        }
+        this.displayVersion = version;
     }
 
     public dispose(): void {
         this.togglePackagerItem.dispose();
+        this.restartPackagerItem.dispose();
+    }
+
+    private setupPackagerStatusIndicatorItems(icon: string, command: string|undefined, tooltip: string = ""){
+        this.updateDisplayVersion();
+        this.togglePackagerItem.command = command;
+        this.togglePackagerItem.tooltip = tooltip;
+        switch (this.displayVersion) {
+            case PackagerStatusIndicator.FULL_VERSION:
+                this.togglePackagerItem.text = `${icon} ${PackagerStatusIndicator.PACKAGER_NAME}`;
+                this.togglePackagerItem.show();
+                this.restartPackagerItem.hide();
+                break;
+            case PackagerStatusIndicator.SHORT_VERSION:
+                this.togglePackagerItem.text = `${icon}`;
+                this.togglePackagerItem.show();
+                this.restartPackagerItem.show();
+                break;
+        }
     }
 
     public updatePackagerStatus(status: PackagerStatus): void {
         switch (status) {
             case PackagerStatus.PACKAGER_STOPPED:
-                this.togglePackagerItem.text =  `${PackagerStatusIndicator.START_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
-                this.togglePackagerItem.command = PackagerStatusIndicator.START_COMMAND;
-                this.togglePackagerItem.tooltip = localize("StartPackager", "Start Packager");
+                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, localize("StartPackager", "Start Packager"));
                 break;
             case PackagerStatus.PACKAGER_STOPPING:
-                this.togglePackagerItem.text =  `${PackagerStatusIndicator.ACTIVITY_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
-                this.togglePackagerItem.command = undefined;
-                this.togglePackagerItem.tooltip = "";
+                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined);
                 break;
             case PackagerStatus.PACKAGER_STARTED:
-                this.togglePackagerItem.text =  `${PackagerStatusIndicator.STOP_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
-                this.togglePackagerItem.command = PackagerStatusIndicator.STOP_COMMAND;
-                this.togglePackagerItem.tooltip = localize("StopPackager", "Stop Packager");
+                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.STOP_ICON, PackagerStatusIndicator.STOP_COMMAND, localize("StopPackager", "Stop Packager"));
                 break;
             case PackagerStatus.PACKAGER_STARTING:
-                this.togglePackagerItem.text =  `${PackagerStatusIndicator.ACTIVITY_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
-                this.togglePackagerItem.command = undefined;
-                this.togglePackagerItem.tooltip = "";
+                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined);
                 break;
             default:
                 break;

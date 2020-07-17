@@ -5,6 +5,7 @@ import * as path from "path";
 import {ConfigurationReader} from "../common/configurationReader";
 import {Packager} from "../common/packager";
 import {LogLevel} from "./log/LogHelper";
+import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 
 export class SettingsHelper {
     /**
@@ -95,5 +96,21 @@ export class SettingsHelper {
         }
 
         return "";
+    }
+
+    /**
+     * We get the packager port configured by the user
+     */
+    public static getPackagerStatusIndicatorPattern(fsPath: string): string {
+        const projectRoot = SettingsHelper.getReactNativeProjectRoot(fsPath);
+        let uri = vscode.Uri.file(projectRoot);
+        const workspaceConfiguration = vscode.workspace.getConfiguration("react-native.packager", uri);
+        if (workspaceConfiguration.has("status-indicator")) {
+            const version = ConfigurationReader.readString(workspaceConfiguration.get("status-indicator"));
+            if (version == PackagerStatusIndicator.FULL_VERSION || version == PackagerStatusIndicator.SHORT_VERSION) {
+                return version;
+            }
+        }
+        return PackagerStatusIndicator.FULL_VERSION;
     }
 }
