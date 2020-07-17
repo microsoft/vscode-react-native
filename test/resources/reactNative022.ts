@@ -65,10 +65,8 @@ export class ReactNative022 {
     }
 
     public loadRecordingFromFile(recordingPath: string): Promise<void> {
-        return Promise.resolve()
-            .then(() => {
-                return new FileSystem().readFile(recordingPath);
-            }).then(fileContents => {
+            return new FileSystem().readFile(recordingPath)
+            .then(fileContents => {
                 this.loadRecording(JSON.parse(fileContents.toString()));
             });
     }
@@ -129,9 +127,9 @@ export class ReactNative022 {
         return this.fileSystem.directoryExists(this.getAndroidProjectPath());
     }
 
-    private async installAppInAllDevices(): Promise<void> {
+    private installAppInAllDevices(): Promise<void> {
         let devices = this.adbHelper.getConnectedDevices();
-        return new PromiseUtil().reduce(await devices, device => this.installAppInDevice(device.id));
+        return new PromiseUtil().reduce(devices, device => this.installAppInDevice(device.id));
     }
 
     private installAppInDevice(deviceId: string): Promise<void> {
