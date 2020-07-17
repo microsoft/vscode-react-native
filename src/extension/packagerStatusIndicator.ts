@@ -32,7 +32,6 @@ export class PackagerStatusIndicator implements Disposable {
 
     private static START_COMMAND = "reactNative.startPackager";
     private static STOP_COMMAND = "reactNative.stopPackager";
-    private static RESTART_COMMAND = "reactNative.restartPackager";
 
     public static FULL_VERSION = "Full";
     public static SHORT_VERSION = "Short";
@@ -59,7 +58,6 @@ export class PackagerStatusIndicator implements Disposable {
 
     public dispose(): void {
         this.togglePackagerItem.dispose();
-        this.restartPackagerItem.dispose();
     }
 
     private setupPackagerStatusIndicatorItems(icon: string, command: string|undefined, tooltip: string = ""){
