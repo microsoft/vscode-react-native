@@ -256,7 +256,7 @@ export class Packager {
                 if (stoppedOK) {
                     return this.start(true);
                 } else {
-                    return Promise.resolve<void>();
+                    return Promise.resolve();
                 }
             });
     }
