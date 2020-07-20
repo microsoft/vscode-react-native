@@ -25,7 +25,7 @@
 	"reactNative.attach.program.description": "[DEPRECATED. USE cwd INSTEAD] 指向 vscode 文件夹中的 launchReactNative.js 的路径",
 	"reactNative.attach.cwd.description": "项目根文件夹的路径",
 	"reactNative.attach.sourceMaps.description": "是否要使用 JavaScript 源映射将生成的捆绑代码映射回其原始源",
-	"reactNative.attach.sourceMapsPathOverrides.description": "一组用于重写源映射中所述的源文件位置的映射，映射到磁盘上的相应位置。有关详细信息，请参阅 https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
+	"reactNative.attach.sourceMapsPathOverrides.description": "一组用于重写源映射中所述的源文件位置的映射，映射到磁盘上的相应位置。有关详细信息，请参阅 https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
 	"reactNative.attach.trace.description": "调试器进程中的日志记录级别。可能有助于诊断。如果设置为“跟踪”，则可通过“调试控制台”输出窗口查看所有调试器进程日志。",
 	"reactNative.attach.address.description": "要附加到(以进行调试)的包生成工具的 TCP/IP 地址。默认为 \"localhost\"。",
 	"reactNative.attach.port.description": "要附加到(以进行调试)的包生成工具的端口。默认为 8081。",

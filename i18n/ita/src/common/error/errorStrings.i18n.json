@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "Accesso annullato dall'utente.",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "Non è possibile collegarsi allo strumento per la creazione di pacchetti. Si è sicuri che lo strumento per la creazione di pacchetti sia presente e che sia in esecuzione sulla porta {0}? Se lo strumento per la creazione di pacchetti è configurato per l'esecuzione su un'altra porta, assicurarsi di aggiungere tale impostazione a settings.json.",
 	"AnotherDebuggerConnectedToPackager": "Allo strumento per la creazione di pacchetti è già connesso un altro debugger. Chiuderlo prima di provare a eseguire il debug con VS Code.",
-	"NotInReactNativeFolderError": "Sembra che si stia eseguendo il debug da una directory che non è una radice di progetto React Native. \n In tal caso, seguire queste istruzioni: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
+	"NotInReactNativeFolderError": "Sembra che si stia eseguendo il debug da una directory che non è una radice di progetto React Native. \n In tal caso, seguire queste istruzioni: https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
 	"SourcesStoragePathIsNullOrEmpty": "L'argomento sourcesStoragePath è Null o vuoto",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "Non è stato possibile installare l'app in nessun dispositivo disponibile. \n Assicurarsi che sia in esecuzione un dispositivo o un emulatore configurato correttamente. Vedere https://facebook.github.io/react-native/docs/android-setup.html.",
 	"AndroidShellCommandTimedOut": "Si è verificato un timeout del comando della shell di Android. Ripetere l'operazione.",
