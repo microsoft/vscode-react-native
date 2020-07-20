@@ -387,7 +387,7 @@ export class Packager {
                             return opnPackage.setMainFile(JS_INJECTOR_FILENAME);
                         });
                 }
-                return Promise.resolve(void 0);
+                return Promise.resolve();
             });
     }
 
