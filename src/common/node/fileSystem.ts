@@ -35,7 +35,7 @@ export class FileSystem {
                 if (contents !== existingContents) {
                     return this.writeFile(file, contents);
                 }
-                return Promise.resolve(void 0);
+                return Promise.resolve();
             });
         }, (err: Error & { code?: string }): Promise<any> => {
             if (err && err.code === "ENOENT") {
