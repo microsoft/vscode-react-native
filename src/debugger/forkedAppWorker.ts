@@ -113,12 +113,17 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     public postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage> {
         return new Promise((resolve) => {
-            const checkWorkerLoaded = setInterval(() => {
-                if (this.workerLoaded) {
-                    clearInterval(checkWorkerLoaded);
-                    resolve();
-                }
-            }, 1000);
+            if (this.workerLoaded) {
+                resolve();
+            } else {
+                const checkWorkerLoaded = setInterval(() => {
+                    if (this.workerLoaded) {
+                        clearInterval(checkWorkerLoaded);
+                        resolve();
+                    }
+                }, 1000);
+            }
+
         }).then(() => {
             // Before sending messages, make sure that the worker is loaded
             const promise = this.workerLoaded
