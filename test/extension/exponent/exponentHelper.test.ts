@@ -5,7 +5,6 @@ import { ExponentHelper } from "../../../src/extension/exponent/exponentHelper";
 import * as path from "path";
 import * as assert from "assert";
 import * as sinon from "sinon";
-import * as Q from "q";
 import { FileSystem } from "../../../src/common/node/fileSystem";
 
 suite("exponentHelper", function() {
@@ -13,7 +12,7 @@ suite("exponentHelper", function() {
 
     async function checkIsExpoApp(packageJson: any, expected: boolean) {
         let fs = new FileSystem();
-        sinon.stub(fs, "readFile", () => Q.resolve(JSON.stringify(packageJson)));
+        sinon.stub(fs, "readFile", () => Promise.resolve(JSON.stringify(packageJson)));
         const expoHelper = new ExponentHelper(RESOURCES_ROOT, "", fs);
         const result = await expoHelper.isExpoApp(false);
         assert.equal(result, expected);

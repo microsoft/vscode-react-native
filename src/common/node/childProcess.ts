@@ -48,17 +48,19 @@ export class ChildProcess {
     }
 
     public exec(command: string, options: IExecOptions = {}): Promise<IExecResult> {
+        let outcome: Promise<string>;
+        let process: nodeChildProcess.ChildProcess;
         return new Promise<IExecResult>((resolveRes) => {
-            const outcome: Promise<string> = new Promise<string>((resolve, reject) => {
-                const process = this.childProcess.exec(command, options, (error: Error, stdout: string, stderr: string) => {
+            outcome = new Promise<string>((resolve, reject) => {
+                process = this.childProcess.exec(command, options, (error: Error, stdout: string, stderr: string) => {
                         if (error) {
                             reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
                         } else {
                             resolve(stdout);
                         }
                     });
-                    resolveRes({process: process, outcome: outcome});
                 });
+            resolveRes({process: process, outcome: outcome});
         });
 
     }

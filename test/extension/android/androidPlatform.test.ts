@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as fs from "fs";
 import * as path from "path";
 import * as assert from "assert";
-
 import {AndroidPlatform} from "../../../src/extension/android/androidPlatform";
 import {IAndroidRunOptions} from "../../../src/extension/launchArgs";
 import {FileSystem} from "../../../src/common/node/fileSystem";
@@ -18,8 +16,6 @@ import * as rimraf from "rimraf";
 import "should";
 import * as sinon from "sinon";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
-
-// TODO: Launch the extension server
 
 suite("androidPlatform", function () {
     suite("extensionContext", function () {
@@ -58,7 +54,7 @@ suite("androidPlatform", function () {
             fileSystem = new FileSystem();
 
             adbHelper = new adb.AdbHelper(genericRunOptions.projectRoot);
-            sandbox.stub(adbHelper, "launchApp", function (projectRoot_: string, packageName: string, debugTarget?: string) {
+            sandbox.stub(adbHelper, "launchApp", (projectRoot_: string, packageName: string, debugTarget?: string) => {
                 devices = devices.map((device: any) => {
                     if (!debugTarget) {
                         device.installedApplications[androidPackageName] = { isInDebugMode: false };
@@ -71,21 +67,21 @@ suite("androidPlatform", function () {
                     return device;
                 });
 
-                return Q.resolve(void 0);
+                return Promise.resolve();
             });
             sandbox.stub(adbHelper, "getConnectedDevices", function () {
-                return Q.resolve(devices);
+                return Promise.resolve(devices);
             });
             sandbox.stub(adbHelper, "getOnlineDevices", function () {
-                return Q.resolve(devices.filter((device: any) => {
+                return Promise.resolve(devices.filter((device: any) => {
                     return device.isOnline;
                 }));
             });
             sandbox.stub(adbHelper, "apiVersion", function () {
-                return Q.resolve(adb.AndroidAPILevel.LOLLIPOP);
+                return Promise.resolve(adb.AndroidAPILevel.LOLLIPOP);
             });
             sandbox.stub(adbHelper, "reverseAdb", function () {
-                return Q.resolve(void 0);
+                return Promise.resolve();
             });
 
             reactNative = new ReactNative022(fileSystem, adbHelper);
@@ -99,7 +95,7 @@ suite("androidPlatform", function () {
             });
 
             sandbox.stub(ProjectVersionHelper, "getReactNativeVersions", function () {
-                return Q.resolve({reactNativeVersion: "0.0.1", reactNativeWindowsVersion: ""});
+                return Promise.resolve({reactNativeVersion: "0.0.1", reactNativeWindowsVersion: ""});
             });
 
             androidPlatform.setAdbHelper(adbHelper);
@@ -112,7 +108,7 @@ suite("androidPlatform", function () {
 
                     return device;
                 });
-                return Q.resolve(void 0);
+                return Promise.resolve();
             });
 
             // Delete existing React Native project before creating
@@ -140,10 +136,8 @@ suite("androidPlatform", function () {
             ], () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return Q({})
+                    return androidPlatform.runApp()
                     .then(() => {
-                        return androidPlatform.runApp();
-                    }).then(() => {
                         return devices[0].installedApplications[androidPackageName].isInDebugMode === false;
                     }).then(isRunning => {
                         isRunning.should.be.true();
@@ -154,15 +148,13 @@ suite("androidPlatform", function () {
             ["react-native/run-android/win10-rn0.21.0/succeedsWithTwoVSEmulators"], () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6"]);
 
-                return Q({})
+                    return androidPlatform.runApp()
                     .then(() => {
-                        return androidPlatform.runApp();
-                    }).then(() => {
-                        return Q.all([
-                            Q.resolve(devices[0].installedApplications[androidPackageName].isInDebugMode === false),
-                            Q.resolve(devices[1].installedApplications[androidPackageName].isInDebugMode === false),
+                        return Promise.all([
+                            Promise.resolve(devices[0].installedApplications[androidPackageName].isInDebugMode === false),
+                            Promise.resolve(devices[1].installedApplications[androidPackageName].isInDebugMode === false),
                         ]);
-                    }).spread((isRunningOnNexus5, isRunningOnNexus6) => {
+                    }).then(([isRunningOnNexus5, isRunningOnNexus6]) => {
                         // It should be running in exactly one of these two devices
                         isRunningOnNexus5.should.not.eql(isRunningOnNexus6);
                     });
@@ -171,14 +163,13 @@ suite("androidPlatform", function () {
         testWithRecordings("runApp launches the app when three emulators are connected",
             ["react-native/run-android/win10-rn0.21.0/succeedsWithThreeVSEmulators"], () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6", "Nexus_7"]);
-                return Q({})
+
+                    return androidPlatform.runApp()
                     .then(() => {
-                        return androidPlatform.runApp();
-                    }).then(() => {
-                        return Q.all([
-                            Q.resolve(devices[0].installedApplications[androidPackageName].isInDebugMode === false),
-                            Q.resolve(devices[1].installedApplications[androidPackageName].isInDebugMode === false),
-                            Q.resolve(devices[2].installedApplications[androidPackageName].isInDebugMode === false),
+                        return Promise.all([
+                            Promise.resolve(devices[0].installedApplications[androidPackageName].isInDebugMode === false),
+                            Promise.resolve(devices[1].installedApplications[androidPackageName].isInDebugMode === false),
+                            Promise.resolve(devices[2].installedApplications[androidPackageName].isInDebugMode === false),
                         ]);
                     }).then(isRunningList => {
                         // It should be running in exactly one of these three devices
@@ -188,10 +179,9 @@ suite("androidPlatform", function () {
 
         testWithRecordings("runApp fails if no devices are connected",
             ["react-native/run-android/win10-rn0.21.0/failsDueToNoDevicesConnected"], () => {
-                return Q({})
+
+                    return androidPlatform.runApp()
                     .then(() => {
-                        return androidPlatform.runApp();
-                    }).then(() => {
                         should.assert(false, "runApp should've exited with an error");
                     }, reason => {
                         reason.message.startsWith("Unknown error: not all success patterns were matched").should.be.true();
@@ -203,10 +193,9 @@ suite("androidPlatform", function () {
                 devices = fillDevices(["Nexus_5", "Nexus_6", "Nexus_7", "Nexus_8", "Nexus_9"]);
                 devices[4].isOnline = false;
 
-                return Q({})
-                    .then(() => {
-                        return androidPlatform.runApp();
-                    }).then(() => {
+
+                        return androidPlatform.runApp()
+                        .then(() => {
                         return devices[4].installedApplications[androidPackageName].isInDebugMode === false;
                     }).then((isRunningOnOfflineDevice) => {
                         isRunningOnOfflineDevice.should.be.false();
@@ -217,22 +206,21 @@ suite("androidPlatform", function () {
             ["react-native/run-android/win10-rn0.21.0/succeedsWithFiveVSEmulators"], () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6", "Nexus_10", "Nexus_11", "Nexus_12"]);
 
-                return Q({})
+
+                    const runOptions: any = {
+                        platform: "android",
+                        workspaceRoot: projectRoot,
+                        projectRoot: projectRoot,
+                        target: "Nexus_12",
+                        reactNativeVersions: {
+                            reactNativeVersion: "^0.19.0",
+                            reactNativeWindowsVersion: "",
+                        },
+                    };
+                    const platform = createAndroidPlatform(runOptions);
+                    platform.setAdbHelper(adbHelper);
+                    return platform.runApp()
                     .then(() => {
-                        const runOptions: any = {
-                            platform: "android",
-                            workspaceRoot: projectRoot,
-                            projectRoot: projectRoot,
-                            target: "Nexus_12",
-                            reactNativeVersions: {
-                                reactNativeVersion: "^0.19.0",
-                                reactNativeWindowsVersion: "",
-                            },
-                        };
-                        const platform = createAndroidPlatform(runOptions);
-                        platform.setAdbHelper(adbHelper);
-                        return platform.runApp();
-                    }).then(() => {
                         return devices[4].installedApplications[androidPackageName].isInDebugMode === false;
                     }).then((isRunningOnNexus12) => {
                         isRunningOnNexus12.should.be.true();
@@ -249,22 +237,20 @@ suite("androidPlatform", function () {
                 devices[2].isOnline = false;
                 devices[3].isOnline = false;
 
-                return Q({})
+                    const runOptions: any = {
+                        platform: "android",
+                        workspaceRoot: projectRoot,
+                        projectRoot: projectRoot,
+                        target: "Nexus_12",
+                        reactNativeVersions: {
+                            reactNativeVersion: "^0.19.0",
+                            reactNativeWindowsVersion: "",
+                        },
+                    };
+                    const platform = createAndroidPlatform(runOptions);
+                    platform.setAdbHelper(adbHelper);
+                    return platform.runApp()
                     .then(() => {
-                        const runOptions: any = {
-                            platform: "android",
-                            workspaceRoot: projectRoot,
-                            projectRoot: projectRoot,
-                            target: "Nexus_12",
-                            reactNativeVersions: {
-                                reactNativeVersion: "^0.19.0",
-                                reactNativeWindowsVersion: "",
-                            },
-                        };
-                        const platform = createAndroidPlatform(runOptions);
-                        platform.setAdbHelper(adbHelper);
-                        return platform.runApp();
-                    }).then(() => {
                         return devices.filter((device: any) => device.installedApplications[androidPackageName].isInDebugMode === false);
                     }).then((devicesRunningAppId) => {
                         devicesRunningAppId.length.should.eql(1);
@@ -280,10 +266,8 @@ suite("androidPlatform", function () {
             ], () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return Q({})
+                    return androidPlatform.runApp()
                     .then(() => {
-                        return androidPlatform.runApp();
-                    }).then(() => {
                         return devices[0].installedApplications[androidPackageName].isInDebugMode === false;
                     }).then(isRunning => {
                         isRunning.should.be.true();
@@ -297,10 +281,8 @@ suite("androidPlatform", function () {
             ], () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return Q({})
+                    return fileSystem.rmdir(androidProjectPath)
                     .then(() => {
-                        return fileSystem.rmdir(androidProjectPath);
-                    }).then(() => {
                         return androidPlatform.runApp();
                     }).then(() => {
                         should.assert(false, "Expected runApp to end up with an error");
@@ -317,10 +299,8 @@ suite("androidPlatform", function () {
             ["react-native/run-android/osx10.10-rn0.21.0/failsDueToAdbCommandTimeout"], () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return Q({})
+                    return androidPlatform.runApp()
                     .then(() => {
-                        return androidPlatform.runApp();
-                    }).then(() => {
                         should.assert(false, "Expected runApp to end up with an error");
                         return false;
                     }, reason => {

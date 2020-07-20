@@ -1,16 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {SimulatorPlist} from "../../../src/extension/ios/simulatorPlist";
+import { SimulatorPlist } from "../../../src/extension/ios/simulatorPlist";
 
 import * as assert from "assert";
 import * as path from "path";
-import * as Q from "q";
 import * as sinon from "sinon";
 
-suite("plistBuddy", function() {
-    suite("extensionContext", function() {
-        test("findPlistFile should correctly find the NSUserDefaults plist file for the simulator", function() {
+suite("plistBuddy", function () {
+    suite("extensionContext", function () {
+        test("findPlistFile should correctly find the NSUserDefaults plist file for the simulator", function () {
             const projectRoot = path.join("/", "tmp");
             const iosProjectRoot = path.join(projectRoot, "myProject");
 
@@ -31,7 +30,7 @@ suite("plistBuddy", function() {
 
             // readdir finds appIds
             const mockReadDir = sinon.stub();
-            mockReadDir.withArgs(path.join(findSimulatorHomeResult, prefix)).returns(Q.resolve(appIds));
+            mockReadDir.withArgs(path.join(findSimulatorHomeResult, prefix)).returns(Promise.resolve(appIds));
             mockReadDir.throws();
 
             // Only the second app has a plist file with thus bundle name
@@ -49,8 +48,8 @@ suite("plistBuddy", function() {
 
             // getBundleId returns bundleId
             const bundleIdStub = sinon.stub();
-            bundleIdStub.withArgs(iosProjectRoot).returns(Q.resolve(bundleId));
-            bundleIdStub.returns(Q.reject("Incorrect project root"));
+            bundleIdStub.withArgs(iosProjectRoot).returns(Promise.resolve(bundleId));
+            bundleIdStub.returns(Promise.reject("Incorrect project root"));
 
             const mockPlistBuddy: any = {
                 getBundleId: bundleIdStub,
@@ -58,7 +57,7 @@ suite("plistBuddy", function() {
 
             // exec-ing the correct command returns the simulator home
             const execStub = sinon.stub();
-            execStub.withArgs(findSimulatorHomeCommand).returns({ outcome: Q.resolve(findSimulatorHomeResult) });
+            execStub.withArgs(findSimulatorHomeCommand).returns(Promise.resolve({ outcome: Promise.resolve(findSimulatorHomeResult) }));
             execStub.throws();
             const mockChildProcess: any = {
                 exec: execStub,

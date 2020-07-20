@@ -5,6 +5,11 @@
  * Utilities for working with promises.
  */
 export class PromiseUtil {
+    public forEach<T>(sources: T[], promiseGenerator: (source: T) => Promise<void>): Promise<void> {
+            return Promise.all(sources.map(source => {
+                return promiseGenerator(source);
+            })).then(() => { });
+    }
     /**
      * Retries an operation a given number of times. For each retry, a condition is checked.
      * If the condition is not satisfied after the maximum number of retries, and error is thrown.
@@ -18,6 +23,22 @@ export class PromiseUtil {
      */
     public retryAsync<T>(operation: () => Promise<T>, condition: (result: T) => boolean | Promise<boolean>, maxRetries: number, delay: number, failure: string): Promise<T> {
         return this.retryAsyncIteration(operation, condition, maxRetries, 0, delay, failure);
+    }
+
+    public reduce<T>(sources: T[] | Promise<T[]>, generateAsyncOperation: (value: T) => Promise<void>): Promise<void> {
+        let promisedSources: Promise<T[]>;
+        if (sources instanceof Promise) {
+            promisedSources = sources;
+        } else {
+            promisedSources = Promise.resolve(sources);
+        }
+        return promisedSources.then((resolvedSources) => {
+                return resolvedSources.reduce((previousReduction: Promise<void>, newSource: T) => {
+                    return previousReduction.then(() => {
+                        return generateAsyncOperation(newSource);
+                    });
+                }, Promise.resolve());
+        });
     }
 
     public delay(duration: number): Promise<void> {
