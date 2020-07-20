@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {IRunOptions} from "./../extension/launchArgs";
-import {GeneralMobilePlatform} from "./../extension/generalMobilePlatform";
-import {ChildProcess} from "child_process";
-import {CommandExecutor} from "./commandExecutor";
-import {ExponentHelper} from "../extension/exponent/exponentHelper";
-import {ErrorHelper} from "./error/errorHelper";
-import {InternalErrorCode} from "./error/internalErrorCode";
-import {OutputChannelLogger} from "../extension/log/OutputChannelLogger";
-import {Package} from "./node/package";
-import {Request} from "./node/request";
-import {ProjectVersionHelper} from "./projectVersionHelper";
-import {PackagerStatusIndicator, PackagerStatus} from "../extension/packagerStatusIndicator";
-import {SettingsHelper} from "../extension/settingsHelper";
+import { IRunOptions } from "./../extension/launchArgs";
+import { GeneralMobilePlatform } from "./../extension/generalMobilePlatform";
+import { ChildProcess } from "child_process";
+import { CommandExecutor } from "./commandExecutor";
+import { ExponentHelper } from "../extension/exponent/exponentHelper";
+import { ErrorHelper } from "./error/errorHelper";
+import { InternalErrorCode } from "./error/internalErrorCode";
+import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
+import { Package } from "./node/package";
+import { Request } from "./node/request";
+import { ProjectVersionHelper } from "./projectVersionHelper";
+import { PackagerStatusIndicator, PackagerStatus } from "../extension/packagerStatusIndicator";
+import { SettingsHelper } from "../extension/settingsHelper";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
@@ -100,30 +100,30 @@ export class Packager {
         }
 
         return this.getExponentHelper().isExpoApp(false)
-        .then((isExpo) => {
-            if (!isExpo) {
-                return args;
-            }
+            .then((isExpo) => {
+                if (!isExpo) {
+                    return args;
+                }
 
-            // Arguments below using for Expo apps
-            if (!semver.gte(rnVersion, "0.57.0")) {
-                args.push("--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode")));
-            }
+                // Arguments below using for Expo apps
+                if (!semver.gte(rnVersion, "0.57.0")) {
+                    args.push("--root", path.relative(this.projectPath, path.resolve(this.workspacePath, ".vscode")));
+                }
 
-            return this.getExponentHelper().getExpPackagerOptions()
-            .then((options: ExpConfigPackager) => {
-                Object.keys(options).forEach(key => {
-                    args = args.concat([`--${key}`, options[key]]);
-                });
+                return this.getExponentHelper().getExpPackagerOptions()
+                    .then((options: ExpConfigPackager) => {
+                        Object.keys(options).forEach(key => {
+                            args = args.concat([`--${key}`, options[key]]);
+                        });
 
-                return args;
-            })
-            .catch(() => {
-                this.logger.warning(localize("CouldNotReadPackagerOptions", "Couldn't read packager's options from exp.json, continue..."));
+                        return args;
+                    })
+                    .catch(() => {
+                        this.logger.warning(localize("CouldNotReadPackagerOptions", "Couldn't read packager's options from exp.json, continue..."));
 
-                return args;
+                        return args;
+                    });
             });
-        });
     }
 
     public start(resetCache: boolean = false): Promise<void> {
@@ -132,81 +132,81 @@ export class Packager {
         let rnVersion: string;
 
         return this.isRunning()
-        .then((running) => {
-            if (running) {
-                return void 0;
-            }
+            .then((running) => {
+                if (running) {
+                    return void 0;
+                }
 
-            executedStartPackagerCmd = true;
+                executedStartPackagerCmd = true;
 
-            return ProjectVersionHelper.getReactNativeVersions(this.projectPath)
-            .then((versions) => {
-                rnVersion = versions.reactNativeVersion;
-                return this.monkeyPatchOpnForRNPackager(rnVersion);
+                return ProjectVersionHelper.getReactNativeVersions(this.projectPath)
+                    .then((versions) => {
+                        rnVersion = versions.reactNativeVersion;
+                        return this.monkeyPatchOpnForRNPackager(rnVersion);
+                    })
+                    .then(() => {
+                        return this.getPackagerArgs(rnVersion, resetCache);
+                    })
+                    .then((args) => {
+                        //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
+                        //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210
+                        //  This bug will be fixed in 0.41
+                        const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
+
+                        let env = process.env;
+                        if (this.runOptions && (this.runOptions.env || this.runOptions.envFile)) {
+                            env = GeneralMobilePlatform.getEnvArgument(env, this.runOptions.env, this.runOptions.envFile);
+                        } else {
+                            const rootEnv = path.join(this.getProjectPath(), ".env");
+                            env = GeneralMobilePlatform.getEnvArgument(env, null, rootEnv);
+                        }
+
+                        let reactEnv = Object.assign({}, env, {
+                            REACT_DEBUGGER: "echo A debugger is not needed: ",
+                            REACT_EDITOR: failedRNVersions.indexOf(rnVersion) < 0 ? "code" : this.openFileAtLocationCommand(),
+                        });
+
+                        this.logger.info(localize("StartingPackager", "Starting Packager"));
+                        // The packager will continue running while we debug the application, so we can"t
+                        // wait for this command to finish
+
+                        let spawnOptions = { env: reactEnv };
+
+                        // Since Expo 37, you must specify the sourceExts parameter so that the packager can load additional files, such as custom fonts:
+                        // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1720).
+                        // Related to https://github.com/microsoft/vscode-react-native/issues/1252
+                        if (this.runOptions && this.runOptions.platform === "exponent") {
+                            const managedExtensions = this.getSourceExtensions();
+
+                            // In order for the arguments to be processed normally, it is necessary to pass an array as an argument
+                            args.push(
+                                "--sourceExts",
+                                <any>managedExtensions
+                            );
+                        }
+
+                        const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
+                        this.packagerProcess = packagerSpawnResult.spawnedProcess;
+                        packagerSpawnResult.outcome.then(() => { }, () => { }); // We ignore all outcome errors
+
+                        return Promise.resolve();
+                    });
             })
             .then(() => {
-                return this.getPackagerArgs(rnVersion, resetCache);
+                return this.awaitStart();
             })
-            .then((args) => {
-                //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
-                //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210
-                //  This bug will be fixed in 0.41
-                const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
-
-                let env = process.env;
-                if (this.runOptions && (this.runOptions.env || this.runOptions.envFile)) {
-                    env =  GeneralMobilePlatform.getEnvArgument(env, this.runOptions.env, this.runOptions.envFile);
+            .then(() => {
+                this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
+                if (executedStartPackagerCmd) {
+                    this.logger.info(localize("PackagerStarted", "Packager started."));
+                    this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
                 } else {
-                    const rootEnv = path.join(this.getProjectPath(), ".env");
-                    env =  GeneralMobilePlatform.getEnvArgument(env, null, rootEnv);
+                    this.logger.info(localize("PackagerIsAlreadyRunning", "Packager is already running."));
+                    if (!this.packagerProcess) {
+                        this.logger.warning(ErrorHelper.getWarning(localize("PackagerRunningOutsideVSCode", "React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option")));
+                    }
                 }
-
-                let reactEnv = Object.assign({}, env, {
-                    REACT_DEBUGGER: "echo A debugger is not needed: ",
-                    REACT_EDITOR: failedRNVersions.indexOf(rnVersion) < 0 ? "code" : this.openFileAtLocationCommand(),
-                });
-
-                this.logger.info(localize("StartingPackager", "Starting Packager"));
-                // The packager will continue running while we debug the application, so we can"t
-                // wait for this command to finish
-
-                let spawnOptions = { env: reactEnv };
-
-                // Since Expo 37, you must specify the sourceExts parameter so that the packager can load additional files, such as custom fonts:
-                // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1720).
-                // Related to https://github.com/microsoft/vscode-react-native/issues/1252
-                if (this.runOptions && this.runOptions.platform === "exponent") {
-                    const managedExtensions = this.getSourceExtensions();
-
-                    // In order for the arguments to be processed normally, it is necessary to pass an array as an argument
-                    args.push(
-                        "--sourceExts",
-                        <any>managedExtensions
-                    );
-                }
-
-                const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
-                this.packagerProcess = packagerSpawnResult.spawnedProcess;
-                packagerSpawnResult.outcome.then(() => { }, () => { }); // We ignore all outcome errors
-
-                return Promise.resolve();
             });
-        })
-        .then(() => {
-            return this.awaitStart();
-        })
-        .then(() => {
-            this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
-            if (executedStartPackagerCmd) {
-                this.logger.info(localize("PackagerStarted", "Packager started."));
-                this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
-            } else {
-                this.logger.info(localize("PackagerIsAlreadyRunning", "Packager is already running."));
-                if (!this.packagerProcess) {
-                    this.logger.warning(ErrorHelper.getWarning(localize("PackagerRunningOutsideVSCode", "React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option")));
-                }
-            }
-        });
     }
 
     public stop(silent: boolean = false): Promise<any> {
@@ -275,28 +275,28 @@ export class Packager {
                 const oldIndex = path.resolve(this.projectPath, `index.${platform}.js`); // react-native < 0.49.0
 
                 return Promise.all([Packager.fs.exists(defaultIndex), Packager.fs.exists(oldIndex)])
-                .then((exists) => {
-                    let bundleName = "";
-                    if (exists[0]) {
-                        bundleName = "index.bundle";
-                    } else if (exists[1]) {
-                        bundleName = `index.${platform}.bundle`;
-                    } else {
-                        this.logger.info(localize("EntryPointDoesntExist", "Entry point doesn't exist neither at index.js nor index.{0}.js. Skip prewarming...", platform));
-                        return;
-                    }
+                    .then((exists) => {
+                        let bundleName = "";
+                        if (exists[0]) {
+                            bundleName = "index.bundle";
+                        } else if (exists[1]) {
+                            bundleName = `index.${platform}.bundle`;
+                        } else {
+                            this.logger.info(localize("EntryPointDoesntExist", "Entry point doesn't exist neither at index.js nor index.{0}.js. Skip prewarming...", platform));
+                            return;
+                        }
 
-                    const bundleURL = `http://${this.getHost()}/${bundleName}?platform=${platform}`;
-                    this.logger.info(localize("AboutToGetURL", "About to get: {0}", bundleURL));
-                    return Request.request(bundleURL, true)
-                        .then(() => {
-                            this.logger.warning(localize("BundleCacheWasPrewarmed", "The Bundle Cache was prewarmed."));
-                        });
-                })
-                .catch(() => {
-                    // The attempt to prefetch the bundle failed. This may be because the bundle has
-                    // a different name that the one we guessed so we shouldn't treat this as fatal.
-                });
+                        const bundleURL = `http://${this.getHost()}/${bundleName}?platform=${platform}`;
+                        this.logger.info(localize("AboutToGetURL", "About to get: {0}", bundleURL));
+                        return Request.request(bundleURL, true)
+                            .then(() => {
+                                this.logger.warning(localize("BundleCacheWasPrewarmed", "The Bundle Cache was prewarmed."));
+                            });
+                    })
+                    .catch(() => {
+                        // The attempt to prefetch the bundle failed. This may be because the bundle has
+                        // a different name that the one we guessed so we shouldn't treat this as fatal.
+                    });
             });
     }
 
@@ -306,9 +306,9 @@ export class Packager {
             .then((body: string) => {
                 return body === "packager-status:running";
             },
-            (error: any) => {
-                return false;
-            });
+                (error: any) => {
+                    return false;
+                });
     }
 
     private awaitStart(retryCount = 60, delay = 3000): Promise<boolean> {
@@ -335,11 +335,25 @@ export class Packager {
             // Attempt to find the 'opn' package directly under the project's node_modules folder (node4 +)
             // Else, attempt to find the package within the dependent node_modules of react-native package
             let possiblePaths = [flatDependencyPackagePath, nestedDependencyPackagePath];
-            return Promise.race(possiblePaths.map(fsPath =>
+            return Promise.all(possiblePaths.map(fsPath =>
                 fsHelper.exists(fsPath).then(exists =>
                     exists
                         ? Promise.resolve(fsPath)
-                        : Promise.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.OpnPackagerLocationNotFound)))));
+                        : Promise.resolve("")))
+            )
+                .then((paths) => {
+                    const packagePath = paths.find(fsPath => {
+                        if (fsPath) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    });
+                    if (packagePath) {
+                        return Promise.resolve(packagePath);
+                    }
+                    return Promise.reject(ErrorHelper.getInternalError(InternalErrorCode.OpnPackagerLocationNotFound));
+                });
         } catch (err) {
             return Promise.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.OpnPackagerNotFound, err));
         }
@@ -385,23 +399,23 @@ export class Packager {
             let helper = new ExponentHelper(this.workspacePath, this.projectPath);
 
             return helper.isExpoApp(false)
-            .then((isExpo) => {
-                if (isExpo) {
-                    this.logger.debug("Stopping Exponent");
-                    return XDL.stopAll(this.projectPath)
-                        .then(() => {
-                            this.logger.debug("Exponent Stopped");
-                        })
-                        .catch((err) => {
-                            if (err.code === "NOT_LOGGED_IN") {
-                                return void(0);
-                            }
-                            throw err;
-                        });
-                } else {
-                    return void(0);
-                }
-            });
+                .then((isExpo) => {
+                    if (isExpo) {
+                        this.logger.debug("Stopping Exponent");
+                        return XDL.stopAll(this.projectPath)
+                            .then(() => {
+                                this.logger.debug("Exponent Stopped");
+                            })
+                            .catch((err) => {
+                                if (err.code === "NOT_LOGGED_IN") {
+                                    return void (0);
+                                }
+                                throw err;
+                            });
+                    } else {
+                        return void (0);
+                    }
+                });
         });
     }
 
