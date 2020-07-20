@@ -49,19 +49,26 @@ export class PackagerStatusIndicator implements Disposable {
         this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, localize("StartPackager", "Start Packager"));
     }
 
-    public updateDisplayVersion(){
+    public updateDisplayVersion(): void {
         let version = PackagerStatusIndicator.FULL_VERSION;
-        if (this.projectRoot) {
-            version = SettingsHelper.getPackagerStatusIndicatorPattern(this.projectRoot);
+        try {
+            if (this.projectRoot) {
+                this.displayVersion = SettingsHelper.getPackagerStatusIndicatorPattern(this.projectRoot);
+            }
         }
-        this.displayVersion = version;
+        catch(e) {
+            // We are trying to read the configuration from settings.json.
+            // If this cannot be done, ignore the error and set the default value.
+            this.displayVersion = version;
+        }
     }
 
     public dispose(): void {
         this.togglePackagerItem.dispose();
+        this.restartPackagerItem.dispose();
     }
 
-    private setupPackagerStatusIndicatorItems(icon: string, command: string|undefined, tooltip: string = ""){
+    private setupPackagerStatusIndicatorItems(icon: string, command: string|undefined, tooltip: string = ""): void {
         this.updateDisplayVersion();
         this.togglePackagerItem.command = command;
         this.togglePackagerItem.tooltip = tooltip;
