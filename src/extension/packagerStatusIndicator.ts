@@ -56,7 +56,7 @@ export class PackagerStatusIndicator implements Disposable {
                 this.displayVersion = SettingsHelper.getPackagerStatusIndicatorPattern(this.projectRoot);
             }
         }
-        catch(e) {
+        catch (e) {
             // We are trying to read the configuration from settings.json.
             // If this cannot be done, ignore the error and set the default value.
         }
