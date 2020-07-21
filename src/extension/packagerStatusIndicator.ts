@@ -67,7 +67,7 @@ export class PackagerStatusIndicator implements Disposable {
         this.restartPackagerItem.dispose();
     }
 
-    private setupPackagerStatusIndicatorItems(icon: string, command: string|undefined, tooltip: string = ""): void {
+    private setupPackagerStatusIndicatorItems(icon: string, command?: string, tooltip: string = ""): void {
         this.updateDisplayVersion();
         this.togglePackagerItem.command = command;
         this.togglePackagerItem.tooltip = tooltip;
