@@ -37,7 +37,7 @@ export class PackagerStatusIndicator implements Disposable {
     public static FULL_VERSION = "Full";
     public static SHORT_VERSION = "Short";
 
-    public constructor(projectRoot: string|undefined = undefined) {
+    public constructor(projectRoot?: string) {
         this.projectRoot = projectRoot;
 
         this.restartPackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
