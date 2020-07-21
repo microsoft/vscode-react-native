@@ -1,12 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as path from "path";
 import * as assert from "assert";
-
 import {PromiseUtil} from "../../src/common/node/promise";
-
 import {IAndroidRunOptions} from "../../src/extension/launchArgs";
 import {ISpawnResult} from "../../src/common/node/childProcess";
 import {FileSystem} from "../../src/common/node/fileSystem";
@@ -59,20 +56,18 @@ export class ReactNative022 {
         return this;
     }
 
-    public loadRecordingFromName(recordingName: string): Q.Promise<void> {
+    public loadRecordingFromName(recordingName: string): Promise<void> {
         return this.loadRecordingFromFile(path.join(processExecutionsRecordingsPath, `${recordingName}.json`));
     }
 
-    public loadRecordingFromString(recordingContent: string): Q.Promise<void> {
-        return Q.when(this.loadRecording(JSON.parse(recordingContent)));
+    public loadRecordingFromString(recordingContent: string): Promise<void> {
+        return Promise.resolve(this.loadRecording(JSON.parse(recordingContent)));
     }
 
-    public loadRecordingFromFile(recordingPath: string): Q.Promise<void> {
-        return Q({})
-            .then(() => {
-                return new FileSystem().readFile(recordingPath);
-            }).then(fileContents => {
-                this.loadRecording(JSON.parse(fileContents));
+    public loadRecordingFromFile(recordingPath: string): Promise<void> {
+            return new FileSystem().readFile(recordingPath)
+            .then(fileContents => {
+                this.loadRecording(JSON.parse(fileContents.toString()));
             });
     }
 
@@ -81,15 +76,15 @@ export class ReactNative022 {
         this.recording = recording;
     }
 
-    public createProject(projectRoot: string, projectName: string): Q.Promise<void> {
-        return Q({})
+    public createProject(projectRoot: string, projectName: string): Promise<void> {
+        return Promise.resolve()
             .then(() => {
                 this.fileSystem.makeDirectoryRecursiveSync(projectRoot);
                 return this.projectFileContent !== undefined ?
                     this.projectFileContent :
                     this.readDefaultProjectFile();
             }).then(defaultContents => {
-                const reactNativeConfiguration = JSON.parse(defaultContents);
+                const reactNativeConfiguration = JSON.parse(defaultContents.toString());
                 reactNativeConfiguration.name = projectName;
                 const reactNativeConfigurationFormatted = JSON.stringify(reactNativeConfiguration);
                 return this.fileSystem.writeFile(this.getPackageJsonPath(projectRoot), reactNativeConfigurationFormatted);
@@ -100,7 +95,7 @@ export class ReactNative022 {
 
     public runAndroid(runOptions: IAndroidRunOptions): ISpawnResult {
         this.projectRoot = runOptions.projectRoot;
-        this.simulator.simulate(this.recording).done();
+        this.simulator.simulate(this.recording).then(() => {});
         return this.simulator.spawn();
     }
 
@@ -112,36 +107,36 @@ export class ReactNative022 {
         return new Package(projectRoot, { fileSystem: this.fileSystem }).informationJsonFilePath();
     }
 
-    private readAndroidPackageName(): Q.Promise<void> {
+    private readAndroidPackageName(): Promise<void> {
         return new Package(this.projectRoot, { fileSystem: this.fileSystem }).name().then(name => {
             this.androidPackageName = `com.${name.toLowerCase()}`;
         });
     }
 
-    private createAPK(): Q.Promise<void> {
+    private createAPK(): Promise<void> {
         return this.isAndroidProjectPresent().then(isPresent => {
-            return isPresent ? void 0 : Q.reject<void>(new Error("The recording expects the Android project to be present, but it's not"));
+            return isPresent ? void 0 : Promise.reject<void>(new Error("The recording expects the Android project to be present, but it's not"));
         }).then(() => {
             this.androidAPKPath = path.join(this.projectRoot, ReactNative022.ANDROID_APK_RELATIVE_PATH);
             return new APKSerializer(this.fileSystem).writeApk(this.androidAPKPath, { packageName: this.androidPackageName });
         });
     }
 
-    private isAndroidProjectPresent(): Q.Promise<boolean> {
+    private isAndroidProjectPresent(): Promise<boolean> {
         // TODO: Make more checks as neccesary for the tests
         return this.fileSystem.directoryExists(this.getAndroidProjectPath());
     }
 
-    private installAppInAllDevices(): Q.Promise<void> {
+    private installAppInAllDevices(): Promise<void> {
         let devices = this.adbHelper.getConnectedDevices();
         return new PromiseUtil().reduce(devices, device => this.installAppInDevice(device.id));
     }
 
-    private installAppInDevice(deviceId: string): Q.Promise<void> {
+    private installAppInDevice(deviceId: string): Promise<void> {
         throw Error("Mock not implemented");
     }
 
-    private launchApp(stdout: string, stderr: string): Q.Promise<void> {
+    private launchApp(stdout: string, stderr: string): Promise<void> {
         /*
         Sample output we want to accept:
         BUILD SUCCESSFUL
@@ -166,17 +161,17 @@ export class ReactNative022 {
             if (matches.length === 3 && matches[1] === this.androidPackageName && matches[2] === this.androidPackageName) {
                 return this.adbHelper.launchApp(this.projectRoot, this.androidPackageName);
             } else {
-                return Q.reject<void>(new Error("There was an error while trying to match the Starting the app messages."
+                return Promise.reject<void>(new Error("There was an error while trying to match the Starting the app messages."
                     + "Expected to match the pattern and recognize the expected android package name, but it failed."
                     + `Expected android package name: ${this.androidPackageName}. Actual matches: ${JSON.stringify(matches)}`));
             }
         } else {
             // The record doesn't indicate that the app was launched, so we don't do anything
-            return Q.resolve(void 0);
+            return Promise.resolve();
         }
     }
 
-    private readDefaultProjectFile(): Q.Promise<string> {
+    private readDefaultProjectFile(): Promise<string | Buffer> {
         const realFileSystem = new FileSystem(); // We always use the real file system (not the mock one) to read the sample project
         return realFileSystem.readFile(ReactNative022.DEFAULT_PROJECT_FILE);
     }

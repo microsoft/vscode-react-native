@@ -3,16 +3,13 @@
 
 import { CommandExecutor } from "../../src/common/commandExecutor";
 import { ConsoleLogger } from "../../src/extension/log/ConsoleLogger";
-
 import { Node } from "../../src/common/node/node";
 import { ChildProcess } from "../../src/common/node/childProcess";
-
 import { EventEmitter } from "events";
 import { Crypto } from "../../src/common/node/crypto";
 import * as assert from "assert";
 import * as semver from "semver";
 import * as sinon from "sinon";
-import * as Q from "q";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -56,7 +53,7 @@ suite("commandExecutor", function() {
                 });
         });
 
-        test("should reject on bad command", function() {
+        test("should reject on bad command", () => {
             let ce = new CommandExecutor();
 
             return ce.execute("bar")
@@ -70,7 +67,7 @@ suite("commandExecutor", function() {
                 });
         });
 
-        test("should reject on good command that fails", function() {
+        test("should reject on good command that fails", () => {
             let ce = new CommandExecutor();
 
             return ce.execute("node install bad-package")
@@ -84,26 +81,26 @@ suite("commandExecutor", function() {
                 });
         });
 
-        test("should spawn a command", function(done: MochaDone) {
+        test("should spawn a command", () => {
             let ce = new CommandExecutor();
 
             sinon.stub(Log, "log", function(message: string, formatMessage: boolean = true) {
                 console.log(message);
             });
 
-            Q({})
+            return Promise.resolve()
                 .then(function () {
                     return ce.spawn("node", ["-v"]);
-                }).done(() => done(), done);
+                });
         });
 
-        test("spawn should reject a bad command", function(done: MochaDone) {
+        test("spawn should reject a bad command", () => {
             let ce = new CommandExecutor();
             sinon.stub(Log, "log", function(message: string, formatMessage: boolean = true) {
                 console.log(message);
             });
 
-            Q({})
+            Promise.resolve()
                 .then(function() {
                     return ce.spawn("bar", ["-v"]);
                 })
@@ -111,25 +108,25 @@ suite("commandExecutor", function() {
                     console.log(reason.message);
                     assert.equal(reason.errorCode, 101);
                     assert.equal(reason.errorLevel, 0);
-                }).done(() => done(), done);
+                });
         });
 
-        test("should not fail on react-native command without arguments", function (done: MochaDone) {
+        test("should not fail on react-native command without arguments", () => {
             (sinon.stub(childProcessStubInstance, "spawn") as Sinon.SinonStub)
                 .returns({
                     stdout: new EventEmitter(),
                     stderr: new EventEmitter(),
-                    outcome: Promise.resolve(void 0),
+                    outcome: Promise.resolve(),
                 });
 
-            new CommandExecutor()
+            return new CommandExecutor()
                 .spawnReactCommand("run-ios").outcome
-                .then(done, err => {
+                .then(null, err => {
                     assert.fail(null, null, "react-native command was not expected to fail");
                 });
         });
 
-        suite("getReactNativeVersion", function () {
+        suite("getReactNativeVersion", () => {
 
             const reactNativePackageDir = path.join(sampleReactNative022ProjectDir, "node_modules", "react-native");
             const fsHelper = new Node.FileSystem();
@@ -142,7 +139,7 @@ suite("commandExecutor", function() {
                 fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
             });
 
-            test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", (done: MochaDone) => {
+            test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", () => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
                 const versionObj = {
                     "version": "^0.22.0",
@@ -150,13 +147,13 @@ suite("commandExecutor", function() {
 
                 fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(versionObj, null, 2));
 
-                commandExecutor.getReactNativeVersion()
+                return commandExecutor.getReactNativeVersion()
                 .then(version => {
                     assert.equal(version, "0.22.0");
-                }).done(() => done(), done);
+                });
             });
 
-            test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", (done: MochaDone) => {
+            test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", () => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
                 const testObj = {
                     "test": "test",
@@ -164,10 +161,10 @@ suite("commandExecutor", function() {
 
                 fs.writeFileSync(path.join(reactNativePackageDir, "package.json"), JSON.stringify(testObj, null, 2));
 
-                commandExecutor.getReactNativeVersion()
+                return commandExecutor.getReactNativeVersion()
                 .then(version => {
                     assert.equal(version, "0.22.2");
-                }).done(() => done(), done);
+                })
             });
         });
 

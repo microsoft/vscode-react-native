@@ -20,7 +20,7 @@
 	"reactNative.attach.program.description": "[사용되지 않음. 대신 cwd 사용] vscode 폴더에 있는 launchReactNative.js의 경로입니다.",
 	"reactNative.attach.cwd.description": "프로젝트 루트 폴더의 경로",
 	"reactNative.attach.sourceMaps.description": "생성된 번들 코드를 다시 원래 소스로 매핑하는 데 JavaScript 소스 맵을 사용할지 여부입니다.",
-	"reactNative.attach.sourceMapsPathOverrides.description": "소스 맵의 위치에서 디스크의 위치로 소스 파일의 위치를 다시 작성하기 위한 매핑 세트입니다. 자세한 내용은 https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul을 참조하세요.",
+	"reactNative.attach.sourceMapsPathOverrides.description": "소스 맵의 위치에서 디스크의 위치로 소스 파일의 위치를 다시 작성하기 위한 매핑 세트입니다. 자세한 내용은 https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul을 참조하세요.",
 	"reactNative.attach.trace.description": "디버거 프로세스의 로깅 수준입니다. 진단에 유용할 수 있습니다. \"Trace\"로 설정하면 '디버그 콘솔' 출력 창에서 모든 디버거 프로세스 로그를 사용할 수 있습니다.",
 	"reactNative.attach.address.description": "디버깅을 위해 연결한 패키지 작성 도구의 TCP/IP 주소입니다. 기본값은 'localhost'입니다.",
 	"reactNative.attach.port.description": "디버깅을 위해 연결한 패키지 작성 도구의 포트입니다. 기본값은 8081입니다.",

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import {Telemetry} from "./telemetry";
 import {TelemetryGenerator, IHasErrorCode} from "./telemetryGenerators";
 
@@ -113,7 +112,7 @@ export class TelemetryHelper {
         return telemetryProperties;
     }
 
-    public static generate<T>(name: string, extendedParamsToSend: ICommandTelemetryProperties = {}, codeGeneratingTelemetry: { (telemetry: TelemetryGenerator): Q.Promise<T> | T }): Q.Promise<T> {
+    public static generate<T>(name: string, extendedParamsToSend: ICommandTelemetryProperties = {}, codeGeneratingTelemetry: { (telemetry: TelemetryGenerator): Promise<T> | T }): Promise<T> {
         let generator: TelemetryGenerator = new TelemetryGenerator(name, extendedParamsToSend);
         return generator.time("", () => codeGeneratingTelemetry(generator)).finally(() => generator.send());
     }

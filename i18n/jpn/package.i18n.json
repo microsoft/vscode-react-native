@@ -25,7 +25,7 @@
 	"reactNative.attach.program.description": "[非推奨。代わりに cwd を使用] vscode フォルダー内の launchReactNative.js へのパスです",
 	"reactNative.attach.cwd.description": "プロジェクト ルート フォルダーへのパスです",
 	"reactNative.attach.sourceMaps.description": "JavaScript ソース マップを使用して、生成されたバンドル コードをその元のソースにマップするかどうか",
-	"reactNative.attach.sourceMapsPathOverrides.description": "ソース ファイルの場所をソース マップに指定されている場所からディスク上の場所へ書き換えるための一連のマッピング。詳しくは https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul をご覧ください",
+	"reactNative.attach.sourceMapsPathOverrides.description": "ソース ファイルの場所をソース マップに指定されている場所からディスク上の場所へ書き換えるための一連のマッピング。詳しくは https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul をご覧ください",
 	"reactNative.attach.trace.description": "デバッガー プロセスのログ レベルです。診断に役立つ可能性があります。[トレース] に設定すると、すべてのデバッガー プロセスのログが [デバッグ コンソール] 出力ウィンドウに表示されます。",
 	"reactNative.attach.address.description": "デバッグ用にアタッチするパッケージャーの TCP/IP アドレスです。既定値は 'localhost' です。",
 	"reactNative.attach.port.description": "デバッグ用にアタッチするパッケージャーのポートです。既定値は 8081 です。",

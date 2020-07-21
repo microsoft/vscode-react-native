@@ -25,7 +25,7 @@
 	"reactNative.attach.program.description": "[PRZESTARZAŁE. UŻYJ W ZASTĘPSTWIE cwd] Ścieżka do pliku launchReactNative.js w folderze vscode",
 	"reactNative.attach.cwd.description": "Ścieżka do głównego folderu projektu",
 	"reactNative.attach.sourceMaps.description": "Czy użyć map źródła kodu JavaScript do zamapowania wygenerowanego kodu w pakiecie z powrotem na jego oryginalne źródła",
-	"reactNative.attach.sourceMapsPathOverrides.description": "Zestaw mapowań na potrzeby przepisania lokalizacji plików źródłowych z lokalizacji określonych przez mapę źródła do ich lokalizacji na dysku. Aby uzyskać szczegółowe informacje, zobacz https://github.com/Microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
+	"reactNative.attach.sourceMapsPathOverrides.description": "Zestaw mapowań na potrzeby przepisania lokalizacji plików źródłowych z lokalizacji określonych przez mapę źródła do ich lokalizacji na dysku. Aby uzyskać szczegółowe informacje, zobacz https://github.com/microsoft/vscode-react-native/blob/master/doc/debugging.md#debugging-with-typescript-and-haul",
 	"reactNative.attach.trace.description": "Poziom rejestrowania w procesie debugera. Może być przydatny do celów diagnostyki. Po ustawieniu opcji „Śledź” wszystkie dzienniki procesu debugera będą dostępne w oknie danych wyjściowych „Konsola debugowania”.",
 	"reactNative.attach.address.description": "Adres TCP/IP narzędzia do tworzenia pakietów, który należy dołączyć w celu przeprowadzenia debugowania. Wartość domyślna to „localhost”.",
 	"reactNative.attach.port.description": "Port narzędzia do tworzenia pakietów, który należy dołączyć w celu przeprowadzenia debugowania. Wartość domyślna to 8081.",

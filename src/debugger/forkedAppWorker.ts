@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as path from "path";
 import * as url from "url";
 import * as cp from "child_process";
 import * as fs from "fs";
-import {ScriptImporter, DownloadedScript}  from "./scriptImporter";
+import { ScriptImporter, DownloadedScript } from "./scriptImporter";
 import { logger } from "vscode-debugadapter";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
@@ -31,9 +30,9 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     protected scriptImporter: ScriptImporter;
     protected debuggeeProcess: cp.ChildProcess | null = null;
-    /** A deferred that we use to make sure that worker has been loaded completely defore start sending IPC messages */
-    protected workerLoaded = Q.defer<void>();
-    private bundleLoaded: Q.Deferred<void>;
+    /** A promise that we use to make sure that worker has been loaded completely before start sending IPC messages */
+    protected workerLoaded: Promise<void>;
+    private bundleLoaded: Promise<void>;
     private logWriteStream: fs.WriteStream;
     private logDirectory: string | null;
 
@@ -57,7 +56,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         }
     }
 
-    public start(): Q.Promise<number> {
+    public start(): Promise<number> {
         let scriptToRunPath = path.resolve(this.sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
         const port = generateRandomPortNumber();
 
@@ -69,25 +68,26 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         const nodeArgs = [`--inspect-brk=${port}`, "--no-deprecation", scriptToRunPath];
         // Start child Node process in debugging mode
         // Using fork instead of spawn causes breakage of piping between app worker and VS Code debug console, e.g. console.log() in application
-        // wouldn't work. Please see https://github.com/Microsoft/vscode-react-native/issues/758
+        // wouldn't work. Please see https://github.com/microsoft/vscode-react-native/issues/758
         this.debuggeeProcess = cp.spawn("node", nodeArgs, {
             stdio: ["pipe", "pipe", "pipe", "ipc"],
         })
-        .on("message", (message: any) => {
-            // 'workerLoaded' is a special message that indicates that worker is done with loading.
-            // We need to wait for it before doing any IPC because process.send doesn't seems to care
-            // about whether the message has been received or not and the first messages are often get
-            // discarded by spawned process
-            if (message && message.workerLoaded) {
-                this.workerLoaded.resolve(void 0);
-                return;
-            }
+            .on("message", (message: any) => {
 
-            this.postReplyToApp(message);
-        })
-        .on("error", (error: Error) => {
-            printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWorkerProcessThrownAnError), error);
-        });
+                // 'workerLoaded' is a special message that indicates that worker is done with loading.
+                // We need to wait for it before doing any IPC because process.send doesn't seems to care
+                // about whether the message has been received or not and the first messages are often get
+                // discarded by spawned process
+                if (message && message.workerLoaded) {
+                    this.workerLoaded = Promise.resolve();
+                    return;
+                }
+
+                this.postReplyToApp(message);
+            })
+            .on("error", (error: Error) => {
+                printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWorkerProcessThrownAnError), error);
+            });
 
         // If special env variables are defined, then write process outputs to file
         this.logDirectory = getLoggingDirectory();
@@ -108,54 +108,67 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         // This will be sent to subscribers of MLAppWorker in "connected" event
         logger.verbose(`Spawned debuggee process with pid ${this.debuggeeProcess.pid} listening to ${port}`);
 
-        return Q.resolve(port);
+        return Promise.resolve(port);
     }
 
-    public postMessage(rnMessage: RNAppMessage): Q.Promise<RNAppMessage> {
-        // Before sending messages, make sure that the worker is loaded
-        const promise = this.workerLoaded.promise
-            .then(() => {
-                if (rnMessage.method !== "executeApplicationScript") {
-                    // Before sending messages, make sure that the app script executed
-                    if (this.bundleLoaded) {
-                        return this.bundleLoaded.promise.then(() => {
-                            return rnMessage;
-                        });
-                    } else {
-                        return rnMessage;
+    public postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage> {
+        return new Promise((resolve) => {
+            if (this.workerLoaded) {
+                resolve();
+            } else {
+                const checkWorkerLoaded = setInterval(() => {
+                    if (this.workerLoaded) {
+                        clearInterval(checkWorkerLoaded);
+                        resolve();
                     }
-                } else {
-                    this.bundleLoaded = Q.defer<void>();
-                    // When packager asks worker to load bundle we download that bundle and
-                    // then set url field to point to that downloaded bundle, so the worker
-                    // will take our modified bundle
-                    if (rnMessage.url) {
-                        const packagerUrl = url.parse(rnMessage.url);
-                        packagerUrl.host = `${this.packagerAddress}:${this.packagerPort}`;
-                        rnMessage = {
-                            ...rnMessage,
-                            url: url.format(packagerUrl),
-                        };
-                        logger.verbose(`Packager requested runtime to load script from ${rnMessage.url}`);
-                        return this.scriptImporter.downloadAppScript(<string>rnMessage.url, this.projectRootPath)
-                            .then((downloadedScript: DownloadedScript) => {
-                                this.bundleLoaded.resolve(void 0);
-                                return Object.assign({}, rnMessage, { url: `${this.pathToFileUrl(downloadedScript.filepath)}`});
-                            });
-                    } else {
-                        throw ErrorHelper.getInternalError(InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty);
-                    }
-                }
-            });
-        promise.done(
-            (message: RNAppMessage) => {
-                if (this.debuggeeProcess) {
-                    this.debuggeeProcess.send({ data: message });
-                }
-            },
-            (reason) => printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.CouldntImportScriptAt, rnMessage.url), reason));
+                }, 1000);
+            }
 
-        return promise;
+        }).then(() => {
+            // Before sending messages, make sure that the worker is loaded
+            const promise = this.workerLoaded
+                .then(() => {
+                    if (rnMessage.method !== "executeApplicationScript") {
+                        // Before sending messages, make sure that the app script executed
+                        if (this.bundleLoaded) {
+                            return this.bundleLoaded.then(() => {
+                                return rnMessage;
+                            });
+                        } else {
+                            return rnMessage;
+                        }
+                    } else {
+                        // When packager asks worker to load bundle we download that bundle and
+                        // then set url field to point to that downloaded bundle, so the worker
+                        // will take our modified bundle
+                        if (rnMessage.url) {
+                            const packagerUrl = url.parse(rnMessage.url);
+                            packagerUrl.host = `${this.packagerAddress}:${this.packagerPort}`;
+                            rnMessage = {
+                                ...rnMessage,
+                                url: url.format(packagerUrl),
+                            };
+                            logger.verbose(`Packager requested runtime to load script from ${rnMessage.url}`);
+                            return this.scriptImporter.downloadAppScript(<string>rnMessage.url, this.projectRootPath)
+                                .then((downloadedScript: DownloadedScript) => {
+                                    this.bundleLoaded = Promise.resolve();
+                                    return Object.assign({}, rnMessage, { url: `${this.pathToFileUrl(downloadedScript.filepath)}` });
+                                });
+                        } else {
+                            throw ErrorHelper.getInternalError(InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty);
+                        }
+                    }
+                });
+            promise.then(
+                (message: RNAppMessage) => {
+                    if (this.debuggeeProcess) {
+                        this.debuggeeProcess.send({ data: message });
+                    }
+                },
+                (reason) => printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.CouldntImportScriptAt, rnMessage.url), reason));
+
+            return promise;
+        });
     }
 
     // TODO: Replace by url.pathToFileURL method when Node 10 LTS become deprecated

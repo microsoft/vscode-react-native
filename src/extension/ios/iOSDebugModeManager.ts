@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
-
 import {OutputChannelLogger} from "../log/OutputChannelLogger";
 import {PromiseUtil} from "../../common/node/promise";
 import {PlistBuddy} from "./plistBuddy";
@@ -29,7 +27,7 @@ export class IOSDebugModeManager {
         this.simulatorPlist = new SimulatorPlist(this.iosProjectRoot, this.projectRoot, scheme);
     }
 
-    public setSimulatorRemoteDebuggingSetting(enable: boolean, configuration?: string, productName?: string): Q.Promise<void> {
+    public setSimulatorRemoteDebuggingSetting(enable: boolean, configuration?: string, productName?: string): Promise<void> {
         const plistBuddy = new PlistBuddy();
 
         // Find the plistFile with the configuration setting
@@ -46,15 +44,15 @@ export class IOSDebugModeManager {
             });
     }
 
-    public getSimulatorRemoteDebuggingSetting(configuration?: string, productName?: string): Q.Promise<boolean> {
+    public getSimulatorRemoteDebuggingSetting(configuration?: string, productName?: string): Promise<boolean> {
         return this.findPListFile(configuration, productName)
             .then((plistFile: string) => {
                 // Attempt to read from the file, but if the property is not defined then return the empty string
-                return Q.all([
+                return Promise.all([
                     new PlistBuddy().readPlistProperty(plistFile, IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME),
                     new PlistBuddy().readPlistProperty(plistFile, IOSDebugModeManager.REMOTE_DEBUGGING_SETTING_NAME),
                 ])
-                    .spread((executorClassName: string, remoteDebugEnabled: string) => {
+                    .then(([executorClassName, remoteDebugEnabled]) => {
                         return executorClassName === IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME
                             && remoteDebugEnabled === "true";
                     })
@@ -62,7 +60,7 @@ export class IOSDebugModeManager {
             });
     }
 
-    public findPListFile(configuration?: string, productName?: string): Q.Promise<string> {
+    public findPListFile(configuration?: string, productName?: string): Promise<string> {
         const pu = new PromiseUtil();
         const failureString = localize("UnableToFindPlistFileToConfigureDebugging", "Unable to find plist file to configure debugging");
 
@@ -76,7 +74,7 @@ export class IOSDebugModeManager {
             failureString); // Error to show in case all retries fail
     }
 
-    private tryOneAttemptToFindPListFile(configuration?: string, productName?: string): Q.Promise<string> {
+    private tryOneAttemptToFindPListFile(configuration?: string, productName?: string): Promise<string> {
         return this.simulatorPlist.findPlistFile(configuration, productName).catch(reason => {
             this.logger.debug(`Failed one attempt to find plist file: ${reason}`);
             return "";

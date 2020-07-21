@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
-
 import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
 import { CommandExecutor } from "../../common/commandExecutor";
 import * as path from "path";
@@ -61,7 +59,7 @@ export class AdbHelper {
     /**
      * Gets the list of Android connected devices and emulators.
      */
-    public getConnectedDevices(): Q.Promise<IDevice[]> {
+    public getConnectedDevices(): Promise<IDevice[]> {
         return this.childProcess.execToString(`${this.adbExecutable} devices`)
             .then(output => {
                 return this.parseConnectedDevices(output);
@@ -75,19 +73,18 @@ export class AdbHelper {
     /**
      * Broadcasts an intent to reload the application in debug mode.
      */
-    public switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Q.Promise<void> {
+    public switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Promise<void> {
         let enableDebugCommand = `${this.adbExecutable} ${debugTarget ? "-s " + debugTarget : ""} shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
         return new CommandExecutor(projectRoot).execute(enableDebugCommand)
             .then(() => { // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
-                let deferred = Q.defer();
-                setTimeout(() => {
-                    this.stopApp(projectRoot, packageName, debugTarget)
-                        .then(() => {
-                            return deferred.resolve({});
-                        });
-                }, 200); // We need a little delay after broadcast command
-
-                return deferred.promise;
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        this.stopApp(projectRoot, packageName, debugTarget)
+                            .then(() => {
+                                return resolve();
+                            });
+                    }, 200); // We need a little delay after broadcast command
+                });
             })
             .then(() => {
                 return this.launchApp(projectRoot, packageName, debugTarget);
@@ -97,36 +94,36 @@ export class AdbHelper {
     /**
      * Sends an intent which launches the main activity of the application.
      */
-    public launchApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
+    public launchApp(projectRoot: string, packageName: string, debugTarget?: string): Promise<void> {
         let launchAppCommand = `${this.adbExecutable} ${debugTarget ? "-s " + debugTarget : ""} shell am start -n ${packageName}/.${this.launchActivity}`;
         return new CommandExecutor(projectRoot).execute(launchAppCommand);
     }
 
-    public stopApp(projectRoot: string, packageName: string, debugTarget?: string): Q.Promise<void> {
+    public stopApp(projectRoot: string, packageName: string, debugTarget?: string): Promise<void> {
         let stopAppCommand = `${this.adbExecutable} ${debugTarget ? "-s " + debugTarget : ""} shell am force-stop ${packageName}`;
         return new CommandExecutor(projectRoot).execute(stopAppCommand);
     }
 
-    public apiVersion(deviceId: string): Q.Promise<AndroidAPILevel> {
+    public apiVersion(deviceId: string): Promise<AndroidAPILevel> {
         return this.executeQuery(deviceId, "shell getprop ro.build.version.sdk").then(output =>
             parseInt(output, 10));
     }
 
-    public reverseAdb(deviceId: string, packagerPort: number): Q.Promise<void> {
+    public reverseAdb(deviceId: string, packagerPort: number): Promise<void> {
         return this.execute(deviceId, `reverse tcp:${packagerPort} tcp:${packagerPort}`);
     }
 
-    public showDevMenu(deviceId?: string): Q.Promise<void> {
+    public showDevMenu(deviceId?: string): Promise<void> {
         let command = `${this.adbExecutable} ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_MENU}`;
         return this.commandExecutor.execute(command);
     }
 
-    public reloadApp(deviceId?: string): Q.Promise<void> {
+    public reloadApp(deviceId?: string): Promise<void> {
         let command = `${this.adbExecutable} ${deviceId ? "-s " + deviceId : ""} shell input text "RR"`;
         return this.commandExecutor.execute(command);
     }
 
-    public getOnlineDevices(): Q.Promise<IDevice[]> {
+    public getOnlineDevices(): Promise<IDevice[]> {
         return this.getConnectedDevices().then(devices => {
             return devices.filter(device =>
                 device.isOnline);
@@ -182,11 +179,11 @@ export class AdbHelper {
             : DeviceType.Other;
     }
 
-    private executeQuery(deviceId: string, command: string): Q.Promise<string> {
+    private executeQuery(deviceId: string, command: string): Promise<string> {
         return this.childProcess.execToString(this.generateCommandForDevice(deviceId, command));
     }
 
-    private execute(deviceId: string, command: string): Q.Promise<void> {
+    private execute(deviceId: string, command: string): Promise<void> {
         return this.commandExecutor.execute(this.generateCommandForDevice(deviceId, command));
     }
 

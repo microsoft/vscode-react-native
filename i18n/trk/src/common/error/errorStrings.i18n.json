@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "Kullanıcı oturum açmayı iptal etti.",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "Paketleyiciye eklenemiyor. Bir paketleyici bulunduğundan ve {0} bağlantı noktasında çalıştığından emin misiniz? Paketleyiciniz başka bir bağlantı noktasında çalışacak şekilde yapılandırılmışsa, bunu settings.json dosyasına eklediğinizden emin olun.",
 	"AnotherDebuggerConnectedToPackager": "Paketleyiciye başka bir hata ayıklayıcısı zaten bağlı. Lütfen VS Code ile hata ayıklamayı denemeden önce diğer hata ayıklayıcısını kapatın.",
-	"NotInReactNativeFolderError": "React Native proje kökü olmayan dizinin içinden hata ayıklamaya çalışıyorsunuz gibi görünüyor. \n Bu durumda lütfen şu yönergeleri izleyin: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
+	"NotInReactNativeFolderError": "React Native proje kökü olmayan dizinin içinden hata ayıklamaya çalışıyorsunuz gibi görünüyor. \n Bu durumda lütfen şu yönergeleri izleyin: https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
 	"SourcesStoragePathIsNullOrEmpty": "sourcesStoragePath bağımsız değişkeni null veya boş",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "Uygulama, kullanılabilir cihazlara yüklenemedi. Çalıştırdığınız cihazın ve \n öykünücünün doğru yapılandırıldığından emin olun. Bkz. https://facebook.github.io/react-native/docs/android-setup.html.",
 	"AndroidShellCommandTimedOut": "Bir Android kabuk komutu zaman aşımına uğradı. Lütfen işlemi yeniden deneyin.",

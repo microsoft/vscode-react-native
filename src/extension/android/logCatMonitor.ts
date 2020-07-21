@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as vscode from "vscode";
 
 import { ISpawnResult } from "../../common/node/childProcess";
@@ -38,7 +37,7 @@ export class LogCatMonitor implements vscode.Disposable {
         this.adbHelper = adbHelper;
     }
 
-    public start(): Q.Promise<void> {
+    public start(): Promise<void> {
         const logCatArguments = this.getLogCatArguments();
         const adbParameters = ["-s", this._deviceId, "logcat"].concat(logCatArguments);
         this._logger.debug(`Monitoring LogCat for device ${this._deviceId} with arguments: ${logCatArguments}`);
@@ -61,9 +60,9 @@ export class LogCatMonitor implements vscode.Disposable {
             (reason) => {
                 if (!this._logCatSpawn) { // We stopped log cat ourselves
                     this._logger.info(localize("LogCatMonitoringStoppedBecauseTheDebuggingSessionFinished", "LogCat monitoring stopped because the debugging session finished"));
-                    return Q.resolve(void 0);
+                    return Promise.resolve();
                 } else {
-                    return Q.reject<void>(reason); // Unkown error. Pass it up the promise chain
+                    return Promise.reject(reason); // Unkown error. Pass it up the promise chain
                 }
             }).finally(() => {
                 this._logCatSpawn = null;

@@ -16,8 +16,8 @@ interface TestUsingRecording {
 }
 
 export interface IRecordingConsumer {
-    loadRecordingFromName(recordingName: string): Q.Promise<void>;
-    loadRecordingFromString(recordingName: string): Q.Promise<void>;
+    loadRecordingFromName(recordingName: string): Promise<void>;
+    loadRecordingFromString(recordingName: string): Promise<void>;
 }
 
 /* This class makes it easy to create a test using a recording. Recommended usage is:
@@ -41,7 +41,7 @@ export class RecordingsHelper {
     }
 
     private initializeTest(): void {
-        this.test = <TestUsingRecording>((testName: string, recordingNames: string[], code: () => Q.Promise<void>): void => {
+        this.test = <TestUsingRecording>((testName: string, recordingNames: string[], code: () => Promise<void>): void => {
             if (code.length !== 0) { // Check how many arguments the function has
                 throw new RangeError("(done: mochaDone) parameter is not supported. Please return a promise instead.");
             }

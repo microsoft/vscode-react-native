@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as semver from "semver";
 import {URL} from "url";
 import {Package} from "./node/package";
@@ -22,18 +21,18 @@ export interface RNPackageVersions {
 export class ProjectVersionHelper {
 
     public static getRNVersionsWithBrokenMetroBundler() {
-        // https://github.com/Microsoft/vscode-react-native/issues/660 for details
+        // https://github.com/microsoft/vscode-react-native/issues/660 for details
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
 
-    public static getReactNativeVersions(projectRoot: string, isRNWindows: boolean = false): Q.Promise<RNPackageVersions> {
+    public static getReactNativeVersions(projectRoot: string, isRNWindows: boolean = false): Promise<RNPackageVersions> {
         return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(projectRoot, isRNWindows)
-            .catch(err => {
+            .catch(() => {
                 return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(projectRoot, isRNWindows);
             });
     }
 
-    public static getReactNativePackageVersionsFromNodeModules(projectRoot: string, isRNWindows: boolean = false): Q.Promise<RNPackageVersions> {
+    public static getReactNativePackageVersionsFromNodeModules(projectRoot: string, isRNWindows: boolean = false): Promise<RNPackageVersions> {
         let parsedPackages: ParsedPackage[] = [
             {
                 packageName: "react-native",
@@ -48,7 +47,7 @@ export class ProjectVersionHelper {
             });
         }
 
-        let versionPromises: Q.Promise<PackageVersion>[] = [];
+        let versionPromises: Promise<PackageVersion>[] = [];
 
         parsedPackages.forEach(parsedPackage => {
             versionPromises.push(
@@ -56,7 +55,7 @@ export class ProjectVersionHelper {
             );
         });
 
-        return Q.all(versionPromises).then(packageVersionArray => {
+        return Promise.all(versionPromises).then(packageVersionArray => {
             return packageVersionArray.reduce((allPackageVersions, packageVersion) => {
                 return Object.assign(allPackageVersions, packageVersion);
             }, {});
@@ -72,7 +71,7 @@ export class ProjectVersionHelper {
         });
     }
 
-    public static getReactNativeVersionsFromProjectPackage(cwd: string, isRNWindows: boolean = false): Q.Promise<RNPackageVersions> {
+    public static getReactNativeVersionsFromProjectPackage(cwd: string, isRNWindows: boolean = false): Promise<RNPackageVersions> {
         let parsedPackages: ParsedPackage[] = [
             {
                 packageName: "react-native",
@@ -141,7 +140,7 @@ export class ProjectVersionHelper {
         }
     }
 
-    private static getProcessedVersionFromNodeModules(projectRoot: string, parsedPackage: ParsedPackage): Q.Promise<PackageVersion> {
+    private static getProcessedVersionFromNodeModules(projectRoot: string, parsedPackage: ParsedPackage): Promise<PackageVersion> {
         return new Package(projectRoot).getPackageVersionFromNodeModules(parsedPackage.packageName)
             .then(version => ({[parsedPackage.packageName]: ProjectVersionHelper.processVersion(version, parsedPackage.useSemverCoerce)}))
             .catch(err => ({[parsedPackage.packageName]: RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES}));

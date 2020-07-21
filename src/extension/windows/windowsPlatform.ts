@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as semver from "semver";
-
 import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
 import {IWindowsRunOptions} from "../launchArgs";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
@@ -32,7 +30,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         super(runOptions, platformDeps);
     }
 
-    public runApp(enableDebug: boolean = true): Q.Promise<void> {
+    public runApp(enableDebug: boolean = true): Promise<void> {
         let extProps = {
             platform: {
                 value: "windows",
@@ -55,12 +53,12 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             }
 
             const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, this.runArguments, {env});
-            return new OutputVerifier(() => Q(WindowsPlatform.SUCCESS_PATTERNS), () => Q(WindowsPlatform.FAILURE_PATTERNS), this.platformName)
+            return new OutputVerifier(() => Promise.resolve(WindowsPlatform.SUCCESS_PATTERNS), () => Promise.resolve(WindowsPlatform.FAILURE_PATTERNS), this.platformName)
                 .process(runWindowsSpawn);
         });
     }
 
-    public prewarmBundleCache(): Q.Promise<void> {
+    public prewarmBundleCache(): Promise<void> {
         return this.packager.prewarmBundleCache("windows");
     }
 
