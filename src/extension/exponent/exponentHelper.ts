@@ -4,16 +4,15 @@
 /// <reference path="exponentHelper.d.ts" />
 
 import * as path from "path";
-import * as Q from "q";
 import * as XDL from "./xdlInterface";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
-import { FileSystem } from "../../common/node/fileSystem";
 import {OutputChannelLogger} from "../log/OutputChannelLogger";
 import stripJSONComments = require("strip-json-comments");
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { FileSystem } from "../../common/node/fileSystem";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -45,7 +44,7 @@ export class ExponentHelper {
         // are correctly initialized.
     }
 
-    public configureExponentEnvironment(): Q.Promise<void> {
+    public configureExponentEnvironment(): Promise<void> {
         this.lazilyInitialize();
         this.logger.info(localize("MakingSureYourProjectUsesCorrectExponentDependencies", "Making sure your project uses the correct dependencies for Expo. This may take a while..."));
         this.logger.logStream(localize("CheckingIfThisIsExpoApp", "Checking if this is Expo app."));
@@ -75,9 +74,9 @@ export class ExponentHelper {
      * Returns the current user. If there is none, asks user for username and password and logins to exponent servers.
      */
     public loginToExponent(
-        promptForInformation: (message: string, password: boolean) => Q.Promise<string>,
-        showMessage: (message: string) => Q.Promise<string>
-    ): Q.Promise<XDL.IUser> {
+        promptForInformation: (message: string, password: boolean) => Promise<string>,
+        showMessage: (message: string) => Promise<string>
+    ): Promise<XDL.IUser> {
         this.lazilyInitialize();
         return XDL.currentUser()
             .then((user) => {
@@ -96,17 +95,17 @@ export class ExponentHelper {
                 return user;
             })
             .catch(error => {
-                return Q.reject<XDL.IUser>(error);
+                return Promise.reject<XDL.IUser>(error);
             });
     }
 
-    public getExpPackagerOptions(): Q.Promise<ExpConfigPackager> {
+    public getExpPackagerOptions(): Promise<ExpConfigPackager> {
         this.lazilyInitialize();
         return this.getFromExpConfig("packagerOpts")
             .then(opts => opts || {});
     }
 
-    public appHasExpoInstalled(): Q.Promise<boolean> {
+    public appHasExpoInstalled(): Promise<boolean> {
         return this.getAppPackageInformation()
             .then((packageJson: IPackageInformation) => {
                 if (packageJson.dependencies && packageJson.dependencies.expo) {
@@ -120,7 +119,7 @@ export class ExponentHelper {
             });
     }
 
-    public appHasExpoRNSDKInstalled(): Q.Promise<boolean> {
+    public appHasExpoRNSDKInstalled(): Promise<boolean> {
         return this.getAppPackageInformation()
             .then((packageJson: IPackageInformation) => {
                 const reactNativeValue: string | undefined = packageJson.dependencies && packageJson.dependencies["react-native"];
@@ -134,17 +133,17 @@ export class ExponentHelper {
             });
     }
 
-    public isExpoApp(showProgress: boolean = false): Q.Promise<boolean> {
+    public isExpoApp(showProgress: boolean = false): Promise<boolean> {
         if (showProgress) {
             this.logger.logStream("...");
         }
 
-        return Q.all([
+        return Promise.all([
             this.appHasExpoInstalled(),
             this.appHasExpoRNSDKInstalled(),
-        ]).spread((expoInstalled, expoRNSDKInstalled) => {
-            if (showProgress) this.logger.logStream(".");
-            return expoInstalled && expoRNSDKInstalled;
+        ]).then(([expoInstalled, expoRNSDKInstalled]) => {
+                if (showProgress) this.logger.logStream(".");
+                return expoInstalled && expoRNSDKInstalled;
         }).catch((e) => {
                 this.logger.error(e.message, e, e.stack);
                 if (showProgress) {
@@ -166,7 +165,7 @@ export class ExponentHelper {
         return path.join(...paths);
     }
 
-    private createExpoEntry(name: string): Q.Promise<void> {
+    private createExpoEntry(name: string): Promise<void> {
         this.lazilyInitialize();
         return this.detectEntry()
             .then((entryPoint: string) => {
@@ -176,18 +175,17 @@ export class ExponentHelper {
 
     }
 
-    private detectEntry(): Q.Promise<string> {
+    private detectEntry(): Promise<string> {
         this.lazilyInitialize();
-        return Q.all([
+        return Promise.all([
             this.fs.exists(this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)),
             this.fs.exists(this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)),
             this.fs.exists(this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX)),
-        ])
-            .spread((expo: boolean, ios: boolean): string => {
-                return expo ? this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX) :
-                    ios ? this.pathToFileInWorkspace(DEFAULT_IOS_INDEX) :
-                        this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX);
-            });
+        ]).then(([expo, ios]) => {
+            return expo ? this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX) :
+            ios ? this.pathToFileInWorkspace(DEFAULT_IOS_INDEX) :
+                this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX);
+        });
     }
 
     private generateFileContent(name: string, entryPoint: string): string {
@@ -203,7 +201,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
 });`;
     }
 
-    private patchAppJson(isExpo: boolean = true): Q.Promise<void> {
+    private patchAppJson(isExpo: boolean = true): Promise<void> {
         return this.readAppJson()
             .catch(() => {
                 // if app.json doesn't exist but it's ok, we will create it
@@ -258,7 +256,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
                 return config ? this.writeAppJson(config) : config;
             })
             .then((config: AppJson) => {
-                return isExpo ? Q.resolve(void 0) : this.createExpoEntry(config.expo.name);
+                return isExpo ? Promise.resolve() : this.createExpoEntry(config.expo.name);
             });
     }
 
@@ -266,7 +264,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
      * Exponent sdk version that maps to the current react-native version
      * If react native version is not supported it returns null.
      */
-    private exponentSdk(showProgress: boolean = false): Q.Promise<string> {
+    private exponentSdk(showProgress: boolean = false): Promise<string> {
         if (showProgress) {
             this.logger.logStream("...");
         }
@@ -279,7 +277,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
                         if (!sdkVersion) {
                             return XDL.supportedVersions()
                                 .then((versions) => {
-                                    return Q.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.RNVersionNotSupportedByExponent, versions.join(", ")));
+                                    return Promise.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.RNVersionNotSupportedByExponent, versions.join(", ")));
                                 });
                         }
                         return sdkVersion;
@@ -291,11 +289,11 @@ AppRegistry.registerRunnable('main', function(appParameters) {
     /**
      * Name specified on user's package.json
      */
-    private getPackageName(): Q.Promise<string> {
+    private getPackageName(): Promise<string> {
         return new Package(this.projectRootPath, { fileSystem: this.fs }).name();
     }
 
-    private getExpConfig(): Q.Promise<ExpConfig> {
+    private getExpConfig(): Promise<ExpConfig> {
         return this.readExpJson()
             .catch(err => {
                 if (err.code === "ENOENT") {
@@ -309,7 +307,7 @@ AppRegistry.registerRunnable('main', function(appParameters) {
             });
     }
 
-    private getFromExpConfig(key: string): Q.Promise<any> {
+    private getFromExpConfig(key: string): Promise<any> {
         return this.getExpConfig()
             .then((config: ExpConfig) => config[key]);
     }
@@ -317,29 +315,29 @@ AppRegistry.registerRunnable('main', function(appParameters) {
     /**
      * Returns the specified setting from exp.json if it exists
      */
-    private readExpJson(): Q.Promise<ExpConfig> {
+    private readExpJson(): Promise<ExpConfig> {
         const expJsonPath = this.pathToFileInWorkspace(EXP_JSON);
         return this.fs.readFile(expJsonPath)
             .then(content => {
-                return JSON.parse(stripJSONComments(content));
+                return JSON.parse(stripJSONComments(content.toString()));
             });
     }
 
-    private readAppJson(): Q.Promise<AppJson> {
+    private readAppJson(): Promise<AppJson> {
         const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
         return this.fs.readFile(appJsonPath)
             .then(content => {
-                return JSON.parse(stripJSONComments(content));
+                return JSON.parse(stripJSONComments(content.toString()));
             });
     }
 
-    private writeAppJson(config: AppJson): Q.Promise<AppJson> {
+    private writeAppJson(config: AppJson): Promise<AppJson> {
         const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
         return this.fs.writeFile(appJsonPath, JSON.stringify(config, null, 2))
             .then(() => config);
     }
 
-    private getAppPackageInformation(): Q.Promise<IPackageInformation> {
+    private getAppPackageInformation(): Promise<IPackageInformation> {
         return new Package(this.projectRootPath, { fileSystem: this.fs }).parsePackageInformation();
     }
 

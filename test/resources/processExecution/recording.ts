@@ -95,5 +95,5 @@ export interface IExitEvent extends ITimedEvent {
 }
 
 export interface ICustomEvent extends ITimedEvent {
-    custom: { lambda: () => Q.Promise<void> | void };
+    custom: { lambda: () => Promise<void> | void };
 }

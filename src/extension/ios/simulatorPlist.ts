@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import * as Q from "q";
-
 import {ErrorHelper} from "../../common/error/errorHelper";
 import {PlistBuddy} from "./plistBuddy";
 import {OutputChannelLogger} from "../log/OutputChannelLogger";
@@ -39,12 +37,11 @@ export class SimulatorPlist {
         this.scheme = scheme;
     }
 
-    public findPlistFile(configuration?: string, productName?: string): Q.Promise<string> {
-
-        return Q.all<any>([
+    public findPlistFile(configuration?: string, productName?: string): Promise<string> {
+        return Promise.all([
             this.plistBuddy.getBundleId(this.iosProjectRoot, this.projectRoot, true, configuration, productName, this.scheme), // Find the name of the application
-            this.nodeChildProcess.exec("xcrun simctl getenv booted HOME").outcome, // Find the path of the simulator we are running
-            ]).spread((bundleId: string, pathBuffer: Buffer) => {
+            this.nodeChildProcess.exec("xcrun simctl getenv booted HOME").then(res => res.outcome), // Find the path of the simulator we are running
+            ]).then(([bundleId, pathBuffer]) => {
                 const pathBefore = path.join(pathBuffer.toString().trim(), "Containers", "Data", "Application");
                 const pathAfter = path.join("Library", "Preferences", `${bundleId}.plist`);
 

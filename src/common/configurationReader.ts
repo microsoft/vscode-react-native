@@ -57,7 +57,7 @@ export class ConfigurationReader {
         return value ? this.readInt(value) : defaultValue;
     }
 
-    public static readIntWithDefaultAsync(value: any, defaultValuePromise: Q.Promise<number>): Q.Promise<number> {
+    public static readIntWithDefaultAsync(value: any, defaultValuePromise: Promise<number>): Promise<number> {
         return defaultValuePromise.then(defaultValue => {
             return this.readIntWithDefaultSync(value, defaultValue);
         });

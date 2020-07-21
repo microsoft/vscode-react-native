@@ -6,7 +6,6 @@ import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {ErrorHelper} from "../common/error/errorHelper";
 import * as path from "path";
-import * as Q from "q";
 import * as nls from "vscode-nls";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
@@ -51,29 +50,29 @@ const localize = nls.loadMessageBundle();
     getReactNativeWorkspaceForFile(filename, workspace).then(projectRootPath => {
         const appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
         return appLauncher.openFileAtLocation(filename, lineNumber);
-    }).done(() => { }, (reason) => {
+    }).then(() => { }, (reason) => {
         throw ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed,
             "Unable to communicate with VSCode. Please make sure it is open in the appropriate workspace.");
     });
 }
 
-function getReactNativeWorkspaceForFile(file: string, workspace: string): Q.Promise<string> {
+function getReactNativeWorkspaceForFile(file: string, workspace: string): Promise<string> {
     if (workspace) {
-        return Q(workspace);
+        return Promise.resolve(workspace);
     }
     return getPathForRNParentWorkspace(path.dirname(file))
         .catch((reason) => {
-            return Q.reject<string>(ErrorHelper.getNestedError(reason, InternalErrorCode.WorkspaceNotFound, `Error while looking at workspace for file: ${file}.`));
+            return Promise.reject<string>(ErrorHelper.getNestedError(reason, InternalErrorCode.WorkspaceNotFound, `Error while looking at workspace for file: ${file}.`));
         });
 }
 
-function getPathForRNParentWorkspace(dir: string): Q.Promise<string> {
+function getPathForRNParentWorkspace(dir: string): Promise<string> {
     return ReactNativeProjectHelper.isReactNativeProject(dir).then(isRNProject => {
         if (isRNProject) {
             return dir;
         }
         if (dir === "" || dir === "." || dir === "/" || dir === path.dirname(dir)) {
-            return Q.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.WorkspaceNotFound, "React Native project workspace not found."));
+            return Promise.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.WorkspaceNotFound, "React Native project workspace not found."));
         }
         return getPathForRNParentWorkspace(path.dirname(dir));
     });
