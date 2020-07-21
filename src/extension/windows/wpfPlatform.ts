@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as semver from "semver";
 import * as path from "path";
-
 import {GeneralMobilePlatform} from "../generalMobilePlatform";
 import {MobilePlatformDeps} from "../generalMobilePlatform";
 import {IWindowsRunOptions} from "../launchArgs";
@@ -24,7 +22,7 @@ export class WpfPlatform extends WindowsPlatform {
         super(runOptions, platformDeps);
     }
 
-    public runApp(enableDebug: boolean = true): Q.Promise<void> {
+    public runApp(enableDebug: boolean = true): Promise<void> {
         let extProps = {
             platform: {
                 value: "wpf",
@@ -51,7 +49,7 @@ export class WpfPlatform extends WindowsPlatform {
             }
 
             const exec = new CommandExecutor(this.projectPath, this.logger);
-            return Q.Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => {
                 const appName = this.projectPath.split(path.sep).pop();
                 // Killing another instances of the app which were run earlier
                 return exec.execute(`cmd /C Taskkill /IM ${appName}.exe /F`)
@@ -63,7 +61,7 @@ export class WpfPlatform extends WindowsPlatform {
                             output += data.toString();
                             if (!resolved && output.indexOf("Starting the app") > -1) {
                                 resolved = true;
-                                resolve(void 0);
+                                resolve();
                             }
                         });
 
@@ -74,7 +72,7 @@ export class WpfPlatform extends WindowsPlatform {
                         });
 
                         runWpfSpawn.outcome.then(() => {
-                            reject(void 0); // If WPF process ended then app run fault
+                            reject(); // If WPF process ended then app run fault
                         });
                     });
             });

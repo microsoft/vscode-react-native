@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import {ISpawnResult} from "./node/childProcess";
 import { ErrorHelper } from "./error/errorHelper";
 import { InternalErrorCode } from "./error/internalErrorCode";
@@ -14,20 +13,20 @@ export interface PatternToFailure {
 /* This class transforms a spawn process to only succeed if all defined success patterns
    are found on stdout, and none of the failure patterns were found on stderr */
 export class OutputVerifier {
-    private generatePatternsForSuccess: () => Q.Promise<string[]>;
-    private generatePatternToFailure: () => Q.Promise<PatternToFailure[]>;
+    private generatePatternsForSuccess: () => Promise<string[]>;
+    private generatePatternToFailure: () => Promise<PatternToFailure[]>;
     private platformName: string;
 
     private output = "";
     private errors = "";
 
-    constructor(generatePatternsForSuccess: () => Q.Promise<string[]>, generatePatternToFailure: () => Q.Promise<PatternToFailure[]>, platformName: string) {
+    constructor(generatePatternsForSuccess: () => Promise<string[]>, generatePatternToFailure: () => Promise<PatternToFailure[]>, platformName: string) {
         this.generatePatternsForSuccess = generatePatternsForSuccess;
         this.generatePatternToFailure = generatePatternToFailure;
         this.platformName = platformName;
     }
 
-    public process(spawnResult: ISpawnResult): Q.Promise<void> {
+    public process(spawnResult: ISpawnResult): Promise<void> {
         // Store all output
         this.store(spawnResult.stdout, newContent =>
             this.output += newContent);
@@ -39,15 +38,15 @@ export class OutputVerifier {
             .then(patterns => {
                 const failureErrorCode = this.findAnyFailurePattern(patterns);
                 if (failureErrorCode) {
-                    return Q.reject<string[]>(ErrorHelper.getInternalError(failureErrorCode)); // If at least one failure happened, we fail
+                    return Promise.reject<string[]>(ErrorHelper.getInternalError(failureErrorCode)); // If at least one failure happened, we fail
                 } else {
                     return this.generatePatternsForSuccess(); // If not we generate the success patterns
                 }
             }).then(successPatterns => {
                 if (!this.areAllSuccessPatternsPresent(successPatterns)) { // If we don't find all the success patterns, we also fail
-                    return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.NotAllSuccessPatternsMatched, this.platformName, this.platformName));
+                    return Promise.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.NotAllSuccessPatternsMatched, this.platformName, this.platformName));
                 } // else we found all the success patterns, so we succeed
-                return Q.resolve(void 0);
+                return Promise.resolve();
             });
     }
 

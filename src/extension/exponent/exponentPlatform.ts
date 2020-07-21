@@ -10,7 +10,6 @@ import { TelemetryHelper } from "../../common/telemetryHelper";
 import { QRCodeContentProvider } from "../qrCodeContentProvider";
 
 import * as vscode from "vscode";
-import * as Q from "q";
 import * as XDL from "./xdlInterface";
 import * as url from "url";
 import * as nls from "vscode-nls";
@@ -29,7 +28,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         this.exponentTunnelPath = null;
     }
 
-    public runApp(): Q.Promise<void> {
+    public runApp(): Promise<void> {
         let extProps = {
             platform: {
                 value: "exponent",
@@ -40,76 +39,78 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.expoHostType, "expoHostType", extProps);
 
-        return TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
-            return this.loginToExponentOrSkip(this.runOptions.expoHostType)
-                .then(() =>
-                    XDL.setOptions(this.projectPath, { packagerPort: this.packager.getPort() })
-                )
-                .then(() =>
-                    XDL.startExponentServer(this.projectPath)
-                )
-                .then(() => {
-                    if (this.runOptions.expoHostType !== "tunnel") {
-                        // the purpose of this is to save the same sequence of handling 'adb reverse' command execution as in Expo
-                        // https://github.com/expo/expo-cli/blob/1d515d21200841e181518358fd9dc4c7b24c7cd6/packages/xdl/src/Project.ts#L2226-L2370
-                        // we added this to be sure that our Expo launching logic doesn't have any negative side effects
-                        return XDL.stopAdbReverse(this.projectPath);
-                    }
-                    return XDL.startTunnels(this.projectPath);
-                })
-                .then(() => {
-                    if (this.runOptions.expoHostType !== "local") return false;
-                    // we need to execute 'adb reverse' command to bind ports used by Expo and RN of local machine to ports of a connected Android device or a running emulator
-                    return XDL.startAdbReverse(this.projectPath);
-                })
-                .then((isAdbReversed) => {
-                    switch (this.runOptions.expoHostType) {
-                        case "lan":
-                            return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "lan" });
-                        case "local":
-                            if (isAdbReversed) {
-                                this.logger.info(localize("ExpoStartAdbReverseSuccess", "A device or an emulator was found, 'adb reverse' command successfully executed."));
-                            } else {
-                                this.logger.warning(localize("ExpoStartAdbReverseFailure", "Adb reverse command failed. Couldn't find connected over usb device or running emulator. Also please make sure that there is only one currently connected device or running emulator."));
-                            }
+        return new Promise((resolve, reject) => {
+                TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
+                return this.loginToExponentOrSkip(this.runOptions.expoHostType)
+                    .then(() =>
+                        XDL.setOptions(this.projectPath, { packagerPort: this.packager.getPort() })
+                    )
+                    .then(() =>
+                        XDL.startExponentServer(this.projectPath)
+                    )
+                    .then(() => {
+                        if (this.runOptions.expoHostType !== "tunnel") {
+                            // the purpose of this is to save the same sequence of handling 'adb reverse' command execution as in Expo
+                            // https://github.com/expo/expo-cli/blob/1d515d21200841e181518358fd9dc4c7b24c7cd6/packages/xdl/src/Project.ts#L2226-L2370
+                            // we added this to be sure that our Expo launching logic doesn't have any negative side effects
+                            return XDL.stopAdbReverse(this.projectPath);
+                        }
+                        return XDL.startTunnels(this.projectPath);
+                    })
+                    .then(() => {
+                        if (this.runOptions.expoHostType !== "local") return false;
+                        // we need to execute 'adb reverse' command to bind ports used by Expo and RN of local machine to ports of a connected Android device or a running emulator
+                        return XDL.startAdbReverse(this.projectPath);
+                    })
+                    .then((isAdbReversed) => {
+                        switch (this.runOptions.expoHostType) {
+                            case "lan":
+                                return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "lan" });
+                            case "local":
+                                if (isAdbReversed) {
+                                    this.logger.info(localize("ExpoStartAdbReverseSuccess", "A device or an emulator was found, 'adb reverse' command successfully executed."));
+                                } else {
+                                    this.logger.warning(localize("ExpoStartAdbReverseFailure", "Adb reverse command failed. Couldn't find connected over usb device or running emulator. Also please make sure that there is only one currently connected device or running emulator."));
+                                }
 
-                            return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "localhost" });
-                        case "tunnel":
-                        default:
-                            return XDL.getUrl(this.projectPath, { dev: true, minify: false });
-                    }
-                })
-                .then(exponentUrl => {
-                    return "exp://" + url.parse(exponentUrl).host;
-                })
-                .catch(reason => {
-                    return Q.reject<string>(reason);
-                })
-                .then(exponentUrl => {
-                    let exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, { });
-                    exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(vscode.Uri.parse(exponentUrl));
-                    return exponentUrl;
-                })
-                .then(exponentUrl => {
-                    if (!exponentUrl) {
-                        return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath));
-                    }
-                    this.exponentTunnelPath = exponentUrl;
-                    const outputMessage = localize("ApplicationIsRunningOnExponentOpenToSeeIt", "Application is running on Expo. Open your Expo app at {0} to see it.", this.exponentTunnelPath);
-                    this.logger.info(outputMessage);
+                                return XDL.getUrl(this.projectPath, { dev: true, minify: false, hostType: "localhost" });
+                            case "tunnel":
+                            default:
+                                return XDL.getUrl(this.projectPath, { dev: true, minify: false });
+                        }
+                    })
+                    .then(exponentUrl => {
+                        return "exp://" + url.parse(exponentUrl).host;
+                    })
+                    .then(exponentUrl => {
+                        let exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, { });
+                        exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(vscode.Uri.parse(exponentUrl));
+                        return exponentUrl;
+                    })
+                    .then(exponentUrl => {
+                        if (!exponentUrl) {
+                            return reject(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath));
+                        }
+                        this.exponentTunnelPath = exponentUrl;
+                        const outputMessage = localize("ApplicationIsRunningOnExponentOpenToSeeIt", "Application is running on Expo. Open your Expo app at {0} to see it.", this.exponentTunnelPath);
+                        this.logger.info(outputMessage);
 
-                    return Q.resolve(void 0);
-                });
+                        return resolve();
+                    })
+                    .catch(reason => {
+                        return reject(reason);
+                    });
+            });
         });
     }
 
-    public loginToExponentOrSkip(expoHostType?: "tunnel" | "lan" | "local") {
+    public loginToExponentOrSkip(expoHostType?: "tunnel" | "lan" | "local"): Promise<any> {
         if (expoHostType !== "tunnel") {
-            return  Q({});
+            return  Promise.resolve();
         }
         return this.exponentHelper.loginToExponent(
             (message, password) => {
-                return Q.Promise((resolve, reject) => {
+                return new Promise((resolve, reject) => {
                     vscode.window.showInputBox({ placeHolder: message, password: password })
                         .then(login => {
                             resolve(login || "");
@@ -117,7 +118,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                 });
             },
             (message) => {
-                return Q.Promise((resolve, reject) => {
+                return new Promise((resolve, reject) => {
                     const okButton =  { title: "Ok" };
                     const cancelButton =  { title: "Cancel", isCloseAffordance: true };
                     vscode.window.showInformationMessage(message, {modal: true}, okButton, cancelButton)
@@ -132,13 +133,13 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         );
     }
 
-    public beforeStartPackager(): Q.Promise<void> {
+    public beforeStartPackager(): Promise<void> {
         return this.exponentHelper.configureExponentEnvironment();
     }
 
-    public enableJSDebuggingMode(): Q.Promise<void> {
+    public enableJSDebuggingMode(): Promise<void> {
         this.logger.info(localize("ApplicationIsRunningOnExponentShakeDeviceForRemoteDebugging", "Application is running on Expo. Please shake device and select 'Debug JS Remotely' to enable debugging."));
-        return Q.resolve<void>(void 0);
+        return Promise.resolve();
     }
 
     public getRunArguments(): string[] {

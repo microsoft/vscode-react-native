@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import * as Q from "q";
 import * as XDL from "./exponent/xdlInterface";
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
@@ -33,7 +32,7 @@ export class CommandPaletteHandler {
     /**
      * Starts the React Native packager
      */
-    public static startPackager(): Q.Promise<void> {
+    public static startPackager(): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
                 return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(appLauncher.getPackager().getProjectPath())
@@ -41,7 +40,7 @@ export class CommandPaletteHandler {
                         return this.executeCommandInContext("startPackager", appLauncher.getWorkspaceFolder(), () => {
                             return appLauncher.getPackager().isRunning()
                                 .then((running) => {
-                                    return running ? appLauncher.getPackager().stop() : Q.resolve(void 0);
+                                    return running ? appLauncher.getPackager().stop() : Promise.resolve();
                                 });
                         })
                         .then(() => appLauncher.getPackager().start());
@@ -52,28 +51,28 @@ export class CommandPaletteHandler {
     /**
      * Kills the React Native packager invoked by the extension's packager
      */
-    public static stopPackager(): Q.Promise<void> {
+    public static stopPackager(): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
                 return this.executeCommandInContext("stopPackager", appLauncher.getWorkspaceFolder(), () => appLauncher.getPackager().stop());
             });
     }
 
-    public static stopAllPackagers(): Q.Promise<void> {
+    public static stopAllPackagers(): Promise<void> {
         let keys = Object.keys(ProjectsStorage.projectsCache);
-        let promises: Q.Promise<void>[] = [];
+        let promises: Promise<void>[] = [];
         keys.forEach((key) => {
             let appLauncher = ProjectsStorage.projectsCache[key];
             promises.push(this.executeCommandInContext("stopPackager", appLauncher.getWorkspaceFolder(), () => appLauncher.getPackager().stop()));
         });
 
-        return Q.all(promises).then(() => {});
+        return Promise.all(promises).then(() => {});
     }
 
     /**
      * Restarts the React Native packager
      */
-    public static restartPackager(): Q.Promise<void> {
+    public static restartPackager(): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
                 return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(appLauncher.getPackager().getProjectPath())
@@ -87,7 +86,7 @@ export class CommandPaletteHandler {
     /**
      * Execute command to publish to exponent host.
      */
-    public static publishToExpHost(): Q.Promise<void> {
+    public static publishToExpHost(): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
                 return this.executeCommandInContext("publishToExpHost", appLauncher.getWorkspaceFolder(), () => {
@@ -103,7 +102,7 @@ export class CommandPaletteHandler {
     /**
      * Executes the 'react-native run-android' command
      */
-    public static runAndroid(target: TargetType = "simulator"): Q.Promise<void> {
+    public static runAndroid(target: TargetType = "simulator"): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
                 TargetPlatformHelper.checkTargetPlatformSupport("android");
@@ -130,7 +129,7 @@ export class CommandPaletteHandler {
     /**
      * Executes the 'react-native run-ios' command
      */
-    public static runIos(target: TargetType = "simulator"): Q.Promise<void> {
+    public static runIos(target: TargetType = "simulator"): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
                 return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(appLauncher.getPackager().getProjectPath())
@@ -159,7 +158,7 @@ export class CommandPaletteHandler {
     /**
      * Starts the Exponent packager
      */
-    public static runExponent(): Q.Promise<void> {
+    public static runExponent(): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
                 return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(appLauncher.getPackager().getProjectPath())
@@ -182,7 +181,7 @@ export class CommandPaletteHandler {
             });
     }
 
-    public static showDevMenu(): Q.Promise<void> {
+    public static showDevMenu(): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
                 const androidPlatform = <AndroidPlatform>this.createPlatform(appLauncher, "android", AndroidPlatform);
@@ -194,11 +193,11 @@ export class CommandPaletteHandler {
                     iosPlatform.showDevMenu(appLauncher)
                         .catch(() => { }); // Ignore any errors
                 }
-                return Q.resolve(void 0);
+                return Promise.resolve();
             });
     }
 
-    public static reloadApp(): Q.Promise<void> {
+    public static reloadApp(): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
                 const androidPlatform = <AndroidPlatform>this.createPlatform(appLauncher, "android", AndroidPlatform);
@@ -210,11 +209,11 @@ export class CommandPaletteHandler {
                     iosPlatform.reloadApp(appLauncher)
                         .catch(() => { }); // Ignore any errors
                 }
-                return Q.resolve(void 0);
+                return Promise.resolve();
             });
     }
 
-    public static runElementInspector(): Q.Promise<void> {
+    public static runElementInspector(): Promise<void> {
         if (!CommandPaletteHandler.elementInspector) {
             // Remove the following env variables to prevent running electron app in node mode.
             // https://github.com/microsoft/vscode/issues/3011#issuecomment-184577502
@@ -227,7 +226,7 @@ export class CommandPaletteHandler {
             });
             if (!CommandPaletteHandler.elementInspector.pid) {
                 CommandPaletteHandler.elementInspector = null;
-                return Q.reject(ErrorHelper.getInternalError(InternalErrorCode.ReactDevtoolsIsNotInstalled));
+                return Promise.reject(ErrorHelper.getInternalError(InternalErrorCode.ReactDevtoolsIsNotInstalled));
             }
             CommandPaletteHandler.elementInspector.stdout.on("data", (data: string) => {
                 this.logger.info(data);
@@ -241,7 +240,7 @@ export class CommandPaletteHandler {
         } else {
             this.logger.info(localize("AnotherElementInspectorAlreadyRun", "Another element inspector already run"));
         }
-        return Q(void 0);
+        return Promise.resolve();
     }
 
     public static stopElementInspector(): void {
@@ -273,7 +272,7 @@ export class CommandPaletteHandler {
         });
     }
 
-    private static runRestartPackagerCommandAndUpdateStatus(appLauncher: AppLauncher): Q.Promise<void> {
+    private static runRestartPackagerCommandAndUpdateStatus(appLauncher: AppLauncher): Promise<void> {
         return appLauncher.getPackager().restart(SettingsHelper.getPackagerPort(appLauncher.getWorkspaceFolderUri().fsPath));
     }
 
@@ -282,7 +281,7 @@ export class CommandPaletteHandler {
      * Otherwise, displays an error message banner
      * {operation} - a function that performs the expected operation
      */
-    private static executeCommandInContext(rnCommand: string, workspaceFolder: vscode.WorkspaceFolder, operation: () => Q.Promise<void>): Q.Promise<void> {
+    private static executeCommandInContext(rnCommand: string, workspaceFolder: vscode.WorkspaceFolder, operation: () => Promise<void>): Promise<void> {
         const extProps = {
             platform: {
                 value: CommandPaletteHandler.getPlatformByCommandName(rnCommand),
@@ -314,7 +313,7 @@ export class CommandPaletteHandler {
     /**
      * Publish project to exponent server. In order to do this we need to make sure the user is logged in exponent and the packager is running.
      */
-    private static executePublishToExpHost(appLauncher: AppLauncher): Q.Promise<boolean> {
+    private static executePublishToExpHost(appLauncher: AppLauncher): Promise<boolean> {
         CommandPaletteHandler.logger.info(localize("PublishingAppToExponentServer", "Publishing app to Expo server. This might take a moment."));
         return this.loginToExponent(appLauncher)
             .then(user => {
@@ -334,10 +333,10 @@ export class CommandPaletteHandler {
             });
     }
 
-    private static loginToExponent(appLauncher: AppLauncher): Q.Promise<XDL.IUser> {
+    private static loginToExponent(appLauncher: AppLauncher): Promise<XDL.IUser> {
         return appLauncher.getExponentHelper().loginToExponent(
             (message, password) => {
-                return Q.Promise((resolve, reject) => {
+                return new Promise((resolve, reject) => {
                     vscode.window.showInputBox({ placeHolder: message, password: password })
                         .then(login => {
                             resolve(login || "");
@@ -345,7 +344,7 @@ export class CommandPaletteHandler {
                 });
             },
             (message) => {
-                return Q.Promise((resolve, reject) => {
+                return new Promise((resolve, reject) => {
                     vscode.window.showInformationMessage(message)
                         .then(password => {
                             resolve(password || "");
@@ -359,10 +358,10 @@ export class CommandPaletteHandler {
         });
     }
 
-    private static selectProject(): Q.Promise<AppLauncher> {
+    private static selectProject(): Promise<AppLauncher> {
         let keys = Object.keys(ProjectsStorage.projectsCache);
         if (keys.length > 1) {
-            return Q.Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => {
                 vscode.window.showQuickPick(keys)
                     .then((selected) => {
                         if (selected) {
@@ -373,9 +372,9 @@ export class CommandPaletteHandler {
             });
         } else if (keys.length === 1) {
             this.logger.debug(`Command palette: once project ${keys[0]}`);
-            return Q.resolve(ProjectsStorage.projectsCache[keys[0]]);
+            return Promise.resolve(ProjectsStorage.projectsCache[keys[0]]);
         } else {
-            return Q.reject(ErrorHelper.getInternalError(InternalErrorCode.WorkspaceNotFound, "Current workspace does not contain React Native projects."));
+            return Promise.reject(ErrorHelper.getInternalError(InternalErrorCode.WorkspaceNotFound, "Current workspace does not contain React Native projects."));
         }
     }
 

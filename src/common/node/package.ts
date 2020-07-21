@@ -2,11 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as pathModule from "path";
-import * as Q from "q";
 
-import {FileSystem} from "./fileSystem";
+import { FileSystem } from "./fileSystem";
 import { ErrorHelper } from "../error/errorHelper";
 import { InternalErrorCode } from "../error/internalErrorCode";
+
 
 interface IPackageDependencyDict {
     [packageName: string]: string;
@@ -33,36 +33,36 @@ export class Package {
         this.fileSystem = fileSystem;
     }
 
-    public getPackageVersionFromNodeModules(packageName: string): Q.Promise<string> {
+    public getPackageVersionFromNodeModules(packageName: string): Promise<string> {
         return this.dependencyPackage(packageName).version();
     }
 
-    public parsePackageInformation(): Q.Promise<IPackageInformation> {
+    public parsePackageInformation(): Promise<IPackageInformation> {
         return this.fileSystem.readFile(this.informationJsonFilePath(), "utf8")
             .then(data =>
-                <IPackageInformation>JSON.parse(data));
+                <IPackageInformation>JSON.parse(data.toString()));
     }
 
-    public name(): Q.Promise<string> {
+    public name(): Promise<string> {
         return this.parseProperty("name");
     }
 
-    public dependencies(): Q.Promise<IPackageDependencyDict> {
+    public dependencies(): Promise<IPackageDependencyDict> {
         return this.parseProperty("dependencies");
     }
 
-    public devDependencies(): Q.Promise<IPackageDependencyDict> {
+    public devDependencies(): Promise<IPackageDependencyDict> {
         return this.parseProperty("devDependencies");
     }
 
-    public version(): Q.Promise<string> {
+    public version(): Promise<string> {
         return this.parseProperty("version").then(version =>
             typeof version === "string"
                 ? version
-                : Q.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.CouldNotParsePackageVersion, this.informationJsonFilePath(), version)));
+                : Promise.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.CouldNotParsePackageVersion, this.informationJsonFilePath(), version)));
     }
 
-    public setMainFile(value: string): Q.Promise<void> {
+    public setMainFile(value: string): Promise<void> {
         return this.parsePackageInformation()
             .then(packageInformation => {
                 packageInformation.main = value;
@@ -82,7 +82,7 @@ export class Package {
         return pathModule.resolve(this._path, this.INFORMATION_PACKAGE_FILENAME);
     }
 
-    private parseProperty(name: string): Q.Promise<any> {
+    private parseProperty(name: string): Promise<any> {
         return this.parsePackageInformation()
             .then(packageInformation =>
                 packageInformation[name]);

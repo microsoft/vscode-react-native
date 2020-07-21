@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as fs from "fs";
-
 import {IRunOptions} from "./launchArgs";
 import {Packager} from "../common/packager";
 import {PackagerStatusIndicator, PackagerStatus} from "./packagerStatusIndicator";
@@ -41,26 +39,26 @@ export class GeneralMobilePlatform {
         this.runArguments = this.getRunArguments();
     }
 
-    public runApp(): Q.Promise<void> {
+    public runApp(): Promise<void> {
         this.logger.info(localize("ConnectedToPackager", "Connected to packager. You can now open your app in the simulator."));
-        return Q.resolve<void>(void 0);
+        return Promise.resolve();
     }
 
-    public enableJSDebuggingMode(): Q.Promise<void> {
+    public enableJSDebuggingMode(): Promise<void> {
         this.logger.info(localize("DebuggerReadyEnableRemoteDebuggingInApp", "Debugger ready. Enable remote debugging in app."));
-        return Q.resolve<void>(void 0);
+        return Promise.resolve();
     }
 
-    public disableJSDebuggingMode(): Q.Promise<void> {
+    public disableJSDebuggingMode(): Promise<void> {
         this.logger.info(localize("DebuggerReadyDisableRemoteDebuggingInApp", "Debugger ready. Disable remote debugging in app."));
-        return Q.resolve<void>(void 0);
+        return Promise.resolve();
     }
 
-    public beforeStartPackager(): Q.Promise<void> {
-        return Q.resolve<void>(void 0);
+    public beforeStartPackager(): Promise<void> {
+        return Promise.resolve();
     }
 
-    public startPackager(): Q.Promise<void> {
+    public startPackager(): Promise<void> {
         this.logger.info(localize("StartingReactNativePackager", "Starting React Native Packager."));
         return this.packager.isRunning()
         .then((running) => {
@@ -78,9 +76,9 @@ export class GeneralMobilePlatform {
         });
     }
 
-    public prewarmBundleCache(): Q.Promise<void> {
+    public prewarmBundleCache(): Promise<void> {
         // generalMobilePlatform should do nothing here. Method should be overriden by children for specific behavior.
-        return Q.resolve<void>(void 0);
+        return Promise.resolve();
     }
 
     public static getOptFromRunArgs(runArguments: any[], optName: string, binary: boolean = false): any {
