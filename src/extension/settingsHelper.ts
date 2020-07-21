@@ -107,7 +107,7 @@ export class SettingsHelper {
         const workspaceConfiguration = vscode.workspace.getConfiguration("react-native.packager", uri);
         if (workspaceConfiguration.has("status-indicator")) {
             const version = ConfigurationReader.readString(workspaceConfiguration.get("status-indicator"));
-            if (version == PackagerStatusIndicator.FULL_VERSION || version == PackagerStatusIndicator.SHORT_VERSION) {
+            if (version === PackagerStatusIndicator.FULL_VERSION || version === PackagerStatusIndicator.SHORT_VERSION) {
                 return version;
             }
         }

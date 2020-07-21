@@ -20,7 +20,7 @@ export enum PackagerStatus {
 export class PackagerStatusIndicator implements Disposable {
     private togglePackagerItem: StatusBarItem;
     private restartPackagerItem: StatusBarItem;
-    private displayVersion: string = PackagerStatusIndicator.FULL_VERSION;
+    private displayVersion: string;
     private projectRoot: string|undefined = undefined;
 
     private static PACKAGER_NAME: string = localize("ReactNativePackager", "React Native Packager");
@@ -50,7 +50,7 @@ export class PackagerStatusIndicator implements Disposable {
     }
 
     public updateDisplayVersion(): void {
-        let version = PackagerStatusIndicator.FULL_VERSION;
+        this.displayVersion = PackagerStatusIndicator.FULL_VERSION;
         try {
             if (this.projectRoot) {
                 this.displayVersion = SettingsHelper.getPackagerStatusIndicatorPattern(this.projectRoot);
@@ -59,7 +59,6 @@ export class PackagerStatusIndicator implements Disposable {
         catch(e) {
             // We are trying to read the configuration from settings.json.
             // If this cannot be done, ignore the error and set the default value.
-            this.displayVersion = version;
         }
     }
 
