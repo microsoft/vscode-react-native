@@ -31,16 +31,23 @@ export class DebuggerEndpointHelper {
     public async retryGetWSEndpoint(
         browserURL: string,
         attemptNumber: number,
-        cancellationToken: CancellationToken
+        cancellationToken: CancellationToken,
     ): Promise<string> {
         try {
             return await this.getWSEndpoint(browserURL);
         } catch (err) {
             if (attemptNumber < 1 || cancellationToken.isCancellationRequested) {
-                const internalError = ErrorHelper.getInternalError(InternalErrorCode.CouldNotConnectToDebugTarget, browserURL, err.message);
+                const internalError = ErrorHelper.getInternalError(
+                    InternalErrorCode.CouldNotConnectToDebugTarget,
+                    browserURL,
+                    err.message,
+                );
 
                 if (cancellationToken.isCancellationRequested) {
-                    throw ErrorHelper.getNestedError(internalError, InternalErrorCode.CancellationTokenTriggered);
+                    throw ErrorHelper.getNestedError(
+                        internalError,
+                        InternalErrorCode.CancellationTokenTriggered,
+                    );
                 }
 
                 throw internalError;
@@ -57,7 +64,7 @@ export class DebuggerEndpointHelper {
      */
     public async getWSEndpoint(browserURL: string): Promise<string> {
         const jsonVersion = await this.fetchJson<{ webSocketDebuggerUrl?: string }>(
-            URL.resolve(browserURL, "/json/version")
+            URL.resolve(browserURL, "/json/version"),
         );
         if (jsonVersion.webSocketDebuggerUrl) {
             return jsonVersion.webSocketDebuggerUrl;
@@ -66,7 +73,7 @@ export class DebuggerEndpointHelper {
         // Chrome its top-level debugg on /json/version, while Node does not.
         // Request both and return whichever one got us a string.
         const jsonList = await this.fetchJson<{ webSocketDebuggerUrl: string }[]>(
-            URL.resolve(browserURL, "/json/list")
+            URL.resolve(browserURL, "/json/list"),
         );
         if (jsonList.length) {
             return jsonList[0].webSocketDebuggerUrl;
@@ -99,7 +106,6 @@ export class DebuggerEndpointHelper {
             }
 
             const request = driver.get(url, requestOptions, response => {
-
                 let data = "";
                 response.setEncoding("utf8");
                 response.on("data", (chunk: string) => (data += chunk));

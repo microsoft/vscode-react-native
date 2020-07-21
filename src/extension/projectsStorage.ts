@@ -2,12 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import {AppLauncher} from "./appLauncher";
+import { AppLauncher } from "./appLauncher";
 
 export class ProjectsStorage {
-    public static readonly projectsCache: {[key: string]: AppLauncher} = {};
+    public static readonly projectsCache: { [key: string]: AppLauncher } = {};
 
-    public static addFolder(workspaceFolder: vscode.WorkspaceFolder, appLauncher: AppLauncher): void {
+    public static addFolder(
+        workspaceFolder: vscode.WorkspaceFolder,
+        appLauncher: AppLauncher,
+    ): void {
         this.projectsCache[workspaceFolder.uri.fsPath.toLowerCase()] = appLauncher;
     }
 

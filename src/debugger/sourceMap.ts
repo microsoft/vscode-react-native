@@ -13,7 +13,10 @@ interface ISourceMap extends RawSourceMap {
 }
 interface ISourceMapSection {
     map: ISourceMap;
-    offset: { column: number, line: number };
+    offset: {
+        column: number;
+        line: number;
+    };
 }
 
 export interface IStrictUrl extends url.Url {
@@ -22,9 +25,9 @@ export interface IStrictUrl extends url.Url {
 }
 
 export class SourceMapUtil {
-    private static SourceMapURLGlobalRegex: RegExp = /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/gm;
-    private static SourceMapURLRegex: RegExp = /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/m;
-    private static SourceURLRegex: RegExp = /^\/\/[#@] ?sourceURL=(.+)$/m;
+    private static SourceMapURLGlobalRegex = /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/gm;
+    private static SourceMapURLRegex = /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/m;
+    private static SourceURLRegex = /^\/\/[#@] ?sourceURL=(.+)$/m;
 
     /**
      * Given a script body and URL, this method parses the body and finds the corresponding source map URL.
@@ -34,9 +37,9 @@ export class SourceMapUtil {
         let result: IStrictUrl | null = null;
 
         // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
-        let sourceMappingRelativeUrl = this.getSourceMapRelativeUrl(scriptBody); // sourceMappingRelativeUrl = "/index.ios.map?platform=ios&dev=true"
+        const sourceMappingRelativeUrl = this.getSourceMapRelativeUrl(scriptBody); // sourceMappingRelativeUrl = "/index.ios.map?platform=ios&dev=true"
         if (sourceMappingRelativeUrl) {
-            let sourceMappingUrl = url.parse(sourceMappingRelativeUrl);
+            const sourceMappingUrl = url.parse(sourceMappingRelativeUrl);
             sourceMappingUrl.protocol = scriptUrl.protocol;
             sourceMappingUrl.host = scriptUrl.host;
             // parse() repopulates all the properties of the URL
@@ -57,12 +60,17 @@ export class SourceMapUtil {
      * @parameter sourcesRootPath - root path of sources
      *
      */
-    public updateSourceMapFile(sourceMapBody: string, scriptPath: string, sourcesRootPath: string, packagerRemoteRoot?: string, packagerLocalRoot?: string): string {
+    public updateSourceMapFile(
+        sourceMapBody: string,
+        scriptPath: string,
+        sourcesRootPath: string,
+        packagerRemoteRoot?: string,
+        packagerLocalRoot?: string,
+    ): string {
         try {
             let sourceMap = <ISourceMap>JSON.parse(sourceMapBody);
 
             if (sourceMap.sections) {
-
                 // TODO: there is a need to handle value.map == null, make a fake map
                 sourceMap.sections = sourceMap.sections.filter((value, index, array) => {
                     return value.map != null;
@@ -71,12 +79,19 @@ export class SourceMapUtil {
                 sourceMap = require("flatten-source-map")(sourceMap);
             }
 
-            let sourceMapsCombinator = new SourceMapsCombinator();
+            const sourceMapsCombinator = new SourceMapsCombinator();
             sourceMap = sourceMapsCombinator.convert(sourceMap);
 
             if (sourceMap.sources) {
                 sourceMap.sources = sourceMap.sources.map(sourcePath => {
-                    return IS_REMOTE.test(sourcePath) ? sourcePath : this.updateSourceMapPath(sourcePath, sourcesRootPath, packagerRemoteRoot, packagerLocalRoot);
+                    return IS_REMOTE.test(sourcePath)
+                        ? sourcePath
+                        : this.updateSourceMapPath(
+                              sourcePath,
+                              sourcesRootPath,
+                              packagerRemoteRoot,
+                              packagerLocalRoot,
+                          );
                 });
             }
 
@@ -99,8 +114,10 @@ export class SourceMapUtil {
      */
     public updateScriptPaths(scriptBody: string, sourceMappingUrl: IStrictUrl) {
         // Update the body with the new location of the source map on storage.
-        return scriptBody.replace(SourceMapUtil.SourceMapURLRegex,
-            "//# sourceMappingURL=" + path.basename(sourceMappingUrl.pathname));
+        return scriptBody.replace(
+            SourceMapUtil.SourceMapURLRegex,
+            "//# sourceMappingURL=" + path.basename(sourceMappingUrl.pathname),
+        );
     }
 
     /**
@@ -122,10 +139,12 @@ export class SourceMapUtil {
      * Returns the last match if found, null otherwise.
      */
     public getSourceMapRelativeUrl(body: string) {
-        let matchesList = body.match(SourceMapUtil.SourceMapURLGlobalRegex);
+        const matchesList = body.match(SourceMapUtil.SourceMapURLGlobalRegex);
         // If match is null, the body doesn't contain the source map
         if (matchesList) {
-            const sourceMapMatch = matchesList[matchesList.length - 1].match(SourceMapUtil.SourceMapURLRegex);
+            const sourceMapMatch = matchesList[matchesList.length - 1].match(
+                SourceMapUtil.SourceMapURLRegex,
+            );
             return sourceMapMatch ? sourceMapMatch[2] : null;
         }
         return null;
@@ -136,13 +155,18 @@ export class SourceMapUtil {
      * 1. It changes the path from absolute to be relative to the sourcesRootPath parameter.
      * 2. It changes the path separators to Unix style.
      */
-    private updateSourceMapPath(sourcePath: string, sourcesRootPath: string, packagerRemoteRoot?: string, packagerLocalRoot?: string) {
+    private updateSourceMapPath(
+        sourcePath: string,
+        sourcesRootPath: string,
+        packagerRemoteRoot?: string,
+        packagerLocalRoot?: string,
+    ) {
         if (packagerRemoteRoot && packagerLocalRoot) {
             packagerRemoteRoot = this.makeUnixStylePath(packagerRemoteRoot);
             packagerLocalRoot = this.makeUnixStylePath(packagerLocalRoot);
             sourcePath = sourcePath.replace(packagerRemoteRoot, packagerLocalRoot);
         }
-        let relativeSourcePath = path.relative(sourcesRootPath, sourcePath);
+        const relativeSourcePath = path.relative(sourcesRootPath, sourcePath);
         return this.makeUnixStylePath(relativeSourcePath);
     }
 
@@ -151,7 +175,7 @@ export class SourceMapUtil {
      * This method replaces all back-slash characters in a given string with forward-slash ones.
      */
     private makeUnixStylePath(p: string): string {
-        let pathArgs = p.split(path.sep);
+        const pathArgs = p.split(path.sep);
         return path.posix.join.apply(null, pathArgs);
     }
 }

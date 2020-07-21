@@ -11,16 +11,15 @@ import * as fs from "fs";
 import * as path from "path";
 import { getFormattedDatetimeString } from "../../common/utils";
 
-
 const channels: { [channelName: string]: OutputChannelLogger } = {};
 
 export class OutputChannelLogger implements ILogger {
-    public static MAIN_CHANNEL_NAME: string = "React Native";
+    public static MAIN_CHANNEL_NAME = "React Native";
     private readonly channelLogFilePath: string | undefined;
     private channelLogFileStream: fs.WriteStream;
     private outputChannel: vscode.OutputChannel;
     private logTimestamps: boolean;
-    private static forbiddenFileNameSymbols: RegExp = /\W/gi;
+    private static forbiddenFileNameSymbols = /\W/gi;
 
     public static disposeChannel(channelName: string): void {
         if (channels[channelName]) {
@@ -36,14 +35,29 @@ export class OutputChannelLogger implements ILogger {
         return this.getChannel(this.MAIN_CHANNEL_NAME, true);
     }
 
-    public static getChannel(channelName: string, lazy?: boolean, preserveFocus?: boolean, logTimestamps?: boolean): OutputChannelLogger {
+    public static getChannel(
+        channelName: string,
+        lazy?: boolean,
+        preserveFocus?: boolean,
+        logTimestamps?: boolean,
+    ): OutputChannelLogger {
         if (!channels[channelName]) {
-            channels[channelName] = new OutputChannelLogger(channelName, lazy, preserveFocus, logTimestamps);
+            channels[channelName] = new OutputChannelLogger(
+                channelName,
+                lazy,
+                preserveFocus,
+                logTimestamps,
+            );
         }
         return channels[channelName];
     }
 
-    constructor(public readonly channelName: string, lazy: boolean = false, private preserveFocus: boolean = false, logTimestamps: boolean = false) {
+    constructor(
+        public readonly channelName: string,
+        lazy = false,
+        private preserveFocus: boolean = false,
+        logTimestamps = false,
+    ) {
         this.logTimestamps = logTimestamps;
         const channelLogFolder = getLoggingDirectory();
         if (channelLogFolder) {
@@ -51,7 +65,11 @@ export class OutputChannelLogger implements ILogger {
             this.channelLogFilePath = path.join(channelLogFolder, `${filename}.txt`);
             this.channelLogFileStream = fs.createWriteStream(this.channelLogFilePath);
             this.channelLogFileStream.on("error", err => {
-                this.error(`Error writing to log file at path: ${this.channelLogFilePath}. Error: ${err.toString()}\n`);
+                this.error(
+                    `Error writing to log file at path: ${
+                        this.channelLogFilePath
+                    }. Error: ${err.toString()}\n`,
+                );
             });
         }
         if (!lazy) {
@@ -66,7 +84,11 @@ export class OutputChannelLogger implements ILogger {
         }
 
         if (level >= LogHelper.LOG_LEVEL) {
-            message = OutputChannelLogger.getFormattedMessage(message, LogLevel[level], this.logTimestamps);
+            message = OutputChannelLogger.getFormattedMessage(
+                message,
+                LogLevel[level],
+                this.logTimestamps,
+            );
             this.channel.appendLine(message);
             if (this.channelLogFileStream) {
                 this.channelLogFileStream.write(message);
@@ -96,8 +118,12 @@ export class OutputChannelLogger implements ILogger {
         this.log(message.toString(), LogLevel.Warning);
     }
 
-    public error(errorMessage: string, error?: Error, logStack: boolean = true): void {
-        const message = OutputChannelLogger.getFormattedMessage(errorMessage, LogLevel[LogLevel.Error], this.logTimestamps);
+    public error(errorMessage: string, error?: Error, logStack = true): void {
+        const message = OutputChannelLogger.getFormattedMessage(
+            errorMessage,
+            LogLevel[LogLevel.Error],
+            this.logTimestamps,
+        );
         this.channel.appendLine(message);
         if (this.channelLogFileStream) {
             this.channelLogFileStream.write(message);
@@ -127,7 +153,11 @@ export class OutputChannelLogger implements ILogger {
         this.channel.show(false);
     }
 
-    protected static getFormattedMessage(message: string, tag: string, prependTimestamp: boolean = false): string {
+    protected static getFormattedMessage(
+        message: string,
+        tag: string,
+        prependTimestamp = false,
+    ): string {
         let formattedMessage = `[${tag}] ${message}\n`;
 
         if (prependTimestamp) {

@@ -5,9 +5,22 @@ import * as assert from "assert";
 import * as path from "path";
 import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
-import { sleep, findStringInFile, findExpoURLInLogFile, ExpoLaunch, findExpoSuccessAndFailurePatterns, waitForRunningPackager } from "./helpers/utilities";
+import {
+    sleep,
+    findStringInFile,
+    findExpoURLInLogFile,
+    ExpoLaunch,
+    findExpoSuccessAndFailurePatterns,
+    waitForRunningPackager,
+} from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode } from "./main";
+import {
+    ExpoWorkspacePath,
+    pureRNWorkspacePath,
+    RNworkspacePath,
+    prepareReactNativeProjectForHermesTesting,
+    runVSCode,
+} from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
 import { Application } from "../../automation";
@@ -33,7 +46,6 @@ const debugAndroidTestTime = SmokeTestsConstants.androidAppBuildAndInstallTimeou
 const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
 
 export function setup(testParameters?: TestRunArguments) {
-
     describe("Debugging Android", () => {
         let app: Application;
         let clientInited: AppiumClient;
@@ -48,7 +60,13 @@ export function setup(testParameters?: TestRunArguments) {
             }
         });
 
-        async function runExpoDebugScenario(logFilePath: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
+        async function runExpoDebugScenario(
+            logFilePath: string,
+            testName: string,
+            workspacePath: string,
+            debugConfigName: string,
+            triesToLaunchApp: number,
+        ) {
             console.log(`${testName}: Starting debugging`);
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
@@ -57,7 +75,11 @@ export function setup(testParameters?: TestRunArguments) {
                 for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                     let expoLaunchStatus: ExpoLaunch;
                     await app.workbench.quickaccess.runDebugScenario(debugConfigName);
-                    expoLaunchStatus = await findExpoSuccessAndFailurePatterns(logFilePath, SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
+                    expoLaunchStatus = await findExpoSuccessAndFailurePatterns(
+                        logFilePath,
+                        SmokeTestsConstants.ExpoSuccessPattern,
+                        SmokeTestsConstants.ExpoFailurePattern,
+                    );
                     if (expoLaunchStatus.successful) {
                         break;
                     } else {
@@ -70,7 +92,14 @@ export function setup(testParameters?: TestRunArguments) {
             }
         }
 
-        async function expoTest(appFileName: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number, isPureExpo: boolean = false) {
+        async function expoTest(
+            appFileName: string,
+            testName: string,
+            workspacePath: string,
+            debugConfigName: string,
+            triesToLaunchApp: number,
+            isPureExpo: boolean = false,
+        ) {
             let logFilePath = "";
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
@@ -81,11 +110,20 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
             console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                logFilePath = path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName);
+                logFilePath = path.join(
+                    process.env.REACT_NATIVE_TOOLS_LOGS_DIR,
+                    SmokeTestsConstants.ReactNativeLogFileName,
+                );
             } else {
                 assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
             }
-            await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
+            await runExpoDebugScenario(
+                logFilePath,
+                testName,
+                workspacePath,
+                debugConfigName,
+                triesToLaunchApp,
+            );
             // We stop and start Pure Expo debug scenario again, since we faced Metro cache processing problem on
             // Expo SDK 38. The debug scenario works fine only on the second and further launches of the packager.
             // As soon as this problem is fixed, this condition won't be needed.
@@ -95,7 +133,13 @@ export function setup(testParameters?: TestRunArguments) {
                 await app.workbench.debug.stopDebugging();
                 await app.workbench.quickaccess.runCommand(STOP_PACKAGER_COMMAND);
                 await sleep(2 * 1000);
-                await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
+                await runExpoDebugScenario(
+                    logFilePath,
+                    testName,
+                    workspacePath,
+                    debugConfigName,
+                    triesToLaunchApp,
+                );
             }
 
             await app.workbench.editors.waitForTab("Expo QR Code readonly");
@@ -104,31 +148,58 @@ export function setup(testParameters?: TestRunArguments) {
 
             let expoURL;
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeRunExpoLogFileName));
+                expoURL = findExpoURLInLogFile(
+                    path.join(
+                        process.env.REACT_NATIVE_TOOLS_LOGS_DIR,
+                        SmokeTestsConstants.ReactNativeRunExpoLogFileName,
+                    ),
+                );
             }
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
             expoURL = expoURL as string;
-            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
+            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(
+                EXPO_APP_PACKAGE_NAME,
+                EXPO_APP_ACTIVITY_NAME,
+                AndroidEmulatorHelper.androidEmulatorName,
+            );
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
             // TODO Add listener to trigger that main expo app has been ran
-            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL, workspacePath);
+            await AppiumHelper.openExpoApplication(
+                Platform.Android,
+                clientInited,
+                expoURL,
+                workspacePath,
+            );
             // TODO Add listener to trigger that child expo app has been ran instead of using timeout
-            console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
+            console.log(
+                `${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`,
+            );
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
             await AppiumHelper.disableDevMenuInformationalMsg(clientInited, Platform.AndroidExpo);
             await sleep(2 * 1000);
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.AndroidExpo);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log(`${testName}: Debugging started`);
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === appFileName && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for ${appFileName} and line ${ExpoSetBreakpointOnLine}`);
+            await app.workbench.debug.waitForStackFrame(
+                sf => sf.name === appFileName && sf.lineNumber === ExpoSetBreakpointOnLine,
+                `looking for ${appFileName} and line ${ExpoSetBreakpointOnLine}`,
+            );
             console.log(`${testName}: Stack frame found`);
             await app.workbench.debug.stepOver();
             // Wait for debug string to be rendered in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log(`${testName}: Searching for \"Test output from debuggee\" string in console`);
-            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
-            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
+            console.log(
+                `${testName}: Searching for \"Test output from debuggee\" string in console`,
+            );
+            let found = await app.workbench.debug.waitForOutput(output =>
+                output.some(line => line.indexOf("Test output from debuggee") >= 0),
+            );
+            assert.notStrictEqual(
+                found,
+                false,
+                '"Test output from debuggee" string is missing in debug console',
+            );
             console.log(`${testName}: \"Test output from debuggee\" string is found`);
             await app.workbench.debug.disconnectFromDebugger();
             console.log(`${testName}: Debugging is stopped`);
@@ -145,23 +216,41 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             console.log("Android Debug test: Starting debugging");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
-            await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
+            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(
+                RN_APP_PACKAGE_NAME,
+                RN_APP_ACTIVITY_NAME,
+                AndroidEmulatorHelper.androidEmulatorName,
+            );
+            await AndroidEmulatorHelper.checkIfAppIsInstalled(
+                RN_APP_PACKAGE_NAME,
+                SmokeTestsConstants.androidAppBuildAndInstallTimeout,
+            );
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
             await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Debug test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
+            await app.workbench.debug.waitForStackFrame(
+                sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine,
+                `looking for App.js and line ${RNSetBreakpointOnLine}`,
+            );
             console.log("Android Debug test: Stack frame found");
             await app.workbench.debug.stepOver();
             // await for our debug string renders in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log("Android Debug test: Searching for \"Test output from debuggee\" string in console");
-            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
+            console.log(
+                'Android Debug test: Searching for "Test output from debuggee" string in console',
+            );
+            let found = await app.workbench.debug.waitForOutput(output =>
+                output.some(line => line.indexOf("Test output from debuggee") >= 0),
+            );
             console.log(found);
-            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            console.log("Android Debug test: \"Test output from debuggee\" string is found");
+            assert.notStrictEqual(
+                found,
+                false,
+                '"Test output from debuggee" string is missing in debug console',
+            );
+            console.log('Android Debug test: "Test output from debuggee" string is found');
             await app.workbench.debug.disconnectFromDebugger();
             console.log("Android Debug test: Debugging is stopped");
         });
@@ -175,12 +264,23 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.editors.scrollTop();
             console.log("Android Debug Hermes test: AppTestButton.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
-            console.log(`Android Debug Hermes test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`);
-            console.log(`Android Debug Hermes test: Chosen debug configuration: ${RNHermesDebugConfigName}`);
+            console.log(
+                `Android Debug Hermes test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`,
+            );
+            console.log(
+                `Android Debug Hermes test: Chosen debug configuration: ${RNHermesDebugConfigName}`,
+            );
             console.log("Android Debug Hermes test: Starting debugging");
             await app.workbench.quickaccess.runDebugScenario(RNHermesDebugConfigName);
-            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
-            await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
+            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(
+                RN_APP_PACKAGE_NAME,
+                RN_APP_ACTIVITY_NAME,
+                AndroidEmulatorHelper.androidEmulatorName,
+            );
+            await AndroidEmulatorHelper.checkIfAppIsInstalled(
+                RN_APP_PACKAGE_NAME,
+                SmokeTestsConstants.androidAppBuildAndInstallTimeout,
+            );
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
             await app.workbench.debug.waitForDebuggingToStart();
@@ -195,16 +295,34 @@ export function setup(testParameters?: TestRunArguments) {
             await sleep(7000);
             console.log("Android Debug Hermes test: Click Test Button");
             await AppiumHelper.clickTestButtonHermes(clientInited);
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "AppTestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`);
+            await app.workbench.debug.waitForStackFrame(
+                sf =>
+                    sf.name === "AppTestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine,
+                `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`,
+            );
             console.log("Android Debug Hermes test: Stack frame found");
             await app.workbench.debug.continue();
             // await for our debug string renders in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                console.log("Android Debug Hermes test: Searching for \"Test output from Hermes debuggee\" string in output file");
-                let found = findStringInFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), "Test output from Hermes debuggee");
-                assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in output file");
-                console.log("Android Debug test: \"Test output from Hermes debuggee\" string is found");
+                console.log(
+                    'Android Debug Hermes test: Searching for "Test output from Hermes debuggee" string in output file',
+                );
+                let found = findStringInFile(
+                    path.join(
+                        process.env.REACT_NATIVE_TOOLS_LOGS_DIR,
+                        SmokeTestsConstants.ReactNativeLogFileName,
+                    ),
+                    "Test output from Hermes debuggee",
+                );
+                assert.notStrictEqual(
+                    found,
+                    false,
+                    '"Test output from Hermes debuggee" string is missing in output file',
+                );
+                console.log(
+                    'Android Debug test: "Test output from Hermes debuggee" string is found',
+                );
             }
             await app.workbench.debug.disconnectFromDebugger();
             console.log("Android Debug Hermes test: Debugging is stopped");
@@ -215,7 +333,13 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.tsx","Android Expo Debug test(Tunnel)", ExpoWorkspacePath, ExpoDebugConfigName, 5);
+            await expoTest(
+                "App.tsx",
+                "Android Expo Debug test(Tunnel)",
+                ExpoWorkspacePath,
+                ExpoDebugConfigName,
+                5,
+            );
         });
 
         it("Pure RN app Expo test(LAN)", async function () {
@@ -223,7 +347,14 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.js", "Android pure RN Expo test(LAN)", pureRNWorkspacePath, ExpoLanDebugConfigName, 1, true);
+            await expoTest(
+                "App.js",
+                "Android pure RN Expo test(LAN)",
+                pureRNWorkspacePath,
+                ExpoLanDebugConfigName,
+                1,
+                true,
+            );
         });
 
         it("Expo app Debug test(LAN)", async function () {
@@ -231,7 +362,13 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.tsx", "Android Expo Debug test(LAN)", ExpoWorkspacePath, ExpoLanDebugConfigName, 1);
+            await expoTest(
+                "App.tsx",
+                "Android Expo Debug test(LAN)",
+                ExpoWorkspacePath,
+                ExpoLanDebugConfigName,
+                1,
+            );
         });
 
         it("Expo app Debug test(localhost)", async function () {
@@ -239,7 +376,13 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.tsx", "Android Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
+            await expoTest(
+                "App.tsx",
+                "Android Expo Debug test(localhost)",
+                ExpoWorkspacePath,
+                ExpoLocalDebugConfigName,
+                1,
+            );
         });
     });
 }

@@ -8,8 +8,8 @@ import * as path from "path";
 import { ReactDirManager } from "../../src/extension/reactDirManager";
 
 suite("reactDirManager.ts", () => {
-    suite("extensionContext", function() {
-        suite("ReactDirPath", function() {
+    suite("extensionContext", function () {
+        suite("ReactDirPath", function () {
             test("Should end with the correct path to the react folder", () => {
                 let reactPath = new ReactDirManager("").reactDirPath;
 

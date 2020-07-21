@@ -4,7 +4,11 @@
 import { IAttachRequestArgs } from "./debugSessionBase";
 
 export class JsDebugConfigAdapter {
-    public static createDebuggingConfigForPureRN(attachArgs: IAttachRequestArgs, cdpProxyPort: number, sessionId: string): any {
+    public static createDebuggingConfigForPureRN(
+        attachArgs: IAttachRequestArgs,
+        cdpProxyPort: number,
+        sessionId: string,
+    ): any {
         return Object.assign({}, JsDebugConfigAdapter.getExistingExtraArgs(attachArgs), {
             type: "pwa-node",
             request: "attach",
@@ -18,7 +22,11 @@ export class JsDebugConfigAdapter {
         });
     }
 
-    public static createDebuggingConfigForRNHermes(attachArgs: IAttachRequestArgs, cdpProxyPort: number, sessionId: string): any {
+    public static createDebuggingConfigForRNHermes(
+        attachArgs: IAttachRequestArgs,
+        cdpProxyPort: number,
+        sessionId: string,
+    ): any {
         return Object.assign({}, JsDebugConfigAdapter.getExistingExtraArgs(attachArgs), {
             type: "pwa-node",
             request: "attach",
@@ -33,7 +41,7 @@ export class JsDebugConfigAdapter {
     }
 
     private static getExistingExtraArgs(attachArgs: IAttachRequestArgs): any {
-        let existingExtraArgs: any = {};
+        const existingExtraArgs: any = {};
         if (attachArgs.env) {
             existingExtraArgs.env = attachArgs.env;
         }

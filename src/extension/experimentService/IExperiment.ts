@@ -4,5 +4,8 @@
 import { ExperimentResult, ExperimentConfig, ExperimentParameters } from "./experimentService";
 
 export interface IExperiment {
-    run: (newExpConfig: ExperimentConfig, curExpParameters?: ExperimentParameters) => Promise<ExperimentResult>;
+    run: (
+        newExpConfig: ExperimentConfig,
+        curExpParameters?: ExperimentParameters,
+    ) => Promise<ExperimentResult>;
 }

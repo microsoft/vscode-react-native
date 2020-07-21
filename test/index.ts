@@ -8,7 +8,7 @@ import * as Mocha from "mocha";
 import * as glob from "glob";
 
 export function run(): Promise<void> {
-    const mocha = new Mocha ({
+    const mocha = new Mocha({
         ui: "tdd",
         grep: new RegExp("(debuggerContext|localizationContext)"), // Do not run tests intended for the debuggerContext and localizationContext
         reporter: "mocha-multi-reporters",
@@ -49,6 +49,3 @@ export function run(): Promise<void> {
         });
     });
 }
-
-
-

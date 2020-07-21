@@ -9,11 +9,11 @@ import { HostPlatform } from "./hostPlatform";
 /**
  * Telemetry module specialized for vscode integration.
  */
-export module Telemetry {
+export namespace Telemetry {
     export let appName: string;
-    export let isOptedIn: boolean = false;
+    export const isOptedIn = false;
     export let reporter: ITelemetryReporter;
-    export let reporterDictionary: { [key: string]: ITelemetryReporter } = {};
+    export const reporterDictionary: { [key: string]: ITelemetryReporter } = {};
 
     export interface ITelemetryProperties {
         [propertyName: string]: any;
@@ -30,10 +30,10 @@ export module Telemetry {
 
     class TelemetryUtils {
         private static telemetrySettings: ITelemetrySettings;
-        private static TELEMETRY_SETTINGS_FILENAME: string = "VSCodeTelemetrySettings.json";
+        private static TELEMETRY_SETTINGS_FILENAME = "VSCodeTelemetrySettings.json";
 
         private static get telemetrySettingsFile(): string {
-            let settingsHome = HostPlatform.getSettingsHome();
+            const settingsHome = HostPlatform.getSettingsHome();
             return path.join(settingsHome, TelemetryUtils.TELEMETRY_SETTINGS_FILENAME);
         }
 
@@ -58,7 +58,9 @@ export module Telemetry {
          */
         private static loadSettings(): ITelemetrySettings {
             try {
-                TelemetryUtils.telemetrySettings = JSON.parse(<any>fs.readFileSync(TelemetryUtils.telemetrySettingsFile));
+                TelemetryUtils.telemetrySettings = JSON.parse(
+                    <any>fs.readFileSync(TelemetryUtils.telemetrySettingsFile),
+                );
             } catch (e) {
                 // if file does not exist or fails to parse then assume no settings are saved and start over
                 TelemetryUtils.telemetrySettings = {};
@@ -71,12 +73,15 @@ export module Telemetry {
          * Save settings data in settingsHome/TelemetrySettings.json
          */
         private static saveSettings(): void {
-            let settingsHome = HostPlatform.getSettingsHome();
+            const settingsHome = HostPlatform.getSettingsHome();
             if (!fs.existsSync(settingsHome)) {
                 fs.mkdirSync(settingsHome);
             }
 
-            fs.writeFileSync(TelemetryUtils.telemetrySettingsFile, JSON.stringify(TelemetryUtils.telemetrySettings));
+            fs.writeFileSync(
+                TelemetryUtils.telemetrySettingsFile,
+                JSON.stringify(TelemetryUtils.telemetrySettings),
+            );
         }
     }
 
@@ -86,7 +91,7 @@ export module Telemetry {
     export class TelemetryEvent {
         public name: string;
         public properties: ITelemetryProperties;
-        private static PII_HASH_KEY: string = "959069c9-9e93-4fa1-bf16-3f8120d7db0c";
+        private static PII_HASH_KEY = "959069c9-9e93-4fa1-bf16-3f8120d7db0c";
 
         constructor(name: string, properties?: ITelemetryProperties) {
             this.name = name;
@@ -94,8 +99,11 @@ export module Telemetry {
         }
 
         public setPiiProperty(name: string, value: string): void {
-            let hmac: crypto.Hmac = crypto.createHmac("sha256", new Buffer(TelemetryEvent.PII_HASH_KEY, "utf8"));
-            let hashedValue: string = hmac.update(value).digest("hex");
+            const hmac: crypto.Hmac = crypto.createHmac(
+                "sha256",
+                new Buffer(TelemetryEvent.PII_HASH_KEY, "utf8"),
+            );
+            const hashedValue: string = hmac.update(value).digest("hex");
 
             this.properties[name] = hashedValue;
         }
@@ -124,12 +132,17 @@ export module Telemetry {
                 this.endTime = process.hrtime(this.startTime);
 
                 // convert [seconds, nanoseconds] to milliseconds and include as property
-                this.properties["reserved.activity.duration"] = this.endTime[0] * 1000 + this.endTime[1] / 1000000;
+                this.properties["reserved.activity.duration"] =
+                    this.endTime[0] * 1000 + this.endTime[1] / 1000000;
             }
         }
     }
 
-    export function init(appNameValue: string, appVersion: string, reporterToUse: ITelemetryReporter): void {
+    export function init(
+        appNameValue: string,
+        appVersion: string,
+        reporterToUse: ITelemetryReporter,
+    ): void {
         try {
             Telemetry.appName = appNameValue;
             TelemetryUtils.init(appVersion, reporterToUse);
@@ -138,7 +151,7 @@ export module Telemetry {
         }
     }
 
-    export function send(event: TelemetryEvent, ignoreOptIn: boolean = false): void {
+    export function send(event: TelemetryEvent, ignoreOptIn = false): void {
         if (Telemetry.isOptedIn || ignoreOptIn) {
             try {
                 if (event instanceof TelemetryActivity) {
@@ -146,8 +159,8 @@ export module Telemetry {
                 }
 
                 if (Telemetry.reporter) {
-                    let properties: ITelemetryEventProperties = {};
-                    let measures: ITelemetryEventMeasures = {};
+                    const properties: ITelemetryEventProperties = {};
+                    const measures: ITelemetryEventMeasures = {};
 
                     Object.keys(event.properties || {}).forEach(function (key: string) {
                         switch (typeof event.properties[key]) {
@@ -167,7 +180,6 @@ export module Telemetry {
 
                     Telemetry.reporter.sendTelemetryEvent(event.name, properties, measures);
                 }
-
             } catch (err) {
                 console.error(err);
             }
@@ -182,7 +194,7 @@ export module Telemetry {
         userType?: string;
     }
 
-    export const APPINSIGHTS_INSTRUMENTATIONKEY: string = "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217"; // Matches vscode telemetry key
+    export const APPINSIGHTS_INSTRUMENTATIONKEY = "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217"; // Matches vscode telemetry key
 
     export interface ITelemetryEventProperties {
         [key: string]: string;
@@ -193,15 +205,31 @@ export module Telemetry {
     }
 
     export interface ITelemetryReporter {
-        sendTelemetryEvent(eventName: string, properties?: ITelemetryEventProperties, measures?: ITelemetryEventMeasures): void;
+        sendTelemetryEvent(
+            eventName: string,
+            properties?: ITelemetryEventProperties,
+            measures?: ITelemetryEventMeasures,
+        ): void;
     }
 
-    export function sendExtensionTelemetry(extensionId: string, extensionVersion: string, appInsightsKey: string, eventName: string, properties?: ITelemetryEventProperties, measures?: ITelemetryEventMeasures): void {
-        let extensionTelemetryReporter: ITelemetryReporter = Telemetry.reporterDictionary[extensionId];
+    export function sendExtensionTelemetry(
+        extensionId: string,
+        extensionVersion: string,
+        appInsightsKey: string,
+        eventName: string,
+        properties?: ITelemetryEventProperties,
+        measures?: ITelemetryEventMeasures,
+    ): void {
+        let extensionTelemetryReporter: ITelemetryReporter =
+            Telemetry.reporterDictionary[extensionId];
 
         if (!extensionTelemetryReporter) {
-            let TelemetryReporter = require("vscode-extension-telemetry").default;
-            Telemetry.reporterDictionary[extensionId] = new TelemetryReporter(extensionId, extensionVersion, appInsightsKey);
+            const TelemetryReporter = require("vscode-extension-telemetry").default;
+            Telemetry.reporterDictionary[extensionId] = new TelemetryReporter(
+                extensionId,
+                extensionVersion,
+                appInsightsKey,
+            );
             extensionTelemetryReporter = Telemetry.reporterDictionary[extensionId];
         }
 

@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {window, Disposable, StatusBarItem, StatusBarAlignment} from "vscode";
+import { window, Disposable, StatusBarItem, StatusBarAlignment } from "vscode";
 import * as nls from "vscode-nls";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 /**
@@ -43,22 +46,22 @@ export class PackagerStatusIndicator implements Disposable {
     public updatePackagerStatus(status: PackagerStatus): void {
         switch (status) {
             case PackagerStatus.PACKAGER_STOPPED:
-                this.togglePackagerItem.text =  `${PackagerStatusIndicator.START_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
+                this.togglePackagerItem.text = `${PackagerStatusIndicator.START_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
                 this.togglePackagerItem.command = PackagerStatusIndicator.START_COMMAND;
                 this.togglePackagerItem.tooltip = localize("StartPackager", "Start Packager");
                 break;
             case PackagerStatus.PACKAGER_STOPPING:
-                this.togglePackagerItem.text =  `${PackagerStatusIndicator.ACTIVITY_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
+                this.togglePackagerItem.text = `${PackagerStatusIndicator.ACTIVITY_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
                 this.togglePackagerItem.command = undefined;
                 this.togglePackagerItem.tooltip = "";
                 break;
             case PackagerStatus.PACKAGER_STARTED:
-                this.togglePackagerItem.text =  `${PackagerStatusIndicator.STOP_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
+                this.togglePackagerItem.text = `${PackagerStatusIndicator.STOP_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
                 this.togglePackagerItem.command = PackagerStatusIndicator.STOP_COMMAND;
                 this.togglePackagerItem.tooltip = localize("StopPackager", "Stop Packager");
                 break;
             case PackagerStatus.PACKAGER_STARTING:
-                this.togglePackagerItem.text =  `${PackagerStatusIndicator.ACTIVITY_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
+                this.togglePackagerItem.text = `${PackagerStatusIndicator.ACTIVITY_ICON} ${PackagerStatusIndicator.PACKAGER_NAME}`;
                 this.togglePackagerItem.command = undefined;
                 this.togglePackagerItem.tooltip = "";
                 break;

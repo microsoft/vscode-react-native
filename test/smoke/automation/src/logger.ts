@@ -10,14 +10,12 @@ export interface Logger {
 }
 
 export class ConsoleLogger implements Logger {
-
     public log(message: string, ...args: any[]): void {
         console.log("**", message, ...args);
     }
 }
 
 export class FileLogger implements Logger {
-
     constructor(private path: string) {
         writeFileSync(path, "");
     }
@@ -29,8 +27,7 @@ export class FileLogger implements Logger {
 }
 
 export class MultiLogger implements Logger {
-
-    constructor(private loggers: Logger[]) { }
+    constructor(private loggers: Logger[]) {}
 
     public log(message: string, ...args: any[]): void {
         for (const logger of this.loggers) {

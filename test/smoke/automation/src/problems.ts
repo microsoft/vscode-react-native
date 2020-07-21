@@ -9,10 +9,9 @@ export const enum ProblemSeverity {
 }
 
 export class Problems {
-
     public static PROBLEMS_VIEW_SELECTOR = ".panel .markers-panel";
 
-    constructor(private code: Code) { }
+    constructor(private code: Code) {}
 
     public async showProblemsView(): Promise<any> {
         await this.toggleProblemsView();
@@ -29,12 +28,14 @@ export class Problems {
     }
 
     public static getSelectorInProblemsView(problemType: ProblemSeverity): string {
-        let selector = problemType === ProblemSeverity.WARNING ? "codicon-warning" : "codicon-error";
+        let selector =
+            problemType === ProblemSeverity.WARNING ? "codicon-warning" : "codicon-error";
         return `div[id="workbench.panel.markers"] .monaco-tl-contents .marker-icon.${selector}`;
     }
 
     public static getSelectorInEditor(problemType: ProblemSeverity): string {
-        let selector = problemType === ProblemSeverity.WARNING ? "squiggly-warning" : "squiggly-error";
+        let selector =
+            problemType === ProblemSeverity.WARNING ? "squiggly-warning" : "squiggly-error";
         return `.view-overlays .cdr.${selector}`;
     }
 

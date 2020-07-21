@@ -10,7 +10,7 @@ import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
-    return new Promise<R>((c, e) => fn(...args, (err, r) => err ? e(err) : c(r)));
+    return new Promise<R>((c, e) => fn(...args, (err, r) => (err ? e(err) : c(r))));
 }
 
 export async function mkdirp(path: string, mode?: number): Promise<boolean> {
@@ -85,12 +85,14 @@ export function runInParallel(promises: Promise<any>[]): Promise<any[]> {
                 resolve(results);
             }
         };
-        promises.forEach((promise) => {
-            promise.then((result) => {
-                saveResult(result);
-            }).catch((e) => {
-                reject(e);
-            });
+        promises.forEach(promise => {
+            promise
+                .then(result => {
+                    saveResult(result);
+                })
+                .catch(e => {
+                    reject(e);
+                });
         });
     });
 }
@@ -98,7 +100,12 @@ export function runInParallel(promises: Promise<any>[]): Promise<any[]> {
 export function getContents(url, token, headers, callback) {
     request.get(toRequestOptions(url, token, headers), function (error, response, body) {
         if (!error && response && response.statusCode >= 400) {
-            error = new Error("Request returned status code: " + response.statusCode + "\nDetails: " + response.body);
+            error = new Error(
+                "Request returned status code: " +
+                    response.statusCode +
+                    "\nDetails: " +
+                    response.body,
+            );
         }
 
         callback(error, body);
@@ -148,7 +155,7 @@ export async function sleep(time: number) {
 
 export function findFile(directoryToSearch: string, filePattern: RegExp): string | null {
     const dirFiles = fs.readdirSync(directoryToSearch);
-    let extensionFile = dirFiles.find((elem) => {
+    let extensionFile = dirFiles.find(elem => {
         return filePattern.test(elem);
     });
     if (extensionFile) {
@@ -181,7 +188,10 @@ export async function waitForRunningPackager(filePath: string) {
     let retry = 1;
     return new Promise<void>((resolve, reject) => {
         let check = setInterval(async () => {
-            let packagerStarted = findStringInFile(filePath, SmokeTestsConstants.PackagerStartedPattern);
+            let packagerStarted = findStringInFile(
+                filePath,
+                SmokeTestsConstants.PackagerStartedPattern,
+            );
             console.log(`Searching for Packager started logging pattern for ${retry} time...`);
             if (packagerStarted) {
                 clearInterval(check);
@@ -190,7 +200,9 @@ export async function waitForRunningPackager(filePath: string) {
             } else {
                 retry++;
                 if (retry >= awaitRetries) {
-                    console.log(`Packager started logging pattern is not found after ${retry} retries`);
+                    console.log(
+                        `Packager started logging pattern is not found after ${retry} retries`,
+                    );
                     clearInterval(check);
                     reject(`Packager started logging pattern is not found after ${retry} retries`);
                 }
@@ -199,25 +211,33 @@ export async function waitForRunningPackager(filePath: string) {
     });
 }
 
-export async function findExpoSuccessAndFailurePatterns(filePath: string, successPattern: string, failurePattern: string): Promise<ExpoLaunch> {
+export async function findExpoSuccessAndFailurePatterns(
+    filePath: string,
+    successPattern: string,
+    failurePattern: string,
+): Promise<ExpoLaunch> {
     let awaitRetries: number = SmokeTestsConstants.expoAppLaunchTimeout / 5000;
     let retry = 1;
-    return new Promise<ExpoLaunch>((resolve) => {
+    return new Promise<ExpoLaunch>(resolve => {
         let check = setInterval(async () => {
             let expoStarted = findStringInFile(filePath, successPattern);
             let expoFailed = findStringInFile(filePath, failurePattern);
             console.log(`Searching for Expo launch logging patterns for ${retry} time...`);
             if (expoStarted || expoFailed) {
                 clearInterval(check);
-                const status: ExpoLaunch = {successful: expoStarted, failed: expoFailed};
-                console.log(`Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`);
+                const status: ExpoLaunch = { successful: expoStarted, failed: expoFailed };
+                console.log(
+                    `Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`,
+                );
                 resolve(status);
             } else {
                 retry++;
                 if (retry >= awaitRetries) {
-                    console.log(`Expo launch logging patterns are not found after ${retry} retries:`);
+                    console.log(
+                        `Expo launch logging patterns are not found after ${retry} retries:`,
+                    );
                     clearInterval(check);
-                    resolve({successful: expoStarted, failed: expoFailed});
+                    resolve({ successful: expoStarted, failed: expoFailed });
                 }
             }
         }, 5000);
@@ -225,12 +245,12 @@ export async function findExpoSuccessAndFailurePatterns(filePath: string, succes
 }
 
 export function findExpoURLInLogFile(filePath: string) {
-        let content = fs.readFileSync(filePath).toString().trim();
-        const match = content.match(/exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
-        if (!match) return null;
-        let expoURL = match[0];
-        console.log(`Found Expo URL: ${expoURL}`);
-        return expoURL;
+    let content = fs.readFileSync(filePath).toString().trim();
+    const match = content.match(/exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
+    if (!match) return null;
+    let expoURL = match[0];
+    console.log(`Found Expo URL: ${expoURL}`);
+    return expoURL;
 }
 
 export function getIOSBuildPath(
@@ -238,7 +258,7 @@ export function getIOSBuildPath(
     projectWorkspaceConfigName: string,
     configuration: string,
     scheme: string,
-    sdkType: string
+    sdkType: string,
 ): string {
     const buildSettings = cp.execFileSync(
         "xcodebuild",
@@ -256,7 +276,7 @@ export function getIOSBuildPath(
         {
             encoding: "utf8",
             cwd: iosProjectRoot,
-        }
+        },
     );
 
     const targetBuildDir = getTargetBuildDir(<string>buildSettings);
@@ -276,7 +296,5 @@ export function getIOSBuildPath(
  */
 function getTargetBuildDir(buildSettings: string) {
     const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
-    return targetBuildMatch && targetBuildMatch[1]
-        ? targetBuildMatch[1].trim()
-        : null;
+    return targetBuildMatch && targetBuildMatch[1] ? targetBuildMatch[1].trim() : null;
 }

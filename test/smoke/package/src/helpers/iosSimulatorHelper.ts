@@ -64,13 +64,25 @@ export class IosSimulatorHelper {
         }
     }
 
-    public static async waitUntilIosAppIsInstalled(appBundleId: string, waitTime: number, waitInitTime?: number) {
+    public static async waitUntilIosAppIsInstalled(
+        appBundleId: string,
+        waitTime: number,
+        waitInitTime?: number,
+    ) {
         // Start watcher for launch events console logs in simulator and wait until needed app is launched
         // TODO is not compatible with parallel test run (race condition)
         let launched = false;
         const predicate = `eventMessage contains "Launch successful for '${appBundleId}'"`;
-        const args = ["simctl", "spawn", <string>IosSimulatorHelper.getDevice(), "log", "stream", "--predicate", predicate];
-        const proc = spawn("xcrun", args, {stdio: "pipe"});
+        const args = [
+            "simctl",
+            "spawn",
+            <string>IosSimulatorHelper.getDevice(),
+            "log",
+            "stream",
+            "--predicate",
+            predicate,
+        ];
+        const proc = spawn("xcrun", args, { stdio: "pipe" });
         proc.stdout.on("data", (data: string) => {
             data = data.toString();
             console.log(data);
@@ -85,7 +97,7 @@ export class IosSimulatorHelper {
         proc.stderr.on("error", (data: string) => {
             console.error(data.toString());
         });
-        proc.on("error", (err) => {
+        proc.on("error", err => {
             console.error(err);
             kill(proc.pid);
         });
@@ -95,12 +107,16 @@ export class IosSimulatorHelper {
         await new Promise((resolve, reject) => {
             const check = setInterval(async () => {
                 if (retry % 5 === 0) {
-                    console.log(`*** Check if app with bundleId ${appBundleId} is installed, ${retry} attempt`);
+                    console.log(
+                        `*** Check if app with bundleId ${appBundleId} is installed, ${retry} attempt`,
+                    );
                 }
                 if (launched) {
                     clearInterval(check);
                     const initTimeout = waitInitTime || 10000;
-                    console.log(`*** Installed ${appBundleId} app found, await ${initTimeout}ms for initializing...`);
+                    console.log(
+                        `*** Installed ${appBundleId} app found, await ${initTimeout}ms for initializing...`,
+                    );
                     await sleep(initTimeout);
                     resolve();
                 } else {
@@ -123,7 +139,7 @@ export class IosSimulatorHelper {
             const commandArgs = ["simctl"].concat(args);
             const cp = spawn(command, commandArgs);
             cp.on("close", () => {
-                const lines = stderr.split("\n").filter((value) => value); // filter empty lines
+                const lines = stderr.split("\n").filter(value => value); // filter empty lines
                 if (lines.length === 0) {
                     // No error output
                     resolve({
@@ -135,7 +151,11 @@ export class IosSimulatorHelper {
                 if (lastLine.startsWith(`Unable to ${args[0]}`)) {
                     const match = lastLine.match(/in current state: (.+)/);
                     if (!match || match.length !== 2) {
-                        reject(new Error(`Error parsing ${[command].concat(commandArgs).join(" ")} output`));
+                        reject(
+                            new Error(
+                                `Error parsing ${[command].concat(commandArgs).join(" ")} output`,
+                            ),
+                        );
                     }
                     const state = DeviceState[match![1]];
                     if (!state) {
@@ -154,7 +174,13 @@ export class IosSimulatorHelper {
                         Successful: true,
                     });
                 } else {
-                    reject(new Error(`Error occurred while running ${[command].concat(commandArgs).join(" ")}`));
+                    reject(
+                        new Error(
+                            `Error occurred while running ${[command]
+                                .concat(commandArgs)
+                                .join(" ")}`,
+                        ),
+                    );
                 }
             });
             cp.stderr.on("data", (chunk: string | Buffer) => {
@@ -168,6 +194,10 @@ export class IosSimulatorHelper {
     }
 
     private static getRunError(command: string, failedState?: DeviceState) {
-        return new Error(`Couldn't run ${command} simulator` + (failedState) ? `, because it in ${failedState} state` : "");
+        return new Error(
+            `Couldn't run ${command} simulator` + failedState
+                ? `, because it in ${failedState} state`
+                : "",
+        );
     }
 }

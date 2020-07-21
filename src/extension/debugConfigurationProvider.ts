@@ -5,7 +5,10 @@ import * as vscode from "vscode";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { Telemetry } from "../common/telemetry";
 import * as nls from "vscode-nls";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 export const DEBUG_TYPES = {
@@ -16,75 +19,75 @@ export const DEBUG_TYPES = {
 export class ReactNativeDebugConfigProvider implements vscode.DebugConfigurationProvider {
     private debugConfigurations = {
         "Debug Android (Preview)": {
-            "name": "Debug Android (Preview)",
-            "cwd": "${workspaceFolder}",
-            "type": DEBUG_TYPES.REACT_NATIVE,
-            "request": "launch",
-            "platform": "android",
+            name: "Debug Android (Preview)",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE,
+            request: "launch",
+            platform: "android",
         },
         "Run Android (Preview)": {
-            "name": "Run Android (Preview)",
-            "cwd": "${workspaceFolder}",
-            "type": DEBUG_TYPES.REACT_NATIVE,
-            "request": "launch",
-            "platform": "android",
-            "enableDebug": false,
+            name: "Run Android (Preview)",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE,
+            request: "launch",
+            platform: "android",
+            enableDebug: false,
         },
         "Debug iOS (Preview)": {
-            "name": "Debug iOS (Preview)",
-            "cwd": "${workspaceFolder}",
-            "type": DEBUG_TYPES.REACT_NATIVE,
-            "request": "launch",
-            "platform": "ios",
+            name: "Debug iOS (Preview)",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE,
+            request: "launch",
+            platform: "ios",
         },
         "Run iOS (Preview)": {
-            "name": "Run iOS (Preview)",
-            "cwd": "${workspaceFolder}",
-            "type": DEBUG_TYPES.REACT_NATIVE,
-            "request": "launch",
-            "platform": "ios",
-            "enableDebug": false,
+            name: "Run iOS (Preview)",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE,
+            request: "launch",
+            platform: "ios",
+            enableDebug: false,
         },
         "Debug Windows (Preview)": {
-            "name": "Debug Windows (Preview)",
-            "cwd": "${workspaceFolder}",
-            "type": DEBUG_TYPES.REACT_NATIVE,
-            "request": "launch",
-            "platform": "windows",
+            name: "Debug Windows (Preview)",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE,
+            request: "launch",
+            platform: "windows",
         },
         "Attach to packager (Preview)": {
-            "name": "Attach to packager (Preview)",
-            "cwd": "${workspaceFolder}",
-            "type": DEBUG_TYPES.REACT_NATIVE,
-            "request": "attach",
+            name: "Attach to packager (Preview)",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE,
+            request: "attach",
         },
         "Debug in Exponent (Preview)": {
-            "name": "Debug in Exponent (Preview)",
-            "cwd": "${workspaceFolder}",
-            "type": DEBUG_TYPES.REACT_NATIVE,
-            "request": "launch",
-            "platform": "exponent",
+            name: "Debug in Exponent (Preview)",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE,
+            request: "launch",
+            platform: "exponent",
         },
         "Debug Android Hermes (Preview) - Experimental": {
-            "name": "Debug Android Hermes (Preview) - Experimental",
-            "cwd": "${workspaceFolder}",
-            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            "request": "launch",
-            "platform": "android",
+            name: "Debug Android Hermes (Preview) - Experimental",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            request: "launch",
+            platform: "android",
         },
         "Run Android Hermes (Preview) - Experimental": {
-            "name": "Run Android Hermes (Preview) - Experimental",
-            "cwd": "${workspaceFolder}",
-            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            "request": "launch",
-            "platform": "android",
-            "enableDebug": false,
+            name: "Run Android Hermes (Preview) - Experimental",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            request: "launch",
+            platform: "android",
+            enableDebug: false,
         },
         "Attach to Hermes application (Preview) - Experimental": {
-            "name": "Attach to Hermes application (Preview) - Experimental",
-            "cwd": "${workspaceFolder}",
-            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            "request": "attach",
+            name: "Attach to Hermes application (Preview) - Experimental",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            request: "attach",
         },
     };
 
@@ -111,29 +114,46 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         },
         {
             label: "Attach to packager (Preview)",
-            description: localize("AttachToPackagerConfigDesc", "Attach to already working application packager"),
+            description: localize(
+                "AttachToPackagerConfigDesc",
+                "Attach to already working application packager",
+            ),
         },
         {
             label: "Debug in Exponent (Preview)",
-            description: localize("DebugExpoConfigDesc", "Debug Expo application or React Native application in Expo"),
+            description: localize(
+                "DebugExpoConfigDesc",
+                "Debug Expo application or React Native application in Expo",
+            ),
         },
         {
             label: "Debug Android Hermes (Preview) - Experimental",
-            description: localize("DebugAndroidHermesConfigDesc", "Run and debug Android Hermes application"),
+            description: localize(
+                "DebugAndroidHermesConfigDesc",
+                "Run and debug Android Hermes application",
+            ),
         },
         {
             label: "Attach to Hermes application (Preview) - Experimental",
-            description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working Android Hermes application packager"),
+            description: localize(
+                "AttachToPackagerHermesConfigDesc",
+                "Attach to already working Android Hermes application packager",
+            ),
         },
     ];
 
-    public async provideDebugConfigurations(folder: vscode.WorkspaceFolder | undefined, token?: vscode.CancellationToken): Promise<vscode.DebugConfiguration[]> {
-        return new Promise<vscode.DebugConfiguration[]>((resolve) => {
+    public async provideDebugConfigurations(
+        folder: vscode.WorkspaceFolder | undefined,
+        token?: vscode.CancellationToken,
+    ): Promise<vscode.DebugConfiguration[]> {
+        return new Promise<vscode.DebugConfiguration[]>(resolve => {
             const configPicker = this.prepareDebugConfigPicker();
             const disposables: vscode.Disposable[] = [];
             const pickHandler = () => {
-                let chosenConfigsEvent = TelemetryHelper.createTelemetryEvent("chosenDebugConfigurations");
-                let selected: string[] = configPicker.selectedItems.map(element => element.label);
+                const chosenConfigsEvent = TelemetryHelper.createTelemetryEvent(
+                    "chosenDebugConfigurations",
+                );
+                const selected: string[] = configPicker.selectedItems.map(element => element.label);
                 chosenConfigsEvent.properties["selectedItems"] = selected;
                 Telemetry.send(chosenConfigsEvent);
                 const launchConfig = this.gatherDebugScenarios(selected);
@@ -144,7 +164,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             disposables.push(
                 configPicker.onDidAccept(pickHandler),
                 configPicker.onDidHide(pickHandler),
-                configPicker
+                configPicker,
             );
 
             configPicker.show();
@@ -152,7 +172,9 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
     }
 
     private gatherDebugScenarios(selectedItems: string[]): vscode.DebugConfiguration[] {
-        let launchConfig: vscode.DebugConfiguration[] = selectedItems.map(element => this.debugConfigurations[element]);
+        const launchConfig: vscode.DebugConfiguration[] = selectedItems.map(
+            element => this.debugConfigurations[element],
+        );
         return launchConfig;
     }
 
@@ -160,7 +182,10 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         const debugConfigPicker = vscode.window.createQuickPick();
         debugConfigPicker.canSelectMany = true;
         debugConfigPicker.ignoreFocusOut = true;
-        debugConfigPicker.title = localize("DebugConfigQuickPickLabel", "Pick debug configurations");
+        debugConfigPicker.title = localize(
+            "DebugConfigQuickPickLabel",
+            "Pick debug configurations",
+        );
         debugConfigPicker.items = this.pickConfig;
         // QuickPickItem property `picked` doesn't work, so this line will check first item in the list
         // which is supposed to be Debug Android

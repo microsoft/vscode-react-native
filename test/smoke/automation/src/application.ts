@@ -21,7 +21,6 @@ export interface ApplicationOptions extends SpawnOptions {
 }
 
 export class Application {
-
     get quality(): Quality {
         return this.options.quality;
     }
@@ -68,19 +67,23 @@ export class Application {
         await this.code.waitForElement(".explorer-folders-view");
 
         if (expectWalkthroughPart) {
-            await this.code.waitForActiveElement(`.editor-instance[data-editor-id="workbench.editor.walkThroughPart"] > div > div[tabIndex="0"]`);
+            await this.code.waitForActiveElement(
+                `.editor-instance[data-editor-id="workbench.editor.walkThroughPart"] > div > div[tabIndex="0"]`,
+            );
         }
     }
 
-    public async restart(options: { workspaceOrFolder?: string, extraArgs?: string[] }): Promise<any> {
+    public async restart(options: {
+        workspaceOrFolder?: string;
+        extraArgs?: string[];
+    }): Promise<any> {
         await this.stop();
         await new Promise(c => setTimeout(c, 1000));
         await this._start(options.workspaceOrFolder, options.extraArgs);
     }
 
     public async reload(): Promise<any> {
-        this.code.reload()
-            .catch(err => null); // ignore the connection drop errors
+        this.code.reload().catch(err => null); // ignore the connection drop errors
 
         // needs to be enough to propagate the 'Reload Window' command
         await new Promise(c => setTimeout(c, 1500));
@@ -107,7 +110,10 @@ export class Application {
         }
     }
 
-    private async _start(workspaceOrFolder = this.workspacePathOrFolder, extraArgs: string[] = []): Promise<any> {
+    private async _start(
+        workspaceOrFolder = this.workspacePathOrFolder,
+        extraArgs: string[] = [],
+    ): Promise<any> {
         this._workspacePathOrFolder = workspaceOrFolder;
         await this.startApplication(extraArgs);
         await this.checkWindowReady();
@@ -142,7 +148,10 @@ export class Application {
         await this.code.waitForElement(".monaco-workbench");
 
         if (this.remote) {
-            await this.code.waitForTextContent(".monaco-workbench .statusbar-item[id=\"status.host\"]", " TestResolver");
+            await this.code.waitForTextContent(
+                '.monaco-workbench .statusbar-item[id="status.host"]',
+                " TestResolver",
+            );
         }
 
         // wait a bit, since focus might be stolen off widgets

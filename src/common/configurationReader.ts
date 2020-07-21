@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {InternalErrorCode} from "./error/internalErrorCode";
-import {ErrorHelper} from "./error/errorHelper";
+import { InternalErrorCode } from "./error/internalErrorCode";
+import { ErrorHelper } from "./error/errorHelper";
 
 export class ConfigurationReader {
     public static readString(value: any): string {
@@ -57,7 +57,10 @@ export class ConfigurationReader {
         return value ? this.readInt(value) : defaultValue;
     }
 
-    public static readIntWithDefaultAsync(value: any, defaultValuePromise: Promise<number>): Promise<number> {
+    public static readIntWithDefaultAsync(
+        value: any,
+        defaultValuePromise: Promise<number>,
+    ): Promise<number> {
         return defaultValuePromise.then(defaultValue => {
             return this.readIntWithDefaultSync(value, defaultValue);
         });

@@ -6,8 +6,7 @@ import { Code } from "./code";
 import { QuickInput } from "./quickinput";
 
 export class QuickAccess {
-
-    constructor(private code: Code, private editors: Editors, private quickInput: QuickInput) { }
+    constructor(private code: Code, private editors: Editors, private quickInput: QuickInput) {}
 
     public async openQuickAccess(value: string): Promise<void> {
         let retries = 0;
@@ -66,7 +65,9 @@ export class QuickAccess {
                 await this.code.dispatchKeybinding("ctrl+shift+o");
             }
 
-            const text = await this.code.waitForTextContent(QuickInput.QUICK_INPUT_ENTRY_LABEL_SPAN);
+            const text = await this.code.waitForTextContent(
+                QuickInput.QUICK_INPUT_ENTRY_LABEL_SPAN,
+            );
 
             if (text !== "No symbol information for the file") {
                 return;

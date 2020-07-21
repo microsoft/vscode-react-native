@@ -5,15 +5,16 @@ import { Editors } from "./editors";
 import { Code } from "./code";
 
 export class QuickOpen {
-
     public static QUICK_OPEN = "div.monaco-quick-open-widget";
-    public static QUICK_OPEN_HIDDEN = "div.monaco-quick-open-widget[aria-hidden=\"true\"]";
+    public static QUICK_OPEN_HIDDEN = 'div.monaco-quick-open-widget[aria-hidden="true"]';
     public static QUICK_OPEN_INPUT = `${QuickOpen.QUICK_OPEN} .quick-open-input input`;
     public static QUICK_OPEN_FOCUSED_ELEMENT = `${QuickOpen.QUICK_OPEN} .quick-open-tree .monaco-tree-row.focused .monaco-highlighted-label`;
-    public static QUICK_OPEN_ENTRY_SELECTOR = "div[aria-label=\"Quick Picker\"] .monaco-tree-rows.show-twisties .monaco-tree-row .quick-open-entry";
-    public static QUICK_OPEN_ENTRY_LABEL_SELECTOR = "div[aria-label=\"Quick Picker\"] .monaco-tree-rows.show-twisties .monaco-tree-row .quick-open-entry .label-name";
+    public static QUICK_OPEN_ENTRY_SELECTOR =
+        'div[aria-label="Quick Picker"] .monaco-tree-rows.show-twisties .monaco-tree-row .quick-open-entry';
+    public static QUICK_OPEN_ENTRY_LABEL_SELECTOR =
+        'div[aria-label="Quick Picker"] .monaco-tree-rows.show-twisties .monaco-tree-row .quick-open-entry .label-name';
 
-    constructor(private code: Code, private editors: Editors) { }
+    constructor(private code: Code, private editors: Editors) {}
 
     public async openQuickOpen(value?: string): Promise<void> {
         let retries = 0;
@@ -77,7 +78,9 @@ export class QuickOpen {
     }
 
     public async waitForQuickOpenElements(accept: (names: string[]) => boolean): Promise<void> {
-        await this.code.waitForElements(QuickOpen.QUICK_OPEN_ENTRY_LABEL_SELECTOR, false, els => accept(els.map(e => e.textContent)));
+        await this.code.waitForElements(QuickOpen.QUICK_OPEN_ENTRY_LABEL_SELECTOR, false, els =>
+            accept(els.map(e => e.textContent)),
+        );
     }
 
     public async runCommand(command: string): Promise<void> {
@@ -110,7 +113,9 @@ export class QuickOpen {
                 await this.code.dispatchKeybinding("ctrl+shift+o");
             }
 
-            const text = await this.code.waitForTextContent("div[aria-label=\"Quick Picker\"] .monaco-tree-rows.show-twisties div.monaco-tree-row .quick-open-entry .monaco-icon-label .label-name .monaco-highlighted-label span");
+            const text = await this.code.waitForTextContent(
+                'div[aria-label="Quick Picker"] .monaco-tree-rows.show-twisties div.monaco-tree-row .quick-open-entry .monaco-icon-label .label-name .monaco-highlighted-label span',
+            );
 
             if (text !== "No symbol information for the file") {
                 return;

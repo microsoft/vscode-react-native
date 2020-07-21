@@ -7,7 +7,8 @@ import * as os from "os";
 import * as path from "path";
 import child_process = require("child_process");
 
-import {ITimedEvent,
+import {
+    ITimedEvent,
     IEventArguments,
     Recording,
     IAndroidDevice,
@@ -26,7 +27,11 @@ import {ITimedEvent,
         OS X: $TMPDIR/processExecutionRecording.txt
 */
 export class Recorder {
-    private static originalSpawn: (command: string, args: string[], options: ISpawnOptions) => child_process.ChildProcess;
+    private static originalSpawn: (
+        command: string,
+        args: string[],
+        options: ISpawnOptions,
+    ) => child_process.ChildProcess;
 
     private recording: Recording;
     private previousEventTimestamp: number;
@@ -38,28 +43,35 @@ export class Recorder {
         }
     }
 
-    public static recordAndSpawn(command: string, args: string[] = [], options: ISpawnOptions = {}): child_process.ChildProcess {
+    public static recordAndSpawn(
+        command: string,
+        args: string[] = [],
+        options: ISpawnOptions = {},
+    ): child_process.ChildProcess {
         const spawnedProcess = this.originalSpawn(command, args, options);
         new Recorder(spawnedProcess, { command, args, options }).record();
         return spawnedProcess;
     }
 
-    constructor(private execution: child_process.ChildProcess, spawnArguments: ISpawnArguments,
-                private filePath = Recorder.defaultFilePath()) {
+    constructor(
+        private execution: child_process.ChildProcess,
+        spawnArguments: ISpawnArguments,
+        private filePath = Recorder.defaultFilePath(),
+    ) {
         this.initializeRecording(spawnArguments);
     }
 
     public record(): void {
         this.addListenerForRecordingEvent(this.execution.stdout, "stdout", "data", "data", data =>
-            data.toString());
+            data.toString(),
+        );
         this.addListenerForRecordingEvent(this.execution.stderr, "stderr", "data", "data", data =>
-            data.toString());
+            data.toString(),
+        );
         this.addListenerForRecordingEvent(this.execution, "error", "error", "error");
         this.addListenerForRecordingEvent(this.execution, "exit", "exit", "code");
-        this.execution.on("error", () =>
-            this.store());
-        this.execution.on("exit", () =>
-            this.store());
+        this.execution.on("error", () => this.store());
+        this.execution.on("exit", () => this.store());
         this.previousEventTimestamp = this.now();
     }
 
@@ -73,7 +85,12 @@ export class Recorder {
             configuration: {
                 os: { platform: os.platform(), release: os.release() },
                 android: {
-                    sdk: { tools: "TBD", platformTools: "TBD", buildTools: "TBD", repositoryForSupportLibraries: "TBD" },
+                    sdk: {
+                        tools: "TBD",
+                        platformTools: "TBD",
+                        buildTools: "TBD",
+                        repositoryForSupportLibraries: "TBD",
+                    },
                     intelHAXMEmulator: "TBD",
                     visualStudioEmulator: "TBD",
                 },
@@ -97,18 +114,35 @@ export class Recorder {
         return new Date().getTime();
     }
 
-    private addListenerForRecordingEvent(emitter: events.EventEmitter, storedEventName: string, eventToListenName: string,
-                                         argumentName: string, argumentsConverter: (value: any) => any = value => value): void {
+    private addListenerForRecordingEvent(
+        emitter: events.EventEmitter,
+        storedEventName: string,
+        eventToListenName: string,
+        argumentName: string,
+        argumentsConverter: (value: any) => any = value => value,
+    ): void {
         emitter.on(eventToListenName, (argument: any) => {
             const now = this.now();
             const relativeTimestamp = now - this.previousEventTimestamp;
             this.previousEventTimestamp = now;
-            this.recording.events.push(this.generateEvent(relativeTimestamp, storedEventName, argumentName, argumentsConverter(argument)));
+            this.recording.events.push(
+                this.generateEvent(
+                    relativeTimestamp,
+                    storedEventName,
+                    argumentName,
+                    argumentsConverter(argument),
+                ),
+            );
         });
     }
 
     /* Generate an event based on the parameters e.g.: { "after": 0, "stdout": { "data": ":app:assembleDebug" } } */
-    private generateEvent(relativeTimestamp: number, eventName: string, argumentName: string, argument: any): IEventArguments {
+    private generateEvent(
+        relativeTimestamp: number,
+        eventName: string,
+        argumentName: string,
+        argument: any,
+    ): IEventArguments {
         const event: ITimedEvent = { after: relativeTimestamp };
         (<any>event)[eventName] = this.generateEventArguments(argumentName, argument);
         return <IEventArguments>event;

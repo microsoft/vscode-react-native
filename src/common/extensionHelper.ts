@@ -16,7 +16,7 @@ export function getExtensionVersion() {
 export function findFileInFolderHierarchy(dir: string, filename: string): string | null {
     let parentPath: string;
     let projectRoot: string = dir;
-    let atFsRoot: boolean = false;
+    let atFsRoot = false;
 
     while (!fs.existsSync(path.join(projectRoot, filename))) {
         // Navigate up one level until either config.xml is found

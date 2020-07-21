@@ -1,16 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {FileSystem} from "../../common/node/fileSystem";
+import { FileSystem } from "../../common/node/fileSystem";
 import * as path from "path";
 
 export class PackageNameResolver {
-
-    private static PackageNameRegexp: RegExp = /package="(.+?)"/;
+    private static PackageNameRegexp = /package="(.+?)"/;
     private static ManifestName = "AndroidManifest.xml";
     private static DefaultPackagePrefix = "com.";
     private static SourceRootRelPath: string[] = ["android", "app", "src", "main"];
-    private static DefaultManifestLocation: string[] = PackageNameResolver.SourceRootRelPath.concat(PackageNameResolver.ManifestName);
+    private static DefaultManifestLocation: string[] = PackageNameResolver.SourceRootRelPath.concat(
+        PackageNameResolver.ManifestName,
+    );
     private applicationName: string;
 
     constructor(applicationName: string) {
@@ -22,7 +23,10 @@ export class PackageNameResolver {
      * which is the application name prefixed with the default prefix.
      */
     public resolvePackageName(projectRoot: string): Promise<string> {
-        let expectedAndroidManifestPath = path.join.apply(this, [projectRoot].concat(PackageNameResolver.DefaultManifestLocation));
+        const expectedAndroidManifestPath = path.join.apply(
+            this,
+            [projectRoot].concat(PackageNameResolver.DefaultManifestLocation),
+        );
         return this.readPackageName(expectedAndroidManifestPath);
     }
 
@@ -32,17 +36,16 @@ export class PackageNameResolver {
      */
     private readPackageName(manifestPath: string): Promise<string> {
         if (manifestPath) {
-            let fs = new FileSystem();
+            const fs = new FileSystem();
             return fs.exists(manifestPath).then(exists => {
                 if (exists) {
-                    return fs.readFile(manifestPath)
-                        .then(manifestContent => {
-                            let packageName = this.parsePackageName(manifestContent.toString());
-                            if (!packageName) {
-                                packageName = this.getDefaultPackageName(this.applicationName);
-                            }
-                            return packageName;
-                        });
+                    return fs.readFile(manifestPath).then(manifestContent => {
+                        let packageName = this.parsePackageName(manifestContent.toString());
+                        if (!packageName) {
+                            packageName = this.getDefaultPackageName(this.applicationName);
+                        }
+                        return packageName;
+                    });
                 } else {
                     return this.getDefaultPackageName(this.applicationName);
                 }
@@ -65,7 +68,7 @@ export class PackageNameResolver {
      */
     private parsePackageName(manifestContents: string) {
         // first we remove all the comments from the file
-        let match = manifestContents.match(PackageNameResolver.PackageNameRegexp);
+        const match = manifestContents.match(PackageNameResolver.PackageNameRegexp);
         return match ? match[1] : null;
     }
 }

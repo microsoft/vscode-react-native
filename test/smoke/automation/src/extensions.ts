@@ -4,10 +4,9 @@
 import { Viewlet } from "./viewlet";
 import { Code } from "./code";
 
-const SEARCH_BOX = "div.extensions-viewlet[id=\"workbench.view.extensions\"] .monaco-editor textarea";
+const SEARCH_BOX = 'div.extensions-viewlet[id="workbench.view.extensions"] .monaco-editor textarea';
 
 export class Extensions extends Viewlet {
-
     constructor(code: Code) {
         super(code);
     }
@@ -35,7 +34,11 @@ export class Extensions extends Viewlet {
     public async installExtension(id: string, name: string): Promise<void> {
         await this.searchForExtension(id);
         const ariaLabel = `${name}. Press enter for extension details.`;
-        await this.code.waitAndClick(`div.extensions-viewlet[id="workbench.view.extensions"] .monaco-list-row[aria-label="${ariaLabel}"] .extension-list-item li[class='action-item'] .extension-action.install`);
-        await this.code.waitForElement(`.extension-editor .monaco-action-bar .action-item:not(.disabled) .extension-action.uninstall`);
+        await this.code.waitAndClick(
+            `div.extensions-viewlet[id="workbench.view.extensions"] .monaco-list-row[aria-label="${ariaLabel}"] .extension-list-item li[class='action-item'] .extension-action.install`,
+        );
+        await this.code.waitForElement(
+            `.extension-editor .monaco-action-bar .action-item:not(.disabled) .extension-action.uninstall`,
+        );
     }
 }

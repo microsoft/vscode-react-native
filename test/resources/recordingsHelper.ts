@@ -8,11 +8,23 @@ const RECORDINGS_ROOT = path.resolve(__dirname, "processExecutionsRecordings");
 
 interface TestUsingRecording {
     (expectation: string, recordingNames: string[], assertion?: () => void): Mocha.ITest;
-    (expectation: string, recordingNames: string[], assertion?: (done: MochaDone) => void): Mocha.ITest;
+    (
+        expectation: string,
+        recordingNames: string[],
+        assertion?: (done: MochaDone) => void,
+    ): Mocha.ITest;
     only(expectation: string, recordingNames: string[], assertion?: () => void): Mocha.ITest;
-    only(expectation: string, recordingNames: string[], assertion?: (done: MochaDone) => void): Mocha.ITest;
+    only(
+        expectation: string,
+        recordingNames: string[],
+        assertion?: (done: MochaDone) => void,
+    ): Mocha.ITest;
     skip(expectation: string, recordingNames: string[], assertion?: () => void): void;
-    skip(expectation: string, recordingNames: string[], assertion?: (done: MochaDone) => void): void;
+    skip(
+        expectation: string,
+        recordingNames: string[],
+        assertion?: (done: MochaDone) => void,
+    ): void;
 }
 
 export interface IRecordingConsumer {
@@ -41,20 +53,31 @@ export class RecordingsHelper {
     }
 
     private initializeTest(): void {
-        this.test = <TestUsingRecording>((testName: string, recordingNames: string[], code: () => Promise<void>): void => {
-            if (code.length !== 0) { // Check how many arguments the function has
-                throw new RangeError("(done: mochaDone) parameter is not supported. Please return a promise instead.");
+        this.test = <TestUsingRecording>((
+            testName: string,
+            recordingNames: string[],
+            code: () => Promise<void>,
+        ): void => {
+            if (code.length !== 0) {
+                // Check how many arguments the function has
+                throw new RangeError(
+                    "(done: mochaDone) parameter is not supported. Please return a promise instead.",
+                );
             }
+            // eslint-disable-next-line
             const recordingsHelper = this;
             recordingNames.forEach(recordingName => {
-
                 let recording: string = this.recordings[recordingName];
                 if (!recording) {
-                    recording = fs.readFileSync(path.resolve(RECORDINGS_ROOT, recordingName) + ".json", "utf8");
+                    recording = fs.readFileSync(
+                        path.resolve(RECORDINGS_ROOT, recordingName) + ".json",
+                        "utf8",
+                    );
                     this.recordings[recordingName] = recording;
                 }
 
-                test(`${testName} using recording ${recordingName}`, function () { // We use function () because we need the this pointer
+                test(`${testName} using recording ${recordingName}`, function () {
+                    // We use function () because we need the this pointer
                     return recordingsHelper
                         .getRecordingConsumer()
                         .loadRecordingFromString(recording)
@@ -62,7 +85,11 @@ export class RecordingsHelper {
                 });
             });
         });
-        this.test.skip = (expectation: string, recordingNames: string[], assertion?: (done: MochaDone) => void) => {
+        this.test.skip = (
+            expectation: string,
+            recordingNames: string[],
+            assertion?: (done: MochaDone) => void,
+        ) => {
             test.skip(expectation, assertion);
         };
     }

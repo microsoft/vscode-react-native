@@ -9,14 +9,15 @@ const RENAME_BOX = ".monaco-editor .monaco-editor.rename-box";
 const RENAME_INPUT = `${RENAME_BOX} .rename-input`;
 const EDITOR = (filename: string) => `.monaco-editor[data-uri$="${filename}"]`;
 const VIEW_LINES = (filename: string) => `${EDITOR(filename)} .view-lines`;
-const LINE_NUMBERS = (filename: string) => `${EDITOR(filename)} .margin .margin-view-overlays .line-numbers`;
+const LINE_NUMBERS = (filename: string) =>
+    `${EDITOR(filename)} .margin .margin-view-overlays .line-numbers`;
 
 export class Editor {
-
-    private static readonly FOLDING_EXPANDED = ".monaco-editor .margin .margin-view-overlays>:nth-child(${INDEX}) .folding";
+    private static readonly FOLDING_EXPANDED =
+        ".monaco-editor .margin .margin-view-overlays>:nth-child(${INDEX}) .folding";
     private static readonly FOLDING_COLLAPSED = `${Editor.FOLDING_EXPANDED}.collapsed`;
 
-    constructor(private code: Code, private commands: Commands) { }
+    constructor(private code: Code, private commands: Commands) {}
 
     public async findReferences(filename: string, term: string, line: number): Promise<References> {
         await this.clickOnTerm(filename, term, line);
@@ -52,7 +53,9 @@ export class Editor {
     public async waitForHighlightingLine(filename: string, line: number): Promise<void> {
         const currentLineIndex = await this.getViewLineIndex(filename, line);
         if (currentLineIndex) {
-            await this.code.waitForElement(`.monaco-editor .view-overlays>:nth-child(${currentLineIndex}) .current-line`);
+            await this.code.waitForElement(
+                `.monaco-editor .view-overlays>:nth-child(${currentLineIndex}) .current-line`,
+            );
             return;
         }
         throw new Error("Cannot find line " + line);
@@ -61,7 +64,9 @@ export class Editor {
     public async foldAtLine(filename: string, line: number): Promise<any> {
         const lineIndex = await this.getViewLineIndex(filename, line);
         await this.code.waitAndClick(Editor.FOLDING_EXPANDED.replace("${INDEX}", "" + lineIndex));
-        await this.code.waitForElement(Editor.FOLDING_COLLAPSED.replace("${INDEX}", "" + lineIndex));
+        await this.code.waitForElement(
+            Editor.FOLDING_COLLAPSED.replace("${INDEX}", "" + lineIndex),
+        );
     }
 
     public async unfoldAtLine(filename: string, line: number): Promise<any> {
@@ -70,7 +75,11 @@ export class Editor {
         await this.code.waitForElement(Editor.FOLDING_EXPANDED.replace("${INDEX}", "" + lineIndex));
     }
 
-    public async waitForEditorFocus(filename: string, lineNumber: number, selectorPrefix = ""): Promise<void> {
+    public async waitForEditorFocus(
+        filename: string,
+        lineNumber: number,
+        selectorPrefix = "",
+    ): Promise<void> {
         const editor = [selectorPrefix || "", EDITOR(filename)].join(" ");
         const line = `${editor} .view-lines > .view-line:nth-child(${lineNumber})`;
         const textarea = `${editor} textarea`;
@@ -79,7 +88,11 @@ export class Editor {
         await this.code.waitForActiveElement(textarea);
     }
 
-    public async waitForTypeInEditor(filename: string, text: string, selectorPrefix = ""): Promise<any> {
+    public async waitForTypeInEditor(
+        filename: string,
+        text: string,
+        selectorPrefix = "",
+    ): Promise<any> {
         const editor = [selectorPrefix || "", EDITOR(filename)].join(" ");
 
         await this.code.waitForElement(editor);
@@ -92,9 +105,15 @@ export class Editor {
         await this.waitForEditorContents(filename, c => c.indexOf(text) > -1, selectorPrefix);
     }
 
-    public async waitForEditorContents(filename: string, accept: (contents: string) => boolean, selectorPrefix = ""): Promise<any> {
+    public async waitForEditorContents(
+        filename: string,
+        accept: (contents: string) => boolean,
+        selectorPrefix = "",
+    ): Promise<any> {
         const selector = [selectorPrefix || "", `${EDITOR(filename)} .view-lines`].join(" ");
-        return this.code.waitForTextContent(selector, undefined, c => accept(c.replace(/\u00a0/g, " ")));
+        return this.code.waitForTextContent(selector, undefined, c =>
+            accept(c.replace(/\u00a0/g, " ")),
+        );
     }
 
     private async getSelector(filename: string, term: string, line: number): Promise<string> {
@@ -109,8 +128,16 @@ export class Editor {
         await this.code.waitAndClick(selector);
     }
 
-    private async getClassSelectors(filename: string, term: string, viewline: number): Promise<string[]> {
-        const elements = await this.code.waitForElements(`${VIEW_LINES(filename)}>:nth-child(${viewline}) span span`, false, els => els.some(el => el.textContent === term));
+    private async getClassSelectors(
+        filename: string,
+        term: string,
+        viewline: number,
+    ): Promise<string[]> {
+        const elements = await this.code.waitForElements(
+            `${VIEW_LINES(filename)}>:nth-child(${viewline}) span span`,
+            false,
+            els => els.some(el => el.textContent === term),
+        );
         const { className } = elements.filter(r => r.textContent === term)[0];
         return className.split(/\s/g);
     }

@@ -5,7 +5,7 @@ import * as assert from "assert";
 import * as WebSocket from "ws";
 import * as path from "path";
 import * as sinon from "sinon";
-import * as child_process from "child_process";
+import * as childProcess from "child_process";
 import { MultipleLifetimesAppWorker } from "../../src/debugger/appWorker";
 import { ForkedAppWorker } from "../../src/debugger/forkedAppWorker";
 import * as ForkedAppWorkerModule from "../../src/debugger/forkedAppWorker";
@@ -14,12 +14,12 @@ import { ScriptImporter, DownloadedScript } from "../../src/debugger/scriptImpor
 import { PromiseUtil } from "../../src/common/node/promise";
 
 suite("appWorker", function () {
-    let pu = new PromiseUtil();
+    const pu = new PromiseUtil();
     suite("debuggerContext", function () {
         const packagerPort = 8081;
 
         suite("SandboxedAppWorker", function () {
-            const originalSpawn = child_process.spawn;
+            const originalSpawn = childProcess.spawn;
             const sourcesStoragePath = path.resolve(__dirname, "assets");
 
             // Inject 5 sec delay before shutting down to worker to give tests some time to execute
@@ -27,17 +27,29 @@ suite("appWorker", function () {
 
             let testWorker: ForkedAppWorker;
             let spawnStub: Sinon.SinonStub;
-            let postReplyFunction = sinon.stub();
-
+            const postReplyFunction = sinon.stub();
 
             function workerWithScript(scriptBody: string): ForkedAppWorker {
-                const wrappedBody = [MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
-                    scriptBody, MultipleLifetimesAppWorker.WORKER_DONE, WORKER_DELAY_SHUTDOWN].join("\n");
+                const wrappedBody = [
+                    MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
+                    scriptBody,
+                    MultipleLifetimesAppWorker.WORKER_DONE,
+                    WORKER_DELAY_SHUTDOWN,
+                ].join("\n");
 
-                spawnStub = sinon.stub(child_process, "spawn", () =>
-                    originalSpawn("node", ["-e", wrappedBody], { stdio: ["pipe", "pipe", "pipe", "ipc"] }));
+                spawnStub = sinon.stub(childProcess, "spawn", () =>
+                    originalSpawn("node", ["-e", wrappedBody], {
+                        stdio: ["pipe", "pipe", "pipe", "ipc"],
+                    }),
+                );
 
-                testWorker = new ForkedAppWorker("localhost", packagerPort, sourcesStoragePath, "", postReplyFunction);
+                testWorker = new ForkedAppWorker(
+                    "localhost",
+                    packagerPort,
+                    sourcesStoragePath,
+                    "",
+                    postReplyFunction,
+                );
                 return testWorker;
             }
 
@@ -54,29 +66,44 @@ suite("appWorker", function () {
 
             test("should execute scripts correctly and be able to invoke the callback", function () {
                 const expectedMessageResult = { success: true };
-                const startScriptContents = `var testResponse = ${JSON.stringify(expectedMessageResult)}; postMessage(testResponse);`;
+                const startScriptContents = `var testResponse = ${JSON.stringify(
+                    expectedMessageResult,
+                )}; postMessage(testResponse);`;
 
-                return workerWithScript(startScriptContents).start()
-                    .then(() =>
-                        pu.delay(1000))
-                    .then(() =>
-                        assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
+                return workerWithScript(startScriptContents)
+                    .start()
+                    .then(() => pu.delay(1000))
+                    .then(() => assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
             });
 
             test("should be able to import scripts", function () {
                 // NOTE: we're not able to mock reading script for import since this is performed by a
                 // separate node process and is out of control so we must provide a real script file
-                const scriptImportPath = path.resolve(sourcesStoragePath, "importScriptsTest.js").replace(/\\/g, "/");
+                const scriptImportPath = path
+                    .resolve(sourcesStoragePath, "importScriptsTest.js")
+                    .replace(/\\/g, "/");
                 const startScriptContents = `importScripts("${scriptImportPath}"); postMessage("postImport");`;
 
-                return workerWithScript(startScriptContents).start().then(() => {
-                    // We have not yet finished importing the script, we should not have posted a response yet
-                    assert(postReplyFunction.notCalled, "postReplyFuncton called before scripts imported");
-                    return pu.delay(500);
-                }).then(() => {
-                    assert(postReplyFunction.calledWith("postImport"), "postMessage after import not handled");
-                    assert(postReplyFunction.calledWith("inImport"), "postMessage not registered from within import");
-                });
+                return workerWithScript(startScriptContents)
+                    .start()
+                    .then(() => {
+                        // We have not yet finished importing the script, we should not have posted a response yet
+                        assert(
+                            postReplyFunction.notCalled,
+                            "postReplyFuncton called before scripts imported",
+                        );
+                        return pu.delay(500);
+                    })
+                    .then(() => {
+                        assert(
+                            postReplyFunction.calledWith("postImport"),
+                            "postMessage after import not handled",
+                        );
+                        assert(
+                            postReplyFunction.calledWith("inImport"),
+                            "postMessage not registered from within import",
+                        );
+                    });
             });
 
             test("should correctly pass postMessage to the loaded script", function () {
@@ -84,13 +111,22 @@ suite("appWorker", function () {
                 const testMessage = { method: "test", success: true };
 
                 const worker = workerWithScript(startScriptContents);
-                return worker.start().then(() => {
-                    assert(postReplyFunction.notCalled, "postReplyFunction called before message sent");
-                    worker.postMessage(testMessage);
-                    return pu.delay(1000);
-                }).then(() => {
-                    assert(postReplyFunction.calledWith({ data: testMessage }), "No echo back from app");
-                });
+                return worker
+                    .start()
+                    .then(() => {
+                        assert(
+                            postReplyFunction.notCalled,
+                            "postReplyFunction called before message sent",
+                        );
+                        worker.postMessage(testMessage);
+                        return pu.delay(1000);
+                    })
+                    .then(() => {
+                        assert(
+                            postReplyFunction.calledWith({ data: testMessage }),
+                            "No echo back from app",
+                        );
+                    });
             });
 
             test("should be able to require an installed node module via __debug__.require", function () {
@@ -98,10 +134,10 @@ suite("appWorker", function () {
                 const startScriptContents = `var testResponse = { promiseString: Promise.toString() };
                     postMessage(testResponse);`;
 
-                return workerWithScript(startScriptContents).start()
+                return workerWithScript(startScriptContents)
+                    .start()
                     .then(() => pu.delay(5000))
-                    .then(() =>
-                        assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
+                    .then(() => assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
             }).timeout(5500);
 
             test("should download script from remote packager", async () => {
@@ -114,8 +150,17 @@ suite("appWorker", function () {
                 }
                 const remotePackagerAddress = "1.2.3.4";
                 const remotePackagerPort = 1337;
-                const worker = new MockAppWorker(remotePackagerAddress, remotePackagerPort, sourcesStoragePath, "", postReplyFunction);
-                const downloadAppScriptStub = sinon.stub(worker.scriptImporter, "downloadAppScript");
+                const worker = new MockAppWorker(
+                    remotePackagerAddress,
+                    remotePackagerPort,
+                    sourcesStoragePath,
+                    "",
+                    postReplyFunction,
+                );
+                const downloadAppScriptStub = sinon.stub(
+                    worker.scriptImporter,
+                    "downloadAppScript",
+                );
                 const fakeDownloadedScript = <DownloadedScript>{ filepath: "/home/test/file" };
                 downloadAppScriptStub.returns(Promise.resolve(fakeDownloadedScript));
                 const debuggeeProcessSendStub = sinon.stub(worker.debuggeeProcess, "send");
@@ -128,7 +173,10 @@ suite("appWorker", function () {
                 await worker.postMessage(fakeMessage);
 
                 assert.equal(downloadAppScriptStub.calledOnce, true);
-                assert.equal(downloadAppScriptStub.firstCall.args[0], `http://${remotePackagerAddress}:${remotePackagerPort}/test-url`);
+                assert.equal(
+                    downloadAppScriptStub.firstCall.args[0],
+                    `http://${remotePackagerAddress}:${remotePackagerPort}/test-url`,
+                );
                 assert.equal(debuggeeProcessSendStub.calledOnce, true);
                 assert.deepEqual(debuggeeProcessSendStub.firstCall.args[0], {
                     data: {
@@ -146,91 +194,113 @@ suite("appWorker", function () {
                 }
 
                 const sourcesStoragePath = path.resolve(__dirname, "assets", "consoleLog");
-                const testWorker: MockAppWorker = new MockAppWorker("localhost", packagerPort, sourcesStoragePath, "", () => {});
+                const testWorker: MockAppWorker = new MockAppWorker(
+                    "localhost",
+                    packagerPort,
+                    sourcesStoragePath,
+                    "",
+                    () => {},
+                );
 
                 let ws: WebSocket;
                 let waitForContinue: Promise<void>;
                 let waitForCheckingOutput: Promise<void>;
-                let debuggeeProcess: child_process.ChildProcess;
+                let debuggeeProcess: childProcess.ChildProcess;
 
-                teardown((done) => {
+                teardown(done => {
                     if (ws) ws.close();
                     done();
                 });
 
-                const sendContinueToDebuggee = (wsDebuggerUrl: string,
-                        resolve: (value?: void | PromiseLike<void> | undefined) => void,
-                        reject: (reason: any) => void) => {
+                const sendContinueToDebuggee = (
+                    wsDebuggerUrl: string,
+                    resolve: (value?: void | PromiseLike<void> | undefined) => void,
+                    reject: (reason: any) => void,
+                ) => {
                     ws = new WebSocket(wsDebuggerUrl);
                     ws.on("open", function open() {
-                        ws.send(JSON.stringify({
-                            // id is just a random number, because debugging protocol requires it
-                            "id": 100,
-                            "method": "Runtime.runIfWaitingForDebugger",
-                        }), (err: Error) => {
-                            if (err) {
-                                reject(err);
-                            }
-                            // Delay is needed for debuggee process to execute script
-                            return pu.delay(1000).then(() => {
-                                resolve();
-                            });
-                        });
+                        ws.send(
+                            JSON.stringify({
+                                // id is just a random number, because debugging protocol requires it
+                                id: 100,
+                                method: "Runtime.runIfWaitingForDebugger",
+                            }),
+                            (err: Error) => {
+                                if (err) {
+                                    reject(err);
+                                }
+                                // Delay is needed for debuggee process to execute script
+                                return pu.delay(1000).then(() => {
+                                    resolve();
+                                });
+                            },
+                        );
                     });
-                    ws.on("error", (err) => {
+                    ws.on("error", err => {
                         // Suppress any errors from websocket client otherwise you'd get ECONNRESET or 400 errors
                         // for some reasons
                     });
                 };
 
                 waitForContinue = new Promise((resolve, reject) => {
-                    return testWorker.start().then((port: number) => {
-                        let output: string = "";
-                        let debugOutput: string = "";
-                        let isAlreadySending = false;
-                        debuggeeProcess = testWorker.getDebuggeeProcess() as child_process.ChildProcess;
-                        debuggeeProcess.stderr.on("data", (data: string) => {
-                            // Two notices:
-                            // 1. More correct way would be getting websocket debugger url by requesting GET http://localhost:debugPort/json/list
-                            //    but for some reason sometimes it returns ECONNRESET, so we have to find it in debug logs produced by debuggee
-                            // 2. Debuggee process writes debug logs in stderr for some reasons
-                            data = data.toString();
-                            debugOutput += data;
-                            console.log(data);
-                            // Looking for websocket url
+                    return testWorker
+                        .start()
+                        .then((port: number) => {
+                            let output = "";
+                            let debugOutput = "";
+                            let isAlreadySending = false;
+                            debuggeeProcess = testWorker.getDebuggeeProcess() as childProcess.ChildProcess;
+                            debuggeeProcess.stderr.on("data", (data: string) => {
+                                // Two notices:
+                                // 1. More correct way would be getting websocket debugger url by requesting GET http://localhost:debugPort/json/list
+                                //    but for some reason sometimes it returns ECONNRESET, so we have to find it in debug logs produced by debuggee
+                                // 2. Debuggee process writes debug logs in stderr for some reasons
+                                data = data.toString();
+                                debugOutput += data;
+                                console.log(data);
+                                // Looking for websocket url
 
-                            // 1. Node v8+: ws://127.0.0.1:31732/7dd4c075-3222-4f31-8fb5-50cc5705dd21
-                            const guidPattern = "[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}";
-                            const finalPattern = new RegExp(`(ws:\/\/127.0.0.1:[0-9]+\/${guidPattern}$)`, "gm");
-                            let found = debugOutput.match(finalPattern);
-                            if (found && !isAlreadySending) {
-                                isAlreadySending = true;
-                                // Debuggee process which has been ran with --debug-brk will be stopped at 0 line,
-                                // so we have to send it a command to continue execution of the script via websocket.
-                                sendContinueToDebuggee(found[0], resolve, reject);
-                                return;
-                            }
+                                // 1. Node v8+: ws://127.0.0.1:31732/7dd4c075-3222-4f31-8fb5-50cc5705dd21
+                                const guidPattern =
+                                    "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+                                const finalPattern = new RegExp(
+                                    `(ws:\/\/127.0.0.1:[0-9]+\/${guidPattern}$)`,
+                                    "gm",
+                                );
+                                let found = debugOutput.match(finalPattern);
+                                if (found && !isAlreadySending) {
+                                    isAlreadySending = true;
+                                    // Debuggee process which has been ran with --debug-brk will be stopped at 0 line,
+                                    // so we have to send it a command to continue execution of the script via websocket.
+                                    sendContinueToDebuggee(found[0], resolve, reject);
+                                    return;
+                                }
 
-                            // 2. Node v6: ws=127.0.0.1:31732/7dd4c075-3222-4f31-8fb5-50cc5705dd21
-                            found = debugOutput.match(/(ws=.+$)/gm);
-                            if (found) {
-                                sendContinueToDebuggee(found[0].replace("ws=", "ws:\\\\"), resolve, reject);
-                                return;
-                            }
+                                // 2. Node v6: ws=127.0.0.1:31732/7dd4c075-3222-4f31-8fb5-50cc5705dd21
+                                found = debugOutput.match(/(ws=.+$)/gm);
+                                if (found) {
+                                    sendContinueToDebuggee(
+                                        found[0].replace("ws=", "ws:\\\\"),
+                                        resolve,
+                                        reject,
+                                    );
+                                    return;
+                                }
+                            });
+                            debuggeeProcess.stdout.on("data", (data: string) => {
+                                output += data;
+                            });
+                            debuggeeProcess.on("exit", () => {
+                                assert.notEqual(output, "");
+                                assert.equal(output.trim(), "test output from debuggee process");
+                                waitForCheckingOutput = Promise.resolve();
+                            });
+                            return waitForContinue;
+                        })
+                        .then(() => {
+                            debuggeeProcess.kill();
+                            return waitForCheckingOutput;
                         });
-                        debuggeeProcess.stdout.on("data", (data: string) => {
-                            output += data;
-                        });
-                        debuggeeProcess.on("exit", () => {
-                            assert.notEqual(output, "");
-                            assert.equal(output.trim(), "test output from debuggee process");
-                            waitForCheckingOutput = Promise.resolve();
-                        });
-                        return waitForContinue;
-                    }).then(() => {
-                        debuggeeProcess.kill();
-                        return waitForCheckingOutput;
-                    });
                 });
             }).timeout(5000);
         });
@@ -238,19 +308,37 @@ suite("appWorker", function () {
         suite("ScriptImporter", function () {
             let scriptImporter: ScriptImporter;
             setup(function () {
-                 scriptImporter = new ScriptImporter("localhost", 8081, "sources");
+                scriptImporter = new ScriptImporter("localhost", 8081, "sources");
             });
             test("prepareDebuggerWorkerURL should return correct URL for RN < 0.50.0", () => {
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.49.0"), "http://localhost:8081/debuggerWorker.js");
+                assert.equal(
+                    scriptImporter.prepareDebuggerWorkerURL("0.49.0"),
+                    "http://localhost:8081/debuggerWorker.js",
+                );
             });
             test("prepareDebuggerWorkerURL should return correct URL for RN >= 0.50.0", () => {
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.50.0"), "http://localhost:8081/debugger-ui/debuggerWorker.js");
+                assert.equal(
+                    scriptImporter.prepareDebuggerWorkerURL("0.50.0"),
+                    "http://localhost:8081/debugger-ui/debuggerWorker.js",
+                );
             });
             test("prepareDebuggerWorkerURL should return correct URL when debuggerWorkerUrlPath is used", () => {
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", ""), "http://localhost:8081/debuggerWorker.js");
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", "new-debugger/"), "http://localhost:8081/new-debugger/debuggerWorker.js");
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", undefined), "http://localhost:8081/debugger-ui/debuggerWorker.js");
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.49.0", "debugger-ui/"), "http://localhost:8081/debugger-ui/debuggerWorker.js");
+                assert.equal(
+                    scriptImporter.prepareDebuggerWorkerURL("0.55.4", ""),
+                    "http://localhost:8081/debuggerWorker.js",
+                );
+                assert.equal(
+                    scriptImporter.prepareDebuggerWorkerURL("0.55.4", "new-debugger/"),
+                    "http://localhost:8081/new-debugger/debuggerWorker.js",
+                );
+                assert.equal(
+                    scriptImporter.prepareDebuggerWorkerURL("0.55.4", undefined),
+                    "http://localhost:8081/debugger-ui/debuggerWorker.js",
+                );
+                assert.equal(
+                    scriptImporter.prepareDebuggerWorkerURL("0.49.0", "debugger-ui/"),
+                    "http://localhost:8081/debugger-ui/debuggerWorker.js",
+                );
             });
         });
 
@@ -272,7 +360,9 @@ suite("appWorker", function () {
                 webSocket = sinon.createStubInstance(WebSocket);
 
                 sandboxedAppWorkerStub = sinon.createStubInstance(ForkedAppWorker);
-                appWorkerModuleStub = sinon.stub(ForkedAppWorkerModule, "ForkedAppWorker").returns(sandboxedAppWorkerStub);
+                appWorkerModuleStub = sinon
+                    .stub(ForkedAppWorkerModule, "ForkedAppWorker")
+                    .returns(sandboxedAppWorkerStub);
 
                 const messageInvocation: Sinon.SinonStub = (<any>webSocket).on.withArgs("message");
                 sendMessage = (message: string) => messageInvocation.callArgWith(1, message);
@@ -286,11 +376,18 @@ suite("appWorker", function () {
                     port: packagerPort,
                 };
 
-                multipleLifetimesWorker = new MultipleLifetimesAppWorker(attachRequestArguments, sourcesStoragePath, "", {
-                    webSocketConstructor: webSocketConstructor,
-                });
+                multipleLifetimesWorker = new MultipleLifetimesAppWorker(
+                    attachRequestArguments,
+                    sourcesStoragePath,
+                    "",
+                    {
+                        webSocketConstructor: webSocketConstructor,
+                    },
+                );
 
-                sinon.stub(multipleLifetimesWorker, "downloadAndPatchDebuggerWorker").returns(Promise.resolve());
+                sinon
+                    .stub(multipleLifetimesWorker, "downloadAndPatchDebuggerWorker")
+                    .returns(Promise.resolve());
             });
 
             teardown(function () {
@@ -306,63 +403,86 @@ suite("appWorker", function () {
 
             test("with packager running should construct a websocket connection to the correct endpoint and listen for events", function () {
                 return multipleLifetimesWorker.start().then(() => {
-                    const websocketRegex = new RegExp("ws://[^:]*:[0-9]*/debugger-proxy\\?role=debugger");
-                    assert(webSocketConstructor.calledWithMatch(websocketRegex), "The web socket was not constructed to the correct url: " + webSocketConstructor.args[0][0]);
+                    const websocketRegex = new RegExp(
+                        "ws://[^:]*:[0-9]*/debugger-proxy\\?role=debugger",
+                    );
+                    assert(
+                        webSocketConstructor.calledWithMatch(websocketRegex),
+                        "The web socket was not constructed to the correct url: " +
+                            webSocketConstructor.args[0][0],
+                    );
 
                     const expectedListeners = ["open", "close", "message", "error"];
-                    expectedListeners.forEach((event) => {
-                        assert((<any>webSocket).on.calledWithMatch(event), `Missing listener for ${event}`);
+                    expectedListeners.forEach(event => {
+                        assert(
+                            (<any>webSocket).on.calledWithMatch(event),
+                            `Missing listener for ${event}`,
+                        );
                     });
                 });
             });
 
             test("with packager running should attempt to reconnect after disconnecting", function () {
-                let startWorker = sinon.spy(multipleLifetimesWorker, "start");
-                return multipleLifetimesWorker.start().then(() => {
-                    // Forget previous invocations
-                    startWorker.reset();
-                    packagerIsRunning.returns(Promise.resolve());
+                const startWorker = sinon.spy(multipleLifetimesWorker, "start");
+                return multipleLifetimesWorker
+                    .start()
+                    .then(() => {
+                        // Forget previous invocations
+                        startWorker.reset();
+                        packagerIsRunning.returns(Promise.resolve());
 
-                    clock = sinon.useFakeTimers();
+                        clock = sinon.useFakeTimers();
 
-                    const closeInvocation: Sinon.SinonStub = (<any>webSocket).on.withArgs("close");
-                    closeInvocation.callArg(1);
+                        const closeInvocation: Sinon.SinonStub = (<any>webSocket).on.withArgs(
+                            "close",
+                        );
+                        closeInvocation.callArg(1);
 
-                    // Ensure that the retry is 100ms after the disconnection
-                    clock.tick(99);
-                    assert(startWorker.notCalled, "Attempted to reconnect too quickly");
+                        // Ensure that the retry is 100ms after the disconnection
+                        clock.tick(99);
+                        assert(startWorker.notCalled, "Attempted to reconnect too quickly");
 
-                    clock.tick(1);
-                }).then(() => {
-                    assert(startWorker.called);
-                });
+                        clock.tick(1);
+                    })
+                    .then(() => {
+                        assert(startWorker.called);
+                    });
             });
 
             test("with packager running should respond correctly to prepareJSRuntime messages", function () {
                 return multipleLifetimesWorker.start().then(() => {
                     const messageId = 1;
-                    const testMessage = JSON.stringify({ method: "prepareJSRuntime", id: messageId });
+                    const testMessage = JSON.stringify({
+                        method: "prepareJSRuntime",
+                        id: messageId,
+                    });
                     const expectedReply = JSON.stringify({ replyID: messageId });
-
-
 
                     const appWorkerStart: Sinon.SinonStub = (<any>sandboxedAppWorkerStub).start;
                     const websocketSend: Sinon.SinonStub = (<any>webSocket).send;
 
-                    const appWorkerDeferred = new Promise((resolve) => {
+                    const appWorkerDeferred = new Promise(resolve => {
                         appWorkerStart.returns(appWorkerDeferred);
 
                         sendMessage(testMessage);
 
-                        assert(appWorkerStart.called, "SandboxedAppWorker not started in respones to prepareJSRuntime");
-                        assert(websocketSend.notCalled, "Response sent prior to configuring sandbox worker");
+                        assert(
+                            appWorkerStart.called,
+                            "SandboxedAppWorker not started in respones to prepareJSRuntime",
+                        );
+                        assert(
+                            websocketSend.notCalled,
+                            "Response sent prior to configuring sandbox worker",
+                        );
 
                         resolve();
                     });
 
-
                     return pu.delay(1).then(() => {
-                        assert(websocketSend.calledWith(expectedReply), "Did not receive the expected response to prepareJSRuntime");
+                        assert(
+                            websocketSend.calledWith(expectedReply),
+                            "Did not receive the expected response to prepareJSRuntime",
+                        );
                     });
                 });
             });
@@ -381,12 +501,19 @@ suite("appWorker", function () {
                     const testMessage = { method: "unknownMethod" };
                     const testMessageString = JSON.stringify(testMessage);
 
-                    const postMessageStub: Sinon.SinonStub = (<any>sandboxedAppWorkerStub).postMessage;
+                    const postMessageStub: Sinon.SinonStub = (<any>sandboxedAppWorkerStub)
+                        .postMessage;
 
-                    assert(postMessageStub.notCalled, "sandboxedAppWorker.postMessage called prior to any message");
+                    assert(
+                        postMessageStub.notCalled,
+                        "sandboxedAppWorker.postMessage called prior to any message",
+                    );
                     sendMessage(testMessageString);
 
-                    assert(postMessageStub.calledWith(testMessage), "message was not passed to sandboxedAppWorker");
+                    assert(
+                        postMessageStub.calledWith(testMessage),
+                        "message was not passed to sandboxedAppWorker",
+                    );
                 });
             });
 
@@ -409,19 +536,28 @@ suite("appWorker", function () {
             test("without packager running should not start if there is no packager running", () => {
                 packagerIsRunning.returns(Promise.reject(new Error()));
 
-                return multipleLifetimesWorker.start()
-                    .then(() => {}, () => {
+                return multipleLifetimesWorker.start().then(
+                    () => {},
+                    () => {
                         assert(webSocketConstructor.notCalled, "socket should not be created");
-                    });
+                    },
+                );
             });
         });
 
         suite("console.trace()", function () {
-            function runScriptAndCheckOutput(expectedTraceMessage: string, consoleTraceCall: string, done: MochaDone): void {
-                const script = [MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH, consoleTraceCall].join("\n");
-                const testProcess = child_process.spawn("node", ["-e", script]);
-                let procData: string = "";
-                let procErrData: string = "";
+            function runScriptAndCheckOutput(
+                expectedTraceMessage: string,
+                consoleTraceCall: string,
+                done: MochaDone,
+            ): void {
+                const script = [
+                    MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH,
+                    consoleTraceCall,
+                ].join("\n");
+                const testProcess = childProcess.spawn("node", ["-e", script]);
+                let procData = "";
+                let procErrData = "";
                 testProcess.stdout.on("data", (data: Buffer) => {
                     procData += data.toString();
                 });
@@ -440,7 +576,11 @@ suite("appWorker", function () {
                     assert.strictEqual(traceContent[0], expectedTraceMessage);
                     traceContent.shift();
                     traceContent.forEach(element => {
-                        assert.strictEqual(element.trim().startsWith("at"), true, `Stack frame ${element} isn't started with 'at'`);
+                        assert.strictEqual(
+                            element.trim().startsWith("at"),
+                            true,
+                            `Stack frame ${element} isn't started with 'at'`,
+                        );
                     });
                     done();
                 });
@@ -465,15 +605,20 @@ suite("appWorker", function () {
             });
         });
 
-        suite("process.toString()", function() {
+        suite("process.toString()", function () {
             test("process.toString() should return empty string to avoid errors in native app", (done: MochaDone) => {
                 const nodeProcessCheckToStringReturnCommand = "console.log(process.toString());";
-                const nodeProcessCheckCommand = "console.log(Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]');";
-                const script = [MultipleLifetimesAppWorker.PROCESS_TO_STRING_PATCH, nodeProcessCheckToStringReturnCommand, nodeProcessCheckCommand].join("\n");
+                const nodeProcessCheckCommand =
+                    "console.log(Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]');";
+                const script = [
+                    MultipleLifetimesAppWorker.PROCESS_TO_STRING_PATCH,
+                    nodeProcessCheckToStringReturnCommand,
+                    nodeProcessCheckCommand,
+                ].join("\n");
 
-                const testProcess = child_process.spawn("node", ["-e", script]);
-                let procData: string = "";
-                let procErrData: string = "";
+                const testProcess = childProcess.spawn("node", ["-e", script]);
+                let procData = "";
+                let procErrData = "";
                 testProcess.stdout.on("data", (data: Buffer) => {
                     procData += data.toString();
                 });
@@ -496,15 +641,15 @@ suite("appWorker", function () {
             });
         });
 
-        suite("node --no-deprecation tests", function() {
+        suite("node --no-deprecation tests", function () {
             test("node process should work with --no-deprecation flag and produce no deprecation warnings for Buffer function and GLOBAL variable usage", (done: MochaDone) => {
                 const globalVariableCheck = "GLOBAL.toString();";
                 const bufferCommandCheck = "Buffer('TestString');";
                 const script = [globalVariableCheck, bufferCommandCheck].join("\n");
 
-                const testProcess = child_process.spawn("node", ["--no-deprecation", "-e", script]);
-                let procData: string = "";
-                let procErrData: string = "";
+                const testProcess = childProcess.spawn("node", ["--no-deprecation", "-e", script]);
+                let procData = "";
+                let procErrData = "";
                 testProcess.stdout.on("data", (data: Buffer) => {
                     procData += data.toString();
                 });
@@ -517,14 +662,20 @@ suite("appWorker", function () {
                 testProcess.on("close", (code: number) => {
                     assert.strictEqual(code, 0);
                     if (procErrData !== "") {
-                        if (procErrData.indexOf("DeprecationWarning") !== -1 || procErrData.indexOf("DEP") !== -1) {
+                        if (
+                            procErrData.indexOf("DeprecationWarning") !== -1 ||
+                            procErrData.indexOf("DEP") !== -1
+                        ) {
                             assert.fail(`Deprecation messages found in stderr:\n ${procErrData}`);
                         } else {
                             assert.fail(procErrData);
                         }
                     }
                     if (procData !== "") {
-                        if (procData.indexOf("DeprecationWarning") !== -1 || procData.indexOf("DEP") !== -1) {
+                        if (
+                            procData.indexOf("DeprecationWarning") !== -1 ||
+                            procData.indexOf("DEP") !== -1
+                        ) {
                             assert.fail(`Deprecation messages found in stdout:\n ${procData}`);
                         }
                     }

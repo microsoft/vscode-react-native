@@ -9,8 +9,13 @@ import { Code } from "./code";
 import { QuickAccess } from "./quickaccess";
 
 export class SettingsEditor {
-
-    constructor(private code: Code, private userDataPath: string, private editors: Editors, private editor: Editor, private quickaccess: QuickAccess) { }
+    constructor(
+        private code: Code,
+        private userDataPath: string,
+        private editors: Editors,
+        private editor: Editor,
+        private quickaccess: QuickAccess,
+    ) {}
 
     public async addUserSetting(setting: string, value: string): Promise<void> {
         await this.openSettings();
@@ -23,7 +28,9 @@ export class SettingsEditor {
 
     public async clearUserSettings(): Promise<void> {
         const settingsPath = path.join(this.userDataPath, "User", "settings.json");
-        await new Promise((c, e) => fs.writeFile(settingsPath, "{\n}", "utf8", err => err ? e(err) : c()));
+        await new Promise((c, e) =>
+            fs.writeFile(settingsPath, "{\n}", "utf8", err => (err ? e(err) : c())),
+        );
 
         await this.openSettings();
         await this.editor.waitForEditorContents("settings.json", c => c === "{}");

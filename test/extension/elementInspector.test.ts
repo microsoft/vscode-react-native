@@ -4,11 +4,9 @@
 import { CommandPaletteHandler } from "../../src/extension/commandPaletteHandler";
 import * as assert from "assert";
 
-
-suite("elementInspector", function() {
+suite("elementInspector", function () {
     suite("extensionContext", function () {
-
-        test("element inspector should run and closed without errors", function(done: MochaDone) {
+        test("element inspector should run and closed without errors", function (done: MochaDone) {
             CommandPaletteHandler.runElementInspector();
             assert.notEqual(CommandPaletteHandler.elementInspector, null);
 
@@ -23,10 +21,10 @@ suite("elementInspector", function() {
             CommandPaletteHandler.stopElementInspector();
         });
 
-        test("element inspector should not allow multiple windows to run", function(done: MochaDone) {
+        test("element inspector should not allow multiple windows to run", function (done: MochaDone) {
             CommandPaletteHandler.runElementInspector();
             if (CommandPaletteHandler.elementInspector) {
-                let PID = CommandPaletteHandler.elementInspector.pid;
+                const PID = CommandPaletteHandler.elementInspector.pid;
                 CommandPaletteHandler.runElementInspector();
                 assert.equal(CommandPaletteHandler.elementInspector.pid, PID);
                 CommandPaletteHandler.stopElementInspector();
@@ -36,5 +34,4 @@ suite("elementInspector", function() {
             }
         });
     });
-
 });

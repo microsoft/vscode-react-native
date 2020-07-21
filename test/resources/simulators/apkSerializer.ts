@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import {FileSystem} from "../../../src/common/node/fileSystem";
+import { FileSystem } from "../../../src/common/node/fileSystem";
 
 interface IAPKInformation {
     packageName: string;
@@ -37,7 +37,7 @@ export class APKSerializer {
     }
 
     private generateAPKData(information: IAPKInformation): string {
-        return JSON.stringify({ format: APK_FORMAT_SIGNATURE, information: information});
+        return JSON.stringify({ format: APK_FORMAT_SIGNATURE, information: information });
     }
 
     private readAPKData(data: string): IAPKInformation {

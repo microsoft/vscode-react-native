@@ -32,9 +32,14 @@ export interface ISpawnOptions {
 }
 
 export interface MachineConfiguration {
-    os: { platform: string, release: string };
+    os: { platform: string; release: string };
     android: {
-        sdk: { tools: string, platformTools: string, buildTools: string, repositoryForSupportLibraries: string };
+        sdk: {
+            tools: string;
+            platformTools: string;
+            buildTools: string;
+            repositoryForSupportLibraries: string;
+        };
         intelHAXMEmulator: string;
         visualStudioEmulator: string;
     };
@@ -45,7 +50,7 @@ export interface MachineConfiguration {
 
 export interface MachineState {
     reactNative: { packager: PackagerStatus };
-    devices: { android: IAndroidDevice[], ios: IIOSDevice[] };
+    devices: { android: IAndroidDevice[]; ios: IIOSDevice[] };
 }
 
 export type PackagerStatus = "Running" | "NotRunning" | "TBD";
@@ -60,7 +65,12 @@ export interface IAndroidDevice {
     appStatus: AppStatusInDevice;
 }
 
-export type AndroidDeviceType = "SDKEmulator" | "VisualStudioEmulator" | "IntelHAXMEmulator_x86" | "IntelHAXMEmulator_x64" | "PhysicalDevice";
+export type AndroidDeviceType =
+    | "SDKEmulator"
+    | "VisualStudioEmulator"
+    | "IntelHAXMEmulator_x86"
+    | "IntelHAXMEmulator_x64"
+    | "PhysicalDevice";
 
 export type AppStatusInDevice = "NotInstalled" | "Installed" | "Running" | "Debugging" | "TBD";
 

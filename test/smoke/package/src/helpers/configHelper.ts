@@ -24,7 +24,6 @@ export interface TestEnvVariables {
 }
 
 export class TestConfigurator {
-
     public static verifyEnvVariables(variables: TestEnvVariables) {
         if (!variables.ANDROID_EMULATOR) {
             throw new Error(`Missing ANDROID_EMULATOR variable`);
@@ -70,7 +69,9 @@ export class TestConfigurator {
         let variables: any;
 
         if (fs.existsSync(envConfigFilePath)) {
-            console.log(`*** Config file "${envConfigFilePath}" is found, reading variables from there`);
+            console.log(
+                `*** Config file "${envConfigFilePath}" is found, reading variables from there`,
+            );
             variables = JSON.parse(fs.readFileSync(envConfigFilePath).toString());
         }
 

@@ -1,20 +1,23 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {IRunOptions} from "./launchArgs";
-import {IOSPlatform} from "./ios/iOSPlatform";
-import {AndroidPlatform} from "./android/androidPlatform";
-import {WindowsPlatform} from "./windows/windowsPlatform";
-import {WpfPlatform} from "./windows/wpfPlatform";
-import {GeneralMobilePlatform, MobilePlatformDeps} from "../extension/generalMobilePlatform";
-import {ExponentPlatform} from "./exponent/exponentPlatform";
+import { IRunOptions } from "./launchArgs";
+import { IOSPlatform } from "./ios/iOSPlatform";
+import { AndroidPlatform } from "./android/androidPlatform";
+import { WindowsPlatform } from "./windows/windowsPlatform";
+import { WpfPlatform } from "./windows/wpfPlatform";
+import { GeneralMobilePlatform, MobilePlatformDeps } from "../extension/generalMobilePlatform";
+import { ExponentPlatform } from "./exponent/exponentPlatform";
 
 export class PlatformResolver {
-
     /**
      * Resolves the mobile application target platform.
      */
-    public resolveMobilePlatform(mobilePlatformString: string, runOptions: IRunOptions, platformDeps: MobilePlatformDeps): GeneralMobilePlatform {
+    public resolveMobilePlatform(
+        mobilePlatformString: string,
+        runOptions: IRunOptions,
+        platformDeps: MobilePlatformDeps,
+    ): GeneralMobilePlatform {
         switch (mobilePlatformString) {
             // We lazyly load the strategies, because some components might be
             // missing on some platforms (like XCode in Windows)

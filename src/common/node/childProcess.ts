@@ -50,32 +50,47 @@ export class ChildProcess {
     public exec(command: string, options: IExecOptions = {}): Promise<IExecResult> {
         let outcome: Promise<string>;
         let process: nodeChildProcess.ChildProcess;
-        return new Promise<IExecResult>((resolveRes) => {
+        return new Promise<IExecResult>(resolveRes => {
             outcome = new Promise<string>((resolve, reject) => {
-                process = this.childProcess.exec(command, options, (error: Error, stdout: string, stderr: string) => {
+                process = this.childProcess.exec(
+                    command,
+                    options,
+                    (error: Error, stdout: string, stderr: string) => {
                         if (error) {
-                            reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
+                            reject(
+                                ErrorHelper.getNestedError(
+                                    error,
+                                    InternalErrorCode.CommandFailed,
+                                    command,
+                                ),
+                            );
                         } else {
                             resolve(stdout);
                         }
-                    });
-                });
-            resolveRes({process: process, outcome: outcome});
+                    },
+                );
+            });
+            resolveRes({ process: process, outcome: outcome });
         });
-
     }
 
     public execToString(command: string, options: IExecOptions = {}): Promise<string> {
-        return this.exec(command, options).then(result => result.outcome.then(stdout => stdout.toString()));
+        return this.exec(command, options).then(result =>
+            result.outcome.then(stdout => stdout.toString()),
+        );
     }
 
-    public execFileSync(command: string, args: string[] = [], options: IExecOptions = {}): Buffer | string {
+    public execFileSync(
+        command: string,
+        args: string[] = [],
+        options: IExecOptions = {},
+    ): Buffer | string {
         return this.childProcess.execFileSync(command, args, options);
     }
 
     public spawn(command: string, args: string[] = [], options: ISpawnOptions = {}): ISpawnResult {
         const spawnedProcess = this.childProcess.spawn(command, args, options);
-        let outcome: Promise<void> = new Promise((resolve, reject) => {
+        const outcome: Promise<void> = new Promise((resolve, reject) => {
             spawnedProcess.once("error", (error: any) => {
                 reject(error);
             });
@@ -85,7 +100,13 @@ export class ChildProcess {
                     resolve();
                 } else {
                     const commandWithArgs = command + " " + args.join(" ");
-                    reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, commandWithArgs, code));
+                    reject(
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.CommandFailed,
+                            commandWithArgs,
+                            code,
+                        ),
+                    );
                 }
             });
         });
@@ -95,7 +116,6 @@ export class ChildProcess {
             stdout: spawnedProcess.stdout,
             stderr: spawnedProcess.stderr,
             outcome: outcome,
-     };
-
+        };
     }
 }

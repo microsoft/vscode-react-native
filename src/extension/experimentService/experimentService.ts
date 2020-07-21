@@ -44,7 +44,7 @@ export class ExperimentService implements vscode.Disposable {
     private promiseUtil: PromiseUtil;
     private cancellationTokenSource: vscode.CancellationTokenSource;
 
-    public static create () {
+    public static create() {
         if (!ExperimentService.instance) {
             ExperimentService.instance = new ExperimentService();
         }
@@ -58,8 +58,8 @@ export class ExperimentService implements vscode.Disposable {
             this.experimentsInstances = await this.initializeExperimentsInstances();
         }
 
-        let experimentResults: Array<ExperimentResult> = await Promise.all(
-            this.downloadedExperimentsConfig.map(expConfig => this.executeExperiment(expConfig))
+        const experimentResults: Array<ExperimentResult> = await Promise.all(
+            this.downloadedExperimentsConfig.map(expConfig => this.executeExperiment(expConfig)),
         );
 
         this.sendExperimentTelemetry(experimentResults);
@@ -71,7 +71,8 @@ export class ExperimentService implements vscode.Disposable {
     }
 
     private constructor() {
-        this.endpointURL = "https://microsoft.github.io/vscode-react-native/experiments/experimentsConfig.json";
+        this.endpointURL =
+            "https://microsoft.github.io/vscode-react-native/experiments/experimentsConfig.json";
         this.configName = "reactNativeToolsConfig";
 
         this.promiseUtil = new PromiseUtil();
@@ -83,8 +84,8 @@ export class ExperimentService implements vscode.Disposable {
     }
 
     private async executeExperiment(expConfig: ExperimentConfig): Promise<ExperimentResult> {
-        let curExperimentParameters = this.config.get(expConfig.experimentName);
-        let expInstance = this.experimentsInstances.get(expConfig.experimentName);
+        const curExperimentParameters = this.config.get(expConfig.experimentName);
+        const expInstance = this.experimentsInstances.get(expConfig.experimentName);
 
         let expResult: ExperimentResult;
         if (expInstance && expConfig.enabled) {
@@ -122,16 +123,13 @@ export class ExperimentService implements vscode.Disposable {
     }
 
     private async initializeExperimentsInstances(): Promise<Map<string, IExperiment>> {
-        let expInstances = new Map<string, IExperiment>();
+        const expInstances = new Map<string, IExperiment>();
 
         if (this.downloadedExperimentsConfig) {
-            for (let expConfig of this.downloadedExperimentsConfig) {
+            for (const expConfig of this.downloadedExperimentsConfig) {
                 try {
-                    let expClass = await import(`./experiments/${expConfig.experimentName}`);
-                    expInstances.set(
-                        expConfig.experimentName,
-                        new expClass.default()
-                    );
+                    const expClass = await import(`./experiments/${expConfig.experimentName}`);
+                    expInstances.set(expConfig.experimentName, new expClass.default());
                 } catch (err) {
                     expConfig.enabled = false;
                 }
@@ -143,19 +141,21 @@ export class ExperimentService implements vscode.Disposable {
 
     private downloadExperimentsConfig(): Promise<ExperimentConfig[]> {
         return new Promise<ExperimentConfig[]>((resolve, reject) => {
-            https.get(this.endpointURL, (response) => {
-                let data = "";
-                response.setEncoding("utf8");
-                response.on("data", (chunk: string) => (data += chunk));
-                response.on("end", () => {
-                    try {
-                        resolve(JSON.parse(data));
-                    } catch (err) {
-                        reject(err);
-                    }
-                });
-                response.on("error", reject);
-            }).on("error", reject);
+            https
+                .get(this.endpointURL, response => {
+                    let data = "";
+                    response.setEncoding("utf8");
+                    response.on("data", (chunk: string) => (data += chunk));
+                    response.on("end", () => {
+                        try {
+                            resolve(JSON.parse(data));
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                    response.on("error", reject);
+                })
+                .on("error", reject);
         });
     }
 
@@ -163,22 +163,19 @@ export class ExperimentService implements vscode.Disposable {
         const runExperimentsEvent = TelemetryHelper.createTelemetryEvent("runExperiments");
 
         experimentsResults.forEach(expResult => {
-            if (
-                expResult.resultStatus === ExperimentStatuses.FAILED
-                && expResult.error
-            ) {
+            if (expResult.resultStatus === ExperimentStatuses.FAILED && expResult.error) {
                 TelemetryHelper.addTelemetryEventErrorProperty(
                     runExperimentsEvent,
                     expResult.error,
                     undefined,
-                    `${expResult.updatedExperimentParameters.experimentName}.`
+                    `${expResult.updatedExperimentParameters.experimentName}.`,
                 );
             } else {
                 TelemetryHelper.addTelemetryEventProperty(
                     runExperimentsEvent,
                     expResult.updatedExperimentParameters.experimentName,
                     expResult.resultStatus,
-                    false
+                    false,
                 );
             }
         });

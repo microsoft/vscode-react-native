@@ -20,24 +20,43 @@ import { spawnSync } from "./utilities";
 export class VSCodeHelper {
     private static version;
     private static isInsiders;
-    private static downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-x64-archive" : "linux-x64";
+    private static downloadPlatform =
+        process.platform === "darwin"
+            ? "darwin"
+            : process.platform === "win32"
+            ? "win32-x64-archive"
+            : "linux-x64";
     private static artifactsFolderName = "drop-win";
 
     public static async downloadVSCodeExecutable(targetFolder: string): Promise<any> {
         VSCodeHelper.version = process.env.CODE_VERSION || "*";
         VSCodeHelper.isInsiders = VSCodeHelper.version === "insiders";
-        const testRunFolder = path.join(targetFolder, ".vscode-test", VSCodeHelper.isInsiders ? "insiders" : "stable");
+        const testRunFolder = path.join(
+            targetFolder,
+            ".vscode-test",
+            VSCodeHelper.isInsiders ? "insiders" : "stable",
+        );
 
-        return new Promise ((resolve) => {
-            VSCodeHelper.getDownloadUrl((downloadUrl) => {
-                console.log("*** Downloading VS Code into \"" + testRunFolder + "\" from: " + downloadUrl);
+        return new Promise(resolve => {
+            VSCodeHelper.getDownloadUrl(downloadUrl => {
+                console.log(
+                    '*** Downloading VS Code into "' + testRunFolder + '" from: ' + downloadUrl,
+                );
 
-                let version = downloadUrl.match(/\d+\.\d+\.\d+/)[0].split("\.");
+                let version = downloadUrl.match(/\d+\.\d+\.\d+/)[0].split(".");
                 let isTarGz = downloadUrl.match(/linux/) && version[0] >= 1 && version[1] >= 5;
 
                 let stream;
                 if (isTarGz) {
-                    let gulpFilter = filter(["VSCode-linux-x64/bin/*", "VSCode-linux-x64/code", "VSCode-linux-x64/code-insiders", "VSCode-linux-x64/resources/app/node_modules*/vscode-ripgrep/**/rg"], { restore: true });
+                    let gulpFilter = filter(
+                        [
+                            "VSCode-linux-x64/bin/*",
+                            "VSCode-linux-x64/code",
+                            "VSCode-linux-x64/code-insiders",
+                            "VSCode-linux-x64/resources/app/node_modules*/vscode-ripgrep/**/rg",
+                        ],
+                        { restore: true },
+                    );
                     stream = request(utilities.toRequestOptions(downloadUrl))
                         .pipe(source(path.basename(downloadUrl)))
                         .pipe(gunzip())
@@ -58,7 +77,12 @@ export class VSCodeHelper {
         });
     }
 
-    public static installExtensionFromVSIX(extensionDir: string, testVSCodeExecutablePath: string, resourcesPath: string, deleteVSIX: boolean) {
+    public static installExtensionFromVSIX(
+        extensionDir: string,
+        testVSCodeExecutablePath: string,
+        resourcesPath: string,
+        deleteVSIX: boolean,
+    ) {
         let args: string[] = [];
         args.push(`--extensions-dir=${extensionDir}`);
         const artifactPath = path.join(resourcesPath, VSCodeHelper.artifactsFolderName);
@@ -69,8 +93,12 @@ export class VSCodeHelper {
 
         extensionFile = path.join(artifactPath, extensionFile);
         args.push(`--install-extension=${extensionFile}`);
-        console.log(`*** Installing extension to VS Code using command: ${testVSCodeExecutablePath} ${args.join(" ")}`);
-        spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
+        console.log(
+            `*** Installing extension to VS Code using command: ${testVSCodeExecutablePath} ${args.join(
+                " ",
+            )}`,
+        );
+        spawnSync(testVSCodeExecutablePath, args, { stdio: "inherit" });
 
         if (deleteVSIX) {
             console.log(`*** Deleting ${extensionFile} after installation`);
@@ -103,7 +131,11 @@ export class VSCodeHelper {
      * @param testVSCodeFolder
      * @param isInsiders
      */
-    public static getTaskKillCommands(testVSCodeFolder: string, isInsiders: boolean, userName: string): string[] {
+    public static getTaskKillCommands(
+        testVSCodeFolder: string,
+        isInsiders: boolean,
+        userName: string,
+    ): string[] {
         if (process.platform !== "win32") {
             return [];
         }
@@ -112,18 +144,29 @@ export class VSCodeHelper {
         // conhost.exe with path\to\Code.exe
         const exeName = isInsiders ? "Code - Insiders.exe" : "Code.exe";
         const codeExePath = path.join(testVSCodeFolder, exeName);
-        commands.push(`taskkill /f /t /fi "WINDOWTITLE eq ${codeExePath}" /fi "USERNAME eq ${userName}"`);
+        commands.push(
+            `taskkill /f /t /fi "WINDOWTITLE eq ${codeExePath}" /fi "USERNAME eq ${userName}"`,
+        );
         // Code.exe (or Code - Insiders.exe) windows
         commands.push(`taskkill /f /t /fi "IMAGENAME eq ${exeName}" /fi "USERNAME eq ${userName}`);
         // CodeHelper.exe window
-        commands.push(`taskkill /f /t /fi "IMAGENAME eq CodeHelper.exe" /fi "USERNAME eq ${userName}`);
+        commands.push(
+            `taskkill /f /t /fi "IMAGENAME eq CodeHelper.exe" /fi "USERNAME eq ${userName}`,
+        );
         return commands;
     }
 
     private static getDownloadUrl(cb) {
         VSCodeHelper.getTag(function (tag) {
             // TODO: Update download endpoint azurewebsites.net -> visualstudio.com (https://github.com/microsoft/vscode-test/blob/b8813110b229fa1a524650c16ec521df42b7893d/lib/util.ts#L23)
-            return cb(["https://vscode-update.azurewebsites.net", tag, VSCodeHelper.downloadPlatform, (VSCodeHelper.isInsiders ? "insider" : "stable")].join("/"));
+            return cb(
+                [
+                    "https://vscode-update.azurewebsites.net",
+                    tag,
+                    VSCodeHelper.downloadPlatform,
+                    VSCodeHelper.isInsiders ? "insider" : "stable",
+                ].join("/"),
+            );
         });
     }
 
@@ -132,17 +175,24 @@ export class VSCodeHelper {
             return cb(VSCodeHelper.version);
         }
 
-        utilities.getContents("https://vscode-update.azurewebsites.net/api/releases/" + (VSCodeHelper.isInsiders ? "insider/" : "stable/") + VSCodeHelper.downloadPlatform, null, null, function (error, tagsRaw) {
-            if (error) {
-                VSCodeHelper.exitWithError(error);
-            }
+        utilities.getContents(
+            "https://vscode-update.azurewebsites.net/api/releases/" +
+                (VSCodeHelper.isInsiders ? "insider/" : "stable/") +
+                VSCodeHelper.downloadPlatform,
+            null,
+            null,
+            function (error, tagsRaw) {
+                if (error) {
+                    VSCodeHelper.exitWithError(error);
+                }
 
-            try {
-                cb(JSON.parse(tagsRaw)[0]); // first one is latest
-            } catch (error) {
-                VSCodeHelper.exitWithError(error);
-            }
-        });
+                try {
+                    cb(JSON.parse(tagsRaw)[0]); // first one is latest
+                } catch (error) {
+                    VSCodeHelper.exitWithError(error);
+                }
+            },
+        );
     }
 
     private static exitWithError(error) {

@@ -13,7 +13,7 @@ export class RnCDPMessageHandler implements ICDPMessageHandler {
     }
 
     public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
-        let sendBack = false;
+        const sendBack = false;
         if (event.method === CDP_API_NAMES.CLOSE) {
             this.handleDebuggerDisconnect();
         }
@@ -25,7 +25,7 @@ export class RnCDPMessageHandler implements ICDPMessageHandler {
     }
 
     public processApplicationCDPMessage(event: any): ProcessedCDPMessage {
-        let sendBack = false;
+        const sendBack = false;
         if (event.method === CDP_API_NAMES.DEBUGGER_PAUSED && this.firstStop) {
             event.params = this.handleAppBundleFirstPauseEvent(event);
         }
@@ -44,7 +44,7 @@ export class RnCDPMessageHandler implements ICDPMessageHandler {
      *  continue the code execution using `continueOnAttach` flag
      */
     private handleAppBundleFirstPauseEvent(event: IProtocolCommand): any {
-        let params: any = event.params;
+        const params: any = event.params;
         if (params.reason && params.reason === "other") {
             this.firstStop = false;
             params.reason = "Break on start";

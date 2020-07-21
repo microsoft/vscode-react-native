@@ -3,16 +3,23 @@
 
 import * as vscode from "vscode";
 import { IExperiment } from "../IExperiment";
-import { ExperimentConfig, ExperimentParameters, ExperimentResult, ExperimentStatuses } from "../experimentService";
+import {
+    ExperimentConfig,
+    ExperimentParameters,
+    ExperimentResult,
+    ExperimentStatuses,
+} from "../experimentService";
 import { PROMPT_TITLES } from "../experimentsStrings";
 
 export default class RNTPreviewPrompt implements IExperiment {
-
-    public async run(newExpConfig: ExperimentConfig, curExpParameters?: ExperimentParameters): Promise<ExperimentResult> {
+    public async run(
+        newExpConfig: ExperimentConfig,
+        curExpParameters?: ExperimentParameters,
+    ): Promise<ExperimentResult> {
         if (
-            curExpParameters
-            && (curExpParameters.promptShown
-            || newExpConfig.popCoveragePercent === curExpParameters.popCoveragePercent)
+            curExpParameters &&
+            (curExpParameters.promptShown ||
+                newExpConfig.popCoveragePercent === curExpParameters.popCoveragePercent)
         ) {
             return {
                 resultStatus: ExperimentStatuses.DISABLED,
@@ -20,7 +27,10 @@ export default class RNTPreviewPrompt implements IExperiment {
             };
         }
 
-        const updatedExperimentParameters = this.showPrompIfThresholdIsNotExceeded(newExpConfig, curExpParameters);
+        const updatedExperimentParameters = this.showPrompIfThresholdIsNotExceeded(
+            newExpConfig,
+            curExpParameters,
+        );
 
         return {
             resultStatus: ExperimentStatuses.ENABLED,
@@ -28,27 +38,33 @@ export default class RNTPreviewPrompt implements IExperiment {
         };
     }
 
-    private showPrompIfThresholdIsNotExceeded(newExpConfig: ExperimentConfig, promptParameters?: ExperimentParameters) {
+    private showPrompIfThresholdIsNotExceeded(
+        newExpConfig: ExperimentConfig,
+        promptParameters?: ExperimentParameters,
+    ) {
         if (promptParameters) {
             promptParameters.popCoveragePercent = newExpConfig.popCoveragePercent;
         } else {
-            promptParameters = Object.assign(
-                {},
-                newExpConfig,
-                {
-                    extensionId: "msjsdiag.vscode-react-native-preview",
-                    promptShown: false,
-                }
-            );
+            promptParameters = Object.assign({}, newExpConfig, {
+                extensionId: "msjsdiag.vscode-react-native-preview",
+                promptShown: false,
+            });
         }
 
         if (newExpConfig.popCoveragePercent > Math.random()) {
             const buttonText = "Open extension";
-            vscode.window.showInformationMessage(PROMPT_TITLES.RNT_PREVIEW_PROMPT, buttonText)
+            vscode.window
+                .showInformationMessage(PROMPT_TITLES.RNT_PREVIEW_PROMPT, buttonText)
                 .then(selection => {
                     if (selection === buttonText && promptParameters) {
-                        vscode.commands.executeCommand("workbench.extensions.search", promptParameters.extensionId);
-                        vscode.commands.executeCommand("extension.open", promptParameters.extensionId);
+                        vscode.commands.executeCommand(
+                            "workbench.extensions.search",
+                            promptParameters.extensionId,
+                        );
+                        vscode.commands.executeCommand(
+                            "extension.open",
+                            promptParameters.extensionId,
+                        );
                     }
                 });
 

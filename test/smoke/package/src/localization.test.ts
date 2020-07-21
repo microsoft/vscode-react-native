@@ -26,8 +26,16 @@ export function setup() {
             await app.workbench.quickaccess.runCommand(startPackagerCommand);
             await sleep(10 * 1000);
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                console.log(`Localization test: Search for '${packagerStartedCheck}' string output`);
-                const found = findStringInFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), packagerStartedCheck);
+                console.log(
+                    `Localization test: Search for '${packagerStartedCheck}' string output`,
+                );
+                const found = findStringInFile(
+                    path.join(
+                        process.env.REACT_NATIVE_TOOLS_LOGS_DIR,
+                        SmokeTestsConstants.ReactNativeLogFileName,
+                    ),
+                    packagerStartedCheck,
+                );
                 if (found) {
                     console.log(`Localization test: Output found`);
                 } else {

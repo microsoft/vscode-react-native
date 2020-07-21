@@ -181,23 +181,38 @@ declare module Sinon {
         Date(year: number, month: number, day: number): Date;
         Date(year: number, month: number, day: number, hour: number): Date;
         Date(year: number, month: number, day: number, hour: number, minute: number): Date;
-        Date(year: number, month: number, day: number, hour: number, minute: number, second: number): Date;
-        Date(year: number, month: number, day: number, hour: number, minute: number, second: number, ms: number): Date;
+        Date(
+            year: number,
+            month: number,
+            day: number,
+            hour: number,
+            minute: number,
+            second: number,
+        ): Date;
+        Date(
+            year: number,
+            month: number,
+            day: number,
+            hour: number,
+            minute: number,
+            second: number,
+            ms: number,
+        ): Date;
         restore(): void;
 
-		/**
-		 * Simulate the user changing the system clock while your program is running. It changes the 'now' timestamp
-		 * without affecting timers, intervals or immediates.
-		 * @param now The new 'now' in unix milliseconds
-		 */
-		setSystemTime(now: number): void;
-		/**
-		 * Simulate the user changing the system clock while your program is running. It changes the 'now' timestamp
-		 * without affecting timers, intervals or immediates.
-		 * @param now The new 'now' as a JavaScript Date
-		 */
-		setSystemTime(date: Date): void;
-	}
+        /**
+         * Simulate the user changing the system clock while your program is running. It changes the 'now' timestamp
+         * without affecting timers, intervals or immediates.
+         * @param now The new 'now' in unix milliseconds
+         */
+        setSystemTime(now: number): void;
+        /**
+         * Simulate the user changing the system clock while your program is running. It changes the 'now' timestamp
+         * without affecting timers, intervals or immediates.
+         * @param now The new 'now' as a JavaScript Date
+         */
+        setSystemTime(date: Date): void;
+    }
 
     interface SinonFakeTimersStatic {
         (): SinonFakeTimers;
@@ -244,7 +259,15 @@ declare module Sinon {
         // Methods
         restore(): void;
         useFilters: boolean;
-        addFilter(filter: (method: string, url: string, async: boolean, username: string, password: string) => boolean): void;
+        addFilter(
+            filter: (
+                method: string,
+                url: string,
+                async: boolean,
+                username: string,
+                password: string,
+            ) => boolean,
+        ): void;
         setResponseHeaders(headers: any): void;
         setResponseBody(body: string): void;
         respond(status: number, headers: any, body: string): void;

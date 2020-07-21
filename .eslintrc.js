@@ -29,11 +29,11 @@ module.exports = {
       "@typescript-eslint/no-namespace": "off",
       "@typescript-eslint/member-delimiter-style": ["error", {
         multiline: {
-          delimiter: 'comma',
+          delimiter: 'semi',
           requireLast: true,
         },
         singleline: {
-          delimiter: 'comma',
+          delimiter: 'semi',
           requireLast: false,
         },
         overrides: {

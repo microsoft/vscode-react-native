@@ -3,7 +3,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import {ProjectVersionHelper} from "./projectVersionHelper";
+import { ProjectVersionHelper } from "./projectVersionHelper";
 
 export interface ParsedPackage {
     packageName: string;
@@ -11,7 +11,6 @@ export interface ParsedPackage {
 }
 
 export class ReactNativeProjectHelper {
-
     /**
      * Ensures that we are in a React Native project
      * Otherwise, displays an error message banner
@@ -20,10 +19,9 @@ export class ReactNativeProjectHelper {
         if (!projectRoot || !fs.existsSync(path.join(projectRoot, "package.json"))) {
             return Promise.resolve(false);
         }
-        return ProjectVersionHelper.getReactNativeVersions(projectRoot)
-            .then(versions => {
-                return !ProjectVersionHelper.isVersionError(versions.reactNativeVersion);
-            });
+        return ProjectVersionHelper.getReactNativeVersions(projectRoot).then(versions => {
+            return !ProjectVersionHelper.isVersionError(versions.reactNativeVersion);
+        });
     }
 
     public static isHaulProject(projectRoot: string): boolean {
@@ -33,7 +31,9 @@ export class ReactNativeProjectHelper {
         }
 
         const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
-        const haulVersion = packageJson.devDependencies && (packageJson.devDependencies.haul || packageJson.devDependencies["@haul-bundler/cli"]);
+        const haulVersion =
+            packageJson.devDependencies &&
+            (packageJson.devDependencies.haul || packageJson.devDependencies["@haul-bundler/cli"]);
         return !!haulVersion;
     }
 }

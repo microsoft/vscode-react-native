@@ -15,12 +15,18 @@ import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
 const XDL = require("@expo/xdl");
 
 export class SetupEnvironmentHelper {
-
     public static expoPackageName = "host.exp.exponent";
     public static expoBundleId = "host.exp.Exponent";
     public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
 
-    public static  prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
+    public static prepareReactNativeApplication(
+        workspaceFilePath: string,
+        resourcesPath: string,
+        workspacePath: string,
+        appName: string,
+        customEntryPointFolder: string,
+        version?: string,
+    ) {
         let command = `react-native init ${appName}`;
         if (version) {
             command += ` --version ${version}`;
@@ -41,12 +47,22 @@ export class SetupEnvironmentHelper {
         }
 
         console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
-        fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+        fs.writeFileSync(
+            path.join(vsCodeConfigPath, "launch.json"),
+            fs.readFileSync(launchConfigFile),
+        );
 
         SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
-    public static prepareHermesReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
+    public static prepareHermesReactNativeApplication(
+        workspaceFilePath: string,
+        resourcesPath: string,
+        workspacePath: string,
+        appName: string,
+        customEntryPointFolder: string,
+        version?: string,
+    ) {
         const commandClean = path.join(workspacePath, "android", "gradlew") + " clean";
 
         console.log(`*** Executing  ${commandClean} ...`);
@@ -58,13 +74,22 @@ export class SetupEnvironmentHelper {
         console.log(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
         fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
 
-        SetupEnvironmentHelper.copyGradleFilesToHermesApp(workspacePath, resourcesPath, customEntryPointFolder);
+        SetupEnvironmentHelper.copyGradleFilesToHermesApp(
+            workspacePath,
+            resourcesPath,
+            customEntryPointFolder,
+        );
 
         console.log(`*** Copying ${testButtonPath} into ${workspacePath}`);
         fs.copyFileSync(testButtonPath, path.join(workspacePath, "AppTestButton.js"));
     }
 
-    public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
+    public static prepareExpoApplication(
+        workspaceFilePath: string,
+        resourcesPath: string,
+        workspacePath: string,
+        appName: string,
+    ) {
         const command = `echo -ne '\\n' | expo init -t tabs --name ${appName} ${appName}`;
         console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
@@ -82,7 +107,10 @@ export class SetupEnvironmentHelper {
         }
 
         console.log(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
-        fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+        fs.writeFileSync(
+            path.join(vsCodeConfigPath, "launch.json"),
+            fs.readFileSync(launchConfigFile),
+        );
 
         SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
@@ -100,7 +128,13 @@ export class SetupEnvironmentHelper {
         cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
     }
 
-    public static cleanUp(testVSCodeDirectory: string, userDataDir: string, testLogsDirectory: string, workspacePaths: string[], iOSExpoAppsCacheDirectory: string) {
+    public static cleanUp(
+        testVSCodeDirectory: string,
+        userDataDir: string,
+        testLogsDirectory: string,
+        workspacePaths: string[],
+        iOSExpoAppsCacheDirectory: string,
+    ) {
         console.log("\n*** Clean up...");
         if (fs.existsSync(testVSCodeDirectory)) {
             console.log(`*** Deleting test VS Code directory: ${testVSCodeDirectory}`);
@@ -129,31 +163,41 @@ export class SetupEnvironmentHelper {
     public static async getLatestSupportedRNVersionForExpo(): Promise<any> {
         console.log("*** Getting latest React Native version supported by Expo...");
         return new Promise((resolve, reject) => {
-            utilities.getContents("https://exp.host/--/api/v2/versions", null, null, function (error, versionsContent) {
+            utilities.getContents("https://exp.host/--/api/v2/versions", null, null, function (
+                error,
+                versionsContent,
+            ) {
                 if (error) {
                     reject(error);
                 }
                 try {
-                   const content = JSON.parse(versionsContent);
-                   if (content.sdkVersions) {
-                       const maxSdkVersion = Object.keys(content.sdkVersions).sort((ver1, ver2) => {
-                           if (semver.lt(ver1, ver2)) {
-                               return 1;
-                           } else if (semver.gt(ver1, ver2)) {
-                               return -1;
-                           }
-                           return 0;
-                       })[0];
-                       if (content.sdkVersions[maxSdkVersion]) {
-                           if (content.sdkVersions[maxSdkVersion].facebookReactNativeVersion) {
-                               console.log(`*** Latest React Native version supported by Expo: ${content.sdkVersions[maxSdkVersion].facebookReactNativeVersion}`);
-                               resolve(content.sdkVersions[maxSdkVersion].facebookReactNativeVersion as string);
-                           }
-                       }
-                   }
-                   reject("Received object is incorrect");
+                    const content = JSON.parse(versionsContent);
+                    if (content.sdkVersions) {
+                        const maxSdkVersion = Object.keys(content.sdkVersions).sort(
+                            (ver1, ver2) => {
+                                if (semver.lt(ver1, ver2)) {
+                                    return 1;
+                                } else if (semver.gt(ver1, ver2)) {
+                                    return -1;
+                                }
+                                return 0;
+                            },
+                        )[0];
+                        if (content.sdkVersions[maxSdkVersion]) {
+                            if (content.sdkVersions[maxSdkVersion].facebookReactNativeVersion) {
+                                console.log(
+                                    `*** Latest React Native version supported by Expo: ${content.sdkVersions[maxSdkVersion].facebookReactNativeVersion}`,
+                                );
+                                resolve(
+                                    content.sdkVersions[maxSdkVersion]
+                                        .facebookReactNativeVersion as string,
+                                );
+                            }
+                        }
+                    }
+                    reject("Received object is incorrect");
                 } catch (error) {
-                   reject(error);
+                    reject(error);
                 }
             });
         });
@@ -201,7 +245,7 @@ export class SetupEnvironmentHelper {
             }
         }
         if (!found) {
-            throw new Error("Couldn't find \"Debug iOS\" configuration");
+            throw new Error('Couldn\'t find "Debug iOS" configuration');
         }
         fs.writeFileSync(launchJsonPath, JSON.stringify(content, undefined, 4)); // Adds indentations
     }
@@ -228,7 +272,9 @@ export class SetupEnvironmentHelper {
         }
         const command = `${npmCmd} install @expo/xdl@${packageVersion} --no-save`;
 
-        console.log(`*** Adding @expo/xdl dependency to ${extensionDir} via '${command}' command...`);
+        console.log(
+            `*** Adding @expo/xdl dependency to ${extensionDir} via '${command}' command...`,
+        );
         cp.execSync(command, { cwd: extensionDir, stdio: "inherit" });
     }
 
@@ -262,9 +308,17 @@ module.exports.watchFolders = ['.vscode'];`;
         console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
     }
 
-    private static copyGradleFilesToHermesApp(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
+    private static copyGradleFilesToHermesApp(
+        workspacePath: string,
+        resourcesPath: string,
+        customEntryPointFolder: string,
+    ) {
         const appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
-        const resGradleBuildFilePath = path.join(resourcesPath, customEntryPointFolder, "build.gradle");
+        const resGradleBuildFilePath = path.join(
+            resourcesPath,
+            customEntryPointFolder,
+            "build.gradle",
+        );
 
         console.log(`*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`);
         fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));

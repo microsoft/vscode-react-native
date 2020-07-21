@@ -6,7 +6,6 @@ import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./utilities";
 
 export class AndroidEmulatorHelper {
-
     public static androidEmulatorPort = 5554;
     public static androidEmulatorName = `emulator-${AndroidEmulatorHelper.androidEmulatorPort}`;
 
@@ -20,29 +19,37 @@ export class AndroidEmulatorHelper {
     public static async runAndroidEmulator() {
         this.terminateAndroidEmulator();
         // Boot options for emulator - https://developer.android.com/studio/run/emulator-commandline
-        const emulatorOpts = ["-avd",
-        <string>this.getDevice(),
-         "-gpu", "swiftshader_indirect",
-         "-wipe-data",
-         "-port", this.androidEmulatorPort.toString(),
-         "-no-snapshot-save",
-         "-no-boot-anim",
-         "-no-audio"];
-        console.log(`*** Executing Android emulator with 'emulator ${emulatorOpts.join(" ")}' command...`);
-        const proc = cp.spawn("emulator", emulatorOpts, {stdio: "pipe"});
+        const emulatorOpts = [
+            "-avd",
+            <string>this.getDevice(),
+            "-gpu",
+            "swiftshader_indirect",
+            "-wipe-data",
+            "-port",
+            this.androidEmulatorPort.toString(),
+            "-no-snapshot-save",
+            "-no-boot-anim",
+            "-no-audio",
+        ];
+        console.log(
+            `*** Executing Android emulator with 'emulator ${emulatorOpts.join(" ")}' command...`,
+        );
+        const proc = cp.spawn("emulator", emulatorOpts, { stdio: "pipe" });
         let started = false;
-        proc.stdout.on("data", (chunk) => {
+        proc.stdout.on("data", chunk => {
             process.stdout.write(chunk);
             if (/boot completed/.test(chunk.toString().trim())) {
                 started = true;
             }
         });
 
-        proc.stderr.on("data", (chunk) => {
+        proc.stderr.on("data", chunk => {
             process.stderr.write(chunk);
         });
 
-        console.log(`*** Waiting for emulator to load (timeout is ${SmokeTestsConstants.emulatorLoadTimeout}ms)`);
+        console.log(
+            `*** Waiting for emulator to load (timeout is ${SmokeTestsConstants.emulatorLoadTimeout}ms)`,
+        );
         let awaitRetries: number = SmokeTestsConstants.emulatorLoadTimeout / 1000;
         let retry = 1;
         await new Promise((resolve, reject) => {
@@ -72,24 +79,33 @@ export class AndroidEmulatorHelper {
         if (devices !== "List of devices attached") {
             // Check if we already have a running emulator, and terminate it if it so
             console.log(`Terminating Android '${this.androidEmulatorName}'...`);
-            cp.execSync(`adb -s ${this.androidEmulatorName} emu kill`, {stdio: "inherit"});
+            cp.execSync(`adb -s ${this.androidEmulatorName} emu kill`, { stdio: "inherit" });
         } else {
             console.log("*** No running android emulators found");
         }
     }
 
     // Check if appPackage is installed on Android device for waitTime ms
-    public static async checkIfAppIsInstalled(appPackage: string, waitTime: number, waitInitTime?: number) {
+    public static async checkIfAppIsInstalled(
+        appPackage: string,
+        waitTime: number,
+        waitInitTime?: number,
+    ) {
         let awaitRetries: number = waitTime / 1000;
         let retry = 1;
         await new Promise((resolve, reject) => {
             let check = setInterval(async () => {
                 if (retry % 5 === 0) {
-                    console.log(`*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${retry} time`);
+                    console.log(
+                        `*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${retry} time`,
+                    );
                 }
                 let result;
                 try {
-                    result = cp.execSync(`adb shell pm list packages ${appPackage}`).toString().trim();
+                    result = cp
+                        .execSync(`adb shell pm list packages ${appPackage}`)
+                        .toString()
+                        .trim();
                 } catch (e) {
                     clearInterval(check);
                     reject(`Error occured while check app is installed:\n ${e}`);
@@ -97,7 +113,9 @@ export class AndroidEmulatorHelper {
                 if (result) {
                     clearInterval(check);
                     const initTimeout = waitInitTime || 10000;
-                    console.log(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`);
+                    console.log(
+                        `*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`,
+                    );
                     await sleep(initTimeout);
                     resolve();
                 } else {
@@ -112,17 +130,26 @@ export class AndroidEmulatorHelper {
     }
 
     // Check if appPackage is installed on Android device for waitTime ms
-    public static async checkIfAndroidAppIsInstalled(appPackage: string, waitTime: number, waitInitTime?: number) {
+    public static async checkIfAndroidAppIsInstalled(
+        appPackage: string,
+        waitTime: number,
+        waitInitTime?: number,
+    ) {
         let awaitRetries: number = waitTime / 1000;
         let retry = 1;
         await new Promise((resolve, reject) => {
             let check = setInterval(async () => {
                 if (retry % 5 === 0) {
-                    console.log(`*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${retry} time`);
+                    console.log(
+                        `*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${retry} time`,
+                    );
                 }
                 let result;
                 try {
-                    result = cp.execSync(`adb shell pm list packages ${appPackage}`).toString().trim();
+                    result = cp
+                        .execSync(`adb shell pm list packages ${appPackage}`)
+                        .toString()
+                        .trim();
                 } catch (e) {
                     clearInterval(check);
                     reject(`Error occured while check app is installed:\n ${e}`);
@@ -130,7 +157,9 @@ export class AndroidEmulatorHelper {
                 if (result) {
                     clearInterval(check);
                     const initTimeout = waitInitTime || 10000;
-                    console.log(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`);
+                    console.log(
+                        `*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`,
+                    );
                     await sleep(initTimeout);
                     resolve();
                 } else {
@@ -147,7 +176,7 @@ export class AndroidEmulatorHelper {
     public static uninstallTestAppFromEmulator(appPackage: string) {
         console.log(`*** Uninstalling test app ${appPackage}' from Emulator`);
         try {
-            cp.spawnSync("adb", ["shell", "pm", "uninstall", appPackage], {stdio: "inherit"});
+            cp.spawnSync("adb", ["shell", "pm", "uninstall", appPackage], { stdio: "inherit" });
         } catch (e) {
             console.error(`Error occured while uninstalling test app:\n ${e}`);
         }
@@ -156,6 +185,6 @@ export class AndroidEmulatorHelper {
     public static async enableDrawPermitForApp(packageName: string) {
         const drawPermitCommand = `adb -s ${AndroidEmulatorHelper.androidEmulatorName} shell appops set ${packageName} SYSTEM_ALERT_WINDOW allow`;
         console.log(`*** Enabling permission for drawing over apps via: ${drawPermitCommand}`);
-        cp.execSync(drawPermitCommand, {stdio: "inherit"});
+        cp.execSync(drawPermitCommand, { stdio: "inherit" });
     }
 }

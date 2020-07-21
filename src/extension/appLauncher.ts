@@ -2,30 +2,33 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import {Packager} from "../common/packager";
-import {RNPackageVersions} from "../common/projectVersionHelper";
-import {ExponentHelper} from "./exponent/exponentHelper";
-import {ReactDirManager} from "./reactDirManager";
-import {SettingsHelper} from "./settingsHelper";
-import {PackagerStatusIndicator} from "./packagerStatusIndicator";
-import {CommandExecutor} from "../common/commandExecutor";
-import {isNullOrUndefined} from "../common/utils";
-import {OutputChannelLogger} from "./log/OutputChannelLogger";
-import {MobilePlatformDeps} from "./generalMobilePlatform";
-import {PlatformResolver} from "./platformResolver";
-import {ProjectVersionHelper} from "../common/projectVersionHelper";
-import {TelemetryHelper} from "../common/telemetryHelper";
-import {ErrorHelper} from "../common/error/errorHelper";
-import {InternalErrorCode} from "../common/error/internalErrorCode";
-import {TargetPlatformHelper} from "../common/targetPlatformHelper";
-import {LogCatMonitor} from "./android/logCatMonitor";
-import {ProjectsStorage} from "./projectsStorage";
-import {ReactNativeCDPProxy} from "../cdp-proxy/reactNativeCDPProxy";
-import {generateRandomPortNumber} from "../common/extensionHelper";
-import {DEBUG_TYPES} from "./debugConfigurationProvider";
+import { Packager } from "../common/packager";
+import { RNPackageVersions } from "../common/projectVersionHelper";
+import { ExponentHelper } from "./exponent/exponentHelper";
+import { ReactDirManager } from "./reactDirManager";
+import { SettingsHelper } from "./settingsHelper";
+import { PackagerStatusIndicator } from "./packagerStatusIndicator";
+import { CommandExecutor } from "../common/commandExecutor";
+import { isNullOrUndefined } from "../common/utils";
+import { OutputChannelLogger } from "./log/OutputChannelLogger";
+import { MobilePlatformDeps } from "./generalMobilePlatform";
+import { PlatformResolver } from "./platformResolver";
+import { ProjectVersionHelper } from "../common/projectVersionHelper";
+import { TelemetryHelper } from "../common/telemetryHelper";
+import { ErrorHelper } from "../common/error/errorHelper";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { TargetPlatformHelper } from "../common/targetPlatformHelper";
+import { LogCatMonitor } from "./android/logCatMonitor";
+import { ProjectsStorage } from "./projectsStorage";
+import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
+import { generateRandomPortNumber } from "../common/extensionHelper";
+import { DEBUG_TYPES } from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 export class AppLauncher {
@@ -45,7 +48,9 @@ export class AppLauncher {
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
         const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
         if (!appLauncher) {
-            throw new Error(`Could not find AppLauncher by the project root path ${projectRootPath}`);
+            throw new Error(
+                `Could not find AppLauncher by the project root path ${projectRootPath}`,
+            );
         }
 
         return appLauncher;
@@ -60,14 +65,16 @@ export class AppLauncher {
         const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
         this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
         const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
-        this.packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(workspaceFolder.uri.fsPath), packagerStatusIndicator);
+        this.packager = new Packager(
+            rootPath,
+            projectRootPath,
+            SettingsHelper.getPackagerPort(workspaceFolder.uri.fsPath),
+            packagerStatusIndicator,
+        );
         this.packager.setExponentHelper(this.exponentHelper);
         this.reactDirManager = reactDirManager;
         this.workspaceFolder = workspaceFolder;
-        this.rnCdpProxy = new ReactNativeCDPProxy(
-            this.cdpProxyHostAddress,
-            this.cdpProxyPort
-        );
+        this.rnCdpProxy = new ReactNativeCDPProxy(this.cdpProxyHostAddress, this.cdpProxyPort);
     }
 
     public getCdpProxyPort(): number {
@@ -128,16 +135,16 @@ export class AppLauncher {
     }
 
     public openFileAtLocation(filename: string, lineNumber: number): Promise<void> {
-        return new Promise((resolve) => {
-            vscode.workspace.openTextDocument(vscode.Uri.file(filename))
+        return new Promise(resolve => {
+            vscode.workspace
+                .openTextDocument(vscode.Uri.file(filename))
                 .then((document: vscode.TextDocument) => {
-                    vscode.window.showTextDocument(document)
-                        .then((editor: vscode.TextEditor) => {
-                            let range = editor.document.lineAt(lineNumber - 1).range;
-                            editor.selection = new vscode.Selection(range.start, range.end);
-                            editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
-                            resolve();
-                        });
+                    vscode.window.showTextDocument(document).then((editor: vscode.TextEditor) => {
+                        const range = editor.document.lineAt(lineNumber - 1).range;
+                        editor.selection = new vscode.Selection(range.start, range.end);
+                        editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+                        resolve();
+                    });
                 });
         });
     }
@@ -147,11 +154,13 @@ export class AppLauncher {
     }
 
     public launch(launchArgs: any): Promise<any> {
-        let mobilePlatformOptions = this.requestSetup(launchArgs);
+        const mobilePlatformOptions = this.requestSetup(launchArgs);
 
         // We add the parameter if it's defined (adapter crashes otherwise)
         if (!isNullOrUndefined(launchArgs.logCatArguments)) {
-            mobilePlatformOptions.logCatArguments = [this.parseLogCatArguments(launchArgs.logCatArguments)];
+            mobilePlatformOptions.logCatArguments = [
+                this.parseLogCatArguments(launchArgs.logCatArguments),
+            ];
         }
 
         if (!isNullOrUndefined(launchArgs.variant)) {
@@ -174,12 +183,17 @@ export class AppLauncher {
             mobilePlatformOptions.isDirect = true;
         }
 
-        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(launchArgs.cwd || launchArgs.program);
+        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(
+            launchArgs.cwd || launchArgs.program,
+        );
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
         };
-        const mobilePlatform = new PlatformResolver()
-            .resolveMobilePlatform(launchArgs.platform, mobilePlatformOptions, platformDeps);
+        const mobilePlatform = new PlatformResolver().resolveMobilePlatform(
+            launchArgs.platform,
+            mobilePlatformOptions,
+            platformDeps,
+        );
         return new Promise((resolve, reject) => {
             let extProps: any = {
                 platform: {
@@ -195,20 +209,38 @@ export class AppLauncher {
                 };
             }
 
-            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true)
+            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                mobilePlatformOptions.projectRoot,
+                true,
+            )
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
-                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
+                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(
+                        versions.reactNativeVersion,
+                        "reactNativeVersion",
+                        extProps,
+                    );
                     if (launchArgs.platform === "windows") {
-                        if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
-                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled);
+                        if (
+                            ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)
+                        ) {
+                            throw ErrorHelper.getInternalError(
+                                InternalErrorCode.ReactNativeWindowsIsNotInstalled,
+                            );
                         }
-                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
+                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(
+                            versions.reactNativeWindowsVersion,
+                            "reactNativeWindowsVersion",
+                            extProps,
+                        );
                     }
-                    TelemetryHelper.generate("launch", extProps, (generator) => {
+                    TelemetryHelper.generate("launch", extProps, generator => {
                         generator.step("checkPlatformCompatibility");
-                        TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
-                        return mobilePlatform.beforeStartPackager()
+                        TargetPlatformHelper.checkTargetPlatformSupport(
+                            mobilePlatformOptions.platform,
+                        );
+                        return mobilePlatform
+                            .beforeStartPackager()
                             .then(() => {
                                 generator.step("startPackager");
                                 return mobilePlatform.startPackager();
@@ -217,38 +249,73 @@ export class AppLauncher {
                                 // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
                                 // and the user needs to Reload JS manually. We prewarm it to prevent that issue
                                 generator.step("prewarmBundleCache");
-                                this.logger.info(localize("PrewarmingBundleCache", "Prewarming bundle cache. This may take a while ..."));
+                                this.logger.info(
+                                    localize(
+                                        "PrewarmingBundleCache",
+                                        "Prewarming bundle cache. This may take a while ...",
+                                    ),
+                                );
                                 return mobilePlatform.prewarmBundleCache();
                             })
                             .then(() => {
-                                generator.step("mobilePlatform.runApp").add("target", mobilePlatformOptions.target, false);
-                                this.logger.info(localize("BuildingAndRunningApplication", "Building and running application."));
+                                generator
+                                    .step("mobilePlatform.runApp")
+                                    .add("target", mobilePlatformOptions.target, false);
+                                this.logger.info(
+                                    localize(
+                                        "BuildingAndRunningApplication",
+                                        "Building and running application.",
+                                    ),
+                                );
                                 return mobilePlatform.runApp();
                             })
                             .then(() => {
-                                if (mobilePlatformOptions.isDirect || !mobilePlatformOptions.enableDebug) {
-                                    if (mobilePlatformOptions.isDirect && launchArgs.platform === "android") {
+                                if (
+                                    mobilePlatformOptions.isDirect ||
+                                    !mobilePlatformOptions.enableDebug
+                                ) {
+                                    if (
+                                        mobilePlatformOptions.isDirect &&
+                                        launchArgs.platform === "android"
+                                    ) {
                                         generator.step("mobilePlatform.enableDirectDebuggingMode");
                                         if (mobilePlatformOptions.enableDebug) {
-                                            this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
+                                            this.logger.info(
+                                                localize(
+                                                    "PrepareHermesDebugging",
+                                                    "Prepare Hermes debugging (experimental)",
+                                                ),
+                                            );
                                         } else {
-                                            this.logger.info(localize("PrepareHermesLaunch", "Prepare Hermes launch (experimental)"));
+                                            this.logger.info(
+                                                localize(
+                                                    "PrepareHermesLaunch",
+                                                    "Prepare Hermes launch (experimental)",
+                                                ),
+                                            );
                                         }
                                     } else {
                                         generator.step("mobilePlatform.disableJSDebuggingMode");
-                                        this.logger.info(localize("DisableJSDebugging", "Disable JS Debugging"));
+                                        this.logger.info(
+                                            localize("DisableJSDebugging", "Disable JS Debugging"),
+                                        );
                                     }
                                     return mobilePlatform.disableJSDebuggingMode();
                                 }
                                 generator.step("mobilePlatform.enableJSDebuggingMode");
-                                this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
+                                this.logger.info(
+                                    localize("EnableJSDebugging", "Enable JS Debugging"),
+                                );
                                 return mobilePlatform.enableJSDebuggingMode();
                             })
                             .then(() => {
                                 resolve();
                             })
                             .catch(error => {
-                                if (!mobilePlatformOptions.enableDebug && launchArgs.platform === "ios") {
+                                if (
+                                    !mobilePlatformOptions.enableDebug &&
+                                    launchArgs.platform === "ios"
+                                ) {
                                     // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
                                     // since the error doesn't affects an application launch process
                                     return resolve();
@@ -261,16 +328,24 @@ export class AppLauncher {
                 })
                 .catch(error => {
                     if (error && error.errorCode) {
-                        if (error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
+                        if (
+                            error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled
+                        ) {
                             TelemetryHelper.sendErrorEvent(
                                 "ReactNativePackageIsNotInstalled",
-                                ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled)
-                                );
-                        } else if (error.errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled) {
+                                ErrorHelper.getInternalError(
+                                    InternalErrorCode.ReactNativePackageIsNotInstalled,
+                                ),
+                            );
+                        } else if (
+                            error.errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled
+                        ) {
                             TelemetryHelper.sendErrorEvent(
                                 "ReactNativeWindowsPackageIsNotInstalled",
-                                ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled)
-                                );
+                                ErrorHelper.getInternalError(
+                                    InternalErrorCode.ReactNativeWindowsIsNotInstalled,
+                                ),
+                            );
                         }
                     }
                     this.logger.error(error);
@@ -280,9 +355,11 @@ export class AppLauncher {
     }
 
     private requestSetup(args: any): any {
-        const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program));
+        const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>(
+            vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program))
+        );
         const projectRootPath = this.getProjectRoot(args);
-        let mobilePlatformOptions: any = {
+        const mobilePlatformOptions: any = {
             workspaceRoot: workspaceFolder.uri.fsPath,
             projectRoot: projectRootPath,
             platform: args.platform,
@@ -296,10 +373,16 @@ export class AppLauncher {
             mobilePlatformOptions.expoHostType = args.expoHostType || "tunnel";
         }
 
-        CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(workspaceFolder.uri);
+        CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(
+            workspaceFolder.uri,
+        );
 
         if (!args.runArguments) {
-            let runArgs = SettingsHelper.getRunArgs(args.platform, args.target || "simulator", workspaceFolder.uri);
+            const runArgs = SettingsHelper.getRunArgs(
+                args.platform,
+                args.target || "simulator",
+                workspaceFolder.uri,
+            );
             mobilePlatformOptions.runArguments = runArgs;
         } else {
             mobilePlatformOptions.runArguments = args.runArguments;

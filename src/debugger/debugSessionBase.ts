@@ -16,7 +16,10 @@ import { ILaunchArgs } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
 import * as nls from "vscode-nls";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 /**
@@ -43,7 +46,7 @@ export interface TerminateEventArgs {
 }
 
 export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments, ILaunchArgs {
-    cwd: string; /* Automatically set by VS Code to the currently opened folder */
+    cwd: string /* Automatically set by VS Code to the currently opened folder */;
     port: number;
     url?: string;
     address?: string;
@@ -53,12 +56,16 @@ export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments
     sourceMapPathOverrides?: { [key: string]: string };
 }
 
-export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments, IAttachRequestArgs { }
+export interface ILaunchRequestArgs
+    extends DebugProtocol.LaunchRequestArguments,
+        IAttachRequestArgs {}
 
 export abstract class DebugSessionBase extends LoggingDebugSession {
-
-    protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> = new vscode.EventEmitter<TerminateEventArgs>();
-    public static readonly onDidTerminateRootDebugSession = DebugSessionBase.rootSessionTerminatedEventEmitter.event;
+    protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<
+        TerminateEventArgs
+    > = new vscode.EventEmitter<TerminateEventArgs>();
+    public static readonly onDidTerminateRootDebugSession =
+        DebugSessionBase.rootSessionTerminatedEventEmitter.event;
 
     protected readonly disconnectCommand: string;
     protected readonly pwaNodeSessionName: string;
@@ -86,7 +93,10 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
     }
 
-    protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
+    protected initializeRequest(
+        response: DebugProtocol.InitializeResponse,
+        args: DebugProtocol.InitializeRequestArguments,
+    ): void {
         response.body = response.body || {};
 
         response.body.supportsConfigurationDoneRequest = true;
@@ -97,7 +107,10 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    protected abstract establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;
+    protected abstract establishDebugSession(
+        attachArgs: IAttachRequestArgs,
+        resolve?: (value?: void | PromiseLike<void> | undefined) => void,
+    ): void;
 
     protected initializeSettings(args: any): Promise<any> {
         if (!this.isSettingsInitialized) {
@@ -109,10 +122,12 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             if (logLevel) {
                 logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
                 logger.setup(Logger.LogLevel[logLevel], chromeDebugCoreLogs || false);
-                this.cdpProxyLogLevel = LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Custom : LogLevel.None;
+                this.cdpProxyLogLevel =
+                    LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Custom : LogLevel.None;
             } else {
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
-                this.cdpProxyLogLevel = LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Custom : LogLevel.None;
+                this.cdpProxyLogLevel =
+                    LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Custom : LogLevel.None;
             }
 
             if (!args.sourceMaps) {
@@ -124,23 +139,28 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             }
 
             const projectRootPath = getProjectRoot(args);
-            return ReactNativeProjectHelper.isReactNativeProject(projectRootPath)
-                .then((result) => {
-                    if (!result) {
-                        throw ErrorHelper.getInternalError(InternalErrorCode.NotInReactNativeFolderError);
-                    }
-                    this.projectRootPath = projectRootPath;
-                    this.appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
-                    this.isSettingsInitialized = true;
+            return ReactNativeProjectHelper.isReactNativeProject(projectRootPath).then(result => {
+                if (!result) {
+                    throw ErrorHelper.getInternalError(
+                        InternalErrorCode.NotInReactNativeFolderError,
+                    );
+                }
+                this.projectRootPath = projectRootPath;
+                this.appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
+                this.isSettingsInitialized = true;
 
-                    return void 0;
-                });
+                return void 0;
+            });
         } else {
             return Promise.resolve();
         }
     }
 
-    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
+    protected async disconnectRequest(
+        response: DebugProtocol.DisconnectResponse,
+        args: DebugProtocol.DisconnectArguments,
+        request?: DebugProtocol.Request,
+    ): Promise<void> {
         await this.appLauncher.getRnCdpProxy().stopServer();
 
         this.cancellationTokenSource.cancel();
@@ -151,7 +171,13 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             try {
                 this.appLauncher.stopMonitoringLogCat();
             } catch (err) {
-                logger.warn(localize("CouldNotStopMonitoringLogcat", "Couldn't stop monitoring logcat: {0}", err.message || err));
+                logger.warn(
+                    localize(
+                        "CouldNotStopMonitoringLogcat",
+                        "Couldn't stop monitoring logcat: {0}",
+                        err.message || err,
+                    ),
+                );
             }
         }
 
@@ -168,10 +194,10 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     }
 
     protected showError(error: Error, response: DebugProtocol.Response): void {
-
         // We can't print error messages after the debugging session is stopped. This could break the extension work.
-        if ((error instanceof InternalError || error instanceof NestedError)
-            && error.errorCode === InternalErrorCode.CancellationTokenTriggered
+        if (
+            (error instanceof InternalError || error instanceof NestedError) &&
+            error.errorCode === InternalErrorCode.CancellationTokenTriggered
         ) {
             return;
         }
@@ -181,7 +207,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             { format: error.message, id: 1 },
             undefined,
             undefined,
-            ErrorDestination.User
+            ErrorDestination.User,
         );
     }
 }
@@ -195,11 +221,15 @@ export function getProjectRoot(args: any): string {
     try {
         let settingsContent = fs.readFileSync(settingsPath, "utf8");
         settingsContent = stripJsonComments(settingsContent);
-        let parsedSettings = JSON.parse(settingsContent);
-        let projectRootPath = parsedSettings["react-native-tools.projectRoot"] || parsedSettings["react-native-tools"].projectRoot;
+        const parsedSettings = JSON.parse(settingsContent);
+        const projectRootPath =
+            parsedSettings["react-native-tools.projectRoot"] ||
+            parsedSettings["react-native-tools"].projectRoot;
         return path.resolve(vsCodeRoot, projectRootPath);
     } catch (e) {
-        logger.verbose(`${settingsPath} file doesn't exist or its content is incorrect. This file will be ignored.`);
+        logger.verbose(
+            `${settingsPath} file doesn't exist or its content is incorrect. This file will be ignored.`,
+        );
         return args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
     }
 }

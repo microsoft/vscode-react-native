@@ -6,7 +6,15 @@ import { AppiumHelper, AppiumClient, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { RNworkspacePath, runVSCode, ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
-import { sleep, findFile, findExpoURLInLogFile, findExpoSuccessAndFailurePatterns, ExpoLaunch, getIOSBuildPath, waitForRunningPackager } from "./helpers/utilities";
+import {
+    sleep,
+    findFile,
+    findExpoURLInLogFile,
+    findExpoSuccessAndFailurePatterns,
+    ExpoLaunch,
+    getIOSBuildPath,
+    waitForRunningPackager,
+} from "./helpers/utilities";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import * as path from "path";
 import { TestRunArguments } from "./helpers/configHelper";
@@ -43,7 +51,13 @@ export function setup(testParameters?: TestRunArguments) {
             }
         });
 
-        async function runExpoDebugScenario(logFilePath: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
+        async function runExpoDebugScenario(
+            logFilePath: string,
+            testName: string,
+            workspacePath: string,
+            debugConfigName: string,
+            triesToLaunchApp: number,
+        ) {
             console.log(`${testName}: Starting debugging`);
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
@@ -52,7 +66,11 @@ export function setup(testParameters?: TestRunArguments) {
                 for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                     let expoLaunchStatus: ExpoLaunch;
                     await app.workbench.quickaccess.runDebugScenario(debugConfigName);
-                    expoLaunchStatus = await findExpoSuccessAndFailurePatterns(logFilePath, SmokeTestsConstants.ExpoSuccessPattern, SmokeTestsConstants.ExpoFailurePattern);
+                    expoLaunchStatus = await findExpoSuccessAndFailurePatterns(
+                        logFilePath,
+                        SmokeTestsConstants.ExpoSuccessPattern,
+                        SmokeTestsConstants.ExpoFailurePattern,
+                    );
                     if (expoLaunchStatus.successful) {
                         break;
                     } else {
@@ -65,7 +83,14 @@ export function setup(testParameters?: TestRunArguments) {
             }
         }
 
-        async function expoTest(appFileName: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number, isPureExpo: boolean = false) {
+        async function expoTest(
+            appFileName: string,
+            testName: string,
+            workspacePath: string,
+            debugConfigName: string,
+            triesToLaunchApp: number,
+            isPureExpo: boolean = false,
+        ) {
             let logFilePath = "";
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
@@ -77,11 +102,20 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             const device = <string>IosSimulatorHelper.getDevice();
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                logFilePath = path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName);
+                logFilePath = path.join(
+                    process.env.REACT_NATIVE_TOOLS_LOGS_DIR,
+                    SmokeTestsConstants.ReactNativeLogFileName,
+                );
             } else {
                 assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
             }
-            await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
+            await runExpoDebugScenario(
+                logFilePath,
+                testName,
+                workspacePath,
+                debugConfigName,
+                triesToLaunchApp,
+            );
             // We stop and start Pure Expo debug scenario again, since we faced Metro cache processing problem on
             // Expo SDK 38. The debug scenario works fine only on the second and further launches of the packager.
             // As soon as this problem is fixed, this condition won't be needed.
@@ -90,7 +124,13 @@ export function setup(testParameters?: TestRunArguments) {
                 await app.workbench.debug.stopDebugging();
                 await app.workbench.quickaccess.runCommand(STOP_PACKAGER_COMMAND);
                 await sleep(2 * 1000);
-                await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
+                await runExpoDebugScenario(
+                    logFilePath,
+                    testName,
+                    workspacePath,
+                    debugConfigName,
+                    triesToLaunchApp,
+                );
             }
 
             await app.workbench.editors.waitForTab("Expo QR Code readonly");
@@ -99,22 +139,37 @@ export function setup(testParameters?: TestRunArguments) {
 
             let expoURL;
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                expoURL = findExpoURLInLogFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeRunExpoLogFileName));
+                expoURL = findExpoURLInLogFile(
+                    path.join(
+                        process.env.REACT_NATIVE_TOOLS_LOGS_DIR,
+                        SmokeTestsConstants.ReactNativeRunExpoLogFileName,
+                    ),
+                );
             }
 
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
             expoURL = expoURL as string;
             let appFile = findFile(SetupEnvironmentHelper.iOSExpoAppsCacheDir, /.*\.(app)/);
             if (!appFile) {
-                throw new Error(`iOS Expo app is not found in ${SetupEnvironmentHelper.iOSExpoAppsCacheDir}`);
+                throw new Error(
+                    `iOS Expo app is not found in ${SetupEnvironmentHelper.iOSExpoAppsCacheDir}`,
+                );
             }
             const appPath = path.join(SetupEnvironmentHelper.iOSExpoAppsCacheDir, appFile);
             const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
             let client = AppiumHelper.webdriverAttach(opts);
             clientInited = client.init();
-            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL, workspacePath, expoFirstLaunch);
+            await AppiumHelper.openExpoApplication(
+                Platform.iOS,
+                clientInited,
+                expoURL,
+                workspacePath,
+                expoFirstLaunch,
+            );
             expoFirstLaunch = false;
-            console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
+            console.log(
+                `${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`,
+            );
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
 
             await AppiumHelper.disableExpoErrorRedBox(clientInited);
@@ -124,14 +179,25 @@ export function setup(testParameters?: TestRunArguments) {
 
             await app.workbench.debug.waitForDebuggingToStart();
             console.log(`${testName}: Debugging started`);
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === appFileName && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for ${appFileName} and line ${ExpoSetBreakpointOnLine}`);
+            await app.workbench.debug.waitForStackFrame(
+                sf => sf.name === appFileName && sf.lineNumber === ExpoSetBreakpointOnLine,
+                `looking for ${appFileName} and line ${ExpoSetBreakpointOnLine}`,
+            );
             console.log(`${testName}: Stack frame found`);
             await app.workbench.debug.stepOver();
             // Wait for our debug string to render in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log(`${testName}: Searching for \"Test output from debuggee\" string in console`);
-            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
-            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
+            console.log(
+                `${testName}: Searching for \"Test output from debuggee\" string in console`,
+            );
+            let found = await app.workbench.debug.waitForOutput(output =>
+                output.some(line => line.indexOf("Test output from debuggee") >= 0),
+            );
+            assert.notStrictEqual(
+                found,
+                false,
+                '"Test output from debuggee" string is missing in debug console',
+            );
             console.log(`${testName}: \"Test output from debuggee\" string is found`);
             await app.workbench.debug.disconnectFromDebugger();
             console.log(`${testName}: Debugging is stopped`);
@@ -151,14 +217,18 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS Debug test: Starting debugging");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
 
-            await IosSimulatorHelper.waitUntilIosAppIsInstalled(RnAppBundleId, SmokeTestsConstants.iosAppBuildAndInstallTimeout, 40 * 1000);
+            await IosSimulatorHelper.waitUntilIosAppIsInstalled(
+                RnAppBundleId,
+                SmokeTestsConstants.iosAppBuildAndInstallTimeout,
+                40 * 1000,
+            );
             const device = <string>IosSimulatorHelper.getDevice();
             const buildPath = getIOSBuildPath(
                 `${RNworkspacePath}/ios`,
                 `${SmokeTestsConstants.RNAppName}.xcworkspace`,
                 "Debug",
                 SmokeTestsConstants.RNAppName,
-                "iphonesimulator"
+                "iphonesimulator",
             );
             const appPath = `${buildPath}/${SmokeTestsConstants.RNAppName}.app`;
             const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
@@ -169,15 +239,26 @@ export function setup(testParameters?: TestRunArguments) {
 
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("iOS Debug test: Debugging started");
-            await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
+            await app.workbench.debug.waitForStackFrame(
+                sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine,
+                `looking for App.js and line ${RNSetBreakpointOnLine}`,
+            );
             console.log("iOS Debug test: Stack frame found");
             await app.workbench.debug.stepOver();
             // Wait for our debug string to render in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log("iOS Debug test: Searching for \"Test output from debuggee\" string in console");
-            let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
-            assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            console.log("iOS Debug test: \"Test output from debuggee\" string is found");
+            console.log(
+                'iOS Debug test: Searching for "Test output from debuggee" string in console',
+            );
+            let found = await app.workbench.debug.waitForOutput(output =>
+                output.some(line => line.indexOf("Test output from debuggee") >= 0),
+            );
+            assert.notStrictEqual(
+                found,
+                false,
+                '"Test output from debuggee" string is missing in debug console',
+            );
+            console.log('iOS Debug test: "Test output from debuggee" string is found');
             await app.workbench.debug.disconnectFromDebugger();
             console.log("iOS Debug test: Debugging is stopped");
         });
@@ -187,7 +268,13 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.tsx", "iOS Expo Debug test(Tunnel)", ExpoWorkspacePath, ExpoDebugConfigName, 5);
+            await expoTest(
+                "App.tsx",
+                "iOS Expo Debug test(Tunnel)",
+                ExpoWorkspacePath,
+                ExpoDebugConfigName,
+                5,
+            );
         });
 
         it("Pure RN app Expo test(LAN)", async function () {
@@ -195,7 +282,14 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.js", "iOS pure RN Expo test(LAN)", pureRNWorkspacePath, ExpoLanDebugConfigName, 1, true);
+            await expoTest(
+                "App.js",
+                "iOS pure RN Expo test(LAN)",
+                pureRNWorkspacePath,
+                ExpoLanDebugConfigName,
+                1,
+                true,
+            );
         });
 
         it("Expo app Debug test(LAN)", async function () {
@@ -203,7 +297,13 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.tsx", "iOS Expo Debug test(LAN)", ExpoWorkspacePath, ExpoLanDebugConfigName, 1);
+            await expoTest(
+                "App.tsx",
+                "iOS Expo Debug test(LAN)",
+                ExpoWorkspacePath,
+                ExpoLanDebugConfigName,
+                1,
+            );
         });
 
         it("Expo app Debug test(localhost)", async function () {
@@ -211,7 +311,13 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.tsx", "iOS Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
+            await expoTest(
+                "App.tsx",
+                "iOS Expo Debug test(localhost)",
+                ExpoWorkspacePath,
+                ExpoLocalDebugConfigName,
+                1,
+            );
         });
     });
 }

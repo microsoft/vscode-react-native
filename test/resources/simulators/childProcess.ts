@@ -41,7 +41,8 @@ export class ChildProcess extends events.EventEmitter implements child_process.C
         this.notYetImplemented();
     }
 
-    private notYetImplemented(): void { // We'll implement these methods if we ever need them
+    private notYetImplemented(): void {
+        // We'll implement these methods if we ever need them
         throw new Error("This method of class ChildProcess has not yet been implemented.");
     }
 }
