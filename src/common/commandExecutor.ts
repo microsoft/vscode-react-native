@@ -87,7 +87,7 @@ export class CommandExecutor {
         if (packagerProcess) {
             return new Promise((resolve) => {
                 if (HostPlatform.getPlatformId() === HostPlatformId.WINDOWS) {
-                    return this.childProcess.exec("taskkill /pid " + packagerProcess.pid + " /T /F").then((res) => res.outcome);
+                    return resolve(this.childProcess.exec("taskkill /pid " + packagerProcess.pid + " /T /F").then((res) => res.outcome));
                 } else {
                     packagerProcess.kill();
                     return resolve();
