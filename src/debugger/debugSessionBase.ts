@@ -136,7 +136,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                     return void 0;
                 });
         } else {
-            return Promise.resolve<void>(void 0);
+            return Promise.resolve();
         }
     }
 
