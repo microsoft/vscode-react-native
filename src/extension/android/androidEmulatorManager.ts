@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { CommandExecutor } from "../common/commandExecutor";
+import { CommandExecutor } from "./../../common/commandExecutor";
 import { window, QuickPickOptions, QuickPickItem } from "vscode";
 
 export class AndroidEmulatorManager {
@@ -22,7 +22,7 @@ export class AndroidEmulatorManager {
     }
 
     public async launchEmulatorByName(emulatorName: string) {
-        return await this.commandExecutor.execute(`${AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND} ${emulatorName}`)
+        return await this.commandExecutor.execute(`${AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND} ${emulatorName}`);
     }
 
     private async selectEmulator(emulatorsList: string[]): Promise<string> {
@@ -43,7 +43,7 @@ export class AndroidEmulatorManager {
         const res = await this.commandExecutor.executeToString(AndroidEmulatorManager.EMULATOR_LIST_AVDS_COMMAND);
         let emulatorsList: string[] = [];
         if (res) {
-            emulatorsList = res.split("\n\r")
+            emulatorsList = res.split("\n\r");
         }
         return emulatorsList;
     }
