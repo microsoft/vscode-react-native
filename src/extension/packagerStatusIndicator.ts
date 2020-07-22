@@ -26,6 +26,10 @@ export class PackagerStatusIndicator implements Disposable {
 
     private static PACKAGER_NAME: string = localize("ReactNativePackager", "React Native Packager");
 
+    private static STOP_TOOLTIP: string = localize("StopPackager", "Stop Packager");
+    private static START_TOOLTIP: string = localize("StartPackager", "Start Packager");
+    private static RESTART_TOOLTIP: string = localize("RestartPackager", "Restart Packager");
+
     private static START_ICON = "$(play)";
     private static STOP_ICON = "$(primitive-square)";
     private static ACTIVITY_ICON = "$(loading~spin)";
@@ -44,10 +48,10 @@ export class PackagerStatusIndicator implements Disposable {
         this.restartPackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
         this.restartPackagerItem.text = PackagerStatusIndicator.RESTART_ICON;
         this.restartPackagerItem.command = PackagerStatusIndicator.RESTART_COMMAND;
-        this.restartPackagerItem.tooltip = localize("RestartPackager", "Restart Packager");
+        this.restartPackagerItem.tooltip = PackagerStatusIndicator.RESTART_TOOLTIP;
 
         this.togglePackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
-        this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, localize("StartPackager", "Start Packager"));
+        this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, PackagerStatusIndicator.START_TOOLTIP);
     }
 
     public updateDisplayVersion(): void {
@@ -89,13 +93,13 @@ export class PackagerStatusIndicator implements Disposable {
     public updatePackagerStatus(status: PackagerStatus): void {
         switch (status) {
             case PackagerStatus.PACKAGER_STOPPED:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, localize("StartPackager", "Start Packager"));
+                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, PackagerStatusIndicator.START_TOOLTIP);
                 break;
             case PackagerStatus.PACKAGER_STOPPING:
                 this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined);
                 break;
             case PackagerStatus.PACKAGER_STARTED:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.STOP_ICON, PackagerStatusIndicator.STOP_COMMAND, localize("StopPackager", "Stop Packager"));
+                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.STOP_ICON, PackagerStatusIndicator.STOP_COMMAND, PackagerStatusIndicator.STOP_TOOLTIP);
                 break;
             case PackagerStatus.PACKAGER_STARTING:
                 this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined);
