@@ -29,7 +29,7 @@ export class PackagerStatusIndicator implements Disposable {
     private static STOP_TOOLTIP: string = localize("StopPackager", "Stop Packager");
     private static START_TOOLTIP: string = localize("StartPackager", "Start Packager");
     private static RESTART_TOOLTIP: string = localize("RestartPackager", "Restart Packager");
-    private static STARTING_TOOLTIP: string = localize("StartingPackager", "Staring Packager");
+    private static STARTING_TOOLTIP: string = localize("StartingPackager", "Starting Packager");
     private static STOPPING_TOOLTIP: string = localize("StoppingPackager", "Stopping Packager");
 
     private static START_ICON = "$(play)";
