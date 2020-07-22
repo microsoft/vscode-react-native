@@ -29,6 +29,8 @@ export class PackagerStatusIndicator implements Disposable {
     private static STOP_TOOLTIP: string = localize("StopPackager", "Stop Packager");
     private static START_TOOLTIP: string = localize("StartPackager", "Start Packager");
     private static RESTART_TOOLTIP: string = localize("RestartPackager", "Restart Packager");
+    private static STARTING_TOOLTIP: string = localize("StartingPackager", "Staring Packager");
+    private static STOPPING_TOOLTIP: string = localize("StoppingPackager", "Stopping Packager");
 
     private static START_ICON = "$(play)";
     private static STOP_ICON = "$(primitive-square)";
@@ -96,13 +98,13 @@ export class PackagerStatusIndicator implements Disposable {
                 this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, PackagerStatusIndicator.START_TOOLTIP);
                 break;
             case PackagerStatus.PACKAGER_STOPPING:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined);
+                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined, PackagerStatusIndicator.STOPPING_TOOLTIP);
                 break;
             case PackagerStatus.PACKAGER_STARTED:
                 this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.STOP_ICON, PackagerStatusIndicator.STOP_COMMAND, PackagerStatusIndicator.STOP_TOOLTIP);
                 break;
             case PackagerStatus.PACKAGER_STARTING:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined);
+                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined, PackagerStatusIndicator.STARTING_TOOLTIP);
                 break;
             default:
                 break;
