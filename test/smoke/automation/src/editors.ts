@@ -16,7 +16,7 @@ export class Editors {
     }
 
     public async selectTab(fileName: string): Promise<void> {
-        await this.code.waitAndClick(`.tabs-container div.tab[aria-label="${fileName}"]`);
+        await this.code.waitAndClick(`.tabs-container div.tab[data-resource-name$="${fileName}"]`);
         await this.waitForEditorFocus(fileName);
     }
 
@@ -31,11 +31,11 @@ export class Editors {
     }
 
     public async waitForActiveTab(fileName: string, isDirty: boolean = false): Promise<void> {
-        await this.code.waitForElement(`.tabs-container div.tab.active${isDirty ? ".dirty" : ""}[aria-selected="true"][aria-label="${fileName}"]`);
+        await this.code.waitForElement(`.tabs-container div.tab.active${isDirty ? ".dirty" : ""}[aria-selected="true"][data-resource-name$="${fileName}"]`);
     }
 
     public async waitForTab(fileName: string, isDirty: boolean = false): Promise<void> {
-        await this.code.waitForElement(`.tabs-container div.tab${isDirty ? ".dirty" : ""}[aria-label="${fileName}"]`);
+        await this.code.waitForElement(`.tabs-container div.tab${isDirty ? ".dirty" : ""}[data-resource-name$="${fileName}"]`);
     }
 
     public async newUntitledFile(): Promise<void> {
