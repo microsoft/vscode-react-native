@@ -6,7 +6,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { SourceMapConsumer, RawSourceMap, SourceMapGenerator, MappingItem, Mapping, Position, NullableMappedPosition } from "source-map";
-import sourceMapResolve = require("source-map-resolve");
+import * as sourceMapResolve from "source-map-resolve";
 
 const DISK_LETTER_RE: RegExp = /^(?:[a-z]{2,}:\/\/\/)?[a-z]:/i;
 

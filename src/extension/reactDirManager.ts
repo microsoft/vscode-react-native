@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Q from "q";
 import * as vscode from "vscode";
 import * as path from "path";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
@@ -24,7 +23,7 @@ export class ReactDirManager implements vscode.Disposable {
         this.reactDirPath = path.join(this.vscodeDirPath, ".react");
     }
 
-    public setup(): Q.Promise<void> {
+    public setup(): Promise<void> {
         this.isDisposed = false;
         let fs = new FileSystem();
         /* if the folder exists, remove it, then recreate it */
