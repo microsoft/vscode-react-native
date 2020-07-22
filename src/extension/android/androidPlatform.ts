@@ -17,6 +17,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { isNullOrUndefined } from "util";
 import { PromiseUtil } from "../../common/node/promise";
+import { AndroidEmulatorManager } from "./androidEmulatorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -51,6 +52,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private packageName: string;
     private logCatMonitor: LogCatMonitor | null = null;
     private adbHelper: AdbHelper;
+    private emulatorManager: AndroidEmulatorManager;
 
     private needsToLaunchApps: boolean = false;
 
@@ -66,11 +68,24 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IAndroidRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
         this.adbHelper = new AdbHelper(this.runOptions.projectRoot, this.logger);
+        this.emulatorManager = new AndroidEmulatorManager();
     }
 
     // TODO: remove this method when sinon will be updated to upper version. Now it is used for tests only.
     public setAdbHelper(adbHelper: AdbHelper) {
         this.adbHelper = adbHelper;
+    }
+
+    public async startEmulatorIfNotRun(emulatorTarget: string) {
+        if ((await this.adbHelper.getOnlineDevices()).length == 0) {
+            if (emulatorTarget === "simulator") {
+                await this.emulatorManager.selectAndLaunchEmulator();
+                
+            }
+            else if (!emulatorTarget.match("device=.+")) {
+                await this.emulatorManager.launchEmulatorByName(emulatorTarget);
+            }
+        }
     }
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {

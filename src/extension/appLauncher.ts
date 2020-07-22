@@ -221,6 +221,11 @@ export class AppLauncher {
                                 return mobilePlatform.prewarmBundleCache();
                             })
                             .then(() => {
+                                if (launchArgs.target === "simulator") {
+                                    
+                                }
+                            })
+                            .then(() => {
                                 generator.step("mobilePlatform.runApp").add("target", mobilePlatformOptions.target, false);
                                 this.logger.info(localize("BuildingAndRunningApplication", "Building and running application."));
                                 return mobilePlatform.runApp();
