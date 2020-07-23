@@ -51,7 +51,7 @@ export class Packager {
 
     constructor(private workspacePath: string, private projectPath: string, private packagerPort?: number, packagerStatusIndicator?: PackagerStatusIndicator) {
         this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
-        this.packagerStatusIndicator = packagerStatusIndicator || new PackagerStatusIndicator();
+        this.packagerStatusIndicator = packagerStatusIndicator || new PackagerStatusIndicator(projectPath);
     }
 
     public setExponentHelper(expoHelper: ExponentHelper) {

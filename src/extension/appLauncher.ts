@@ -59,7 +59,7 @@ export class AppLauncher {
         const rootPath = workspaceFolder.uri.fsPath;
         const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
         this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
-        const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
+        const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator(rootPath);
         this.packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(workspaceFolder.uri.fsPath), packagerStatusIndicator);
         this.packager.setExponentHelper(this.exponentHelper);
         this.reactDirManager = reactDirManager;

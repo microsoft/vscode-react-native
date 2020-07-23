@@ -32,7 +32,7 @@ export class GeneralMobilePlatform {
     constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
-        this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator());
+        this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator(this.projectPath));
         this.packager.setRunOptions(runOptions);
         this.logger = OutputChannelLogger.getChannel(localize("ReactNativeRunPlatform", "React Native: Run {0}", this.platformName), true);
         this.logger.clear();

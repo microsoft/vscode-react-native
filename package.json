@@ -688,6 +688,16 @@
 					"default": 8081,
 					"scope": "resource"
 				},
+				"react-native.packager.status-indicator": {
+					"description": "%reactNative.configuration.properties.react-native.packager.status-indicator.description%",
+					"type": "string",
+					"enum": [
+						"Full",
+						"Short"
+					],
+					"default": "Full",
+					"scope": "resource"
+				},
 				"react-native-tools.reactNativeGlobalCommandName": {
 					"description": "%reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description%",
 					"type": "string",
