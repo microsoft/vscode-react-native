@@ -116,6 +116,24 @@ export class CommandPaletteHandler {
                                     return platform.startPackager();
                                 })
                                 .then(() => {
+                                    if (target === "simulator") {
+                                        return platform.startEmulatorIfNotRun(target);
+                                    }
+                                    else return undefined;
+                                })
+                                .then((emulator: any) => {
+                                    if (emulator && emulator.emulatorId) {
+                                        const deviceIdIndex = platform.runArguments.indexOf("--deviceId");
+                                        if (deviceIdIndex > -1 && platform.runArguments.length >= deviceIdIndex + 2) {
+                                            platform.runArguments[deviceIdIndex + 1] = emulator.emulatorId;
+                                        }
+                                        else {
+                                            platform.runArguments.push("--deviceId");
+                                            platform.runArguments.push(emulator.emulatorId);
+                                        }
+                                    }
+                                })
+                                .then(() => {
                                     return platform.runApp(/*shouldLaunchInAllDevices*/true);
                                 })
                                 .then(() => {

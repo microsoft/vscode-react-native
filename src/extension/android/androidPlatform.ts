@@ -68,7 +68,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IAndroidRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
         this.adbHelper = new AdbHelper(this.runOptions.projectRoot, this.logger);
-        this.emulatorManager = new AndroidEmulatorManager();
+        this.emulatorManager = new AndroidEmulatorManager(this.adbHelper);
     }
 
     // TODO: remove this method when sinon will be updated to upper version. Now it is used for tests only.
@@ -76,16 +76,22 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         this.adbHelper = adbHelper;
     }
 
-    public async startEmulatorIfNotRun(emulatorTarget: string) {
-        if ((await this.adbHelper.getOnlineDevices()).length == 0) {
-            if (emulatorTarget === "simulator") {
-                await this.emulatorManager.selectAndLaunchEmulator();
-                
+    public async startEmulatorIfNotRun(target: string): Promise<any> {
+        if (target && (await this.adbHelper.getConnectedDevices()).length == 0) {
+            if (target === "simulator") {
+                const newEmulator = await this.emulatorManager.selectEmulator();
+                if (newEmulator) {
+                    const emulatorId = await this.emulatorManager.launchEmulatorByName(newEmulator);
+                    return {emulatorName: newEmulator, emulatorId: emulatorId};
+                }
+                return {emulatorName: newEmulator, emulatorId: undefined};
             }
-            else if (!emulatorTarget.match("device=.+")) {
-                await this.emulatorManager.launchEmulatorByName(emulatorTarget);
+            else if (!target.includes("device")) {
+                const emulatorId = await this.emulatorManager.launchEmulatorByName(target);
+                return {emulatorName: target, emulatorId: emulatorId};
             }
         }
+        return undefined;
     }
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {
