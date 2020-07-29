@@ -57,18 +57,6 @@ export class CommandExecutor {
                 this.generateRejectionForCommand(command, reason));
     }
 
-    public executeToString(command: string, options: Options = {}): Promise<void | string> {
-        this.logger.debug(CommandExecutor.getCommandStatusString(command, CommandStatus.Start));
-        return this.childProcess.execToString(command, { cwd: this.currentWorkingDirectory, env: options.env })
-            .then((stdout: string) => {
-                this.logger.info(stdout);
-                this.logger.debug(CommandExecutor.getCommandStatusString(command, CommandStatus.End));
-                return stdout;
-            },
-            (reason: Error) =>
-                this.generateRejectionForCommand(command, reason));
-    }
-
     /**
      * Spawns a child process with the params passed
      * This method waits until the spawned process finishes execution

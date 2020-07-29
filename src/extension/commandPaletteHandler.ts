@@ -22,6 +22,8 @@ import * as nls from "vscode-nls";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {AppLauncher} from "./appLauncher";
+import { AndroidEmulatorManager, IEmulator } from "./android/androidEmulatorManager";
+import { AdbHelper } from "./android/adb";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -99,6 +101,18 @@ export class CommandPaletteHandler {
             });
     }
 
+    public static launchAndroidEmulator(): Promise<void> {
+        return this.selectProject()
+            .then(async (appLauncher: AppLauncher) => {
+                const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
+                const androidEmulatorManager = new AndroidEmulatorManager(adbHelper);
+                const emulator = await androidEmulatorManager.selectEmulator();
+                if (emulator) {
+                    androidEmulatorManager.tryLaunchEmulatorByName(emulator);
+                }
+            });
+    }
+
     /**
      * Executes the 'react-native run-android' command
      */
@@ -117,20 +131,13 @@ export class CommandPaletteHandler {
                                 })
                                 .then(() => {
                                     if (target === "simulator") {
-                                        return platform.startEmulatorIfNotRun(target);
+                                        return platform.startEmulator(target);
                                     }
-                                    else return undefined;
+                                    else return null;
                                 })
-                                .then((emulator: any) => {
-                                    if (emulator && emulator.emulatorId) {
-                                        const deviceIdIndex = platform.runArguments.indexOf("--deviceId");
-                                        if (deviceIdIndex > -1 && platform.runArguments.length >= deviceIdIndex + 2) {
-                                            platform.runArguments[deviceIdIndex + 1] = emulator.emulatorId;
-                                        }
-                                        else {
-                                            platform.runArguments.push("--deviceId");
-                                            platform.runArguments.push(emulator.emulatorId);
-                                        }
+                                .then((emulator: IEmulator | null) => {
+                                    if (emulator) {
+                                        platform.modifyOptFromRunArgs("--deviceId", emulator.id);
                                     }
                                 })
                                 .then(() => {

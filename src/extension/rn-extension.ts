@@ -221,6 +221,7 @@ function isSupportedVersion(version: string): boolean {
 }
 
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {
+    registerVSCodeCommand(context, "launchAndroidSimulator-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunAndroidEmulator), () => CommandPaletteHandler.launchAndroidEmulator());
     registerVSCodeCommand(context, "runAndroidSimulator-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => CommandPaletteHandler.runAndroid("simulator"));
     registerVSCodeCommand(context, "runAndroidDevice-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => CommandPaletteHandler.runAndroid("device"));
     registerVSCodeCommand(context, "runIosSimulator-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => CommandPaletteHandler.runIos("simulator"));

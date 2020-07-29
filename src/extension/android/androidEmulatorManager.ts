@@ -1,28 +1,57 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { CommandExecutor } from "./../../common/commandExecutor";
 import { QuickPickOptions, window } from "vscode";
 import { AdbHelper } from "./adb";
+import { ChildProcess } from "../../common/node/childProcess";
+import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+const localize = nls.loadMessageBundle();
+
+export interface IEmulator {
+    name: string;
+    id: string;
+}
 
 export class AndroidEmulatorManager {
     private static readonly EMULATOR_COMMAND = "emulator";
-    private static readonly EMULATOR_LIST_AVDS_COMMAND = `${AndroidEmulatorManager.EMULATOR_COMMAND} -list-avds`;
-    private static readonly EMULATOR_AVD_START_COMMAND = `${AndroidEmulatorManager.EMULATOR_COMMAND} -avd`;
+    private static readonly EMULATOR_LIST_AVDS_COMMAND = `-list-avds`;
+    private static readonly EMULATOR_AVD_START_COMMAND = `-avd`;
 
-    private static readonly EMULATOR_START_TIMEOUT = 30;
+    private static readonly EMULATOR_START_TIMEOUT = 120;
 
-    private commandExecutor: CommandExecutor;
     private adbHelper: AdbHelper;
+    private childProcess: ChildProcess;
 
     constructor(adbHelper: AdbHelper) {
-        this.commandExecutor = new CommandExecutor();
         this.adbHelper = adbHelper;
+        this.childProcess = new ChildProcess();
     }
 
-    public async launchEmulatorByName(emulatorName: string): Promise<string> {
+    public async startEmulator(target: string): Promise<IEmulator | null> {
+        if (target && (await this.adbHelper.getConnectedDevices()).length === 0) {
+            if (target === "simulator") {
+                const newEmulator = await this.selectEmulator();
+                if (newEmulator) {
+                    const emulatorId = await this.tryLaunchEmulatorByName(newEmulator);
+                    return {name: newEmulator, id: emulatorId};
+                }
+            }
+            else if (!target.includes("device")) {
+                const emulatorId = await this.tryLaunchEmulatorByName(target);
+                return {name: target, id: emulatorId};
+            }
+        }
+        return null;
+    }
+
+    public async tryLaunchEmulatorByName(emulatorName: string): Promise<string> {
         return new Promise((resolve, reject) => {
-            this.commandExecutor.execute(`${AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND} ${emulatorName}`);
+            const cp = this.childProcess.spawn(AndroidEmulatorManager.EMULATOR_COMMAND, [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName], {
+                detached: true,
+                stdio: 'ignore',
+              });
+            cp.spawnedProcess.unref();
 
             const rejectTimeout = setTimeout(() => {
                 cleanup();
@@ -49,14 +78,17 @@ export class AndroidEmulatorManager {
         const quickPickOptions: QuickPickOptions = {
             ignoreFocusOut: true,
             canPickMany: false,
-            placeHolder: "Select emulator for launch application",
+            placeHolder: localize("SelectEmulator", "Select emulator for launch application"),
         };
-        const result = await window.showQuickPick(emulatorsList, quickPickOptions);
+        let result: string | undefined = emulatorsList[0];
+        if (emulatorsList.length > 1) {
+            result = await window.showQuickPick(emulatorsList, quickPickOptions);
+        }
         return result?.toString();
     }
 
     private async getEmulatorsList(): Promise<string[]> {
-        const res = await this.commandExecutor.executeToString(AndroidEmulatorManager.EMULATOR_LIST_AVDS_COMMAND);
+        const res = await this.childProcess.execToString(`${AndroidEmulatorManager.EMULATOR_COMMAND} ${AndroidEmulatorManager.EMULATOR_LIST_AVDS_COMMAND}`);
         let emulatorsList: string[] = [];
         if (res) {
             emulatorsList = res.split("\r\n");

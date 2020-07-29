@@ -8,6 +8,7 @@ import {PackagerStatusIndicator, PackagerStatus} from "./packagerStatusIndicator
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import * as nls from "vscode-nls";
+import { isBoolean } from "util";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -79,6 +80,35 @@ export class GeneralMobilePlatform {
     public prewarmBundleCache(): Promise<void> {
         // generalMobilePlatform should do nothing here. Method should be overriden by children for specific behavior.
         return Promise.resolve();
+    }
+
+    public modifyOptFromRunArgs(optName: string, value: any): void {
+        const isBinary = isBoolean(value);
+        const optIdx = this.runArguments.indexOf(optName);
+        if (optIdx > -1) {
+            if (isBinary && !value) {
+                this.runArguments.splice(optIdx, 1);
+            }
+            if (!isBinary) {
+                if (value === null && value === undefined) {
+                    this.runArguments.splice(optIdx, 2);
+                }
+                else {
+                    this.runArguments[optIdx + 1] = value;
+                }
+            }
+        }
+        else {
+            if (isBinary && value) {
+                this.runArguments.push(optName);
+            }
+            if (!isBinary) {
+                if (value !== null || value !== undefined) {
+                    this.runArguments.push(optName);
+                    this.runArguments.push(value);
+                }
+            }
+        }
     }
 
     public static getOptFromRunArgs(runArguments: any[], optName: string, binary: boolean = false): any {

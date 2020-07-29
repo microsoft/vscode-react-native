@@ -17,7 +17,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { isNullOrUndefined } from "util";
 import { PromiseUtil } from "../../common/node/promise";
-import { AndroidEmulatorManager } from "./androidEmulatorManager";
+import { AndroidEmulatorManager, IEmulator } from "./androidEmulatorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -76,22 +76,8 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         this.adbHelper = adbHelper;
     }
 
-    public async startEmulatorIfNotRun(target: string): Promise<any> {
-        if (target && (await this.adbHelper.getConnectedDevices()).length == 0) {
-            if (target === "simulator") {
-                const newEmulator = await this.emulatorManager.selectEmulator();
-                if (newEmulator) {
-                    const emulatorId = await this.emulatorManager.launchEmulatorByName(newEmulator);
-                    return {emulatorName: newEmulator, emulatorId: emulatorId};
-                }
-                return {emulatorName: newEmulator, emulatorId: undefined};
-            }
-            else if (!target.includes("device")) {
-                const emulatorId = await this.emulatorManager.launchEmulatorByName(target);
-                return {emulatorName: target, emulatorId: emulatorId};
-            }
-        }
-        return undefined;
+    public async startEmulator(target: string): Promise<IEmulator | null> {
+        return this.emulatorManager.startEmulator(target);
     }
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {

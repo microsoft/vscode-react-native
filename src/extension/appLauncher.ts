@@ -27,6 +27,7 @@ import {AndroidPlatform} from "./android/androidPlatform";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { LaunchScenariosManager } from "./launchScenariosManager";
+import { IEmulator } from "./android/androidEmulatorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -226,34 +227,30 @@ export class AppLauncher {
                             })
                             .then(() => {
                                 if (launchArgs.platform === "android" && mobilePlatform instanceof AndroidPlatform) {
-                                    return mobilePlatform.startEmulatorIfNotRun(launchArgs.target);
+                                    return mobilePlatform.startEmulator(launchArgs.target);
                                 }
-                                else return undefined;
+                                else return null;
                             })
-                            .then((emulator: any) => {
+                            .then((emulator: IEmulator | null) => {
                                 if (emulator) {
-                                    if (emulator.emulatorName) {
-                                        let launchConfigIndex = this.launchScenarosManager.getFirstScenarioIndexByParams(launchArgs);
-                                        const launchScenarios = this.launchScenarosManager.getLaunchScenarios();
-                                        if (launchConfigIndex !== null && launchConfigIndex !== undefined && launchScenarios.configurations) {
-                                            launchScenarios.configurations[launchConfigIndex].target = emulator.emulatorName;
-                                            this.launchScenarosManager.writeLaunchScenarios(launchScenarios);
-                                        }
+                                    let launchConfigIndex = this.launchScenarosManager.getFirstScenarioIndexByParams(launchArgs);
+                                    const launchScenarios = this.launchScenarosManager.getLaunchScenarios();
+                                    if (launchConfigIndex !== null && launchConfigIndex !== undefined && launchScenarios.configurations) {
+                                        launchScenarios.configurations[launchConfigIndex].target = emulator.name;
+                                        this.launchScenarosManager.writeLaunchScenarios(launchScenarios);
                                     }
-                                    if (emulator.emulatorId) {
-                                        if (launchArgs.platform === "android") {
-                                            launchArgs.target = emulator.emulatorId;
-                                            mobilePlatformOptions.target = emulator.emulatorId;
-                                        }
-                                        if (launchArgs.platform === "ios") {
-                                            launchArgs.target = emulator.emulatorName;
-                                            mobilePlatformOptions.target = emulator.emulatorName;
-                                        }
-                                        mobilePlatform.runArguments = mobilePlatform.getRunArguments();
+                                    if (launchArgs.platform === "android") {
+                                        launchArgs.target = emulator.id;
+                                        mobilePlatformOptions.target = emulator.id;
                                     }
+                                    if (launchArgs.platform === "ios") {
+                                        launchArgs.target = emulator.name;
+                                        mobilePlatformOptions.target = emulator.name;
+                                    }
+                                    mobilePlatform.runArguments = mobilePlatform.getRunArguments();
                                 }
-                                else {
-                                    mobilePlatformOptions.target = undefined;
+                                else if (mobilePlatformOptions.target.indexOf("device") < 0) {
+                                    mobilePlatformOptions.target = null;
                                     mobilePlatform.runArguments = mobilePlatform.getRunArguments();
                                 }
                             })

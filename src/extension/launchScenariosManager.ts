@@ -27,7 +27,7 @@ export interface IConfiguration {
     type: string | null | undefined;
     request: string | null | undefined;
 }
-export interface ILaunchScenaros {
+export interface ILaunchScenarios {
     version: string | null | undefined;
     configurations: IConfiguration[] | null | undefined;
     compounds: any[] | null | undefined;
@@ -35,14 +35,14 @@ export interface ILaunchScenaros {
 
 export class LaunchScenariosManager {
     private pathToLaunchFile: string;
-    private launchScenarios: ILaunchScenaros;
+    private launchScenarios: ILaunchScenarios;
 
     constructor(rootPath: string) {
         this.pathToLaunchFile = path.resolve(rootPath, ".vscode", "launch.json");
         this.readLaunchScenarios();
     }
 
-    public getLaunchScenarios(): ILaunchScenaros {
+    public getLaunchScenarios(): ILaunchScenarios {
         return this.launchScenarios;
     }
 
@@ -61,7 +61,7 @@ export class LaunchScenariosManager {
         return undefined;
     }
 
-    public writeLaunchScenarios(launch: ILaunchScenaros = this.launchScenarios): void {
+    public writeLaunchScenarios(launch: ILaunchScenarios = this.launchScenarios): void {
         if (!fs.existsSync(this.pathToLaunchFile)) {
             fs.mkdirSync(this.pathToLaunchFile);
         }
