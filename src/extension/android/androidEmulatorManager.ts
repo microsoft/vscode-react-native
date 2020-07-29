@@ -92,7 +92,7 @@ export class AndroidEmulatorManager {
         let emulatorsList: string[] = [];
         if (res) {
             emulatorsList = res.split("\r\n");
-            if (emulatorsList.length == 1) {
+            if (emulatorsList.length === 1) {
                 emulatorsList[0].trim();
             }
         }
