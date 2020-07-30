@@ -82,31 +82,36 @@ export class GeneralMobilePlatform {
         return Promise.resolve();
     }
 
-    public modifyOptFromRunArgs(optName: string, value: any): void {
+    public static removeRunArguments(runArguments: any[], optName: string, binary: boolean) {
+        const optIdx = runArguments.indexOf(optName);
+        if (optIdx > -1) {
+            if (binary) {
+                runArguments.splice(optIdx, 1);
+            }
+            else {
+                runArguments.splice(optIdx, 2);
+            }
+        }
+    }
+
+    public static setRunArgument(runArguments: any[], optName: string, value: string | boolean) {
         const isBinary = isBoolean(value);
-        const optIdx = this.runArguments.indexOf(optName);
+        const optIdx = runArguments.indexOf(optName);
         if (optIdx > -1) {
             if (isBinary && !value) {
-                this.runArguments.splice(optIdx, 1);
+                GeneralMobilePlatform.removeRunArguments(runArguments, optName, true);
             }
             if (!isBinary) {
-                if (value === null && value === undefined) {
-                    this.runArguments.splice(optIdx, 2);
-                }
-                else {
-                    this.runArguments[optIdx + 1] = value;
-                }
+                runArguments[optIdx + 1] = value;
             }
         }
         else {
             if (isBinary && value) {
-                this.runArguments.push(optName);
+                runArguments.push(optName);
             }
             if (!isBinary) {
-                if (value !== null || value !== undefined) {
-                    this.runArguments.push(optName);
-                    this.runArguments.push(value);
-                }
+                runArguments.push(optName);
+                runArguments.push(value);
             }
         }
     }

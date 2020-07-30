@@ -17,7 +17,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { isNullOrUndefined } from "util";
 import { PromiseUtil } from "../../common/node/promise";
-import { AndroidEmulatorManager, IEmulator } from "./androidEmulatorManager";
+import { AndroidEmulatorManager, IAndroidEmulator } from "./androidEmulatorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -76,7 +76,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         this.adbHelper = adbHelper;
     }
 
-    public async startEmulator(target: string): Promise<IEmulator | null> {
+    public startEmulator(target: string): Promise<IAndroidEmulator | null> {
         return this.emulatorManager.startEmulator(target);
     }
 

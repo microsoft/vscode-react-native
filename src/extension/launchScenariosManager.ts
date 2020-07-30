@@ -6,31 +6,13 @@ import * as fs from "fs";
 
 export interface IConfiguration {
     name: string;
-    cwd: string | null | undefined;
-    platform: string | null | undefined;
-    program: string | null | undefined;
-    target: string | null | undefined;
-    sourceMaps: boolean | null | undefined;
-    logCatArguments: [] | null | undefined;
-    runArguments: [] | null | undefined;
-    env: any | null | undefined;
-    envFile: string | null | undefined;
-    variant: string | null | undefined;
-    scheme: string | null | undefined;
-    productName: string | null | undefined;
-    skipFiles: string[] | null | undefined;
-    trace: string | null | undefined;
-    debuggerWorkerUrlPath: string | null | undefined;
-    launchActivity: string | null | undefined;
-    expoHostType: string | null | undefined;
-    enableDebug: boolean | null | undefined;
-    type: string | null | undefined;
-    request: string | null | undefined;
+    platform?: string;
+    target?: string;
+    type?: string;
+    request?: string;
 }
 export interface ILaunchScenarios {
-    version: string | null | undefined;
-    configurations: IConfiguration[] | null | undefined;
-    compounds: any[] | null | undefined;
+    configurations?: IConfiguration[];
 }
 
 export class LaunchScenariosManager {
@@ -46,7 +28,7 @@ export class LaunchScenariosManager {
         return this.launchScenarios;
     }
 
-    public getFirstScenarioIndexByParams(scenario: IConfiguration): number | undefined {
+    public getFirstScenarioIndexByParams(scenario: IConfiguration): number | null {
         if (this.launchScenarios.configurations) {
             for (let i = 0; i < this.launchScenarios.configurations.length; i++) {
                 const config = this.launchScenarios.configurations[i];
@@ -58,7 +40,7 @@ export class LaunchScenariosManager {
                     }
             }
         }
-        return undefined;
+        return null;
     }
 
     public writeLaunchScenarios(launch: ILaunchScenarios = this.launchScenarios): void {

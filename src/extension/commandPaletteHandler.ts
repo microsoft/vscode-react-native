@@ -22,7 +22,7 @@ import * as nls from "vscode-nls";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {AppLauncher} from "./appLauncher";
-import { AndroidEmulatorManager, IEmulator } from "./android/androidEmulatorManager";
+import { AndroidEmulatorManager, IAndroidEmulator } from "./android/androidEmulatorManager";
 import { AdbHelper } from "./android/adb";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
@@ -125,27 +125,27 @@ export class CommandPaletteHandler {
                         appLauncher.setReactNativeVersions(versions);
                         return this.executeCommandInContext("runAndroid", appLauncher.getWorkspaceFolder(), () => {
                             const platform = <AndroidPlatform>this.createPlatform(appLauncher, "android", AndroidPlatform, target);
-                            return platform.beforeStartPackager()
-                                .then(() => {
-                                    return platform.startPackager();
-                                })
-                                .then(() => {
-                                    if (target === "simulator") {
-                                        return platform.startEmulator(target);
-                                    }
-                                    else return null;
-                                })
-                                .then((emulator: IEmulator | null) => {
-                                    if (emulator) {
-                                        platform.modifyOptFromRunArgs("--deviceId", emulator.id);
-                                    }
-                                })
-                                .then(() => {
-                                    return platform.runApp(/*shouldLaunchInAllDevices*/true);
-                                })
-                                .then(() => {
-                                    return platform.disableJSDebuggingMode();
-                                });
+                            return new Promise((resolve) => {
+                                if (target === "simulator") {
+                                    resolve(platform.startEmulator(target));
+                                }
+                                else resolve(null);
+                            })
+                            .then((emulator: IAndroidEmulator | null) => {
+                                if (emulator) {
+                                    GeneralMobilePlatform.setRunArgument(platform.getRunArguments(), "--deviceId", emulator.id);
+                                }
+                            })
+                            .then(() => platform.beforeStartPackager())
+                            .then(() => {
+                                return platform.startPackager();
+                            })
+                            .then(() => {
+                                return platform.runApp(/*shouldLaunchInAllDevices*/true);
+                            })
+                            .then(() => {
+                                return platform.disableJSDebuggingMode();
+                            });
                         });
                     });
             });
