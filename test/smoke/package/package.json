@@ -47,6 +47,7 @@
     "**/serialize-javascript": "^2.1.1",
     "**/tree-kill": "^1.2.2",
     "**/minimist": "^1.2.3",
-    "lodash": "^4.17.19"
+    "lodash": "^4.17.19",
+    "jpeg-js": "^0.4.0"
   }
 }
