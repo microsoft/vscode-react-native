@@ -262,7 +262,7 @@ export class Packager {
     }
 
     public prewarmBundleCache(platform: string): Promise<void> {
-        if (platform === "exponent") {
+        if (platform === PlatformType.Exponent) {
             return Promise.resolve();
         }
 

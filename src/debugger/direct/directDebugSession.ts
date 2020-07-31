@@ -52,7 +52,7 @@ export class DirectDebugSession extends DebugSessionBase {
             })
             .then(versions => {
                 extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                if (launchArgs.platform === "windows") {
+                if (launchArgs.platform === PlatformType.Windows) {
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                 }
                 return TelemetryHelper.generate("launch", extProps, (generator) => {
