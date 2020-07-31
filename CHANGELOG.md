@@ -1,7 +1,9 @@
 ## 0.17.0
 * Enhanced extension security [#1339](https://github.com/microsoft/vscode-react-native/pull/1339), [#1350](https://github.com/microsoft/vscode-react-native/pull/1350), [#1355](https://github.com/microsoft/vscode-react-native/pull/1355), [#1362](https://github.com/microsoft/vscode-react-native/pull/1362)
-* Updated extension documentation instructions for cases if Expo debugging works incorrectly [#1338](https://github.com/microsoft/vscode-react-native/pull/1338)
-* Fix the Github organisation name capitalization in URLs to the repository, thanks to [Frieder Bluemle(@friederbluemle)](https://github.com/friederbluemle) [#1324](https://github.com/microsoft/vscode-react-native/pull/1324)
+* Updated extension troubleshooting for the Expo debugging case [#1338](https://github.com/microsoft/vscode-react-native/pull/1338)
+
+* Fixed the Github organisation name capitalization in URLs to the repository, thanks to [Frieder Bluemle(@friederbluemle)](https://github.com/friederbluemle) [#1324](https://github.com/microsoft/vscode-react-native/pull/1324)
+
 * Updated Packager statusbar indicator representation [#1340](https://github.com/microsoft/vscode-react-native/pull/1340), [#1353](https://github.com/microsoft/vscode-react-native/pull/1353):
     * Now there are two representations available: `Full` and `Short`. To change it add `react-native.packager.status-indicator` property with a value `Full` for full representation or `Short` for icon only mode. [More info](https://github.com/microsoft/vscode-react-native/pull/1353).
 
