@@ -9,6 +9,7 @@ import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import * as nls from "vscode-nls";
 import { isBoolean } from "util";
+import { IEmulator } from "./EmulatorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -40,8 +41,8 @@ export class GeneralMobilePlatform {
         this.runArguments = this.getRunArguments();
     }
 
-    public resolveEmulator(launchArgs: any, mobilePlatformOptions: any): Promise<void> {
-        return Promise.resolve();
+    public resolveEmulator(target: string): Promise<IEmulator | null> {
+        return Promise.resolve(null);
     }
 
     public runApp(): Promise<void> {

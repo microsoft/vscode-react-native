@@ -11,7 +11,7 @@ import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {CommandExecutor} from "../common/commandExecutor";
 import {isNullOrUndefined} from "../common/utils";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
-import {MobilePlatformDeps} from "./generalMobilePlatform";
+import {MobilePlatformDeps, GeneralMobilePlatform} from "./generalMobilePlatform";
 import {PlatformResolver} from "./platformResolver";
 import {ProjectVersionHelper} from "../common/projectVersionHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
@@ -26,6 +26,7 @@ import {DEBUG_TYPES} from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { LaunchScenariosManager } from "./launchScenariosManager";
+import { IEmulator } from "./EmulatorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -211,7 +212,8 @@ export class AppLauncher {
                     TelemetryHelper.generate("launch", extProps, (generator) => {
                         generator.step("checkPlatformCompatibility");
                         TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
-                        return mobilePlatform.resolveEmulator(launchArgs, mobilePlatformOptions)
+                        generator.step("resolveEmulator");
+                        return this.resolveAndSaveEmulator(mobilePlatform, launchArgs, mobilePlatformOptions)
                         .then(() => mobilePlatform.beforeStartPackager())
                         .then(() => {
                             generator.step("startPackager");
@@ -280,6 +282,32 @@ export class AppLauncher {
                     this.logger.error(error);
                     reject(error);
                 });
+        });
+    }
+
+    private resolveAndSaveEmulator(mobilePlatform: GeneralMobilePlatform, launchArgs: any, mobilePlatformOptions: any): Promise<void> {
+        return mobilePlatform.resolveEmulator(launchArgs.target)
+        .then((emulator: IEmulator | null) => {
+            if (emulator) {
+                let launchConfigIndex = this.launchScenariosManager.getFirstScenarioIndexByParams(launchArgs);
+                const launchScenarios = this.launchScenariosManager.getLaunchScenarios();
+                if (launchConfigIndex !== null && launchScenarios.configurations) {
+                    launchScenarios.configurations[launchConfigIndex].target = emulator.name;
+                    this.launchScenariosManager.writeLaunchScenarios(launchScenarios);
+                }
+                if (launchArgs.platform === "android") {
+                    launchArgs.target = emulator.id;
+                    mobilePlatformOptions.target = emulator.id;
+                }
+                if (launchArgs.platform === "ios") {
+                    launchArgs.target = emulator.name;
+                    mobilePlatformOptions.target = emulator.name;
+                }
+            }
+            else if (mobilePlatformOptions.target.indexOf("device") < 0) {
+                mobilePlatformOptions.target = null;
+                mobilePlatform.runArguments = mobilePlatform.getRunArguments();
+            }
         });
     }
 

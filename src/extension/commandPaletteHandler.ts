@@ -125,17 +125,7 @@ export class CommandPaletteHandler {
                         appLauncher.setReactNativeVersions(versions);
                         return this.executeCommandInContext("runAndroid", appLauncher.getWorkspaceFolder(), () => {
                             const platform = <AndroidPlatform>this.createPlatform(appLauncher, "android", AndroidPlatform, target);
-                            return new Promise((resolve) => {
-                                if (target === "simulator") {
-                                    resolve(platform.startEmulator(target));
-                                }
-                                else resolve(null);
-                            })
-                            .then((emulator: IAndroidEmulator | null) => {
-                                if (emulator) {
-                                    GeneralMobilePlatform.setRunArgument(platform.getRunArguments(), "--deviceId", emulator.id);
-                                }
-                            })
+                            return platform.resolveEmulator(target)
                             .then(() => platform.beforeStartPackager())
                             .then(() => {
                                 return platform.startPackager();
@@ -150,6 +140,7 @@ export class CommandPaletteHandler {
                     });
             });
     }
+
 
     /**
      * Executes the 'react-native run-ios' command
