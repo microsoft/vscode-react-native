@@ -708,7 +708,7 @@
 		"typechecker": "2.0.8",
 		"ultron": "1.0.2",
 		"vscode-chrome-debug-core": "^6.8.9",
-		"vscode-debugadapter": "1.41.1",
+		"vscode-debugadapter": "1.39.1",
 		"vscode-debugprotocol": "1.39.0",
 		"vscode-extension-telemetry": "0.0.5",
 		"vscode-nls": "3.2.2",
