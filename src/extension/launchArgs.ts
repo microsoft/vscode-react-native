@@ -42,7 +42,8 @@ export interface IExponentRunOptions extends IAndroidRunOptions, IIOSRunOptions 
     expoHostType?: "tunnel" | "lan" | "local";
 }
 
-export type IWindowsRunOptions = ILaunchArgs;
+export interface IWindowsRunOptions extends ILaunchArgs {
+}
 
 export interface IRunOptions extends IAndroidRunOptions, IIOSRunOptions, IExponentRunOptions, IWindowsRunOptions  {
 
