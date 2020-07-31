@@ -40,6 +40,10 @@ export class GeneralMobilePlatform {
         this.runArguments = this.getRunArguments();
     }
 
+    public resolveEmulator(launchArgs: any, mobilePlatformOptions: any): Promise<void> {
+        return Promise.resolve();
+    }
+
     public runApp(): Promise<void> {
         this.logger.info(localize("ConnectedToPackager", "Connected to packager. You can now open your app in the simulator."));
         return Promise.resolve();

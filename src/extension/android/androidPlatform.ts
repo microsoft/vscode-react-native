@@ -18,6 +18,7 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { isNullOrUndefined } from "util";
 import { PromiseUtil } from "../../common/node/promise";
 import { AndroidEmulatorManager, IAndroidEmulator } from "./androidEmulatorManager";
+import { LaunchScenariosManager } from "../launchScenariosManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -53,6 +54,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private logCatMonitor: LogCatMonitor | null = null;
     private adbHelper: AdbHelper;
     private emulatorManager: AndroidEmulatorManager;
+    private scenariosManager: LaunchScenariosManager;
 
     private needsToLaunchApps: boolean = false;
 
@@ -69,6 +71,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         super(runOptions, platformDeps);
         this.adbHelper = new AdbHelper(this.runOptions.projectRoot, this.logger);
         this.emulatorManager = new AndroidEmulatorManager(this.adbHelper);
+        this.scenariosManager = new LaunchScenariosManager(runOptions.projectRoot);
     }
 
     // TODO: remove this method when sinon will be updated to upper version. Now it is used for tests only.
@@ -76,8 +79,25 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         this.adbHelper = adbHelper;
     }
 
-    public startEmulator(target: string): Promise<IAndroidEmulator | null> {
-        return this.emulatorManager.startEmulator(target);
+    public resolveEmulator(launchArgs: any, mobilePlatformOptions: any): Promise<void> {
+        return this.emulatorManager.startEmulator(launchArgs.target)
+        .then((emulator: IAndroidEmulator | null) => {
+            if (emulator) {
+                let launchConfigIndex = this.scenariosManager.getFirstScenarioIndexByParams(launchArgs);
+                const launchScenarios = this.scenariosManager.getLaunchScenarios();
+                if (launchConfigIndex !== null && launchScenarios.configurations) {
+                    launchScenarios.configurations[launchConfigIndex].target = emulator.name;
+                    this.scenariosManager.writeLaunchScenarios(launchScenarios);
+                }
+                launchArgs.target = emulator.id;
+                mobilePlatformOptions.target = emulator.id;
+                this.runArguments = this.getRunArguments();
+            }
+            else if (mobilePlatformOptions.target.indexOf("device") < 0) {
+                mobilePlatformOptions.target = null;
+                this.runArguments = this.getRunArguments();
+            }
+        })
     }
 
     public runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {

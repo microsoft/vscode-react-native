@@ -23,11 +23,9 @@ import {ProjectsStorage} from "./projectsStorage";
 import {ReactNativeCDPProxy} from "../cdp-proxy/reactNativeCDPProxy";
 import {generateRandomPortNumber} from "../common/extensionHelper";
 import {DEBUG_TYPES} from "./debugConfigurationProvider";
-import {AndroidPlatform} from "./android/androidPlatform";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { LaunchScenariosManager } from "./launchScenariosManager";
-import { IAndroidEmulator } from "./android/androidEmulatorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -213,35 +211,7 @@ export class AppLauncher {
                     TelemetryHelper.generate("launch", extProps, (generator) => {
                         generator.step("checkPlatformCompatibility");
                         TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
-                        return new Promise((resolve) => {
-                            if (launchArgs.platform === "android" && mobilePlatform instanceof AndroidPlatform) {
-                                resolve(mobilePlatform.startEmulator(launchArgs.target));
-                            }
-                            else resolve(null);
-                        })
-                        .then((emulator: IAndroidEmulator | null) => {
-                            if (emulator) {
-                                let launchConfigIndex = this.launchScenariosManager.getFirstScenarioIndexByParams(launchArgs);
-                                const launchScenarios = this.launchScenariosManager.getLaunchScenarios();
-                                if (launchConfigIndex !== null && launchConfigIndex !== undefined && launchScenarios.configurations) {
-                                    launchScenarios.configurations[launchConfigIndex].target = emulator.name;
-                                    this.launchScenariosManager.writeLaunchScenarios(launchScenarios);
-                                }
-                                if (launchArgs.platform === "android") {
-                                    launchArgs.target = emulator.id;
-                                    mobilePlatformOptions.target = emulator.id;
-                                }
-                                if (launchArgs.platform === "ios") {
-                                    launchArgs.target = emulator.name;
-                                    mobilePlatformOptions.target = emulator.name;
-                                }
-                                mobilePlatform.runArguments = mobilePlatform.getRunArguments();
-                            }
-                            else if (mobilePlatformOptions.target.indexOf("device") < 0) {
-                                mobilePlatformOptions.target = null;
-                                mobilePlatform.runArguments = mobilePlatform.getRunArguments();
-                            }
-                        })
+                        return mobilePlatform.resolveEmulator(launchArgs, mobilePlatformOptions)
                         .then(() => mobilePlatform.beforeStartPackager())
                         .then(() => {
                             generator.step("startPackager");
