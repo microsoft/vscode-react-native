@@ -93,7 +93,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     public runApp(): Promise<void> {
         let extProps = {
             platform: {
-                value: "ios",
+                value: PlatformType.iOS,
                 isPii: false,
             },
         };
@@ -117,7 +117,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 () =>
                     this.generateSuccessPatterns(this.runOptions.reactNativeVersions.reactNativeVersion),
                 () =>
-                    Promise.resolve(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
+                    Promise.resolve(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), PlatformType.iOS)
                 .process(runIosSpawn);
         });
     }
@@ -171,7 +171,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     public prewarmBundleCache(): Promise<void> {
-        return this.packager.prewarmBundleCache("ios");
+        return this.packager.prewarmBundleCache(PlatformType.iOS);
     }
 
     public getRunArguments(): string[] {

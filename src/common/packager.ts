@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { IRunOptions } from "./../extension/launchArgs";
+import { IRunOptions, PlatformType } from "./../extension/launchArgs";
 import { GeneralMobilePlatform } from "./../extension/generalMobilePlatform";
 import { ChildProcess } from "child_process";
 import { CommandExecutor } from "./commandExecutor";
@@ -175,7 +175,7 @@ export class Packager {
                         // Since Expo 37, you must specify the sourceExts parameter so that the packager can load additional files, such as custom fonts:
                         // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1720).
                         // Related to https://github.com/microsoft/vscode-react-native/issues/1252
-                        if (this.runOptions && this.runOptions.platform === "exponent") {
+                        if (this.runOptions && this.runOptions.platform === PlatformType.Exponent) {
                             const managedExtensions = this.getSourceExtensions();
 
                             // In order for the arguments to be processed normally, it is necessary to pass an array as an argument

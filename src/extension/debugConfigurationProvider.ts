@@ -5,6 +5,7 @@ import * as vscode from "vscode";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { Telemetry } from "../common/telemetry";
 import * as nls from "vscode-nls";
+import { PlatformType } from "./launchArgs";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -20,14 +21,14 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "android",
+            "platform": PlatformType.Android,
         },
         "Run Android (Preview)": {
             "name": "Run Android (Preview)",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "android",
+            "platform": PlatformType.Android,
             "enableDebug": false,
         },
         "Debug iOS (Preview)": {
@@ -35,14 +36,14 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "ios",
+            "platform": PlatformType.iOS,
         },
         "Run iOS (Preview)": {
             "name": "Run iOS (Preview)",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "ios",
+            "platform": PlatformType.iOS,
             "enableDebug": false,
         },
         "Debug Windows (Preview)": {
@@ -63,21 +64,21 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "exponent",
+            "platform": PlatformType.Exponent,
         },
         "Debug Android Hermes (Preview) - Experimental": {
             "name": "Debug Android Hermes (Preview) - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
-            "platform": "android",
+            "platform": PlatformType.Android,
         },
         "Run Android Hermes (Preview) - Experimental": {
             "name": "Run Android Hermes (Preview) - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
-            "platform": "android",
+            "platform": PlatformType.Android,
             "enableDebug": false,
         },
         "Attach to Hermes application (Preview) - Experimental": {

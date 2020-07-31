@@ -22,6 +22,14 @@ export interface ILaunchArgs {
     enableDebug?: boolean;
 }
 
+export enum PlatformType {
+    Android = "android",
+    iOS = "ios",
+    Windows = "windows",
+    WPF = "wpf",
+    Exponent = "exponent"
+}
+
 /**
  * Defines the options needed to start debugging a project.
  */

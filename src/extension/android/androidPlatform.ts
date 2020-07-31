@@ -4,7 +4,7 @@
 import * as semver from "semver";
 
 import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
-import {IAndroidRunOptions} from "../launchArgs";
+import {IAndroidRunOptions, PlatformType} from "../launchArgs";
 import {AdbHelper, AndroidAPILevel, IDevice} from "./adb";
 import {Package} from "../../common/node/package";
 import {PackageNameResolver} from "./packageNameResolver";
@@ -76,7 +76,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     public runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {
         let extProps: any = {
             platform: {
-                value: "android",
+                value: PlatformType.Android,
                 isPii: false,
             },
         };
@@ -115,7 +115,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     Promise.resolve(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
                 () =>
                     Promise.resolve(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS),
-                "android").process(runAndroidSpawn);
+                PlatformType.Android).process(runAndroidSpawn);
 
             return output
                 .finally(() => {
@@ -147,7 +147,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     public prewarmBundleCache(): Promise<void> {
-        return this.packager.prewarmBundleCache("android");
+        return this.packager.prewarmBundleCache(PlatformType.Android);
     }
 
     public getRunArguments(): string[] {

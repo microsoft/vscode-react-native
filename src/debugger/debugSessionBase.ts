@@ -12,7 +12,7 @@ import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { InternalError, NestedError } from "../common/error/internalError";
-import { ILaunchArgs } from "../extension/launchArgs";
+import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
 import * as nls from "vscode-nls";
@@ -147,7 +147,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.cancellationTokenSource.dispose();
 
         // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
-        if (this.previousAttachArgs && this.previousAttachArgs.platform === "android") {
+        if (this.previousAttachArgs && this.previousAttachArgs.platform === PlatformType.Android) {
             try {
                 this.appLauncher.stopMonitoringLogCat();
             } catch (err) {

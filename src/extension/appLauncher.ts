@@ -25,6 +25,7 @@ import {generateRandomPortNumber} from "../common/extensionHelper";
 import {DEBUG_TYPES} from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
+import { PlatformType } from "./launchArgs";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -227,7 +228,7 @@ export class AppLauncher {
                             })
                             .then(() => {
                                 if (mobilePlatformOptions.isDirect || !mobilePlatformOptions.enableDebug) {
-                                    if (mobilePlatformOptions.isDirect && launchArgs.platform === "android") {
+                                    if (mobilePlatformOptions.isDirect && launchArgs.platform === PlatformType.Android) {
                                         generator.step("mobilePlatform.enableDirectDebuggingMode");
                                         if (mobilePlatformOptions.enableDebug) {
                                             this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
@@ -248,7 +249,7 @@ export class AppLauncher {
                                 resolve();
                             })
                             .catch(error => {
-                                if (!mobilePlatformOptions.enableDebug && launchArgs.platform === "ios") {
+                                if (!mobilePlatformOptions.enableDebug && launchArgs.platform === PlatformType.iOS) {
                                     // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
                                     // since the error doesn't affects an application launch process
                                     return resolve();

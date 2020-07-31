@@ -13,7 +13,7 @@ import {ReactNativeCDPProxy} from "./../../src/cdp-proxy/reactNativeCDPProxy";
 import {generateRandomPortNumber} from "./../../src/common/extensionHelper";
 import {RnCDPMessageHandler} from "../../src/cdp-proxy/CDPMessageHandlers/rnCDPMessageHandler";
 import {ICDPMessageHandler} from "../../src/cdp-proxy/CDPMessageHandlers/ICDPMessageHandler";
-import {DirectCDPMessageHandler} from "../../src/cdp-proxy/CDPMessageHandlers/directCDPMessageHandler";
+import {HermesCDPMessageHandler} from "../../src/cdp-proxy/CDPMessageHandlers/hermesCDPMessageHandler";
 import {LogLevel} from "../../src/extension/log/LogHelper";
 import {DebuggerEndpointHelper} from "./../../src/cdp-proxy/debuggerEndpointHelper";
 import {Request} from "../../src/common/node/request";
@@ -86,7 +86,7 @@ suite("reactNativeCDPProxy", function () {
 
     suite("MessageHandlers", () => {
       let rnHandler = new RnCDPMessageHandler();
-      let directHandler = new DirectCDPMessageHandler();
+      let directHandler = new HermesCDPMessageHandler();
 
       const deliveryTest = function (messageHandler: ICDPMessageHandler) {
 
@@ -152,7 +152,7 @@ suite("reactNativeCDPProxy", function () {
       suite(`${directHandler.constructor.name}`, () => {
 
         suiteSetup(async () => {
-          directHandler = new DirectCDPMessageHandler();
+          directHandler = new HermesCDPMessageHandler();
           Object.assign(proxy, {CDPMessageHandler: directHandler});
         });
 

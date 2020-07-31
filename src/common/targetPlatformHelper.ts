@@ -5,6 +5,7 @@ import * as os from "os";
 import {ErrorHelper} from "./error/errorHelper";
 import {HostPlatform} from "./hostPlatform";
 import {InternalErrorCode} from "./error/internalErrorCode";
+import { PlatformType } from "../extension/launchArgs";
 /**
  * Defines the identifiers of all the mobile target platforms React Native supports.
  */
@@ -21,14 +22,14 @@ export class TargetPlatformHelper {
      */
     public static getTargetPlatformId(platformName: string): TargetPlatformId {
         switch (platformName.toLowerCase()) {
-            case "android":
+            case PlatformType.Android:
                 return TargetPlatformId.ANDROID;
-            case "ios":
+            case PlatformType.iOS:
                 return TargetPlatformId.IOS;
-            case "exponent":
+            case PlatformType.Exponent:
                 return TargetPlatformId.EXPONENT;
-            case "windows":
-            case "wpf":
+            case PlatformType.Windows:
+            case PlatformType.WPF:
                 return TargetPlatformId.WINDOWS;
             default:
                 throw ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform());
