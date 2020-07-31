@@ -22,7 +22,7 @@ import * as nls from "vscode-nls";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {AppLauncher} from "./appLauncher";
-import { AndroidEmulatorManager, IAndroidEmulator } from "./android/androidEmulatorManager";
+import { AndroidEmulatorManager } from "./android/androidEmulatorManager";
 import { AdbHelper } from "./android/adb";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();

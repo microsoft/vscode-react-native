@@ -18,7 +18,6 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { isNullOrUndefined } from "util";
 import { PromiseUtil } from "../../common/node/promise";
 import { AndroidEmulatorManager, IAndroidEmulator } from "./androidEmulatorManager";
-import { LaunchScenariosManager } from "../launchScenariosManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 

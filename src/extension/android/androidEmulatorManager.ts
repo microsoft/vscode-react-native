@@ -43,10 +43,11 @@ export class AndroidEmulatorManager extends EmulatorManager{
 
     public async tryLaunchEmulatorByName(emulatorName: string): Promise<string> {
         return new Promise((resolve, reject) => {
-            this.childProcess.spawn(AndroidEmulatorManager.EMULATOR_COMMAND, [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName], {
+            const emulatorProcess = this.childProcess.spawn(AndroidEmulatorManager.EMULATOR_COMMAND, [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName], {
                 detached: true,
                 stdio: 'ignore',
               });
+            emulatorProcess.spawnedProcess.unref();
 
             const rejectTimeout = setTimeout(() => {
                 cleanup();
