@@ -19,6 +19,8 @@ export class ChildProcess extends events.EventEmitter implements child_process.C
     public connected: boolean;
     public stdio: [stream.Writable, stream.Readable, stream.Readable]; // Not yet implemented
     public killed: boolean;
+    readonly exitCode: number | null;
+    readonly signalCode: number | null;
 
     public kill(signal?: string): void {
         this.notYetImplemented();
