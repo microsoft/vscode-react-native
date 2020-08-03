@@ -113,6 +113,7 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Recovers the server in case the named socket we use already exists, but no other instance of VSCode is active.
      */
+    // eslint-disable-next-line
     private recoverServer(resolve: (value: void) => {} , reject: (reason: any) => {}, error: any): void {
         let errorHandler = (e: any) => {
             /* The named socket is not used. */
