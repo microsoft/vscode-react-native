@@ -56,4 +56,14 @@ export class LaunchScenariosManager {
             this.launchScenarios = JSON.parse(content);
         }
     }
+
+    public updateLaunchScenario(launchArgs: any, updates: any) {
+        let launchConfigIndex = this.getFirstScenarioIndexByParams(launchArgs);
+        const launchScenarios = this.getLaunchScenarios();
+        if (launchConfigIndex !== null && launchScenarios.configurations) {
+            const scenario = launchScenarios.configurations[launchConfigIndex];
+            launchScenarios.configurations[launchConfigIndex] = Object.assign(scenario, updates);
+            this.writeLaunchScenarios(launchScenarios);
+        }
+    }
 }

@@ -41,7 +41,7 @@ export class GeneralMobilePlatform {
         this.runArguments = this.getRunArguments();
     }
 
-    public resolveEmulator(target: string): Promise<IEmulator | null> {
+    public tryLaunchVirtulaDevice(target: string): Promise<IEmulator | null> {
         return Promise.resolve(null);
     }
 

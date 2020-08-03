@@ -286,15 +286,10 @@ export class AppLauncher {
     }
 
     private resolveAndSaveEmulator(mobilePlatform: GeneralMobilePlatform, launchArgs: any, mobilePlatformOptions: any): Promise<void> {
-        return mobilePlatform.resolveEmulator(launchArgs.target)
+        return mobilePlatform.tryLaunchVirtulaDevice(launchArgs.target)
         .then((emulator: IEmulator | null) => {
             if (emulator) {
-                let launchConfigIndex = this.launchScenariosManager.getFirstScenarioIndexByParams(launchArgs);
-                const launchScenarios = this.launchScenariosManager.getLaunchScenarios();
-                if (launchConfigIndex !== null && launchScenarios.configurations) {
-                    launchScenarios.configurations[launchConfigIndex].target = emulator.name;
-                    this.launchScenariosManager.writeLaunchScenarios(launchScenarios);
-                }
+                this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
                 if (launchArgs.platform === "android") {
                     launchArgs.target = emulator.id;
                     mobilePlatformOptions.target = emulator.id;
