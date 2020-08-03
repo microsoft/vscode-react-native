@@ -141,7 +141,6 @@ export class CommandPaletteHandler {
             });
     }
 
-
     /**
      * Executes the 'react-native run-ios' command
      */
