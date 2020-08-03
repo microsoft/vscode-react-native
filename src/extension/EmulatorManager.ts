@@ -7,7 +7,7 @@ nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFo
 const localize = nls.loadMessageBundle();
 
 export interface IEmulator {
-    name: string;
+    name?: string;
     id: string;
 }
 

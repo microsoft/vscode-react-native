@@ -25,6 +25,12 @@ export class AndroidEmulatorManager extends EmulatorManager{
     }
 
     public async startEmulator(target: string): Promise<IAndroidEmulator | null> {
+        const onlineDevices = await this.adbHelper.getOnlineDevices();
+        for (let i = 0; i < onlineDevices.length; i++){
+            if (onlineDevices[i].id === target) {
+                return {id: onlineDevices[i].id};
+            }
+        }
         if (target && (await this.adbHelper.getOnlineDevices()).length === 0) {
             if (target === "simulator") {
                 const newEmulator = await this.selectEmulator();
