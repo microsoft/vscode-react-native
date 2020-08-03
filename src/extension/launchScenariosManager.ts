@@ -47,7 +47,7 @@ export class LaunchScenariosManager {
         if (!fs.existsSync(this.pathToLaunchFile)) {
             fs.mkdirSync(this.pathToLaunchFile);
         }
-        fs.writeFileSync(this.pathToLaunchFile, JSON.stringify(this.launchScenarios));
+        fs.writeFileSync(this.pathToLaunchFile, JSON.stringify(this.launchScenarios, null, 4));
     }
 
     private readLaunchScenarios(): void {
