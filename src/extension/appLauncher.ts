@@ -213,7 +213,7 @@ export class AppLauncher {
                         generator.step("checkPlatformCompatibility");
                         TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
                         generator.step("resolveEmulator");
-                        return this.resolveAndSaveEmulator(mobilePlatform, launchArgs, mobilePlatformOptions)
+                        return this.resolveAndSaveVirtualDevice(mobilePlatform, launchArgs, mobilePlatformOptions)
                         .then(() => mobilePlatform.beforeStartPackager())
                         .then(() => {
                             generator.step("startPackager");
@@ -285,8 +285,8 @@ export class AppLauncher {
         });
     }
 
-    private resolveAndSaveEmulator(mobilePlatform: GeneralMobilePlatform, launchArgs: any, mobilePlatformOptions: any): Promise<void> {
-        return mobilePlatform.tryLaunchVirtulaDevice(launchArgs.target)
+    private resolveAndSaveVirtualDevice(mobilePlatform: GeneralMobilePlatform, launchArgs: any, mobilePlatformOptions: any): Promise<void> {
+        return mobilePlatform.tryLaunchVirtualDevice(launchArgs.target)
         .then((emulator: IEmulator | null) => {
             if (emulator) {
                 this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});

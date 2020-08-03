@@ -125,7 +125,7 @@ export class CommandPaletteHandler {
                         appLauncher.setReactNativeVersions(versions);
                         return this.executeCommandInContext("runAndroid", appLauncher.getWorkspaceFolder(), () => {
                             const platform = <AndroidPlatform>this.createPlatform(appLauncher, "android", AndroidPlatform, target);
-                            return platform.tryLaunchVirtulaDevice(target)
+                            return platform.tryLaunchVirtualDevice(target)
                             .then(() => platform.beforeStartPackager())
                             .then(() => {
                                 return platform.startPackager();
