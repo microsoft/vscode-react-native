@@ -101,16 +101,14 @@ export class CommandPaletteHandler {
             });
     }
 
-    public static launchAndroidEmulator(): Promise<void> {
-        return this.selectProject()
-            .then(async (appLauncher: AppLauncher) => {
-                const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
-                const androidEmulatorManager = new AndroidEmulatorManager(adbHelper);
-                const emulator = await androidEmulatorManager.selectEmulator();
-                if (emulator) {
-                    androidEmulatorManager.tryLaunchEmulatorByName(emulator);
-                }
-            });
+    public static async launchAndroidEmulator(): Promise<void> {
+        const appLauncher = await this.selectProject();
+        const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
+        const androidEmulatorManager = new AndroidEmulatorManager(adbHelper);
+        const emulator = await androidEmulatorManager.selectEmulator();
+        if (emulator) {
+            androidEmulatorManager.tryLaunchEmulatorByName(emulator);
+        }
     }
 
     /**
