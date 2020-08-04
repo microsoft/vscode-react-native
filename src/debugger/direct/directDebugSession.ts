@@ -50,7 +50,7 @@ export class DirectDebugSession extends DebugSessionBase {
             });
             // Allow some time for the spawned process to error out
             PromiseUtil.delay(250).then(() => resolve());
-        })
+        });
     }
 
     protected async launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {

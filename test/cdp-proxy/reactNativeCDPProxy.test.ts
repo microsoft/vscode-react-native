@@ -29,7 +29,6 @@ import {
 } from "./cdpConstants";
 
 suite("reactNativeCDPProxy", function () {
-    const promiseUtil = new PromiseUtil();
 
     const cdpProxyHostAddress = "127.0.0.1"; // localhost
     const cdpProxyPort = generateRandomPortNumber();
@@ -64,7 +63,7 @@ suite("reactNativeCDPProxy", function () {
 
       // Due to the time limit, sooner or later this cycle will end
       while (!targetConnection) {
-        await promiseUtil.delay(1000);
+        await PromiseUtil.delay(1000);
       }
     });
 
