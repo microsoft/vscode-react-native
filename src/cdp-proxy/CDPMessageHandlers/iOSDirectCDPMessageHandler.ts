@@ -2,6 +2,5 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { BaseCDPMessageHandler } from "./baseCDPMessageHandler";
-
 export class IOSDirectCDPMessageHandler extends BaseCDPMessageHandler {
 }

@@ -15,6 +15,9 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
 import { IOSDirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/iOSDirectCDPMessageHandler";
 import { PlatformType } from "../../extension/launchArgs";
+import * as cp from "child_process";
+import { PromiseUtil } from "../../common/node/promise";
+
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -22,14 +25,32 @@ export class DirectDebugSession extends DebugSessionBase {
 
     private debuggerEndpointHelper: DebuggerEndpointHelper;
     private onDidTerminateDebugSessionHandler: vscode.Disposable;
+    private iOSWebkitDebugProxyProcess: cp.ChildProcess | null;
 
     constructor(session: vscode.DebugSession) {
         super(session);
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
+        this.iOSWebkitDebugProxyProcess = null;
 
         this.onDidTerminateDebugSessionHandler = vscode.debug.onDidTerminateDebugSession(
             this.handleTerminateDebugSession.bind(this)
         );
+    }
+
+    public startiOSWebkitDebugProxy(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.iOSWebkitDebugProxyProcess) {
+                this.iOSWebkitDebugProxyProcess.kill();
+                this.iOSWebkitDebugProxyProcess = null;
+            }
+
+            this.iOSWebkitDebugProxyProcess = cp.spawn("ios_webkit_debug_proxy");
+            this.iOSWebkitDebugProxyProcess.on("error", (err) => {
+                reject(new Error("Unable to start ios_webkit_debug_proxy: " + err));
+            });
+            // Allow some time for the spawned process to error out
+            PromiseUtil.delay(250).then(() => resolve());
+        })
     }
 
     protected async launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
@@ -112,6 +133,7 @@ export class DirectDebugSession extends DebugSessionBase {
                                 new HermesCDPMessageHandler(),
                             this.cdpProxyLogLevel)
                         )
+                        .then(() => attachArgs.platform === PlatformType.iOS ? this.startiOSWebkitDebugProxy() : Promise.resolve())
                         .then(() => this.appLauncher.getPackager().start())
                         .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(
                             `http://localhost:${attachArgs.port}`,
@@ -172,6 +194,10 @@ export class DirectDebugSession extends DebugSessionBase {
             debugSession.configuration.rnDebugSessionId === this.session.id
             && debugSession.type === this.pwaNodeSessionName
         ) {
+            if (this.iOSWebkitDebugProxyProcess) {
+                this.iOSWebkitDebugProxyProcess.kill();
+                this.iOSWebkitDebugProxyProcess = null;
+            }
             this.session.customRequest(this.disconnectCommand, { forcedStop: true });
         }
     }

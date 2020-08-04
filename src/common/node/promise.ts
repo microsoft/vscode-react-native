@@ -41,7 +41,7 @@ export class PromiseUtil {
         });
     }
 
-    public delay(duration: number): Promise<void> {
+    public static delay(duration: number): Promise<void> {
         return new Promise<void>(resolve => setTimeout(resolve, duration));
     }
 
@@ -55,7 +55,7 @@ export class PromiseUtil {
                     }
 
                     if (iteration < maxRetries) {
-                        return this.delay(delay).then(() => this.retryAsyncIteration(operation, condition, maxRetries, iteration + 1, delay, failure));
+                        return PromiseUtil.delay(delay).then(() => this.retryAsyncIteration(operation, condition, maxRetries, iteration + 1, delay, failure));
                     }
 
                     throw new Error(failure);
