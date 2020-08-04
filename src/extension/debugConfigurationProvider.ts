@@ -93,6 +93,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
             "platform": PlatformType.iOS,
+            "port": "9221"
         },
         "Run Direct iOS (Preview) - Experimental": {
             "name": "Run Direct iOS (Preview) - Experimental",

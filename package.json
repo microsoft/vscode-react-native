@@ -462,7 +462,8 @@
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect-preview",
 							"request": "launch",
-							"platform": "ios"
+							"platform": "ios",
+							"port": "9221"
 						}
 					},
 					{
