@@ -422,7 +422,7 @@
 				},
 				"configurationSnippets": [
 					{
-						"label": "React Native Hermes (Preview): Debug Android - Experimental",
+						"label": "React Native Direct (Preview): Debug Android Hermes - Experimental",
 						"description": "%reactNative.snippets.debugAndroidHermes.description%",
 						"body": {
 							"name": "Debug Android Hermes (Preview) - Experimental",
@@ -433,7 +433,7 @@
 						}
 					},
 					{
-						"label": "React Native Hermes (Preview): Run Android - Experimental",
+						"label": "React Native Direct (Preview): Run Android Hermes- Experimental",
 						"description": "%reactNative.snippets.runAndroidHermes.description%",
 						"body": {
 							"name": "Run Android Hermes (Preview) - Experimental",
@@ -445,13 +445,36 @@
 						}
 					},
 					{
-						"label": "React Native Hermes (Preview): Attach to Hermes application - Experimental",
-						"description": "%reactNative.snippets.attachPackagerHermes.description%",
+						"label": "React Native Direct (Preview): Attach to the React Native application directly - Experimental",
+						"description": "%reactNative.snippets.directAttach.description%",
 						"body": {
-							"name": "Attach to Hermes application (Preview) - Experimental",
+							"name": "Attach to the React Native application directly (Preview) - Experimental",
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect-preview",
 							"request": "attach"
+						}
+					},
+					{
+						"label": "React Native Direct (Preview): Direct Debug iOS - Experimental",
+						"description": "%reactNative.snippets.debugDirectiOS.description%",
+						"body": {
+							"name": "Direct Debug iOS (Preview) - Experimental",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnativedirect-preview",
+							"request": "launch",
+							"platform": "ios"
+						}
+					},
+					{
+						"label": "React Native Direct (Preview): Run Direct iOS - Experimental",
+						"description": "%reactNative.snippets.runDirectiOS.description%",
+						"body": {
+							"name": "Run Direct iOS (Preview) - Experimental",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnativedirect-preview",
+							"request": "launch",
+							"platform": "android",
+							"enableDebug": false
 						}
 					}
 				],
@@ -507,9 +530,10 @@
 							"platform": {
 								"type": "string",
 								"enum": [
-									"android"
+									"android",
+									"ios"
 								],
-								"description": "%reactNative.launch.platform.description%"
+								"description": "%reactNative.launch.direct.platform.description%"
 							},
 							"cwd": {
 								"type": "string",

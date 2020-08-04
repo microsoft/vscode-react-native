@@ -200,7 +200,7 @@ export class AppLauncher {
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (launchArgs.platform === "windows") {
+                    if (launchArgs.platform === PlatformType.Windows) {
                         if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
                             throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled);
                         }

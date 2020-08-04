@@ -7,7 +7,7 @@ import * as semver from "semver";
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {GeneralMobilePlatform, MobilePlatformDeps, TargetType} from "../generalMobilePlatform";
-import {IIOSRunOptions} from "../launchArgs";
+import {IIOSRunOptions, PlatformType} from "../launchArgs";
 import {PlistBuddy} from "./plistBuddy";
 import {IOSDebugModeManager} from "./iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";

@@ -3,7 +3,7 @@
 
 import { ICDPMessageHandler, ProcessedCDPMessage } from "./ICDPMessageHandler";
 
-export class BaseCDPMessageHandler implements ICDPMessageHandler {
+export abstract class BaseCDPMessageHandler implements ICDPMessageHandler {
     constructor() {}
 
     public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {

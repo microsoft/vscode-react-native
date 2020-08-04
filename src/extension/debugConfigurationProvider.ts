@@ -51,7 +51,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "windows",
+            "platform": PlatformType.Windows,
         },
         "Attach to packager (Preview)": {
             "name": "Attach to packager (Preview)",
@@ -81,12 +81,27 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "platform": PlatformType.Android,
             "enableDebug": false,
         },
-        "Attach to Hermes application (Preview) - Experimental": {
-            "name": "Attach to Hermes application (Preview) - Experimental",
+        "Attach to the React Native application directly (Preview) - Experimental": {
+            "name": "Attach to the React Native application directly (Preview) - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "attach",
         },
+        "Direct Debug iOS (Preview) - Experimental": {
+            "name": "Direct Debug iOS (Preview) - Experimental",
+            "cwd": "${workspaceFolder}",
+            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            "request": "launch",
+            "platform": PlatformType.iOS,
+        },
+        "Run Direct iOS (Preview) - Experimental": {
+            "name": "Run Direct iOS (Preview) - Experimental",
+            "cwd": "${workspaceFolder}",
+            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            "request": "launch",
+            "platform": PlatformType.iOS,
+            "enableDebug": false,
+        }
     };
 
     private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
@@ -123,8 +138,16 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             description: localize("DebugAndroidHermesConfigDesc", "Run and debug Android Hermes application"),
         },
         {
-            label: "Attach to Hermes application (Preview) - Experimental",
-            description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working Android Hermes application packager"),
+            label: "Attach to the React Native application directly (Preview) - Experimental",
+            description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working React Native application directly (e.g. Hermes app)"),
+        },
+        {
+            label: "Direct Debug iOS (Preview) - Experimental",
+            description: localize("DebugDirectiOSConfigDesc", "Run and debug iOS application directly"),
+        },
+        {
+            label: "Run Direct iOS (Preview) - Experimental",
+            description: localize("RunDirectiOSConfigDesc", "Run iOS application with direct debugging support"),
         },
     ];
 
