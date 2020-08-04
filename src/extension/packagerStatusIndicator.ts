@@ -27,7 +27,7 @@ export class PackagerStatusIndicator implements Disposable {
 
     private static START_ICON = "$(play)";
     private static STOP_ICON = "$(primitive-square)";
-    private static ACTIVITY_ICON = "$(loading)";
+    private static ACTIVITY_ICON = "$(loading~spin)";
     private static RESTART_ICON = "$(sync)";
 
     private static START_COMMAND = "reactNative.startPackager";

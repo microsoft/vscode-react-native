@@ -538,24 +538,8 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 
 -------------------------------------------------------------------
 
-@types/source-map 0.1.29 - MIT
-
-MIT License
-
-Copyright (c) <year> <copyright holders>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--------------------------------------------------------------------
-
--------------------------------------------------------------------
-
 applicationinsights 0.15.6 - MIT
-https://github.com/microsoft/ApplicationInsights-node.js#readme
+https://github.com/Microsoft/ApplicationInsights-node.js#readme
 Copyright (c) 2014 Microsoft Corporation
 
 ﻿The MIT License (MIT)
@@ -1591,7 +1575,7 @@ THE SOFTWARE.
 -------------------------------------------------------------------
 
 vscode-debugadapter 1.41.0 - MIT
-https://github.com/microsoft/vscode-debugadapter-node#readme
+https://github.com/Microsoft/vscode-debugadapter-node#readme
 Copyright (c) Microsoft Corporation.
 
 Copyright (c) Microsoft Corporation
@@ -1612,7 +1596,7 @@ THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 -------------------------------------------------------------------
 
 vscode-debugprotocol 1.41.0 - MIT
-https://github.com/microsoft/vscode-debugadapter-node#readme
+https://github.com/Microsoft/vscode-debugadapter-node#readme
 Copyright (c) Microsoft Corporation.
 
 Copyright (c) Microsoft Corporation
@@ -1633,7 +1617,7 @@ THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 -------------------------------------------------------------------
 
 vscode-extension-telemetry 0.0.5 - MIT
-https://github.com/microsoft/vscode-extension-telemetry#readme
+https://github.com/Microsoft/vscode-extension-telemetry#readme
 Copyright (c) Microsoft Corporation.
 
 vscode-extension-telemetry
@@ -1665,7 +1649,7 @@ SOFTWARE.
 -------------------------------------------------------------------
 
 vscode-nls 3.2.2 - MIT
-https://github.com/microsoft/vscode-nls#readme
+https://github.com/Microsoft/vscode-nls#readme
 Copyright (c) Microsoft Corporation.
 
 The MIT License (MIT)
@@ -1692,7 +1676,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 -------------------------------------------------------------------
 
 vscode-nls 4.1.1 - MIT
-https://github.com/microsoft/vscode-nls#readme
+https://github.com/Microsoft/vscode-nls#readme
 Copyright (c) Microsoft Corporation.
 
 The MIT License (MIT)
@@ -1719,7 +1703,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 -------------------------------------------------------------------
 
 vscode-uri 2.1.1 - MIT
-https://github.com/microsoft/vscode-uri#readme
+https://github.com/Microsoft/vscode-uri#readme
 Copyright (c) Microsoft
 Copyright (c) Microsoft Corporation.
 
