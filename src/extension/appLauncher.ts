@@ -207,9 +207,11 @@ export class AppLauncher {
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
                     TelemetryHelper.generate("launch", extProps, (generator) => {
-                        generator.step("checkPlatformCompatibility");
-                        TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
                         return mobilePlatform.beforeStartPackager()
+                            .then(() => {
+                                generator.step("checkPlatformCompatibility");
+                                TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
+                            })
                             .then(() => {
                                 generator.step("startPackager");
                                 return mobilePlatform.startPackager();
@@ -245,11 +247,9 @@ export class AppLauncher {
                                 this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
                                 return mobilePlatform.enableJSDebuggingMode();
                             })
-                            .then(() => {
-                                resolve();
-                            })
+                            .then(resolve)
                             .catch(error => {
-                                if (!mobilePlatformOptions.enableDebug && launchArgs.platform === PlatformType.iOS) {
+                                if (!mobilePlatformOptions.enableDebug && launchArgs.platform === PlatformType.iOS && launchArgs.type === DEBUG_TYPES.REACT_NATIVE) {
                                     // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
                                     // since the error doesn't affects an application launch process
                                     return resolve();

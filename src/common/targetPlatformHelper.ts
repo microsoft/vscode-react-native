@@ -41,13 +41,8 @@ export class TargetPlatformHelper {
      */
     public static checkTargetPlatformSupport(platformName: string): void {
         let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(platformName);
-        try {
-            if (!HostPlatform.isCompatibleWithTarget(targetPlatformId)) {
-                throw ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform());
-            }
-        } catch (e) {
-            /* we throw in the case of an invalid target platform */
-            throw ErrorHelper.getNestedError(e, InternalErrorCode.PlatformNotSupported, platformName, os.platform());
+        if (!HostPlatform.isCompatibleWithTarget(targetPlatformId)) {
+            throw ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform());
         }
     }
 }
