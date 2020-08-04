@@ -293,7 +293,7 @@ export class AppLauncher {
             enableDebug: args.enableDebug,
         };
 
-        if (args.platform === "exponent") {
+        if (args.platform === PlatformType.Exponent) {
             mobilePlatformOptions.expoHostType = args.expoHostType || "tunnel";
         }
 

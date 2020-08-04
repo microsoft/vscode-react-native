@@ -3,7 +3,7 @@
 
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { IExponentRunOptions } from "../launchArgs";
+import { IExponentRunOptions, PlatformType } from "../launchArgs";
 import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import { ExponentHelper } from "./exponentHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
@@ -31,7 +31,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
     public runApp(): Promise<void> {
         let extProps = {
             platform: {
-                value: "exponent",
+                value: PlatformType.Exponent,
                 isPii: false,
             },
         };
