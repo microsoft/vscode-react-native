@@ -87,7 +87,7 @@ export class GeneralMobilePlatform {
         return Promise.resolve();
     }
 
-    public static removeRunArguments(runArguments: any[], optName: string, binary: boolean) {
+    public static removeRunArgument(runArguments: any[], optName: string, binary: boolean) {
         const optIdx = runArguments.indexOf(optName);
         if (optIdx > -1) {
             if (binary) {
@@ -104,7 +104,7 @@ export class GeneralMobilePlatform {
         const optIdx = runArguments.indexOf(optName);
         if (optIdx > -1) {
             if (isBinary && !value) {
-                GeneralMobilePlatform.removeRunArguments(runArguments, optName, true);
+                GeneralMobilePlatform.removeRunArgument(runArguments, optName, true);
             }
             if (!isBinary) {
                 runArguments[optIdx + 1] = value;
