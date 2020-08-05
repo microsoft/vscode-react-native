@@ -177,7 +177,7 @@ export class DirectDebugSession extends DebugSessionBase {
                                         attachArgs.port = attachArgs.port || results.targetPort;
                                     });
                             } else {
-                               return Promise.resolve()
+                               return Promise.resolve();
                             }
                         })
                         .then(() => this.appLauncher.getPackager().start())
