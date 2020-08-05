@@ -251,7 +251,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android emulator save test: Debugging started");
             await AndroidEmulatorHelper.waitUntilEmulatorStarting();
             const scenarioIsUpdate = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath);
-            console.log(`Android emulator save test: launch.json is ${scenarioIsUpdate ? "" : "not"} contains '"target": "${AndroidEmulatorHelper.getDevice()}"'`);
+            console.log(`Android emulator save test: launch.json is ${scenarioIsUpdate ? "" : "not "}contains '"target": "${AndroidEmulatorHelper.getDevice()}"'`);
             assert.notStrictEqual(scenarioIsUpdate, false, "The launch.json has not been updated");
         });
     });
