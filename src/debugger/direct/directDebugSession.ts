@@ -17,6 +17,7 @@ import { IOSDirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/i
 import { PlatformType } from "../../extension/launchArgs";
 import * as cp from "child_process";
 import { PromiseUtil } from "../../common/node/promise";
+import { Request } from "../../common/node/request";
 
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
@@ -26,6 +27,7 @@ export class DirectDebugSession extends DebugSessionBase {
     private debuggerEndpointHelper: DebuggerEndpointHelper;
     private onDidTerminateDebugSessionHandler: vscode.Disposable;
     private iOSWebkitDebugProxyProcess: cp.ChildProcess | null;
+    public static readonly iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT: number = 9221;
 
     constructor(session: vscode.DebugSession) {
         super(session);
@@ -37,14 +39,15 @@ export class DirectDebugSession extends DebugSessionBase {
         );
     }
 
-    public startiOSWebkitDebugProxy(): Promise<any> {
+    public startiOSWebkitDebugProxy(proxyPort: number, proxyRangeStart: number, proxyRangeEnd: number): Promise<void> {
         return new Promise((resolve, reject) => {
             if (this.iOSWebkitDebugProxyProcess) {
                 this.iOSWebkitDebugProxyProcess.kill();
                 this.iOSWebkitDebugProxyProcess = null;
             }
 
-            this.iOSWebkitDebugProxyProcess = cp.spawn("ios_webkit_debug_proxy");
+            let portRange = `null:${proxyPort},:${proxyRangeStart}-${proxyRangeEnd}`;
+            this.iOSWebkitDebugProxyProcess = cp.spawn("ios_webkit_debug_proxy", ["-c", portRange]);
             this.iOSWebkitDebugProxyProcess.on("error", (err) => {
                 reject(new Error("Unable to start ios_webkit_debug_proxy: " + err));
             });
@@ -52,6 +55,34 @@ export class DirectDebugSession extends DebugSessionBase {
             PromiseUtil.delay(250).then(() => resolve());
         });
     }
+
+    private getSimulatorProxyPort(attachArgs: IAttachRequestArgs): Promise<{ targetPort: number, iOSVersion: string }> {
+        return Request.request(`http://localhost:${attachArgs.port}/json`, true)
+            .then((response: string) => {
+                try {
+                    // An example of a json response from IWDP
+                    // [{
+                    //     "deviceId": "00008020-XXXXXXXXXXXXXXXX",
+                    //     "deviceName": "iPhone name",
+                    //     "deviceOSVersion": "13.4.1",
+                    //     "url": "localhost:9223"
+                    //  }]
+                    let endpointsList = JSON.parse(response);
+                    let devices = endpointsList.filter((entry: { deviceId: string }) =>
+                        attachArgs.target!.toLowerCase() === "device" ? entry.deviceId !== "SIMULATOR"
+                            : entry.deviceId === "SIMULATOR"
+                    );
+                    let device = devices[0];
+                    // device.url is of the form 'localhost:port'
+                    return {
+                        targetPort: parseInt(device.url.split(":")[1], 10),
+                        iOSVersion: device.deviceOSVersion,
+                    };
+                } catch (e) {
+                    throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundDeviceForDirectDebugging);
+                }
+            });
+    };
 
     protected async launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
         let extProps = {
@@ -110,6 +141,9 @@ export class DirectDebugSession extends DebugSessionBase {
             },
         };
 
+        attachArgs.webkitRangeMin = attachArgs.webkitRangeMin || 9223;
+        attachArgs.webkitRangeMax = attachArgs.webkitRangeMax || 9322;
+
         this.previousAttachArgs = attachArgs;
 
         return new Promise<void>((resolve, reject) => this.initializeSettings(attachArgs)
@@ -124,7 +158,9 @@ export class DirectDebugSession extends DebugSessionBase {
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                 }
                 return TelemetryHelper.generate("attach", extProps, (generator) => {
-                    attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
+                    attachArgs.port = attachArgs.platform === PlatformType.iOS ?
+                        attachArgs.port || DirectDebugSession.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT :
+                        attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                     logger.log(`Connecting to ${attachArgs.port} port`);
                     return this.appLauncher.getRnCdpProxy().stopServer()
                         .then(() => this.appLauncher.getRnCdpProxy().initializeServer(
@@ -133,7 +169,13 @@ export class DirectDebugSession extends DebugSessionBase {
                                 new HermesCDPMessageHandler(),
                             this.cdpProxyLogLevel)
                         )
-                        .then(() => attachArgs.platform === PlatformType.iOS ? this.startiOSWebkitDebugProxy() : Promise.resolve())
+                        .then(() => attachArgs.platform === PlatformType.iOS ?
+                            this.startiOSWebkitDebugProxy(attachArgs.port, attachArgs.webkitRangeMin, attachArgs.webkitRangeMax)
+                                .then(() => this.getSimulatorProxyPort(attachArgs))
+                                .then((results) => {
+                                    attachArgs.port = attachArgs.port || results.targetPort;
+                                })
+                            : Promise.resolve())
                         .then(() => this.appLauncher.getPackager().start())
                         .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(
                             `http://localhost:${attachArgs.port}`,

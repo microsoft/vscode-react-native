@@ -43,6 +43,8 @@ export interface TerminateEventArgs {
 }
 
 export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments, ILaunchArgs {
+    webkitRangeMax: number;
+    webkitRangeMin: number;
     cwd: string; /* Automatically set by VS Code to the currently opened folder */
     port: number;
     url?: string;

@@ -463,7 +463,7 @@
 							"type": "reactnativedirect-preview",
 							"request": "launch",
 							"platform": "ios",
-							"port": "9221"
+							"port": 9221
 						}
 					},
 					{
@@ -508,9 +508,19 @@
 								"default": "localhost"
 							},
 							"port": {
-								"type": "string",
+								"type": "number",
 								"description": "%reactNative.direct.attach.port.description%",
-								"default": "8081"
+								"default": 8081
+							},
+							"webkitRangeMin": {
+								"type": "number",
+								"description": "%reactNative.direct.attach.webkitRangeMin.description%",
+								"default": 9223
+							},
+							"webkitRangeMax": {
+								"type": "number",
+								"description": "%reactNative.direct.attach.webkitRangeMax.description%",
+								"default": 9322
 							},
 							"skipFiles": {
 								"type": "array",
@@ -542,9 +552,19 @@
 								"default": "${workspaceFolder}"
 							},
 							"port": {
-								"type": "string",
+								"type": "number",
 								"description": "%reactNative.direct.attach.port.description%",
-								"default": "8081"
+								"default": 8081
+							},
+							"webkitRangeMin": {
+								"type": "number",
+								"description": "%reactNative.direct.attach.webkitRangeMin.description%",
+								"default": 9223
+							},
+							"webkitRangeMax": {
+								"type": "number",
+								"description": "%reactNative.direct.attach.webkitRangeMax.description%",
+								"default": 9322
 							},
 							"target": {
 								"anyOf": [

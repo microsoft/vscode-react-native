@@ -78,4 +78,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.CouldntImportScriptAt]: localize("CouldntImportScriptAt", "Couldn't import script at <{0}>"),
     [InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty]: localize("RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty", "RNMessage with method 'executeApplicationScript' doesn't have 'url' property"),
     [InternalErrorCode.CouldNotConnectToDebugTarget]: localize("CouldNotConnectToDebugTarget", "Could not connect to the debug target at {0}: {1}"),
+    [InternalErrorCode.IOSCouldNotFoundDeviceForDirectDebugging]: localize("CannotAttachtoiOSDeviceDirectly", "Unable to find iOS target device/simulator. Please check that \"Settings > Safari > Advanced > Web Inspector = ON\" or try specifying a different \"port\" parameter in launch.json"),
 };

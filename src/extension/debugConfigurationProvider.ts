@@ -6,6 +6,7 @@ import { TelemetryHelper } from "../common/telemetryHelper";
 import { Telemetry } from "../common/telemetry";
 import * as nls from "vscode-nls";
 import { PlatformType } from "./launchArgs";
+import { DirectDebugSession } from "../debugger/direct/directDebugSession";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -93,7 +94,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
             "platform": PlatformType.iOS,
-            "port": "9221"
+            "port": DirectDebugSession.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT // 9221
         },
         "Run Direct iOS (Preview) - Experimental": {
             "name": "Run Direct iOS (Preview) - Experimental",
