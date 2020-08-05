@@ -4,7 +4,10 @@
 import { AdbHelper } from "./adb";
 import { ChildProcess } from "../../common/node/childProcess";
 import { IEmulator, EmulatorManager } from "../EmulatorManager";
-
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
+import * as nls from "vscode-nls";
+nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+const localize = nls.loadMessageBundle();
 export interface IAndroidEmulator extends IEmulator {
 }
 
@@ -14,6 +17,8 @@ export class AndroidEmulatorManager extends EmulatorManager{
     private static readonly EMULATOR_AVD_START_COMMAND = `-avd`;
 
     private static readonly EMULATOR_START_TIMEOUT = 120;
+
+    private logger: OutputChannelLogger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
 
     private adbHelper: AdbHelper;
     private childProcess: ChildProcess;
@@ -63,6 +68,7 @@ export class AndroidEmulatorManager extends EmulatorManager{
             const bootCheckInterval = setInterval(async () => {
                 const connectedDevices = await this.adbHelper.getOnlineDevices();
                 if (connectedDevices.length > 0) {
+                    this.logger.info(localize("EmulatorLaunched", "launched emulator {0}", emulatorName));
                     cleanup();
                     resolve(connectedDevices[0].id);
                 }
@@ -80,6 +86,10 @@ export class AndroidEmulatorManager extends EmulatorManager{
         let emulatorsList: string[] = [];
         if (res) {
             emulatorsList = res.split(/\r?\n|\r/g);
+            const indexOfBlank = emulatorsList.indexOf("");
+            if (emulatorsList.indexOf("") >= 0) {
+                emulatorsList.splice(indexOfBlank, 1);
+            }
         }
         return emulatorsList;
     }

@@ -295,8 +295,7 @@ gulp.task("clean", () => {
         "!test/resources/sampleReactNative022Project/**/*.js",
         ".vscode-test/",
         "nls.*.json",
-        "!test/smoke/**/*.js",
-        "!test/smoke/**/*.js.map",
+        "!test/smoke/**/*",
     ]
     return del(pathsToDelete, { force: true });
 });

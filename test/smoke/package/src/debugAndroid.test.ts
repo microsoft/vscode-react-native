@@ -5,7 +5,7 @@ import * as assert from "assert";
 import * as path from "path";
 import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
-import { sleep, findStringInFile, findExpoURLInLogFile, ExpoLaunch, findExpoSuccessAndFailurePatterns, waitForRunningPackager } from "./helpers/utilities";
+import { sleep, findStringInFile, findExpoURLInLogFile, ExpoLaunch, findExpoSuccessAndFailurePatterns, waitForRunningPackager, waitUntilLaunchScenarioTargetUpdate } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
@@ -240,6 +240,19 @@ export function setup(testParameters?: TestRunArguments) {
             }
             this.timeout(debugExpoTestTime);
             await expoTest("App.tsx", "Android Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
+        });
+
+        it("RN Android emulator save test", async function () {
+            this.timeout(debugAndroidTestTime);
+            AndroidEmulatorHelper.terminateAndroidEmulator();
+            app = await runVSCode(RNworkspacePath);
+            console.log("Android emulator save test: Starting debugging");
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
+            console.log("Android emulator save test: Debugging started");
+            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+            const scenarioIsUpdate = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath);
+            console.log(`Android emulator save test: launch.json is ${scenarioIsUpdate ? "" : "not"} contains '"target": "${AndroidEmulatorHelper.getDevice()}"'`);
+            assert.notStrictEqual(scenarioIsUpdate, false, "The launch.json has not been updated");
         });
     });
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as path from "path";
 import * as fs from "fs";
 import * as cp from "child_process";
 import * as request from "request";
@@ -174,6 +175,46 @@ export function findStringInFile(filePath: string, strToFind: string): boolean {
 export interface ExpoLaunch {
     successful: boolean;
     failed: boolean;
+}
+
+function getEmulatorsNamesList(): string[] {
+    const res = cp.execSync("emulator -list-avds");
+    let emulatorsList: string[] = [];
+    if (res) {
+        const resString = res.toString();
+        emulatorsList = resString.split(/\r?\n|\r/g);
+    }
+    return emulatorsList;
+}
+
+export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        const LAUNCH_UPDATE_TIMEOUT = 30;
+        const rejectTimeout = setTimeout(() => {
+            cleanup();
+            resolve(false);
+        }, LAUNCH_UPDATE_TIMEOUT * 1000);
+
+        const bootCheckInterval = setInterval(async () => {
+            const isUpdated = isLaunchScenarioTargetUpdate(workspaceRoot);
+            if (isUpdated) {
+                cleanup();
+                resolve(true);
+            }
+        }, 1000);
+
+        const cleanup = () => {
+            clearTimeout(rejectTimeout);
+            clearInterval(bootCheckInterval);
+        };
+    });
+}
+
+export function isLaunchScenarioTargetUpdate(workspaceRoot: string): boolean {
+    const pathToLaunchFile = path.resolve(workspaceRoot, ".vscode", "launch.json");
+    const emulatorsList = getEmulatorsNamesList();
+    const firstEmulatorName = emulatorsList[0];
+    return findStringInFile(pathToLaunchFile, `"target": "${firstEmulatorName}"`);
 }
 
 export async function waitForRunningPackager(filePath: string) {
