@@ -169,13 +169,17 @@ export class DirectDebugSession extends DebugSessionBase {
                                 new HermesCDPMessageHandler(),
                             this.cdpProxyLogLevel)
                         )
-                        .then(() => attachArgs.platform === PlatformType.iOS ?
-                            this.startiOSWebkitDebugProxy(attachArgs.port, attachArgs.webkitRangeMin, attachArgs.webkitRangeMax)
-                                .then(() => this.getSimulatorProxyPort(attachArgs))
-                                .then((results) => {
-                                    attachArgs.port = attachArgs.port || results.targetPort;
-                                })
-                            : Promise.resolve())
+                        .then(() => {
+                            if (attachArgs.platform === PlatformType.iOS) {
+                                return this.startiOSWebkitDebugProxy(attachArgs.port, attachArgs.webkitRangeMin, attachArgs.webkitRangeMax)
+                                    .then(() => this.getSimulatorProxyPort(attachArgs))
+                                    .then((results) => {
+                                        attachArgs.port = attachArgs.port || results.targetPort;
+                                    });
+                            } else {
+                               return Promise.resolve()
+                            }
+                        })
                         .then(() => this.appLauncher.getPackager().start())
                         .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(
                             `http://localhost:${attachArgs.port}`,
