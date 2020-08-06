@@ -26,7 +26,7 @@ import {DEBUG_TYPES} from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { LaunchScenariosManager } from "./launchScenariosManager";
-import { IEmulator } from "./EmulatorManager";
+import { IVirtualDevice } from "./VirtualDeviceManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -287,7 +287,7 @@ export class AppLauncher {
 
     private resolveAndSaveVirtualDevice(mobilePlatform: GeneralMobilePlatform, launchArgs: any, mobilePlatformOptions: any): Promise<void> {
         return mobilePlatform.tryLaunchVirtualDevice(launchArgs.target)
-        .then((emulator: IEmulator | null) => {
+        .then((emulator: IVirtualDevice | null) => {
             if (emulator && emulator.name) {
                 this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
                 if (launchArgs.platform === "android") {

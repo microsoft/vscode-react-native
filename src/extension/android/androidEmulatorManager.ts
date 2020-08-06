@@ -3,15 +3,15 @@
 
 import { AdbHelper } from "./adb";
 import { ChildProcess } from "../../common/node/childProcess";
-import { IEmulator, EmulatorManager } from "../EmulatorManager";
+import { IVirtualDevice, VirtualDeviceManager } from "../VirtualDeviceManager";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import * as nls from "vscode-nls";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
-export interface IAndroidEmulator extends IEmulator {
+export interface IAndroidEmulator extends IVirtualDevice {
 }
 
-export class AndroidEmulatorManager extends EmulatorManager{
+export class AndroidEmulatorManager extends VirtualDeviceManager{
     private static readonly EMULATOR_COMMAND = "emulator";
     private static readonly EMULATOR_LIST_AVDS_COMMAND = `-list-avds`;
     private static readonly EMULATOR_AVD_START_COMMAND = `-avd`;
@@ -38,7 +38,7 @@ export class AndroidEmulatorManager extends EmulatorManager{
         }
         if (target && (await this.adbHelper.getOnlineDevices()).length === 0) {
             if (target === "simulator") {
-                const newEmulator = await this.selectEmulator();
+                const newEmulator = await this.selectVirtualDevice();
                 if (newEmulator) {
                     const emulatorId = await this.tryLaunchEmulatorByName(newEmulator);
                     return {name: newEmulator, id: emulatorId};
@@ -81,7 +81,7 @@ export class AndroidEmulatorManager extends EmulatorManager{
         });
     }
 
-    protected async getEmulatorsNamesList(): Promise<string[]> {
+    protected async getVirtualDevicesNamesList(): Promise<string[]> {
         const res = await this.childProcess.execToString(`${AndroidEmulatorManager.EMULATOR_COMMAND} ${AndroidEmulatorManager.EMULATOR_LIST_AVDS_COMMAND}`);
         let emulatorsList: string[] = [];
         if (res) {

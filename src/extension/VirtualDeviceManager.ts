@@ -6,19 +6,19 @@ import { QuickPickOptions, window } from "vscode";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
-export interface IEmulator {
+export interface IVirtualDevice {
     name?: string;
     id: string;
 }
 
-export abstract class EmulatorManager {
+export abstract class VirtualDeviceManager {
 
-    public async selectEmulator(): Promise<string | undefined> {
-        const emulatorsList = await this.getEmulatorsNamesList();
+    public async selectVirtualDevice(): Promise<string | undefined> {
+        const emulatorsList = await this.getVirtualDevicesNamesList();
         const quickPickOptions: QuickPickOptions = {
             ignoreFocusOut: true,
             canPickMany: false,
-            placeHolder: localize("SelectEmulator", "Select emulator for launch application"),
+            placeHolder: localize("SelectVirtualDevice", "Select virtual device for launch application"),
         };
         let result: string | undefined = emulatorsList[0];
         if (emulatorsList.length > 1) {
@@ -27,5 +27,5 @@ export abstract class EmulatorManager {
         return result?.toString();
     }
 
-    protected abstract async getEmulatorsNamesList(): Promise<string[]>;
+    protected abstract async getVirtualDevicesNamesList(): Promise<string[]>;
 }
