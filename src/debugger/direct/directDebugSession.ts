@@ -15,9 +15,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
 import { IOSDirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/iOSDirectCDPMessageHandler";
 import { PlatformType } from "../../extension/launchArgs";
-import * as cp from "child_process";
-import { PromiseUtil } from "../../common/node/promise";
-import { Request } from "../../common/node/request";
+import { IWDPHelper } from "./IWDPHelper";
 
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
@@ -26,63 +24,17 @@ export class DirectDebugSession extends DebugSessionBase {
 
     private debuggerEndpointHelper: DebuggerEndpointHelper;
     private onDidTerminateDebugSessionHandler: vscode.Disposable;
-    private iOSWebkitDebugProxyProcess: cp.ChildProcess | null;
-    public static readonly iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT: number = 9221;
+    private iOSWKDebugProxyHelper: IWDPHelper;
 
     constructor(session: vscode.DebugSession) {
         super(session);
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
-        this.iOSWebkitDebugProxyProcess = null;
+        this.iOSWKDebugProxyHelper = new IWDPHelper();
 
         this.onDidTerminateDebugSessionHandler = vscode.debug.onDidTerminateDebugSession(
             this.handleTerminateDebugSession.bind(this)
         );
     }
-
-    public startiOSWebkitDebugProxy(proxyPort: number, proxyRangeStart: number, proxyRangeEnd: number): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (this.iOSWebkitDebugProxyProcess) {
-                this.iOSWebkitDebugProxyProcess.kill();
-                this.iOSWebkitDebugProxyProcess = null;
-            }
-
-            let portRange = `null:${proxyPort},:${proxyRangeStart}-${proxyRangeEnd}`;
-            this.iOSWebkitDebugProxyProcess = cp.spawn("ios_webkit_debug_proxy", ["-c", portRange]);
-            this.iOSWebkitDebugProxyProcess.on("error", (err) => {
-                reject(new Error("Unable to start ios_webkit_debug_proxy: " + err));
-            });
-            // Allow some time for the spawned process to error out
-            PromiseUtil.delay(250).then(() => resolve());
-        });
-    }
-
-    private getSimulatorProxyPort(attachArgs: IAttachRequestArgs): Promise<{ targetPort: number, iOSVersion: string }> {
-        return Request.request(`http://localhost:${attachArgs.port}/json`, true)
-            .then((response: string) => {
-                try {
-                    // An example of a json response from IWDP
-                    // [{
-                    //     "deviceId": "00008020-XXXXXXXXXXXXXXXX",
-                    //     "deviceName": "iPhone name",
-                    //     "deviceOSVersion": "13.4.1",
-                    //     "url": "localhost:9223"
-                    //  }]
-                    let endpointsList = JSON.parse(response);
-                    let devices = endpointsList.filter((entry: { deviceId: string }) =>
-                        attachArgs.target!.toLowerCase() === "device" ? entry.deviceId !== "SIMULATOR"
-                            : entry.deviceId === "SIMULATOR"
-                    );
-                    let device = devices[0];
-                    // device.url is of the form 'localhost:port'
-                    return {
-                        targetPort: parseInt(device.url.split(":")[1], 10),
-                        iOSVersion: device.deviceOSVersion,
-                    };
-                } catch (e) {
-                    throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundDeviceForDirectDebugging);
-                }
-            });
-    };
 
     protected async launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
         let extProps = {
@@ -159,7 +111,7 @@ export class DirectDebugSession extends DebugSessionBase {
                 }
                 return TelemetryHelper.generate("attach", extProps, (generator) => {
                     attachArgs.port = attachArgs.platform === PlatformType.iOS ?
-                        attachArgs.port || DirectDebugSession.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT :
+                        attachArgs.port || IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT :
                         attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                     logger.log(`Connecting to ${attachArgs.port} port`);
                     return this.appLauncher.getRnCdpProxy().stopServer()
@@ -171,8 +123,8 @@ export class DirectDebugSession extends DebugSessionBase {
                         )
                         .then(() => {
                             if (attachArgs.platform === PlatformType.iOS) {
-                                return this.startiOSWebkitDebugProxy(attachArgs.port, attachArgs.webkitRangeMin, attachArgs.webkitRangeMax)
-                                    .then(() => this.getSimulatorProxyPort(attachArgs))
+                                return this.iOSWKDebugProxyHelper.startiOSWebkitDebugProxy(attachArgs.port, attachArgs.webkitRangeMin, attachArgs.webkitRangeMax)
+                                    .then(() => this.iOSWKDebugProxyHelper.getSimulatorProxyPort(attachArgs))
                                     .then((results) => {
                                         attachArgs.port = attachArgs.port || results.targetPort;
                                     });
@@ -240,10 +192,7 @@ export class DirectDebugSession extends DebugSessionBase {
             debugSession.configuration.rnDebugSessionId === this.session.id
             && debugSession.type === this.pwaNodeSessionName
         ) {
-            if (this.iOSWebkitDebugProxyProcess) {
-                this.iOSWebkitDebugProxyProcess.kill();
-                this.iOSWebkitDebugProxyProcess = null;
-            }
+            this.iOSWKDebugProxyHelper.cleanUp();
             this.session.customRequest(this.disconnectCommand, { forcedStop: true });
         }
     }
