@@ -73,7 +73,7 @@ suite("LaunchScenarioManager", function() {
         ]
     };
 
-    suiteSetup(()=> {
+    suiteSetup(() => {
         fs.mkdirSync(tmpPath);
         fs.mkdirSync(path.resolve(tmpPath, ".vscode"));
     });
