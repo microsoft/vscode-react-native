@@ -105,7 +105,7 @@ export class CommandPaletteHandler {
         const appLauncher = await this.selectProject();
         const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
         const androidEmulatorManager = new AndroidEmulatorManager(adbHelper);
-        const emulator = await androidEmulatorManager.selectEmulator();
+        const emulator = await androidEmulatorManager.selectVirtualDevice();
         if (emulator) {
             androidEmulatorManager.tryLaunchEmulatorByName(emulator);
         }

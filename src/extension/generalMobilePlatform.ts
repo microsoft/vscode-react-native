@@ -9,7 +9,7 @@ import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import * as nls from "vscode-nls";
 import { isBoolean } from "util";
-import { IIVirtualDevice } from "./VirtualDeviceManager";
+import { IVirtualDevice } from "./VirtualDeviceManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -41,7 +41,7 @@ export class GeneralMobilePlatform {
         this.runArguments = this.getRunArguments();
     }
 
-    public tryLaunchVirtualDevice(target: string): Promise<IIVirtualDevice | null> {
+    public tryLaunchVirtualDevice(target: string): Promise<IVirtualDevice | null> {
         return Promise.resolve(null);
     }
 
