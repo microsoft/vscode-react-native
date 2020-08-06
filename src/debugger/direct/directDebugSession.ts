@@ -126,7 +126,7 @@ export class DirectDebugSession extends DebugSessionBase {
                                 return this.iOSWKDebugProxyHelper.startiOSWebkitDebugProxy(attachArgs.port, attachArgs.webkitRangeMin, attachArgs.webkitRangeMax)
                                     .then(() => this.iOSWKDebugProxyHelper.getSimulatorProxyPort(attachArgs))
                                     .then((results) => {
-                                        attachArgs.port = attachArgs.port || results.targetPort;
+                                        attachArgs.port = results.targetPort;
                                     });
                             } else {
                                return Promise.resolve();
