@@ -91,7 +91,8 @@ suite("LaunchScenarioManager", function() {
     suite("updateLaunchScenario", function() {
 
         function autogenerateUpdateAndCheck(configIndex: number, updates: any) {
-            const config = Object.assign(Object.assign({}, launchContent.configurations[configIndex]), {
+            const config = Object.assign({}, launchContent.configurations[configIndex]);
+            Object.assign(config, {
                 otherParam: "value1",
                 otherObject: {
                     innerParam: "value2"
@@ -128,10 +129,14 @@ suite("LaunchScenarioManager", function() {
                 platform: "android",
             };
 
-            tryUpdateAndCheck(Object.assign(Object.assign({}, config), {name: "Other name"}), {param: "value1"}, launchContent);
-            tryUpdateAndCheck(Object.assign(Object.assign(Object.assign({}, config)), {type: "Other type"}), {param: "value2"}, launchContent);
-            tryUpdateAndCheck(Object.assign(Object.assign(Object.assign({}, config)), {request: "Other request"}), {param: "value3"}, launchContent);
-            tryUpdateAndCheck(Object.assign(Object.assign(Object.assign({}, config)), {platform: "Other platform"}), {param: "value4"}, launchContent);
+            let configCopy = Object.assign({}, config);
+            tryUpdateAndCheck(Object.assign(configCopy, {name: "Other name"}), {param: "value1"}, launchContent);
+            configCopy = Object.assign({}, config);
+            tryUpdateAndCheck(Object.assign(configCopy, {type: "Other type"}), {param: "value2"}, launchContent);
+            configCopy = Object.assign({}, config);
+            tryUpdateAndCheck(Object.assign(configCopy, {request: "Other request"}), {param: "value3"}, launchContent);
+            configCopy = Object.assign({}, config);
+            tryUpdateAndCheck(Object.assign(configCopy, {platform: "Other platform"}), {param: "value4"}, launchContent);
         });
     });
 });
