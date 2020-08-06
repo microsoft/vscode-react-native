@@ -505,9 +505,10 @@
 							"platform": {
 								"type": "string",
 								"enum": [
-									"ios"
+									"ios",
+									"android"
 								],
-								"description": "%reactNative.attach.direct.platform.description%"
+								"description": "%reactNative.launch.direct.platform.description%"
 							},
 							"trace": {
 								"type": "string",
