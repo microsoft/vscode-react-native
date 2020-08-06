@@ -46,10 +46,14 @@ export class IWDPHelper {
                     //  }]
                     let endpointsList = JSON.parse(response);
 
-                    let devices = endpointsList.filter((entry: { deviceId: string }) =>
-                        attachArgs.target?.toLowerCase() === "device" ? entry.deviceId !== "SIMULATOR"
-                            : entry.deviceId === "SIMULATOR"
-                    );
+                    let devices = endpointsList;
+                    if (attachArgs.target) {
+                        devices = endpointsList.filter((entry: { deviceId: string }) =>
+                            attachArgs.target?.toLowerCase() === "device" ? entry.deviceId !== "SIMULATOR"
+                                : entry.deviceId === "SIMULATOR"
+                        );
+                    }
+
                     let device = devices[0];
                     // device.url is of the form 'localhost:port'
                     return {
