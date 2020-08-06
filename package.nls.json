@@ -21,7 +21,7 @@
     "reactNative.snippets.runiOS.description":"A new configuration for launching React Native app on iOS without debugging",
     "reactNative.snippets.debugWindows.description":"A new configuration for launching React Native app on Windows",
     "reactNative.snippets.attachPackager.description":"A new configuration for attaching to packager",
-    "reactNative.snippets.directAttach.description":"A new configuration for attaching to React Native app directly (e.g. to Hermes app)",
+    "reactNative.snippets.directAttach.description":"A new configuration for attaching to React Native app directly (e.g. to Hermes app, or iOS app with Turbomodules)",
     "reactNative.snippets.runDirectiOS.description":"A new configuration for launching React Native app on iOS without direct debugging enabled",
     "reactNative.snippets.debugDirectiOS.description":"A new configuration for launching React Native app on iOS with direct debugging enabled",
     "reactNative.snippets.debugExpo.description":"A new configuration for launching Expo app",

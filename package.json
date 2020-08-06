@@ -445,20 +445,31 @@
 						}
 					},
 					{
-						"label": "React Native Direct (Preview): Attach to the React Native application directly - Experimental",
+						"label": "React Native Direct (Preview): Attach to the React Native Hermes - Experimental",
 						"description": "%reactNative.snippets.directAttach.description%",
 						"body": {
-							"name": "Attach to the React Native application directly (Preview) - Experimental",
+							"name": "React Native Direct (Preview): Attach to the React Native Hermes - Experimental",
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect-preview",
 							"request": "attach"
 						}
 					},
 					{
-						"label": "React Native Direct (Preview): Direct Debug iOS - Experimental",
+						"label": "React Native Direct (Preview): Attach to the React Native iOS - Experimental",
+						"description": "%reactNative.snippets.directAttach.description%",
+						"body": {
+							"name": "Attach to the React Native iOS - Experimental",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnativedirect-preview",
+							"request": "attach",
+							"platform": "ios"
+						}
+					},
+					{
+						"label": "React Native Direct (Preview): Debug Direct iOS - Experimental",
 						"description": "%reactNative.snippets.debugDirectiOS.description%",
 						"body": {
-							"name": "Direct Debug iOS (Preview) - Experimental",
+							"name": "Debug Direct iOS (Preview) - Experimental",
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect-preview",
 							"request": "launch",

@@ -82,13 +82,20 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "platform": PlatformType.Android,
             "enableDebug": false,
         },
-        "Attach to the React Native application directly (Preview) - Experimental": {
-            "name": "Attach to the React Native application directly (Preview) - Experimental",
+        "Attach to the React Native Hermes - Experimental": {
+            "name": "Attach to the React Native Hermes - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "attach",
         },
-        "Direct Debug iOS (Preview) - Experimental": {
+        "Attach to the React Native iOS - Experimental": {
+            "name": "Attach to the React Native iOS - Experimental",
+            "cwd": "${workspaceFolder}",
+            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            "request": "attach",
+            "platform": "ios",
+        },
+        "Debug Direct iOS (Preview) - Experimental": {
             "name": "Direct Debug iOS (Preview) - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
@@ -140,11 +147,15 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             description: localize("DebugAndroidHermesConfigDesc", "Run and debug Android Hermes application"),
         },
         {
-            label: "Attach to the React Native application directly (Preview) - Experimental",
-            description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working React Native application directly (e.g. Hermes app)"),
+            label: "Attach to the React Native Hermes - Experimental",
+            description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working React Native Hermes application on Android directly"),
         },
         {
-            label: "Direct Debug iOS (Preview) - Experimental",
+            label: "Attach to the React Native iOS - Experimental",
+            description: localize("AttachToPackageriOSConfigDesc", "Attach to already working React Native iOS application directly"),
+        },
+        {
+            label: "Debug Direct iOS (Preview) - Experimental",
             description: localize("DebugDirectiOSConfigDesc", "Run and debug iOS application directly"),
         },
         {
