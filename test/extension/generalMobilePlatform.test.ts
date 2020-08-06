@@ -58,7 +58,7 @@ suite("generalMobilePlatform", function () {
             });
         });
 
-        suite(("runArguments"), function() {
+        suite("runArguments", function() {
             let mockRunArguments: any[] = [];
             const paramWithValue = "--paramWithValue";
             const binaryParam = "--binaryParam";
