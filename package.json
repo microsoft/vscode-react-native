@@ -462,7 +462,8 @@
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect-preview",
 							"request": "attach",
-							"platform": "ios"
+							"platform": "ios",
+							"port": 9221
 						}
 					},
 					{
@@ -485,7 +486,7 @@
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect-preview",
 							"request": "launch",
-							"platform": "android",
+							"platform": "ios",
 							"enableDebug": false
 						}
 					}
@@ -500,6 +501,13 @@
 								"type": "string",
 								"description": "%reactNative.attach.cwd.description%",
 								"default": "${workspaceFolder}"
+							},
+							"platform": {
+								"type": "string",
+								"enum": [
+									"ios"
+								],
+								"description": "%reactNative.attach.direct.platform.description%"
 							},
 							"trace": {
 								"type": "string",

@@ -93,7 +93,8 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "attach",
-            "platform": "ios",
+            "platform": PlatformType.iOS,
+            "port": DirectDebugSession.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT // 9221
         },
         "Debug Direct iOS (Preview) - Experimental": {
             "name": "Direct Debug iOS (Preview) - Experimental",
