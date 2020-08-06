@@ -43,11 +43,10 @@ export class LaunchScenariosManager {
         return null;
     }
 
-    public writeLaunchScenarios(launch: ILaunchScenarios = this.launchScenarios): void {
-        if (!fs.existsSync(this.pathToLaunchFile)) {
-            fs.mkdirSync(this.pathToLaunchFile);
+    private writeLaunchScenarios(launch: ILaunchScenarios = this.launchScenarios): void {
+        if (fs.existsSync(this.pathToLaunchFile)) {
+            fs.writeFileSync(this.pathToLaunchFile, JSON.stringify(this.launchScenarios, null, 4));
         }
-        fs.writeFileSync(this.pathToLaunchFile, JSON.stringify(this.launchScenarios, null, 4));
     }
 
     private readLaunchScenarios(): void {
@@ -61,8 +60,7 @@ export class LaunchScenariosManager {
         let launchConfigIndex = this.getFirstScenarioIndexByParams(launchArgs);
         const launchScenarios = this.getLaunchScenarios();
         if (launchConfigIndex !== null && launchScenarios.configurations) {
-            const scenario = launchScenarios.configurations[launchConfigIndex];
-            launchScenarios.configurations[launchConfigIndex] = Object.assign(scenario, updates);
+            Object.assign(launchScenarios.configurations[launchConfigIndex], updates);
             this.writeLaunchScenarios(launchScenarios);
         }
     }
