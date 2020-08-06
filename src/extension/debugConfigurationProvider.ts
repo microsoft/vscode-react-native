@@ -97,7 +97,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "port": IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT // 9221
         },
         "Debug Direct iOS (Preview) - Experimental": {
-            "name": "Direct Debug iOS (Preview) - Experimental",
+            "name": "Debug Direct iOS (Preview) - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
