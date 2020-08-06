@@ -56,10 +56,10 @@ export class IWDPHelper {
 
                     let device = devices[0];
                     // device.url is of the form 'localhost:port'
-                    return {
+                    return Promise.resolve({
                         targetPort: parseInt(device.url.split(":")[1], 10),
                         iOSVersion: device.deviceOSVersion,
-                    };
+                    });
                 } catch (e) {
                     throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundDeviceForDirectDebugging);
                 }
