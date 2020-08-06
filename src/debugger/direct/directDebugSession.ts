@@ -153,8 +153,8 @@ export class DirectDebugSession extends DebugSessionBase {
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
+        this.iOSWKDebugProxyHelper.cleanUp();
         this.onDidTerminateDebugSessionHandler.dispose();
-
         super.disconnectRequest(response, args, request);
     }
 
@@ -192,7 +192,6 @@ export class DirectDebugSession extends DebugSessionBase {
             debugSession.configuration.rnDebugSessionId === this.session.id
             && debugSession.type === this.pwaNodeSessionName
         ) {
-            this.iOSWKDebugProxyHelper.cleanUp();
             this.session.customRequest(this.disconnectCommand, { forcedStop: true });
         }
     }
