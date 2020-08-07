@@ -133,7 +133,7 @@ export class AdbHelper {
     }
 
     public startLogCat(adbParameters: string[]): ISpawnResult {
-        return new ChildProcess().spawn(`${this.adbExecutable}`, adbParameters);
+        return this.childProcess.spawn(this.adbExecutable.replace(/\"/g, ""), adbParameters);
     }
 
     public parseSdkLocation(fileContent: string, logger?: ILogger) {
