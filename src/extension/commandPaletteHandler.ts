@@ -105,7 +105,7 @@ export class CommandPaletteHandler {
         const appLauncher = await this.selectProject();
         const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
         const androidEmulatorManager = new AndroidEmulatorManager(adbHelper);
-        const emulator = await androidEmulatorManager.selectVirtualDevice();
+        const emulator = await androidEmulatorManager.startSelection();
         if (emulator) {
             androidEmulatorManager.tryLaunchEmulatorByName(emulator);
         }
@@ -123,7 +123,7 @@ export class CommandPaletteHandler {
                         appLauncher.setReactNativeVersions(versions);
                         return this.executeCommandInContext("runAndroid", appLauncher.getWorkspaceFolder(), () => {
                             const platform = <AndroidPlatform>this.createPlatform(appLauncher, "android", AndroidPlatform, target);
-                            return platform.tryLaunchVirtualDevice(target)
+                            return platform.resolveVirtualDevice(target)
                             .then(() => platform.beforeStartPackager())
                             .then(() => {
                                 return platform.startPackager();
@@ -151,7 +151,8 @@ export class CommandPaletteHandler {
                         TargetPlatformHelper.checkTargetPlatformSupport("ios");
                         return this.executeCommandInContext("runIos", appLauncher.getWorkspaceFolder(), () => {
                             const platform = <IOSPlatform>this.createPlatform(appLauncher, "ios", IOSPlatform, target);
-                            return platform.beforeStartPackager()
+                            return platform.resolveVirtualDevice(target)
+                                .then(() => platform.beforeStartPackager())
                                 .then(() => {
                                     return platform.startPackager();
                                 })

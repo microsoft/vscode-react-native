@@ -11,7 +11,7 @@ const localize = nls.loadMessageBundle();
 export interface IAndroidEmulator extends IVirtualDevice {
 }
 
-export class AndroidEmulatorManager extends VirtualDeviceManager{
+export class AndroidEmulatorManager extends VirtualDeviceManager {
     private static readonly EMULATOR_COMMAND = "emulator";
     private static readonly EMULATOR_LIST_AVDS_COMMAND = `-list-avds`;
     private static readonly EMULATOR_AVD_START_COMMAND = `-avd`;
@@ -38,7 +38,7 @@ export class AndroidEmulatorManager extends VirtualDeviceManager{
         }
         if (target && (await this.adbHelper.getOnlineDevices()).length === 0) {
             if (target === "simulator") {
-                const newEmulator = await this.selectVirtualDevice();
+                const newEmulator = await this.startSelection();
                 if (newEmulator) {
                     const emulatorId = await this.tryLaunchEmulatorByName(newEmulator);
                     return {name: newEmulator, id: emulatorId};
@@ -56,8 +56,10 @@ export class AndroidEmulatorManager extends VirtualDeviceManager{
         return new Promise((resolve, reject) => {
             const emulatorProcess = this.childProcess.spawn(AndroidEmulatorManager.EMULATOR_COMMAND, [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName], {
                 detached: true,
-                stdio: 'ignore',
-              });
+            });
+            emulatorProcess.outcome.catch((error) => {
+                reject(error);
+            });
             emulatorProcess.spawnedProcess.unref();
 
             const rejectTimeout = setTimeout(() => {
@@ -68,7 +70,7 @@ export class AndroidEmulatorManager extends VirtualDeviceManager{
             const bootCheckInterval = setInterval(async () => {
                 const connectedDevices = await this.adbHelper.getOnlineDevices();
                 if (connectedDevices.length > 0) {
-                    this.logger.info(localize("EmulatorLaunched", "launched emulator {0}", emulatorName));
+                    this.logger.info(localize("EmulatorLaunched", "Launched emulator {0}", emulatorName));
                     cleanup();
                     resolve(connectedDevices[0].id);
                 }
@@ -79,6 +81,10 @@ export class AndroidEmulatorManager extends VirtualDeviceManager{
                 clearInterval(bootCheckInterval);
             };
         });
+    }
+
+    public startSelection(): Promise<string | undefined> {
+        return this.selectVirtualDevice();
     }
 
     protected async getVirtualDevicesNamesList(): Promise<string[]> {

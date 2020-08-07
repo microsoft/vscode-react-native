@@ -76,7 +76,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         this.adbHelper = adbHelper;
     }
 
-    public tryLaunchVirtualDevice(target: string): Promise<IAndroidEmulator | null> {
+    public resolveVirtualDevice(target: string): Promise<IAndroidEmulator | null> {
         if (!target.includes("device")) {
             return this.emulatorManager.startEmulator(target)
             .then((emulator: IAndroidEmulator | null) => {

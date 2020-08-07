@@ -13,8 +13,8 @@ export interface IVirtualDevice {
 
 export abstract class VirtualDeviceManager {
 
-    public async selectVirtualDevice(): Promise<string | undefined> {
-        const emulatorsList = await this.getVirtualDevicesNamesList();
+    protected async selectVirtualDevice(filter?: (el: IVirtualDevice) => {}): Promise<string | undefined> {
+        const emulatorsList = await this.getVirtualDevicesNamesList(filter);
         const quickPickOptions: QuickPickOptions = {
             ignoreFocusOut: true,
             canPickMany: false,
@@ -27,5 +27,9 @@ export abstract class VirtualDeviceManager {
         return result?.toString();
     }
 
-    protected abstract async getVirtualDevicesNamesList(): Promise<string[]>;
+    public abstract async startSelection(): Promise<string | undefined>;
+
+    protected abstract async getVirtualDevicesNamesList(filter?: (el: IVirtualDevice) => {}): Promise<string[]>;
+
+
 }

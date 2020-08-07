@@ -65,7 +65,6 @@ export class AppLauncher {
         const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator(rootPath);
         this.packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(workspaceFolder.uri.fsPath), packagerStatusIndicator);
         this.packager.setExponentHelper(this.exponentHelper);
-        this.launchScenariosManager = new LaunchScenariosManager(rootPath);
         this.reactDirManager = reactDirManager;
         this.workspaceFolder = workspaceFolder;
         this.rnCdpProxy = new ReactNativeCDPProxy(
@@ -178,6 +177,8 @@ export class AppLauncher {
             mobilePlatformOptions.isDirect = true;
         }
 
+        this.launchScenariosManager = new LaunchScenariosManager(this.workspaceFolder.uri.fsPath);
+
         mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(launchArgs.cwd || launchArgs.program);
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
@@ -286,24 +287,27 @@ export class AppLauncher {
     }
 
     private resolveAndSaveVirtualDevice(mobilePlatform: GeneralMobilePlatform, launchArgs: any, mobilePlatformOptions: any): Promise<void> {
-        return mobilePlatform.tryLaunchVirtualDevice(launchArgs.target)
-        .then((emulator: IVirtualDevice | null) => {
-            if (emulator && emulator.name) {
-                this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
-                if (launchArgs.platform === "android") {
-                    launchArgs.target = emulator.id;
-                    mobilePlatformOptions.target = emulator.id;
+        if (launchArgs.target) {
+            return mobilePlatform.resolveVirtualDevice(launchArgs.target)
+            .then((emulator: IVirtualDevice | null) => {
+                if (emulator && emulator.name) {
+                    this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
+                    if (launchArgs.platform === "android") {
+                        launchArgs.target = emulator.id;
+                        mobilePlatformOptions.target = emulator.id;
+                    }
+                    if (launchArgs.platform === "ios") {
+                        launchArgs.target = emulator.name;
+                        mobilePlatformOptions.target = emulator.name;
+                    }
                 }
-                if (launchArgs.platform === "ios") {
-                    launchArgs.target = emulator.name;
-                    mobilePlatformOptions.target = emulator.name;
+                else if (!emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
+                    mobilePlatformOptions.target = null;
+                    mobilePlatform.runArguments = mobilePlatform.getRunArguments();
                 }
-            }
-            else if (!emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
-                mobilePlatformOptions.target = null;
-                mobilePlatform.runArguments = mobilePlatform.getRunArguments();
-            }
-        });
+            });
+        }
+        return Promise.resolve();
     }
 
     private requestSetup(args: any): any {
