@@ -15,7 +15,6 @@ import {TelemetryHelper} from "../../common/telemetryHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
 import { AppLauncher } from "../appLauncher";
-import { IiOSSimulator, IOSSimulatorManager } from "./iOSSimulatorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -26,7 +25,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
     private iosDebugModeManager: IOSDebugModeManager;
-    private simulatorManager: IOSSimulatorManager;
 
     private defaultConfiguration: string = "Debug";
     private configurationArgumentName: string = "--configuration";
@@ -90,26 +88,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
         }
 
         this.targetType = this.runOptions.target || IOSPlatform.simulatorString;
-        this.simulatorManager = new IOSSimulatorManager();
-    }
-
-    public resolveVirtualDevice(target: string): Promise<IiOSSimulator | null> {
-        if (!target.includes("device")) {
-            return this.simulatorManager.startSelection()
-            .then((simulatorName: string | undefined) => {
-                if (simulatorName) {
-                    const simulator = this.simulatorManager.getSimulatorByName(simulatorName);
-                    if (simulator) {
-                        GeneralMobilePlatform.setRunArgument(this.runArguments, "--device", simulatorName);
-                    }
-                    return simulator;
-                }
-                return null;
-            });
-        }
-        else {
-            return Promise.resolve(null);
-        }
     }
 
     public runApp(): Promise<void> {
