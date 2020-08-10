@@ -65,6 +65,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
 
+        this.simulatorManager = new IOSSimulatorManager();
         this.runOptions.configuration = this.getConfiguration();
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
@@ -90,11 +91,10 @@ export class IOSPlatform extends GeneralMobilePlatform {
         }
 
         this.targetType = this.runOptions.target || IOSPlatform.simulatorString;
-        this.simulatorManager = new IOSSimulatorManager();
     }
 
     public resolveVirtualDevice(target: string): Promise<IiOSSimulator | null> {
-        if (!target.includes("device")) {
+        if (target === "simulator") {
             return this.simulatorManager.startSelection()
             .then((simulatorName: string | undefined) => {
                 if (simulatorName) {
@@ -104,7 +104,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     }
                     return simulator;
                 }
-                return null;
+                else return null;
+            });
+        }
+        else if (!target.includes("device")) {
+            return this.simulatorManager.collectSimulators()
+            .then((simulators) => {
+                GeneralMobilePlatform.setRunArgument(this.runArguments, "--device", target);
+                return this.simulatorManager.getSimulatorByName(target, simulators);
             });
         }
         else {

@@ -24,15 +24,16 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
         this.simulators = [];
     }
 
-    public getSimulatorByName(name: string): IiOSSimulator | null {
-        const simulatorsWithName = this.simulators.filter((value) => value.name === name);
+    public getSimulatorByName(name: string, simulators?: IiOSSimulator[]): IiOSSimulator | null {
+        const sims = simulators ? simulators : this.simulators;
+        const simulatorsWithName = sims.filter((value) => value.name === name);
         if (simulatorsWithName.length === 0) {
             return null;
         }
         return simulatorsWithName[0];
     }
 
-    private async collectSimulators(): Promise<IiOSSimulator[]> {
+    public async collectSimulators(): Promise<IiOSSimulator[]> {
         const simulators: IiOSSimulator[] = [];
         const res = JSON.parse(await this.childProcess.execToString(IOSSimulatorManager.SIMULATORS_LIST_COMMAND));
 
@@ -86,9 +87,11 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
     protected getSystemsList(): string[] {
         const names: Set<string> = new Set();
         this.simulators.forEach((el: IiOSSimulator) => {
-            names.add(el.system);
+            if (el.system.indexOf("iOS") >= 0) {
+                names.add(el.system);
+            }
         });
-        return Array.prototype.filter((sys: string) => sys.indexOf("iOS") >= 0, names);
+        return Array.from(names);
     }
 
 }
