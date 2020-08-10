@@ -22,14 +22,13 @@ export class LaunchScenariosManager {
 
     constructor(rootPath: string) {
         this.pathToLaunchFile = path.resolve(rootPath, ".vscode", "launch.json");
-        this.readLaunchScenarios();
     }
 
     public getLaunchScenarios(): ILaunchScenarios {
         return this.launchScenarios;
     }
 
-    public getFirstScenarioIndexByParams(scenario: IConfiguration): number | null {
+    private getFirstScenarioIndexByParams(scenario: IConfiguration): number | null {
         if (this.launchScenarios.configurations) {
             for (let i = 0; i < this.launchScenarios.configurations.length; i++) {
                 const config = this.launchScenarios.configurations[i];
@@ -50,7 +49,7 @@ export class LaunchScenariosManager {
         }
     }
 
-    private readLaunchScenarios(): void {
+    public readLaunchScenarios(): void {
         if (fs.existsSync(this.pathToLaunchFile)) {
             const content = fs.readFileSync(this.pathToLaunchFile, "utf8");
             this.launchScenarios = JSON.parse(stripJsonComments(content));
@@ -58,6 +57,7 @@ export class LaunchScenariosManager {
     }
 
     public updateLaunchScenario(launchArgs: any, updates: any) {
+        this.readLaunchScenarios();
         let launchConfigIndex = this.getFirstScenarioIndexByParams(launchArgs);
         const launchScenarios = this.getLaunchScenarios();
         if (launchConfigIndex !== null && launchScenarios.configurations) {

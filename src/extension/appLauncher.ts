@@ -60,6 +60,7 @@ export class AppLauncher {
         this.cdpProxyHostAddress = "127.0.0.1"; // localhost
 
         const rootPath = workspaceFolder.uri.fsPath;
+        this.launchScenariosManager = new LaunchScenariosManager(rootPath);
         const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
         this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
         const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator(rootPath);
@@ -177,8 +178,6 @@ export class AppLauncher {
             mobilePlatformOptions.isDirect = true;
         }
 
-        this.launchScenariosManager = new LaunchScenariosManager(this.workspaceFolder.uri.fsPath);
-
         mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(launchArgs.cwd || launchArgs.program);
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
@@ -251,9 +250,7 @@ export class AppLauncher {
                             this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
                             return mobilePlatform.enableJSDebuggingMode();
                         })
-                        .then(() => {
-                            resolve();
-                        })
+                        .then(resolve)
                         .catch(error => {
                             if (!mobilePlatformOptions.enableDebug && launchArgs.platform === "ios") {
                                 // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
