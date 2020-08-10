@@ -38,7 +38,7 @@ export function setup(testParameters?: TestRunArguments) {
         let app: Application;
         let clientInited: AppiumClient;
 
-        afterEach(async () => {
+        async function disposeAll() {
             if (app) {
                 await app.stop();
             }
@@ -46,7 +46,9 @@ export function setup(testParameters?: TestRunArguments) {
                 clientInited.closeApp();
                 clientInited.endAll();
             }
-        });
+        }
+
+        afterEach(disposeAll);
 
         async function runExpoDebugScenario(logFilePath: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             console.log(`${testName}: Starting debugging`);
@@ -246,13 +248,22 @@ export function setup(testParameters?: TestRunArguments) {
             this.timeout(debugAndroidTestTime);
             AndroidEmulatorHelper.terminateAndroidEmulator();
             app = await runVSCode(RNworkspacePath);
-            console.log("Android emulator save test: Starting debugging");
+            console.log("Android emulator save test: Starting debugging in first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            console.log("Android emulator save test: Debugging started");
+            console.log("Android emulator save test: Debugging started in first time");
             await AndroidEmulatorHelper.waitUntilEmulatorStarting();
             const scenarioIsUpdate = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath);
             console.log(`Android emulator save test: launch.json is ${scenarioIsUpdate ? "" : "not "}contains '"target": "${AndroidEmulatorHelper.getDevice()}"'`);
             assert.notStrictEqual(scenarioIsUpdate, false, "The launch.json has not been updated");
+            await disposeAll();
+            AndroidEmulatorHelper.terminateAndroidEmulator();
+            app = await runVSCode(RNworkspacePath);
+            console.log("Android emulator save test: Starting debugging in second time");
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
+            console.log("Android emulator save test: Debugging started in second time");
+            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+            const devices = AndroidEmulatorHelper.getOnlineDevices();
+            assert.strictEqual(devices.length, 1, "The emulator has not been started after update launch.json");
         });
     });
 }
