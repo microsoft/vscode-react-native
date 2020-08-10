@@ -166,7 +166,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.disconnectFromDebugger();
             console.log("Android Debug test: Debugging is stopped");
-        }).skip();
+        });
 
         it("Hermes RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
@@ -210,7 +210,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
             await app.workbench.debug.disconnectFromDebugger();
             console.log("Android Debug Hermes test: Debugging is stopped");
-        }).skip();
+        });
 
         it("Expo app Debug test(Tunnel)", async function () {
             if (testParameters && testParameters.RunBasicTests) {
@@ -218,7 +218,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
             this.timeout(debugExpoTestTime);
             await expoTest("App.tsx","Android Expo Debug test(Tunnel)", ExpoWorkspacePath, ExpoDebugConfigName, 5);
-        }).skip();
+        });
 
         it("Pure RN app Expo test(LAN)", async function () {
             if (testParameters && testParameters.RunBasicTests) {
@@ -226,7 +226,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
             this.timeout(debugExpoTestTime);
             await expoTest("App.js", "Android pure RN Expo test(LAN)", pureRNWorkspacePath, ExpoLanDebugConfigName, 1, true);
-        }).skip();
+        });
 
         it("Expo app Debug test(LAN)", async function () {
             if (testParameters && testParameters.RunBasicTests) {
@@ -234,7 +234,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
             this.timeout(debugExpoTestTime);
             await expoTest("App.tsx", "Android Expo Debug test(LAN)", ExpoWorkspacePath, ExpoLanDebugConfigName, 1);
-        }).skip();
+        });
 
         it("Expo app Debug test(localhost)", async function () {
             if (testParameters && testParameters.RunBasicTests) {
@@ -242,7 +242,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
             this.timeout(debugExpoTestTime);
             await expoTest("App.tsx", "Android Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
-        }).skip();
+        });
 
         it("RN Android emulator save test", async function () {
             this.timeout(debugAndroidTestTime);
