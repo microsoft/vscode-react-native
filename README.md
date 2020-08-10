@@ -99,6 +99,7 @@ The full list of commands is:
 
 |Name|Description|
 |---|---|
+|Launch Android Emulator|Prompts you to select the name of the available emulator and launch it. If only one emulator is installed in the system, it will be selected automatically|
 |Run Android on Emulator|Run an Android application on Emulator. Launch order: check target platform support, load run arguments, start Packager, run app in all connected emulators|
 |Run Android on Device|Run an Android application on Device. Launch order: check target platform support, load run arguments, start Packager, run app in all connected devices|
 |Run iOS on Simulator|Run an iOS application on Simulator. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected emulator|
