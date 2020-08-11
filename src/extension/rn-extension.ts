@@ -10,10 +10,8 @@ try {
     // If something goes wrong, we just ignore the errors
 }
 // @endif
-import * as Q from "q";
 import * as vscode from "vscode";
 import * as semver from "semver";
-
 import {CommandPaletteHandler} from "./commandPaletteHandler";
 import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
 import {ErrorHelper} from "../common/error/errorHelper";
@@ -43,11 +41,11 @@ let debugConfigProvider: vscode.Disposable;
 const APP_NAME = "react-native-tools";
 
 interface ISetupableDisposable extends vscode.Disposable {
-    setup(): Q.Promise<any>;
+    setup(): Promise<any>;
 }
 
 
-export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
+export function activate(context: vscode.ExtensionContext): Promise<void> {
     outputChannelLogger.debug("Begin to activate...");
     const appVersion = getExtensionVersion();
     if (!appVersion) {
@@ -100,14 +98,14 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
                 );
         }
 
-        return Q.all(promises).then(() => {
+        return Promise.all(promises).then(() => {
             return registerReactNativeCommands(context);
         });
     }, extProps);
 }
 
-export function deactivate(): Q.Promise<void> {
-    return Q.Promise<void>(function (resolve) {
+export function deactivate(): Promise<void> {
+    return new Promise<void>(function (resolve) {
         // Kill any packager processes that we spawned
         entryPointHandler.runFunction("extension.deactivate",
             ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
@@ -117,9 +115,9 @@ export function deactivate(): Q.Promise<void> {
                 .then(() => {
                     return CommandPaletteHandler.stopElementInspector();
                 })
-                .done(() => {
+                .then(() => {
                     // Tell vscode that we are done with deactivation
-                    resolve(void 0);
+                    resolve();
                 });
             }, /*errorsAreFatal*/ true);
     });
@@ -143,7 +141,7 @@ function onChangeConfiguration(context: vscode.ExtensionContext) {
     // TODO implements
 }
 
-function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder): Q.Promise<void> {
+function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder): Promise<void> {
     let rootPath = folder.uri.fsPath;
     let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
@@ -173,7 +171,7 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                 outputChannelLogger.debug(`react-native@${versions.reactNativeVersion} isn't supported`);
             }
 
-            return Q.all(promises).then(() => {});
+            return Promise.all(promises).then(() => {});
         });
 }
 
@@ -200,7 +198,7 @@ function onFolderRemoved(context: vscode.ExtensionContext, folder: vscode.Worksp
 
 
 
-function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T, context: vscode.ExtensionContext): Q.Promise<T> {
+function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T, context: vscode.ExtensionContext): Promise<T> {
     return setuptableDisposable.setup()
         .then(() => {
             context.subscriptions.push(setuptableDisposable);
@@ -237,7 +235,7 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     registerVSCodeCommand(context, "runInspector-preview", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeRunElementInspector", "React Native: Run Element Inspector")), () => CommandPaletteHandler.runElementInspector());
 }
 
-function registerVSCodeCommand(context: vscode.ExtensionContext, commandName: string, error: InternalError, commandHandler: () => Q.Promise<void>): void {
+function registerVSCodeCommand(context: vscode.ExtensionContext, commandName: string, error: InternalError, commandHandler: () => Promise<void>): void {
     context.subscriptions.push(vscode.commands.registerCommand(`reactNative.${commandName}`, () => {
         const extProps = {
             platform: {

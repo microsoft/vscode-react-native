@@ -98,6 +98,7 @@ export class RNDebugSession extends DebugSessionBase {
                     attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                     return this.appLauncher.getRnCdpProxy().stopServer()
                         .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new RnCDPMessageHandler(), this.cdpProxyLogLevel))
+                        .then(() => this.appLauncher.getPackager().start())
                         .then(() => {
                             logger.log(localize("StartingDebuggerAppWorker", "Starting debugger app worker."));
 

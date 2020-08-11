@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {FileSystem} from "../../common/node/fileSystem";
-import Q = require("q");
 import * as path from "path";
 
 export class PackageNameResolver {
@@ -22,7 +21,7 @@ export class PackageNameResolver {
      * Tries to find the package name in AndroidManifest.xml. If not found, it returns the default package name,
      * which is the application name prefixed with the default prefix.
      */
-    public resolvePackageName(projectRoot: string): Q.Promise<string> {
+    public resolvePackageName(projectRoot: string): Promise<string> {
         let expectedAndroidManifestPath = path.join.apply(this, [projectRoot].concat(PackageNameResolver.DefaultManifestLocation));
         return this.readPackageName(expectedAndroidManifestPath);
     }
@@ -31,14 +30,14 @@ export class PackageNameResolver {
      * Given a manifest file path, it parses the file and returns the package name.
      * If the package name cannot be parsed, the default packge name is returned.
      */
-    private readPackageName(manifestPath: string): Q.Promise<string> {
+    private readPackageName(manifestPath: string): Promise<string> {
         if (manifestPath) {
             let fs = new FileSystem();
             return fs.exists(manifestPath).then(exists => {
                 if (exists) {
                     return fs.readFile(manifestPath)
                         .then(manifestContent => {
-                            let packageName = this.parsePackageName(manifestContent);
+                            let packageName = this.parsePackageName(manifestContent.toString());
                             if (!packageName) {
                                 packageName = this.getDefaultPackageName(this.applicationName);
                             }
@@ -49,7 +48,7 @@ export class PackageNameResolver {
                 }
             });
         } else {
-            return Q.resolve(this.getDefaultPackageName(this.applicationName));
+            return Promise.resolve(this.getDefaultPackageName(this.applicationName));
         }
     }
 

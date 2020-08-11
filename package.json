@@ -688,6 +688,16 @@
 					"default": 8081,
 					"scope": "resource"
 				},
+				"react-native.packager.status-indicator": {
+					"description": "%reactNative.configuration.properties.react-native.packager.status-indicator.description%",
+					"type": "string",
+					"enum": [
+						"Full",
+						"Short"
+					],
+					"default": "Full",
+					"scope": "resource"
+				},
 				"react-native-tools.reactNativeGlobalCommandName": {
 					"description": "%reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description%",
 					"type": "string",
@@ -732,7 +742,6 @@
 		"glob": "^7.1.6",
 		"ip": "^1.1.5",
 		"mkdirp": "^1.0.3",
-		"q": "1.4.1",
 		"qr-image": "^3.2.0",
 		"semver": "^6.3.0",
 		"source-map": "0.5.2",
@@ -752,7 +761,7 @@
 		"@types/ncp": "^2.0.3",
 		"@types/node": "^10.17.17",
 		"@types/qr-image": "^3.2.0",
-		"@types/rimraf": "^2.0.3",
+		"@types/rimraf": "^3.0.0",
 		"@types/semver": "^6.2.1",
 		"@types/shelljs": "^0.7.0",
 		"@types/source-map": "0.5.2",
@@ -785,7 +794,7 @@
 		"ncp": "^2.0.0",
 		"plugin-error": "^1.0.1",
 		"remap-istanbul": "^0.13.0",
-		"rimraf": "^2.7.1",
+		"rimraf": "^3.0.2",
 		"should": "^8.3.0",
 		"sinon": "^1.17.3",
 		"source-map-support": "^0.4.0",

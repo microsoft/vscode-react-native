@@ -14,15 +14,15 @@ declare module xdl {
     }
 
     var User: {
-        loginAsync(loginType: string, options: ILoginOptions): Q.Promise<IUser>;
-        logoutAsync(): Q.Promise<void>;
-        getCurrentUserAsync(): Q.Promise<IUser>;
+        loginAsync(loginType: string, options: ILoginOptions): Promise<IUser>;
+        logoutAsync(): Promise<void>;
+        getCurrentUserAsync(): Promise<IUser>;
     }
 
     var UserManager: {
-        loginAsync(loginType: string, options: ILoginOptions): Q.Promise<IUser>;
-        logoutAsync(): Q.Promise<void>;
-        getCurrentUserAsync(): Q.Promise<IUser>;
+        loginAsync(loginType: string, options: ILoginOptions): Promise<IUser>;
+        logoutAsync(): Promise<void>;
+        getCurrentUserAsync(): Promise<IUser>;
     }
 
     interface IStartOptions {
@@ -54,27 +54,27 @@ declare module xdl {
     }
 
     var Project: {
-        startAsync(projectRoot: string, options?: IStartOptions): Q.Promise<void>;
-        stopAsync(projectRoot: string): Q.Promise<void>;
-        getUrlAsync(projectRoot: string, options?: IUrlOptions): Q.Promise<string>;
-        publishAsync(projectRoot: string, options?: IPublishOptions): Q.Promise<IPublishResponse>;
-        startExpoServerAsync(projectRoot: string): Q.Promise<void>;
-        stopExpoServerAsync(projectRoot: string): Q.Promise<void>;
-        startReactNativeServerAsync(projectRoot: string, options?: IReactNativeServerOptions): Q.Promise<void>;
-        stopReactNativeServerAsync(projectRoot: string): Q.Promise<void>;
-        startTunnelsAsync(projectRoot: string): Q.Promise<void>;
-        stopTunnelsAsync(projectRoot: string): Q.Promise<void>;
-        setOptionsAsync(projectRoot: string, options?: IOptions): Q.Promise<void>;
+        startAsync(projectRoot: string, options?: IStartOptions): Promise<void>;
+        stopAsync(projectRoot: string): Promise<void>;
+        getUrlAsync(projectRoot: string, options?: IUrlOptions): Promise<string>;
+        publishAsync(projectRoot: string, options?: IPublishOptions): Promise<IPublishResponse>;
+        startExpoServerAsync(projectRoot: string): Promise<void>;
+        stopExpoServerAsync(projectRoot: string): Promise<void>;
+        startReactNativeServerAsync(projectRoot: string, options?: IReactNativeServerOptions): Promise<void>;
+        stopReactNativeServerAsync(projectRoot: string): Promise<void>;
+        startTunnelsAsync(projectRoot: string): Promise<void>;
+        stopTunnelsAsync(projectRoot: string): Promise<void>;
+        setOptionsAsync(projectRoot: string, options?: IOptions): Promise<void>;
     }
 
     var Versions: {
-        facebookReactNativeVersionsAsync(): Q.Promise<string[]>;
-        facebookReactNativeVersionToExpoVersionAsync(facebookReactNativeVersion: string): Q.Promise<string>;
+        facebookReactNativeVersionsAsync(): Promise<string[]>;
+        facebookReactNativeVersionToExpoVersionAsync(facebookReactNativeVersion: string): Promise<string>;
     }
 
     var Android: {
-        startAdbReverseAsync(projectRoot: string): Q.Promise<boolean>;
-        stopAdbReverseAsync(projectRoot: string): Q.Promise<void>;
+        startAdbReverseAsync(projectRoot: string): Promise<boolean>;
+        stopAdbReverseAsync(projectRoot: string): Promise<void>;
     }
 
     interface IApiConfig {

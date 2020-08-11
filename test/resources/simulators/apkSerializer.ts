@@ -24,14 +24,14 @@ export class APKSerializer {
         this.fileSystem = fileSystem;
     }
 
-    public readPackageNameFromFile(apkPath: string): Q.Promise<string> {
+    public readPackageNameFromFile(apkPath: string): Promise<string> {
         return this.fileSystem.readFile(apkPath, "utf8").then(data => {
-            const information = this.readAPKData(data);
+            const information = this.readAPKData(data.toString());
             return information.packageName;
         });
     }
 
-    public writeApk(apkPath: string, information: IAPKInformation): Q.Promise<void> {
+    public writeApk(apkPath: string, information: IAPKInformation): Promise<void> {
         this.fileSystem.makeDirectoryRecursiveSync(path.dirname(apkPath));
         return this.fileSystem.writeFile(apkPath, this.generateAPKData(information));
     }

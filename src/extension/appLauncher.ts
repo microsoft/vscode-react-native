@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import * as Q from "q";
 import {Packager} from "../common/packager";
 import {RNPackageVersions} from "../common/projectVersionHelper";
 import {ExponentHelper} from "./exponent/exponentHelper";
@@ -60,7 +59,7 @@ export class AppLauncher {
         const rootPath = workspaceFolder.uri.fsPath;
         const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
         this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
-        const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
+        const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator(rootPath);
         this.packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(workspaceFolder.uri.fsPath), packagerStatusIndicator);
         this.packager.setExponentHelper(this.exponentHelper);
         this.reactDirManager = reactDirManager;
@@ -128,8 +127,8 @@ export class AppLauncher {
         }
     }
 
-    public openFileAtLocation(filename: string, lineNumber: number): Q.Promise<void> {
-        return Q.Promise((resolve) => {
+    public openFileAtLocation(filename: string, lineNumber: number): Promise<void> {
+        return new Promise((resolve) => {
             vscode.workspace.openTextDocument(vscode.Uri.file(filename))
                 .then((document: vscode.TextDocument) => {
                     vscode.window.showTextDocument(document)
@@ -137,7 +136,7 @@ export class AppLauncher {
                             let range = editor.document.lineAt(lineNumber - 1).range;
                             editor.selection = new vscode.Selection(range.start, range.end);
                             editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
-                            resolve(void 0);
+                            resolve();
                         });
                 });
         });
@@ -196,7 +195,7 @@ export class AppLauncher {
                 };
             }
 
-            ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true)
+            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true)
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
