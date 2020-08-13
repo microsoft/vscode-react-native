@@ -247,7 +247,6 @@ export function setup(testParameters?: TestRunArguments) {
         it("RN Android emulator save test", async function () {
             this.timeout(debugAndroidTestTime);
             AndroidEmulatorHelper.terminateAndroidEmulator();
-            await AndroidEmulatorHelper.waitUntilEmulatorStopping();
             app = await runVSCode(RNworkspacePath);
             console.log("Android emulator save test: Starting debugging in first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
@@ -258,7 +257,6 @@ export function setup(testParameters?: TestRunArguments) {
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
             await disposeAll();
             AndroidEmulatorHelper.terminateAndroidEmulator();
-            await AndroidEmulatorHelper.waitUntilEmulatorStopping();
             app = await runVSCode(RNworkspacePath);
             console.log("Android emulator save test: Starting debugging in second time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);

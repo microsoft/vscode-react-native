@@ -11,7 +11,6 @@ export interface IDevice {
 }
 export class AndroidEmulatorHelper {
     private static EMULATOR_START_TIMEOUT = 120;
-    private static EMULATOR_STOP_TIMEOUT = 60;
 
     public static androidEmulatorPort = 5554;
     public static androidEmulatorName = `emulator-${AndroidEmulatorHelper.androidEmulatorPort}`;
@@ -55,29 +54,6 @@ export class AndroidEmulatorHelper {
                 const connectedDevices = AndroidEmulatorHelper.getOnlineDevices();
                 if (connectedDevices.length > 0) {
                     console.log(`*** Android emulator has been started.`);
-                    cleanup();
-                    resolve();
-                }
-            }, 1000);
-
-            const cleanup = () => {
-                clearTimeout(rejectTimeout);
-                clearInterval(bootCheckInterval);
-            };
-        });
-    }
-
-    public static async waitUntilEmulatorStopping(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const rejectTimeout = setTimeout(() => {
-                cleanup();
-                reject(`Could not stop the emulator within ${AndroidEmulatorHelper.EMULATOR_STOP_TIMEOUT} seconds.`);
-            }, AndroidEmulatorHelper.EMULATOR_STOP_TIMEOUT * 1000);
-
-            const bootCheckInterval = setInterval(async () => {
-                const connectedDevices = AndroidEmulatorHelper.getOnlineDevices();
-                if (connectedDevices.length === 0) {
-                    console.log(`*** Android emulators have been stopped.`);
                     cleanup();
                     resolve();
                 }
