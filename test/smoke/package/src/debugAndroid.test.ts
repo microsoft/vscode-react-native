@@ -168,6 +168,28 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android Debug test: Debugging is stopped");
         });
 
+        it("RN Android emulator save test", async function () {
+            this.timeout(debugAndroidTestTime);
+            AndroidEmulatorHelper.terminateAndroidEmulator();
+            app = await runVSCode(pureRNWorkspacePath);
+            console.log("Android emulator save test: Starting debugging in first time");
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
+            console.log("Android emulator save test: Debugging started in first time");
+            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+            const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(pureRNWorkspacePath);
+            console.log(`Android emulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${AndroidEmulatorHelper.getDevice()}"'`);
+            assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
+            await disposeAll();
+            AndroidEmulatorHelper.terminateAndroidEmulator();
+            app = await runVSCode(pureRNWorkspacePath);
+            console.log("Android emulator save test: Starting debugging in second time");
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
+            console.log("Android emulator save test: Debugging started in second time");
+            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+            const devices = AndroidEmulatorHelper.getOnlineDevices();
+            assert.strictEqual(devices.length, 1, "The emulator has not been started after update launch.json");
+        });
+
         it("Hermes RN app Debug test", async function () {
             this.timeout(debugAndroidTestTime);
             prepareReactNativeProjectForHermesTesting();
@@ -242,28 +264,6 @@ export function setup(testParameters?: TestRunArguments) {
             }
             this.timeout(debugExpoTestTime);
             await expoTest("App.tsx", "Android Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
-        });
-
-        it("RN Android emulator save test", async function () {
-            this.timeout(debugAndroidTestTime);
-            AndroidEmulatorHelper.terminateAndroidEmulator();
-            app = await runVSCode(RNworkspacePath);
-            console.log("Android emulator save test: Starting debugging in first time");
-            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            console.log("Android emulator save test: Debugging started in first time");
-            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
-            const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath);
-            console.log(`Android emulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${AndroidEmulatorHelper.getDevice()}"'`);
-            assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
-            await disposeAll();
-            AndroidEmulatorHelper.terminateAndroidEmulator();
-            app = await runVSCode(RNworkspacePath);
-            console.log("Android emulator save test: Starting debugging in second time");
-            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            console.log("Android emulator save test: Debugging started in second time");
-            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
-            const devices = AndroidEmulatorHelper.getOnlineDevices();
-            assert.strictEqual(devices.length, 1, "The emulator has not been started after update launch.json");
         });
     });
 }
