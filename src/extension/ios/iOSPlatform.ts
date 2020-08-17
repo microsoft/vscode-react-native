@@ -98,9 +98,10 @@ export class IOSPlatform extends GeneralMobilePlatform {
             return this.simulatorManager.startSelection()
             .then((simulatorName: string | undefined) => {
                 if (simulatorName) {
-                    const simulator = this.simulatorManager.getSimulatorByName(simulatorName);
+                    const simulator = this.simulatorManager.findSimulator(simulatorName);
                     if (simulator) {
-                        GeneralMobilePlatform.setRunArgument(this.runArguments, "--device", simulatorName);
+                        GeneralMobilePlatform.removeRunArgument(this.runArguments, "--simulator", true);
+                        GeneralMobilePlatform.setRunArgument(this.runArguments, "--udid", simulator.id);
                     }
                     return simulator;
                 }
@@ -110,8 +111,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         else if (!target.includes("device")) {
             return this.simulatorManager.collectSimulators()
             .then((simulators) => {
-                GeneralMobilePlatform.setRunArgument(this.runArguments, "--device", target);
-                return this.simulatorManager.getSimulatorByName(target, simulators);
+                return this.simulatorManager.getSimulatorById(target, simulators);
             });
         }
         else {
@@ -243,7 +243,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 const deviceArgs = target.split("=");
                 return deviceArgs[1] ? [`--${IOSPlatform.deviceString}`, deviceArgs[1]] : [`--${IOSPlatform.deviceString}`];
             } else {
-                return [`--${IOSPlatform.simulatorString}`, `${this.runOptions.target}`];
+                return [`--udid`, `${this.runOptions.target}`];
             }
         }
     }

@@ -13,10 +13,11 @@ export interface IiOSSimulator extends IVirtualDevice {
 }
 
 export class IOSSimulatorManager extends VirtualDeviceManager {
-    private static SIMULATORS_LIST_COMMAND = "xcrun simctl list --json devices";
+    private static SIMULATORS_LIST_COMMAND = "xcrun simctl list --json devices available";
 
     private childProcess: ChildProcess;
     private simulators: IiOSSimulator[];
+    private lastSelectedSystem: string;
 
     constructor() {
         super();
@@ -24,13 +25,22 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
         this.simulators = [];
     }
 
-    public getSimulatorByName(name: string, simulators?: IiOSSimulator[]): IiOSSimulator | null {
+    public findSimulator(name: string, system: string = this.lastSelectedSystem, simulators?: IiOSSimulator[]): IiOSSimulator | null {
         const sims = simulators ? simulators : this.simulators;
-        const simulatorsWithName = sims.filter((value) => value.name === name);
-        if (simulatorsWithName.length === 0) {
+        const foundSimulators = sims.filter((value) => value.name === name && (!system || value.system === system));
+        if (foundSimulators.length === 0) {
             return null;
         }
-        return simulatorsWithName[0];
+        return foundSimulators[0];
+    }
+
+    public getSimulatorById(udid: string, simulators?: IiOSSimulator[]): IiOSSimulator | null {
+        const sims = simulators ? simulators : this.simulators;
+        const foundSimulators = sims.filter((value) => value.id === udid);
+        if (foundSimulators.length === 0) {
+            return null;
+        }
+        return foundSimulators[0];
     }
 
     public async collectSimulators(): Promise<IiOSSimulator[]> {
@@ -68,7 +78,8 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
         this.simulators = await this.collectSimulators();
         const system = await this.selectSystem();
         if (system) {
-            const filter = (el: IiOSSimulator) => el.system === system;
+            this.lastSelectedSystem = system;
+            const filter = (el: IiOSSimulator) => el.system === this.lastSelectedSystem;
             return this.selectVirtualDevice(filter);
         }
         return undefined;
