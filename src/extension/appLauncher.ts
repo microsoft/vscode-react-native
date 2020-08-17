@@ -284,22 +284,18 @@ export class AppLauncher {
     }
 
     private resolveAndSaveVirtualDevice(mobilePlatform: GeneralMobilePlatform, launchArgs: any, mobilePlatformOptions: any): Promise<void> {
-        if (launchArgs.target) {
+        // Only for Android platform in this(emulator-selection) branch
+        if (launchArgs.target && mobilePlatformOptions.platform === "android") {
             return mobilePlatform.resolveVirtualDevice(launchArgs.target)
             .then((emulator: IVirtualDevice | null) => {
                 if (emulator && emulator.name) {
                     this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
                     if (launchArgs.platform === "android") {
-                        launchArgs.target = emulator.id;
                         mobilePlatformOptions.target = emulator.id;
                     }
-                    if (launchArgs.platform === "ios") {
-                        launchArgs.target = emulator.name;
-                        mobilePlatformOptions.target = emulator.name;
-                    }
                 }
-                else if (mobilePlatformOptions.platform !== "ios" && !emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
-                    mobilePlatformOptions.target = null;
+                else if (!emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
+                    mobilePlatformOptions.target = "simulator";
                     mobilePlatform.runArguments = mobilePlatform.getRunArguments();
                 }
             });
