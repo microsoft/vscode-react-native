@@ -25,7 +25,7 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
         this.simulators = [];
     }
 
-    public findSimulator(name: string, system: string = this.lastSelectedSystem, simulators?: IiOSSimulator[]): IiOSSimulator | null {
+    public findSimulator(name: string, system: string | null = this.lastSelectedSystem, simulators?: IiOSSimulator[]): IiOSSimulator | null {
         const sims = simulators ? simulators : this.simulators;
         const foundSimulators = sims.filter((value) => value.name === name && (!system || value.system === system));
         if (foundSimulators.length === 0) {
