@@ -298,7 +298,7 @@ export class AppLauncher {
                         mobilePlatformOptions.target = emulator.name;
                     }
                 }
-                else if (!emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
+                else if (mobilePlatformOptions.platform !== "ios" && !emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
                     mobilePlatformOptions.target = null;
                     mobilePlatform.runArguments = mobilePlatform.getRunArguments();
                 }
