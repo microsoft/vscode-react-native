@@ -264,6 +264,7 @@ export function setup(testParameters?: TestRunArguments) {
             await AndroidEmulatorHelper.waitUntilEmulatorStarting();
             const devices = AndroidEmulatorHelper.getOnlineDevices();
             assert.strictEqual(devices.length, 1, "The emulator has not been started after update launch.json");
+            await app.workbench.quickaccess.runCommand(STOP_PACKAGER_COMMAND);
         });
 
     });
