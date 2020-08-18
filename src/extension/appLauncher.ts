@@ -284,7 +284,6 @@ export class AppLauncher {
     }
 
     private resolveAndSaveVirtualDevice(mobilePlatform: GeneralMobilePlatform, launchArgs: any, mobilePlatformOptions: any): Promise<void> {
-        // Only for Android platform in this(emulator-selection) branch
         if (launchArgs.target && mobilePlatformOptions.platform === "android") {
             return mobilePlatform.resolveVirtualDevice(launchArgs.target)
             .then((emulator: IVirtualDevice | null) => {
