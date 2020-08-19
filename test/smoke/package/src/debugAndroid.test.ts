@@ -5,7 +5,7 @@ import * as assert from "assert";
 import * as path from "path";
 import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
-import { sleep, findStringInFile, findExpoURLInLogFile, ExpoLaunch, findExpoSuccessAndFailurePatterns, waitForRunningPackager } from "./helpers/utilities";
+import { sleep, findStringInFile, findExpoURLInLogFile, ExpoLaunch, findExpoSuccessAndFailurePatterns } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
@@ -22,7 +22,6 @@ const RNHermesAttachConfigName = "Attach to Hermes application - Experimental";
 const ExpoDebugConfigName = "Debug in Exponent";
 const ExpoLanDebugConfigName = "Debug in Exponent (LAN)";
 const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
-const STOP_PACKAGER_COMMAND = "React Native (Preview): Stop Packager";
 
 const RNSetBreakpointOnLine = 1;
 const RNHermesSetBreakpointOnLine = 11;
@@ -70,7 +69,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
         }
 
-        async function expoTest(appFileName: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number, isPureExpo: boolean = false) {
+        async function expoTest(appFileName: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             let logFilePath = "";
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
@@ -86,17 +85,6 @@ export function setup(testParameters?: TestRunArguments) {
                 assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
             }
             await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
-            // We stop and start Pure Expo debug scenario again, since we faced Metro cache processing problem on
-            // Expo SDK 38. The debug scenario works fine only on the second and further launches of the packager.
-            // As soon as this problem is fixed, this condition won't be needed.
-            if (isPureExpo) {
-                await waitForRunningPackager(logFilePath);
-                await sleep(2 * 1000);
-                await app.workbench.debug.stopDebugging();
-                await app.workbench.quickaccess.runCommand(STOP_PACKAGER_COMMAND);
-                await sleep(2 * 1000);
-                await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
-            }
 
             await app.workbench.editors.waitForTab("Expo QR Code readonly");
             await app.workbench.editors.waitForActiveTab("Expo QR Code readonly");
@@ -223,7 +211,7 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.js", "Android pure RN Expo test(LAN)", pureRNWorkspacePath, ExpoLanDebugConfigName, 1, true);
+            await expoTest("App.js", "Android pure RN Expo test(LAN)", pureRNWorkspacePath, ExpoLanDebugConfigName, 1);
         });
 
         it("Expo app Debug test(LAN)", async function () {
