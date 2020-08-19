@@ -6,7 +6,8 @@
             "cwd": "${workspaceFolder}",
             "type": "reactnative-preview",
             "request": "launch",
-            "platform": "android"
+            "platform": "android",
+            "target": "simulator"
         },
         {
             "name": "Debug Android (Hermes) - Experimental",
