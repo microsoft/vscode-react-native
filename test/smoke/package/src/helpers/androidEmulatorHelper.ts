@@ -116,12 +116,13 @@ export class AndroidEmulatorHelper {
 
     // Terminates emulator "emulator-PORT" if it exists, where PORT is 5554 by default
     public static terminateAndroidEmulator() {
-        let devices = cp.execSync("adb devices").toString().trim();
+        let devices = this.getOnlineDevices();
         console.log("*** Checking for running android emulators...");
-        if (devices !== "List of devices attached") {
-            // Check if we already have a running emulator, and terminate it if it so
-            console.log(`Terminating Android '${this.androidEmulatorName}'...`);
-            cp.execSync(`adb -s ${this.androidEmulatorName} emu kill`, {stdio: "inherit"});
+        if (devices.length !== 0) {
+            devices.forEach((device) => {
+                console.log(`Terminating Android '${device.id}'...`);
+                cp.execSync(`adb -s ${device.id} emu kill`, {stdio: "inherit"});
+            });
         } else {
             console.log("*** No running android emulators found");
         }
