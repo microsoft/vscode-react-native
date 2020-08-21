@@ -11,8 +11,6 @@ import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import * as path from "path";
 import { TestRunArguments } from "./helpers/configHelper";
 import { Application } from "../../automation";
-import * as fs from "fs";
-import * as rimraf from "rimraf";
 
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const RNDebugConfigName = "Debug iOS";
