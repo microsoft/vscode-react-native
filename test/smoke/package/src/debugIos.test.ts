@@ -11,6 +11,8 @@ import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import * as path from "path";
 import { TestRunArguments } from "./helpers/configHelper";
 import { Application } from "../../automation";
+import * as fs from "fs";
+import * as rimraf from "rimraf";
 
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const RNDebugConfigName = "Debug iOS";
@@ -65,6 +67,10 @@ export function setup(testParameters?: TestRunArguments) {
         }
 
         async function expoTest(appFileName: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
+            if (fs.existsSync(SetupEnvironmentHelper.iOSExpoAppsExpoDir)) {
+                console.log(`*** Deleting iOS expo app ./expo directory: ${SetupEnvironmentHelper.iOSExpoAppsExpoDir}`);
+                rimraf.sync(SetupEnvironmentHelper.iOSExpoAppsExpoDir);
+            }
             let logFilePath = "";
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
