@@ -52,7 +52,7 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
                 simulators.push({
                     name: device.name,
                     id: device.udid,
-                    system: system
+                    system: system.split(".").slice(-1)[0]
                 });
             });
         });
