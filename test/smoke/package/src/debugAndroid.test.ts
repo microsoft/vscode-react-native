@@ -234,16 +234,21 @@ export function setup(testParameters?: TestRunArguments) {
 
         it("RN Android emulator save test", async function () {
             this.timeout(debugAndroidTestTime);
+            console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
             app = await runVSCode(pureRNWorkspacePath);
             console.log("Android emulator save test: Starting debugging in first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("Android emulator save test: Debugging started in first time");
+            console.log(AndroidEmulatorHelper.getAndroidEmulatorsNamesList());
+            console.log("Android emulator save test: Wait until emulator starting");
             await AndroidEmulatorHelper.waitUntilEmulatorStarting();
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(pureRNWorkspacePath);
             console.log(`Android emulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${AndroidEmulatorHelper.getDevice()}"'`);
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
+            console.log("Android emulator save test: Dispose all");
             await disposeAll();
+            console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
             app = await runVSCode(pureRNWorkspacePath);
             console.log("Android emulator save test: Starting debugging in second time");

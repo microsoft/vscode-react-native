@@ -32,6 +32,19 @@ export class AndroidEmulatorHelper {
         return AndroidEmulatorHelper.parseConnectedDevices(devices);
     }
 
+    public static getAndroidEmulatorsNamesList(): string[] {
+        const res =  cp.execSync("emulator -list-avds").toString();
+        let emulatorsList: string[] = [];
+        if (res) {
+            emulatorsList = res.split(/\r?\n|\r/g);
+            const indexOfBlank = emulatorsList.indexOf("");
+            if (emulatorsList.indexOf("") >= 0) {
+                emulatorsList.splice(indexOfBlank, 1);
+            }
+        }
+        return emulatorsList;
+    }
+
     private static parseConnectedDevices(input: string): IDevice[] {
         let result: IDevice[] = [];
         let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
