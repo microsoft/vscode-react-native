@@ -196,7 +196,7 @@ export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string): Prom
         }, LAUNCH_UPDATE_TIMEOUT * 1000);
 
         const bootCheckInterval = setInterval(async () => {
-            const isUpdated = isLaunchScenarioTargetUpdate(workspaceRoot);
+            const isUpdated = isLaunchScenarioContainsAndroidTarget(workspaceRoot);
             if (isUpdated) {
                 cleanup();
                 resolve(true);
@@ -210,7 +210,14 @@ export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string): Prom
     });
 }
 
-export function isLaunchScenarioTargetUpdate(workspaceRoot: string): boolean {
+export function isLaunchScenarioContainsAndroidTarget(workspaceRoot: string): boolean {
+    const pathToLaunchFile = path.resolve(workspaceRoot, ".vscode", "launch.json");
+    const emulatorsList = getEmulatorsNamesList();
+    const firstEmulatorName = emulatorsList[0];
+    return findStringInFile(pathToLaunchFile, `"target": "${firstEmulatorName}"`);
+}
+
+export function isLaunchScenarioContainsIosTarget(workspaceRoot: string): boolean {
     const pathToLaunchFile = path.resolve(workspaceRoot, ".vscode", "launch.json");
     const emulatorsList = getEmulatorsNamesList();
     const firstEmulatorName = emulatorsList[0];

@@ -6,7 +6,7 @@ import { AppiumHelper, AppiumClient, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { RNworkspacePath, runVSCode, ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
-import { sleep, findFile, findExpoURLInLogFile, findExpoSuccessAndFailurePatterns, ExpoLaunch, getIOSBuildPath, waitForRunningPackager } from "./helpers/utilities";
+import { sleep, findFile, findExpoURLInLogFile, findExpoSuccessAndFailurePatterns, ExpoLaunch, getIOSBuildPath, waitForRunningPackager, waitUntilLaunchScenarioTargetUpdate } from "./helpers/utilities";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import * as path from "path";
 import { TestRunArguments } from "./helpers/configHelper";
@@ -33,7 +33,7 @@ export function setup(testParameters?: TestRunArguments) {
         let app: Application;
         let clientInited: AppiumClient;
 
-        afterEach(async () => {
+        async function disposeAll() {
             if (app) {
                 await app.stop();
             }
@@ -41,7 +41,9 @@ export function setup(testParameters?: TestRunArguments) {
                 clientInited.closeApp();
                 clientInited.endAll();
             }
-        });
+        };
+
+        afterEach(disposeAll);
 
         async function runExpoDebugScenario(logFilePath: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             console.log(`${testName}: Starting debugging`);
@@ -212,6 +214,28 @@ export function setup(testParameters?: TestRunArguments) {
             }
             this.timeout(debugExpoTestTime);
             await expoTest("App.tsx", "iOS Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
+        });
+
+        it("RN iOS simulator save test", async function () {
+            this.timeout(debugIosTestTime);
+            SetupEnvironmentHelper.terminateIosSimulator();
+            app = await runVSCode(pureRNWorkspacePath);
+            console.log("iOS simulator save test: Starting debugging in first time");
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
+            console.log("iOS simulator save test: Debugging started in first time");
+            await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
+            const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(pureRNWorkspacePath);
+            console.log(`iOS simulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${IosSimulatorHelper.getDeviceUdid()}"'`);
+            assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
+            await disposeAll();
+            SetupEnvironmentHelper.terminateIosSimulator();
+            app = await runVSCode(pureRNWorkspacePath);
+            console.log("iOS simulator save test: Starting debugging in second time");
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
+            console.log("iOS simulator save test: Debugging started in second time");
+            await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
+            const devices = IosSimulatorHelper.getBootedDevices();
+            assert.strictEqual(devices.length, 1, "The simulator has not been started after update launch.json");
         });
     });
 }
