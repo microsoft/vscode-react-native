@@ -240,7 +240,6 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android emulator save test: Starting debugging in first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("Android emulator save test: Debugging started in first time");
-            console.log(AndroidEmulatorHelper.getAndroidEmulatorsNamesList());
             console.log("Android emulator save test: Wait until emulator starting");
             await AndroidEmulatorHelper.waitUntilEmulatorStarting();
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(pureRNWorkspacePath);
