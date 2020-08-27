@@ -91,7 +91,7 @@ export class AndroidEmulatorHelper {
     //        or to a restricted greylist for your target API level.
 
     public static setHiddenApiPolicy(value: number) {
-        const commands = AndroidEmulatorHelper.HIDDEN_API_POLICY_KEYS.map((key: string) => `adb settings put global ${key} ${value}`);
+        const commands = AndroidEmulatorHelper.HIDDEN_API_POLICY_KEYS.map((key: string) => `adb shell settings put global ${key} ${value}`);
         commands.forEach((command: string) => cp.execSync(command));
     }
 
