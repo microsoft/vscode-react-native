@@ -9,6 +9,7 @@ import * as URL from "url-parse";
 import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
+import { Platform } from "./appiumHelper";
 
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
     return new Promise<R>((c, e) => fn(...args, (err, r) => err ? e(err) : c(r)));
@@ -187,7 +188,7 @@ function getEmulatorsNamesList(): string[] {
     return emulatorsList;
 }
 
-export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string): Promise<boolean> {
+export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string, platform: Platform): Promise<boolean> {
     return new Promise((resolve) => {
         const LAUNCH_UPDATE_TIMEOUT = 30;
         const rejectTimeout = setTimeout(() => {
@@ -196,7 +197,11 @@ export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string): Prom
         }, LAUNCH_UPDATE_TIMEOUT * 1000);
 
         const bootCheckInterval = setInterval(async () => {
-            const isUpdated = isLaunchScenarioContainsAndroidTarget(workspaceRoot);
+            let isUpdated: boolean = false;
+            switch (platform) {
+                case Platform.Android: isUpdated = isLaunchScenarioContainsAndroidTarget(workspaceRoot);
+                case Platform.iOS: isUpdated = isLaunchScenarioContainsIosTarget(workspaceRoot);
+            }
             if (isUpdated) {
                 cleanup();
                 resolve(true);
@@ -220,8 +225,8 @@ export function isLaunchScenarioContainsAndroidTarget(workspaceRoot: string): bo
 export function isLaunchScenarioContainsIosTarget(workspaceRoot: string): boolean {
     const pathToLaunchFile = path.resolve(workspaceRoot, ".vscode", "launch.json");
     const emulatorsList = getEmulatorsNamesList();
-    const firstEmulatorName = emulatorsList[0];
-    return findStringInFile(pathToLaunchFile, `"target": "${firstEmulatorName}"`);
+    const firstSimulatorUdid = emulatorsList[0];
+    return findStringInFile(pathToLaunchFile, `"target": "${firstSimulatorUdid}"`);
 }
 
 export async function waitForRunningPackager(filePath: string) {
