@@ -161,6 +161,7 @@ async function setup(): Promise<void> {
     console.log("*** Preparing smoke tests setup...");
 
     AppiumHelper.runAppium();
+    AppiumHelper.setHiddenApiPolicy(1);
 
     if (process.platform === "darwin") {
         await SetupEnvironmentHelper.runIosSimulator();

@@ -64,6 +64,12 @@ export class AppiumHelper {
         },
     };
 
+    private static HIDDEN_API_POLICY_KEYS = [
+        'hidden_api_policy_pre_p_apps',
+        'hidden_api_policy_p_apps',
+        'hidden_api_policy'
+    ];
+
     public static runAppium() {
         const appiumLogFolder = artifactsPath;
         mkdirp.sync(appiumLogFolder);
@@ -277,6 +283,30 @@ export class AppiumHelper {
         return await client
             .waitForExist(HERMES_MARK, 30 * 1000)
             .isExisting(HERMES_MARK);
+    }
+
+
+
+    // Set hidden api policy to manage access to non-SDK APIs.
+    // https://developer.android.com/preview/restrictions-non-sdk-interfaces
+    //     For Android P
+    //     0: Disable non-SDK API usage detection. This will also disable logging, and also break the strict mode API,
+    //     detectNonSdkApiUsage(). Not recommended.
+    //     1: "Just warn" - permit access to all non-SDK APIs, but keep warnings in the log.
+    //        The strict mode API will keep working.
+    //     2: Disallow usage of dark grey and black listed APIs.
+    //     3: Disallow usage of blacklisted APIs, but allow usage of dark grey listed APIs.
+
+    //     For Android Q
+    //     0: Disable all detection of non-SDK interfaces. Using this setting disables all log messages for non-SDK interface usage
+    //        and prevents you from testing your app using the StrictMode API. This setting is not recommended.
+    //     1: Enable access to all non-SDK interfaces, but print log messages with warnings for any non-SDK interface usage.
+    //        Using this setting also allows you to test your app using the StrictMode API.
+    //     2: Disallow usage of non-SDK interfaces that belong to either the black list
+    //        or to a restricted greylist for your target API level.
+    public static setHiddenApiPolicy(value: number) {
+        const commands = AppiumHelper.HIDDEN_API_POLICY_KEYS.map((key: string) => `adb settings put global ${key} ${value}`);
+        commands.forEach((command: string) => cp.execSync(command));
     }
 
     private static async openExpoAppViaClipboardAndroid(client: AppiumClient, expoURL: string) {
