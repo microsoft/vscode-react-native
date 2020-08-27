@@ -183,16 +183,6 @@ export interface ExpoLaunch {
     failed: boolean;
 }
 
-function getEmulatorsNamesList(): string[] {
-    const res = cp.execSync("emulator -list-avds");
-    let emulatorsList: string[] = [];
-    if (res) {
-        const resString = res.toString();
-        emulatorsList = resString.split(/\r?\n|\r/g);
-    }
-    return emulatorsList;
-}
-
 export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string, platform: Platform): Promise<boolean> {
     return new Promise((resolve) => {
         const LAUNCH_UPDATE_TIMEOUT = 30;
