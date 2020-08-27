@@ -25,7 +25,7 @@ enum DeviceState {
 
 export class IosSimulatorHelper {
 
-    public static SIMULATOR_START_TIMEOUT = 120;
+    public static SIMULATOR_START_TIMEOUT = 300;
 
     public static getDevice(): string | undefined {
         if (!process.env.IOS_SIMULATOR) {

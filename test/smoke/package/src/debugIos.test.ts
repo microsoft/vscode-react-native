@@ -219,21 +219,21 @@ export function setup(testParameters?: TestRunArguments) {
         it("RN iOS simulator save test", async function () {
             this.timeout(debugIosTestTime);
             SetupEnvironmentHelper.terminateIosSimulator();
-            app = await runVSCode(pureRNWorkspacePath);
+            app = await runVSCode(RNworkspacePath);
             console.log("iOS simulator save test: Starting debugging in first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("iOS simulator save test: Debugging started in first time");
-            await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
-            const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(pureRNWorkspacePath, Platform.iOS);
+            await IosSimulatorHelper.waitUntilIosSimulatorStarting();
+            const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath, Platform.iOS);
             console.log(`iOS simulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${IosSimulatorHelper.getDeviceUdid()}"'`);
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
             await disposeAll();
             SetupEnvironmentHelper.terminateIosSimulator();
-            app = await runVSCode(pureRNWorkspacePath);
+            app = await runVSCode(RNworkspacePath);
             console.log("iOS simulator save test: Starting debugging in second time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("iOS simulator save test: Debugging started in second time");
-            await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
+            await IosSimulatorHelper.waitUntilIosSimulatorStarting();
             const devices = IosSimulatorHelper.getBootedDevices();
             assert.strictEqual(devices.length, 1, "The simulator has not been started after update launch.json");
         });
