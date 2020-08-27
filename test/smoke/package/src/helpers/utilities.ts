@@ -10,6 +10,8 @@ import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { Platform } from "./appiumHelper";
+import { IosSimulatorHelper } from "./iosSimulatorHelper";
+import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
 
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
     return new Promise<R>((c, e) => fn(...args, (err, r) => err ? e(err) : c(r)));
@@ -220,16 +222,14 @@ export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string, platf
 
 export function isLaunchScenarioContainsAndroidTarget(workspaceRoot: string): boolean {
     const pathToLaunchFile = path.resolve(workspaceRoot, ".vscode", "launch.json");
-    const emulatorsList = getEmulatorsNamesList();
-    const firstEmulatorName = emulatorsList[0];
-    return findStringInFile(pathToLaunchFile, `"target": "${firstEmulatorName}"`);
+    const emulatorName = AndroidEmulatorHelper.getDevice();
+    return findStringInFile(pathToLaunchFile, `"target": "${emulatorName}"`);
 }
 
 export function isLaunchScenarioContainsIosTarget(workspaceRoot: string): boolean {
     const pathToLaunchFile = path.resolve(workspaceRoot, ".vscode", "launch.json");
-    const emulatorsList = getEmulatorsNamesList();
-    const firstSimulatorUdid = emulatorsList[0];
-    return findStringInFile(pathToLaunchFile, `"target": "${firstSimulatorUdid}"`);
+    const simulatorUdid = IosSimulatorHelper.getDeviceUdid();
+    return findStringInFile(pathToLaunchFile, `"target": "${simulatorUdid}"`);
 }
 
 export async function waitForRunningPackager(filePath: string) {
