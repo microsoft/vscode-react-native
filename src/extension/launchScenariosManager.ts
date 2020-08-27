@@ -58,7 +58,10 @@ export class LaunchScenariosManager {
 
     public updateLaunchScenario(launchArgs: any, updates: any) {
         this.readLaunchScenarios();
+        console.log("launchArgs:");
+        console.log(launchArgs);
         let launchConfigIndex = this.getFirstScenarioIndexByParams(launchArgs);
+        console.log("launchConfigIndex:" + launchConfigIndex);
         const launchScenarios = this.getLaunchScenarios();
         if (launchConfigIndex !== null && launchScenarios.configurations) {
             Object.assign(launchScenarios.configurations[launchConfigIndex], updates);
