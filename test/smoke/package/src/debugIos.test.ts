@@ -234,7 +234,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS simulator save test: Starting debugging in second time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("iOS simulator save test: Debugging started in second time");
-            await IosSimulatorHelper.waitUntilIosSimulatorStarting();
+            await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
             const devices = IosSimulatorHelper.getBootedDevices();
             assert.strictEqual(devices.length, 1, "The simulator has not been started after update launch.json");
         });

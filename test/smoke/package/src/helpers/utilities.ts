@@ -170,9 +170,6 @@ export function filterProgressBarChars(str: string) {
 export function findStringInFile(filePath: string, strToFind: string): boolean {
     if (fs.existsSync(filePath)) {
         const content = fs.readFileSync(filePath).toString().trim();
-        console.log("Path: " + filePath);
-        console.log("Sting to find: " + strToFind);
-        console.log(content);
         return content.includes(strToFind);
     }
     return false;

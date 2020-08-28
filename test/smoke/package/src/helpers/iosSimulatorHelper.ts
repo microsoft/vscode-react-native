@@ -179,8 +179,6 @@ export class IosSimulatorHelper {
         if (foundSimulators.length === 0) {
             return null;
         }
-        console.log("Founded simulator:");
-        console.log(foundSimulators[0]);
         return foundSimulators[0];
     }
 
@@ -205,10 +203,6 @@ export class IosSimulatorHelper {
     public static getBootedDevices(): IiOSSimulator[] {
         const simulators = this.collectSimulators();
         const bootedSimulators = simulators.filter((sim) => sim.state === DeviceState.Booted);
-        if (bootedSimulators.length) {
-            console.log("Booted simulators:");
-            console.log(bootedSimulators);
-        }
         return bootedSimulators;
     }
 
