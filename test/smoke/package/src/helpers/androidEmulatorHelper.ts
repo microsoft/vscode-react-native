@@ -154,8 +154,8 @@ export class AndroidEmulatorHelper {
                 console.log(`Terminating Android '${device.id}'...`);
                 cp.execSync(`adb -s ${device.id} emu kill`, {stdio: "inherit"});
             });
-            console.log(`Sleep ${delayAfterTerminatingEmulators} after emulators termination`);
-            sleep(delayAfterTerminatingEmulators*1000);
+            console.log(`Sleep ${delayAfterTerminatingEmulators} seconds after emulators termination`);
+            sleep(delayAfterTerminatingEmulators * 1000);
         } else {
             console.log("*** No running android emulators found");
         }
