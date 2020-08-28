@@ -37,7 +37,7 @@ export function setup(testParameters?: TestRunArguments) {
     describe("Debugging Android", () => {
         let app: Application;
         let clientInited: AppiumClient;
-        console.log(testParameters);
+        console.log(testParameters)
 
         async function disposeAll() {
             if (app) {
@@ -236,9 +236,9 @@ export function setup(testParameters?: TestRunArguments) {
 
         it("RN Android emulator save test", async function () {
             this.timeout(debugAndroidTestTime);
+            app = await runVSCode(pureRNWorkspacePath);
             console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
-            app = await runVSCode(pureRNWorkspacePath);
             console.log("Android emulator save test: Starting debugging in first time");
             await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
@@ -248,11 +248,11 @@ export function setup(testParameters?: TestRunArguments) {
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(pureRNWorkspacePath);
             console.log(`Android emulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${AndroidEmulatorHelper.getDevice()}"'`);
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
-            console.log("Android emulator save test: Terminating Android emulator");
-            AndroidEmulatorHelper.terminateAndroidEmulator();
             console.log("Android emulator save test: Dispose all");
             await disposeAll();
             app = await runVSCode(pureRNWorkspacePath);
+            console.log("Android emulator save test: Terminating Android emulator");
+            AndroidEmulatorHelper.terminateAndroidEmulator();
             console.log("Android emulator save test: Starting debugging in second time");
             await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
