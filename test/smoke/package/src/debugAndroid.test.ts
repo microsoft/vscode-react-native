@@ -37,7 +37,7 @@ export function setup(testParameters?: TestRunArguments) {
     describe("Debugging Android", () => {
         let app: Application;
         let clientInited: AppiumClient;
-        console.log(testParameters)
+        console.log(testParameters);
 
         async function disposeAll() {
             if (app) {
