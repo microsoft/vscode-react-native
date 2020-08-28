@@ -239,7 +239,7 @@ export function setup(testParameters?: TestRunArguments) {
             app = await runVSCode(pureRNWorkspacePath);
             console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
-            AndroidEmulatorHelper.terminateAndroidEmulator();
+            await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
             console.log("Android emulator save test: Starting debugging in first time");
             await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
@@ -254,7 +254,7 @@ export function setup(testParameters?: TestRunArguments) {
             app = await runVSCode(pureRNWorkspacePath);
             console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
-            AndroidEmulatorHelper.terminateAndroidEmulator();
+            await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
             console.log("Android emulator save test: Starting debugging in second time");
             await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);

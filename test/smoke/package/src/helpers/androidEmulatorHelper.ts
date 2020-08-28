@@ -11,6 +11,7 @@ export interface IDevice {
 }
 export class AndroidEmulatorHelper {
     private static EMULATOR_START_TIMEOUT = 120;
+    private static EMULATOR_TERMINATING_TIMEOUT = 30;
 
     public static androidEmulatorPort = 5554;
     public static androidEmulatorName = `emulator-${AndroidEmulatorHelper.androidEmulatorPort}`;
@@ -146,7 +147,6 @@ export class AndroidEmulatorHelper {
 
     // Terminates emulator "emulator-PORT" if it exists, where PORT is 5554 by default
     public static terminateAndroidEmulator() {
-        const delayAfterTerminatingEmulators = 10;
         let devices = this.getOnlineDevices();
         console.log("*** Checking for running android emulators...");
         if (devices.length !== 0) {
@@ -154,11 +154,32 @@ export class AndroidEmulatorHelper {
                 console.log(`Terminating Android '${device.id}'...`);
                 cp.execSync(`adb -s ${device.id} emu kill`, {stdio: "inherit"});
             });
-            console.log(`Sleep ${delayAfterTerminatingEmulators} seconds after emulators termination`);
-            sleep(delayAfterTerminatingEmulators * 1000);
         } else {
             console.log("*** No running android emulators found");
         }
+    }
+
+    public static waitUntilAndroidEmulatorTerminating() {
+        return new Promise((resolve, reject) => {
+            const rejectTimeout = setTimeout(() => {
+                cleanup();
+                reject(`Could not terminate the emulator within ${AndroidEmulatorHelper.EMULATOR_TERMINATING_TIMEOUT} seconds.`);
+            }, AndroidEmulatorHelper.EMULATOR_TERMINATING_TIMEOUT * 1000);
+
+            const bootCheckInterval = setInterval(async () => {
+                const connectedDevices = AndroidEmulatorHelper.getConnectedDevices();
+                if (connectedDevices.length === 0) {
+                    console.log(`*** All Android emulators are terminated.`);
+                    cleanup();
+                    resolve();
+                }
+            }, 1000);
+
+            const cleanup = () => {
+                clearTimeout(rejectTimeout);
+                clearInterval(bootCheckInterval);
+            };
+        });
     }
 
     // Check if appPackage is installed on Android device for waitTime ms
