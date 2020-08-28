@@ -16,6 +16,7 @@ const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
 const EXPO_APP_PACKAGE_NAME = SetupEnvironmentHelper.expoPackageName;
 const EXPO_APP_ACTIVITY_NAME = `${EXPO_APP_PACKAGE_NAME}.experience.HomeActivity`;
+const START_PACKAGER_COMMAND = "reactNative.startPackager-preview";
 const RNDebugConfigName = "Debug Android";
 const RNHermesDebugConfigName = "Debug Android (Hermes) - Experimental";
 const RNHermesAttachConfigName = "Attach to Hermes application - Experimental";
@@ -238,6 +239,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
             console.log("Android emulator save test: Starting debugging in first time");
+            await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("Android emulator save test: Debugging started in first time");
             console.log("Android emulator save test: Wait until emulator starting");
@@ -251,6 +253,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
             console.log("Android emulator save test: Starting debugging in second time");
+            await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("Android emulator save test: Debugging started in second time");
             await AndroidEmulatorHelper.waitUntilEmulatorStarting();
