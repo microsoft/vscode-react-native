@@ -10,7 +10,7 @@ export interface IDevice {
     isOnline: boolean;
 }
 export class AndroidEmulatorHelper {
-    private static EMULATOR_START_TIMEOUT = 1200;
+    private static EMULATOR_START_TIMEOUT = 120;
     private static EMULATOR_TERMINATING_TIMEOUT = 30;
 
     public static androidEmulatorPort = 5554;

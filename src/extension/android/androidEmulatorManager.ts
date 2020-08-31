@@ -17,7 +17,7 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
     private static readonly EMULATOR_LIST_AVDS_COMMAND = `-list-avds`;
     private static readonly EMULATOR_AVD_START_COMMAND = `-avd`;
 
-    private static readonly EMULATOR_START_TIMEOUT = 1200;
+    private static readonly EMULATOR_START_TIMEOUT = 120;
 
     private logger: OutputChannelLogger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
 
