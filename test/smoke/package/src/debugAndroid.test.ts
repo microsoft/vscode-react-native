@@ -11,7 +11,6 @@ import { pureRNWorkspacePath, RNworkspacePath, runVSCode } from "./main";
 // import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
 import { Application } from "../../automation";
-import * as cp from "child_process";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
