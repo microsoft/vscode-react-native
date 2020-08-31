@@ -67,6 +67,14 @@ export class AndroidEmulatorHelper {
         });
     }
 
+    public static async spawnAndKillEmulator() {
+        cp.spawn("emulator", ["-avd", String(AndroidEmulatorHelper.getDevice())]);
+        console.log("*** Wait until emulator starting");
+        await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+        console.log("*** Terminating Android emulator");
+        AndroidEmulatorHelper.terminateAndroidEmulator();
+    }
+
     public static async runAndroidEmulator() {
         this.terminateAndroidEmulator();
         // Boot options for emulator - https://developer.android.com/studio/run/emulator-commandline

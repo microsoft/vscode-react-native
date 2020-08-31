@@ -242,17 +242,7 @@ export function setup(testParameters?: TestRunArguments) {
             AndroidEmulatorHelper.terminateAndroidEmulator();
             await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
 
-            const emulatorProcess = cp.spawn("emulator", ["-avd", String(AndroidEmulatorHelper.getDevice())]);
-            emulatorProcess.stderr.on("message", msg => {
-                console.log(`Android emulator starting: ${msg.toString()}\n`);
-            });
-            emulatorProcess.stdout.on("error", err => {
-                console.log(`Android emulator starting ERROR: ${err.toString()}\n`);
-            });
-            console.log("Android emulator save test: Wait until emulator starting");
-            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
-            console.log("Android emulator save test: Terminating Android emulator");
-            AndroidEmulatorHelper.terminateAndroidEmulator();
+            await AndroidEmulatorHelper.spawnAndKillEmulator();
 
             await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
             console.log("Android emulator save test: Starting debugging in first time");
@@ -270,6 +260,9 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
             await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
+
+            await AndroidEmulatorHelper.spawnAndKillEmulator();
+
             console.log("Android emulator save test: Starting debugging in second time");
             await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
