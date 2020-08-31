@@ -239,6 +239,7 @@ export function setup(testParameters?: TestRunArguments) {
             app = await runVSCode(pureRNWorkspacePath);
             console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
+            await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
 
             const emulatorProcess = this.childProcess.spawn(`emulator -avd ${AndroidEmulatorHelper.getDevice()}`);
             emulatorProcess.stderr.on("message", msg => {
@@ -247,6 +248,8 @@ export function setup(testParameters?: TestRunArguments) {
             emulatorProcess.stdout.on("error", err => {
                 console.log(`Android emulator starting ERROR: ${err.toString()}\n`);
             });
+            console.log("Android emulator save test: Wait until emulator starting");
+            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
             console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
 
