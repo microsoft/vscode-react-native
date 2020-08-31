@@ -11,6 +11,7 @@ import { pureRNWorkspacePath, RNworkspacePath, runVSCode } from "./main";
 // import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
 import { Application } from "../../automation";
+import * as cp from "child_process";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
@@ -241,7 +242,7 @@ export function setup(testParameters?: TestRunArguments) {
             AndroidEmulatorHelper.terminateAndroidEmulator();
             await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
 
-            const emulatorProcess = this.childProcess.spawn(`emulator -avd ${AndroidEmulatorHelper.getDevice()}`);
+            const emulatorProcess = cp.spawn(`emulator -avd ${AndroidEmulatorHelper.getDevice()}`);
             emulatorProcess.stderr.on("message", msg => {
                 console.log(`Android emulator starting: ${msg.toString()}\n`);
             });
