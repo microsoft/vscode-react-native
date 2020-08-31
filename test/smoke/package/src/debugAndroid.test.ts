@@ -242,7 +242,7 @@ export function setup(testParameters?: TestRunArguments) {
             AndroidEmulatorHelper.terminateAndroidEmulator();
             await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
 
-            const emulatorProcess = cp.spawn(`emulator -avd ${AndroidEmulatorHelper.getDevice()}`);
+            const emulatorProcess = cp.spawn("emulator", ["-avd", String(AndroidEmulatorHelper.getDevice())]);
             emulatorProcess.stderr.on("message", msg => {
                 console.log(`Android emulator starting: ${msg.toString()}\n`);
             });
