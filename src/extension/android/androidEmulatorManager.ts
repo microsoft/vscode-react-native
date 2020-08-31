@@ -13,7 +13,7 @@ export interface IAndroidEmulator extends IVirtualDevice {
 }
 
 export class AndroidEmulatorManager extends VirtualDeviceManager {
-    private static readonly EMULATOR_COMMAND = process.env.ANDROID_HOME ? path.join(process.env.ANDROID_HOME, "emulator") : "emulator";
+    private static readonly EMULATOR_COMMAND = process.env.ANDROID_HOME ? path.join(process.env.ANDROID_HOME, "emulator", "emulator.exe") : "emulator";
     private static readonly EMULATOR_LIST_AVDS_COMMAND = `-list-avds`;
     private static readonly EMULATOR_AVD_START_COMMAND = `-avd`;
 
@@ -54,8 +54,8 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
     }
 
     public async tryLaunchEmulatorByName(emulatorName: string): Promise<string> {
-        console.log("Emulator name:");
-        console.log(emulatorName);
+        this.logger.info("Emulator name:");
+        this.logger.info(emulatorName);
         return new Promise((resolve, reject) => {
             const emulatorProcess = this.childProcess.spawn(AndroidEmulatorManager.EMULATOR_COMMAND, [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName], {
                 detached: true,
@@ -100,11 +100,11 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
                 emulatorsList.splice(indexOfBlank, 1);
             }
         }
-        console.log("ENV:");
-        console.log(process.env);
+        this.logger.info("ENV:");
+        this.logger.info(String(process.env.ANDROID_HOME));
 
-        console.log("Emulators list:");
-        console.log(emulatorsList);
+        this.logger.info("Emulators list:");
+        this.logger.info(emulatorsList.toString());
         return emulatorsList;
     }
 }
