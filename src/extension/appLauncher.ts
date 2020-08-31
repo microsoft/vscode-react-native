@@ -11,7 +11,7 @@ import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {CommandExecutor} from "../common/commandExecutor";
 import {isNullOrUndefined} from "../common/utils";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
-import {MobilePlatformDeps} from "./generalMobilePlatform";
+import {MobilePlatformDeps, GeneralMobilePlatform} from "./generalMobilePlatform";
 import {PlatformResolver} from "./platformResolver";
 import {ProjectVersionHelper} from "../common/projectVersionHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
@@ -26,6 +26,8 @@ import {DEBUG_TYPES} from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { PlatformType } from "./launchArgs";
+import { LaunchScenariosManager } from "./launchScenariosManager";
+import { IVirtualDevice } from "./VirtualDeviceManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -42,6 +44,7 @@ export class AppLauncher {
     private rnCdpProxy: ReactNativeCDPProxy;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private logCatMonitor: LogCatMonitor | null = null;
+    private launchScenariosManager: LaunchScenariosManager;
 
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
         const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
@@ -58,6 +61,7 @@ export class AppLauncher {
         this.cdpProxyHostAddress = "127.0.0.1"; // localhost
 
         const rootPath = workspaceFolder.uri.fsPath;
+        this.launchScenariosManager = new LaunchScenariosManager(rootPath);
         const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
         this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
         const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator(rootPath);
@@ -207,7 +211,9 @@ export class AppLauncher {
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
                     TelemetryHelper.generate("launch", extProps, (generator) => {
-                        return mobilePlatform.beforeStartPackager()
+                        generator.step("resolveEmulator");
+                        return this.resolveAndSaveVirtualDevice(mobilePlatform, launchArgs, mobilePlatformOptions)
+                            .then(() => mobilePlatform.beforeStartPackager())
                             .then(() => {
                                 generator.step("checkPlatformCompatibility");
                                 TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
@@ -278,6 +284,25 @@ export class AppLauncher {
                     reject(error);
                 });
         });
+    }
+
+    private resolveAndSaveVirtualDevice(mobilePlatform: GeneralMobilePlatform, launchArgs: any, mobilePlatformOptions: any): Promise<void> {
+        if (launchArgs.target && mobilePlatformOptions.platform === "android") {
+            return mobilePlatform.resolveVirtualDevice(launchArgs.target)
+            .then((emulator: IVirtualDevice | null) => {
+                if (emulator && emulator.name) {
+                    this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
+                    if (launchArgs.platform === "android") {
+                        mobilePlatformOptions.target = emulator.id;
+                    }
+                }
+                else if (!emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
+                    mobilePlatformOptions.target = "simulator";
+                    mobilePlatform.runArguments = mobilePlatform.getRunArguments();
+                }
+            });
+        }
+        return Promise.resolve();
     }
 
     private requestSetup(args: any): any {

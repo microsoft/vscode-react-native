@@ -22,6 +22,8 @@ import * as nls from "vscode-nls";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {AppLauncher} from "./appLauncher";
+import { AndroidEmulatorManager } from "./android/androidEmulatorManager";
+import { AdbHelper } from "./android/adb";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -99,6 +101,16 @@ export class CommandPaletteHandler {
             });
     }
 
+    public static async launchAndroidEmulator(): Promise<void> {
+        const appLauncher = await this.selectProject();
+        const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
+        const androidEmulatorManager = new AndroidEmulatorManager(adbHelper);
+        const emulator = await androidEmulatorManager.startSelection();
+        if (emulator) {
+            androidEmulatorManager.tryLaunchEmulatorByName(emulator);
+        }
+    }
+
     /**
      * Executes the 'react-native run-android' command
      */
@@ -111,7 +123,8 @@ export class CommandPaletteHandler {
                         appLauncher.setReactNativeVersions(versions);
                         return this.executeCommandInContext("runAndroid", appLauncher.getWorkspaceFolder(), () => {
                             const platform = <AndroidPlatform>this.createPlatform(appLauncher, PlatformType.Android, AndroidPlatform, target);
-                            return platform.beforeStartPackager()
+                            return platform.resolveVirtualDevice(target)
+                                .then(() => platform.beforeStartPackager())
                                 .then(() => {
                                     return platform.startPackager();
                                 })
@@ -138,7 +151,8 @@ export class CommandPaletteHandler {
                         TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.iOS);
                         return this.executeCommandInContext("runIos", appLauncher.getWorkspaceFolder(), () => {
                             const platform = <IOSPlatform>this.createPlatform(appLauncher, PlatformType.iOS, IOSPlatform, target);
-                            return platform.beforeStartPackager()
+                            return platform.resolveVirtualDevice(target)
+                                .then(() => platform.beforeStartPackager())
                                 .then(() => {
                                     return platform.startPackager();
                                 })

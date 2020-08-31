@@ -50,6 +50,11 @@
 	"contributes": {
 		"commands": [
 			{
+				"command": "reactNative.launchAndroidSimulator-preview",
+				"title": "%reactNative.command.launchAndroidSimulator.title%",
+				"category": "React Native (Preview)"
+			},
+			{
 				"command": "reactNative.runAndroidSimulator-preview",
 				"title": "%reactNative.command.runAndroidSimulator.title%",
 				"category": "React Native (Preview)"
