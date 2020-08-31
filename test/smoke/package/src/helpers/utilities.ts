@@ -182,7 +182,7 @@ export interface ExpoLaunch {
 
 export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string): Promise<boolean> {
     return new Promise((resolve) => {
-        const LAUNCH_UPDATE_TIMEOUT = 30;
+        const LAUNCH_UPDATE_TIMEOUT = AndroidEmulatorHelper.EMULATOR_START_TIMEOUT + 30;
         const rejectTimeout = setTimeout(() => {
             cleanup();
             resolve(false);

@@ -5,7 +5,6 @@ import { AdbHelper } from "./adb";
 import { ChildProcess } from "../../common/node/childProcess";
 import { IVirtualDevice, VirtualDeviceManager } from "../VirtualDeviceManager";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import * as path from "path";
 import * as nls from "vscode-nls";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
@@ -13,11 +12,11 @@ export interface IAndroidEmulator extends IVirtualDevice {
 }
 
 export class AndroidEmulatorManager extends VirtualDeviceManager {
-    private static readonly EMULATOR_COMMAND = process.env.ANDROID_HOME ? path.join(process.env.ANDROID_HOME, "emulator", "emulator.exe") : "emulator";
+    private static readonly EMULATOR_COMMAND = "emulator";
     private static readonly EMULATOR_LIST_AVDS_COMMAND = `-list-avds`;
     private static readonly EMULATOR_AVD_START_COMMAND = `-avd`;
 
-    private static readonly EMULATOR_START_TIMEOUT = 120;
+    private static readonly EMULATOR_START_TIMEOUT = 300;
 
     private logger: OutputChannelLogger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
 
