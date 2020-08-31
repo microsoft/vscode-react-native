@@ -245,7 +245,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("Android emulator save test: Debugging started in first time");
             console.log("Android emulator save test: Wait until emulator starting");
-            // await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(pureRNWorkspacePath);
             console.log(`Android emulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${AndroidEmulatorHelper.getDevice()}"'`);
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
@@ -259,7 +259,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("Android emulator save test: Debugging started in second time");
-            // await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
             const devices = AndroidEmulatorHelper.getOnlineDevices();
             assert.strictEqual(devices.length, 1, "The emulator has not been started after update launch.json");
         });

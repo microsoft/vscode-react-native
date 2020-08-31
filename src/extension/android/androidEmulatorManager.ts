@@ -56,8 +56,12 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
         this.logger.info("Emulator name:");
         this.logger.info(emulatorName);
         return new Promise((resolve, reject) => {
-            const emulatorProcess = this.childProcess.spawn(AndroidEmulatorManager.EMULATOR_COMMAND, [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName], {
-                detached: true,
+            const emulatorProcess = this.childProcess.spawn(AndroidEmulatorManager.EMULATOR_COMMAND, [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName]);
+            emulatorProcess.stderr.on("message", msg => {
+                this.logger.error(`Android emulator starting: ${msg.toString()}\n`);
+            });
+            emulatorProcess.stdout.on("error", err => {
+                this.logger.error(`Android emulator starting ERROR: ${err.toString()}\n`);
             });
             emulatorProcess.outcome.catch((error) => {
                 reject(error);
