@@ -223,7 +223,7 @@ export function setup(testParameters?: TestRunArguments) {
             SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
             console.log("iOS simulator save test: Starting debugging at the first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            console.log("iOS simulator save test: Debugging started in first time");
+            console.log("iOS simulator save test: Debugging started at the first time");
             await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath, Platform.iOS);
             console.log(`iOS simulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${IosSimulatorHelper.getDeviceUdid()}"'`);
