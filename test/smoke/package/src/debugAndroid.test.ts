@@ -250,7 +250,7 @@ export function setup(testParameters?: TestRunArguments) {
                 // We will investigate this problem and resolve.
                 if (process.platform === "win32") {
                     console.log(`Android emulator save test: Failed with the error ${error}. Theres is a problem with starting an emulator by the vscode process on Windows testing machine, so we skip this test.`);
-                    this.skip();
+                    return this.skip();
                 }
             }
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(pureRNWorkspacePath);
