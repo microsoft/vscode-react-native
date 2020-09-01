@@ -226,7 +226,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS simulator save test: Debugging started at the first time");
             await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath, Platform.iOS);
-            console.log(`iOS simulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${IosSimulatorHelper.getDeviceUdid()}"'`);
+            console.log(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${IosSimulatorHelper.getDeviceUdid()}"' in launch.json`);
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
             await disposeAll();
             SetupEnvironmentHelper.terminateIosSimulator();
