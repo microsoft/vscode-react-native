@@ -234,6 +234,12 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("Save Android emulator test", async function () {
+            // Theres is a problem with starting an emulator by the VS Code process on Windows testing machine.
+            // The issue will be investigated
+            if (process.platform === "win32") {
+                console.log(`Android emulator save test: Theres is a problem with starting an emulator by the VS Code process on Windows testing machine, so we skip this test.`);
+                return this.skip();
+            }
             this.timeout(debugAndroidTestTime);
             app = await runVSCode(pureRNWorkspacePath);
             console.log("Android emulator save test: Terminating Android emulator");
@@ -243,16 +249,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("Android emulator save test: Debugging started in first time");
             console.log("Android emulator save test: Wait until emulator starting");
-            try {
-                await AndroidEmulatorHelper.waitUntilEmulatorStarting();
-            } catch (error) {
-                // Theres is a problem with starting an emulator by the vscode process on Windows testing machine.
-                // We will investigate this problem and resolve.
-                if (process.platform === "win32") {
-                    console.log(`Android emulator save test: Failed with the error ${error}. Theres is a problem with starting an emulator by the vscode process on Windows testing machine, so we skip this test.`);
-                    return this.skip();
-                }
-            }
+            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(pureRNWorkspacePath);
             console.log(`Android emulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${AndroidEmulatorHelper.getDevice()}"'`);
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
