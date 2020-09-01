@@ -65,7 +65,7 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
         const quickPickOptions: QuickPickOptions = {
             ignoreFocusOut: true,
             canPickMany: false,
-            placeHolder: localize("SelectSystem", "Select select system of virtual device"),
+            placeHolder: localize("SelectIOSSystemVersion", "Select system version of iOS virtual device"),
         };
         let result: string | undefined = systemsList[0];
         if (systemsList.length > 1) {
