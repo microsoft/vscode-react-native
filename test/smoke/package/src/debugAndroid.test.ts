@@ -233,7 +233,7 @@ export function setup(testParameters?: TestRunArguments) {
             await expoTest("App.tsx", "Android Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
         });
 
-        it("RN Android emulator save test", async function () {
+        it("Save Android emulator test", async function () {
             this.timeout(debugAndroidTestTime);
             app = await runVSCode(pureRNWorkspacePath);
             console.log("Android emulator save test: Terminating Android emulator");
@@ -241,7 +241,9 @@ export function setup(testParameters?: TestRunArguments) {
             await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
             // Theres is a problem with starting an emulator by the vscode process on Windows testing machine,
             // so we have to restart the emulator, otherwise the extension will not start it
-            await AndroidEmulatorHelper.spawnAndKillEmulator();
+            if (process.platform === "win32") {
+                await AndroidEmulatorHelper.spawnAndKillEmulator();
+            }
             console.log("Android emulator save test: Starting debugging in first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("Android emulator save test: Debugging started in first time");
@@ -258,7 +260,9 @@ export function setup(testParameters?: TestRunArguments) {
             await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
             // Theres is a problem with starting an emulator by the vscode process on Windows testing machine,
             // so we have to restart the emulator, otherwise the extension will not start it
-            await AndroidEmulatorHelper.spawnAndKillEmulator();
+            if (process.platform === "win32") {
+                await AndroidEmulatorHelper.spawnAndKillEmulator();
+            }
             console.log("Android emulator save test: Starting debugging in second time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("Android emulator save test: Debugging started in second time");

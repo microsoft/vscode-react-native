@@ -73,6 +73,7 @@ export class AndroidEmulatorHelper {
         await AndroidEmulatorHelper.waitUntilEmulatorStarting();
         console.log("*** Terminating Android emulator");
         AndroidEmulatorHelper.terminateAndroidEmulator();
+        await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
     }
 
     public static async runAndroidEmulator() {
