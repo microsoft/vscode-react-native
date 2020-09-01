@@ -249,7 +249,7 @@ export function setup(testParameters?: TestRunArguments) {
                 // Theres is a problem with starting an emulator by the vscode process on Windows testing machine.
                 // We will investigate this problem and resolve.
                 if (process.platform === "win32") {
-                    console.log(`Android emulator save test: Filed with error ${error}. Theres is a problem with starting an emulator by the vscode process on Windows testing machine, so we skip this test.`);
+                    console.log(`Android emulator save test: Failed with the error ${error}. Theres is a problem with starting an emulator by the vscode process on Windows testing machine, so we skip this test.`);
                     this.skip();
                 }
             }
