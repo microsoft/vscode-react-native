@@ -10,7 +10,7 @@ export interface IDevice {
     isOnline: boolean;
 }
 export class AndroidEmulatorHelper {
-    public static EMULATOR_START_TIMEOUT = 300;
+    public static EMULATOR_START_TIMEOUT = 120;
     public static EMULATOR_TERMINATING_TIMEOUT = 30;
 
     public static androidEmulatorPort = 5554;
@@ -129,7 +129,7 @@ export class AndroidEmulatorHelper {
         console.log("*** Checking for running android emulators...");
         if (devices.length !== 0) {
             devices.forEach((device) => {
-                console.log(`Terminating Android '${device.id}'...`);
+                console.log(`***Terminating Android '${device.id}'...`);
                 cp.execSync(`adb -s ${device.id} emu kill`, {stdio: "inherit"});
             });
         } else {

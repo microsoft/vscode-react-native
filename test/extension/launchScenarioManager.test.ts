@@ -111,8 +111,6 @@ suite("LaunchScenarioManager", function() {
             const manager = new LaunchScenariosManager(tmpPath);
             manager.updateLaunchScenario(config, updates);
             const launchObject = JSON.parse(fs.readFileSync(launchPath).toString());
-            console.log(launchObject);
-            console.log(result);
             assert.deepStrictEqual(launchObject, result);
         }
 

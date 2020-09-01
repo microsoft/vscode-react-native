@@ -16,7 +16,7 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
     private static readonly EMULATOR_LIST_AVDS_COMMAND = `-list-avds`;
     private static readonly EMULATOR_AVD_START_COMMAND = `-avd`;
 
-    private static readonly EMULATOR_START_TIMEOUT = 300;
+    private static readonly EMULATOR_START_TIMEOUT = 120;
 
     private logger: OutputChannelLogger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
 
@@ -53,15 +53,9 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
     }
 
     public async tryLaunchEmulatorByName(emulatorName: string): Promise<string> {
-        this.logger.info("Emulator name:");
-        this.logger.info(emulatorName);
         return new Promise((resolve, reject) => {
-            const emulatorProcess = this.childProcess.spawn(AndroidEmulatorManager.EMULATOR_COMMAND, [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName]);
-            emulatorProcess.stderr.on("message", msg => {
-                this.logger.error(`Android emulator starting: ${msg.toString()}\n`);
-            });
-            emulatorProcess.stdout.on("error", err => {
-                this.logger.error(`Android emulator starting ERROR: ${err.toString()}\n`);
+            const emulatorProcess = this.childProcess.spawn(AndroidEmulatorManager.EMULATOR_COMMAND, [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName], {
+                detached: true,
             });
             emulatorProcess.outcome.catch((error) => {
                 reject(error);
@@ -102,11 +96,6 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
                 emulatorsList.splice(indexOfBlank, 1);
             }
         }
-        this.logger.info("ENV:");
-        this.logger.info(String(process.env.ANDROID_HOME));
-
-        this.logger.info("Emulators list:");
-        this.logger.info(emulatorsList.toString());
         return emulatorsList;
     }
 }
