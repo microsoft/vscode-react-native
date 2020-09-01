@@ -291,16 +291,15 @@ export class AppLauncher {
             .then((emulator: IVirtualDevice | null) => {
                 console.log("resolveAndSaveVirtualDevice emulator: ");
                 console.log(emulator);
-                if (emulator && emulator.name) {
-                    if (launchArgs.platform === "android") {
-                        launchArgs.target = emulator.id;
+                if (emulator) {
+                    if (emulator.name && launchArgs.platform === "android") {
                         mobilePlatformOptions.target = emulator.id;
                         this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
                     }
                     if (launchArgs.platform === "ios") {
-                        launchArgs.target = emulator.id;
                         this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.id});
                     }
+                    launchArgs.target = emulator.id;
                 }
                 else if (!emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
                     mobilePlatformOptions.target = "simulator";
