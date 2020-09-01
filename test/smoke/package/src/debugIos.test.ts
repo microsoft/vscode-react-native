@@ -236,7 +236,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS simulator save test: Debugging started at the second time");
             await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
             const devices = IosSimulatorHelper.getBootedDevices();
-            assert.strictEqual(devices.length, 1, "The simulator has not been started after update launch.json");
+            assert.strictEqual(devices.length, 1, "The simulator has not been started after the update of launch.json");
         });
     });
 }
