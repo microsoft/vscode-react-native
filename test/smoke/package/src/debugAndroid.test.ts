@@ -240,9 +240,9 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
             await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
-
-            // await AndroidEmulatorHelper.spawnAndKillEmulator();
-
+            // Theres is a problem with starting an emulator by the vscode process on Windows testing machine,
+            // so we have to restart the emulator, otherwise the extension will not start it
+            await AndroidEmulatorHelper.spawnAndKillEmulator();
             console.log("Android emulator save test: Starting debugging in first time");
             await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
@@ -258,9 +258,9 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("Android emulator save test: Terminating Android emulator");
             AndroidEmulatorHelper.terminateAndroidEmulator();
             await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
-
-            // await AndroidEmulatorHelper.spawnAndKillEmulator();
-
+            // Theres is a problem with starting an emulator by the vscode process on Windows testing machine,
+            // so we have to restart the emulator, otherwise the extension will not start it
+            await AndroidEmulatorHelper.spawnAndKillEmulator();
             console.log("Android emulator save test: Starting debugging in second time");
             await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);

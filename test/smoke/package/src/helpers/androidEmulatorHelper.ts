@@ -67,13 +67,13 @@ export class AndroidEmulatorHelper {
         });
     }
 
-    // public static async spawnAndKillEmulator() {
-    //     cp.spawn("emulator", ["-avd", String(AndroidEmulatorHelper.getDevice())]);
-    //     console.log("*** Wait until emulator starting");
-    //     await AndroidEmulatorHelper.waitUntilEmulatorStarting();
-    //     console.log("*** Terminating Android emulator");
-    //     AndroidEmulatorHelper.terminateAndroidEmulator();
-    // }
+    public static async spawnAndKillEmulator() {
+        cp.spawn("emulator", ["-avd", String(AndroidEmulatorHelper.getDevice())]);
+        console.log("*** Wait until emulator starting");
+        await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+        console.log("*** Terminating Android emulator");
+        AndroidEmulatorHelper.terminateAndroidEmulator();
+    }
 
     public static async runAndroidEmulator() {
         this.terminateAndroidEmulator();
