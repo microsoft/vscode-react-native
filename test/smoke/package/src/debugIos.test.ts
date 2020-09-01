@@ -221,7 +221,7 @@ export function setup(testParameters?: TestRunArguments) {
             SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
             SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
-            console.log("iOS simulator save test: Starting debugging in first time");
+            console.log("iOS simulator save test: Starting debugging at the first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("iOS simulator save test: Debugging started in first time");
             await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
