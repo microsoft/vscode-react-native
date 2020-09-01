@@ -294,6 +294,7 @@ export class AppLauncher {
                     if (emulator.name) {
                         this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
                     }
+                    launchArgs.target = emulator.id;
                     mobilePlatformOptions.target = emulator.id;
                 }
                 else if (!emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
