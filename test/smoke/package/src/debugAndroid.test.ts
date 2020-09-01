@@ -241,9 +241,8 @@ export function setup(testParameters?: TestRunArguments) {
             AndroidEmulatorHelper.terminateAndroidEmulator();
             await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
 
-            await AndroidEmulatorHelper.spawnAndKillEmulator();
+            // await AndroidEmulatorHelper.spawnAndKillEmulator();
 
-            await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
             console.log("Android emulator save test: Starting debugging in first time");
             await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
@@ -260,7 +259,7 @@ export function setup(testParameters?: TestRunArguments) {
             AndroidEmulatorHelper.terminateAndroidEmulator();
             await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
 
-            await AndroidEmulatorHelper.spawnAndKillEmulator();
+            // await AndroidEmulatorHelper.spawnAndKillEmulator();
 
             console.log("Android emulator save test: Starting debugging in second time");
             await app.workbench.quickaccess.runCommand(START_PACKAGER_COMMAND);
