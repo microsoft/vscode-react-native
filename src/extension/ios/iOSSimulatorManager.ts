@@ -10,7 +10,6 @@ const localize = nls.loadMessageBundle();
 
 export interface IiOSSimulator extends IVirtualDevice {
     system: string;
-    rawSystemString: string;
 }
 
 export class IOSSimulatorManager extends VirtualDeviceManager {
@@ -53,8 +52,7 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
                 simulators.push({
                     name: device.name,
                     id: device.udid,
-                    system: system.split(".").slice(-1)[0],
-                    rawSystemString: system,
+                    system: system.split(".").slice(-1)[0], // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> "iOS-11-4"
                 });
             });
         });
