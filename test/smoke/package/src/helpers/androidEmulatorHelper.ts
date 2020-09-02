@@ -10,7 +10,8 @@ export interface IDevice {
     isOnline: boolean;
 }
 export class AndroidEmulatorHelper {
-    private static EMULATOR_START_TIMEOUT = 120;
+    public static EMULATOR_START_TIMEOUT = 120;
+    public static EMULATOR_TERMINATING_TIMEOUT = 30;
 
     public static androidEmulatorPort = 5554;
     public static androidEmulatorName = `emulator-${AndroidEmulatorHelper.androidEmulatorPort}`;
@@ -64,6 +65,15 @@ export class AndroidEmulatorHelper {
                 clearInterval(bootCheckInterval);
             };
         });
+    }
+
+    public static async spawnAndKillEmulator() {
+        cp.spawn("emulator", ["-avd", String(AndroidEmulatorHelper.getDevice())]);
+        console.log("*** Wait until emulator starting");
+        await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+        console.log("*** Terminating Android emulator");
+        AndroidEmulatorHelper.terminateAndroidEmulator();
+        await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
     }
 
     public static async runAndroidEmulator() {
@@ -120,12 +130,35 @@ export class AndroidEmulatorHelper {
         console.log("*** Checking for running android emulators...");
         if (devices.length !== 0) {
             devices.forEach((device) => {
-                console.log(`Terminating Android '${device.id}'...`);
+                console.log(`***Terminating Android '${device.id}'...`);
                 cp.execSync(`adb -s ${device.id} emu kill`, {stdio: "inherit"});
             });
         } else {
             console.log("*** No running android emulators found");
         }
+    }
+
+    public static waitUntilAndroidEmulatorTerminating() {
+        return new Promise((resolve, reject) => {
+            const rejectTimeout = setTimeout(() => {
+                cleanup();
+                reject(`Could not terminate the emulator within ${AndroidEmulatorHelper.EMULATOR_TERMINATING_TIMEOUT} seconds.`);
+            }, AndroidEmulatorHelper.EMULATOR_TERMINATING_TIMEOUT * 1000);
+
+            const bootCheckInterval = setInterval(async () => {
+                const connectedDevices = AndroidEmulatorHelper.getConnectedDevices();
+                if (connectedDevices.length === 0) {
+                    console.log(`*** All Android emulators are terminated.`);
+                    cleanup();
+                    resolve();
+                }
+            }, 1000);
+
+            const cleanup = () => {
+                clearTimeout(rejectTimeout);
+                clearInterval(bootCheckInterval);
+            };
+        });
     }
 
     // Check if appPackage is installed on Android device for waitTime ms

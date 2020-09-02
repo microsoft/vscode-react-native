@@ -287,11 +287,12 @@ export class AppLauncher {
         if (launchArgs.target && mobilePlatformOptions.platform === "android") {
             return mobilePlatform.resolveVirtualDevice(launchArgs.target)
             .then((emulator: IVirtualDevice | null) => {
-                if (emulator && emulator.name) {
-                    this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
-                    if (launchArgs.platform === "android") {
-                        mobilePlatformOptions.target = emulator.id;
+                if (emulator) {
+                    if (emulator.name) {
+                        this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
                     }
+                    launchArgs.target = emulator.id;
+                    mobilePlatformOptions.target = emulator.id;
                 }
                 else if (!emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
                     mobilePlatformOptions.target = "simulator";
