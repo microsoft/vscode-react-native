@@ -27,20 +27,20 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
 
     public findSimulator(name: string, system: string | null = this.lastSelectedSystem, simulators?: IiOSSimulator[]): IiOSSimulator | null {
         const sims = simulators ? simulators : this.simulators;
-        const foundSimulators = sims.filter((value) => value.name === name && (!system || value.system === system));
-        if (foundSimulators.length === 0) {
+        const foundSimulator = sims.find((value) => value.name === name && (!system || value.system === system));
+        if (!foundSimulator) {
             return null;
         }
-        return foundSimulators[0];
+        return foundSimulator;
     }
 
     public getSimulatorById(udid: string, simulators?: IiOSSimulator[]): IiOSSimulator | null {
         const sims = simulators ? simulators : this.simulators;
-        const foundSimulators = sims.filter((value) => value.id === udid);
-        if (foundSimulators.length === 0) {
+        const foundSimulator = sims.find((value) => value.id === udid);
+        if (!foundSimulator) {
             return null;
         }
-        return foundSimulators[0];
+        return foundSimulator;
     }
 
     public async collectSimulators(): Promise<IiOSSimulator[]> {
