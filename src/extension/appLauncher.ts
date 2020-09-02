@@ -178,8 +178,6 @@ export class AppLauncher {
             mobilePlatformOptions.isDirect = true;
         }
 
-        this.launchScenariosManager = new LaunchScenariosManager(this.workspaceFolder.uri.fsPath);
-
         mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(launchArgs.cwd || launchArgs.program);
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
