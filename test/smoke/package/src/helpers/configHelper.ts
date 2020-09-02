@@ -39,7 +39,7 @@ export class TestConfigurator {
                 throw new Error(`Missing IOS_SIMULATOR variable`);
             }
             if (!variables.IOS_SIMULATOR_UDID) {
-                throw new Error(`Cant find udid for iOS simulator ${variables.IOS_SIMULATOR}`);
+                throw new Error(`Can't find udid for the iOS simulator ${variables.IOS_SIMULATOR}`);
             }
             if (!variables.IOS_VERSION) {
                 throw new Error(`Missing IOS_VERSION variable`);

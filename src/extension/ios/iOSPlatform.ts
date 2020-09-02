@@ -105,7 +105,9 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     }
                     return simulator;
                 }
-                else return null;
+                else {
+                    return null;
+                }
             });
         }
         else if (!target.includes("device")) {

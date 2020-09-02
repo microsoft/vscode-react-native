@@ -221,22 +221,22 @@ export function setup(testParameters?: TestRunArguments) {
             SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
             SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
-            console.log("iOS simulator save test: Starting debugging in first time");
+            console.log("iOS simulator save test: Starting debugging at the first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            console.log("iOS simulator save test: Debugging started in first time");
+            console.log("iOS simulator save test: Debugging started at the first time");
             await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath, Platform.iOS);
-            console.log(`iOS simulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${IosSimulatorHelper.getDeviceUdid()}"'`);
+            console.log(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${IosSimulatorHelper.getDeviceUdid()}"' in launch.json`);
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
             await disposeAll();
             SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
-            console.log("iOS simulator save test: Starting debugging in second time");
+            console.log("iOS simulator save test: Starting debugging at the second time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            console.log("iOS simulator save test: Debugging started in second time");
+            console.log("iOS simulator save test: Debugging started at the second time");
             await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
             const devices = IosSimulatorHelper.getBootedDevices();
-            assert.strictEqual(devices.length, 1, "The simulator has not been started after update launch.json");
+            assert.strictEqual(devices.length, 1, "The simulator has not been started after the update of launch.json");
         });
     });
 }
