@@ -191,8 +191,8 @@ export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string, platf
         const bootCheckInterval = setInterval(async () => {
             let isUpdated: boolean = false;
             switch (platform) {
-                case Platform.Android: isUpdated = isLaunchScenarioContainsAndroidTarget(workspaceRoot);
-                case Platform.iOS: isUpdated = isLaunchScenarioContainsIosTarget(workspaceRoot);
+                case Platform.Android: isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, AndroidEmulatorHelper.getDevice());
+                case Platform.iOS: isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, IosSimulatorHelper.getDeviceUdid());
             }
             if (isUpdated) {
                 cleanup();
@@ -207,16 +207,9 @@ export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string, platf
     });
 }
 
-export function isLaunchScenarioContainsAndroidTarget(workspaceRoot: string): boolean {
+export function isLaunchScenarioContainsTarget(workspaceRoot: string, targetValue?: string): boolean {
     const pathToLaunchFile = path.resolve(workspaceRoot, ".vscode", "launch.json");
-    const emulatorName = AndroidEmulatorHelper.getDevice();
-    return findStringInFile(pathToLaunchFile, `"target": "${emulatorName}"`);
-}
-
-export function isLaunchScenarioContainsIosTarget(workspaceRoot: string): boolean {
-    const pathToLaunchFile = path.resolve(workspaceRoot, ".vscode", "launch.json");
-    const simulatorUdid = IosSimulatorHelper.getDeviceUdid();
-    return findStringInFile(pathToLaunchFile, `"target": "${simulatorUdid}"`);
+    return findStringInFile(pathToLaunchFile, `"target": "${targetValue}"`);
 }
 
 export async function waitForRunningPackager(filePath: string) {

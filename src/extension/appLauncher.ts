@@ -289,8 +289,6 @@ export class AppLauncher {
         if (launchArgs.target && (mobilePlatformOptions.platform === "android" || mobilePlatformOptions.platform === "ios")) {
             return mobilePlatform.resolveVirtualDevice(launchArgs.target)
             .then((emulator: IVirtualDevice | null) => {
-                console.log("resolveAndSaveVirtualDevice emulator: ");
-                console.log(emulator);
                 if (emulator) {
                     if (emulator.name && launchArgs.platform === "android") {
                         mobilePlatformOptions.target = emulator.id;

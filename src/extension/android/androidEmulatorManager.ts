@@ -64,7 +64,7 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
 
             const rejectTimeout = setTimeout(() => {
                 cleanup();
-                reject(`Could not start the emulator within ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`);
+                reject(`Could not start the emulator ${emulatorName} within ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`);
             }, AndroidEmulatorManager.EMULATOR_START_TIMEOUT * 1000);
 
             const bootCheckInterval = setInterval(async () => {
