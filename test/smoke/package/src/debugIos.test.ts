@@ -205,7 +205,7 @@ export function setup(testParameters?: TestRunArguments) {
             await expoTest("App.tsx", "iOS Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
         });
 
-        it("RN iOS simulator save test", async function () {
+        it("Save iOS simulator test", async function () {
             this.timeout(debugIosTestTime);
             SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
