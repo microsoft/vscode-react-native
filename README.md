@@ -142,11 +142,11 @@ Click [here](https://reactnative.dev/docs/hermes) to learn more about Hermes.
 Debugging apps with Hermes enabled is currently experimental. Please, see [this issue](https://github.com/microsoft/vscode-react-native/issues/1073) for current known issues on Hermes support.
 
 To debug while using Hermes engine, please choose one of the following debug configurations:
- - React Native (Hermes): Debug Android - Experimental
+ - React Native Direct: Debug Android Hermes - Experimental
 
 ```json
 {
-    "name": "Debug Android (Hermes) - Experimental",
+    "name": "Debug Android Hermes - Experimental",
     "cwd": "${workspaceFolder}",
     "type": "reactnativedirect",
     "request": "launch",
@@ -154,11 +154,11 @@ To debug while using Hermes engine, please choose one of the following debug con
 }
 ```
 
- - React Native (Hermes): Attach to Hermes application - Experimental
+ - "React Native Direct: Attach to the React Native Hermes - Experimental
 
 ```json
 {
-    "name": "Attach to Hermes application - Experimental",
+    "name": "Attach to the React Native Hermes - Experimental",
     "cwd": "${workspaceFolder}",
     "type": "reactnativedirect",
     "request": "attach"
@@ -185,6 +185,39 @@ If you want to use a custom scheme for your application you can either pass it a
 "scheme" : "customScheme"
 ```
 Please be aware, specifying the scheme value as a part of the `runArguments` parameter arguments will override the `scheme` configuration parameter value, if it set.
+
+## iOS direct debugging
+
+The extension provides experimental support of iOS direct debugging.
+
+To be able to debug an iOS app directly, you need to instal [ios-webkit-debug-proxy](https://github.com/google/ios-webkit-debug-proxy):
+
+- Install [HomeBrew](https://brew.sh) on your Mac.
+- Open a Terminal and run `brew install ideviceinstaller ios-webkit-debug-proxy`
+
+You can use the following debug scenarios to debug iOS apps directly:
+
+- React Native Direct: Debug Direct iOS - Experimental
+
+```json
+    "name": "Debug Direct iOS - Experimental",
+    "cwd": "${workspaceFolder}",
+    "type": "reactnativedirect",
+    "request": "launch",
+    "platform": "ios",
+    "port": 9221
+```
+
+- React Native Direct: Attach to the React Native iOS - Experimental
+
+```json
+    "name": "Attach to the React Native iOS - Experimental",
+    "cwd": "${workspaceFolder}",
+    "type": "reactnativedirect",
+    "request": "attach",
+    "platform": "ios",
+    "port": 9221
+```
 
 ## Expo applications
 
