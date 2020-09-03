@@ -3,7 +3,7 @@
   "javascript.validate.enable": false,
   "editor.formatOnSave": true,
   "files.trimTrailingWhitespace": true,
-  "eslint.enable": false,
+  "eslint.enable": true,
   "editor.insertSpaces": true,
   "editor.tabSize": 4,
   "files.exclude": {
