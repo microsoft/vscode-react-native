@@ -136,7 +136,7 @@ export class Simulator {
     private simulateSingleEvent(event: IEventArguments): Promise<void> {
         /* TODO: Implement proper timing logic based on return Q.delay(event.at).then(() => {
             using sinon fake timers to simulate time passing by */
-        return new PromiseUtil().delay(0).then(() => {
+        return new Promise((resolve) => {
             this.allSimulatedEvents.push(event);
             const key = Object.keys(event).find(eventKey => eventKey !== "after"); // At the moment we are only using a single key/parameter per event
             switch (key) {
@@ -175,7 +175,7 @@ export class Simulator {
                 default:
                     throw new Error(`Unknown event to simulate: ${key} from:\n\t${event}`);
             }
-            return Promise.resolve();
+            return resolve();
         });
     }
 }

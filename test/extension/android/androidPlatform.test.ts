@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as assert from "assert";
 import {AndroidPlatform} from "../../../src/extension/android/androidPlatform";
-import {IAndroidRunOptions} from "../../../src/extension/launchArgs";
+import {IAndroidRunOptions, PlatformType} from "../../../src/extension/launchArgs";
 import {FileSystem} from "../../../src/common/node/fileSystem";
 import {ReactNative022} from "../../resources/reactNative022";
 import * as adb from "../../../src/extension/android/adb";
@@ -25,7 +25,7 @@ suite("androidPlatform", function () {
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
         const genericRunOptions: IAndroidRunOptions = {
-            platform: "android",
+            platform: PlatformType.Android,
             workspaceRoot: projectRoot,
             projectRoot: projectRoot,
             reactNativeVersions: {
@@ -208,7 +208,7 @@ suite("androidPlatform", function () {
 
 
                     const runOptions: any = {
-                        platform: "android",
+                        platform: PlatformType.Android,
                         workspaceRoot: projectRoot,
                         projectRoot: projectRoot,
                         target: "Nexus_12",
@@ -238,7 +238,7 @@ suite("androidPlatform", function () {
                 devices[3].isOnline = false;
 
                     const runOptions: any = {
-                        platform: "android",
+                        platform: PlatformType.Android,
                         workspaceRoot: projectRoot,
                         projectRoot: projectRoot,
                         target: "Nexus_12",
@@ -312,7 +312,7 @@ suite("androidPlatform", function () {
             });
 
         test("getRunArguments should return correct target", function() {
-            const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
+            const runOptions: any = { platform: PlatformType.Android, workspaceRoot: projectRoot, projectRoot: projectRoot, target: "Nexus_12" };
             const platform = createAndroidPlatform(runOptions);
             const runArgs = platform.getRunArguments();
 
@@ -321,7 +321,7 @@ suite("androidPlatform", function () {
         });
 
         test("getRunArguments should remove simulator target from args", function() {
-            const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "simulator" };
+            const runOptions: any = { platform: PlatformType.Android, workspaceRoot: projectRoot, projectRoot: projectRoot, target: "simulator" };
             const platform = createAndroidPlatform(runOptions);
             const runArgs = platform.getRunArguments();
 
@@ -330,7 +330,7 @@ suite("androidPlatform", function () {
         });
 
         test("getRunArguments should remove device target from args", function() {
-            const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, target: "device" };
+            const runOptions: any = { platform: PlatformType.Android, workspaceRoot: projectRoot, projectRoot: projectRoot, target: "device" };
             const platform = createAndroidPlatform(runOptions);
             const runArgs = platform.getRunArguments();
 
@@ -340,7 +340,7 @@ suite("androidPlatform", function () {
 
         test("getRunArguments should return correct args", function() {
             const args = ["--deviceId", "device_id"];
-            const runOptions: any = { platform: "android", workspaceRoot: projectRoot, projectRoot: projectRoot, runArguments: args, target: "Nexus_12" };
+            const runOptions: any = { platform: PlatformType.Android, workspaceRoot: projectRoot, projectRoot: projectRoot, runArguments: args, target: "Nexus_12" };
             const platform = createAndroidPlatform(runOptions);
             const runArgs = platform.getRunArguments();
 

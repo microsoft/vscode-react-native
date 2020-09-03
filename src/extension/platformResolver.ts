@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {IRunOptions} from "./launchArgs";
+import {IRunOptions, PlatformType} from "./launchArgs";
 import {IOSPlatform} from "./ios/iOSPlatform";
 import {AndroidPlatform} from "./android/androidPlatform";
 import {WindowsPlatform} from "./windows/windowsPlatform";
@@ -18,15 +18,15 @@ export class PlatformResolver {
         switch (mobilePlatformString) {
             // We lazyly load the strategies, because some components might be
             // missing on some platforms (like XCode in Windows)
-            case "ios":
+            case PlatformType.iOS:
                 return new IOSPlatform(runOptions, platformDeps);
-            case "android":
+            case PlatformType.Android:
                 return new AndroidPlatform(runOptions, platformDeps);
-            case "exponent":
+            case PlatformType.Exponent:
                 return new ExponentPlatform(runOptions, platformDeps);
-            case "windows":
+            case PlatformType.Windows:
                 return new WindowsPlatform(runOptions, platformDeps);
-            case "wpf":
+            case PlatformType.WPF:
                 return new WpfPlatform(runOptions, platformDeps);
             default:
                 return new GeneralMobilePlatform(runOptions, platformDeps);

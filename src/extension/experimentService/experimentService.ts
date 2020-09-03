@@ -41,7 +41,6 @@ export class ExperimentService implements vscode.Disposable {
     private downloadedExperimentsConfig: Array<ExperimentConfig> | null;
     private experimentsInstances: Map<string, IExperiment>;
     private downloadConfigRequest: Promise<ExperimentConfig[]>;
-    private promiseUtil: PromiseUtil;
     private cancellationTokenSource: vscode.CancellationTokenSource;
 
     public static create () {
@@ -74,7 +73,6 @@ export class ExperimentService implements vscode.Disposable {
         this.endpointURL = "https://microsoft.github.io/vscode-react-native/experiments/experimentsConfig.json";
         this.configName = "reactNativeToolsConfig";
 
-        this.promiseUtil = new PromiseUtil();
         this.config = new Configstore(this.configName);
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
         this.downloadedExperimentsConfig = null;
@@ -116,7 +114,7 @@ export class ExperimentService implements vscode.Disposable {
                 throw err;
             }
 
-            await this.promiseUtil.delay(2000);
+            await PromiseUtil.delay(2000);
             return await this.retryDownloadExperimentsConfig(--retryCount);
         }
     }

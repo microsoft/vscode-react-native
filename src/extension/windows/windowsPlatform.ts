@@ -3,7 +3,7 @@
 
 import * as semver from "semver";
 import {GeneralMobilePlatform, MobilePlatformDeps} from "../generalMobilePlatform";
-import {IWindowsRunOptions} from "../launchArgs";
+import {IWindowsRunOptions, PlatformType} from "../launchArgs";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
@@ -33,7 +33,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
     public runApp(enableDebug: boolean = true): Promise<void> {
         let extProps = {
             platform: {
-                value: "windows",
+                value: PlatformType.Windows,
                 isPii: false,
             },
         };
@@ -59,7 +59,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
     }
 
     public prewarmBundleCache(): Promise<void> {
-        return this.packager.prewarmBundleCache("windows");
+        return this.packager.prewarmBundleCache(PlatformType.Windows);
     }
 
     public getRunArguments(): string[] {

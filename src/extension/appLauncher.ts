@@ -25,6 +25,7 @@ import {generateRandomPortNumber} from "../common/extensionHelper";
 import {DEBUG_TYPES} from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
+import { PlatformType } from "./launchArgs";
 import { LaunchScenariosManager } from "./launchScenariosManager";
 import { IVirtualDevice } from "./VirtualDeviceManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
@@ -203,64 +204,66 @@ export class AppLauncher {
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (launchArgs.platform === "windows") {
+                    if (launchArgs.platform === PlatformType.Windows) {
                         if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
                             throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled);
                         }
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
                     TelemetryHelper.generate("launch", extProps, (generator) => {
-                        generator.step("checkPlatformCompatibility");
-                        TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
                         generator.step("resolveEmulator");
                         return this.resolveAndSaveVirtualDevice(mobilePlatform, launchArgs, mobilePlatformOptions)
-                        .then(() => mobilePlatform.beforeStartPackager())
-                        .then(() => {
-                            generator.step("startPackager");
-                            return mobilePlatform.startPackager();
-                        })
-                        .then(() => {
-                            // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
-                            // and the user needs to Reload JS manually. We prewarm it to prevent that issue
-                            generator.step("prewarmBundleCache");
-                            this.logger.info(localize("PrewarmingBundleCache", "Prewarming bundle cache. This may take a while ..."));
-                            return mobilePlatform.prewarmBundleCache();
-                        })
-                        .then(() => {
-                            generator.step("mobilePlatform.runApp").add("target", mobilePlatformOptions.target, false);
-                            this.logger.info(localize("BuildingAndRunningApplication", "Building and running application."));
-                            return mobilePlatform.runApp();
-                        })
-                        .then(() => {
-                            if (mobilePlatformOptions.isDirect || !mobilePlatformOptions.enableDebug) {
-                                if (mobilePlatformOptions.isDirect && launchArgs.platform === "android") {
-                                    generator.step("mobilePlatform.enableDirectDebuggingMode");
-                                    if (mobilePlatformOptions.enableDebug) {
-                                        this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
+                            .then(() => mobilePlatform.beforeStartPackager())
+                            .then(() => {
+                                generator.step("checkPlatformCompatibility");
+                                TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
+                            })
+                            .then(() => {
+                                generator.step("startPackager");
+                                return mobilePlatform.startPackager();
+                            })
+                            .then(() => {
+                                // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                                // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                                generator.step("prewarmBundleCache");
+                                this.logger.info(localize("PrewarmingBundleCache", "Prewarming bundle cache. This may take a while ..."));
+                                return mobilePlatform.prewarmBundleCache();
+                            })
+                            .then(() => {
+                                generator.step("mobilePlatform.runApp").add("target", mobilePlatformOptions.target, false);
+                                this.logger.info(localize("BuildingAndRunningApplication", "Building and running application."));
+                                return mobilePlatform.runApp();
+                            })
+                            .then(() => {
+                                if (mobilePlatformOptions.isDirect || !mobilePlatformOptions.enableDebug) {
+                                    if (mobilePlatformOptions.isDirect && launchArgs.platform === PlatformType.Android) {
+                                        generator.step("mobilePlatform.enableDirectDebuggingMode");
+                                        if (mobilePlatformOptions.enableDebug) {
+                                            this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
+                                        } else {
+                                            this.logger.info(localize("PrepareHermesLaunch", "Prepare Hermes launch (experimental)"));
+                                        }
                                     } else {
-                                        this.logger.info(localize("PrepareHermesLaunch", "Prepare Hermes launch (experimental)"));
+                                        generator.step("mobilePlatform.disableJSDebuggingMode");
+                                        this.logger.info(localize("DisableJSDebugging", "Disable JS Debugging"));
                                     }
-                                } else {
-                                    generator.step("mobilePlatform.disableJSDebuggingMode");
-                                    this.logger.info(localize("DisableJSDebugging", "Disable JS Debugging"));
+                                    return mobilePlatform.disableJSDebuggingMode();
                                 }
-                                return mobilePlatform.disableJSDebuggingMode();
-                            }
-                            generator.step("mobilePlatform.enableJSDebuggingMode");
-                            this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
-                            return mobilePlatform.enableJSDebuggingMode();
-                        })
-                        .then(resolve)
-                        .catch(error => {
-                            if (!mobilePlatformOptions.enableDebug && launchArgs.platform === "ios") {
-                                // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
-                                // since the error doesn't affects an application launch process
-                                return resolve();
-                            }
-                            generator.addError(error);
-                            this.logger.error(error);
-                            reject(error);
-                        });
+                                generator.step("mobilePlatform.enableJSDebuggingMode");
+                                this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
+                                return mobilePlatform.enableJSDebuggingMode();
+                            })
+                            .then(resolve)
+                            .catch(error => {
+                                if (!mobilePlatformOptions.enableDebug && launchArgs.platform === PlatformType.iOS && launchArgs.type === DEBUG_TYPES.REACT_NATIVE) {
+                                    // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
+                                    // since the error doesn't affects an application launch process
+                                    return resolve();
+                                }
+                                generator.addError(error);
+                                this.logger.error(error);
+                                reject(error);
+                            });
                     });
                 })
                 .catch(error => {
@@ -284,15 +287,15 @@ export class AppLauncher {
     }
 
     private resolveAndSaveVirtualDevice(mobilePlatform: GeneralMobilePlatform, launchArgs: any, mobilePlatformOptions: any): Promise<void> {
-        if (launchArgs.target && (mobilePlatformOptions.platform === "android" || mobilePlatformOptions.platform === "ios")) {
+        if (launchArgs.target && (mobilePlatformOptions.platform === PlatformType.Android || mobilePlatformOptions.platform === PlatformType.iOS)) {
             return mobilePlatform.resolveVirtualDevice(launchArgs.target)
             .then((emulator: IVirtualDevice | null) => {
                 if (emulator) {
-                    if (emulator.name && launchArgs.platform === "android") {
+                    if (emulator.name && launchArgs.platform === PlatformType.Android) {
                         mobilePlatformOptions.target = emulator.id;
                         this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
                     }
-                    if (launchArgs.platform === "ios") {
+                    if (launchArgs.platform === PlatformType.iOS) {
                         this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.id});
                     }
                     launchArgs.target = emulator.id;
@@ -319,7 +322,7 @@ export class AppLauncher {
             enableDebug: args.enableDebug,
         };
 
-        if (args.platform === "exponent") {
+        if (args.platform === PlatformType.Exponent) {
             mobilePlatformOptions.expoHostType = args.expoHostType || "tunnel";
         }
 
