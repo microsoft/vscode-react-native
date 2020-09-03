@@ -6,7 +6,7 @@ import { AppiumHelper, AppiumClient, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { RNworkspacePath, runVSCode, ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
-import { sleep, findFile, findExpoURLInLogFile, findExpoSuccessAndFailurePatterns, ExpoLaunch, getIOSBuildPath, waitForRunningPackager } from "./helpers/utilities";
+import { sleep, findFile, findExpoURLInLogFile, findExpoSuccessAndFailurePatterns, ExpoLaunch, getIOSBuildPath, waitUntilLaunchScenarioTargetUpdate } from "./helpers/utilities";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import * as path from "path";
 import { TestRunArguments } from "./helpers/configHelper";
@@ -17,7 +17,6 @@ const RNDebugConfigName = "Debug iOS";
 const ExpoDebugConfigName = "Debug in Exponent";
 const ExpoLanDebugConfigName = "Debug in Exponent (LAN)";
 const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
-const STOP_PACKAGER_COMMAND = "React Native (Preview): Stop Packager";
 
 const RNSetBreakpointOnLine = 1;
 const ExpoSetBreakpointOnLine = 1;
@@ -33,7 +32,7 @@ export function setup(testParameters?: TestRunArguments) {
         let app: Application;
         let clientInited: AppiumClient;
 
-        afterEach(async () => {
+        async function disposeAll() {
             if (app) {
                 await app.stop();
             }
@@ -41,7 +40,9 @@ export function setup(testParameters?: TestRunArguments) {
                 clientInited.closeApp();
                 clientInited.endAll();
             }
-        });
+        };
+
+        afterEach(disposeAll);
 
         async function runExpoDebugScenario(logFilePath: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             console.log(`${testName}: Starting debugging`);
@@ -65,7 +66,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
         }
 
-        async function expoTest(appFileName: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number, isPureExpo: boolean = false) {
+        async function expoTest(appFileName: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             let logFilePath = "";
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
@@ -82,16 +83,6 @@ export function setup(testParameters?: TestRunArguments) {
                 assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
             }
             await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
-            // We stop and start Pure Expo debug scenario again, since we faced Metro cache processing problem on
-            // Expo SDK 38. The debug scenario works fine only on the second and further launches of the packager.
-            // As soon as this problem is fixed, this condition won't be needed.
-            if (isPureExpo) {
-                await waitForRunningPackager(logFilePath);
-                await app.workbench.debug.stopDebugging();
-                await app.workbench.quickaccess.runCommand(STOP_PACKAGER_COMMAND);
-                await sleep(2 * 1000);
-                await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
-            }
 
             await app.workbench.editors.waitForTab("Expo QR Code readonly");
             await app.workbench.editors.waitForActiveTab("Expo QR Code readonly");
@@ -195,7 +186,7 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.js", "iOS pure RN Expo test(LAN)", pureRNWorkspacePath, ExpoLanDebugConfigName, 1, true);
+            await expoTest("App.js", "iOS pure RN Expo test(LAN)", pureRNWorkspacePath, ExpoLanDebugConfigName, 1);
         });
 
         it("Expo app Debug test(LAN)", async function () {
@@ -212,6 +203,29 @@ export function setup(testParameters?: TestRunArguments) {
             }
             this.timeout(debugExpoTestTime);
             await expoTest("App.tsx", "iOS Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
+        });
+
+        it("Save iOS simulator test", async function () {
+            this.timeout(debugIosTestTime);
+            SetupEnvironmentHelper.terminateIosSimulator();
+            app = await runVSCode(RNworkspacePath);
+            SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
+            console.log("iOS simulator save test: Starting debugging at the first time");
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
+            console.log("iOS simulator save test: Debugging started at the first time");
+            await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
+            const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath, Platform.iOS);
+            console.log(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${IosSimulatorHelper.getDeviceUdid()}"' in launch.json`);
+            assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
+            await disposeAll();
+            SetupEnvironmentHelper.terminateIosSimulator();
+            app = await runVSCode(RNworkspacePath);
+            console.log("iOS simulator save test: Starting debugging at the second time");
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
+            console.log("iOS simulator save test: Debugging started at the second time");
+            await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
+            const devices = IosSimulatorHelper.getBootedDevices();
+            assert.strictEqual(devices.length, 1, "The simulator has not been started after the update of launch.json");
         });
     });
 }

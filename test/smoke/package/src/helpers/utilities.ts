@@ -9,6 +9,9 @@ import * as URL from "url-parse";
 import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
+import { Platform } from "./appiumHelper";
+import { IosSimulatorHelper } from "./iosSimulatorHelper";
+import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
 
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
     return new Promise<R>((c, e) => fn(...args, (err, r) => err ? e(err) : c(r)));
@@ -177,17 +180,7 @@ export interface ExpoLaunch {
     failed: boolean;
 }
 
-function getEmulatorsNamesList(): string[] {
-    const res = cp.execSync("emulator -list-avds");
-    let emulatorsList: string[] = [];
-    if (res) {
-        const resString = res.toString();
-        emulatorsList = resString.split(/\r?\n|\r/g);
-    }
-    return emulatorsList;
-}
-
-export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string): Promise<boolean> {
+export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string, platform: Platform): Promise<boolean> {
     return new Promise((resolve) => {
         const LAUNCH_UPDATE_TIMEOUT = 30;
         const rejectTimeout = setTimeout(() => {
@@ -196,7 +189,11 @@ export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string): Prom
         }, LAUNCH_UPDATE_TIMEOUT * 1000);
 
         const bootCheckInterval = setInterval(async () => {
-            const isUpdated = isLaunchScenarioTargetUpdate(workspaceRoot);
+            let isUpdated: boolean = false;
+            switch (platform) {
+                case Platform.Android: isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, AndroidEmulatorHelper.getDevice()); break;
+                case Platform.iOS: isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, IosSimulatorHelper.getDeviceUdid()); break;
+            }
             if (isUpdated) {
                 cleanup();
                 resolve(true);
@@ -210,11 +207,9 @@ export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string): Prom
     });
 }
 
-export function isLaunchScenarioTargetUpdate(workspaceRoot: string): boolean {
+export function isLaunchScenarioContainsTarget(workspaceRoot: string, targetValue?: string): boolean {
     const pathToLaunchFile = path.resolve(workspaceRoot, ".vscode", "launch.json");
-    const emulatorsList = getEmulatorsNamesList();
-    const firstEmulatorName = emulatorsList[0];
-    return findStringInFile(pathToLaunchFile, `"target": "${firstEmulatorName}"`);
+    return findStringInFile(pathToLaunchFile, `"target": "${targetValue}"`);
 }
 
 export async function waitForRunningPackager(filePath: string) {
