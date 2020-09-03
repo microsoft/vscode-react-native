@@ -15,6 +15,7 @@ import {TelemetryHelper} from "../../common/telemetryHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
 import { AppLauncher } from "../appLauncher";
+import { IiOSSimulator, IOSSimulatorManager } from "./iOSSimulatorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -25,6 +26,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
     private iosDebugModeManager: IOSDebugModeManager;
+    private simulatorManager: IOSSimulatorManager;
 
     private defaultConfiguration: string = "Debug";
     private configurationArgumentName: string = "--configuration";
@@ -63,6 +65,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
 
+        this.simulatorManager = new IOSSimulatorManager();
         this.runOptions.configuration = this.getConfiguration();
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
@@ -88,6 +91,42 @@ export class IOSPlatform extends GeneralMobilePlatform {
         }
 
         this.targetType = this.runOptions.target || IOSPlatform.simulatorString;
+    }
+
+    public resolveVirtualDevice(target: string): Promise<IiOSSimulator | null> {
+        if (target === "simulator") {
+            return this.simulatorManager.startSelection()
+            .then((simulatorName: string | undefined) => {
+                if (simulatorName) {
+                    const simulator = this.simulatorManager.findSimulator(simulatorName);
+                    if (simulator) {
+                        GeneralMobilePlatform.removeRunArgument(this.runArguments, "--simulator", true);
+                        GeneralMobilePlatform.setRunArgument(this.runArguments, "--udid", simulator.id);
+                    }
+                    return simulator;
+                }
+                else {
+                    return null;
+                }
+            });
+        }
+        else if (!target.includes("device")) {
+            return this.simulatorManager.collectSimulators()
+            .then((simulators) => {
+                let simulator = this.simulatorManager.getSimulatorById(target, simulators);
+                if (simulator) {
+                    GeneralMobilePlatform.removeRunArgument(this.runArguments, "--simulator", false);
+                    GeneralMobilePlatform.setRunArgument(this.runArguments, "--udid", simulator.id);
+                }
+                else {
+                    simulator = this.simulatorManager.findSimulator(target, null, simulators);
+                }
+                return simulator;
+            });
+        }
+        else {
+            return Promise.resolve(null);
+        }
     }
 
     public runApp(): Promise<void> {

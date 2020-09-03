@@ -60,6 +60,7 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
             emulatorProcess.outcome.catch((error) => {
                 reject(error);
             });
+            emulatorProcess.spawnedProcess.unref();
 
             const rejectTimeout = setTimeout(() => {
                 cleanup();

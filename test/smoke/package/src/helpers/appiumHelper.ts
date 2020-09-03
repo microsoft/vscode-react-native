@@ -115,7 +115,6 @@ export class AppiumHelper {
                 appPackage: applicationPackage,
                 automationName: "UiAutomator2",
                 newCommandTimeout: 300,
-                
             },
             port: 4723,
             host: "localhost",

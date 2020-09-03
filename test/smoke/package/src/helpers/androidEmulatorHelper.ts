@@ -130,7 +130,7 @@ export class AndroidEmulatorHelper {
         console.log("*** Checking for running android emulators...");
         if (devices.length !== 0) {
             devices.forEach((device) => {
-                console.log(`***Terminating Android '${device.id}'...`);
+                console.log(`*** Terminating Android '${device.id}'...`);
                 cp.execSync(`adb -s ${device.id} emu kill`, {stdio: "inherit"});
             });
         } else {
