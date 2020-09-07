@@ -16,9 +16,9 @@ variables:
 jobs:
   - job: macOS
     pool:
-      name: 'React Native smoke tests - macOS'
+      name: "React Native smoke tests - macOS"
     timeoutInMinutes: 60
     steps:
-    - checkout: self
-      clean: true
-    - template: smoke-tests-common-validation.yml
+      - checkout: self
+        clean: true
+      - template: smoke-tests-common-validation.yml
