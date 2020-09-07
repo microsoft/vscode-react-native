@@ -1,19 +1,19 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    "javascript.validate.enable": false,
-    "files.trimTrailingWhitespace": true,
-    "eslint.enable": false,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 4,
-    "files.exclude": {
-        // "**/node_modules": true,
-        "nls.*.json": true,
-        "**/*.js": {
-            "when": "$(basename).ts"
-        },
-        // "**/out": true,
-        "**/*.js.map": true
-    }
-,
-"typescript.tsdk": "./node_modules/typescript/lib"
+  "javascript.validate.enable": false,
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "eslint.enable": false,
+  "editor.insertSpaces": true,
+  "editor.tabSize": 4,
+  "files.exclude": {
+    // "**/node_modules": true,
+    "nls.*.json": true,
+    "**/*.js": {
+      "when": "$(basename).ts"
+    },
+    // "**/out": true,
+    "**/*.js.map": true
+  },
+  "typescript.tsdk": "./node_modules/typescript/lib"
 }
