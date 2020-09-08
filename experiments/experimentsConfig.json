@@ -1,7 +1,7 @@
 [
     {
         "experimentName": "RNTPreviewPrompt",
-        "popCoveragePercent": 0.5,
+        "popCoveragePercent": 1.0,
         "enabled": true
     }
 ]
