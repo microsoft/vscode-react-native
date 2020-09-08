@@ -8,6 +8,8 @@ import {PackagerStatusIndicator, PackagerStatus} from "./packagerStatusIndicator
 import {SettingsHelper} from "./settingsHelper";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import * as nls from "vscode-nls";
+import { isBoolean } from "util";
+import { IVirtualDevice } from "./VirtualDeviceManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -32,11 +34,15 @@ export class GeneralMobilePlatform {
     constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
-        this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator());
+        this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator(this.projectPath));
         this.packager.setRunOptions(runOptions);
         this.logger = OutputChannelLogger.getChannel(localize("ReactNativeRunPlatform", "React Native: Run {0}", this.platformName), true);
         this.logger.clear();
         this.runArguments = this.getRunArguments();
+    }
+
+    public resolveVirtualDevice(target: string): Promise<IVirtualDevice | null> {
+        return Promise.resolve(null);
     }
 
     public runApp(): Promise<void> {
@@ -79,6 +85,40 @@ export class GeneralMobilePlatform {
     public prewarmBundleCache(): Promise<void> {
         // generalMobilePlatform should do nothing here. Method should be overriden by children for specific behavior.
         return Promise.resolve();
+    }
+
+    public static removeRunArgument(runArguments: any[], optName: string, binary: boolean) {
+        const optIdx = runArguments.indexOf(optName);
+        if (optIdx > -1) {
+            if (binary) {
+                runArguments.splice(optIdx, 1);
+            }
+            else {
+                runArguments.splice(optIdx, 2);
+            }
+        }
+    }
+
+    public static setRunArgument(runArguments: any[], optName: string, value: string | boolean) {
+        const isBinary = isBoolean(value);
+        const optIdx = runArguments.indexOf(optName);
+        if (optIdx > -1) {
+            if (isBinary && !value) {
+                GeneralMobilePlatform.removeRunArgument(runArguments, optName, true);
+            }
+            if (!isBinary) {
+                runArguments[optIdx + 1] = value;
+            }
+        }
+        else {
+            if (isBinary && value) {
+                runArguments.push(optName);
+            }
+            if (!isBinary) {
+                runArguments.push(optName);
+                runArguments.push(value);
+            }
+        }
     }
 
     public static getOptFromRunArgs(runArguments: any[], optName: string, binary: boolean = false): any {

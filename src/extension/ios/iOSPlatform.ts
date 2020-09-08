@@ -7,7 +7,7 @@ import * as semver from "semver";
 import {ChildProcess} from "../../common/node/childProcess";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {GeneralMobilePlatform, MobilePlatformDeps, TargetType} from "../generalMobilePlatform";
-import {IIOSRunOptions} from "../launchArgs";
+import {IIOSRunOptions, PlatformType} from "../launchArgs";
 import {PlistBuddy} from "./plistBuddy";
 import {IOSDebugModeManager} from "./iOSDebugModeManager";
 import {OutputVerifier, PatternToFailure} from "../../common/outputVerifier";
@@ -15,6 +15,7 @@ import {TelemetryHelper} from "../../common/telemetryHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
 import { AppLauncher } from "../appLauncher";
+import { IiOSSimulator, IOSSimulatorManager } from "./iOSSimulatorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -25,6 +26,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
     private iosDebugModeManager: IOSDebugModeManager;
+    private simulatorManager: IOSSimulatorManager;
 
     private defaultConfiguration: string = "Debug";
     private configurationArgumentName: string = "--configuration";
@@ -63,6 +65,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
 
+        this.simulatorManager = new IOSSimulatorManager();
         this.runOptions.configuration = this.getConfiguration();
 
         if (this.runOptions.iosRelativeProjectPath) { // Deprecated option
@@ -90,10 +93,46 @@ export class IOSPlatform extends GeneralMobilePlatform {
         this.targetType = this.runOptions.target || IOSPlatform.simulatorString;
     }
 
+    public resolveVirtualDevice(target: string): Promise<IiOSSimulator | null> {
+        if (target === "simulator") {
+            return this.simulatorManager.startSelection()
+            .then((simulatorName: string | undefined) => {
+                if (simulatorName) {
+                    const simulator = this.simulatorManager.findSimulator(simulatorName);
+                    if (simulator) {
+                        GeneralMobilePlatform.removeRunArgument(this.runArguments, "--simulator", true);
+                        GeneralMobilePlatform.setRunArgument(this.runArguments, "--udid", simulator.id);
+                    }
+                    return simulator;
+                }
+                else {
+                    return null;
+                }
+            });
+        }
+        else if (!target.includes("device")) {
+            return this.simulatorManager.collectSimulators()
+            .then((simulators) => {
+                let simulator = this.simulatorManager.getSimulatorById(target, simulators);
+                if (simulator) {
+                    GeneralMobilePlatform.removeRunArgument(this.runArguments, "--simulator", false);
+                    GeneralMobilePlatform.setRunArgument(this.runArguments, "--udid", simulator.id);
+                }
+                else {
+                    simulator = this.simulatorManager.findSimulator(target, null, simulators);
+                }
+                return simulator;
+            });
+        }
+        else {
+            return Promise.resolve(null);
+        }
+    }
+
     public runApp(): Promise<void> {
         let extProps = {
             platform: {
-                value: "ios",
+                value: PlatformType.iOS,
                 isPii: false,
             },
         };
@@ -117,7 +156,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 () =>
                     this.generateSuccessPatterns(this.runOptions.reactNativeVersions.reactNativeVersion),
                 () =>
-                    Promise.resolve(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), "ios")
+                    Promise.resolve(IOSPlatform.RUN_IOS_FAILURE_PATTERNS), PlatformType.iOS)
                 .process(runIosSpawn);
         });
     }
@@ -171,7 +210,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     public prewarmBundleCache(): Promise<void> {
-        return this.packager.prewarmBundleCache("ios");
+        return this.packager.prewarmBundleCache(PlatformType.iOS);
     }
 
     public getRunArguments(): string[] {

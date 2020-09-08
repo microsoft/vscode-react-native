@@ -8,11 +8,12 @@ import { IOSPlatform } from "../../../src/extension/ios/iOSPlatform";
 
 import "should";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
+import { PlatformType } from "../../../src/extension/launchArgs";
 
 suite("iOSPlatform", function () {
     const projectRoot = "/User/test/react-native/AwesomeProject";
     let runOptions: any = {
-        platform: "ios",
+        platform: PlatformType.iOS,
         workspaceRoot: "/User/test/react-native/AwesomeProject",
         projectRoot: projectRoot,
     };
@@ -25,7 +26,7 @@ suite("iOSPlatform", function () {
 
     teardown(() => {
         runOptions = {
-            platform: "ios",
+            platform: PlatformType.iOS,
             workspaceRoot: "/User/test/react-native/AwesomeProject",
             projectRoot: "/User/test/react-native/AwesomeProject",
         };

@@ -1,13 +1,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { spawn } from "child_process";
+import { spawn, execSync } from "child_process";
 import * as kill from "tree-kill";
 import { sleep } from "./utilities";
 
 interface RunResult {
     Successful: boolean;
     FailedState?: DeviceState;
+}
+
+interface IiOSSimulator {
+    system: string;
+    name: string;
+    id: string;
+    state: DeviceState;
 }
 
 enum DeviceState {
@@ -17,11 +24,30 @@ enum DeviceState {
 }
 
 export class IosSimulatorHelper {
+
+    public static SIMULATOR_START_TIMEOUT = 300;
+
     public static getDevice(): string | undefined {
         if (!process.env.IOS_SIMULATOR) {
             throw new Error("Environment variable 'IOS_SIMULATOR' is not set. Exiting...");
         }
         return process.env.IOS_SIMULATOR;
+    }
+
+    public static getDeviceUdid(): string | undefined {
+        if (!process.env.IOS_SIMULATOR_UDID) {
+            throw new Error("Environment variable 'IOS_SIMULATOR_UDID' is not set. Exiting...");
+        }
+        return process.env.IOS_SIMULATOR_UDID;
+    }
+
+    public static getSimulator(name: string): IiOSSimulator | null {
+        if (name) {
+            const simulators = this.collectSimulators();
+            const device = this.findSimulator(simulators, name);
+            return device;
+        }
+        return null;
     }
 
     public static async bootSimulator(device: string) {
@@ -114,6 +140,70 @@ export class IosSimulatorHelper {
                 }
             }, 1000);
         });
+    }
+
+    public static async waitUntilIosSimulatorStarting(name?: string) {
+        return new Promise((resolve, reject) => {
+            const rejectTimeout = setTimeout(() => {
+                cleanup();
+                reject(`Could not start the iOS simulator within ${IosSimulatorHelper.SIMULATOR_START_TIMEOUT} seconds.`);
+            }, IosSimulatorHelper.SIMULATOR_START_TIMEOUT * 1000);
+
+            const bootCheckInterval = setInterval(async () => {
+                if (name) {
+                    const simulator = this.getSimulator(name);
+                    if (simulator?.state === DeviceState.Booted) {
+                        console.log(`*** iOS simulator ${simulator.name} has been booted.`);
+                        cleanup();
+                        resolve();
+                    }
+                } else {
+                    const bootedSimulators = this.getBootedDevices();
+                    if (bootedSimulators.length > 0) {
+                        console.log(`*** iOS simulator ${bootedSimulators[0].name} has been booted.`);
+                        cleanup();
+                        resolve();
+                    }
+                }
+            }, 1000);
+
+            const cleanup = () => {
+                clearTimeout(rejectTimeout);
+                clearInterval(bootCheckInterval);
+            };
+        });
+    }
+
+    public static findSimulator(simulators: IiOSSimulator[], name: string, system?: string): IiOSSimulator | null {
+        const foundSimulator = simulators.find((value) => value.name === name && (!system || value.system === system));
+        if (!foundSimulator) {
+            return null;
+        }
+        return foundSimulator;
+    }
+
+    public static collectSimulators(): IiOSSimulator[] {
+        const simulators: IiOSSimulator[] = [];
+        const res = execSync("xcrun simctl list --json devices available").toString();
+        const simulatorsJson = JSON.parse(res);
+        Object.keys(simulatorsJson.devices).forEach((system) => {
+            simulatorsJson.devices[system].forEach((device: any) => {
+                simulators.push({
+                    name: device.name,
+                    id: device.udid,
+                    system: system.split(".").slice(-1)[0],
+                    state: device.state,
+                });
+            });
+        });
+
+        return simulators;
+    }
+
+    public static getBootedDevices(): IiOSSimulator[] {
+        const simulators = this.collectSimulators();
+        const bootedSimulators = simulators.filter((sim) => sim.state === DeviceState.Booted);
+        return bootedSimulators;
     }
 
     private static async runSimCtlCommand(args: string[]): Promise<RunResult> {

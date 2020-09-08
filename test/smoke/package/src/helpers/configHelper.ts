@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
+import { IosSimulatorHelper } from "./iosSimulatorHelper";
 
 export interface TestRunArguments {
     RunAndroidTests: boolean;
@@ -15,6 +16,7 @@ export interface TestEnvVariables {
     ANDROID_EMULATOR?: string;
     ANDROID_VERSION?: string;
     IOS_SIMULATOR?: string;
+    IOS_SIMULATOR_UDID?: string;
     IOS_VERSION?: string;
     CODE_VERSION?: string;
     EXPO_XDL_VERSION?: string;
@@ -35,6 +37,9 @@ export class TestConfigurator {
         if (process.platform === "darwin") {
             if (!variables.IOS_SIMULATOR) {
                 throw new Error(`Missing IOS_SIMULATOR variable`);
+            }
+            if (!variables.IOS_SIMULATOR_UDID) {
+                throw new Error(`Couldn't find udid for the iOS simulator ${variables.IOS_SIMULATOR}`);
             }
             if (!variables.IOS_VERSION) {
                 throw new Error(`Missing IOS_VERSION variable`);
@@ -74,6 +79,11 @@ export class TestConfigurator {
             variables = JSON.parse(fs.readFileSync(envConfigFilePath).toString());
         }
 
+        if (variables.IOS_SIMULATOR && process.platform === "darwin") {
+            const simulator = IosSimulatorHelper.getSimulator(variables.IOS_SIMULATOR);
+            variables.IOS_SIMULATOR_UDID = simulator?.id;
+        }
+
         // Hack for Azure DevOps, because it doesn't implicitly support optional parameters for task group
         if (variables.EXPO_XDL_VERSION === "skip") {
             delete variables.EXPO_XDL_VERSION;
@@ -97,6 +107,7 @@ export class TestConfigurator {
         initLog += `ANDROID_EMULATOR = ${process.env.ANDROID_EMULATOR}\n`;
         initLog += `ANDROID_VERSION = ${process.env.ANDROID_VERSION}\n`;
         initLog += `IOS_SIMULATOR = ${process.env.IOS_SIMULATOR}\n`;
+        initLog += `IOS_SIMULATOR_UDID = ${process.env.IOS_SIMULATOR}\n`;
         initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
         initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
         initLog += `EXPO_XDL_VERSION = ${process.env.EXPO_XDL_VERSION}\n`;

@@ -5,9 +5,9 @@ import * as assert from "assert";
 import * as path from "path";
 import { AppiumHelper, Platform, AppiumClient } from "./helpers/appiumHelper";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
-import { sleep, findStringInFile, findExpoURLInLogFile, ExpoLaunch, findExpoSuccessAndFailurePatterns, waitForRunningPackager } from "./helpers/utilities";
+import { sleep, waitUntilLaunchScenarioTargetUpdate, ExpoLaunch, findExpoSuccessAndFailurePatterns, findExpoURLInLogFile, findStringInFile } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { ExpoWorkspacePath, pureRNWorkspacePath, RNworkspacePath, prepareReactNativeProjectForHermesTesting, runVSCode } from "./main";
+import { pureRNWorkspacePath, RNworkspacePath, runVSCode, prepareReactNativeProjectForHermesTesting, ExpoWorkspacePath } from "./main";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
 import { Application } from "../../automation";
@@ -22,7 +22,6 @@ const RNHermesAttachConfigName = "Attach to Hermes application - Experimental";
 const ExpoDebugConfigName = "Debug in Exponent";
 const ExpoLanDebugConfigName = "Debug in Exponent (LAN)";
 const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
-const STOP_PACKAGER_COMMAND = "React Native (Preview): Stop Packager";
 
 const RNSetBreakpointOnLine = 1;
 const RNHermesSetBreakpointOnLine = 11;
@@ -37,8 +36,9 @@ export function setup(testParameters?: TestRunArguments) {
     describe("Debugging Android", () => {
         let app: Application;
         let clientInited: AppiumClient;
+        console.log(testParameters);
 
-        afterEach(async () => {
+        async function disposeAll() {
             if (app) {
                 await app.stop();
             }
@@ -46,7 +46,9 @@ export function setup(testParameters?: TestRunArguments) {
                 clientInited.closeApp();
                 clientInited.endAll();
             }
-        });
+        }
+
+        afterEach(disposeAll);
 
         async function runExpoDebugScenario(logFilePath: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             console.log(`${testName}: Starting debugging`);
@@ -70,7 +72,7 @@ export function setup(testParameters?: TestRunArguments) {
             }
         }
 
-        async function expoTest(appFileName: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number, isPureExpo: boolean = false) {
+        async function expoTest(appFileName: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             let logFilePath = "";
             app = await runVSCode(workspacePath);
             console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
@@ -86,17 +88,6 @@ export function setup(testParameters?: TestRunArguments) {
                 assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
             }
             await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
-            // We stop and start Pure Expo debug scenario again, since we faced Metro cache processing problem on
-            // Expo SDK 38. The debug scenario works fine only on the second and further launches of the packager.
-            // As soon as this problem is fixed, this condition won't be needed.
-            if (isPureExpo) {
-                await waitForRunningPackager(logFilePath);
-                await sleep(2 * 1000);
-                await app.workbench.debug.stopDebugging();
-                await app.workbench.quickaccess.runCommand(STOP_PACKAGER_COMMAND);
-                await sleep(2 * 1000);
-                await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
-            }
 
             await app.workbench.editors.waitForTab("Expo QR Code", false, true);
             await app.workbench.editors.waitForActiveTab("Expo QR Code", false, true);
@@ -223,7 +214,7 @@ export function setup(testParameters?: TestRunArguments) {
                 this.skip();
             }
             this.timeout(debugExpoTestTime);
-            await expoTest("App.js", "Android pure RN Expo test(LAN)", pureRNWorkspacePath, ExpoLanDebugConfigName, 1, true);
+            await expoTest("App.js", "Android pure RN Expo test(LAN)", pureRNWorkspacePath, ExpoLanDebugConfigName, 1);
         });
 
         it("Expo app Debug test(LAN)", async function () {
@@ -240,6 +231,40 @@ export function setup(testParameters?: TestRunArguments) {
             }
             this.timeout(debugExpoTestTime);
             await expoTest("App.tsx", "Android Expo Debug test(localhost)", ExpoWorkspacePath, ExpoLocalDebugConfigName, 1);
+        });
+
+        it("Save Android emulator test", async function () {
+            // Theres is a problem with starting an emulator by the VS Code process on Windows testing machine.
+            // The issue will be investigated
+            if (process.platform === "win32") {
+                console.log(`Android emulator save test: Theres is a problem with starting an emulator by the VS Code process on Windows testing machine, so we skip this test.`);
+                return this.skip();
+            }
+            this.timeout(debugAndroidTestTime);
+            app = await runVSCode(pureRNWorkspacePath);
+            console.log("Android emulator save test: Terminating Android emulator");
+            AndroidEmulatorHelper.terminateAndroidEmulator();
+            await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
+            console.log("Android emulator save test: Starting debugging in first time");
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
+            console.log("Android emulator save test: Debugging started in first time");
+            console.log("Android emulator save test: Wait until emulator starting");
+            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+            const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(pureRNWorkspacePath, Platform.Android);
+            console.log(`Android emulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${AndroidEmulatorHelper.getDevice()}"'`);
+            assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
+            console.log("Android emulator save test: Dispose all");
+            await disposeAll();
+            app = await runVSCode(pureRNWorkspacePath);
+            console.log("Android emulator save test: Terminating Android emulator");
+            AndroidEmulatorHelper.terminateAndroidEmulator();
+            await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
+            console.log("Android emulator save test: Starting debugging in second time");
+            await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
+            console.log("Android emulator save test: Debugging started in second time");
+            await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+            const devices = AndroidEmulatorHelper.getOnlineDevices();
+            assert.strictEqual(devices.length, 1, "The emulator has not been started after update launch.json");
         });
     });
 }

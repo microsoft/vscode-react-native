@@ -99,6 +99,7 @@ The full list of commands is:
 
 |Name|Description|
 |---|---|
+|Launch Android Emulator|Prompts you to select the name of the available emulator and launch it. If only one emulator is installed in the system, it will be selected automatically|
 |Run Android on Emulator|Run an Android application on Emulator. Launch order: check target platform support, load run arguments, start Packager, run app in all connected emulators|
 |Run Android on Device|Run an Android application on Device. Launch order: check target platform support, load run arguments, start Packager, run app in all connected devices|
 |Run iOS on Simulator|Run an iOS application on Simulator. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected emulator|
@@ -141,11 +142,11 @@ Click [here](https://reactnative.dev/docs/hermes) to learn more about Hermes.
 Debugging apps with Hermes enabled is currently experimental. Please, see [this issue](https://github.com/microsoft/vscode-react-native/issues/1073) for current known issues on Hermes support.
 
 To debug while using Hermes engine, please choose one of the following debug configurations:
- - React Native (Hermes): Debug Android - Experimental
+ - React Native Direct: Debug Android Hermes - Experimental
 
 ```json
 {
-    "name": "Debug Android (Hermes) - Experimental",
+    "name": "Debug Android Hermes - Experimental",
     "cwd": "${workspaceFolder}",
     "type": "reactnativedirect",
     "request": "launch",
@@ -153,11 +154,11 @@ To debug while using Hermes engine, please choose one of the following debug con
 }
 ```
 
- - React Native (Hermes): Attach to Hermes application - Experimental
+ - "React Native Direct: Attach to the React Native Hermes - Experimental
 
 ```json
 {
-    "name": "Attach to Hermes application - Experimental",
+    "name": "Attach to the React Native Hermes - Experimental",
     "cwd": "${workspaceFolder}",
     "type": "reactnativedirect",
     "request": "attach"
@@ -184,6 +185,39 @@ If you want to use a custom scheme for your application you can either pass it a
 "scheme" : "customScheme"
 ```
 Please be aware, specifying the scheme value as a part of the `runArguments` parameter arguments will override the `scheme` configuration parameter value, if it set.
+
+## iOS direct debugging
+
+The extension provides experimental support of iOS direct debugging.
+
+To be able to debug an iOS app directly, you need to instal [ios-webkit-debug-proxy](https://github.com/google/ios-webkit-debug-proxy):
+
+- Install [HomeBrew](https://brew.sh) on your Mac.
+- Open a Terminal and run `brew install ideviceinstaller ios-webkit-debug-proxy`
+
+You can use the following debug scenarios to debug iOS apps directly:
+
+- React Native Direct: Debug Direct iOS - Experimental
+
+```json
+    "name": "Debug Direct iOS - Experimental",
+    "cwd": "${workspaceFolder}",
+    "type": "reactnativedirect",
+    "request": "launch",
+    "platform": "ios",
+    "port": 9221
+```
+
+- React Native Direct: Attach to the React Native iOS - Experimental
+
+```json
+    "name": "Attach to the React Native iOS - Experimental",
+    "cwd": "${workspaceFolder}",
+    "type": "reactnativedirect",
+    "request": "attach",
+    "platform": "ios",
+    "port": 9221
+```
 
 ## Expo applications
 
@@ -308,7 +342,7 @@ The following is a list of all the configuration properties the debugger accepts
 |`skipFiles`|An array of file or folder names, or glob patterns, to skip when debugging|`array`|`[]`|
 |`debuggerWorkerUrlPath`|Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide)|`string`|`debugger-ui/`|
 |`platform`|The platform to target. Possible values: `android`, `ios`, `exponent`, `windows`, `wpf`|`string`|n/a|
-|`target`|Target to run on. Possible values: `simulator`, `device`, `device=<iOS device name>`, [`<Android emulator/device id>`](https://github.com/react-native-community/cli/blob/master/docs/commands.md#--deviceid-string), `<iOS simulator name>`|`string`|`simulator`|
+|`target`|Target to run on. Possible values: `simulator`, `device`, `device=<iOS device name>`, [`<Android emulator/device id>`](https://github.com/react-native-community/cli/blob/master/docs/commands.md#--deviceid-string), `<Android emulator name>`, `<iOS simulator name>`, `<iOS simulator id>`. If the value is `simulator` then the quick pick window will be expanded with the names of the available virtual devices, then the target value in `launch.json` will be changed to the name of the selected virtual device. If you have only one virtual device available, it will be selected automatically.|`string`|`simulator`|
 |`logCatArguments`|Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can be an array such as: `[":S", "ReactNative:V", "ReactNativeJS:V"]`|`array`|`["*:S", "ReactNative:V", "ReactNativeJS:V"]`|
 |`runArguments`|Run arguments to be passed to `react-native run-<platform>` command (override all other configuration params)|`array`|n/a|
 |`launchActivity`|The Android activity to be launched for debugging, e.g. it specifies [`--main-activity`](https://github.com/react-native-community/cli/blob/master/docs/commands.md#--main-activity-string) parameter in `react-native` run arguments|`string`|`MainActivity`|

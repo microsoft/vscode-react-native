@@ -14,7 +14,7 @@ import { CancellationToken } from "vscode";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { LogLevel } from "../extension/log/LogHelper";
 import { DebuggerEndpointHelper } from "./debuggerEndpointHelper";
-import { ICDPMessageHandler } from "./CDPMessageHandlers/ICDPMessageHandler";
+import { BaseCDPMessageHandler } from "./CDPMessageHandlers/baseCDPMessageHandler";
 
 export class ReactNativeCDPProxy {
 
@@ -33,7 +33,7 @@ export class ReactNativeCDPProxy {
     private logger: OutputChannelLogger;
     private logLevel: LogLevel;
     private debuggerEndpointHelper: DebuggerEndpointHelper;
-    private CDPMessageHandler: ICDPMessageHandler;
+    private CDPMessageHandler: BaseCDPMessageHandler;
     private applicationTargetPort: number;
     private browserInspectUri: string;
     private cancellationToken: CancellationToken | undefined;
@@ -48,7 +48,7 @@ export class ReactNativeCDPProxy {
     }
 
     public initializeServer(
-        CDPMessageHandler: ICDPMessageHandler,
+        CDPMessageHandler: BaseCDPMessageHandler,
         logLevel: LogLevel,
         cancellationToken?: CancellationToken
     ): Promise<void> {
@@ -116,6 +116,9 @@ export class ReactNativeCDPProxy {
 
         this.applicationTarget.onEnd(this.onApplicationTargetClosed.bind(this));
         this.debuggerTarget.onEnd(this.onDebuggerTargetClosed.bind(this));
+
+        this.CDPMessageHandler?.setApplicationTarget(this.applicationTarget);
+        this.CDPMessageHandler?.setDebuggerTarget(this.debuggerTarget);
 
         // dequeue any messages we got in the meantime
         this.debuggerTarget.unpause();

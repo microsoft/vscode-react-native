@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as path from "path";
 import * as fs from "fs";
 import * as cp from "child_process";
 import * as request from "request";
@@ -8,6 +9,9 @@ import * as URL from "url-parse";
 import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
+import { Platform } from "./appiumHelper";
+import { IosSimulatorHelper } from "./iosSimulatorHelper";
+import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
 
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
     return new Promise<R>((c, e) => fn(...args, (err, r) => err ? e(err) : c(r)));
@@ -174,6 +178,42 @@ export function findStringInFile(filePath: string, strToFind: string): boolean {
 export interface ExpoLaunch {
     successful: boolean;
     failed: boolean;
+}
+
+export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string, platform: Platform): Promise<boolean> {
+    return new Promise((resolve) => {
+        const LAUNCH_UPDATE_TIMEOUT = 30;
+        const rejectTimeout = setTimeout(() => {
+            cleanup();
+            resolve(false);
+        }, LAUNCH_UPDATE_TIMEOUT * 1000);
+
+        const bootCheckInterval = setInterval(async () => {
+            let isUpdated: boolean = false;
+            switch (platform) {
+                case Platform.Android:
+                    isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, AndroidEmulatorHelper.getDevice());
+                    break;
+                case Platform.iOS:
+                    isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, IosSimulatorHelper.getDeviceUdid());
+                    break;
+            }
+            if (isUpdated) {
+                cleanup();
+                resolve(true);
+            }
+        }, 1000);
+
+        const cleanup = () => {
+            clearTimeout(rejectTimeout);
+            clearInterval(bootCheckInterval);
+        };
+    });
+}
+
+export function isLaunchScenarioContainsTarget(workspaceRoot: string, targetValue?: string): boolean {
+    const pathToLaunchFile = path.resolve(workspaceRoot, ".vscode", "launch.json");
+    return findStringInFile(pathToLaunchFile, `"target": "${targetValue}"`);
 }
 
 export async function waitForRunningPackager(filePath: string) {

@@ -4,7 +4,7 @@
 import * as semver from "semver";
 
 import {GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
-import {IAndroidRunOptions} from "../launchArgs";
+import {IAndroidRunOptions, PlatformType} from "../launchArgs";
 import {AdbHelper, AndroidAPILevel, IDevice} from "./adb";
 import {Package} from "../../common/node/package";
 import {PackageNameResolver} from "./packageNameResolver";
@@ -17,6 +17,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { isNullOrUndefined } from "util";
 import { PromiseUtil } from "../../common/node/promise";
+import { AndroidEmulatorManager, IAndroidEmulator } from "./androidEmulatorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -51,6 +52,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private packageName: string;
     private logCatMonitor: LogCatMonitor | null = null;
     private adbHelper: AdbHelper;
+    private emulatorManager: AndroidEmulatorManager;
 
     private needsToLaunchApps: boolean = false;
 
@@ -66,6 +68,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     constructor(protected runOptions: IAndroidRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
         this.adbHelper = new AdbHelper(this.runOptions.projectRoot, this.logger);
+        this.emulatorManager = new AndroidEmulatorManager(this.adbHelper);
     }
 
     // TODO: remove this method when sinon will be updated to upper version. Now it is used for tests only.
@@ -73,10 +76,25 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         this.adbHelper = adbHelper;
     }
 
+    public resolveVirtualDevice(target: string): Promise<IAndroidEmulator | null> {
+        if (!target.includes("device")) {
+            return this.emulatorManager.startEmulator(target)
+            .then((emulator: IAndroidEmulator | null) => {
+                if (emulator) {
+                    GeneralMobilePlatform.setRunArgument(this.runArguments, "--deviceId", emulator.id);
+                }
+                return emulator;
+            });
+        }
+        else {
+            return Promise.resolve(null);
+        }
+    }
+
     public runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {
         let extProps: any = {
             platform: {
-                value: "android",
+                value: PlatformType.Android,
                 isPii: false,
             },
         };
@@ -115,7 +133,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     Promise.resolve(AndroidPlatform.RUN_ANDROID_SUCCESS_PATTERNS),
                 () =>
                     Promise.resolve(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS),
-                "android").process(runAndroidSpawn);
+                PlatformType.Android).process(runAndroidSpawn);
 
             return output
                 .finally(() => {
@@ -147,7 +165,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     public prewarmBundleCache(): Promise<void> {
-        return this.packager.prewarmBundleCache("android");
+        return this.packager.prewarmBundleCache(PlatformType.Android);
     }
 
     public getRunArguments(): string[] {

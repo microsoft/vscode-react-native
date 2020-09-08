@@ -24,11 +24,13 @@ export enum InternalErrorCode {
         DeveloperDiskImgNotMountable = 302,
         ApplicationLaunchFailed = 303,
         ApplicationLaunchTimedOut = 304,
+        FailedToStartAndroidEmulator = 305,
 
         // iOS Platform errors
         IOSSimulatorNotLaunchable = 401,
         IOSFoundMoreThanOneExecutablesCleanupBuildFolder = 402,
         IOSCouldNotFoundExecutableInFolder = 403,
+        IOSCouldNotFoundDeviceForDirectDebugging = 404,
 
         // Packager errors
         OpnPackagerLocationNotFound = 501,

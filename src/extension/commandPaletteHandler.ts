@@ -13,7 +13,7 @@ import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
 import {ProjectsStorage} from "./projectsStorage";
-import {IAndroidRunOptions, IIOSRunOptions} from "./launchArgs";
+import {IAndroidRunOptions, IIOSRunOptions, PlatformType} from "./launchArgs";
 import {ExponentPlatform} from "./exponent/exponentPlatform";
 import {spawn, ChildProcess} from "child_process";
 import {HostPlatform} from "../common/hostPlatform";
@@ -22,6 +22,8 @@ import * as nls from "vscode-nls";
 import {ErrorHelper} from "../common/error/errorHelper";
 import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {AppLauncher} from "./appLauncher";
+import { AndroidEmulatorManager } from "./android/androidEmulatorManager";
+import { AdbHelper } from "./android/adb";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -99,19 +101,30 @@ export class CommandPaletteHandler {
             });
     }
 
+    public static async launchAndroidEmulator(): Promise<void> {
+        const appLauncher = await this.selectProject();
+        const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
+        const androidEmulatorManager = new AndroidEmulatorManager(adbHelper);
+        const emulator = await androidEmulatorManager.startSelection();
+        if (emulator) {
+            androidEmulatorManager.tryLaunchEmulatorByName(emulator);
+        }
+    }
+
     /**
      * Executes the 'react-native run-android' command
      */
     public static runAndroid(target: TargetType = "simulator"): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
-                TargetPlatformHelper.checkTargetPlatformSupport("android");
+                TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.Android);
                 return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(appLauncher.getPackager().getProjectPath())
                     .then(versions => {
                         appLauncher.setReactNativeVersions(versions);
                         return this.executeCommandInContext("runAndroid", appLauncher.getWorkspaceFolder(), () => {
-                            const platform = <AndroidPlatform>this.createPlatform(appLauncher, "android", AndroidPlatform, target);
-                            return platform.beforeStartPackager()
+                            const platform = <AndroidPlatform>this.createPlatform(appLauncher, PlatformType.Android, AndroidPlatform, target);
+                            return platform.resolveVirtualDevice(target)
+                                .then(() => platform.beforeStartPackager())
                                 .then(() => {
                                     return platform.startPackager();
                                 })
@@ -135,10 +148,11 @@ export class CommandPaletteHandler {
                 return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(appLauncher.getPackager().getProjectPath())
                     .then(versions => {
                         appLauncher.setReactNativeVersions(versions);
-                        TargetPlatformHelper.checkTargetPlatformSupport("ios");
+                        TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.iOS);
                         return this.executeCommandInContext("runIos", appLauncher.getWorkspaceFolder(), () => {
-                            const platform = <IOSPlatform>this.createPlatform(appLauncher, "ios", IOSPlatform, target);
-                            return platform.beforeStartPackager()
+                            const platform = <IOSPlatform>this.createPlatform(appLauncher, PlatformType.iOS, IOSPlatform, target);
+                            return platform.resolveVirtualDevice(target)
+                                .then(() => platform.beforeStartPackager())
                                 .then(() => {
                                     return platform.startPackager();
                                 })
@@ -167,7 +181,7 @@ export class CommandPaletteHandler {
                             .then(() => {
                                 return this.executeCommandInContext("runExponent", appLauncher.getWorkspaceFolder(), () => {
                                     appLauncher.setReactNativeVersions(versions);
-                                    const platform = <ExponentPlatform>this.createPlatform(appLauncher, "exponent", ExponentPlatform);
+                                    const platform = <ExponentPlatform>this.createPlatform(appLauncher, PlatformType.Exponent, ExponentPlatform);
                                     return platform.beforeStartPackager()
                                         .then(() => {
                                             return platform.startPackager();
@@ -184,12 +198,12 @@ export class CommandPaletteHandler {
     public static showDevMenu(): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
-                const androidPlatform = <AndroidPlatform>this.createPlatform(appLauncher, "android", AndroidPlatform);
+                const androidPlatform = <AndroidPlatform>this.createPlatform(appLauncher, PlatformType.Android, AndroidPlatform);
                 androidPlatform.showDevMenu()
                     .catch(() => { }); // Ignore any errors
 
                 if (process.platform === "darwin") {
-                    const iosPlatform = <IOSPlatform>this.createPlatform(appLauncher, "ios", IOSPlatform);
+                    const iosPlatform = <IOSPlatform>this.createPlatform(appLauncher, PlatformType.iOS, IOSPlatform);
                     iosPlatform.showDevMenu(appLauncher)
                         .catch(() => { }); // Ignore any errors
                 }
@@ -200,12 +214,12 @@ export class CommandPaletteHandler {
     public static reloadApp(): Promise<void> {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
-                const androidPlatform = <AndroidPlatform>this.createPlatform(appLauncher, "android", AndroidPlatform);
+                const androidPlatform = <AndroidPlatform>this.createPlatform(appLauncher, PlatformType.Android, AndroidPlatform);
                 androidPlatform.reloadApp()
                     .catch(() => { }); // Ignore any errors
 
                 if (process.platform === "darwin") {
-                    const iosPlatform = <IOSPlatform>this.createPlatform(appLauncher, "ios", IOSPlatform);
+                    const iosPlatform = <IOSPlatform>this.createPlatform(appLauncher, PlatformType.iOS, IOSPlatform);
                     iosPlatform.reloadApp(appLauncher)
                         .catch(() => { }); // Ignore any errors
                 }
@@ -250,22 +264,22 @@ export class CommandPaletteHandler {
     public static getPlatformByCommandName(commandName: string): string {
         commandName = commandName.toLocaleLowerCase();
 
-        if (commandName.indexOf("android") > -1) {
-            return "android";
+        if (commandName.indexOf(PlatformType.Android) > -1) {
+            return PlatformType.Android;
         }
 
-        if (commandName.indexOf("ios") > -1) {
-            return "ios";
+        if (commandName.indexOf(PlatformType.iOS) > -1) {
+            return PlatformType.iOS;
         }
 
-        if (commandName.indexOf("exponent") > -1) {
-            return "exponent";
+        if (commandName.indexOf(PlatformType.Exponent) > -1) {
+            return PlatformType.Exponent;
         }
 
         return "";
     }
 
-    private static createPlatform(appLauncher: AppLauncher, platform: "ios" | "android" | "exponent", platformClass: typeof GeneralMobilePlatform, target?: TargetType): GeneralMobilePlatform {
+    private static createPlatform(appLauncher: AppLauncher, platform: PlatformType.iOS | PlatformType.Android | PlatformType.Exponent, platformClass: typeof GeneralMobilePlatform, target?: TargetType): GeneralMobilePlatform {
         const runOptions = CommandPaletteHandler.getRunOptions(appLauncher, platform, target);
         return new platformClass(runOptions, {
             packager: appLauncher.getPackager(),
@@ -378,7 +392,7 @@ export class CommandPaletteHandler {
         }
     }
 
-    private static getRunOptions(appLauncher: AppLauncher, platform: "ios" | "android" | "exponent", target: TargetType = "simulator"): IAndroidRunOptions | IIOSRunOptions {
+    private static getRunOptions(appLauncher: AppLauncher, platform: PlatformType.iOS | PlatformType.Android | PlatformType.Exponent, target: TargetType = "simulator"): IAndroidRunOptions | IIOSRunOptions {
         const packagerPort = SettingsHelper.getPackagerPort(appLauncher.getWorkspaceFolderUri().fsPath);
         const runArgs = SettingsHelper.getRunArgs(platform, target, appLauncher.getWorkspaceFolderUri());
         const envArgs = SettingsHelper.getEnvArgs(platform, target, appLauncher.getWorkspaceFolderUri());

@@ -11,7 +11,7 @@ import {PackagerStatusIndicator} from "./packagerStatusIndicator";
 import {CommandExecutor} from "../common/commandExecutor";
 import {isNullOrUndefined} from "../common/utils";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
-import {MobilePlatformDeps} from "./generalMobilePlatform";
+import {MobilePlatformDeps, GeneralMobilePlatform} from "./generalMobilePlatform";
 import {PlatformResolver} from "./platformResolver";
 import {ProjectVersionHelper} from "../common/projectVersionHelper";
 import {TelemetryHelper} from "../common/telemetryHelper";
@@ -25,6 +25,9 @@ import {generateRandomPortNumber} from "../common/extensionHelper";
 import {DEBUG_TYPES} from "./debugConfigurationProvider";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
+import { PlatformType } from "./launchArgs";
+import { LaunchScenariosManager } from "./launchScenariosManager";
+import { IVirtualDevice } from "./VirtualDeviceManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -41,6 +44,7 @@ export class AppLauncher {
     private rnCdpProxy: ReactNativeCDPProxy;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private logCatMonitor: LogCatMonitor | null = null;
+    private launchScenariosManager: LaunchScenariosManager;
 
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
         const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
@@ -57,9 +61,10 @@ export class AppLauncher {
         this.cdpProxyHostAddress = "127.0.0.1"; // localhost
 
         const rootPath = workspaceFolder.uri.fsPath;
+        this.launchScenariosManager = new LaunchScenariosManager(rootPath);
         const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
         this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
-        const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
+        const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator(rootPath);
         this.packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(workspaceFolder.uri.fsPath), packagerStatusIndicator);
         this.packager.setExponentHelper(this.exponentHelper);
         this.reactDirManager = reactDirManager;
@@ -199,16 +204,20 @@ export class AppLauncher {
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (launchArgs.platform === "windows") {
+                    if (launchArgs.platform === PlatformType.Windows) {
                         if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
                             throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled);
                         }
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
                     TelemetryHelper.generate("launch", extProps, (generator) => {
-                        generator.step("checkPlatformCompatibility");
-                        TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
-                        return mobilePlatform.beforeStartPackager()
+                        generator.step("resolveEmulator");
+                        return this.resolveAndSaveVirtualDevice(mobilePlatform, launchArgs, mobilePlatformOptions)
+                            .then(() => mobilePlatform.beforeStartPackager())
+                            .then(() => {
+                                generator.step("checkPlatformCompatibility");
+                                TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
+                            })
                             .then(() => {
                                 generator.step("startPackager");
                                 return mobilePlatform.startPackager();
@@ -227,7 +236,7 @@ export class AppLauncher {
                             })
                             .then(() => {
                                 if (mobilePlatformOptions.isDirect || !mobilePlatformOptions.enableDebug) {
-                                    if (mobilePlatformOptions.isDirect && launchArgs.platform === "android") {
+                                    if (mobilePlatformOptions.isDirect && launchArgs.platform === PlatformType.Android) {
                                         generator.step("mobilePlatform.enableDirectDebuggingMode");
                                         if (mobilePlatformOptions.enableDebug) {
                                             this.logger.info(localize("PrepareHermesDebugging", "Prepare Hermes debugging (experimental)"));
@@ -244,11 +253,9 @@ export class AppLauncher {
                                 this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
                                 return mobilePlatform.enableJSDebuggingMode();
                             })
-                            .then(() => {
-                                resolve();
-                            })
+                            .then(resolve)
                             .catch(error => {
-                                if (!mobilePlatformOptions.enableDebug && launchArgs.platform === "ios") {
+                                if (!mobilePlatformOptions.enableDebug && launchArgs.platform === PlatformType.iOS && launchArgs.type === DEBUG_TYPES.REACT_NATIVE) {
                                     // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
                                     // since the error doesn't affects an application launch process
                                     return resolve();
@@ -279,6 +286,29 @@ export class AppLauncher {
         });
     }
 
+    private resolveAndSaveVirtualDevice(mobilePlatform: GeneralMobilePlatform, launchArgs: any, mobilePlatformOptions: any): Promise<void> {
+        if (launchArgs.target && (mobilePlatformOptions.platform === PlatformType.Android || mobilePlatformOptions.platform === PlatformType.iOS)) {
+            return mobilePlatform.resolveVirtualDevice(launchArgs.target)
+            .then((emulator: IVirtualDevice | null) => {
+                if (emulator) {
+                    if (emulator.name && launchArgs.platform === PlatformType.Android) {
+                        mobilePlatformOptions.target = emulator.id;
+                        this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.name});
+                    }
+                    if (launchArgs.platform === PlatformType.iOS) {
+                        this.launchScenariosManager.updateLaunchScenario(launchArgs, {target: emulator.id});
+                    }
+                    launchArgs.target = emulator.id;
+                }
+                else if (!emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
+                    mobilePlatformOptions.target = "simulator";
+                    mobilePlatform.runArguments = mobilePlatform.getRunArguments();
+                }
+            });
+        }
+        return Promise.resolve();
+    }
+
     private requestSetup(args: any): any {
         const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program));
         const projectRootPath = this.getProjectRoot(args);
@@ -292,7 +322,7 @@ export class AppLauncher {
             enableDebug: args.enableDebug,
         };
 
-        if (args.platform === "exponent") {
+        if (args.platform === PlatformType.Exponent) {
             mobilePlatformOptions.expoHostType = args.expoHostType || "tunnel";
         }
 

@@ -14,7 +14,6 @@ import { ScriptImporter, DownloadedScript } from "../../src/debugger/scriptImpor
 import { PromiseUtil } from "../../src/common/node/promise";
 
 suite("appWorker", function () {
-    let pu = new PromiseUtil();
     suite("debuggerContext", function () {
         const packagerPort = 8081;
 
@@ -58,7 +57,7 @@ suite("appWorker", function () {
 
                 return workerWithScript(startScriptContents).start()
                     .then(() =>
-                        pu.delay(1000))
+                        PromiseUtil.delay(1000))
                     .then(() =>
                         assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
             });
@@ -72,7 +71,7 @@ suite("appWorker", function () {
                 return workerWithScript(startScriptContents).start().then(() => {
                     // We have not yet finished importing the script, we should not have posted a response yet
                     assert(postReplyFunction.notCalled, "postReplyFuncton called before scripts imported");
-                    return pu.delay(500);
+                    return PromiseUtil.delay(500);
                 }).then(() => {
                     assert(postReplyFunction.calledWith("postImport"), "postMessage after import not handled");
                     assert(postReplyFunction.calledWith("inImport"), "postMessage not registered from within import");
@@ -87,7 +86,7 @@ suite("appWorker", function () {
                 return worker.start().then(() => {
                     assert(postReplyFunction.notCalled, "postReplyFunction called before message sent");
                     worker.postMessage(testMessage);
-                    return pu.delay(1000);
+                    return PromiseUtil.delay(1000);
                 }).then(() => {
                     assert(postReplyFunction.calledWith({ data: testMessage }), "No echo back from app");
                 });
@@ -99,7 +98,7 @@ suite("appWorker", function () {
                     postMessage(testResponse);`;
 
                 return workerWithScript(startScriptContents).start()
-                    .then(() => pu.delay(5000))
+                    .then(() => PromiseUtil.delay(5000))
                     .then(() =>
                         assert(postReplyFunction.calledWithExactly(expectedMessageResult)));
             }).timeout(5500);
@@ -172,7 +171,7 @@ suite("appWorker", function () {
                                 reject(err);
                             }
                             // Delay is needed for debuggee process to execute script
-                            return pu.delay(1000).then(() => {
+                            return PromiseUtil.delay(1000).then(() => {
                                 resolve();
                             });
                         });
@@ -361,7 +360,7 @@ suite("appWorker", function () {
                     });
 
 
-                    return pu.delay(1).then(() => {
+                    return PromiseUtil.delay(1).then(() => {
                         assert(websocketSend.calledWith(expectedReply), "Did not receive the expected response to prepareJSRuntime");
                     });
                 });

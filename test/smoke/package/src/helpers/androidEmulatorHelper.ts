@@ -5,7 +5,13 @@ import * as cp from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./utilities";
 
+export interface IDevice {
+    id: string;
+    isOnline: boolean;
+}
 export class AndroidEmulatorHelper {
+    public static EMULATOR_START_TIMEOUT = 120;
+    public static EMULATOR_TERMINATING_TIMEOUT = 30;
 
     public static androidEmulatorPort = 5554;
     public static androidEmulatorName = `emulator-${AndroidEmulatorHelper.androidEmulatorPort}`;
@@ -15,6 +21,59 @@ export class AndroidEmulatorHelper {
             throw new Error("Environment variable 'ANDROID_EMULATOR' is not set. Exiting...");
         }
         return process.env.ANDROID_EMULATOR;
+    }
+
+    public static getOnlineDevices(): IDevice[] {
+        const devices = AndroidEmulatorHelper.getConnectedDevices();
+        return devices.filter(device => device.isOnline);
+    }
+
+    public static getConnectedDevices(): IDevice[] {
+        const devices = cp.execSync("adb devices").toString();
+        return AndroidEmulatorHelper.parseConnectedDevices(devices);
+    }
+
+    private static parseConnectedDevices(input: string): IDevice[] {
+        let result: IDevice[] = [];
+        let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
+        let match = regex.exec(input);
+        while (match != null) {
+            result.push({ id: match[1], isOnline: match[2] === "device"});
+            match = regex.exec(input);
+        }
+        return result;
+    }
+
+    public static async waitUntilEmulatorStarting(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const rejectTimeout = setTimeout(() => {
+                cleanup();
+                reject(`Could not start the emulator within ${AndroidEmulatorHelper.EMULATOR_START_TIMEOUT} seconds.`);
+            }, AndroidEmulatorHelper.EMULATOR_START_TIMEOUT * 1000);
+
+            const bootCheckInterval = setInterval(async () => {
+                const connectedDevices = AndroidEmulatorHelper.getOnlineDevices();
+                if (connectedDevices.length > 0) {
+                    console.log(`*** Android emulator has been started.`);
+                    cleanup();
+                    resolve();
+                }
+            }, 1000);
+
+            const cleanup = () => {
+                clearTimeout(rejectTimeout);
+                clearInterval(bootCheckInterval);
+            };
+        });
+    }
+
+    public static async spawnAndKillEmulator() {
+        cp.spawn("emulator", ["-avd", String(AndroidEmulatorHelper.getDevice())]);
+        console.log("*** Wait until emulator starting");
+        await AndroidEmulatorHelper.waitUntilEmulatorStarting();
+        console.log("*** Terminating Android emulator");
+        AndroidEmulatorHelper.terminateAndroidEmulator();
+        await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
     }
 
     public static async runAndroidEmulator() {
@@ -67,15 +126,39 @@ export class AndroidEmulatorHelper {
 
     // Terminates emulator "emulator-PORT" if it exists, where PORT is 5554 by default
     public static terminateAndroidEmulator() {
-        let devices = cp.execSync("adb devices").toString().trim();
+        let devices = this.getOnlineDevices();
         console.log("*** Checking for running android emulators...");
-        if (devices !== "List of devices attached") {
-            // Check if we already have a running emulator, and terminate it if it so
-            console.log(`Terminating Android '${this.androidEmulatorName}'...`);
-            cp.execSync(`adb -s ${this.androidEmulatorName} emu kill`, {stdio: "inherit"});
+        if (devices.length !== 0) {
+            devices.forEach((device) => {
+                console.log(`*** Terminating Android '${device.id}'...`);
+                cp.execSync(`adb -s ${device.id} emu kill`, {stdio: "inherit"});
+            });
         } else {
             console.log("*** No running android emulators found");
         }
+    }
+
+    public static waitUntilAndroidEmulatorTerminating() {
+        return new Promise((resolve, reject) => {
+            const rejectTimeout = setTimeout(() => {
+                cleanup();
+                reject(`Could not terminate the emulator within ${AndroidEmulatorHelper.EMULATOR_TERMINATING_TIMEOUT} seconds.`);
+            }, AndroidEmulatorHelper.EMULATOR_TERMINATING_TIMEOUT * 1000);
+
+            const bootCheckInterval = setInterval(async () => {
+                const connectedDevices = AndroidEmulatorHelper.getConnectedDevices();
+                if (connectedDevices.length === 0) {
+                    console.log(`*** All Android emulators are terminated.`);
+                    cleanup();
+                    resolve();
+                }
+            }, 1000);
+
+            const cleanup = () => {
+                clearTimeout(rejectTimeout);
+                clearInterval(bootCheckInterval);
+            };
+        });
     }
 
     // Check if appPackage is installed on Android device for waitTime ms
