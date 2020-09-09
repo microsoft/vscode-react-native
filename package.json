@@ -26,8 +26,7 @@
 	},
 	"categories": [
 		"Debuggers",
-		"Other",
-		"Programming Languages"
+		"Other"
 	],
 	"activationEvents": [
 		"workspaceContains:node_modules/react-native",
@@ -54,6 +53,13 @@
                 "id": "ReactNativeToolsOutput",
                 "extensions": [
                     ".log"
+				],
+                "mimetypes": [
+                    "log",
+                    "text/log",
+                    "text/x-log",
+                    "text/x-code-output",
+                    "x-code-output"
                 ]
             }
         ],
