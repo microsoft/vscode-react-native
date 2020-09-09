@@ -79,4 +79,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty]: localize("RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty", "RNMessage with method 'executeApplicationScript' doesn't have 'url' property"),
     [InternalErrorCode.CouldNotConnectToDebugTarget]: localize("CouldNotConnectToDebugTarget", "Could not connect to the debug target at {0}: {1}"),
     [InternalErrorCode.FailedToStartAndroidEmulator]: localize("FailedToStartAndroidEmulator", "The command \"emulator -avd {0}\" threw an exception: {1}"),
+    [InternalErrorCode.VirtualDeviceSelectionError]: localize("VirtualDeviceSelectionError", "Virtual device launch finished with exception: {0}"),
 };

@@ -6,6 +6,8 @@ import { ChildProcess } from "../../common/node/childProcess";
 import { IVirtualDevice, VirtualDeviceManager } from "../VirtualDeviceManager";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import * as nls from "vscode-nls";
+import { ErrorHelper } from "../../common/error/errorHelper";
+import { InternalErrorCode } from "../../common/error/internalErrorCode";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 export interface IAndroidEmulator extends IVirtualDevice {
@@ -58,13 +60,16 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
                 detached: true,
             });
             emulatorProcess.outcome.catch((error) => {
-                reject(error);
+                if (process.platform == "win32" && process.env.SESSIONNAME && process.env.SESSIONNAME.toLowerCase().includes("rdp-tcp")) {
+                    this.logger.warning(localize("RDPEmulatorWarning", "Android emulator was launched from the Windows RDP session, this might lead to failures."));
+                }
+                reject(ErrorHelper.getInternalError(InternalErrorCode.VirtualDeviceSelectionError, error));
             });
             emulatorProcess.spawnedProcess.unref();
 
             const rejectTimeout = setTimeout(() => {
                 cleanup();
-                reject(`Could not start the emulator ${emulatorName} within ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`);
+                reject(ErrorHelper.getInternalError(InternalErrorCode.VirtualDeviceSelectionError, localize("EmulatorStartWarning", "Could not start the emulator {0} within {1} seconds.", emulatorName, AndroidEmulatorManager.EMULATOR_START_TIMEOUT)));
             }, AndroidEmulatorManager.EMULATOR_START_TIMEOUT * 1000);
 
             const bootCheckInterval = setInterval(async () => {

@@ -297,13 +297,36 @@ export class AppLauncher {
                     }
                     launchArgs.target = emulator.id;
                 }
-                else if (!emulator && mobilePlatformOptions.target.indexOf("device") < 0) {
-                    mobilePlatformOptions.target = "simulator";
-                    mobilePlatform.runArguments = mobilePlatform.getRunArguments();
+                else if (mobilePlatformOptions.target.indexOf("device") < 0) {
+                    this.cleanupTargetModifications(mobilePlatform, mobilePlatformOptions);
+                }
+            })
+            .catch(error => {
+                if (error && error.errorCode && error.errorCode === InternalErrorCode.VirtualDeviceSelectionError) {
+                    TelemetryHelper.sendErrorEvent(
+                        "VirtualDeviceSelectionError",
+                        ErrorHelper.getInternalError(InternalErrorCode.VirtualDeviceSelectionError)
+                        );
+
+                    this.logger.warning(error);
+                    this.logger.warning(localize("ContinueWithRnCliWorkflow", "Continue with standard RN CLI workflow."));
+
+                    if (mobilePlatformOptions.target.indexOf("device") < 0) {
+                        this.cleanupTargetModifications(mobilePlatform, mobilePlatformOptions);
+                    }
+                    return Promise.resolve();
+                }
+                else {
+                    return Promise.reject(error);
                 }
             });
         }
         return Promise.resolve();
+    }
+
+    private cleanupTargetModifications(mobilePlatform: GeneralMobilePlatform, mobilePlatformOptions: any) {
+        mobilePlatformOptions.target = "simulator";
+        mobilePlatform.runArguments = mobilePlatform.getRunArguments();
     }
 
     private requestSetup(args: any): any {

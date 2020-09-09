@@ -25,6 +25,7 @@ export enum InternalErrorCode {
         ApplicationLaunchFailed = 303,
         ApplicationLaunchTimedOut = 304,
         FailedToStartAndroidEmulator = 305,
+        VirtualDeviceSelectionError = 306,
 
         // iOS Platform errors
         IOSSimulatorNotLaunchable = 401,
