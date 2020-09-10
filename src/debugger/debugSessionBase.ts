@@ -62,7 +62,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> = new vscode.EventEmitter<TerminateEventArgs>();
     public static readonly onDidTerminateRootDebugSession = DebugSessionBase.rootSessionTerminatedEventEmitter.event;
 
-    protected readonly disconnectCommand: string;
+    protected readonly stopCommand: string;
     protected readonly pwaNodeSessionName: string;
 
     protected appLauncher: AppLauncher;
@@ -79,7 +79,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
 
         // constants definition
         this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
-        this.disconnectCommand = "disconnect";
+        this.stopCommand = "workbench.action.debug.stop"; // the command which simulates a click on the "Stop" button
 
         // variables definition
         this.session = session;
@@ -162,7 +162,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         DebugSessionBase.rootSessionTerminatedEventEmitter.fire({
             debugSession: this.session,
             args: {
-                forcedStop: (<any>args).forcedStop,
+                forcedStop: !!(<any>args).forcedStop,
             },
         });
 
