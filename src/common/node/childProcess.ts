@@ -73,7 +73,7 @@ export class ChildProcess {
         return this.childProcess.execFileSync(command, args, options);
     }
 
-    public spawn(command: string, args: string[] = [], options: ISpawnOptions = {}, errorWithDetails: boolean = false): ISpawnResult {
+    public spawn(command: string, args: string[] = [], options: ISpawnOptions = {}, showStdOutputsOnError: boolean = false): ISpawnResult {
         const spawnedProcess = this.childProcess.spawn(command, args, options);
         let outcome: Promise<void> = new Promise((resolve, reject) => {
 
@@ -97,7 +97,7 @@ export class ChildProcess {
                     resolve();
                 } else {
                     const commandWithArgs = command + " " + args.join(" ");
-                    if (errorWithDetails) {
+                    if (showStdOutputsOnError) {
                         let details = "";
                         if (stdoutChunks.length > 0) {
                             details = details.concat(`\n\tSTDOUT: ${stdoutChunks[stdoutChunks.length-1]}`);
