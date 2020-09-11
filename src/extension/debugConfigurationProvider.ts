@@ -5,6 +5,8 @@ import * as vscode from "vscode";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { Telemetry } from "../common/telemetry";
 import * as nls from "vscode-nls";
+import { PlatformType } from "./launchArgs";
+import { IWDPHelper } from "../debugger/direct/IWDPHelper";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -20,14 +22,14 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "android",
+            "platform": PlatformType.Android,
         },
         "Run Android (Preview)": {
             "name": "Run Android (Preview)",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "android",
+            "platform": PlatformType.Android,
             "enableDebug": false,
         },
         "Debug iOS (Preview)": {
@@ -35,14 +37,14 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "ios",
+            "platform": PlatformType.iOS,
         },
         "Run iOS (Preview)": {
             "name": "Run iOS (Preview)",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "ios",
+            "platform": PlatformType.iOS,
             "enableDebug": false,
         },
         "Debug Windows (Preview)": {
@@ -50,7 +52,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "windows",
+            "platform": PlatformType.Windows,
         },
         "Attach to packager (Preview)": {
             "name": "Attach to packager (Preview)",
@@ -63,29 +65,53 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
-            "platform": "exponent",
+            "platform": PlatformType.Exponent,
         },
         "Debug Android Hermes (Preview) - Experimental": {
             "name": "Debug Android Hermes (Preview) - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
-            "platform": "android",
+            "platform": PlatformType.Android,
         },
         "Run Android Hermes (Preview) - Experimental": {
             "name": "Run Android Hermes (Preview) - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
-            "platform": "android",
+            "platform": PlatformType.Android,
             "enableDebug": false,
         },
-        "Attach to Hermes application (Preview) - Experimental": {
-            "name": "Attach to Hermes application (Preview) - Experimental",
+        "Attach to the React Native Hermes - Experimental": {
+            "name": "Attach to the React Native Hermes - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "attach",
         },
+        "Attach to the React Native iOS - Experimental": {
+            "name": "Attach to the React Native iOS - Experimental",
+            "cwd": "${workspaceFolder}",
+            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            "request": "attach",
+            "platform": PlatformType.iOS,
+            "port": IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT // 9221
+        },
+        "Debug Direct iOS (Preview) - Experimental": {
+            "name": "Debug Direct iOS (Preview) - Experimental",
+            "cwd": "${workspaceFolder}",
+            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            "request": "launch",
+            "platform": PlatformType.iOS,
+            "port": IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT // 9221
+        },
+        "Run Direct iOS (Preview) - Experimental": {
+            "name": "Run Direct iOS (Preview) - Experimental",
+            "cwd": "${workspaceFolder}",
+            "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            "request": "launch",
+            "platform": PlatformType.iOS,
+            "enableDebug": false,
+        }
     };
 
     private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
@@ -122,8 +148,20 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             description: localize("DebugAndroidHermesConfigDesc", "Run and debug Android Hermes application"),
         },
         {
-            label: "Attach to Hermes application (Preview) - Experimental",
-            description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working Android Hermes application packager"),
+            label: "Attach to the React Native Hermes - Experimental",
+            description: localize("AttachToPackagerHermesConfigDesc", "Attach to already working React Native Hermes application on Android directly"),
+        },
+        {
+            label: "Attach to the React Native iOS - Experimental",
+            description: localize("AttachToPackageriOSConfigDesc", "Attach to already working React Native iOS application directly"),
+        },
+        {
+            label: "Debug Direct iOS (Preview) - Experimental",
+            description: localize("DebugDirectiOSConfigDesc", "Run and debug iOS application directly"),
+        },
+        {
+            label: "Run Direct iOS (Preview) - Experimental",
+            description: localize("RunDirectiOSConfigDesc", "Run iOS application with direct debugging support"),
         },
     ];
 

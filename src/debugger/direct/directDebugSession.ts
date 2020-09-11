@@ -6,13 +6,17 @@ import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { logger } from "vscode-debugadapter";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { DebugProtocol } from "vscode-debugprotocol";
-import { DirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/directCDPMessageHandler";
+import { HermesCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/hermesCDPMessageHandler";
 import { DebugSessionBase, IAttachRequestArgs, ILaunchRequestArgs } from "../debugSessionBase";
 import { JsDebugConfigAdapter } from "../jsDebugConfigAdapter";
 import { DebuggerEndpointHelper } from "../../cdp-proxy/debuggerEndpointHelper";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
+import { IOSDirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/iOSDirectCDPMessageHandler";
+import { PlatformType } from "../../extension/launchArgs";
+import { IWDPHelper } from "./IWDPHelper";
+
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -20,10 +24,12 @@ export class DirectDebugSession extends DebugSessionBase {
 
     private debuggerEndpointHelper: DebuggerEndpointHelper;
     private onDidTerminateDebugSessionHandler: vscode.Disposable;
+    private iOSWKDebugProxyHelper: IWDPHelper;
 
     constructor(session: vscode.DebugSession) {
         super(session);
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
+        this.iOSWKDebugProxyHelper = new IWDPHelper();
 
         this.onDidTerminateDebugSessionHandler = vscode.debug.onDidTerminateDebugSession(
             this.handleTerminateDebugSession.bind(this)
@@ -45,12 +51,12 @@ export class DirectDebugSession extends DebugSessionBase {
         return new Promise<void>((resolve, reject) => this.initializeSettings(launchArgs)
             .then(() => {
                 logger.log("Launching the application");
-                logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null , 2)}`);
-                return ProjectVersionHelper.getReactNativeVersions(launchArgs.cwd, launchArgs.platform === "windows");
+                logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null, 2)}`);
+                return ProjectVersionHelper.getReactNativeVersions(launchArgs.cwd, launchArgs.platform === PlatformType.Windows);
             })
             .then(versions => {
                 extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                if (launchArgs.platform === "windows") {
+                if (launchArgs.platform === PlatformType.Windows) {
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                 }
                 return TelemetryHelper.generate("launch", extProps, (generator) => {
@@ -72,10 +78,10 @@ export class DirectDebugSession extends DebugSessionBase {
                 reject(ErrorHelper.getInternalError(InternalErrorCode.ApplicationLaunchFailed, err.message || err));
             })
         )
-        .catch(err => this.showError(err, response));
+            .catch(err => this.showError(err, response));
     }
 
-    protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {
+    protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void> {
         let extProps = {
             platform: {
                 value: attachArgs.platform,
@@ -87,12 +93,15 @@ export class DirectDebugSession extends DebugSessionBase {
             },
         };
 
+        attachArgs.webkitRangeMin = attachArgs.webkitRangeMin || 9223;
+        attachArgs.webkitRangeMax = attachArgs.webkitRangeMax || 9322;
+
         this.previousAttachArgs = attachArgs;
 
         return new Promise<void>((resolve, reject) => this.initializeSettings(attachArgs)
             .then(() => {
                 logger.log("Attaching to the application");
-                logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null , 2)}`);
+                logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null, 2)}`);
                 return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, true);
             })
             .then(versions => {
@@ -101,10 +110,28 @@ export class DirectDebugSession extends DebugSessionBase {
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                 }
                 return TelemetryHelper.generate("attach", extProps, (generator) => {
-                    attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
+                    attachArgs.port = attachArgs.platform === PlatformType.iOS ?
+                        attachArgs.port || IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT :
+                        attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                     logger.log(`Connecting to ${attachArgs.port} port`);
                     return this.appLauncher.getRnCdpProxy().stopServer()
-                        .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new DirectCDPMessageHandler(), this.cdpProxyLogLevel))
+                        .then(() => this.appLauncher.getRnCdpProxy().initializeServer(
+                            attachArgs.platform === PlatformType.iOS ?
+                                new IOSDirectCDPMessageHandler() :
+                                new HermesCDPMessageHandler(),
+                            this.cdpProxyLogLevel)
+                        )
+                        .then(() => {
+                            if (attachArgs.platform === PlatformType.iOS) {
+                                return this.iOSWKDebugProxyHelper.startiOSWebkitDebugProxy(attachArgs.port, attachArgs.webkitRangeMin, attachArgs.webkitRangeMax)
+                                    .then(() => this.iOSWKDebugProxyHelper.getSimulatorProxyPort(attachArgs))
+                                    .then((results) => {
+                                        attachArgs.port = results.targetPort;
+                                    });
+                            } else {
+                               return Promise.resolve();
+                            }
+                        })
                         .then(() => this.appLauncher.getPackager().start())
                         .then(() => this.debuggerEndpointHelper.retryGetWSEndpoint(
                             `http://localhost:${attachArgs.port}`,
@@ -122,12 +149,12 @@ export class DirectDebugSession extends DebugSessionBase {
                 reject(ErrorHelper.getInternalError(InternalErrorCode.CouldNotAttachToDebugger, err.message || err));
             })
         )
-        .catch(err => this.showError(err, response));
+            .catch(err => this.showError(err, response));
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
+        this.iOSWKDebugProxyHelper.cleanUp();
         this.onDidTerminateDebugSessionHandler.dispose();
-
         super.disconnectRequest(response, args, request);
     }
 
@@ -146,18 +173,18 @@ export class DirectDebugSession extends DebugSessionBase {
                 consoleMode: vscode.DebugConsoleMode.MergeWithParent,
             }
         )
-        .then((childDebugSessionStarted: boolean) => {
-            if (childDebugSessionStarted) {
-                if (resolve) {
-                    resolve();
+            .then((childDebugSessionStarted: boolean) => {
+                if (childDebugSessionStarted) {
+                    if (resolve) {
+                        resolve();
+                    }
+                } else {
+                    throw new Error(localize("CouldNotStartChildDebugSession", "Couldn't start child debug session"));
                 }
-            } else {
-                throw new Error(localize("CouldNotStartChildDebugSession", "Couldn't start child debug session"));
-            }
-        },
-        err => {
-            throw err;
-        });
+            },
+                err => {
+                    throw err;
+                });
     }
 
     private handleTerminateDebugSession(debugSession: vscode.DebugSession) {
@@ -165,7 +192,7 @@ export class DirectDebugSession extends DebugSessionBase {
             debugSession.configuration.rnDebugSessionId === this.session.id
             && debugSession.type === this.pwaNodeSessionName
         ) {
-            this.session.customRequest(this.disconnectCommand, {forcedStop: true});
+            vscode.commands.executeCommand(this.stopCommand, this.session);
         }
     }
 }

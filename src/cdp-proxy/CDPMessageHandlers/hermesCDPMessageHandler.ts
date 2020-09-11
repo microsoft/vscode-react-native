@@ -2,10 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { Protocol as Cdp } from "devtools-protocol/types/protocol";
-import { ICDPMessageHandler, ProcessedCDPMessage } from "./ICDPMessageHandler";
+import { ProcessedCDPMessage } from "./ICDPMessageHandler";
 import { CDP_API_NAMES } from "./CDPAPINames";
+import { BaseCDPMessageHandler } from "./baseCDPMessageHandler";
 
-export class DirectCDPMessageHandler implements ICDPMessageHandler {
+export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
 
     /**
      * @description The Hermes native functions calls mark in call stack
@@ -20,8 +21,6 @@ export class DirectCDPMessageHandler implements ICDPMessageHandler {
     private readonly HERMES_NATIVE_FUNCTION_SCRIPT_ID: string = "4294967295";
 
     private readonly ARRAY_REQUEST_PHRASE_MARKER: string = "Object.getOwnPropertyDescriptor";
-
-    constructor() { }
 
     public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
         let sendBack = false;

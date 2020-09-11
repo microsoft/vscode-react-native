@@ -12,7 +12,7 @@ import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { InternalError, NestedError } from "../common/error/internalError";
-import { ILaunchArgs } from "../extension/launchArgs";
+import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
 import * as nls from "vscode-nls";
@@ -43,6 +43,8 @@ export interface TerminateEventArgs {
 }
 
 export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments, ILaunchArgs {
+    webkitRangeMax: number;
+    webkitRangeMin: number;
     cwd: string; /* Automatically set by VS Code to the currently opened folder */
     port: number;
     url?: string;
@@ -60,7 +62,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> = new vscode.EventEmitter<TerminateEventArgs>();
     public static readonly onDidTerminateRootDebugSession = DebugSessionBase.rootSessionTerminatedEventEmitter.event;
 
-    protected readonly disconnectCommand: string;
+    protected readonly stopCommand: string;
     protected readonly pwaNodeSessionName: string;
 
     protected appLauncher: AppLauncher;
@@ -77,7 +79,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
 
         // constants definition
         this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
-        this.disconnectCommand = "disconnect";
+        this.stopCommand = "workbench.action.debug.stop"; // the command which simulates a click on the "Stop" button
 
         // variables definition
         this.session = session;
@@ -147,7 +149,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.cancellationTokenSource.dispose();
 
         // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
-        if (this.previousAttachArgs && this.previousAttachArgs.platform === "android") {
+        if (this.previousAttachArgs && this.previousAttachArgs.platform === PlatformType.Android) {
             try {
                 this.appLauncher.stopMonitoringLogCat();
             } catch (err) {
@@ -160,7 +162,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         DebugSessionBase.rootSessionTerminatedEventEmitter.fire({
             debugSession: this.session,
             args: {
-                forcedStop: (<any>args).forcedStop,
+                forcedStop: !!(<any>args).forcedStop,
             },
         });
 

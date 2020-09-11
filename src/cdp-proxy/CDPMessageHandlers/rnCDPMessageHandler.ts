@@ -2,13 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { IProtocolCommand } from "vscode-cdp-proxy";
-import { ICDPMessageHandler, ProcessedCDPMessage } from "./ICDPMessageHandler";
+import { ProcessedCDPMessage } from "./ICDPMessageHandler";
 import { CDP_API_NAMES } from "./CDPAPINames";
+import { BaseCDPMessageHandler } from "./baseCDPMessageHandler";
 
-export class RnCDPMessageHandler implements ICDPMessageHandler {
+export class RnCDPMessageHandler extends BaseCDPMessageHandler {
     private firstStop: boolean;
 
     constructor() {
+        super();
         this.firstStop = true;
     }
 

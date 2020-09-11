@@ -191,8 +191,12 @@ export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string, platf
         const bootCheckInterval = setInterval(async () => {
             let isUpdated: boolean = false;
             switch (platform) {
-                case Platform.Android: isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, AndroidEmulatorHelper.getDevice()); break;
-                case Platform.iOS: isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, IosSimulatorHelper.getDeviceUdid()); break;
+                case Platform.Android:
+                    isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, AndroidEmulatorHelper.getDevice());
+                    break;
+                case Platform.iOS:
+                    isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, IosSimulatorHelper.getDeviceUdid());
+                    break;
             }
             if (isUpdated) {
                 cleanup();

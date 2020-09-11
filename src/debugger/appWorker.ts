@@ -344,7 +344,7 @@ function fetch(url) {
 
             // In an attempt to catch failures in starting the packager on first attempt,
             // wait for 300 ms before resolving the promise
-            new PromiseUtil().delay(300).then(() => resolve());
+            PromiseUtil.delay(300).then(() => resolve());
         });
     }
 

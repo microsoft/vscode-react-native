@@ -220,7 +220,7 @@ export class RNDebugSession extends DebugSessionBase {
             if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
                 this.establishDebugSession(this.previousAttachArgs);
             } else {
-                this.session.customRequest(this.disconnectCommand, {forcedStop: true});
+                vscode.commands.executeCommand(this.stopCommand, this.session);
             }
         }
     }
