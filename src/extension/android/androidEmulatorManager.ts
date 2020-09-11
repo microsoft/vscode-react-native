@@ -56,7 +56,7 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
         return new Promise((resolve, reject) => {
             const emulatorProcess = this.childProcess.spawn(AndroidEmulatorManager.EMULATOR_COMMAND, [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName], {
                 detached: true,
-            });
+            }, true);
             emulatorProcess.outcome.catch((error) => {
                 reject(error);
             });

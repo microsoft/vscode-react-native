@@ -73,15 +73,16 @@ export class ChildProcess {
         return this.childProcess.execFileSync(command, args, options);
     }
 
-    public spawn(command: string, args: string[] = [], options: ISpawnOptions = {}): ISpawnResult {
+    public spawn(command: string, args: string[] = [], options: ISpawnOptions = {}, errorWithDetails: boolean = false): ISpawnResult {
         const spawnedProcess = this.childProcess.spawn(command, args, options);
         let outcome: Promise<void> = new Promise((resolve, reject) => {
-            const stderrChunks: string[] = [];
-            const stdoutChunks: string[] = [];
 
             spawnedProcess.once("error", (error: any) => {
                 reject(error);
             });
+
+            const stderrChunks: string[] = [];
+            const stdoutChunks: string[] = [];
 
             spawnedProcess.stderr.on("data", (data) => {
                 stderrChunks.push(data.toString());
@@ -96,22 +97,24 @@ export class ChildProcess {
                     resolve();
                 } else {
                     const commandWithArgs = command + " " + args.join(" ");
-                    console.log(stdoutChunks);
-                    console.log(stderrChunks);
-                    let details = "";
-                    if (stdoutChunks.length > 0) {
-                        details = details.concat(`\n\tSTDOUT: ${stdoutChunks[stdoutChunks.length-1]}`);
+                    if (errorWithDetails) {
+                        let details = "";
+                        if (stdoutChunks.length > 0) {
+                            details = details.concat(`\n\tSTDOUT: ${stdoutChunks[stdoutChunks.length-1]}`);
+                        }
+                        if (stderrChunks.length > 0) {
+                            details = details.concat(`\n\tSTDERR: ${stderrChunks.join("\n\t")}`);
+                        }
+                        if (details === "") {
+                            details = "STDOUT and STDERR are empty!";
+                        }
+                        reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailedWithDetails, commandWithArgs, details));
                     }
-                    if (stderrChunks.length > 0) {
-                        details = details.concat(`\n\tSTDERR: ${stderrChunks.join("\n\t")}`);
+                    else {
+                        reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, commandWithArgs, code));
                     }
-                    if (details === "") {
-                        details = "STDOUT and STDERR are empty!";
-                    }
-                    reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailedWithDetails, commandWithArgs, details));
                 }
             });
-
         });
         return {
             spawnedProcess: spawnedProcess,
