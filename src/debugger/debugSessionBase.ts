@@ -117,7 +117,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 this.cdpProxyLogLevel = LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Custom : LogLevel.None;
             }
 
-            if (!args.sourceMaps) {
+            if (typeof args.sourceMaps !== "boolean") {
                 args.sourceMaps = true;
             }
 
