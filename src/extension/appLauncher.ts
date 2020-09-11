@@ -309,7 +309,7 @@ export class AppLauncher {
                         );
 
                     this.logger.warning(error);
-                    this.logger.warning(localize("ContinueWithRnCliWorkflow", "Continue with standard RN CLI workflow."));
+                    this.logger.warning(localize("ContinueWithRnCliWorkflow", "Continue using standard RN CLI workflow."));
 
                     if (mobilePlatformOptions.target.indexOf("device") < 0) {
                         this.cleanupTargetModifications(mobilePlatform, mobilePlatformOptions);
