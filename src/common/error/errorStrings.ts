@@ -7,6 +7,7 @@ const localize = nls.loadMessageBundle();
 
 export const ERROR_STRINGS = {
     [InternalErrorCode.CommandFailed]: localize("CommandFailed", "Error while executing command '{0}'"),
+    [InternalErrorCode.CommandFailedWithDetails]: localize("CommandFailed", "Error while executing command '{0}'.\nDetails: {1}"),
     [InternalErrorCode.CommandFailedWithErrorCode]: localize("CommandFailedWithErrorCode", "Command '{0}' failed with error code {1}"),
     [InternalErrorCode.ExpectedIntegerValue]: localize("ExpectedIntegerValue", "Expected an integer. Couldn't read {0}"),
     [InternalErrorCode.PackagerStartFailed]: localize("PackagerStartFailed", "Error while executing React Native Packager."),
