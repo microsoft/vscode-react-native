@@ -81,4 +81,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.CouldNotConnectToDebugTarget]: localize("CouldNotConnectToDebugTarget", "Could not connect to the debug target at {0}: {1}"),
     [InternalErrorCode.IOSCouldNotFoundDeviceForDirectDebugging]: localize("CannotAttachtoiOSDeviceDirectly", "Unable to find iOS target device/simulator. Please check that \"Settings > Safari > Advanced > Web Inspector = ON\" or try specifying a different \"port\" parameter in launch.json. Also, please make sure that 'target' property in your debug scenario is defined correctly."),
     [InternalErrorCode.FailedToStartAndroidEmulator]: localize("FailedToStartAndroidEmulator", "The command \"emulator -avd {0}\" threw an exception: {1}"),
+    [InternalErrorCode.VirtualDeviceSelectionError]: localize("VirtualDeviceSelectionError", "Virtual device launch finished with an exception: {0}"),
 };
