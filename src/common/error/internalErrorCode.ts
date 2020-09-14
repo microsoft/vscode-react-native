@@ -15,6 +15,7 @@ export enum InternalErrorCode {
         FailedToRunExponent = 110,
         FailedToPublishToExpHost = 111,
         UnsupportedCommandStatus = 112,
+        CommandFailedWithDetails = 113,
 
         // Device Deployer errors
         IOSDeployNotFound = 201,
