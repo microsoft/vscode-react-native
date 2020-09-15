@@ -409,6 +409,10 @@ export class CommandPaletteHandler {
             reactNativeVersions: appLauncher.getReactNativeVersions() || {reactNativeVersion: "", reactNativeWindowsVersion: ""},
         };
 
+        if (platform === PlatformType.iOS && target === "device") {
+            runOptions.target = "device";
+        }
+
         CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(appLauncher.getWorkspaceFolderUri());
 
         return runOptions;
