@@ -73,11 +73,23 @@ export class ChildProcess {
         return this.childProcess.execFileSync(command, args, options);
     }
 
-    public spawn(command: string, args: string[] = [], options: ISpawnOptions = {}): ISpawnResult {
+    public spawn(command: string, args: string[] = [], options: ISpawnOptions = {}, showStdOutputsOnError: boolean = false): ISpawnResult {
         const spawnedProcess = this.childProcess.spawn(command, args, options);
         let outcome: Promise<void> = new Promise((resolve, reject) => {
+
             spawnedProcess.once("error", (error: any) => {
                 reject(error);
+            });
+
+            const stderrChunks: string[] = [];
+            const stdoutChunks: string[] = [];
+
+            spawnedProcess.stderr.on("data", (data) => {
+                stderrChunks.push(data.toString());
+            });
+
+            spawnedProcess.stdout.on("data", (data) => {
+                stdoutChunks.push(data.toString());
             });
 
             spawnedProcess.once("exit", (code: number) => {
@@ -85,7 +97,22 @@ export class ChildProcess {
                     resolve();
                 } else {
                     const commandWithArgs = command + " " + args.join(" ");
-                    reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, commandWithArgs, code));
+                    if (showStdOutputsOnError) {
+                        let details = "";
+                        if (stdoutChunks.length > 0) {
+                            details = details.concat(`\n\tSTDOUT: ${stdoutChunks[stdoutChunks.length-1]}`);
+                        }
+                        if (stderrChunks.length > 0) {
+                            details = details.concat(`\n\tSTDERR: ${stderrChunks.join("\n\t")}`);
+                        }
+                        if (details === "") {
+                            details = "STDOUT and STDERR are empty!";
+                        }
+                        reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailedWithDetails, commandWithArgs, details));
+                    }
+                    else {
+                        reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, commandWithArgs, code));
+                    }
                 }
             });
         });
