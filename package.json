@@ -507,6 +507,15 @@
 								"description": "%reactNative.attach.cwd.description%",
 								"default": "${workspaceFolder}"
 							},
+							"sourceMaps": {
+								"type": "boolean",
+								"description": "%reactNative.attach.sourceMaps.description%",
+								"default": false
+							},
+							"sourceMapPathOverrides": {
+								"type": "object",
+								"description": "%reactNative.attach.sourceMapsPathOverrides.description%"
+							},
 							"platform": {
 								"type": "string",
 								"enum": [
@@ -606,6 +615,11 @@
 								],
 								"default": "simulator",
 								"description": "%reactNative.launch.target.description%"
+							},
+							"sourceMaps": {
+								"type": "boolean",
+								"description": "%reactNative.launch.sourceMaps.description%",
+								"default": false
 							},
 							"logCatArguments": {
 								"type": "array",
