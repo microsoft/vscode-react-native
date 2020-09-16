@@ -189,7 +189,7 @@ Please be aware, specifying the scheme value as a part of the `runArguments` par
 
 ## iOS direct debugging
 
-The extension provides experimental support of iOS direct debugging.
+The extension provides experimental support of iOS direct debugging. See more info here: [#40](https://github.com/react-native-community/discussions-and-proposals/issues/40), [#206](https://github.com/react-native-community/discussions-and-proposals/issues/206)
 
 To be able to debug an iOS app directly, you need to instal [ios-webkit-debug-proxy](https://github.com/google/ios-webkit-debug-proxy):
 
