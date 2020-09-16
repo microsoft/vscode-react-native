@@ -326,7 +326,7 @@ Below there are some examples of how sourcemaps could be resolved in different s
 
 ### Haul debugging
 
-The extension provides functional to attach to [Haul packager](https://callstack.github.io/haul/) based applications. You can use the `Attach to packager` scenario to attach to a Haul based app and debug it. For now launch scenarios aren't supported.
+The extension provides functional to attach to [Haul packager](https://callstack.github.io/haul/) based applications. You can use the `Attach to packager` scenario to attach to a Haul based app and debug it. For now launch scenarios aren't supported. You can find more info in [the issue](https://github.com/microsoft/vscode-react-native/issues/883).
 
 You can prepare your React Native application to work with `Haul` by following the [`Haul Getting started` guide](https://github.com/callstack/haul#getting-started).
 
