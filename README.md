@@ -326,9 +326,11 @@ Below there are some examples of how sourcemaps could be resolved in different s
 
 ### Haul debugging
 
-The extension supports debugging of [Haul packager](https://callstack.github.io/haul/) based applications. You can prepare your React Native application to work with `Haul` by following the [`Haul Getting started` guide](https://github.com/callstack/haul#getting-started).
+The extension provides functional to attach to [Haul packager](https://callstack.github.io/haul/) based applications. You can use the `Attach to packager` scenario to attach to a Haul based app and debug it. For now launch scenarios aren't supported.
 
-If you use the [legacy version](https://github.com/callstack/haul/tree/legacy) of [Haul](https://callstack.github.io/haul/) as your React Native bundler instead of the default [Metro](https://facebook.github.io/metro/), it could be required to add `sourceMapPathOverrides` to the `launch.json` file.
+You can prepare your React Native application to work with `Haul` by following the [`Haul Getting started` guide](https://github.com/callstack/haul#getting-started).
+
+If you use the [legacy version](https://github.com/callstack/haul/tree/legacy) of `Haul` as your React Native bundler instead of the default [Metro](https://facebook.github.io/metro/), it could be required to add `sourceMapPathOverrides` to the `launch.json` file.
 
 For example:
 
