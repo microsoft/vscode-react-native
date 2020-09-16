@@ -58,6 +58,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Hermes (Android)](#hermes-android)
   - [iOS devices](#ios-devices)
   - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
+  - [iOS direct debugging](#iOS-direct-debugging)
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
   - [Windows applications](#react-native-for-windows)
@@ -119,7 +120,7 @@ To start debugging create a new debug configuration for your ReactNative app in 
 
 ![Add React Native debug configuration](images/add-debug-configuration.gif)
 
-In case if you haven't created the `.vscode/launch.json` file yet, you can add a whole default debug configuration set. To do that click the debug icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configuration (gear) icon ![Configure-gear](images/configure-gear-icon.png), then choose the React Native debug environment.
+In case you haven't created the `.vscode/launch.json` file yet, you can add a whole default debug configuration set. To do that click the debug icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configuration (gear) icon ![Configure-gear](images/configure-gear-icon.png), then choose the React Native debug environment.
 
 ![Choose React Native debugger](images/choose-debugger.png)
 
@@ -174,7 +175,7 @@ Debugging on an iOS device requires following manual steps:
 * Choose the **Debug iOS** option from the "Configuration" dropdown and press F5.
 * Shake the device to open the development menu and select "Debug JS Remotely".
 
-## Customs scheme for iOS apps
+## Custom scheme for iOS apps
 
 If you want to use a custom scheme for your application you can either pass it as part of the `runArguments` parameter arguments, or set the `scheme` configuration parameter as shown below:
 ```js
@@ -306,7 +307,26 @@ You can debug UWP and WPF React Native for Windows applications by changing the 
 
 ## TypeScript and Haul
 
-If you use [Haul](https://callstack.github.io/haul/users.html) as your React Native bundler instead of the default [Metro](https://facebook.github.io/metro/), you must add `sourceMapPathOverrides` to the `launch.json` file.
+### Sourcemaps
+
+The debugger uses sourcemaps to let you debug with your original sources, but sometimes the sourcemaps aren't generated properly and overrides are needed. In the config we support `sourceMapPathOverrides`, a mapping of source paths from the sourcemap, to the locations of these sources on disk. Useful when the sourcemap isn't accurate or can't be fixed in the build process.
+
+The left hand side of the mapping is a pattern that can contain a wildcard, and will be tested against the `sourceRoot` + `sources` entry in the source map. If it matches, the source file will be resolved to the path on the right hand side, which should be an absolute path to the source file on disk.
+
+Below there are some examples of how sourcemaps could be resolved in different scenarios:
+```javascript
+// webRoot = /Users/me/project
+"sourceMapPathOverrides": {
+    "webpack:///./~/*": "${webRoot}/node_modules/*",       // Example: "webpack:///./~/querystring/index.js" -> "/Users/me/project/node_modules/querystring/index.js"
+    "webpack:///./*":   "${webRoot}/*",                    // Example: "webpack:///./src/app.js" -> "/Users/me/project/src/app.js",
+    "webpack:///*":     "*",                               // Example: "webpack:///project/app.ts" -> "/project/app.ts"
+    "webpack:///src/*": "${webRoot}/*",                    // Example: "webpack:///src/app.js" -> "/Users/me/project/app.js"
+}
+```
+
+### Haul legacy version
+
+If you use the [legacy version](https://github.com/callstack/haul/tree/legacy) of [Haul](https://callstack.github.io/haul/) as your React Native bundler instead of the default [Metro](https://facebook.github.io/metro/), it could be required to add `sourceMapPathOverrides` to the `launch.json` file.
 
 For example:
 
@@ -321,9 +341,6 @@ For example:
 }
 ```
 
-Learn more about source map overrides [here](https://github.com/microsoft/vscode-node-debug2#sourcemappathoverrides)
-
-
 ## Debugger configuration properties
 
 The following is a list of all the configuration properties the debugger accepts in `launch.json`:
@@ -332,7 +349,7 @@ The following is a list of all the configuration properties the debugger accepts
 |---|---|---|---|
 |`cwd`|The path to the project root folder|`string`|`${workspaceFolder}`|
 |`sourceMaps`|Whether to use JavaScript source maps to map the generated bundled code back to its original sources|`boolean`|`true`|
-|`sourceMapPathOverrides`|A set of mappings for rewriting the locations of source files from what the source map says, to their locations on disk. See [Debugging with TypeScript and Haul](#typescript-and-haul) for details|`object`|n/a|
+|`sourceMapPathOverrides`|A set of mappings for rewriting the locations of source files from what the source map says, to their locations on disk. See [Sourcemaps](#sourcemaps) for details|`object`|n/a|
 |`enableDebug`|Whether to enable debug mode. If set to "false", an application will be launched without debugging|`boolean`|`true`|
 |`trace`|Logging level in debugger process. May be useful for diagnostics. If set to "Trace" all debugger process logs will be available in `Debug Console` output window|`string`|`log`|
 |`address`|TCP/IP address of packager to attach to for debugging|`string`|`localhost`|
