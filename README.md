@@ -320,11 +320,13 @@ Below there are some examples of how sourcemaps could be resolved in different s
     "webpack:///./~/*": "${webRoot}/node_modules/*",       // Example: "webpack:///./~/querystring/index.js" -> "/Users/me/project/node_modules/querystring/index.js"
     "webpack:///./*":   "${webRoot}/*",                    // Example: "webpack:///./src/app.js" -> "/Users/me/project/src/app.js",
     "webpack:///*":     "*",                               // Example: "webpack:///project/app.ts" -> "/project/app.ts"
-    "webpack:///src/*": "${webRoot}/*",                    // Example: "webpack:///src/app.js" -> "/Users/me/project/app.js"
+    "webpack:///src/*": "${webRoot}/*"                     // Example: "webpack:///src/app.js" -> "/Users/me/project/app.js"
 }
 ```
 
-### Haul legacy version
+### Haul debugging
+
+The extension supports debugging of [Haul packager](https://callstack.github.io/haul/) based applications. You can prepare your React Native application to work with `Haul` by following the [`Haul Getting started` guide](https://github.com/callstack/haul#getting-started).
 
 If you use the [legacy version](https://github.com/callstack/haul/tree/legacy) of [Haul](https://callstack.github.io/haul/) as your React Native bundler instead of the default [Metro](https://facebook.github.io/metro/), it could be required to add `sourceMapPathOverrides` to the `launch.json` file.
 
