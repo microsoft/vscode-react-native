@@ -513,7 +513,7 @@ If you change this port, then for iOS device and simulator scenarios you will ha
 If you use Android, you need to change the debug server by:
 
 1. `CTRL+M`(`CMD+M`) in the emulator
-2. Go to Dev Setting
+2. Go to `Dev Settings`
 3. Debug server host for device => enter `localhost:<yourPortNumber>`.
 4. Reload application (press `R` twice)
 5. (Hermes only) Hermes engine listens port 8081 for debugging by default, to change it you might need to modify your [`metro.config.js` file adding `"port": portNumber` argument in there to the server settings](https://facebook.github.io/metro/docs/configuration/#port).
