@@ -530,11 +530,11 @@ module.exports = {
 <details>
 <summary>Port setup instruction</summary>
 
-![image](https://user-images.githubusercontent.com/32372875/92897889-3bf3f600-f426-11ea-8e3f-c520c67ef366.png)
+![image](images/select-dev-menu.png)
 
-![image](https://user-images.githubusercontent.com/32372875/92897976-4c0bd580-f426-11ea-80e6-d7b60afeca7f.png)
+![image](images/dev-menu-setup-custom-host.png)
 
-![image](https://user-images.githubusercontent.com/32372875/92898024-53cb7a00-f426-11ea-8e24-2f54c097d16e.png)
+![image](images/custom-host-and-port.png)
 
 </details>
 
