@@ -1,7 +1,7 @@
 trigger:
-  - master
+  - legacy
 pr:
-  - master
+  - legacy
 
 variables:
   vswdbotLogin: vswdbot
