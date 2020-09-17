@@ -45,9 +45,7 @@ export class JsDebugConfigAdapter {
         if (attachArgs.envFile) {
             existingExtraArgs.envFile = attachArgs.envFile;
         }
-        if (attachArgs.sourceMaps) {
-            existingExtraArgs.sourceMaps = attachArgs.sourceMaps;
-        }
+        existingExtraArgs.sourceMaps = attachArgs.sourceMaps;
         if (attachArgs.sourceMapPathOverrides) {
             existingExtraArgs.sourceMapPathOverrides = attachArgs.sourceMapPathOverrides;
         }
