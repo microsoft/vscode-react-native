@@ -1,43 +1,11 @@
-# React Native Tools (Preview)
+# React Native Tools
 
-[![Build Status](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_apis/build/status/%5BUnit%20tests%5D%20vscode-react-native%20%5Bmaster%5D?branchName=preview)](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_build/latest?definitionId=60&branchName=preview)
-![VS Marketplace version](https://vsmarketplacebadge.apphb.com/version-short/msjsdiag.vscode-react-native-preview.svg)
-![VS Marketplace rating](https://vsmarketplacebadge.apphb.com/rating-star/msjsdiag.vscode-react-native-preview.svg)
+[![Build Status](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_apis/build/status/%5BUnit%20tests%5D%20vscode-react-native%20%5Bmaster%5D?branchName=master)](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_build/latest?definitionId=60&branchName=master)
+![Stable version](https://vsmarketplacebadge.apphb.com/version-short/msjsdiag.vscode-react-native.svg)
+![Preview version](https://vsmarketplacebadge.apphb.com/version-short/msjsdiag.vscode-react-native-preview.svg)
+![VS Marketplace rating](https://vsmarketplacebadge.apphb.com/rating-star/msjsdiag.vscode-react-native.svg)
 
-> This is a preview version of the updated React Native Tools extension. It's not recommended to use the preview version and the stable one at the same time.
-
-## React Native Tools Preview migration guide
-
-In order to use the preview version of the extension it's required to add `-preview` suffix in the `type` field of a debug configuration of the RNT stable extension. The difference between the configurations is shown below:
-
-- React Native debug configuration:
-  ```diff
-  {
-      "name": "Debug Android",
-      "cwd": "${workspaceFolder}",
-  -    "type": "reactnative",
-  +    "type": "reactnative-preview",
-      "request": "launch",
-      "platform": "android"
-  }
-  ```
-- React Native Hermes debug configuration:
-  ```diff
-  {
-      "name": "Debug Android (Hermes)",
-      "cwd": "${workspaceFolder}",
-  -    "type": "reactnativedirect",
-  +    "type": "reactnativedirect-preview",
-      "request": "launch",
-      "platform": "android"
-  }
-  ```
-
-We also added `(Preview)` suffix to Command Palette command names.
-
-![React Native commands preview](https://raw.githubusercontent.com/Microsoft/vscode-react-native/preview/images/command-palette-preview.png)
-
-To avoid conflicts, it's not recommended to use Command Palette commands and debug configurations of the preview version and the stable one at the same time.
+> To avoid conflicts, it's not recommended to use Command Palette commands and debug configurations of the preview version and the stable one at the same time.
 
 ## About the extension
 
@@ -50,7 +18,6 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 
 # Table of Contents
 
-- [React Native Tools Preview migration guide](#react-native-tools-preview-migration-guide)
 - [About the extension](#about-the-extension)
 - [Getting started](#getting-started)
 - [React Native commands in the Command Palette](#react-native-commands-in-the-command-palette)
