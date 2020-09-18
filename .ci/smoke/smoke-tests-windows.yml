@@ -1,11 +1,11 @@
 trigger:
-  - master
+  - legacy
 pr:
-  - master
+  - legacy
 
 variables:
   vswdbotLogin: vswdbot
-  appiumVersion: 1.16.0
+  appiumVersion: 1.17.1
   basicOnly: false
   expoCLIVersion: latest
   nightlyBuild: false
@@ -14,15 +14,16 @@ variables:
 jobs:
   - job: Windows
     pool:
-      name: 'React Native smoke tests - Windows'
+      name: "React Native smoke tests - Windows"
+    timeoutInMinutes: 60
     steps:
-    - checkout: self
-      clean: true
-    - bash: |
-        cd $APPDATA && cd ../Local
-        rm -rf ./Temp/metro-cache
-        rm -rf ./Temp/haste-map-metro-*
-        rm -rf ./Temp/react-native-*
-        rm -rf ./Yarn/Cache
-      displayName: Clear RN, Yarn cache
-    - template: smoke-tests-common-validation.yml
+      - checkout: self
+        clean: true
+      - bash: |
+          cd $APPDATA && cd ../Local
+          rm -rf ./Temp/metro-cache
+          rm -rf ./Temp/haste-map-metro-*
+          rm -rf ./Temp/react-native-*
+          rm -rf ./Yarn/Cache
+        displayName: Clear RN, Yarn cache
+      - template: smoke-tests-common-validation.yml

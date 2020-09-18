@@ -16,7 +16,7 @@ export class SmokeTestsConstants {
     // Timeout for driver to wait for UI elements response to interaction (in seconds)
     public static elementResponseTimeout = 250;
     // Timeout for enabling Remote JS Debugging while testing RN app
-    public static enableRemoteJSTimeout = 50 * 1000;
+    public static enableRemoteJSTimeout = 120 * 1000;
     // Timeout for Android app to build and to install
     public static androidAppBuildAndInstallTimeout = 300 * 1000;
     // Timeout for iOS app to build and to install
@@ -37,8 +37,10 @@ export class SmokeTestsConstants {
     public static artifactsDir = "SmokeTestLogs";
     // Name of the VS Code user data directory
     public static VSCodeUserDataDir = "VSCodeUserData";
-    // Name of application entry point file
+    // Name of application entry point .js file
     public static AppjsFileName = "App.js";
+    // Name of application entry point .tsx file
+    public static ApptsxFileName = "App.tsx";
     // Name of file where tests environment variables are stored
     public static EnvConfigFileName = "config.json";
     // Name of file where tests environment variables are stored for development environment
@@ -47,6 +49,8 @@ export class SmokeTestsConstants {
     public static ExpoSuccessPattern = "Tunnel ready";
     // Log string in case of Expo launch failed
     public static ExpoFailurePattern = "XDLError";
+    // Log string in case of Metro Packager has started
+    public static PackagerStartedPattern = "Packager started";
     // File name where logs from React Native output channel will be saved
     public static ReactNativeLogFileName = "ReactNative.txt";
     // File name where logs from React Native: Run exponent output channel will be saved

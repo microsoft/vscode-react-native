@@ -5,10 +5,10 @@
   "scripts": {
     "postinstall": "tsc",
     "watch": "tsc --watch",
-    "mocha": "node ./node_modules/tslint/bin/tslint -c tslint.json --project tsconfig.json 'src/**' && tsc && node ./node_modules/mocha/bin/_mocha --reporter mocha-multi-reporters --reporter-options configFile=./mochaReporterConfig.json"
+    "mocha": "tsc && node ./node_modules/mocha/bin/_mocha --reporter mocha-multi-reporters --reporter-options configFile=./mochaReporterConfig.json"
   },
   "devDependencies": {
-    "@expo/xdl": "^57.6.2",
+    "@expo/xdl": "57.9.31",
     "@types/clipboardy": "^2.0.1",
     "@types/gulp-filter": "^3.0.33",
     "@types/mkdirp": "^1.0.0",
@@ -29,14 +29,13 @@
     "gulp-untar": "^0.0.7",
     "gulp-vinyl-zip": "^2.1.2",
     "mkdirp": "^1.0.3",
-    "mocha": "^6.1.2",
+    "mocha": "6.2.3",
     "mocha-junit-reporter": "^1.18.0",
     "mocha-multi-reporters": "^1.1.7",
     "portastic": "^1.0.1",
     "request": "^2.88.0",
     "rimraf": "^2.6.1",
     "tree-kill": "^1.2.2",
-    "tslint": "^5.15.0",
     "typescript": "^3.7.5",
     "url-parse": "^1.4.3",
     "vinyl-fs": "^3.0.3",
@@ -45,8 +44,8 @@
   },
   "resolutions": {
     "@expo/xdl/analytics-node/axios": "^0.19.0",
-    "**/serialize-javascript": "^2.1.1",
-    "**/tree-kill": "^1.2.2",
-    "**/minimist": "^1.2.3"
+    "**/minimist": "^1.2.3",
+    "lodash": "^4.17.19",
+    "bl": "^2.2.1"
   }
 }

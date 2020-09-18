@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "Der Benutzer hat die Anmeldung abgebrochen.",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "Anfügen an Paketerstellungs-Manager nicht möglich. Ist ein Paketerstellungs-Manager vorhanden und wird auf Port {0} ausgeführt? Wenn Ihr Paketerstellungs-Manager zur Ausführung auf einem anderen Port konfiguriert ist, müssen Sie diesen zur Datei \"settings.json\" hinzufügen.",
 	"AnotherDebuggerConnectedToPackager": "Es ist bereits ein anderer Debugger mit dem Paketerstellungs-Manager verbunden. Schließen Sie ihn, bevor Sie erneut versuchen, ein Debugging mit VSCode durchzuführen.",
-	"NotInReactNativeFolderError": "Offenbar versuchen Sie, das Debugging aus einem Verzeichnis durchzuführen, bei dem es sich nicht um einen React Native-Projektstamm handelt. \n Sofern dies zutrifft, folgen Sie diesen Anweisungen: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
+	"NotInReactNativeFolderError": "Offenbar versuchen Sie, das Debugging aus einem Verzeichnis durchzuführen, bei dem es sich nicht um einen React Native-Projektstamm handelt. \n Sofern dies zutrifft, folgen Sie diesen Anweisungen: https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
 	"SourcesStoragePathIsNullOrEmpty": "Das sourcesStoragePath-Argument war NULL oder leer.",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "Die App konnte nicht auf einem verfügbaren Gerät installiert werden. Stellen Sie sicher,\n dass ein korrekt konfiguriertes Gerät oder ein Emulator ausgeführt wird. Siehe https://facebook.github.io/react-native/docs/android-setup.html.",
 	"AndroidShellCommandTimedOut": "Timeout bei Android-Shellbefehl. Wiederholen Sie den Vorgang.",

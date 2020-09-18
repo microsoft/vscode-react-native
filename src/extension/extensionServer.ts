@@ -18,11 +18,12 @@ import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {TargetPlatformHelper} from "../common/targetPlatformHelper";
 import {MobilePlatformDeps} from "./generalMobilePlatform";
 import {IRemoteExtension, OpenFileRequest} from "../common/remoteExtension";
+import {CommandExecutor} from "../common/commandExecutor";
+import {ExperimentService} from "./experimentService/experimentService";
 import * as rpc from "noice-json-rpc";
 import * as WebSocket from "ws";
 import WebSocketServer = WebSocket.Server;
 import * as nls from "vscode-nls";
-import {CommandExecutor} from "../common/commandExecutor";
 const localize = nls.loadMessageBundle();
 
 export class ExtensionServer implements vscode.Disposable {
@@ -33,10 +34,12 @@ export class ExtensionServer implements vscode.Disposable {
     private pipePath: string;
     private logCatMonitor: LogCatMonitor | null = null;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
+    private experimentService: ExperimentService;
 
     public constructor(projectRootPath: string, reactNativePackager: Packager) {
         this.pipePath = MessagingHelper.getPath(projectRootPath);
         this.reactNativePackager = reactNativePackager;
+        this.experimentService = ExperimentService.create();
     }
 
     /**
@@ -60,7 +63,7 @@ export class ExtensionServer implements vscode.Disposable {
             this.serverInstance = null;
         }
 
-        this.reactNativePackager.statusIndicator.dispose();
+        this.reactNativePackager.getStatusIndicator().dispose();
         this.reactNativePackager.stop(true);
         this.stopMonitoringLogCat();
     }
@@ -110,6 +113,7 @@ export class ExtensionServer implements vscode.Disposable {
     /**
      * Recovers the server in case the named socket we use already exists, but no other instance of VSCode is active.
      */
+    // eslint-disable-next-line
     private recoverServer(resolve: (value: void) => {} , reject: (reason: any) => {}, error: any): void {
         let errorHandler = (e: any) => {
             /* The named socket is not used. */
@@ -185,6 +189,11 @@ export class ExtensionServer implements vscode.Disposable {
     }
 
     private launch(request: any): Promise<any> {
+        this.experimentService.runExperiments()
+            .catch(err => {
+                this.logger.debug("An error occurred while running experiments. " + err.message);
+            });
+
         let mobilePlatformOptions = requestSetup(request.arguments);
 
         // We add the parameter if it's defined (adapter crashes otherwise)

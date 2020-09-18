@@ -7,7 +7,7 @@ Please, be aware that automated tests doesn't cover debugging cases on a real de
 
 Make sure you are on `Node.JS 10.x`.
 
-Tests are running using [VS Code automation package](https://github.com/microsoft/vscode/tree/master/test/automation), so before the tests runs the VS Code build tools are required to be installed. Please make sure that [instructions for building VS Code from sources](https://github.com/Microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed before running the tests.
+Tests are running using [VS Code automation package](https://github.com/microsoft/vscode/tree/master/test/automation), so before the tests runs the VS Code build tools are required to be installed. Please make sure that [instructions for building VS Code from sources](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed before running the tests.
 
 ### Windows only
    * [Install Chocolatey](https://chocolatey.org/install)
@@ -59,15 +59,17 @@ Tests are running using [VS Code automation package](https://github.com/microsof
     [System.EnvironmentVariableTarget]::Machine)
     ```
    * **Mac**:
-Add these lines to `~/.bash_profile` (create one if you haven't it):
+Add these lines to `~/.bash_profile` (create one if it doesn't exist):
     ```bash
+    export JAVA_HOME="$(/usr/libexec/java_home)"
     export ANDROID_HOME=/Users/<username>/Library/Android/sdk
     export ANDROID_SDK_ROOT=$ANDROID_HOME
     PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools/bin"
     ```
    * **Linux**:
-Add these lines to `~/.bash_profile` (create one if you haven't it):
+Add these lines to `~/.bash_profile` (create one if it doesn't exist):
     ```bash
+    export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
     export ANDROID_HOME=/home/<username>/Android/sdk
     export ANDROID_SDK_ROOT=$ANDROID_HOME
     PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools/bin"
@@ -129,7 +131,7 @@ Add these lines to `~/.bash_profile` (create one if you haven't it):
    ```sh
    yarn install
    ```
-1. Copy extension VSIX to `test/smoke/resources/drop-win` directory
+1. Copy extension VSIX to `test/smoke/package/resources/drop-win` directory
 
 ## Running tests
 
@@ -160,9 +162,10 @@ To create environment variable you can use this commands:
    export YOUR_VARIABLE=VALUE
    ```
 
+In the directory `test/smoke/package` there is a `config.json` configuration file with predefined settings for environment variables.
 This approach would be more suited for CI.
 
-For local runs is more convenient to create file `config.json` inside `test/smoke` directory and specify variables there. Example:
+For local runs, it is more convenient to create file `config.dev.json` inside `test/smoke/package` directory and specify variables there. For example:
 ```js
 {
     "ANDROID_EMULATOR": "Nexus_5X_API_28_x86",
@@ -173,9 +176,9 @@ For local runs is more convenient to create file `config.json` inside `test/smok
 }
 ```
 
-To run tests simply go to smoke tests directory and run command:
+To run tests simply go to root directory and run command:
 ```sh
-yarn mocha
+yarn smoke-tests
 ```
 These command will perform pre-tests setup (creating applications, downloading VS Code, cleaning up, etc) and then run Android and iOS tests.
 

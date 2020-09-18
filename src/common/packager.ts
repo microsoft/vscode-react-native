@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import {IRunOptions} from "./../extension/launchArgs";
+import {GeneralMobilePlatform} from "./../extension/generalMobilePlatform";
 import {ChildProcess} from "child_process";
 import {CommandExecutor} from "./commandExecutor";
 import {ExponentHelper} from "../extension/exponent/exponentHelper";
@@ -45,26 +47,31 @@ export class Packager {
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
     private static fs: FileSystem = new Node.FileSystem();
     private expoHelper: ExponentHelper;
+    private runOptions: IRunOptions;
 
     constructor(private workspacePath: string, private projectPath: string, private packagerPort?: number, packagerStatusIndicator?: PackagerStatusIndicator) {
         this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
-        this.packagerStatusIndicator = packagerStatusIndicator || new PackagerStatusIndicator();
+        this.packagerStatusIndicator = packagerStatusIndicator || new PackagerStatusIndicator(projectPath);
         this.expoHelper = new ExponentHelper(this.workspacePath, this.projectPath);
     }
 
-    public get port(): number {
+    public getPort(): number {
         return this.packagerPort || SettingsHelper.getPackagerPort(this.workspacePath);
+    }
+
+    public setRunOptions(runOptions: IRunOptions) {
+        this.runOptions = runOptions;
     }
 
     public static getHostForPort(port: number): string {
         return `localhost:${port}`;
     }
 
-    public get statusIndicator(): PackagerStatusIndicator {
+    public getStatusIndicator(): PackagerStatusIndicator {
         return this.packagerStatusIndicator;
     }
     public getHost(): string {
-        return Packager.getHostForPort(this.port);
+        return Packager.getHostForPort(this.getPort());
     }
 
     public getPackagerStatus(): PackagerStatus {
@@ -76,7 +83,7 @@ export class Packager {
     }
 
     public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Q.Promise<string[]> {
-        let args: string[] = ["--port", this.port.toString()];
+        let args: string[] = ["--port", this.getPort().toString()];
 
         if (resetCache) {
             args = args.concat("--resetCache");
@@ -136,7 +143,15 @@ export class Packager {
                 //  This bug will be fixed in 0.41
                 const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
 
-                let reactEnv = Object.assign({}, process.env, {
+                let env = process.env;
+                if (this.runOptions && (this.runOptions.env || this.runOptions.envFile)) {
+                    env =  GeneralMobilePlatform.getEnvArgument(env, this.runOptions.env, this.runOptions.envFile);
+                } else {
+                    const rootEnv = path.join(this.getProjectPath(), ".env");
+                    env =  GeneralMobilePlatform.getEnvArgument(env, null, rootEnv);
+                }
+
+                let reactEnv = Object.assign({}, env, {
                     REACT_DEBUGGER: "echo A debugger is not needed: ",
                     REACT_EDITOR: failedRNVersions.indexOf(rnVersion) < 0 ? "code" : this.openFileAtLocationCommand(),
                 });
@@ -146,6 +161,19 @@ export class Packager {
                 // wait for this command to finish
 
                 let spawnOptions = { env: reactEnv };
+
+                // Since Expo 37, you must specify the sourceExts parameter so that the packager can load additional files, such as custom fonts:
+                // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1720).
+                // Related to https://github.com/microsoft/vscode-react-native/issues/1252
+                if (this.runOptions && this.runOptions.platform === "exponent") {
+                    const managedExtensions = this.getSourceExtensions();
+
+                    // In order for the arguments to be processed normally, it is necessary to pass an array as an argument
+                    args.push(
+                        "--sourceExts",
+                        <any>managedExtensions
+                    );
+                }
 
                 const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
                 this.packagerProcess = packagerSpawnResult.spawnedProcess;
@@ -196,8 +224,8 @@ export class Packager {
     }
 
     public restart(port: number): Q.Promise<void> {
-        if (this.port && this.port !== port) {
-            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.port));
+        if (this.getPort() && this.getPort() !== port) {
+            return Q.reject<void>(ErrorHelper.getInternalError(InternalErrorCode.PackagerRunningInDifferentPort, port, this.getPort()));
         }
 
         return this.isRunning()
@@ -273,7 +301,7 @@ export class Packager {
             });
     }
 
-    private awaitStart(retryCount = 30, delay = 2000): Q.Promise<boolean> {
+    private awaitStart(retryCount = 60, delay = 3000): Q.Promise<boolean> {
         let pu: PromiseUtil = new PromiseUtil();
         return pu.retryAsync(() => this.isRunning(), (running) => running, retryCount, delay, localize("CouldNotStartPackager", "Could not start the packager."));
     }
@@ -377,5 +405,17 @@ export class Packager {
         }
 
         return atomScript;
+    }
+
+    // Since Expo 37, the packager in expo scripts has stopped correctly finding additional resources, such as custom fonts.
+    // In order to solve this problem, you need to configure the packager to work with additional file extensions,
+    // similar to how it was done in `expo/xdl`
+    private getSourceExtensions(): Array<string> {
+        // Since the array is determined by parameters (as pointed by link below)
+        // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1719),
+        // which are always the same, since the array that we receive in `expo/xdl`
+        // (https://github.com/expo/expo-cli/blob/30844f1083d0b0804478a7dc6c7cbd19dc7254df/packages/config/src/paths/extensions.ts#L54)
+        // is always the same, return constant here
+        return ["expo.ts", "expo.tsx", "expo.js", "expo.jsx", "ts", "tsx", "js", "jsx", "json", "wasm"];
     }
 }

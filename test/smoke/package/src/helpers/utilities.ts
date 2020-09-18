@@ -5,51 +5,8 @@ import * as fs from "fs";
 import * as cp from "child_process";
 import * as request from "request";
 import * as URL from "url-parse";
-import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
-
-export function nfcall<R>(fn: Function, ...args): Promise<R> {
-    return new Promise<R>((c, e) => fn(...args, (err, r) => err ? e(err) : c(r)));
-}
-
-export async function mkdirp(path: string, mode?: number): Promise<boolean> {
-    const mkdir = async () => {
-        try {
-            await nfcall(fs.mkdir, path, mode);
-        } catch (err) {
-            if (err.code === "EEXIST") {
-                const stat = await nfcall<fs.Stats>(fs.stat, path);
-
-                if (stat.isDirectory()) {
-                    return;
-                }
-
-                throw new Error(`'${path}' exists and is not a directory.`);
-            }
-
-            throw err;
-        }
-    };
-
-    // is root?
-    if (path === dirname(path)) {
-        return true;
-    }
-
-    try {
-        await mkdir();
-    } catch (err) {
-        if (err.code !== "ENOENT") {
-            throw err;
-        }
-
-        await mkdirp(dirname(path), mode);
-        await mkdir();
-    }
-
-    return true;
-}
 
 export function sanitize(name: string): string {
     return name.replace(/[&*:\/]/g, "");
@@ -174,6 +131,29 @@ export function findStringInFile(filePath: string, strToFind: string): boolean {
 export interface ExpoLaunch {
     successful: boolean;
     failed: boolean;
+}
+
+export async function waitForRunningPackager(filePath: string) {
+    let awaitRetries: number = 5;
+    let retry = 1;
+    return new Promise<void>((resolve, reject) => {
+        let check = setInterval(async () => {
+            let packagerStarted = findStringInFile(filePath, SmokeTestsConstants.PackagerStartedPattern);
+            console.log(`Searching for Packager started logging pattern for ${retry} time...`);
+            if (packagerStarted) {
+                clearInterval(check);
+                console.log(`Packager started pattern is found`);
+                resolve();
+            } else {
+                retry++;
+                if (retry >= awaitRetries) {
+                    console.log(`Packager started logging pattern is not found after ${retry} retries`);
+                    clearInterval(check);
+                    reject(`Packager started logging pattern is not found after ${retry} retries`);
+                }
+            }
+        }, 5000);
+    });
 }
 
 export async function findExpoSuccessAndFailurePatterns(filePath: string, successPattern: string, failurePattern: string): Promise<ExpoLaunch> {

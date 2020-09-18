@@ -53,15 +53,7 @@ export class TelemetryHelper {
 
     public static sendErrorEvent(eventName: string, error: Error, errorDescription?: string, isPii: boolean = true) {
         const event = TelemetryHelper.createTelemetryEvent(eventName);
-        let errorWithErrorCode: IHasErrorCode = <IHasErrorCode> <Object> error;
-        if (errorWithErrorCode.errorCode) {
-            this.addTelemetryEventProperty(event, "error.code", errorWithErrorCode.errorCode, false);
-            if (errorDescription) {
-                this.addTelemetryEventProperty(event, "error.message", errorDescription, false);
-            }
-        } else {
-            this.addTelemetryEventProperty(event, "error.message", error.message, isPii);
-        }
+        TelemetryHelper.addTelemetryEventErrorProperty(event, error, errorDescription, "", isPii);
         Telemetry.send(event);
     }
 
@@ -86,6 +78,18 @@ export class TelemetryHelper {
             TelemetryHelper.addMultiValuedTelemetryEventProperty(event, propertyName, propertyValue, isPii);
         } else {
             TelemetryHelper.setTelemetryEventProperty(event, propertyName, propertyValue, isPii);
+        }
+    }
+
+    public static addTelemetryEventErrorProperty(event: Telemetry.TelemetryEvent, error: Error, errorDescription?: string, errorPropPrefix: string = "", isPii: boolean = true): void {
+        let errorWithErrorCode: IHasErrorCode = <IHasErrorCode> <Record<string, any>> error;
+        if (errorWithErrorCode.errorCode) {
+            this.addTelemetryEventProperty(event, `${errorPropPrefix}error.code`, errorWithErrorCode.errorCode, false);
+            if (errorDescription) {
+                this.addTelemetryEventProperty(event, `${errorPropPrefix}error.message`, errorDescription, false);
+            }
+        } else {
+            this.addTelemetryEventProperty(event, `${errorPropPrefix}error.message`, error.message, isPii);
         }
     }
 

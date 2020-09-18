@@ -18,8 +18,7 @@ const Q = require("q");
 const es = require("event-stream");
 const remapIstanbul = require("remap-istanbul/lib/gulpRemapIstanbul");
 const nls = require("vscode-nls-dev");
-const libtslint = require("tslint");
-const tslint = require("gulp-tslint");
+const cp = require("child_process");
 
 const copyright = GulpExtras.checkCopyright;
 const imports = GulpExtras.checkImports;
@@ -140,27 +139,34 @@ gulp.task("check-copyright", () => {
         .pipe(copyright());
 });
 
-gulp.task("tslint", () => {
-    const program = libtslint.Linter.createProgram("./tsconfig.json");
-    return gulp.src(lintSources, { base: "." })
-        .pipe(tslint({
-            formatter: "verbose",
-            program: program
-        }))
-        .pipe(tslint.report());
-});
+const runEslint = (fix, callback) => {
+    const child = cp.fork(
+      "./node_modules/eslint/bin/eslint.js",
+      [
+        '--color',
+        "src/**/*.ts",
+        fix ? '--fix' : '',
+    ],
+        { stdio: 'inherit' },
+    );
+
+    child.on('exit', code => (code ? callback(`Eslint exited with code ${code}`) : callback()));
+}
+
+gulp.task('eslint', callback => runEslint(false, callback));
+gulp.task('eslint:format', callback => runEslint(true, callback));
 
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn"t have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task("build", gulp.series("check-imports", "check-copyright", "tslint", function runBuild(done) {
+gulp.task("build", gulp.series("check-imports", "eslint", function runBuild(done) {
     build(true, true)
         .once("finish", () => {
             done();
         });
 }));
 
-gulp.task("build-dev", gulp.series("check-imports", "check-copyright", function runBuild(done) {
+gulp.task("build-dev", gulp.series("check-imports", "eslint", function runBuild(done) {
     build(false, false)
         .once("finish", () => {
             done();
@@ -193,7 +199,7 @@ gulp.task("clean", () => {
 
 gulp.task("default", gulp.series("clean", "build"));
 
-gulp.task("test", gulp.series("build", "tslint", test));
+gulp.task("test", gulp.series("build", "eslint", test));
 
 gulp.task("coverage:instrument", () => {
     return gulp.src(["src/**/*.js", "!test/**"])

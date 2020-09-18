@@ -32,6 +32,7 @@ import {ExtensionServer} from "./extensionServer";
 import {OutputChannelLogger} from "./log/OutputChannelLogger";
 import {ExponentHelper} from "./exponent/exponentHelper";
 import {ReactNativeDebugConfigProvider} from "./debugConfigurationProvider";
+import {ExperimentService} from "./experimentService/experimentService";
 import * as nls from "vscode-nls";
 const localize = nls.loadMessageBundle();
 
@@ -64,7 +65,8 @@ export function activate(context: vscode.ExtensionContext): Q.Promise<void> {
 
     return entryPointHandler.runApp(APP_NAME, appVersion, ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed), reporter, function activateRunApp() {
         context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => onChangeWorkspaceFolders(context, event)));
-        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => onChangeConfiguration(context)));
+        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => onChangeConfiguration(context)));
+        context.subscriptions.push(ExperimentService.create());
 
         debugConfigProvider = vscode.debug.registerDebugConfigurationProvider("reactnative", configProvider);
         let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
@@ -148,7 +150,7 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                     return setupAndDispose(reactDirManager, context)
                         .then(() => {
                             let exponentHelper: ExponentHelper = new ExponentHelper(rootPath, projectRootPath);
-                            let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator();
+                            let packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator(projectRootPath);
                             let packager: Packager = new Packager(rootPath, projectRootPath, SettingsHelper.getPackagerPort(folder.uri.fsPath), packagerStatusIndicator);
                             let extensionServer: ExtensionServer = new ExtensionServer(projectRootPath, packager);
 

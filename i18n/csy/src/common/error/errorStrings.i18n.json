@@ -49,7 +49,7 @@
 	"UserCancelledExpoLogin": "Uživatel zrušil přihlášení.",
 	"CannotAttachToPackagerCheckPackagerRunningOnPort": "Nelze připojit k balíčkovači. Máte opravdu balíčkovač? A je spuštěný v portu {0}? Pokud je váš balíčkovač nakonfigurovaný ke spuštění na jiném portu, nezapomeňte ho přidat do souboru settings.json.",
 	"AnotherDebuggerConnectedToPackager": "K balíčkovači je už připojený jiný ladicí program. Před pokusem o ladění pomocí VSCode ho prosím zavřete.",
-	"NotInReactNativeFolderError": "Zdá se, že zkoušíte ladit z prostředí adresáře, který není kořenovým adresářem projektu React Native. \n V tom případě prosím postupujte podle následujících pokynů: https://github.com/Microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
+	"NotInReactNativeFolderError": "Zdá se, že zkoušíte ladit z prostředí adresáře, který není kořenovým adresářem projektu React Native. \n V tom případě prosím postupujte podle následujících pokynů: https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure.",
 	"SourcesStoragePathIsNullOrEmpty": "Argument sourcesStoragePath měl hodnotu null nebo byl prázdný.",
 	"AndroidCouldNotInstallTheAppOnAnyAvailibleDevice": "Aplikaci se na žádné dostupné zařízení nepodařilo nainstalovat. Ujistěte se, že máte \n správně nakonfigurované zařízení nebo spuštěný emulátor. Viz https://facebook.github.io/react-native/docs/android-setup.html.",
 	"AndroidShellCommandTimedOut": "U příkazu prostředí pro Android vypršel časový limit. Proveďte prosím tuto operaci znovu.",

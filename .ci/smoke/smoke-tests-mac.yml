@@ -1,11 +1,11 @@
 trigger:
-  - master
+  - legacy
 pr:
-  - master
+  - legacy
 
 variables:
   vswdbotLogin: vswdbot
-  appiumVersion: 1.16.0
+  appiumVersion: 1.18.1
   basicOnly: false
   expoCLIVersion: latest
   nightlyBuild: false
@@ -14,8 +14,9 @@ variables:
 jobs:
   - job: macOS
     pool:
-      name: 'React Native smoke tests - macOS'
+      name: "React Native smoke tests - macOS"
+    timeoutInMinutes: 60
     steps:
-    - checkout: self
-      clean: true
-    - template: smoke-tests-common-validation.yml
+      - checkout: self
+        clean: true
+      - template: smoke-tests-common-validation.yml

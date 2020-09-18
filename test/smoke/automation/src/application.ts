@@ -41,6 +41,7 @@ export class Application {
     get remote(): boolean {
         return !!this.options.remote;
     }
+
     get workspacePathOrFolder(): string {
         return this._workspacePathOrFolder;
     }
@@ -124,6 +125,7 @@ export class Application {
             extraArgs,
             remote: this.options.remote,
             web: this.options.web,
+            browser: this.options.browser,
             headless: this.options.headless,
         });
 
