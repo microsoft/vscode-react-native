@@ -29,6 +29,11 @@ export class JsDebugConfigAdapter {
             // debug sessions from other ones. So we can save and process only the extension's debug sessions
             // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
             rnDebugSessionId: sessionId,
+            // We need to provide js-debug with the "**" pattern, so that it can get source maps over a http URL
+            resolveSourceMapLocations: [
+                "**",
+                "!**/node_modules/**"
+            ],
         });
     }
 
@@ -40,9 +45,7 @@ export class JsDebugConfigAdapter {
         if (attachArgs.envFile) {
             existingExtraArgs.envFile = attachArgs.envFile;
         }
-        if (attachArgs.sourceMaps) {
-            existingExtraArgs.sourceMaps = attachArgs.sourceMaps;
-        }
+        existingExtraArgs.sourceMaps = attachArgs.sourceMaps;
         if (attachArgs.sourceMapPathOverrides) {
             existingExtraArgs.sourceMapPathOverrides = attachArgs.sourceMapPathOverrides;
         }

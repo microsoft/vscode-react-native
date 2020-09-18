@@ -507,6 +507,15 @@
 								"description": "%reactNative.attach.cwd.description%",
 								"default": "${workspaceFolder}"
 							},
+							"sourceMaps": {
+								"type": "boolean",
+								"description": "%reactNative.attach.sourceMaps.description%",
+								"default": false
+							},
+							"sourceMapPathOverrides": {
+								"type": "object",
+								"description": "%reactNative.attach.sourceMapsPathOverrides.description%"
+							},
 							"platform": {
 								"type": "string",
 								"enum": [
@@ -607,6 +616,11 @@
 								"default": "simulator",
 								"description": "%reactNative.launch.target.description%"
 							},
+							"sourceMaps": {
+								"type": "boolean",
+								"description": "%reactNative.launch.sourceMaps.description%",
+								"default": false
+							},
 							"logCatArguments": {
 								"type": "array",
 								"description": "%reactNative.launch.logCatArguments.description%",
@@ -632,6 +646,10 @@
 								"type": "string",
 								"description": "%reactNative.launch.envFile.description%",
 								"default": "${workspaceFolder}/.env"
+							},
+							"variant": {
+								"type": "string",
+								"description": "%reactNative.launch.variant.description%"
 							},
 							"skipFiles": {
 								"type": "array",
@@ -874,7 +892,7 @@
 		"vsce": "^1.74.0",
 		"vscode-debugprotocol": "^1.40.0",
 		"vscode-nls-dev": "^3.3.1",
-		"vscode-test": "^1.3.0",
+		"vscode-test": "^1.4.0",
 		"webpack": "^4.43.0",
 		"webpack-bundle-analyzer": "^3.8.0"
 	},

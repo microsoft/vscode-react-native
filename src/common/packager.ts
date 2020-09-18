@@ -196,7 +196,6 @@ export class Packager {
                 return this.awaitStart();
             })
             .then(() => {
-                this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
                 if (executedStartPackagerCmd) {
                     this.logger.info(localize("PackagerStarted", "Packager started."));
                     this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
@@ -204,8 +203,11 @@ export class Packager {
                     this.logger.info(localize("PackagerIsAlreadyRunning", "Packager is already running."));
                     if (!this.packagerProcess) {
                         this.logger.warning(ErrorHelper.getWarning(localize("PackagerRunningOutsideVSCode", "React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option")));
+                        this.setPackagerStopStateUI();
+                        return;
                     }
                 }
+                this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
             });
     }
 
@@ -228,8 +230,7 @@ export class Packager {
                     return Promise.resolve();
                 }
             }).then(() => {
-                this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
-                this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED);
+                this.setPackagerStopStateUI();
             });
     }
 
@@ -389,6 +390,11 @@ export class Packager {
                 }
                 return Promise.resolve();
             });
+    }
+
+    private setPackagerStopStateUI() {
+        this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
+        this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED);
     }
 
     private killPackagerProcess(): Promise<void> {

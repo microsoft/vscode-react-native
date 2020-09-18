@@ -7,6 +7,7 @@ const localize = nls.loadMessageBundle();
 
 export const ERROR_STRINGS = {
     [InternalErrorCode.CommandFailed]: localize("CommandFailed", "Error while executing command '{0}'"),
+    [InternalErrorCode.CommandFailedWithDetails]: localize("CommandFailed", "Error while executing command '{0}'.\nDetails: {1}"),
     [InternalErrorCode.CommandFailedWithErrorCode]: localize("CommandFailedWithErrorCode", "Command '{0}' failed with error code {1}"),
     [InternalErrorCode.ExpectedIntegerValue]: localize("ExpectedIntegerValue", "Expected an integer. Couldn't read {0}"),
     [InternalErrorCode.PackagerStartFailed]: localize("PackagerStartFailed", "Error while executing React Native Packager."),
@@ -80,4 +81,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.CouldNotConnectToDebugTarget]: localize("CouldNotConnectToDebugTarget", "Could not connect to the debug target at {0}: {1}"),
     [InternalErrorCode.IOSCouldNotFoundDeviceForDirectDebugging]: localize("CannotAttachtoiOSDeviceDirectly", "Unable to find iOS target device/simulator. Please check that \"Settings > Safari > Advanced > Web Inspector = ON\" or try specifying a different \"port\" parameter in launch.json. Also, please make sure that 'target' property in your debug scenario is defined correctly."),
     [InternalErrorCode.FailedToStartAndroidEmulator]: localize("FailedToStartAndroidEmulator", "The command \"emulator -avd {0}\" threw an exception: {1}"),
+    [InternalErrorCode.VirtualDeviceSelectionError]: localize("VirtualDeviceSelectionError", "Virtual device launch finished with an exception: {0}"),
 };

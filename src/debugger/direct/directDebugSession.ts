@@ -192,7 +192,7 @@ export class DirectDebugSession extends DebugSessionBase {
             debugSession.configuration.rnDebugSessionId === this.session.id
             && debugSession.type === this.pwaNodeSessionName
         ) {
-            this.session.customRequest(this.disconnectCommand, { forcedStop: true });
+            vscode.commands.executeCommand(this.stopCommand, this.session);
         }
     }
 }

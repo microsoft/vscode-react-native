@@ -10,6 +10,7 @@ const localize = nls.loadMessageBundle();
 
 export interface IiOSSimulator extends IVirtualDevice {
     system: string;
+    state?: string;
 }
 
 export class IOSSimulatorManager extends VirtualDeviceManager {
@@ -53,6 +54,7 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
                     name: device.name,
                     id: device.udid,
                     system: system.split(".").slice(-1)[0], // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> "iOS-11-4"
+                    state: device.state,
                 });
             });
         });
@@ -76,6 +78,10 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
 
     public async startSelection(): Promise<string | undefined> {
         this.simulators = await this.collectSimulators();
+        const runningSimulator = this.getRunningSimulator(this.simulators);
+        if (runningSimulator) {
+            return runningSimulator.name;
+        }
         const system = await this.selectSystem();
         if (system) {
             this.lastSelectedSystem = system;
@@ -105,4 +111,7 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
         return Array.from(names);
     }
 
+    private getRunningSimulator(simulators: IiOSSimulator[]): IiOSSimulator | undefined {
+        return simulators.find(el => el.state === "Booted");
+    }
 }
