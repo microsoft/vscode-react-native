@@ -7,6 +7,7 @@ const localize = nls.loadMessageBundle();
 
 export const ERROR_STRINGS = {
     [InternalErrorCode.CommandFailed]: localize("CommandFailed", "Error while executing command '{0}'"),
+    [InternalErrorCode.CommandFailedWithDetails]: localize("CommandFailed", "Error while executing command '{0}'.\nDetails: {1}"),
     [InternalErrorCode.CommandFailedWithErrorCode]: localize("CommandFailedWithErrorCode", "Command '{0}' failed with error code {1}"),
     [InternalErrorCode.ExpectedIntegerValue]: localize("ExpectedIntegerValue", "Expected an integer. Couldn't read {0}"),
     [InternalErrorCode.PackagerStartFailed]: localize("PackagerStartFailed", "Error while executing React Native Packager."),
@@ -57,7 +58,7 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.UserCancelledExpoLogin]: localize("UserCancelledExpoLogin", "User canceled login."),
     [InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort]: localize("CannotAttachToPackagerCheckPackagerRunningOnPort", "Cannot attach to packager. Are you sure there is a packager and it is running in the port {0}? If your packager is configured to run in another port make sure to add that to the settings.json."),
     [InternalErrorCode.AnotherDebuggerConnectedToPackager]: localize("AnotherDebuggerConnectedToPackager", "Another debugger is already connected to packager. Please close it before trying to debug with VSCode."),
-    [InternalErrorCode.NotInReactNativeFolderError]: localize("NotInReactNativeFolderError", "Seems to be that you are trying to debug from within directory that is not a React Native project root. \n If so, please, follow these instructions: https://github.com/microsoft/vscode-react-native/blob/master/doc/customization.md#project-structure."),
+    [InternalErrorCode.NotInReactNativeFolderError]: localize("NotInReactNativeFolderError", "Seems to be that you are trying to debug from within directory that is not a React Native project root. \n If so, please, follow these instructions: https://github.com/microsoft/vscode-react-native#customization"),
     [InternalErrorCode.SourcesStoragePathIsNullOrEmpty]: localize("SourcesStoragePathIsNullOrEmpty", "The sourcesStoragePath argument was null or empty"),
     [InternalErrorCode.AndroidCouldNotInstallTheAppOnAnyAvailibleDevice]: localize("AndroidCouldNotInstallTheAppOnAnyAvailibleDevice", "Could not install the app on any available device. Make sure you have a correctly \n configured device or emulator running. See https://facebook.github.io/react-native/docs/android-setup.html."),
     [InternalErrorCode.AndroidShellCommandTimedOut]: localize("AndroidShellCommandTimedOut", "An Android shell command timed-out. Please retry the operation."),
@@ -78,5 +79,7 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.CouldntImportScriptAt]: localize("CouldntImportScriptAt", "Couldn't import script at <{0}>"),
     [InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty]: localize("RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty", "RNMessage with method 'executeApplicationScript' doesn't have 'url' property"),
     [InternalErrorCode.CouldNotConnectToDebugTarget]: localize("CouldNotConnectToDebugTarget", "Could not connect to the debug target at {0}: {1}"),
+    [InternalErrorCode.IOSCouldNotFoundDeviceForDirectDebugging]: localize("CannotAttachtoiOSDeviceDirectly", "Unable to find iOS target device/simulator. Please check that \"Settings > Safari > Advanced > Web Inspector = ON\" or try specifying a different \"port\" parameter in launch.json. Also, please make sure that 'target' property in your debug scenario is defined correctly."),
     [InternalErrorCode.FailedToStartAndroidEmulator]: localize("FailedToStartAndroidEmulator", "The command \"emulator -avd {0}\" threw an exception: {1}"),
+    [InternalErrorCode.VirtualDeviceSelectionError]: localize("VirtualDeviceSelectionError", "Virtual device launch finished with an exception: {0}"),
 };

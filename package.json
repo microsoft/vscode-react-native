@@ -449,7 +449,7 @@
 				},
 				"configurationSnippets": [
 					{
-						"label": "React Native Hermes (Preview): Debug Android - Experimental",
+						"label": "React Native Direct (Preview): Debug Android Hermes - Experimental",
 						"description": "%reactNative.snippets.debugAndroidHermes.description%",
 						"body": {
 							"name": "Debug Android Hermes (Preview) - Experimental",
@@ -460,7 +460,7 @@
 						}
 					},
 					{
-						"label": "React Native Hermes (Preview): Run Android - Experimental",
+						"label": "React Native Direct (Preview): Run Android Hermes- Experimental",
 						"description": "%reactNative.snippets.runAndroidHermes.description%",
 						"body": {
 							"name": "Run Android Hermes (Preview) - Experimental",
@@ -472,13 +472,49 @@
 						}
 					},
 					{
-						"label": "React Native Hermes (Preview): Attach to Hermes application - Experimental",
-						"description": "%reactNative.snippets.attachPackagerHermes.description%",
+						"label": "React Native Direct (Preview): Attach to the React Native Hermes - Experimental",
+						"description": "%reactNative.snippets.directAttach.description%",
 						"body": {
-							"name": "Attach to Hermes application (Preview) - Experimental",
+							"name": "React Native Direct (Preview): Attach to the React Native Hermes - Experimental",
 							"cwd": "^\"\\${workspaceFolder}\"",
 							"type": "reactnativedirect-preview",
 							"request": "attach"
+						}
+					},
+					{
+						"label": "React Native Direct (Preview): Attach to the React Native iOS - Experimental",
+						"description": "%reactNative.snippets.directAttach.description%",
+						"body": {
+							"name": "Attach to the React Native iOS - Experimental",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnativedirect-preview",
+							"request": "attach",
+							"platform": "ios",
+							"port": 9221
+						}
+					},
+					{
+						"label": "React Native Direct (Preview): Debug Direct iOS - Experimental",
+						"description": "%reactNative.snippets.debugDirectiOS.description%",
+						"body": {
+							"name": "Debug Direct iOS (Preview) - Experimental",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnativedirect-preview",
+							"request": "launch",
+							"platform": "ios",
+							"port": 9221
+						}
+					},
+					{
+						"label": "React Native Direct (Preview): Run Direct iOS - Experimental",
+						"description": "%reactNative.snippets.runDirectiOS.description%",
+						"body": {
+							"name": "Run Direct iOS (Preview) - Experimental",
+							"cwd": "^\"\\${workspaceFolder}\"",
+							"type": "reactnativedirect-preview",
+							"request": "launch",
+							"platform": "ios",
+							"enableDebug": false
 						}
 					}
 				],
@@ -492,6 +528,23 @@
 								"type": "string",
 								"description": "%reactNative.attach.cwd.description%",
 								"default": "${workspaceFolder}"
+							},
+							"sourceMaps": {
+								"type": "boolean",
+								"description": "%reactNative.attach.sourceMaps.description%",
+								"default": false
+							},
+							"sourceMapPathOverrides": {
+								"type": "object",
+								"description": "%reactNative.attach.sourceMapsPathOverrides.description%"
+							},
+							"platform": {
+								"type": "string",
+								"enum": [
+									"ios",
+									"android"
+								],
+								"description": "%reactNative.launch.direct.platform.description%"
 							},
 							"trace": {
 								"type": "string",
@@ -511,9 +564,19 @@
 								"default": "localhost"
 							},
 							"port": {
-								"type": "string",
+								"type": "number",
 								"description": "%reactNative.direct.attach.port.description%",
-								"default": "8081"
+								"default": 8081
+							},
+							"webkitRangeMin": {
+								"type": "number",
+								"description": "%reactNative.direct.attach.webkitRangeMin.description%",
+								"default": 9223
+							},
+							"webkitRangeMax": {
+								"type": "number",
+								"description": "%reactNative.direct.attach.webkitRangeMax.description%",
+								"default": 9322
 							},
 							"skipFiles": {
 								"type": "array",
@@ -534,9 +597,10 @@
 							"platform": {
 								"type": "string",
 								"enum": [
-									"android"
+									"android",
+									"ios"
 								],
-								"description": "%reactNative.launch.platform.description%"
+								"description": "%reactNative.launch.direct.platform.description%"
 							},
 							"cwd": {
 								"type": "string",
@@ -544,9 +608,19 @@
 								"default": "${workspaceFolder}"
 							},
 							"port": {
-								"type": "string",
+								"type": "number",
 								"description": "%reactNative.direct.attach.port.description%",
-								"default": "8081"
+								"default": 8081
+							},
+							"webkitRangeMin": {
+								"type": "number",
+								"description": "%reactNative.direct.attach.webkitRangeMin.description%",
+								"default": 9223
+							},
+							"webkitRangeMax": {
+								"type": "number",
+								"description": "%reactNative.direct.attach.webkitRangeMax.description%",
+								"default": 9322
 							},
 							"target": {
 								"anyOf": [
@@ -563,6 +637,11 @@
 								],
 								"default": "simulator",
 								"description": "%reactNative.launch.target.description%"
+							},
+							"sourceMaps": {
+								"type": "boolean",
+								"description": "%reactNative.launch.sourceMaps.description%",
+								"default": false
 							},
 							"logCatArguments": {
 								"type": "array",
@@ -589,6 +668,10 @@
 								"type": "string",
 								"description": "%reactNative.launch.envFile.description%",
 								"default": "${workspaceFolder}/.env"
+							},
+							"variant": {
+								"type": "string",
+								"description": "%reactNative.launch.variant.description%"
 							},
 							"skipFiles": {
 								"type": "array",
@@ -831,7 +914,7 @@
 		"vsce": "^1.74.0",
 		"vscode-debugprotocol": "^1.40.0",
 		"vscode-nls-dev": "^3.3.1",
-		"vscode-test": "^1.3.0",
+		"vscode-test": "^1.4.0",
 		"webpack": "^4.43.0",
 		"webpack-bundle-analyzer": "^3.8.0"
 	},

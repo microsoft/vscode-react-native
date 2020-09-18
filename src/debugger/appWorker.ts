@@ -98,13 +98,13 @@ function getNativeModules() {
 var vscodeHandlers = {
     'vscode_reloadApp': function () {
         var NativeModules = getNativeModules();
-        if (NativeModules) {
+        if (NativeModules && NativeModules.DevMenu) {
             NativeModules.DevMenu.reload();
         }
     },
     'vscode_showDevMenu': function () {
         var NativeModules = getNativeModules();
-        if (NativeModules) {
+        if (NativeModules && NativeModules.DevMenu) {
             NativeModules.DevMenu.show();
         }
     }
@@ -344,7 +344,7 @@ function fetch(url) {
 
             // In an attempt to catch failures in starting the packager on first attempt,
             // wait for 300 ms before resolving the promise
-            new PromiseUtil().delay(300).then(() => resolve());
+            PromiseUtil.delay(300).then(() => resolve());
         });
     }
 

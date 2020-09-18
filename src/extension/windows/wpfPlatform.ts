@@ -5,7 +5,7 @@ import * as semver from "semver";
 import * as path from "path";
 import {GeneralMobilePlatform} from "../generalMobilePlatform";
 import {MobilePlatformDeps} from "../generalMobilePlatform";
-import {IWindowsRunOptions} from "../launchArgs";
+import {IWindowsRunOptions, PlatformType} from "../launchArgs";
 import {TelemetryHelper} from "../../common/telemetryHelper";
 import {CommandExecutor} from "../../common/commandExecutor";
 import {WindowsPlatform} from "./windowsPlatform";
@@ -25,7 +25,7 @@ export class WpfPlatform extends WindowsPlatform {
     public runApp(enableDebug: boolean = true): Promise<void> {
         let extProps = {
             platform: {
-                value: "wpf",
+                value: PlatformType.WPF,
                 isPii: false,
             },
         };

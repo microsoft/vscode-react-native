@@ -15,6 +15,7 @@ export enum InternalErrorCode {
         FailedToRunExponent = 110,
         FailedToPublishToExpHost = 111,
         UnsupportedCommandStatus = 112,
+        CommandFailedWithDetails = 113,
 
         // Device Deployer errors
         IOSDeployNotFound = 201,
@@ -25,11 +26,13 @@ export enum InternalErrorCode {
         ApplicationLaunchFailed = 303,
         ApplicationLaunchTimedOut = 304,
         FailedToStartAndroidEmulator = 305,
+        VirtualDeviceSelectionError = 306,
 
         // iOS Platform errors
         IOSSimulatorNotLaunchable = 401,
         IOSFoundMoreThanOneExecutablesCleanupBuildFolder = 402,
         IOSCouldNotFoundExecutableInFolder = 403,
+        IOSCouldNotFoundDeviceForDirectDebugging = 404,
 
         // Packager errors
         OpnPackagerLocationNotFound = 501,

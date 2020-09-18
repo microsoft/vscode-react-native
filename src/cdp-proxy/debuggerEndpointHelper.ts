@@ -14,12 +14,10 @@ import { CancellationToken } from "vscode";
 export class DebuggerEndpointHelper {
     private localv4: Buffer;
     private localv6: Buffer;
-    private promiseUtil: PromiseUtil;
 
     constructor() {
         this.localv4 = ipModule.toBuffer("127.0.0.1");
         this.localv6 = ipModule.toBuffer("::1");
-        this.promiseUtil = new PromiseUtil();
     }
 
     /**
@@ -46,7 +44,7 @@ export class DebuggerEndpointHelper {
                 throw internalError;
             }
 
-            await this.promiseUtil.delay(1000);
+            await PromiseUtil.delay(1000);
             return await this.retryGetWSEndpoint(browserURL, --attemptNumber, cancellationToken);
         }
     }
@@ -80,7 +78,12 @@ export class DebuggerEndpointHelper {
      */
     private async fetchJson<T>(url: string): Promise<T> {
         const data = await this.fetch(url);
-        return JSON.parse(data);
+        try {
+            return JSON.parse(data);
+        } catch(err) {
+            return {} as T;
+        }
+
     }
 
     /**
