@@ -14,6 +14,7 @@
     * Added Webpack bundling for the extension [#1308](https://github.com/microsoft/vscode-react-native/pull/1308)
     * Got rid of Q promises [#1354](https://github.com/microsoft/vscode-react-native/pull/1354)
 
+
 ## 0.16.0
 * Improved extension security [#1253](https://github.com/microsoft/vscode-react-native/pull/1253)
 * Updated extension license to MIT [#1286](https://github.com/microsoft/vscode-react-native/pull/1286)
