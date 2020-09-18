@@ -5,7 +5,6 @@
 * Implemented selection of iOS and Android emulators for launch and run scenarios and Command Palette commands [#1361](https://github.com/microsoft/vscode-react-native/pull/1361), [#1374](https://github.com/microsoft/vscode-react-native/pull/1374)
 * Implemented automatic launch of the packager in `attach` scenarios in case it is not running yet [#1320](https://github.com/microsoft/vscode-react-native/pull/1320)
 * Added scenarios (`Run Android, Run iOS, etc`) to run applications without debugging [#1319](https://github.com/microsoft/vscode-react-native/pull/1319)
-
 * Minor logging improvement [#1392](https://github.com/microsoft/vscode-react-native/pull/1392), [#1330](https://github.com/microsoft/vscode-react-native/pull/1330)
 * Updated documentation
 * Internal changes:
