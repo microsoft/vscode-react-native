@@ -173,7 +173,7 @@ suite("commandExecutor", function() {
                 ["react-native-tools.reactNativeGlobalCommandName"]: "",
             };
 
-            test("selectReactNativeCLI should return local CLI", (done: MochaDone) => {
+            test("selectReactNativeCLI should return local CLI", (done: Mocha.Done) => {
                 const localCLIPath = path.join(sampleReactNative022ProjectDir, "node_modules", ".bin", "react-native");
                 let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
                 CommandExecutor.ReactNativeCommand = RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"];
@@ -181,7 +181,7 @@ suite("commandExecutor", function() {
                 done();
             });
 
-            test("selectReactNativeCLI should return global CLI", (done: MochaDone) => {
+            test("selectReactNativeCLI should return global CLI", (done: Mocha.Done) => {
                 const randomHash = new Crypto().hash(Math.random().toString(36).substring(2, 15));
                 RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"] = randomHash;
                 let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
