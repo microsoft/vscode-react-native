@@ -15,9 +15,8 @@ export function run(): Promise<void> {
                 mochaFile: path.join(__dirname, "..", "LocalizationTests.xml"),
             },
         },
+        color: true,
     });
-
-    mocha.useColors(true);
 
     // Register Mocha options
     return new Promise((resolve, reject) => {

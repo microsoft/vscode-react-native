@@ -61,7 +61,7 @@ suite("projectVersionHelper", function() {
             fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "node_modules"));
         });
 
-        test("getReactNativePackageVersionsFromNodeModules should return object containing packages versions if 'version' field is found in react-native and react-native-windows packages package.json files from node_modules", (done: MochaDone) => {
+        test("getReactNativePackageVersionsFromNodeModules should return object containing packages versions if 'version' field is found in react-native and react-native-windows packages package.json files from node_modules", (done: Mocha.Done) => {
             const reactNativeVersionObj = {
                 "version": "^0.20.0",
             };
@@ -102,7 +102,7 @@ suite("projectVersionHelper", function() {
         });
     });
 
-    test("isVersionError should return true if a version string contains an error substring", (done: MochaDone) => {
+    test("isVersionError should return true if a version string contains an error substring", (done: Mocha.Done) => {
         assert.equal(ProjectVersionHelper.isVersionError(RN_VERSION_ERRORS.MISSING_DEPENDENCIES_FIELDS_IN_PROJECT_PACKAGE_FILE), true);
         assert.equal(ProjectVersionHelper.isVersionError(RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES), true);
         assert.equal(ProjectVersionHelper.isVersionError(RN_VERSION_ERRORS.MISSING_DEPENDENCY_IN_PROJECT_PACKAGE_FILE), true);
@@ -113,7 +113,7 @@ suite("projectVersionHelper", function() {
         done();
     });
 
-    test("isVersionError should return false if a version string doesn't contain an error substring", (done: MochaDone) => {
+    test("isVersionError should return false if a version string doesn't contain an error substring", (done: Mocha.Done) => {
         assert.equal(ProjectVersionHelper.isVersionError("^0.60.0-vnext.68"), false);
         assert.equal(ProjectVersionHelper.isVersionError("https://github.com/expo/react-native/archive/sdk-35.0.0.tar.gz"), false);
         assert.equal(ProjectVersionHelper.isVersionError("SemverInvalid"), false);
@@ -124,7 +124,7 @@ suite("projectVersionHelper", function() {
         done();
     });
 
-    test("processVersion should return semver valid version strings or correct error strings", (done: MochaDone) => {
+    test("processVersion should return semver valid version strings or correct error strings", (done: Mocha.Done) => {
 
         assert.equal(ProjectVersionHelper.processVersion("^0.60.0-vnext.68", false), "0.60.0-vnext.68");
         assert.equal(ProjectVersionHelper.processVersion("=v0.60.0-vnext.68", false), "0.60.0-vnext.68");

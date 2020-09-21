@@ -12,28 +12,28 @@ suite("errorHelper", function() {
         const warning = ErrorHelper.getWarning("Warning");
         const nestedWarning = ErrorHelper.getNestedWarning(new Error("Nested ES Error"), "Warning");
 
-        test("internal error object with arguments should have correct NotAllSuccessPatternsMatched error message on English", (done: MochaDone) => {
+        test("internal error object with arguments should have correct NotAllSuccessPatternsMatched error message on English", (done: Mocha.Done) => {
             assert.equal(internalErrorWithArgs.message, "Unknown error: not all success patterns were matched. \n It means that \"react-native run-android\" command failed. \n Please, check the View -> Toggle Output -> React Native, \n View -> Toggle Output -> React Native: Run ios output windows. (error code 712)");
             done();
         });
 
-        test("internal error object without arguments should have correct UnsupportedCommandStatus error message on English", (done: MochaDone) => {
+        test("internal error object without arguments should have correct UnsupportedCommandStatus error message on English", (done: Mocha.Done) => {
             assert.equal(internalErrorWithoutArgs.message, "Unsupported command status (error code 112)");
             done();
         });
 
-        test("nested error object with arguments should have correct error message on English", (done: MochaDone) => {
+        test("nested error object with arguments should have correct error message on English", (done: Mocha.Done) => {
             assert.equal(nestedErrorWithArgs.message, "Error while executing command 'Command failed with ES Error': Nested ES Error");
             done();
         });
 
-        test("warning object should have correct error message on English", (done: MochaDone) => {
+        test("warning object should have correct error message on English", (done: Mocha.Done) => {
             assert.equal(warning.errorCode, -1);
             assert.equal(warning.message, "Warning");
             done();
         });
 
-        test("nested warning object should have correct error message on English", (done: MochaDone) => {
+        test("nested warning object should have correct error message on English", (done: Mocha.Done) => {
             assert.equal(nestedWarning.errorCode, -1);
             assert.equal(nestedWarning.message, "Warning: Nested ES Error");
             done();
