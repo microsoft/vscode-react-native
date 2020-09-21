@@ -26,14 +26,14 @@ export class ProjectVersionHelper {
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
 
-    public static getReactNativeVersions(projectRoot: string, isRNWindows: boolean = false): Promise<RNPackageVersions> {
-        return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(projectRoot, isRNWindows)
+    public static getReactNativeVersions(projectRoot: string, isRNWindows: boolean = false, isRNmacOS: boolean = false): Promise<RNPackageVersions> {
+        return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(projectRoot, isRNWindows, isRNmacOS)
             .catch(() => {
                 return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(projectRoot, isRNWindows);
             });
     }
 
-    public static getReactNativePackageVersionsFromNodeModules(projectRoot: string, isRNWindows: boolean = false, isRNmacOS: boolean): Promise<RNPackageVersions> {
+    public static getReactNativePackageVersionsFromNodeModules(projectRoot: string, isRNWindows: boolean = false, isRNmacOS: boolean = false): Promise<RNPackageVersions> {
         let parsedPackages: ParsedPackage[] = [
             {
                 packageName: "react-native",

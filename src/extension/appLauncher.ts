@@ -200,7 +200,7 @@ export class AppLauncher {
                 };
             }
 
-            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true)
+            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true, true)
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
@@ -210,6 +210,14 @@ export class AppLauncher {
                         }
                         extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                     }
+
+                    if (launchArgs.platform === PlatformType.macOS) {
+                        if (ProjectVersionHelper.isVersionError(versions.reactNativemacOSVersion)) {
+                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativemacOSIsNotInstalled);
+                        }
+                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativemacOSVersion, "reactNativemacOSVersion", extProps);
+                    }
+
                     TelemetryHelper.generate("launch", extProps, (generator) => {
                         generator.step("resolveEmulator");
                         return this.resolveAndSaveVirtualDevice(mobilePlatform, launchArgs, mobilePlatformOptions)
