@@ -18,6 +18,7 @@ export function run(): Promise<void> {
                 mochaFile: path.join(__dirname, "ExtensionTests.xml"),
             },
         },
+        color: true,
     });
 
     mocha.invert();
