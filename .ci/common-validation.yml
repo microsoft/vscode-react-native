@@ -27,7 +27,7 @@ steps:
   - bash: npm run test-localization
     displayName: "Run localization tests"
     env:
-    DISPLAY: ":99.0"
+      DISPLAY: ":99.0"
 
   - task: PublishTestResults@2
     displayName: "Publish Extension Test Results"
