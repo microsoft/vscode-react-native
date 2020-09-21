@@ -8,7 +8,7 @@ import * as assert from "assert";
 suite("elementInspector", function() {
     suite("extensionContext", function () {
 
-        test("element inspector should run and closed without errors", function(done: MochaDone) {
+        test("element inspector should run and closed without errors", function (done: Mocha.Done) {
             CommandPaletteHandler.runElementInspector();
             assert.notEqual(CommandPaletteHandler.elementInspector, null);
 
@@ -23,7 +23,7 @@ suite("elementInspector", function() {
             CommandPaletteHandler.stopElementInspector();
         });
 
-        test("element inspector should not allow multiple windows to run", function(done: MochaDone) {
+        test("element inspector should not allow multiple windows to run", function (done: Mocha.Done) {
             CommandPaletteHandler.runElementInspector();
             if (CommandPaletteHandler.elementInspector) {
                 let PID = CommandPaletteHandler.elementInspector.pid;

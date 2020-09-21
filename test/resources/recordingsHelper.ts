@@ -7,12 +7,12 @@ import * as path from "path";
 const RECORDINGS_ROOT = path.resolve(__dirname, "processExecutionsRecordings");
 
 interface TestUsingRecording {
-    (expectation: string, recordingNames: string[], assertion?: () => void): Mocha.ITest;
-    (expectation: string, recordingNames: string[], assertion?: (done: MochaDone) => void): Mocha.ITest;
-    only(expectation: string, recordingNames: string[], assertion?: () => void): Mocha.ITest;
-    only(expectation: string, recordingNames: string[], assertion?: (done: MochaDone) => void): Mocha.ITest;
+    (expectation: string, recordingNames: string[], assertion?: () => void): Mocha.Test;
+    (expectation: string, recordingNames: string[], assertion?: (done: Mocha.Done) => void): Mocha.Test;
+    only(expectation: string, recordingNames: string[], assertion?: () => void): Mocha.Test;
+    only(expectation: string, recordingNames: string[], assertion?: (done: Mocha.Done) => void): Mocha.Test;
     skip(expectation: string, recordingNames: string[], assertion?: () => void): void;
-    skip(expectation: string, recordingNames: string[], assertion?: (done: MochaDone) => void): void;
+    skip(expectation: string, recordingNames: string[], assertion?: (done: Mocha.Done) => void): void;
 }
 
 export interface IRecordingConsumer {
@@ -43,7 +43,7 @@ export class RecordingsHelper {
     private initializeTest(): void {
         this.test = <TestUsingRecording>((testName: string, recordingNames: string[], code: () => Promise<void>): void => {
             if (code.length !== 0) { // Check how many arguments the function has
-                throw new RangeError("(done: mochaDone) parameter is not supported. Please return a promise instead.");
+                throw new RangeError("(done: Mocha.Done) parameter is not supported. Please return a promise instead.");
             }
             const recordingsHelper = this;
             recordingNames.forEach(recordingName => {
@@ -62,7 +62,7 @@ export class RecordingsHelper {
                 });
             });
         });
-        this.test.skip = (expectation: string, recordingNames: string[], assertion?: (done: MochaDone) => void) => {
+        this.test.skip = (expectation: string, recordingNames: string[], assertion?: (done: Mocha.Done) => void) => {
             test.skip(expectation, assertion);
         };
     }

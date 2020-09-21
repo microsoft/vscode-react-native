@@ -416,7 +416,7 @@ suite("appWorker", function () {
         });
 
         suite("console.trace()", function () {
-            function runScriptAndCheckOutput(expectedTraceMessage: string, consoleTraceCall: string, done: MochaDone): void {
+            function runScriptAndCheckOutput(expectedTraceMessage: string, consoleTraceCall: string, done: Mocha.Done): void {
                 const script = [MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH, consoleTraceCall].join("\n");
                 const testProcess = child_process.spawn("node", ["-e", script]);
                 let procData: string = "";
@@ -445,19 +445,19 @@ suite("appWorker", function () {
                 });
             }
 
-            test("console.trace() patch should produce a correct output if called without args", (done: MochaDone) => {
+            test("console.trace() patch should produce a correct output if called without args", (done: Mocha.Done) => {
                 const consoleTraceCall = `console.trace();`;
                 const expectedTraceMessage = "Trace";
                 runScriptAndCheckOutput(expectedTraceMessage, consoleTraceCall, done);
             });
 
-            test("console.trace() patch should produce a correct output if called with simple args", (done: MochaDone) => {
+            test("console.trace() patch should produce a correct output if called with simple args", (done: Mocha.Done) => {
                 const consoleTraceCall = `console.trace(\"Simple string\", 1337);`;
                 const expectedTraceMessage = "Trace: Simple string 1337";
                 runScriptAndCheckOutput(expectedTraceMessage, consoleTraceCall, done);
             });
 
-            test("console.trace() patch should produce a correct output if called with formatted string", (done: MochaDone) => {
+            test("console.trace() patch should produce a correct output if called with formatted string", (done: Mocha.Done) => {
                 const consoleTraceCall = `console.trace("%s: %d", "Format string prints", 42);`;
                 const expectedTraceMessage = "Trace: Format string prints: 42";
                 runScriptAndCheckOutput(expectedTraceMessage, consoleTraceCall, done);
@@ -465,7 +465,7 @@ suite("appWorker", function () {
         });
 
         suite("process.toString()", function() {
-            test("process.toString() should return empty string to avoid errors in native app", (done: MochaDone) => {
+            test("process.toString() should return empty string to avoid errors in native app", (done: Mocha.Done) => {
                 const nodeProcessCheckToStringReturnCommand = "console.log(process.toString());";
                 const nodeProcessCheckCommand = "console.log(Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]');";
                 const script = [MultipleLifetimesAppWorker.PROCESS_TO_STRING_PATCH, nodeProcessCheckToStringReturnCommand, nodeProcessCheckCommand].join("\n");
@@ -496,7 +496,7 @@ suite("appWorker", function () {
         });
 
         suite("node --no-deprecation tests", function() {
-            test("node process should work with --no-deprecation flag and produce no deprecation warnings for Buffer function and GLOBAL variable usage", (done: MochaDone) => {
+            test("node process should work with --no-deprecation flag and produce no deprecation warnings for Buffer function and GLOBAL variable usage", (done: Mocha.Done) => {
                 const globalVariableCheck = "GLOBAL.toString();";
                 const bufferCommandCheck = "Buffer('TestString');";
                 const script = [globalVariableCheck, bufferCommandCheck].join("\n");
