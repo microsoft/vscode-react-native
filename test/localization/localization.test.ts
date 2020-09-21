@@ -9,12 +9,12 @@ suite("localizationTest", function() {
     suite("localizationContext", function () {
         const commandFailedErrorRu = ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, "Команда");
         const iosDeployErrorRu = ErrorHelper.getInternalError(InternalErrorCode.IOSDeployNotFound);
-        test("localize should show correct message on Russian for CommandFailed error", (done: MochaDone) => {
+        test("localize should show correct message on Russian for CommandFailed error", (done: Mocha.Done) => {
             assert.strictEqual(commandFailedErrorRu.message, "Ошибка при выполнении команды \"Команда\" (error code 101)");
             done();
         });
 
-        test("localize should show correct message on Russian for iOSDeployNotFound error", (done: MochaDone) => {
+        test("localize should show correct message on Russian for iOSDeployNotFound error", (done: Mocha.Done) => {
             assert.strictEqual(iosDeployErrorRu.message,
                 "Не удается найти ios-deploy. Установите его на глобальном уровне (\"npm install -g ios-deploy\") (error code 201)");
             done();
