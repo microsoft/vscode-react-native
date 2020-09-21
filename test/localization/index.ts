@@ -17,8 +17,6 @@ export function run(): Promise<void> {
         },
     });
 
-    mocha.useColors(true);
-
     // Register Mocha options
     return new Promise((resolve, reject) => {
         mocha.addFile(path.resolve(__dirname, "localization.test.js"));

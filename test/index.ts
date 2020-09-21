@@ -20,7 +20,6 @@ export function run(): Promise<void> {
         },
     });
 
-    mocha.useColors(true);
     mocha.invert();
 
     const testsRoot = __dirname;
