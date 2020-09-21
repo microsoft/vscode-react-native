@@ -7,6 +7,7 @@
 * Added scenarios (`Run Android, Run iOS, etc`) to run applications without debugging [#1319](https://github.com/microsoft/vscode-react-native/pull/1319)
 * Minor logging improvement [#1392](https://github.com/microsoft/vscode-react-native/pull/1392), [#1330](https://github.com/microsoft/vscode-react-native/pull/1330)
 * Updated documentation
+* The minimum supported version of VS Code has been increased from `1.31.0` to `1.40.0`
 * Internal changes:
     * Migrated from the [`vscode-node-debug2`](https://github.com/microsoft/vscode-node-debug2) debugger to [`js-debug`](https://github.com/microsoft/vscode-js-debug) one
     * Integrated the debug adapter directly inside the extension, which allows VS Code to connect to it instead of launching a new external debug adapter per extension's debugging session. See [`DebugAdapterDescriptorFactory`](https://code.visualstudio.com/api/extension-guides/debugger-extension#alternative-approach-to-develop-a-debugger-extension) approach for more details
