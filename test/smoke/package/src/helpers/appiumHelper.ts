@@ -282,7 +282,7 @@ export class AppiumHelper {
     private static async openExpoAppViaClipboardAndroid(client: AppiumClient, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
-        const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc='Projects, tab, 1 of 3']";
+        const EXPLORE_ELEMENT = "//android.widget.TextView[@text='Projects']";
         await client
             .waitForExist(EXPLORE_ELEMENT, 30 * 1000)
             .click(EXPLORE_ELEMENT);
