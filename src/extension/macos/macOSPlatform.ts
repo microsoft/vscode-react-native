@@ -13,7 +13,6 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
  * macOS specific platform implementation for debugging RN applications.
  */
 export class macOSPlatform extends GeneralMobilePlatform {
-    protected static NO_PACKAGER_VERSION = "0.53.0";
 
     private static SUCCESS_PATTERNS = [
         "Launching app",
@@ -21,7 +20,7 @@ export class macOSPlatform extends GeneralMobilePlatform {
     private static FAILURE_PATTERNS: PatternToFailure[] = [
         {
             pattern: "Unrecognized command 'run-macos'",
-            errorCode: InternalErrorCode.WinRNMPPluginIsNotInstalled,
+            errorCode: InternalErrorCode.ReactNativemacOSIsNotInstalled,
         },
     ];
 

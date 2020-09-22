@@ -112,5 +112,4 @@ export enum InternalErrorCode {
 
     // CDP Proxy errors
     CouldNotConnectToDebugTarget = 1501,
-
 }
