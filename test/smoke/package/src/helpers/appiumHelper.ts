@@ -303,7 +303,7 @@ export class AppiumHelper {
     private static async openExpoAppViaExpoXDLAndroidFunction(client: AppiumClient, projectFolder: string) {
         console.log(`*** Opening Expo app via XDL.Android function`);
         console.log(`*** Searching for the "Explore" button...`);
-        const EXPLORE_ELEMENT = "//android.widget.Button[@content-desc='Explore' or @content-desc='Explore, tab, 2 of 3']";
+        const EXPLORE_ELEMENT = "//android.widget.TextView[@text='Projects']";
         await client
             .waitForExist(EXPLORE_ELEMENT, 30 * 1000);
 
