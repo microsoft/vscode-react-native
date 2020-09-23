@@ -39,7 +39,7 @@ suite("sourceMap", function() {
         });
 
         test("should return correct sourcemap url for RN macOS", function () {
-            const scriptUrl: url.Url = url.parse("http://localhost:8081/index.bundle?platform=macOS&dev=true");
+            const scriptUrl: url.Url = url.parse("http://localhost:8081/index.bundle?platform=macos&dev=true");
             const scriptBody = "//# sourceMappingURL=//index.map?platform=macos&dev=true";
             const expectedUrlHref = "http://localhost:8081/index.map?platform=macos&dev=true";
 
