@@ -127,7 +127,10 @@ export class SourceMapUtil {
         if (matchesList) {
             const sourceMapMatch = matchesList[matchesList.length - 1].match(SourceMapUtil.SourceMapURLRegex);
             if (sourceMapMatch) {
-                if (sourceMapMatch[2].includes("platform=macos")) {
+                // On React Native macOS 0.62 sourceMappingUrl for macOS looks like:
+                // # sourceMappingURL=//localhost:8081/index.map?platform=macos&dev=true&minify=false
+                // Add 'http:' protocol to avoid errors in further processing
+                if (sourceMapMatch[2].includes("platform=macos") && !sourceMapMatch[2].includes("http:")) {
                     return "http:" + sourceMapMatch[2];
                 } else {
                     return sourceMapMatch[2];
