@@ -87,17 +87,10 @@ export class RNDebugSession extends DebugSessionBase {
             .then(() => {
                 logger.log("Attaching to the application");
                 logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null , 2)}`);
-                return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, true);
+                return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(attachArgs));
             })
             .then(versions => {
-                extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
-                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
-                }
-
-                if (!ProjectVersionHelper.isVersionError(versions.reactNativeMacOSVersion)) {
-                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeMacOSVersion, "reactNativeMacOSVersion", extProps);
-                }
+                extProps = TelemetryHelper.addPlatformVersionsToTelemetryProperties(attachArgs, versions, extProps);
 
                 return TelemetryHelper.generate("attach", extProps, (generator) => {
                     attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);

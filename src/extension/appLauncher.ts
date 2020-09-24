@@ -200,23 +200,10 @@ export class AppLauncher {
                 };
             }
 
-            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true, true)
+            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs))
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
-                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (launchArgs.platform === PlatformType.Windows) {
-                        if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
-                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled);
-                        }
-                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
-                    }
-
-                    if (launchArgs.platform === PlatformType.macOS) {
-                        if (ProjectVersionHelper.isVersionError(versions.reactNativeMacOSVersion)) {
-                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativemacOSIsNotInstalled);
-                        }
-                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeMacOSVersion, "reactNativeMacOSVersion", extProps);
-                    }
+                    extProps = TelemetryHelper.addPlatformVersionsToTelemetryProperties(launchArgs, versions, extProps);
 
                     TelemetryHelper.generate("launch", extProps, (generator) => {
                         generator.step("resolveEmulator");
