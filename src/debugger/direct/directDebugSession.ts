@@ -56,7 +56,7 @@ export class DirectDebugSession extends DebugSessionBase {
                 return ProjectVersionHelper.getReactNativeVersions(launchArgs.cwd, ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs));
             })
             .then(versions => {
-                extProps = TelemetryHelper.addPlatformVersionsToTelemetryProperties(launchArgs, versions, extProps);
+                extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(launchArgs, versions, extProps);
 
                 return TelemetryHelper.generate("launch", extProps, (generator) => {
                     return this.appLauncher.launch(launchArgs)
@@ -104,7 +104,7 @@ export class DirectDebugSession extends DebugSessionBase {
                 return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(attachArgs));
             })
             .then(versions => {
-                extProps = TelemetryHelper.addPlatformVersionsToTelemetryProperties(attachArgs, versions, extProps);
+                extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(attachArgs, versions, extProps);
 
                 return TelemetryHelper.generate("attach", extProps, (generator) => {
                     attachArgs.port = attachArgs.platform === PlatformType.iOS ?

@@ -90,7 +90,7 @@ export class RNDebugSession extends DebugSessionBase {
                 return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(attachArgs));
             })
             .then(versions => {
-                extProps = TelemetryHelper.addPlatformVersionsToTelemetryProperties(attachArgs, versions, extProps);
+                extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(attachArgs, versions, extProps);
 
                 return TelemetryHelper.generate("attach", extProps, (generator) => {
                     attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);

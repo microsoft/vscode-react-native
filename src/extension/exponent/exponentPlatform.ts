@@ -36,7 +36,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
             },
         };
 
-        extProps = TelemetryHelper.addPlatformVersionsToTelemetryProperties(this.runOptions, this.runOptions.reactNativeVersions, extProps);
+        extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(this.runOptions, this.runOptions.reactNativeVersions, extProps);
 
         return new Promise((resolve, reject) => {
                 TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {

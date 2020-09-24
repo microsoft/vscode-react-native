@@ -203,7 +203,7 @@ export class AppLauncher {
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs))
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
-                    extProps = TelemetryHelper.addPlatformVersionsToTelemetryProperties(launchArgs, versions, extProps);
+                    extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(launchArgs, versions, extProps);
 
                     TelemetryHelper.generate("launch", extProps, (generator) => {
                         generator.step("resolveEmulator");

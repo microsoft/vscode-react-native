@@ -44,7 +44,10 @@ export class TelemetryHelper {
         return properties;
     }
 
-    public static addPlatformVersionsToTelemetryProperties(args: IRunOptions, versions: RNPackageVersions, properties: ICommandTelemetryProperties): any {
+    /**
+     * Adds platform based packages versions and other properties to the telemetry properties object
+     */
+    public static addPlatformPropertiesToTelemetryProperties(args: IRunOptions, versions: RNPackageVersions, properties: ICommandTelemetryProperties): any {
         properties = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", properties);
         if (args.platform === PlatformType.Windows) {
             if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {

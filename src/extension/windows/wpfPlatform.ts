@@ -30,7 +30,7 @@ export class WpfPlatform extends WindowsPlatform {
             },
         };
 
-        extProps = TelemetryHelper.addPlatformVersionsToTelemetryProperties(this.runOptions, this.runOptions.reactNativeVersions, extProps);
+        extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(this.runOptions, this.runOptions.reactNativeVersions, extProps);
 
         return TelemetryHelper.generate("WpfPlatform.runApp", extProps, () => {
             const env = GeneralMobilePlatform.getEnvArgument(process.env, this.runOptions.env, this.runOptions.envFile);
