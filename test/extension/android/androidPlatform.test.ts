@@ -31,7 +31,7 @@ suite("androidPlatform", function () {
             reactNativeVersions: {
                 reactNativeVersion: "^0.19.0",
                 reactNativeWindowsVersion: "",
-                reactNativemacOSVersion: "",
+                reactNativeMacOSVersion: "",
             },
         };
 

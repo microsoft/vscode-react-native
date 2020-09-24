@@ -94,6 +94,11 @@ export class RNDebugSession extends DebugSessionBase {
                 if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
                     extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
                 }
+
+                if (!ProjectVersionHelper.isVersionError(versions.reactNativeMacOSVersion)) {
+                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeMacOSVersion, "reactNativeMacOSVersion", extProps);
+                }
+
                 return TelemetryHelper.generate("attach", extProps, (generator) => {
                     attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                     return this.appLauncher.getRnCdpProxy().stopServer()

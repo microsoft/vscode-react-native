@@ -8,7 +8,7 @@ import { WindowsPlatform } from "./windows/windowsPlatform";
 import { WpfPlatform } from "./windows/wpfPlatform";
 import { GeneralMobilePlatform, MobilePlatformDeps } from "../extension/generalMobilePlatform";
 import { ExponentPlatform } from "./exponent/exponentPlatform";
-import { macOSPlatform } from "./macos/macOSPlatform";
+import { MacOSPlatform } from "./macos/macOSPlatform";
 
 export class PlatformResolver {
 
@@ -30,7 +30,7 @@ export class PlatformResolver {
             case PlatformType.WPF:
                 return new WpfPlatform(runOptions, platformDeps);
             case PlatformType.macOS:
-                return new macOSPlatform(runOptions, platformDeps);
+                return new MacOSPlatform(runOptions, platformDeps);
             default:
                 return new GeneralMobilePlatform(runOptions, platformDeps);
         }

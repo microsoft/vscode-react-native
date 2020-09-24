@@ -16,7 +16,7 @@ export interface PackageVersion {
 export interface RNPackageVersions {
     reactNativeVersion: string;
     reactNativeWindowsVersion: string;
-    reactNativemacOSVersion: string;
+    reactNativeMacOSVersion: string;
 }
 
 export class ProjectVersionHelper {
@@ -26,14 +26,14 @@ export class ProjectVersionHelper {
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
 
-    public static getReactNativeVersions(projectRoot: string, isRNWindows: boolean = false, isRNmacOS: boolean = false): Promise<RNPackageVersions> {
-        return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(projectRoot, isRNWindows, isRNmacOS)
+    public static getReactNativeVersions(projectRoot: string, isRNWindows: boolean = false, isRNMacOS: boolean = false): Promise<RNPackageVersions> {
+        return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(projectRoot, isRNWindows, isRNMacOS)
             .catch(() => {
-                return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(projectRoot, isRNWindows);
+                return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(projectRoot, isRNWindows, isRNMacOS);
             });
     }
 
-    public static getReactNativePackageVersionsFromNodeModules(projectRoot: string, isRNWindows: boolean = false, isRNmacOS: boolean = false): Promise<RNPackageVersions> {
+    public static getReactNativePackageVersionsFromNodeModules(projectRoot: string, isRNWindows: boolean = false, isRNMacOS: boolean = false): Promise<RNPackageVersions> {
         let parsedPackages: ParsedPackage[] = [
             {
                 packageName: "react-native",
@@ -48,7 +48,7 @@ export class ProjectVersionHelper {
             });
         }
 
-        if (isRNmacOS) {
+        if (isRNMacOS) {
             parsedPackages.push({
                 packageName: "react-native-macos",
                 useSemverCoerce: false,
@@ -75,7 +75,7 @@ export class ProjectVersionHelper {
             return {
                 reactNativeVersion: packageVersions["react-native"],
                 reactNativeWindowsVersion: packageVersions["react-native-windows"] || RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
-                reactNativemacOSVersion: packageVersions["react-native-macos"] || RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
+                reactNativeMacOSVersion: packageVersions["react-native-macos"] || RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
             };
         });
     }
@@ -127,14 +127,14 @@ export class ProjectVersionHelper {
                         return {
                             reactNativeVersion: parsedPackageVersions["react-native"],
                             reactNativeWindowsVersion: parsedPackageVersions["react-native-windows"] || RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
-                            reactNativemacOSVersion: parsedPackageVersions["react-native-macos"] || RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
+                            reactNativeMacOSVersion: parsedPackageVersions["react-native-macos"] || RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
                         };
                     });
             })
             .catch(() => ({
                 reactNativeVersion: RN_VERSION_ERRORS.UNKNOWN_ERROR,
                 reactNativeWindowsVersion: RN_VERSION_ERRORS.UNKNOWN_ERROR,
-                reactNativemacOSVersion: RN_VERSION_ERRORS.UNKNOWN_ERROR,
+                reactNativeMacOSVersion: RN_VERSION_ERRORS.UNKNOWN_ERROR,
             }));
     }
 

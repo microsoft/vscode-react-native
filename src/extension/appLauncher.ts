@@ -212,10 +212,10 @@ export class AppLauncher {
                     }
 
                     if (launchArgs.platform === PlatformType.macOS) {
-                        if (ProjectVersionHelper.isVersionError(versions.reactNativemacOSVersion)) {
+                        if (ProjectVersionHelper.isVersionError(versions.reactNativeMacOSVersion)) {
                             throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativemacOSIsNotInstalled);
                         }
-                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativemacOSVersion, "reactNativemacOSVersion", extProps);
+                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeMacOSVersion, "reactNativeMacOSVersion", extProps);
                     }
 
                     TelemetryHelper.generate("launch", extProps, (generator) => {

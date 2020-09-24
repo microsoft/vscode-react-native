@@ -12,7 +12,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 /**
  * macOS specific platform implementation for debugging RN applications.
  */
-export class macOSPlatform extends GeneralMobilePlatform {
+export class MacOSPlatform extends GeneralMobilePlatform {
 
     private static SUCCESS_PATTERNS = [
         "Launching app",
@@ -37,17 +37,17 @@ export class macOSPlatform extends GeneralMobilePlatform {
         };
 
         extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
-        extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativemacOSVersion, "reactNativemacOSVersion", extProps);
+        extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeMacOSVersion, "reactNativeMacOSVersion", extProps);
 
-        return TelemetryHelper.generate("macOSPlatform.runApp", extProps, () => {
+        return TelemetryHelper.generate("MacOSPlatform.runApp", extProps, () => {
             const env = GeneralMobilePlatform.getEnvArgument(process.env, this.runOptions.env, this.runOptions.envFile);
 
-            if (!semver.valid(this.runOptions.reactNativeVersions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(this.runOptions.reactNativeVersions.reactNativeVersion, macOSPlatform.NO_PACKAGER_VERSION)) {
+            if (!semver.valid(this.runOptions.reactNativeVersions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(this.runOptions.reactNativeVersions.reactNativeVersion, MacOSPlatform.NO_PACKAGER_VERSION)) {
                 this.runArguments.push("--no-packager");
             }
 
             const runmacOSSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });
-            return new OutputVerifier(() => Promise.resolve(macOSPlatform.SUCCESS_PATTERNS), () => Promise.resolve(macOSPlatform.FAILURE_PATTERNS), this.platformName)
+            return new OutputVerifier(() => Promise.resolve(MacOSPlatform.SUCCESS_PATTERNS), () => Promise.resolve(MacOSPlatform.FAILURE_PATTERNS), this.platformName)
                 .process(runmacOSSpawn);
         });
     }
@@ -62,7 +62,7 @@ export class macOSPlatform extends GeneralMobilePlatform {
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
             runArguments.push(...this.runOptions.runArguments);
         } else {
-            let target = this.runOptions.target === macOSPlatform.simulatorString ? "" : this.runOptions.target;
+            let target = this.runOptions.target === MacOSPlatform.simulatorString ? "" : this.runOptions.target;
             if (target) {
                 runArguments.push(`--${target}`);
             }
