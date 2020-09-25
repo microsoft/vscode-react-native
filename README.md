@@ -19,15 +19,16 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [Getting started](#getting-started)
 - [React Native commands in the Command Palette](#react-native-commands-in-the-command-palette)
 - [Debugging React Native applications](#debugging-react-native-applications)
-  - [Hermes (Android)](#hermes-android)
-  - [iOS devices](#ios-devices)
+  - [Hermes (Android) applications](#hermes-android)
+  - [iOS applications](#ios-applications)
+      - [iOS devices](#ios-devices)
       - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
       - [iOS direct debugging](#iOS-direct-debugging)
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
   - [Windows applications](#react-native-for-windows)
   - [macOS applications](#react-native-for-macos)
-  - [TypeScript and Haul](#typescript-and-haul)
+  - [TypeScript and Haul based applications](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
 - [Customization](#customization)
   - [Logging](#logging)
@@ -131,8 +132,9 @@ To debug while using Hermes engine, please choose one of the following debug con
   "request": "attach"
 }
 ```
+## iOS applications
 
-## iOS devices
+### iOS devices
 
 Debugging on an iOS device requires following manual steps:
 
@@ -142,7 +144,7 @@ Debugging on an iOS device requires following manual steps:
 - Choose the **Debug iOS** option from the "Configuration" dropdown and press F5.
 - Shake the device to open the development menu and select "Debug JS Remotely".
 
-## Custom scheme for iOS apps
+### Custom scheme for iOS apps
 
 If you want to use a custom scheme for your application you can either pass it as part of the `runArguments` parameter arguments, or set the `scheme` configuration parameter as shown below:
 
@@ -156,7 +158,7 @@ If you want to use a custom scheme for your application you can either pass it a
 
 Please be aware, specifying the scheme value as a part of the `runArguments` parameter arguments will override the `scheme` configuration parameter value, if it set.
 
-## iOS direct debugging
+### iOS direct debugging
 
 The extension provides experimental support of iOS direct debugging. See more info here: [react-native-community/discussions-and-proposals#40](https://github.com/react-native-community/discussions-and-proposals/issues/40), [react-native-community/discussions-and-proposals#206](https://github.com/react-native-community/discussions-and-proposals/issues/206)
 
