@@ -45,6 +45,9 @@ export class WindowsPlatform extends GeneralMobilePlatform {
 
             if (semver.gte(this.runOptions.reactNativeVersions.reactNativeWindowsVersion, "0.63.0")) {
                 this.runArguments.push("--logging");
+                if (enableDebug) {
+                    this.runArguments.push("--remote-debugging");
+                }
             } else {
                 if (enableDebug) {
                     this.runArguments.push("--proxy");
