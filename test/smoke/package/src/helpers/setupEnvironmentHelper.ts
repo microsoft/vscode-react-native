@@ -20,7 +20,7 @@ export class SetupEnvironmentHelper {
     public static expoBundleId = "host.exp.Exponent";
     public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
 
-    public static  prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
+    public static prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
         let command = `react-native init ${appName}`;
         if (version) {
             command += ` --version ${version}`;
@@ -158,7 +158,7 @@ export class SetupEnvironmentHelper {
                        }
                        if (content.sdkVersions[usesSdkVersion]) {
                         if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
-                            console.log(`*** Latest React Native version supported by Expo${" " + printSpecifiedMinorVersion} : ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
+                            console.log(`*** Latest React Native version supported by Expo ${printSpecifiedMinorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
                             resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
                         }
                     }
