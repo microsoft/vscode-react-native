@@ -64,8 +64,9 @@ export class SetupEnvironmentHelper {
         fs.copyFileSync(testButtonPath, path.join(workspacePath, "AppTestButton.js"));
     }
 
-    public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string) {
-        const command = `echo -ne '\\n' | expo init -t tabs --name ${appName} ${appName}`;
+    public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, expoSdkMinorVersion?: string) {
+        const useSpecificSdk = expoSdkMinorVersion ? `@sdk-${expoSdkMinorVersion}` : "";
+        const command = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${appName} ${appName}`;
         console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
 
@@ -126,8 +127,10 @@ export class SetupEnvironmentHelper {
         }
     }
 
-    public static async getLatestSupportedRNVersionForExpo(): Promise<any> {
-        console.log("*** Getting latest React Native version supported by Expo...");
+    public static async getLatestSupportedRNVersionForExpo(expoSdkMinorVersion?: string): Promise<any> {
+        const printSpecifiedMinorVersion = expoSdkMinorVersion ? `sdk-${expoSdkMinorVersion}` : "";
+        const printIsLatest = printSpecifiedMinorVersion ? "" : "latest ";
+        console.log(`*** Getting latest React Native version supported by ${printIsLatest}Expo ${printSpecifiedMinorVersion}...`);
         return new Promise((resolve, reject) => {
             utilities.getContents("https://exp.host/--/api/v2/versions", null, null, function (error, versionsContent) {
                 if (error) {
@@ -136,20 +139,29 @@ export class SetupEnvironmentHelper {
                 try {
                    const content = JSON.parse(versionsContent);
                    if (content.sdkVersions) {
-                       const maxSdkVersion = Object.keys(content.sdkVersions).sort((ver1, ver2) => {
-                           if (semver.lt(ver1, ver2)) {
-                               return 1;
-                           } else if (semver.gt(ver1, ver2)) {
-                               return -1;
-                           }
-                           return 0;
-                       })[0];
-                       if (content.sdkVersions[maxSdkVersion]) {
-                           if (content.sdkVersions[maxSdkVersion].facebookReactNativeVersion) {
-                               console.log(`*** Latest React Native version supported by Expo: ${content.sdkVersions[maxSdkVersion].facebookReactNativeVersion}`);
-                               resolve(content.sdkVersions[maxSdkVersion].facebookReactNativeVersion as string);
-                           }
+                       let usesSdkVersion: string | undefined;
+                       if (expoSdkMinorVersion) {
+                            usesSdkVersion = Object.keys(content.sdkVersions).find((version) => semver.minor(version) === parseInt(expoSdkMinorVersion));
+                            if (!usesSdkVersion) {
+                                console.log(`*** Сould not find the version of Expo sdk matching the specified minor version - ${printSpecifiedMinorVersion}`);
+                            }
                        }
+                       if (!usesSdkVersion) {
+                            usesSdkVersion = Object.keys(content.sdkVersions).sort((ver1, ver2) => {
+                                if (semver.lt(ver1, ver2)) {
+                                    return 1;
+                                } else if (semver.gt(ver1, ver2)) {
+                                    return -1;
+                                }
+                                return 0;
+                            })[0];
+                       }
+                       if (content.sdkVersions[usesSdkVersion]) {
+                        if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
+                            console.log(`*** Latest React Native version supported by Expo${" " + printSpecifiedMinorVersion} : ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
+                            resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
+                        }
+                    }
                    }
                    reject("Received object is incorrect");
                 } catch (error) {
