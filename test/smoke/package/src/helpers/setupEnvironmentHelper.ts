@@ -64,8 +64,8 @@ export class SetupEnvironmentHelper {
         fs.copyFileSync(testButtonPath, path.join(workspacePath, "AppTestButton.js"));
     }
 
-    public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, expoSdkMinorVersion?: string) {
-        const useSpecificSdk = expoSdkMinorVersion ? `@sdk-${expoSdkMinorVersion}` : "";
+    public static prepareExpoApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, expoSdkMajorVersion?: string) {
+        const useSpecificSdk = expoSdkMajorVersion ? `@sdk-${expoSdkMajorVersion}` : "";
         const command = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${appName} ${appName}`;
         console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
         cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
@@ -127,10 +127,10 @@ export class SetupEnvironmentHelper {
         }
     }
 
-    public static async getLatestSupportedRNVersionForExpo(expoSdkMinorVersion?: string): Promise<any> {
-        const printSpecifiedMinorVersion = expoSdkMinorVersion ? `sdk-${expoSdkMinorVersion}` : "";
-        const printIsLatest = printSpecifiedMinorVersion ? "" : "latest ";
-        console.log(`*** Getting latest React Native version supported by ${printIsLatest}Expo ${printSpecifiedMinorVersion}...`);
+    public static async getLatestSupportedRNVersionForExpo(expoSdkMajorVersion?: string): Promise<any> {
+        const printSpecifiedMajorVersion = expoSdkMajorVersion ? `sdk-${expoSdkMajorVersion}` : "";
+        const printIsLatest = printSpecifiedMajorVersion ? "" : "latest ";
+        console.log(`*** Getting latest React Native version supported by ${printIsLatest}Expo ${printSpecifiedMajorVersion}...`);
         return new Promise((resolve, reject) => {
             utilities.getContents("https://exp.host/--/api/v2/versions", null, null, function (error, versionsContent) {
                 if (error) {
@@ -140,10 +140,10 @@ export class SetupEnvironmentHelper {
                    const content = JSON.parse(versionsContent);
                    if (content.sdkVersions) {
                        let usesSdkVersion: string | undefined;
-                       if (expoSdkMinorVersion) {
-                            usesSdkVersion = Object.keys(content.sdkVersions).find((version) => semver.minor(version) === parseInt(expoSdkMinorVersion));
+                       if (expoSdkMajorVersion) {
+                            usesSdkVersion = Object.keys(content.sdkVersions).find((version) => semver.minor(version) === parseInt(expoSdkMajorVersion));
                             if (!usesSdkVersion) {
-                                console.log(`*** Сould not find the version of Expo sdk matching the specified version - ${printSpecifiedMinorVersion}`);
+                                console.log(`*** Сould not find the version of Expo sdk matching the specified version - ${printSpecifiedMajorVersion}`);
                             }
                        }
                        if (!usesSdkVersion) {
@@ -158,7 +158,7 @@ export class SetupEnvironmentHelper {
                        }
                        if (content.sdkVersions[usesSdkVersion]) {
                         if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
-                            console.log(`*** Latest React Native version supported by Expo ${printSpecifiedMinorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
+                            console.log(`*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
                             resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
                         }
                     }
