@@ -292,7 +292,7 @@ You can debug React Native for macOS applications by changing the `platform` in 
   }
   ```
 
-  You can find more information on how to setup your application to work with Windows in [React Native for macOS Getting started instruction](https://microsoft.github.io/react-native-windows/docs/rnm-getting-started)
+  You can find more information on how to setup your application to work with macOS in [React Native for macOS Getting started instruction](https://microsoft.github.io/react-native-windows/docs/rnm-getting-started)
 
 ## TypeScript and Haul
 
