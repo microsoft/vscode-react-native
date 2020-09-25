@@ -21,11 +21,12 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [Debugging React Native applications](#debugging-react-native-applications)
   - [Hermes (Android)](#hermes-android)
   - [iOS devices](#ios-devices)
-  - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
-  - [iOS direct debugging](#iOS-direct-debugging)
+      - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
+      - [iOS direct debugging](#iOS-direct-debugging)
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
   - [Windows applications](#react-native-for-windows)
+  - [macOS applications](#react-native-for-macos)
   - [TypeScript and Haul](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
 - [Customization](#customization)
@@ -245,7 +246,7 @@ If you want to change your app entrypoint (for example, from `index.js` to `inde
 
 **NOTE**: The extension caches the version of the exponent SDK used by your project. This is helpful since we don't want to install the SDK each time you run exponent. If you want the extension to update the SDK version based on your React Native version, just restart VS Code and if it is supported it should work. If it does not please open an issue.
 
-## Windows applications
+## React Native for Windows
 
 You can debug UWP and WPF React Native for Windows applications by changing the `platform` in your `launch.json` configuration:
 
@@ -272,6 +273,24 @@ You can debug UWP and WPF React Native for Windows applications by changing the 
     "platform": "wpf"
   }
   ```
+
+  You can find more information on how to setup your application to work with Windows in [React Native for Windows Getting started instruction](https://microsoft.github.io/react-native-windows/docs/getting-started)
+
+## React Native for macOS
+
+You can debug React Native for macOS applications by changing the `platform` in your `launch.json` configuration to `macos`:
+
+  ```json
+  {
+    "name": "Debug macOS",
+    "cwd": "${workspaceFolder}",
+    "type": "reactnative",
+    "request": "launch",
+    "platform": "macos"
+  }
+  ```
+
+  You can find more information on how to setup your application to work with Windows in [React Native for macOS Getting started instruction](https://microsoft.github.io/react-native-windows/docs/rnm-getting-started)
 
 ## TypeScript and Haul
 
