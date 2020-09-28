@@ -67,6 +67,10 @@ declare module xdl {
         setOptionsAsync(projectRoot: string, options?: IOptions): Promise<void>;
     }
 
+    var UrlUtils: {
+        constructManifestUrlAsync(projectRoot: string, opts?: any, requestHostname?: string): Promise<string>;
+    }
+
     var Versions: {
         facebookReactNativeVersionsAsync(): Promise<string[]>;
         facebookReactNativeVersionToExpoVersionAsync(facebookReactNativeVersion: string): Promise<string>;
