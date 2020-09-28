@@ -141,7 +141,7 @@ export class SetupEnvironmentHelper {
                    if (content.sdkVersions) {
                        let usesSdkVersion: string | undefined;
                        if (expoSdkMajorVersion) {
-                            usesSdkVersion = Object.keys(content.sdkVersions).find((version) => semver.minor(version) === parseInt(expoSdkMajorVersion));
+                            usesSdkVersion = Object.keys(content.sdkVersions).find((version) => semver.major(version) === parseInt(expoSdkMajorVersion));
                             if (!usesSdkVersion) {
                                 console.log(`*** Сould not find the version of Expo sdk matching the specified version - ${printSpecifiedMajorVersion}`);
                             }
