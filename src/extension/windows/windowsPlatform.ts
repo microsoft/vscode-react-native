@@ -48,10 +48,6 @@ export class WindowsPlatform extends GeneralMobilePlatform {
                 if (enableDebug) {
                     this.runArguments.push("--remote-debugging");
                 }
-            } else {
-                if (enableDebug) {
-                    this.runArguments.push("--proxy");
-                }
             }
 
             if (!semver.valid(this.runOptions.reactNativeVersions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(this.runOptions.reactNativeVersions.reactNativeVersion, WindowsPlatform.NO_PACKAGER_VERSION)) {
