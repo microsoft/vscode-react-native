@@ -1,6 +1,6 @@
 ## 1.0.0
 * Added `sourcemaps` parameters for Direct debugging scenarios [#1395](https://github.com/microsoft/vscode-react-native/pull/1395)
-* Fixed the `Debug Windows` scenario for React Native Windows applications v0.63 [#1395](https://github.com/microsoft/vscode-react-native/pull/1395)
+* Fixed the `Debug Windows` scenario for React Native Windows applications v0.63 [#1395](https://github.com/microsoft/vscode-react-native/pull/1395), [#1412](https://github.com/microsoft/vscode-react-native/pull/1412)
 * Implemented experimental support of iOS direct debugging. It could be used in next versions of React Native with support of [TurboModules](https://github.com/react-native-community/discussions-and-proposals/issues/40) and [Hermes engine for iOS](https://github.com/facebook/hermes/issues/34) [#1367](https://github.com/microsoft/vscode-react-native/pull/1367)
 * Implemented selection of iOS and Android emulators for launch and run scenarios and Command Palette commands [#1361](https://github.com/microsoft/vscode-react-native/pull/1361), [#1374](https://github.com/microsoft/vscode-react-native/pull/1374)
 * Implemented automatic launch of the packager in `attach` scenarios in case it is not running yet [#1320](https://github.com/microsoft/vscode-react-native/pull/1320)
