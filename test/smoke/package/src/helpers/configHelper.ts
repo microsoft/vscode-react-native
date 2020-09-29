@@ -20,6 +20,7 @@ export interface TestEnvVariables {
     IOS_VERSION?: string;
     CODE_VERSION?: string;
     EXPO_XDL_VERSION?: string;
+    EXPO_SDK_MAJOR_VERSION?: string;
     RN_VERSION?: string;
     PURE_RN_VERSION?: string;
     PURE_EXPO_VERSION?: string;
@@ -50,6 +51,9 @@ export class TestConfigurator {
         }
         if (!variables.EXPO_XDL_VERSION) {
             console.warn("Optional EXPO_XDL_VERSION variable is not set");
+        }
+        if (!variables.EXPO_SDK_MAJOR_VERSION) {
+            console.warn("Optional EXPO_SDK_MAJOR_VERSION variable is not set. Use latest.");
         }
         if (!variables.RN_VERSION) {
             console.warn("Optional RN_VERSION variable is not set");
@@ -88,6 +92,9 @@ export class TestConfigurator {
         if (variables.EXPO_XDL_VERSION === "skip") {
             delete variables.EXPO_XDL_VERSION;
         }
+        if (variables.EXPO_SDK_MAJOR_VERSION === "skip") {
+            delete variables.EXPO_SDK_MAJOR_VERSION;
+        }
         if (variables.RN_VERSION === "skip" || process.env.NIGHTLY) {
             delete variables.RN_VERSION;
         }
@@ -111,6 +118,7 @@ export class TestConfigurator {
         initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
         initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
         initLog += `EXPO_XDL_VERSION = ${process.env.EXPO_XDL_VERSION}\n`;
+        initLog += `EXPO_SDK_MAJOR_VERSION = ${process.env.EXPO_SDK_MAJOR_VERSION}\n`;
         initLog += `RN_VERSION = ${process.env.RN_VERSION}\n`;
         initLog += `PURE_RN_VERSION = ${process.env.PURE_RN_VERSION}\n`;
         initLog += `PURE_EXPO_VERSION = ${process.env.PURE_EXPO_VERSION}\n`;
