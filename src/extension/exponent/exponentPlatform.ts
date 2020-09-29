@@ -94,8 +94,17 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                             return reject(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath));
                         }
                         this.exponentTunnelPath = exponentUrl;
-                        const outputMessage = localize("ApplicationIsRunningOnExponentOpenToSeeIt", "Application is running on Expo. Open your Expo app at {0} to see it.", this.exponentTunnelPath);
+                        const outputMessage = localize("ExponentServerIsRunningOpenToSeeIt", "Expo server is running. Open your Expo app at {0} to see it.", this.exponentTunnelPath);
                         this.logger.info(outputMessage);
+
+                        const copyButton = localize("CopyToClipboard", "Copy to clipboard");
+
+                        vscode.window.showInformationMessage(outputMessage, copyButton)
+                        .then((selection) => {
+                            if (selection === copyButton) {
+                                vscode.env.clipboard.writeText(exponentUrl);
+                            }
+                        });
 
                         return resolve();
                     })
