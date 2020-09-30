@@ -202,7 +202,7 @@ export function setup(testParameters?: TestRunArguments) {
                 console.log("Android Debug Hermes test: Debugging is stopped");
             } catch (e) {
                 console.log("Android Debug Hermes test failed: " + e);
-                this.skip();
+                return this.skip();
             }
         });
 
