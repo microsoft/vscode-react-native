@@ -32,3 +32,8 @@ function padZeroes(minDesiredLength: number, numberToPad: string): string {
         return String("0".repeat(minDesiredLength) + numberToPad).slice(-minDesiredLength);
     }
 }
+
+export function stripJsonTrailingComma(str: string): string {
+    const trailingCommaRegex = /\,(?!\s*?[\{\[\"\'\w])/g;
+    return str.replace(trailingCommaRegex, "");
+}
