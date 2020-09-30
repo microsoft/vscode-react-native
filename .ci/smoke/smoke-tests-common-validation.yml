@@ -48,7 +48,7 @@ steps:
 
   - bash: |
       npm install -g yarn react-native-cli
-      npm install -g appium@$(appiumVersion)
+      npm install -g appium@$(appiumVersion) --force
       npm install -g expo-cli@$(expoCLIVersion)
     displayName: "npm install -g yarn react-native-cli expo-cli appium"
 
