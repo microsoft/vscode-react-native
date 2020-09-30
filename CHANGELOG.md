@@ -1,5 +1,5 @@
 ## 1.0.1
-* Fixed issue connected to incorrect project caching when `projectRoot` argument is used in `settings.json`
+* Fixed issue connected to incorrect project caching when the `projectRoot` argument is used in `settings.json`
 
 
 ## 1.0.0
