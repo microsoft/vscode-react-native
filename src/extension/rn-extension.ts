@@ -162,7 +162,7 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                     let reactDirManager = new ReactDirManager(rootPath);
                     return setupAndDispose(reactDirManager, context)
                         .then(() => {
-                            ProjectsStorage.addFolder(folder, new AppLauncher(reactDirManager, folder));
+                            ProjectsStorage.addFolder(projectRootPath.toLowerCase(), new AppLauncher(reactDirManager, folder));
 
                             return void 0;
                         });
