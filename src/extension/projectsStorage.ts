@@ -8,7 +8,7 @@ export class ProjectsStorage {
     public static readonly projectsCache: {[key: string]: AppLauncher} = {};
 
     public static addFolder(workspaceFolder: string, appLauncher: AppLauncher): void {
-        this.projectsCache[workspaceFolder] = appLauncher;
+        this.projectsCache[workspaceFolder.toLowerCase()] = appLauncher;
     }
 
     public static getFolder(workspaceFolder: vscode.WorkspaceFolder): AppLauncher {
