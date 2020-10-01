@@ -1,3 +1,7 @@
+## 1.0.1
+* Fixed issue connected to incorrect project caching when the `projectRoot` argument is used in `settings.json`
+
+
 ## 1.0.0
 * Added `sourcemaps` parameters for Direct debugging scenarios [#1395](https://github.com/microsoft/vscode-react-native/pull/1395)
 * Fixed the `Debug Windows` scenario for React Native Windows applications v0.63 [#1395](https://github.com/microsoft/vscode-react-native/pull/1395), [#1412](https://github.com/microsoft/vscode-react-native/pull/1412)
