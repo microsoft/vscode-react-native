@@ -38,7 +38,7 @@ suite("plistBuddy", function () {
                 .then(() => {
                     assert(mockedExecFunc.calledWithExactly(setCallArgs), "plistBuddy did not attempt to set first");
                     assert(mockedExecFunc.calledWithExactly(addCallArgs), "plistBuddy did not attempt to add after set failed");
-                    assert.equal(mockedExecFunc.callCount, 2);
+                    assert.strictEqual(mockedExecFunc.callCount, 2);
                 });
         });
 
@@ -61,7 +61,7 @@ suite("plistBuddy", function () {
             return plistBuddy.setPlistProperty(plistFileName, plistProperty, plistValue)
                 .then(() => {
                     assert(mockedExecFunc.calledWithExactly(setCallArgs), "plistBuddy did not attempt to set first");
-                    assert.equal(mockedExecFunc.callCount, 1);
+                    assert.strictEqual(mockedExecFunc.callCount, 1);
                 });
         });
 
@@ -82,10 +82,10 @@ suite("plistBuddy", function () {
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName, "whateverScheme"),
             ]).then(([simulatorId1, simulatorId2, deviceId1, deviceId2]) => {
-                assert.equal(simulatorBundleId, simulatorId1);
-                assert.equal(simulatorBundleId, simulatorId2);
-                assert.equal(deviceBundleId, deviceId1);
-                assert.equal(deviceBundleId, deviceId2);
+                assert.strictEqual(simulatorBundleId, simulatorId1);
+                assert.strictEqual(simulatorBundleId, simulatorId2);
+                assert.strictEqual(deviceBundleId, deviceId1);
+                assert.strictEqual(deviceBundleId, deviceId2);
             });
         });
 
@@ -108,10 +108,10 @@ suite("plistBuddy", function () {
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName, scheme),
             ]).then(([simulatorId1, simulatorId2, deviceId1, deviceId2]) => {
-                assert.equal(simulatorBundleId, simulatorId1);
-                assert.equal(simulatorBundleId, simulatorId2);
-                assert.equal(deviceBundleId, deviceId1);
-                assert.equal(deviceBundleId, deviceId2);
+                assert.strictEqual(simulatorBundleId, simulatorId1);
+                assert.strictEqual(simulatorBundleId, simulatorId2);
+                assert.strictEqual(deviceBundleId, deviceId1);
+                assert.strictEqual(deviceBundleId, deviceId2);
             });
         });
 
@@ -131,8 +131,8 @@ suite("plistBuddy", function () {
                 const targetBuildDir = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "TARGET_BUILD_DIR");
                 const fullProductName = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "FULL_PRODUCT_NAME");
 
-                assert.equal(targetBuildDir, targetBuildDirRef);
-                assert.equal(fullProductName, fullProductNameRef);
+                assert.strictEqual(targetBuildDir, targetBuildDirRef);
+                assert.strictEqual(fullProductName, fullProductNameRef);
             });
 
             test("fetchParameterFromBuildSettings should return null", function () {
@@ -140,9 +140,9 @@ suite("plistBuddy", function () {
                 const testNull = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "TEST");
                 const emptyStringCase = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "");
 
-                assert.equal(targetBuildDir, null);
-                assert.equal(testNull, null);
-                assert.notEqual(emptyStringCase, null);
+                assert.strictEqual(targetBuildDir, null);
+                assert.strictEqual(testNull, null);
+                assert.notStrictEqual(emptyStringCase, null);
             });
         });
 
