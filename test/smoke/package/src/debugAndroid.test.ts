@@ -179,7 +179,7 @@ export function setup(testParameters?: TestRunArguments) {
                 console.log("Android Debug Hermes test: Debugging started");
                 console.log("Android Debug Hermes test: Checking for Hermes mark");
                 let isHermesWorking = await AppiumHelper.isHermesWorking(clientInited);
-                assert.equal(isHermesWorking, true);
+                assert.strictEqual(isHermesWorking, true);
                 console.log("Android Debug Hermes test: Reattaching to Hermes app");
                 await app.workbench.debug.disconnectFromDebugger();
                 await app.workbench.quickaccess.runDebugScenario(RNHermesAttachConfigName);

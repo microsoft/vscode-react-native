@@ -15,7 +15,7 @@ suite("exponentHelper", function() {
         sinon.stub(fs, "readFile", () => Promise.resolve(JSON.stringify(packageJson)));
         const expoHelper = new ExponentHelper(RESOURCES_ROOT, "", fs);
         const result = await expoHelper.isExpoApp(false);
-        assert.equal(result, expected);
+        assert.strictEqual(result, expected);
     }
 
     suite("extensionContext", () => {
