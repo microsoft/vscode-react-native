@@ -54,6 +54,13 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "request": "launch",
             "platform": PlatformType.Windows,
         },
+        "Debug macOS": {
+            "name": "Debug macOS",
+            "cwd": "${workspaceFolder}",
+            "type": DEBUG_TYPES.REACT_NATIVE,
+            "request": "launch",
+            "platform": PlatformType.macOS,
+        },
         "Attach to packager": {
             "name": "Attach to packager",
             "cwd": "${workspaceFolder}",
@@ -134,6 +141,10 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         {
             label: "Debug Windows",
             description: localize("DebugWindowsConfigDesc", "Run and debug Windows application"),
+        },
+        {
+            label: "Debug macOS",
+            description: localize("DebugmacOSConfigDesc", "Run and debug macOS application"),
         },
         {
             label: "Attach to packager",

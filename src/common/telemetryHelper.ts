@@ -3,6 +3,10 @@
 
 import {Telemetry} from "./telemetry";
 import {TelemetryGenerator, IHasErrorCode} from "./telemetryGenerators";
+import { IRunOptions, PlatformType } from "../extension/launchArgs";
+import { ProjectVersionHelper, RNPackageVersions } from "./projectVersionHelper";
+import { ErrorHelper } from "./error/errorHelper";
+import { InternalErrorCode } from "./error/internalErrorCode";
 
 export interface ITelemetryPropertyInfo {
     value: any;
@@ -36,6 +40,32 @@ export class TelemetryHelper {
             value: propValue,
             isPii: false,
         };
+
+        return properties;
+    }
+
+    /**
+     * Adds platform based packages versions and other properties to the telemetry properties object
+     */
+    public static addPlatformPropertiesToTelemetryProperties(args: IRunOptions, versions: RNPackageVersions, properties: ICommandTelemetryProperties): any {
+        properties = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", properties);
+        if (args.platform === PlatformType.Windows) {
+            if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
+                throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled);
+            }
+            properties = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", properties);
+        }
+
+        if (args.platform === PlatformType.macOS) {
+            if (ProjectVersionHelper.isVersionError(versions.reactNativeMacOSVersion)) {
+                throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativemacOSIsNotInstalled);
+            }
+            properties = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeMacOSVersion, "reactNativeMacOSVersion", properties);
+        }
+
+        if (args.platform === PlatformType.Exponent) {
+            properties = TelemetryHelper.addPropertyToTelemetryProperties(args.expoHostType, "expoHostType", properties);
+        }
 
         return properties;
     }
