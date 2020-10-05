@@ -110,6 +110,7 @@ class OSXHostPlatform extends UnixHostPlatform {
             case TargetPlatformId.ANDROID:
             case TargetPlatformId.EXPONENT:
             case TargetPlatformId.IOS:
+            case TargetPlatformId.MACOS:
                 return true;
             default:
                 return false;

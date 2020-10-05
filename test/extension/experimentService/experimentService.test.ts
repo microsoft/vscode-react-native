@@ -29,7 +29,7 @@ suite("experimentService", function () {
                 && typeof expConfig.popCoveragePercent === "number"
             );
 
-            assert.equal(result, true);
+            assert.strictEqual(result, true);
         });
     });
 
@@ -62,14 +62,14 @@ suite("experimentService", function () {
             let experimentService = <any>(ExperimentService.create());
             await configureExperimentService(experimentService, expTestConfig);
             let experimentResult: ExperimentResult = await experimentService.executeExperiment(expTestConfig);
-            assert.equal(experimentResult.resultStatus, ExperimentStatuses.DISABLED);
+            assert.strictEqual(experimentResult.resultStatus, ExperimentStatuses.DISABLED);
         });
 
         test("should succeed the experiment", async () => {
             let experimentService = <any>(ExperimentService.create());
             await configureExperimentService(experimentService, RNTPreviewPromptExp);
             let experimentResult: ExperimentResult = await experimentService.executeExperiment(RNTPreviewPromptExp);
-            assert.equal(experimentResult.resultStatus, ExperimentStatuses.ENABLED);
+            assert.strictEqual(experimentResult.resultStatus, ExperimentStatuses.ENABLED);
         });
     });
 });

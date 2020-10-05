@@ -24,7 +24,7 @@ suite("sourceMap", function() {
 
             const sourceMap = new SourceMapUtil();
             const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
-            assert.equal(expectedUrlHref, result && result.href);
+            assert.strictEqual(expectedUrlHref, result && result.href);
         });
 
         test("should ignore inline sourcemap urls", function () {
@@ -32,6 +32,16 @@ suite("sourceMap", function() {
             const scriptBody = "//# sourceMappingURL=data:application/json;base64,eyJmb28iOiJiYXIifQ==\n" +
                                "//# sourceMappingURL=/index.ios.map?platform=ios&dev=true";
             const expectedUrlHref = "http://localhost:8081/index.ios.map?platform=ios&dev=true";
+
+            const sourceMap = new SourceMapUtil();
+            const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
+            assert.strictEqual(expectedUrlHref, result && result.href);
+        });
+
+        test("should return correct sourcemap url for RN macOS", function () {
+            const scriptUrl: url.Url = url.parse("http://localhost:8081/index.bundle?platform=macos&dev=true");
+            const scriptBody = "//# sourceMappingURL=//index.map?platform=macos&dev=true";
+            const expectedUrlHref = "http://localhost:8081/index.map?platform=macos&dev=true";
 
             const sourceMap = new SourceMapUtil();
             const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
@@ -44,7 +54,7 @@ suite("sourceMap", function() {
 
             const sourceMap = new SourceMapUtil();
             const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
-            assert.deepEqual(null, result);
+            assert.deepStrictEqual(null, result);
         });
 
         test("should return default IStrictUrl if there are only inline sourcemap urls", function () {
@@ -54,7 +64,7 @@ suite("sourceMap", function() {
 
             const sourceMap = new SourceMapUtil();
             const result = sourceMap.getSourceMapURL(scriptUrl, scriptBody);
-            assert.deepEqual(null, result);
+            assert.deepStrictEqual(null, result);
         });
 
         test("should update the contents of a source map file", function() {
@@ -65,7 +75,7 @@ suite("sourceMap", function() {
             const sourceMap = new SourceMapUtil();
 
             const result: string = sourceMap.updateSourceMapFile(sourceMapBody, scriptPath, sourcesRootPath);
-            assert.equal(expectedSourceMapBody, result);
+            assert.strictEqual(expectedSourceMapBody, result);
         });
 
         test("should update source map file path for remote packager", function () {
@@ -78,7 +88,7 @@ suite("sourceMap", function() {
             const sourceMap = new SourceMapUtil();
 
             const result: string = sourceMap.updateSourceMapFile(sourceMapBody, scriptPath, sourcesRootPath, remoteRoot, localRoot);
-            assert.equal(expectedSourceMapBody, result);
+            assert.strictEqual(expectedSourceMapBody, result);
         });
 
         test("should update scripts with source mapping urls", function() {
@@ -88,7 +98,7 @@ suite("sourceMap", function() {
             const sourceMap = new SourceMapUtil();
 
             const result = sourceMap.updateScriptPaths(scriptBody, sourceMappingUrl);
-            assert.equal(expectedScriptBody, result);
+            assert.strictEqual(expectedScriptBody, result);
         });
 
         test("should not update scripts without source mapping urls", function() {
@@ -97,7 +107,7 @@ suite("sourceMap", function() {
             const sourceMap = new SourceMapUtil();
 
             const result = sourceMap.updateScriptPaths(scriptBody, sourceMappingUrl);
-            assert.equal(scriptBody, result);
+            assert.strictEqual(scriptBody, result);
         });
 
         test("should update absolute source path to relative unix style path", function() {
@@ -107,7 +117,7 @@ suite("sourceMap", function() {
             const sourceMap = new SourceMapUtil();
 
             const result = (<any>sourceMap).updateSourceMapPath(sourcePath, sourcesRootPath);
-            assert.equal(expectedPath, result);
+            assert.strictEqual(expectedPath, result);
         });
 
         test("should get only the latest sourceMappingURL", function() {
@@ -118,7 +128,7 @@ suite("sourceMap", function() {
             const sourceMap = new SourceMapUtil();
 
             const result = sourceMap.getSourceMapRelativeUrl(scriptBody);
-            assert.equal(expectedScriptBody, result);
+            assert.strictEqual(expectedScriptBody, result);
         });
 
         test("should remove sourceURL from the bundle script body correctly", function() {
@@ -130,7 +140,7 @@ suite("sourceMap", function() {
             const sourceMap = new SourceMapUtil();
 
             const result = sourceMap.removeSourceURL(scriptBody);
-            assert.equal(expectedScriptBody, result);
+            assert.strictEqual(expectedScriptBody, result);
         });
 
         test("should remove sourceURL if it is before sourceMappingURL", function() {
@@ -143,7 +153,8 @@ suite("sourceMap", function() {
             const sourceMap = new SourceMapUtil();
 
             const result = sourceMap.removeSourceURL(scriptBody);
-            assert.equal(expectedScriptBody, result);
+            assert.strictEqual(expectedScriptBody, result);
         });
+
     });
 });

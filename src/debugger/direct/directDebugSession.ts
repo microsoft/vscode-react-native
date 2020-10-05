@@ -52,13 +52,12 @@ export class DirectDebugSession extends DebugSessionBase {
             .then(() => {
                 logger.log("Launching the application");
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null, 2)}`);
-                return ProjectVersionHelper.getReactNativeVersions(launchArgs.cwd, launchArgs.platform === PlatformType.Windows);
+
+                return ProjectVersionHelper.getReactNativeVersions(launchArgs.cwd, ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs));
             })
             .then(versions => {
-                extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                if (launchArgs.platform === PlatformType.Windows) {
-                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
-                }
+                extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(launchArgs, versions, extProps);
+
                 return TelemetryHelper.generate("launch", extProps, (generator) => {
                     return this.appLauncher.launch(launchArgs)
                         .then(() => {
@@ -102,13 +101,11 @@ export class DirectDebugSession extends DebugSessionBase {
             .then(() => {
                 logger.log("Attaching to the application");
                 logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null, 2)}`);
-                return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, true);
+                return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd, ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(attachArgs));
             })
             .then(versions => {
-                extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
-                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
-                }
+                extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(attachArgs, versions, extProps);
+
                 return TelemetryHelper.generate("attach", extProps, (generator) => {
                     attachArgs.port = attachArgs.platform === PlatformType.iOS ?
                         attachArgs.port || IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT :
