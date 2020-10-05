@@ -118,10 +118,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     GeneralMobilePlatform.removeRunArgument(this.runArguments, "--simulator", false);
                     GeneralMobilePlatform.setRunArgument(this.runArguments, "--udid", simulator.id);
                 }
-                else {
-                    simulator = this.simulatorManager.findSimulator(target, null, simulators);
-                }
-                return simulator;
+                return null;
             });
         }
         else {
