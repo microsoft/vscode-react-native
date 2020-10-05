@@ -106,7 +106,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             };
         }
 
-        extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
+        extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(this.runOptions, this.runOptions.reactNativeVersions, extProps);
 
         return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
             const env = GeneralMobilePlatform.getEnvArgument(process.env, this.runOptions.env, this.runOptions.envFile);

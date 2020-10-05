@@ -31,6 +31,7 @@ suite("androidPlatform", function () {
             reactNativeVersions: {
                 reactNativeVersion: "^0.19.0",
                 reactNativeWindowsVersion: "",
+                reactNativeMacOSVersion: "",
             },
         };
 
@@ -352,7 +353,7 @@ suite("androidPlatform", function () {
             const adbHelper = new adb.AdbHelper("");
             function testPaths(inputPath: string, expectedPath: string) {
                 const resultPath = adbHelper.parseSdkLocation(`sdk.dir=${inputPath}`);
-                assert.equal(resultPath, expectedPath);
+                assert.strictEqual(resultPath, expectedPath);
             }
 
             const os = require("os");
@@ -381,7 +382,7 @@ suite("androidPlatform", function () {
             function testPaths(expectedPath: string, projectRoot: string) {
                 const adbHelper = new adb.AdbHelper(projectRoot);
                 const resultPath = adbHelper.getAdbPath(projectRoot);
-                assert.equal(resultPath, expectedPath);
+                assert.strictEqual(resultPath, expectedPath);
             }
 
             if (process.platform == "win32") {
