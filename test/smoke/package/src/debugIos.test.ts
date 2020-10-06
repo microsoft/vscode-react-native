@@ -11,6 +11,7 @@ import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import * as path from "path";
 import { TestRunArguments } from "./helpers/configHelper";
 import { Application } from "../../automation";
+import {IiOSSimulator} from "./helpers/iosSimulatorHelper";
 
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const RNDebugConfigName = "Debug iOS";
@@ -43,6 +44,12 @@ export function setup(testParameters?: TestRunArguments) {
         }
 
         afterEach(disposeAll);
+
+        function compareSimulatorWithInputConfig(simulator: IiOSSimulator) {
+            assert.strictEqual(simulator.system, AppiumHelper.getIosPlatformVersion(), `The simulator is booted with the wrong system: iOS-(${simulator.system})`);
+            assert.strictEqual(simulator.id, IosSimulatorHelper.getDeviceUdid(), `The simulator is booted with the wrong udid: (${simulator.id})`);
+            assert.strictEqual(simulator.name, IosSimulatorHelper.getDevice(), `The simulator is booted with the wrong name: (${simulator.name})`);
+        }
 
         async function runExpoDebugScenario(logFilePath: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             console.log(`${testName}: Starting debugging`);
@@ -138,7 +145,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`iOS Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
             console.log(`iOS Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
-            SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
+            SetupEnvironmentHelper.setIosTargetToLaunchJson(RNworkspacePath, RNDebugConfigName, IosSimulatorHelper.getDevice());
             console.log("iOS Debug test: Starting debugging");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
 
@@ -209,11 +216,15 @@ export function setup(testParameters?: TestRunArguments) {
             this.timeout(debugIosTestTime);
             SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
-            SetupEnvironmentHelper.addIosTargetToLaunchJson(RNworkspacePath);
+            SetupEnvironmentHelper.setIosTargetToLaunchJson(RNworkspacePath, RNDebugConfigName, SmokeTestsConstants.SimulatorString);
             console.log("iOS simulator save test: Starting debugging at the first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("iOS simulator save test: Debugging started at the first time");
-            await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
+            await app.workbench.quickinput.waitForQuickInputOpened();
+            await app.workbench.quickinput.submit(AppiumHelper.getIosPlatformVersion());
+            await app.workbench.quickinput.submit(IosSimulatorHelper.getDevice());
+            let simulator = await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
+            compareSimulatorWithInputConfig(simulator);
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath, Platform.iOS);
             console.log(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${IosSimulatorHelper.getDeviceUdid()}"' in launch.json`);
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
@@ -223,9 +234,8 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS simulator save test: Starting debugging at the second time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("iOS simulator save test: Debugging started at the second time");
-            await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
-            const devices = IosSimulatorHelper.getBootedDevices();
-            assert.strictEqual(devices.length, 1, "The simulator has not been started after the update of launch.json");
+            simulator = await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
+            compareSimulatorWithInputConfig(simulator);
         });
     });
 }

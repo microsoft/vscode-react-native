@@ -200,16 +200,25 @@ export class SetupEnvironmentHelper {
         }
     }
 
-    // TODO: refactor this function to make it capable to accept debug configuration as a parameter
-    public static addIosTargetToLaunchJson(workspacePath: string) {
+    public static setIosTargetToLaunchJson(workspacePath: string, configName: string, target?: string) {
         let launchJsonPath = path.join(workspacePath, ".vscode", "launch.json");
-        console.log(`*** Implicitly adding target to "Debug iOS" config for ${launchJsonPath}`);
+        if (target) {
+            console.log(`*** Implicitly adding target to "${configName}" config for ${launchJsonPath}`);
+        }
+        else {
+            console.log(`*** Implicitly remove target from "${configName}" config`);
+        }
         let content = JSON.parse(fs.readFileSync(launchJsonPath).toString());
         let found = false;
         for (let i = 0; i < content.configurations.length; i++) {
-            if (content.configurations[i].name === "Debug iOS") {
+            if (content.configurations[i].name === configName) {
                 found = true;
-                content.configurations[i].target = IosSimulatorHelper.getDevice();
+                if (target) {
+                    delete content.configurations[i].target;
+                }
+                else {
+                    content.configurations[i].target = target;
+                }
             }
         }
         if (!found) {
