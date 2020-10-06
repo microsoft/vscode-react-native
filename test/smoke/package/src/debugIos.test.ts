@@ -214,14 +214,14 @@ export function setup(testParameters?: TestRunArguments) {
 
         it("Save iOS simulator test", async function () {
             this.timeout(debugIosTestTime);
-            SetupEnvironmentHelper.terminateIosSimulator();
+            await SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
             SetupEnvironmentHelper.setIosTargetToLaunchJson(RNworkspacePath, RNDebugConfigName, SmokeTestsConstants.SimulatorString);
             console.log("iOS simulator save test: Starting debugging at the first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("iOS simulator save test: Debugging started at the first time");
             await app.workbench.quickinput.waitForQuickInputOpened();
-            await app.workbench.quickinput.submit(AppiumHelper.getIosPlatformVersion());
+            await app.workbench.quickinput.submit(IosSimulatorHelper.getFormattedIOSVersion());
             await app.workbench.quickinput.submit(IosSimulatorHelper.getDevice());
             let simulator = await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
             compareSimulatorWithInputConfig(simulator);
@@ -229,7 +229,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${IosSimulatorHelper.getDeviceUdid()}"' in launch.json`);
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
             await disposeAll();
-            SetupEnvironmentHelper.terminateIosSimulator();
+            await SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
             console.log("iOS simulator save test: Starting debugging at the second time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
