@@ -34,6 +34,6 @@ function padZeroes(minDesiredLength: number, numberToPad: string): string {
 }
 
 export function stripJsonTrailingComma(str: string): string {
-    const trailingCommaRegex = /\,(?!\s*?[\{\[\"\'\w])/g;
-    return str.replace(trailingCommaRegex, "");
+    const trailingCommaRegex = /(.*?),(\s*)(\}|])/g;
+    return str.replace(trailingCommaRegex, "$1$2$3");
 }

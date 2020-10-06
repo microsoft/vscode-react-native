@@ -36,5 +36,48 @@ suite("utilHelper", function () {
       );
       done();
     });
+    test("should manage string containings commas", (done: Mocha.Done) => {
+      const strWithTrailingComma = `
+            {
+              "version": "0.2.0",
+              "configurations": [
+                {
+                  "name": "Debug Android",
+                  "cwd": "\${workspaceFolder\}",
+                  "type": "reactnative",
+                  "request": "launch",
+                  "platform": "android",
+                  "logCatArguments": ["ReactNative", "ReactNativeJS"],
+                  "env": {
+                    "testvar": "(value0), (value1), (value2)"
+                  }
+                }
+              ]
+            }
+            `;
+      const strippedStr = `
+            {
+              "version": "0.2.0",
+              "configurations": [
+                {
+                  "name": "Debug Android",
+                  "cwd": "\${workspaceFolder\}",
+                  "type": "reactnative",
+                  "request": "launch",
+                  "platform": "android",
+                  "logCatArguments": ["ReactNative", "ReactNativeJS"],
+                  "env": {
+                    "testvar": "(value0), (value1), (value2)"
+                  }
+                }
+              ]
+            }
+            `;
+      assert.strictEqual(
+        stripJsonTrailingComma(strWithTrailingComma),
+        strippedStr
+      );
+      done();
+    });
   });
 });
