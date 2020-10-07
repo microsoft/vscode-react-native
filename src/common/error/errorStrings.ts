@@ -82,4 +82,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.IOSCouldNotFoundDeviceForDirectDebugging]: localize("CannotAttachtoiOSDeviceDirectly", "Unable to find iOS target device/simulator. Please check that \"Settings > Safari > Advanced > Web Inspector = ON\" or try specifying a different \"port\" parameter in launch.json. Also, please make sure that 'target' property in your debug scenario is defined correctly."),
     [InternalErrorCode.FailedToStartAndroidEmulator]: localize("FailedToStartAndroidEmulator", "The command \"emulator -avd {0}\" threw an exception: {1}"),
     [InternalErrorCode.VirtualDeviceSelectionError]: localize("VirtualDeviceSelectionError", "Virtual device launch finished with an exception: {0}"),
+    [InternalErrorCode.ReactNativemacOSIsNotInstalled]: localize("ReactNativemacOSIsNotInstalled", "It appears you don't have 'react-native-macos' package installed. Please proceed to https://microsoft.github.io/react-native-windows/docs/rnm-getting-started for more info."),
 };

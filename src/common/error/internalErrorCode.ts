@@ -2,114 +2,114 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 export enum InternalErrorCode {
-        // Command Executor errors
-        CommandFailed = 101,
-        CommandFailedWithErrorCode = 102,
-        PackagerStartFailed = 103,
-        FailedToRunOnAndroid = 104,
-        FailedToRunOnIos = 105,
-        FailedToStartPackager = 106,
-        FailedToStopPackager = 107,
-        PackagerRunningInDifferentPort = 108,
-        FailedToRestartPackager = 109,
-        FailedToRunExponent = 110,
-        FailedToPublishToExpHost = 111,
-        UnsupportedCommandStatus = 112,
-        CommandFailedWithDetails = 113,
+    // Command Executor errors
+    CommandFailed = 101,
+    CommandFailedWithErrorCode = 102,
+    PackagerStartFailed = 103,
+    FailedToRunOnAndroid = 104,
+    FailedToRunOnIos = 105,
+    FailedToStartPackager = 106,
+    FailedToStopPackager = 107,
+    PackagerRunningInDifferentPort = 108,
+    FailedToRestartPackager = 109,
+    FailedToRunExponent = 110,
+    FailedToPublishToExpHost = 111,
+    UnsupportedCommandStatus = 112,
+    CommandFailedWithDetails = 113,
 
-        // Device Deployer errors
-        IOSDeployNotFound = 201,
+    // Device Deployer errors
+    IOSDeployNotFound = 201,
 
-        // Device Runner errors
-        DeviceNotPluggedIn = 301,
-        DeveloperDiskImgNotMountable = 302,
-        ApplicationLaunchFailed = 303,
-        ApplicationLaunchTimedOut = 304,
-        FailedToStartAndroidEmulator = 305,
-        VirtualDeviceSelectionError = 306,
+    // Device Runner errors
+    DeviceNotPluggedIn = 301,
+    DeveloperDiskImgNotMountable = 302,
+    ApplicationLaunchFailed = 303,
+    ApplicationLaunchTimedOut = 304,
+    FailedToStartAndroidEmulator = 305,
+    VirtualDeviceSelectionError = 306,
 
-        // iOS Platform errors
-        IOSSimulatorNotLaunchable = 401,
-        IOSFoundMoreThanOneExecutablesCleanupBuildFolder = 402,
-        IOSCouldNotFoundExecutableInFolder = 403,
-        IOSCouldNotFoundDeviceForDirectDebugging = 404,
+    // iOS Platform errors
+    IOSSimulatorNotLaunchable = 401,
+    IOSFoundMoreThanOneExecutablesCleanupBuildFolder = 402,
+    IOSCouldNotFoundExecutableInFolder = 403,
+    IOSCouldNotFoundDeviceForDirectDebugging = 404,
 
-        // Packager errors
-        OpnPackagerLocationNotFound = 501,
-        OpnPackagerNotFound = 502,
-        FailedToStopPackagerOnExit = 503,
-        CannotAttachToPackagerCheckPackagerRunningOnPort = 504,
-        AnotherDebuggerConnectedToPackager = 505,
+    // Packager errors
+    OpnPackagerLocationNotFound = 501,
+    OpnPackagerNotFound = 502,
+    FailedToStopPackagerOnExit = 503,
+    CannotAttachToPackagerCheckPackagerRunningOnPort = 504,
+    AnotherDebuggerConnectedToPackager = 505,
 
-        // React Native Project errors
-        ProjectVersionNotParsable = 601,
-        ProjectVersionUnsupported = 602,
-        ProjectVersionNotReadable = 603,
-        NotInReactNativeFolderError = 604,
-        CouldNotFindProjectVersion = 605,
-        ReactNativePackageIsNotInstalled = 606,
-        ReactNativeWindowsIsNotInstalled = 607,
+    // React Native Project errors
+    ProjectVersionNotParsable = 601,
+    ProjectVersionUnsupported = 602,
+    ProjectVersionNotReadable = 603,
+    NotInReactNativeFolderError = 604,
+    CouldNotFindProjectVersion = 605,
+    ReactNativePackageIsNotInstalled = 606,
+    ReactNativeWindowsIsNotInstalled = 607,
+    ReactNativemacOSIsNotInstalled = 608,
 
-        // Miscellaneous errors
-        TelemetryInitializationFailed = 701,
-        ExtensionActivationFailed = 702,
-        DebuggerStubLauncherFailed = 703,
-        IntellisenseSetupFailed = 704,
-        NodeDebuggerConfigurationFailed = 705,
-        DebuggingFailed = 706,
-        RNTempFolderDeletionFailed = 707,
-        DebuggingFailedInNodeWrapper = 708,
-        PlatformNotSupported = 709,
-        WorkspaceNotFound = 710,
-        ExpectedExponentTunnelPath = 711,
-        NotAllSuccessPatternsMatched = 712,
-        CouldNotParsePackageVersion = 713,
-        PackageNotFound = 714,
-        ReactDevtoolsIsNotInstalled = 715,
-        CancellationTokenTriggered = 716,
+    // Miscellaneous errors
+    TelemetryInitializationFailed = 701,
+    ExtensionActivationFailed = 702,
+    DebuggerStubLauncherFailed = 703,
+    IntellisenseSetupFailed = 704,
+    NodeDebuggerConfigurationFailed = 705,
+    DebuggingFailed = 706,
+    RNTempFolderDeletionFailed = 707,
+    DebuggingFailedInNodeWrapper = 708,
+    PlatformNotSupported = 709,
+    WorkspaceNotFound = 710,
+    ExpectedExponentTunnelPath = 711,
+    NotAllSuccessPatternsMatched = 712,
+    CouldNotParsePackageVersion = 713,
+    PackageNotFound = 714,
+    ReactDevtoolsIsNotInstalled = 715,
+    CancellationTokenTriggered = 716,
 
-        // Activation errors
-        CouldNotFindLocationOfNodeDebugger = 801,
-        CouldNotFindWorkspace = 802,
+    // Activation errors
+    CouldNotFindLocationOfNodeDebugger = 801,
+    CouldNotFindWorkspace = 802,
 
-        // Inter Process Communication errors
-        ErrorWhileProcessingMessageInIPMSServer = 901,
-        ErrorNoPipeFound = 902,
+    // Inter Process Communication errors
+    ErrorWhileProcessingMessageInIPMSServer = 901,
+    ErrorNoPipeFound = 902,
 
-        // Validating user input errors
-        ExpectedIntegerValue = 1001,
-        ExpectedStringValue = 1002,
-        ExpectedBooleanValue = 1003,
-        ExpectedArrayValue = 1004,
-        ExpectedObjectValue = 1005,
+    // Validating user input errors
+    ExpectedIntegerValue = 1001,
+    ExpectedStringValue = 1002,
+    ExpectedBooleanValue = 1003,
+    ExpectedArrayValue = 1004,
+    ExpectedObjectValue = 1005,
 
-        // Exponent errors
-        RNVersionNotSupportedByExponent = 1101,
-        UserCancelledExpoLogin = 1102,
+    // Exponent errors
+    RNVersionNotSupportedByExponent = 1101,
+    UserCancelledExpoLogin = 1102,
 
-        // Android errors
-        AndroidCouldNotInstallTheAppOnAnyAvailibleDevice = 1201,
-        AndroidShellCommandTimedOut = 1202,
-        AndroidProjectNotFound = 1203,
-        AndroidMoreThanOneDeviceOrEmulator = 1204,
-        AndroidFailedToLaunchTheSpecifiedActivity = 1205,
+    // Android errors
+    AndroidCouldNotInstallTheAppOnAnyAvailibleDevice = 1201,
+    AndroidShellCommandTimedOut = 1202,
+    AndroidProjectNotFound = 1203,
+    AndroidMoreThanOneDeviceOrEmulator = 1204,
+    AndroidFailedToLaunchTheSpecifiedActivity = 1205,
 
-        // Windows Phone errors
-        WinRNMPPluginIsNotInstalled = 1301,
+    // Windows Phone errors
+    WinRNMPPluginIsNotInstalled = 1301,
 
-        // Debugger errors
-        SourcesStoragePathIsNullOrEmpty = 1401,
-        DebuggingWontWorkReloadJSAndReconnect = 1402,
-        ReconnectionToPackagerFailedCheckForErrorsOrRestartReactNative = 1403,
-        FailedToProcessMessageFromReactNativeApp = 1404,
-        FailedToPrepareJSRuntimeEnvironment = 1405,
-        FailedToSendMessageToTheReactNativeApp = 1406,
-        ReactNativeWorkerProcessThrownAnError = 1407,
-        CouldntImportScriptAt = 1408,
-        RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty = 1409,
-        CouldNotAttachToDebugger = 1410,
+    // Debugger errors
+    SourcesStoragePathIsNullOrEmpty = 1401,
+    DebuggingWontWorkReloadJSAndReconnect = 1402,
+    ReconnectionToPackagerFailedCheckForErrorsOrRestartReactNative = 1403,
+    FailedToProcessMessageFromReactNativeApp = 1404,
+    FailedToPrepareJSRuntimeEnvironment = 1405,
+    FailedToSendMessageToTheReactNativeApp = 1406,
+    ReactNativeWorkerProcessThrownAnError = 1407,
+    CouldntImportScriptAt = 1408,
+    RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty = 1409,
+    CouldNotAttachToDebugger = 1410,
 
-        // CDP Proxy errors
-        CouldNotConnectToDebugTarget = 1501,
-
-    }
+    // CDP Proxy errors
+    CouldNotConnectToDebugTarget = 1501,
+}

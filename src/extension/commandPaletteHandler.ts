@@ -406,7 +406,7 @@ export class CommandPaletteHandler {
             runArguments: runArgs,
             env: envArgs,
             envFile: envFile,
-            reactNativeVersions: appLauncher.getReactNativeVersions() || {reactNativeVersion: "", reactNativeWindowsVersion: ""},
+            reactNativeVersions: appLauncher.getReactNativeVersions() || { reactNativeVersion: "", reactNativeWindowsVersion: "", reactNativeMacOSVersion: "" },
         };
 
         if (platform === PlatformType.iOS && target === "device") {

@@ -10,11 +10,11 @@ suite("elementInspector", function() {
 
         test("element inspector should run and closed without errors", function (done: Mocha.Done) {
             CommandPaletteHandler.runElementInspector();
-            assert.notEqual(CommandPaletteHandler.elementInspector, null);
+            assert.notStrictEqual(CommandPaletteHandler.elementInspector, null);
 
             if (CommandPaletteHandler.elementInspector) {
                 CommandPaletteHandler.elementInspector.once("exit", () => {
-                    assert.equal(CommandPaletteHandler.elementInspector, null);
+                    assert.strictEqual(CommandPaletteHandler.elementInspector, null);
                     done();
                 });
             } else {
@@ -28,7 +28,7 @@ suite("elementInspector", function() {
             if (CommandPaletteHandler.elementInspector) {
                 let PID = CommandPaletteHandler.elementInspector.pid;
                 CommandPaletteHandler.runElementInspector();
-                assert.equal(CommandPaletteHandler.elementInspector.pid, PID);
+                assert.strictEqual(CommandPaletteHandler.elementInspector.pid, PID);
                 CommandPaletteHandler.stopElementInspector();
                 done();
             } else {

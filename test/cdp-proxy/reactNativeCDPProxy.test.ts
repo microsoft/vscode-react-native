@@ -115,8 +115,8 @@ suite("reactNativeCDPProxy", function () {
               return evt;
           });
 
-          assert.deepEqual(messageFromTarget, targetMessageStart);
-          assert.deepEqual(messageFromDebugger, debuggerMessageStart);
+          assert.deepStrictEqual(messageFromTarget, targetMessageStart);
+          assert.deepStrictEqual(messageFromDebugger, debuggerMessageStart);
         });
       };
 
@@ -144,7 +144,7 @@ suite("reactNativeCDPProxy", function () {
               return evt;
           });
 
-          assert.deepEqual(messageFromTarget, targetMessagePaused);
+          assert.deepStrictEqual(messageFromTarget, targetMessagePaused);
         });
       });
 
@@ -182,7 +182,7 @@ suite("reactNativeCDPProxy", function () {
               return evt;
           });
 
-          assert.deepEqual(messageFromTarget, targetMessagePaused);
+          assert.deepStrictEqual(messageFromTarget, targetMessagePaused);
         });
 
         test(`Message from target should add description for function result without description`, async () => {
@@ -210,7 +210,7 @@ suite("reactNativeCDPProxy", function () {
               return evt;
           });
 
-          assert.deepEqual(messageFromTarget, targetMessage);
+          assert.deepStrictEqual(messageFromTarget, targetMessage);
         });
 
         test(`Message from debugger with method ${CDP_API_NAMES.DEBUGGER_SET_BREAKPOINT} should delete column number field from params.location`, async () => {
@@ -237,7 +237,7 @@ suite("reactNativeCDPProxy", function () {
               return evt;
           });
 
-          assert.deepEqual(messageFromDebugger, debuggerMessage);
+          assert.deepStrictEqual(messageFromDebugger, debuggerMessage);
         });
 
         test(`Message from debugger with method ${CDP_API_NAMES.RUNTIME_CALL_FUNCTION_ON} with ${ARRAY_REQUEST_PHRASE_MARKER} in function declaration should return result based on message id and send back to debugger`, async () => {
@@ -273,7 +273,7 @@ suite("reactNativeCDPProxy", function () {
               return evt;
           });
 
-          assert.deepEqual(messageFromDebugger, resultMessage);
+          assert.deepStrictEqual(messageFromDebugger, resultMessage);
         });
       });
     });

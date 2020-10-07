@@ -126,10 +126,10 @@ suite("appWorker", function () {
 
                 await worker.postMessage(fakeMessage);
 
-                assert.equal(downloadAppScriptStub.calledOnce, true);
-                assert.equal(downloadAppScriptStub.firstCall.args[0], `http://${remotePackagerAddress}:${remotePackagerPort}/test-url`);
-                assert.equal(debuggeeProcessSendStub.calledOnce, true);
-                assert.deepEqual(debuggeeProcessSendStub.firstCall.args[0], {
+                assert.strictEqual(downloadAppScriptStub.calledOnce, true);
+                assert.strictEqual(downloadAppScriptStub.firstCall.args[0], `http://${remotePackagerAddress}:${remotePackagerPort}/test-url`);
+                assert.strictEqual(debuggeeProcessSendStub.calledOnce, true);
+                assert.deepStrictEqual(debuggeeProcessSendStub.firstCall.args[0], {
                     data: {
                         ...fakeMessage,
                         url: worker.pathToFileUrl(fakeDownloadedScript.filepath),
@@ -222,7 +222,7 @@ suite("appWorker", function () {
                         });
                         debuggeeProcess.on("exit", () => {
                             assert.notEqual(output, "");
-                            assert.equal(output.trim(), "test output from debuggee process");
+                            assert.strictEqual(output.trim(), "test output from debuggee process");
                             waitForCheckingOutput = Promise.resolve();
                         });
                         return waitForContinue;
@@ -240,16 +240,16 @@ suite("appWorker", function () {
                  scriptImporter = new ScriptImporter("localhost", 8081, "sources");
             });
             test("prepareDebuggerWorkerURL should return correct URL for RN < 0.50.0", () => {
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.49.0"), "http://localhost:8081/debuggerWorker.js");
+                assert.strictEqual(scriptImporter.prepareDebuggerWorkerURL("0.49.0"), "http://localhost:8081/debuggerWorker.js");
             });
             test("prepareDebuggerWorkerURL should return correct URL for RN >= 0.50.0", () => {
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.50.0"), "http://localhost:8081/debugger-ui/debuggerWorker.js");
+                assert.strictEqual(scriptImporter.prepareDebuggerWorkerURL("0.50.0"), "http://localhost:8081/debugger-ui/debuggerWorker.js");
             });
             test("prepareDebuggerWorkerURL should return correct URL when debuggerWorkerUrlPath is used", () => {
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", ""), "http://localhost:8081/debuggerWorker.js");
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", "new-debugger/"), "http://localhost:8081/new-debugger/debuggerWorker.js");
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.55.4", undefined), "http://localhost:8081/debugger-ui/debuggerWorker.js");
-                assert.equal(scriptImporter.prepareDebuggerWorkerURL("0.49.0", "debugger-ui/"), "http://localhost:8081/debugger-ui/debuggerWorker.js");
+                assert.strictEqual(scriptImporter.prepareDebuggerWorkerURL("0.55.4", ""), "http://localhost:8081/debuggerWorker.js");
+                assert.strictEqual(scriptImporter.prepareDebuggerWorkerURL("0.55.4", "new-debugger/"), "http://localhost:8081/new-debugger/debuggerWorker.js");
+                assert.strictEqual(scriptImporter.prepareDebuggerWorkerURL("0.55.4", undefined), "http://localhost:8081/debugger-ui/debuggerWorker.js");
+                assert.strictEqual(scriptImporter.prepareDebuggerWorkerURL("0.49.0", "debugger-ui/"), "http://localhost:8081/debugger-ui/debuggerWorker.js");
             });
         });
 

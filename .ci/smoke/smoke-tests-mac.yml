@@ -7,7 +7,7 @@ pr:
 
 variables:
   vswdbotLogin: vswdbot
-  appiumVersion: 1.18.0
+  appiumVersion: 1.18.2
   basicOnly: false
   expoCLIVersion: latest
   nightlyBuild: false
