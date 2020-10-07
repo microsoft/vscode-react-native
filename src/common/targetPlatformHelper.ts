@@ -14,6 +14,7 @@ export enum TargetPlatformId {
     IOS,
     EXPONENT,
     WINDOWS,
+    MACOS,
 }
 
 export class TargetPlatformHelper {
@@ -31,6 +32,8 @@ export class TargetPlatformHelper {
             case PlatformType.Windows:
             case PlatformType.WPF:
                 return TargetPlatformId.WINDOWS;
+            case PlatformType.macOS:
+                return TargetPlatformId.MACOS;
             default:
                 throw ErrorHelper.getInternalError(InternalErrorCode.PlatformNotSupported, platformName, os.platform());
         }

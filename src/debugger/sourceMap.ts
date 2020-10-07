@@ -126,7 +126,16 @@ export class SourceMapUtil {
         // If match is null, the body doesn't contain the source map
         if (matchesList) {
             const sourceMapMatch = matchesList[matchesList.length - 1].match(SourceMapUtil.SourceMapURLRegex);
-            return sourceMapMatch ? sourceMapMatch[2] : null;
+            if (sourceMapMatch) {
+                // On React Native macOS 0.62 sourceMappingUrl for macOS looks like:
+                // # sourceMappingURL=//localhost:8081/index.map?platform=macos&dev=true&minify=false
+                // Add 'http:' protocol to avoid errors in further processing
+                if (sourceMapMatch[2].includes("platform=macos") && !sourceMapMatch[2].includes("http:") && sourceMapMatch[2].startsWith("//")) {
+                    return "http:" + sourceMapMatch[2];
+                } else {
+                    return sourceMapMatch[2];
+                }
+            }
         }
         return null;
     }
