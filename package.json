@@ -66,7 +66,7 @@
       {
         "language": "ReactNativeToolsOutput",
         "scopeName": "react-native-tools-output",
-        "path": "./src/extension/log/syntaxes/rn-output.tmGrammar.json"
+        "path": "./syntaxes/rn-output.tmGrammar.json"
       }
     ],
     "commands": [
