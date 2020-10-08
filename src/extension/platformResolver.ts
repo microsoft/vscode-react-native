@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {IRunOptions, PlatformType} from "./launchArgs";
-import {IOSPlatform} from "./ios/iOSPlatform";
-import {AndroidPlatform} from "./android/androidPlatform";
-import {WindowsPlatform} from "./windows/windowsPlatform";
-import {WpfPlatform} from "./windows/wpfPlatform";
-import {GeneralMobilePlatform, MobilePlatformDeps} from "../extension/generalMobilePlatform";
-import {ExponentPlatform} from "./exponent/exponentPlatform";
+import { IRunOptions, PlatformType } from "./launchArgs";
+import { IOSPlatform } from "./ios/iOSPlatform";
+import { AndroidPlatform } from "./android/androidPlatform";
+import { WindowsPlatform } from "./windows/windowsPlatform";
+import { WpfPlatform } from "./windows/wpfPlatform";
+import { GeneralMobilePlatform, MobilePlatformDeps } from "../extension/generalMobilePlatform";
+import { ExponentPlatform } from "./exponent/exponentPlatform";
+import { MacOSPlatform } from "./macos/macOSPlatform";
 
 export class PlatformResolver {
 
@@ -28,6 +29,8 @@ export class PlatformResolver {
                 return new WindowsPlatform(runOptions, platformDeps);
             case PlatformType.WPF:
                 return new WpfPlatform(runOptions, platformDeps);
+            case PlatformType.macOS:
+                return new MacOSPlatform(runOptions, platformDeps);
             default:
                 return new GeneralMobilePlatform(runOptions, platformDeps);
         }

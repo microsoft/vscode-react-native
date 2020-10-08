@@ -33,7 +33,6 @@ steps:
     displayName: "gulp release"
     inputs:
       targets: release
-      arguments: --nightly
 
   - task: CopyFiles@2
     displayName: "Copy Files to: test/smoke/package/resources/drop-win"
@@ -49,7 +48,7 @@ steps:
 
   - bash: |
       npm install -g yarn react-native-cli
-      npm install -g appium@$(appiumVersion)
+      npm install -g appium@$(appiumVersion) --force
       npm install -g expo-cli@$(expoCLIVersion)
     displayName: "npm install -g yarn react-native-cli expo-cli appium"
 

@@ -200,16 +200,11 @@ export class AppLauncher {
                 };
             }
 
-            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, true)
+            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(mobilePlatformOptions.projectRoot, ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs))
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;
-                    extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeVersion, "reactNativeVersion", extProps);
-                    if (launchArgs.platform === PlatformType.Windows) {
-                        if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
-                            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWindowsIsNotInstalled);
-                        }
-                        extProps = TelemetryHelper.addPropertyToTelemetryProperties(versions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
-                    }
+                    extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(launchArgs, versions, extProps);
+
                     TelemetryHelper.generate("launch", extProps, (generator) => {
                         generator.step("resolveEmulator");
                         return this.resolveAndSaveVirtualDevice(mobilePlatform, launchArgs, mobilePlatformOptions)
