@@ -11,9 +11,6 @@
             "include": "#build-failed"
         },
         {
-            "include": "#url"
-        },
-        {
             "include": "#ip-address"
         },
         {
@@ -121,11 +118,11 @@
     ],
     "repository": {
         "string-double-quoted": {
-            "match": "\\s\"(.*?)\"\\s|\"(.*?)\"\\s|\\s\"(.*?)\"",
+            "match": "\"(.*?)\"",
             "name": "string.quoted"
         },
         "string-single-quoted": {
-            "match": "\\s'(.*?)'\\s|'(.*?)'\\s|\\s'(.*?)'",
+            "match": "'(.*?)'",
             "name": "string.quoted"
         },
         "email-address": {
