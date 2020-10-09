@@ -213,6 +213,10 @@ export function setup(testParameters?: TestRunArguments) {
         });
 
         it("Save iOS simulator test", async function () {
+            let deviceName = IosSimulatorHelper.getDevice();
+            if (!deviceName) {
+                deviceName = "";
+            }
             this.timeout(debugIosTestTime);
             SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
@@ -222,8 +226,8 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS simulator save test: Debugging started at the first time");
             await app.workbench.quickinput.waitForQuickInputOpened();
             await app.workbench.quickinput.submit(AppiumHelper.getIosPlatformVersion());
-            await app.workbench.quickinput.submit(IosSimulatorHelper.getDevice());
-            let simulator = await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
+            await app.workbench.quickinput.submit(deviceName);
+            let simulator = await IosSimulatorHelper.waitUntilIosSimulatorStarting(deviceName);
             compareSimulatorWithInputConfig(simulator);
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath, Platform.iOS);
             console.log(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${IosSimulatorHelper.getDeviceUdid()}"' in launch.json`);
@@ -234,7 +238,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log("iOS simulator save test: Starting debugging at the second time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("iOS simulator save test: Debugging started at the second time");
-            simulator = await IosSimulatorHelper.waitUntilIosSimulatorStarting(IosSimulatorHelper.getDevice());
+            simulator = await IosSimulatorHelper.waitUntilIosSimulatorStarting(deviceName);
             compareSimulatorWithInputConfig(simulator);
         });
     });
