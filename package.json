@@ -419,6 +419,11 @@
                 "type": "boolean",
                 "description": "%reactNative.launch.enableDebug.description%",
                 "default": true
+              },
+              "openExpoQR": {
+                "type": "boolean",
+                "description": "%reactNative.launch.openExpoQR.description%",
+                "default": true
               }
             }
           }

@@ -41,6 +41,14 @@ export class IosSimulatorHelper {
         return process.env.IOS_SIMULATOR_UDID;
     }
 
+    public static getFormattedIOSVersion(): string {
+        const iosVersion = process.env.IOS_VERSION;
+        if (!iosVersion) {
+            throw new Error("Environment variable 'IOS_VERSION' is not set. Exiting...");
+        }
+        return `IOS-${iosVersion.replace(".", "-")}`;
+    }
+
     public static getSimulator(name: string): IiOSSimulator | null {
         if (name) {
             const simulators = this.collectSimulators();

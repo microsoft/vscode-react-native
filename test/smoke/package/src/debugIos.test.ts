@@ -218,7 +218,7 @@ export function setup(testParameters?: TestRunArguments) {
                 deviceName = "";
             }
             this.timeout(debugIosTestTime);
-            SetupEnvironmentHelper.terminateIosSimulator();
+            await SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
             SetupEnvironmentHelper.setIosTargetToLaunchJson(RNworkspacePath, RNDebugConfigName, SmokeTestsConstants.SimulatorString);
             console.log("iOS simulator save test: Starting debugging at the first time");
@@ -233,7 +233,7 @@ export function setup(testParameters?: TestRunArguments) {
             console.log(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${IosSimulatorHelper.getDeviceUdid()}"' in launch.json`);
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
             await disposeAll();
-            SetupEnvironmentHelper.terminateIosSimulator();
+            await SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
             console.log("iOS simulator save test: Starting debugging at the second time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);

@@ -50,7 +50,6 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
 
         Object.keys(res.devices).forEach((rawSystem) => {
             let system = rawSystem.split(".").slice(-1)[0]; // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> "iOS-11-4"
-            system = system.split("-").slice(1).join("."); // "iOS-11-4" -> "11.4"
             res.devices[rawSystem].forEach((device: any) => {
                 simulators.push({
                     name: device.name,
