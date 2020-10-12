@@ -64,7 +64,7 @@ export class IWDPHelper {
                     throw ErrorHelper.getInternalError(InternalErrorCode.IOSCouldNotFoundDeviceForDirectDebugging);
                 }
             });
-    };
+    }
 
     public cleanUp(): void {
         if (this.iOSWebkitDebugProxyProcess) {

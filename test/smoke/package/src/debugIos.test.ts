@@ -40,7 +40,7 @@ export function setup(testParameters?: TestRunArguments) {
                 clientInited.closeApp();
                 clientInited.endAll();
             }
-        };
+        }
 
         afterEach(disposeAll);
 

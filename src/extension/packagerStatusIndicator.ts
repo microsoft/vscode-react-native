@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {window, Disposable, StatusBarItem, StatusBarAlignment} from "vscode";
+import { window, Disposable, StatusBarItem, StatusBarAlignment } from "vscode";
 import * as nls from "vscode-nls";
 import { SettingsHelper } from "./settingsHelper";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
@@ -37,9 +37,9 @@ export class PackagerStatusIndicator implements Disposable {
     private static ACTIVITY_ICON = "$(loading~spin)";
     private static RESTART_ICON = "$(sync)";
 
-    private static START_COMMAND = "reactNative.startPackager-preview";
-    private static RESTART_COMMAND = "reactNative.restartPackager-preview";
-    private static STOP_COMMAND = "reactNative.stopPackager-preview";
+    private static START_COMMAND = "reactNative.startPackager";
+    private static RESTART_COMMAND = "reactNative.restartPackager";
+    private static STOP_COMMAND = "reactNative.stopPackager";
 
     public static FULL_VERSION = "Full";
     public static SHORT_VERSION = "Short";

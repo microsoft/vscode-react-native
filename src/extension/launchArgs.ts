@@ -27,7 +27,8 @@ export enum PlatformType {
     iOS = "ios",
     Windows = "windows",
     WPF = "wpf",
-    Exponent = "exponent"
+    Exponent = "exponent",
+    macOS = "macos"
 }
 
 /**
@@ -49,9 +50,11 @@ export interface IIOSRunOptions extends ILaunchArgs {
 
 export interface IExponentRunOptions extends IAndroidRunOptions, IIOSRunOptions {
     expoHostType?: "tunnel" | "lan" | "local";
+    openExpoQR?: boolean;
 }
 
 export type IWindowsRunOptions = ILaunchArgs;
+export type ImacOSRunOptions = ILaunchArgs;
 
 export interface IRunOptions extends IAndroidRunOptions, IIOSRunOptions, IExponentRunOptions, IWindowsRunOptions  {
 

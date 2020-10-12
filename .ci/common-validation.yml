@@ -19,13 +19,13 @@ steps:
     displayName: Start xvfb
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 
-  - bash: npm run test-localization
-    displayName: "Run localization tests"
+  - bash: "npm test --verbose"
+    displayName: "Run host tests"
     env:
       DISPLAY: ":99.0"
 
-  - bash: "npm test --verbose"
-    displayName: "Run host tests"
+  - bash: npm run test-localization
+    displayName: "Run localization tests"
     env:
       DISPLAY: ":99.0"
 

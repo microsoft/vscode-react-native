@@ -143,7 +143,9 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
-        await this.appLauncher.getRnCdpProxy().stopServer();
+        if (this.appLauncher) {
+            await this.appLauncher.getRnCdpProxy().stopServer();
+        }
 
         this.cancellationTokenSource.cancel();
         this.cancellationTokenSource.dispose();

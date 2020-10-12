@@ -13,6 +13,7 @@ import { Platform } from "./appiumHelper";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
 import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
 
+// eslint-disable-next-line
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
     return new Promise<R>((c, e) => fn(...args, (err, r) => err ? e(err) : c(r)));
 }

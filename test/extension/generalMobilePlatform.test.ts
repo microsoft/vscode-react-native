@@ -78,12 +78,12 @@ suite("generalMobilePlatform", function () {
 
                 test("should return correct result for non-binary parameters", function () {
                     const args: any[] = ["--param1", "value1", "--param2=value2", "param3=value3", "param4value4"];
-                    assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "--param1", false), "value1");
-                    assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "--param2", false), "value2");
-                    assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "--param1"), "value1");
-                    assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "--param2"), "value2");
-                    assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "param3", false), "value3");
-                    assert.equal(GeneralMobilePlatform.getOptFromRunArgs(args, "param4", false), undefined);
+                    assert.strictEqual(GeneralMobilePlatform.getOptFromRunArgs(args, "--param1", false), "value1");
+                    assert.strictEqual(GeneralMobilePlatform.getOptFromRunArgs(args, "--param2", false), "value2");
+                    assert.strictEqual(GeneralMobilePlatform.getOptFromRunArgs(args, "--param1"), "value1");
+                    assert.strictEqual(GeneralMobilePlatform.getOptFromRunArgs(args, "--param2"), "value2");
+                    assert.strictEqual(GeneralMobilePlatform.getOptFromRunArgs(args, "param3", false), "value3");
+                    assert.strictEqual(GeneralMobilePlatform.getOptFromRunArgs(args, "param4", false), undefined);
                 });
             });
 

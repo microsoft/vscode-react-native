@@ -11,71 +11,78 @@ nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFo
 const localize = nls.loadMessageBundle();
 
 export const DEBUG_TYPES = {
-    REACT_NATIVE: "reactnative-preview",
-    REACT_NATIVE_DIRECT: "reactnativedirect-preview",
+    REACT_NATIVE: "reactnative",
+    REACT_NATIVE_DIRECT: "reactnativedirect",
 };
 
 export class ReactNativeDebugConfigProvider implements vscode.DebugConfigurationProvider {
     private debugConfigurations = {
-        "Debug Android (Preview)": {
-            "name": "Debug Android (Preview)",
+        "Debug Android": {
+            "name": "Debug Android",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": PlatformType.Android,
         },
-        "Run Android (Preview)": {
-            "name": "Run Android (Preview)",
+        "Run Android": {
+            "name": "Run Android",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": PlatformType.Android,
             "enableDebug": false,
         },
-        "Debug iOS (Preview)": {
-            "name": "Debug iOS (Preview)",
+        "Debug iOS": {
+            "name": "Debug iOS",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": PlatformType.iOS,
         },
-        "Run iOS (Preview)": {
-            "name": "Run iOS (Preview)",
+        "Run iOS": {
+            "name": "Run iOS",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": PlatformType.iOS,
             "enableDebug": false,
         },
-        "Debug Windows (Preview)": {
-            "name": "Debug Windows (Preview)",
+        "Debug Windows": {
+            "name": "Debug Windows",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": PlatformType.Windows,
         },
-        "Attach to packager (Preview)": {
-            "name": "Attach to packager (Preview)",
+        "Debug macOS": {
+            "name": "Debug macOS",
+            "cwd": "${workspaceFolder}",
+            "type": DEBUG_TYPES.REACT_NATIVE,
+            "request": "launch",
+            "platform": PlatformType.macOS,
+        },
+        "Attach to packager": {
+            "name": "Attach to packager",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "attach",
         },
-        "Debug in Exponent (Preview)": {
-            "name": "Debug in Exponent (Preview)",
+        "Debug in Exponent": {
+            "name": "Debug in Exponent",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE,
             "request": "launch",
             "platform": PlatformType.Exponent,
         },
-        "Debug Android Hermes (Preview) - Experimental": {
-            "name": "Debug Android Hermes (Preview) - Experimental",
+        "Debug Android Hermes - Experimental": {
+            "name": "Debug Android Hermes - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
             "platform": PlatformType.Android,
         },
-        "Run Android Hermes (Preview) - Experimental": {
-            "name": "Run Android Hermes (Preview) - Experimental",
+        "Run Android Hermes - Experimental": {
+            "name": "Run Android Hermes - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
@@ -96,16 +103,16 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "platform": PlatformType.iOS,
             "port": IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT // 9221
         },
-        "Debug Direct iOS (Preview) - Experimental": {
-            "name": "Debug Direct iOS (Preview) - Experimental",
+        "Debug Direct iOS - Experimental": {
+            "name": "Debug Direct iOS - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
             "platform": PlatformType.iOS,
             "port": IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT // 9221
         },
-        "Run Direct iOS (Preview) - Experimental": {
-            "name": "Run Direct iOS (Preview) - Experimental",
+        "Run Direct iOS - Experimental": {
+            "name": "Run Direct iOS - Experimental",
             "cwd": "${workspaceFolder}",
             "type": DEBUG_TYPES.REACT_NATIVE_DIRECT,
             "request": "launch",
@@ -116,35 +123,39 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
 
     private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
         {
-            label: "Debug Android (Preview)",
+            label: "Debug Android",
             description: localize("DebugAndroidConfigDesc", "Run and debug Android application"),
         },
         {
-            label: "Run Android (Preview)",
+            label: "Run Android",
             description: localize("RunAndroidConfigDesc", "Run Android application"),
         },
         {
-            label: "Debug iOS (Preview)",
+            label: "Debug iOS",
             description: localize("DebugiOSConfigDesc", "Run and debug iOS application"),
         },
         {
-            label: "Run iOS (Preview)",
+            label: "Run iOS",
             description: localize("RuniOSConfigDesc", "Run iOS application"),
         },
         {
-            label: "Debug Windows (Preview)",
+            label: "Debug Windows",
             description: localize("DebugWindowsConfigDesc", "Run and debug Windows application"),
         },
         {
-            label: "Attach to packager (Preview)",
+            label: "Debug macOS",
+            description: localize("DebugmacOSConfigDesc", "Run and debug macOS application"),
+        },
+        {
+            label: "Attach to packager",
             description: localize("AttachToPackagerConfigDesc", "Attach to already working application packager"),
         },
         {
-            label: "Debug in Exponent (Preview)",
+            label: "Debug in Exponent",
             description: localize("DebugExpoConfigDesc", "Debug Expo application or React Native application in Expo"),
         },
         {
-            label: "Debug Android Hermes (Preview) - Experimental",
+            label: "Debug Android Hermes - Experimental",
             description: localize("DebugAndroidHermesConfigDesc", "Run and debug Android Hermes application"),
         },
         {
@@ -156,11 +167,11 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             description: localize("AttachToPackageriOSConfigDesc", "Attach to already working React Native iOS application directly"),
         },
         {
-            label: "Debug Direct iOS (Preview) - Experimental",
+            label: "Debug Direct iOS - Experimental",
             description: localize("DebugDirectiOSConfigDesc", "Run and debug iOS application directly"),
         },
         {
-            label: "Run Direct iOS (Preview) - Experimental",
+            label: "Run Direct iOS - Experimental",
             description: localize("RunDirectiOSConfigDesc", "Run iOS application with direct debugging support"),
         },
     ];

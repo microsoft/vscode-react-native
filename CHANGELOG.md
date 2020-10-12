@@ -1,3 +1,42 @@
+## 1.0.1
+* Fixed issue connected to incorrect project caching when the `projectRoot` argument is used in `settings.json`
+
+
+## 1.0.0
+* Added `sourcemaps` parameters for Direct debugging scenarios [#1395](https://github.com/microsoft/vscode-react-native/pull/1395)
+* Fixed the `Debug Windows` scenario for React Native Windows applications v0.63 [#1395](https://github.com/microsoft/vscode-react-native/pull/1395), [#1412](https://github.com/microsoft/vscode-react-native/pull/1412)
+* Implemented experimental support of iOS direct debugging. It could be used in next versions of React Native with support of [TurboModules](https://github.com/react-native-community/discussions-and-proposals/issues/40) and [Hermes engine for iOS](https://github.com/facebook/hermes/issues/34) [#1367](https://github.com/microsoft/vscode-react-native/pull/1367)
+* Implemented selection of iOS and Android emulators for launch and run scenarios and Command Palette commands [#1361](https://github.com/microsoft/vscode-react-native/pull/1361), [#1374](https://github.com/microsoft/vscode-react-native/pull/1374)
+* Implemented automatic launch of the packager in `attach` scenarios in case it is not running yet [#1320](https://github.com/microsoft/vscode-react-native/pull/1320)
+* Added scenarios (`Run Android, Run iOS, etc`) to run applications without debugging [#1319](https://github.com/microsoft/vscode-react-native/pull/1319)
+* Minor logging improvement [#1392](https://github.com/microsoft/vscode-react-native/pull/1392), [#1330](https://github.com/microsoft/vscode-react-native/pull/1330)
+* Updated documentation
+* The minimum supported version of VS Code has been increased from `1.31.0` to `1.40.0`
+* Internal changes:
+    * Migrated from the [`vscode-node-debug2`](https://github.com/microsoft/vscode-node-debug2) debugger to [`js-debug`](https://github.com/microsoft/vscode-js-debug) one
+    * Integrated the debug adapter directly inside the extension, which allows VS Code to connect to it instead of launching a new external debug adapter per extension's debugging session. See [`DebugAdapterDescriptorFactory`](https://code.visualstudio.com/api/extension-guides/debugger-extension#alternative-approach-to-develop-a-debugger-extension) approach for more details
+    * Improved debug sessions control
+    * Added Webpack bundling for the extension [#1308](https://github.com/microsoft/vscode-react-native/pull/1308)
+    * Got rid of Q promises [#1354](https://github.com/microsoft/vscode-react-native/pull/1354)
+
+
+## 0.17.0
+* Enhanced extension security [#1339](https://github.com/microsoft/vscode-react-native/pull/1339), [#1350](https://github.com/microsoft/vscode-react-native/pull/1350), [#1355](https://github.com/microsoft/vscode-react-native/pull/1355), [#1362](https://github.com/microsoft/vscode-react-native/pull/1362)
+* Updated extension troubleshooting for the Expo debugging case [#1338](https://github.com/microsoft/vscode-react-native/pull/1338)
+* Fixed the Github organisation name capitalization in URLs to the repository, thanks to [Frieder Bluemle(@friederbluemle)](https://github.com/friederbluemle) [#1324](https://github.com/microsoft/vscode-react-native/pull/1324)
+* Updated Packager statusbar indicator representation [#1340](https://github.com/microsoft/vscode-react-native/pull/1340), [#1353](https://github.com/microsoft/vscode-react-native/pull/1353):
+    * Now there are two representations available: `Full` and `Short`. To change it add `react-native.packager.status-indicator` property with a value `Full` for full representation or `Short` for icon only mode. [More info](https://github.com/microsoft/vscode-react-native/pull/1353).
+
+
+## 0.16.1
+* Improved extension security [#1310](https://github.com/microsoft/vscode-react-native/pull/1310), [#1329](https://github.com/microsoft/vscode-react-native/pull/1329)
+* Fixed the incorrect handling of spaces in `adb` path from `local.properties` [#1326](https://github.com/microsoft/vscode-react-native/pull/1326)
+* Internal changes:
+    * Migrated from TSLint to ESLint [#1315](https://github.com/microsoft/vscode-react-native/pull/1315)
+    * Implemented service for running different checks of the extension work [#1309](https://github.com/microsoft/vscode-react-native/pull/1309), [#1322](https://github.com/microsoft/vscode-react-native/pull/1322)
+    * Smoke tests were updated to work with VS Code 1.45.1 and Expo SDK 38
+
+
 ## 0.16.0
 * Improved extension security [#1253](https://github.com/microsoft/vscode-react-native/pull/1253)
 * Updated extension license to MIT [#1286](https://github.com/microsoft/vscode-react-native/pull/1286)

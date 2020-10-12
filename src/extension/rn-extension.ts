@@ -12,22 +12,22 @@ try {
 // @endif
 import * as vscode from "vscode";
 import * as semver from "semver";
-import {CommandPaletteHandler} from "./commandPaletteHandler";
-import {EntryPointHandler, ProcessType} from "../common/entryPointHandler";
-import {ErrorHelper} from "../common/error/errorHelper";
-import {InternalError} from "../common/error/internalError";
-import {InternalErrorCode} from "../common/error/internalErrorCode";
-import {SettingsHelper} from "./settingsHelper";
-import {ProjectVersionHelper} from "../common/projectVersionHelper";
-import {ReactDirManager} from "./reactDirManager";
-import {Telemetry} from "../common/telemetry";
-import {TelemetryHelper, ICommandTelemetryProperties} from "../common/telemetryHelper";
-import {OutputChannelLogger} from "./log/OutputChannelLogger";
-import {ReactNativeDebugConfigProvider, DEBUG_TYPES} from "./debugConfigurationProvider";
-import {DebugSessionBase} from "../debugger/debugSessionBase";
-import {ReactNativeSessionManager} from "./reactNativeSessionManager";
-import {ProjectsStorage} from "./projectsStorage";
-import {AppLauncher} from "./appLauncher";
+import { CommandPaletteHandler } from "./commandPaletteHandler";
+import { EntryPointHandler, ProcessType } from "../common/entryPointHandler";
+import { ErrorHelper } from "../common/error/errorHelper";
+import { InternalError } from "../common/error/internalError";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { SettingsHelper } from "./settingsHelper";
+import { ProjectVersionHelper } from "../common/projectVersionHelper";
+import { ReactDirManager } from "./reactDirManager";
+import { Telemetry } from "../common/telemetry";
+import { TelemetryHelper, ICommandTelemetryProperties } from "../common/telemetryHelper";
+import { OutputChannelLogger } from "./log/OutputChannelLogger";
+import { ReactNativeDebugConfigProvider, DEBUG_TYPES } from "./debugConfigurationProvider";
+import { DebugSessionBase } from "../debugger/debugSessionBase";
+import { ReactNativeSessionManager } from "./reactNativeSessionManager";
+import { ProjectsStorage } from "./projectsStorage";
+import { AppLauncher } from "./appLauncher";
 import * as nls from "vscode-nls";
 import { getExtensionVersion, getExtensionName } from "../common/extensionHelper";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
@@ -67,7 +67,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
     let extProps: ICommandTelemetryProperties = {};
     if (workspaceFolders) {
         extProps = {
-            ["workspaceFoldersCount"]: {value: workspaceFolders.length, isPii: false},
+            ["workspaceFoldersCount"]: { value: workspaceFolders.length, isPii: false },
         };
     }
 
@@ -103,7 +103,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
             TelemetryHelper.sendErrorEvent(
                 "ActivateCouldNotFindWorkspace",
                 ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindWorkspace)
-                );
+            );
         }
 
         return Promise.all(promises).then(() => {
@@ -120,13 +120,13 @@ export function deactivate(): Promise<void> {
             () => {
                 debugConfigProvider.dispose();
                 CommandPaletteHandler.stopAllPackagers()
-                .then(() => {
-                    return CommandPaletteHandler.stopElementInspector();
-                })
-                .then(() => {
-                    // Tell vscode that we are done with deactivation
-                    resolve();
-                });
+                    .then(() => {
+                        return CommandPaletteHandler.stopElementInspector();
+                    })
+                    .then(() => {
+                        // Tell vscode that we are done with deactivation
+                        resolve();
+                    });
             }, /*errorsAreFatal*/ true);
     });
 }
@@ -170,7 +170,7 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                     let reactDirManager = new ReactDirManager(rootPath);
                     return setupAndDispose(reactDirManager, context)
                         .then(() => {
-                            ProjectsStorage.addFolder(folder, new AppLauncher(reactDirManager, folder));
+                            ProjectsStorage.addFolder(projectRootPath, new AppLauncher(reactDirManager, folder));
 
                             return void 0;
                         });
@@ -179,7 +179,7 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                 outputChannelLogger.debug(`react-native@${versions.reactNativeVersion} isn't supported`);
             }
 
-            return Promise.all(promises).then(() => {});
+            return Promise.all(promises).then(() => { });
         });
 }
 
@@ -229,19 +229,19 @@ function isSupportedVersion(version: string): boolean {
 }
 
 function registerReactNativeCommands(context: vscode.ExtensionContext): void {
-    registerVSCodeCommand(context, "launchAndroidSimulator-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToStartAndroidEmulator), () => CommandPaletteHandler.launchAndroidEmulator());
-    registerVSCodeCommand(context, "runAndroidSimulator-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => CommandPaletteHandler.runAndroid("simulator"));
-    registerVSCodeCommand(context, "runAndroidDevice-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => CommandPaletteHandler.runAndroid("device"));
-    registerVSCodeCommand(context, "runIosSimulator-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => CommandPaletteHandler.runIos("simulator"));
-    registerVSCodeCommand(context, "runIosDevice-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => CommandPaletteHandler.runIos("device"));
-    registerVSCodeCommand(context, "runExponent-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunExponent), () => CommandPaletteHandler.runExponent());
-    registerVSCodeCommand(context, "startPackager-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager), () => CommandPaletteHandler.startPackager());
-    registerVSCodeCommand(context, "stopPackager-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager), () => CommandPaletteHandler.stopPackager());
-    registerVSCodeCommand(context, "restartPackager-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToRestartPackager), () => CommandPaletteHandler.restartPackager());
-    registerVSCodeCommand(context, "publishToExpHost-preview", ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost), () => CommandPaletteHandler.publishToExpHost());
-    registerVSCodeCommand(context, "showDevMenu-preview", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeShowDevMenu", "React Native: Show Developer Menu for app")), () => CommandPaletteHandler.showDevMenu());
-    registerVSCodeCommand(context, "reloadApp-preview", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeReloadApp", "React Native: Reload App")), () => CommandPaletteHandler.reloadApp());
-    registerVSCodeCommand(context, "runInspector-preview", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeRunElementInspector", "React Native: Run Element Inspector")), () => CommandPaletteHandler.runElementInspector());
+    registerVSCodeCommand(context, "launchAndroidSimulator", ErrorHelper.getInternalError(InternalErrorCode.FailedToStartAndroidEmulator), () => CommandPaletteHandler.launchAndroidEmulator());
+    registerVSCodeCommand(context, "runAndroidSimulator", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => CommandPaletteHandler.runAndroid("simulator"));
+    registerVSCodeCommand(context, "runAndroidDevice", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid), () => CommandPaletteHandler.runAndroid("device"));
+    registerVSCodeCommand(context, "runIosSimulator", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => CommandPaletteHandler.runIos("simulator"));
+    registerVSCodeCommand(context, "runIosDevice", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos), () => CommandPaletteHandler.runIos("device"));
+    registerVSCodeCommand(context, "runExponent", ErrorHelper.getInternalError(InternalErrorCode.FailedToRunExponent), () => CommandPaletteHandler.runExponent());
+    registerVSCodeCommand(context, "startPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager), () => CommandPaletteHandler.startPackager());
+    registerVSCodeCommand(context, "stopPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager), () => CommandPaletteHandler.stopPackager());
+    registerVSCodeCommand(context, "restartPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToRestartPackager), () => CommandPaletteHandler.restartPackager());
+    registerVSCodeCommand(context, "publishToExpHost", ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost), () => CommandPaletteHandler.publishToExpHost());
+    registerVSCodeCommand(context, "showDevMenu", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeShowDevMenu", "React Native: Show Developer Menu for app")), () => CommandPaletteHandler.showDevMenu());
+    registerVSCodeCommand(context, "reloadApp", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeReloadApp", "React Native: Reload App")), () => CommandPaletteHandler.reloadApp());
+    registerVSCodeCommand(context, "runInspector", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeRunElementInspector", "React Native: Run Element Inspector")), () => CommandPaletteHandler.runElementInspector());
 }
 
 function registerVSCodeCommand(context: vscode.ExtensionContext, commandName: string, error: InternalError, commandHandler: () => Promise<void>): void {

@@ -113,7 +113,7 @@ export function startTunnels(projectRoot: string): Promise<void> {
 export function getUrl(projectRoot: string, options?: XDLPackage.IUrlOptions): Promise<string> {
     return getPackage()
         .then((xdl) =>
-            xdl.Project.getUrlAsync(projectRoot, options));
+            xdl.UrlUtils.constructManifestUrlAsync(projectRoot, options));
 }
 
 export function stopAll(projectRoot: string): Promise<void> {

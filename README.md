@@ -1,43 +1,8 @@
-# React Native Tools (Preview)
+# React Native Tools
 
-[![Build Status](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_apis/build/status/%5BUnit%20tests%5D%20vscode-react-native%20%5Bmaster%5D?branchName=preview)](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_build/latest?definitionId=60&branchName=preview)
-![VS Marketplace version](https://vsmarketplacebadge.apphb.com/version-short/msjsdiag.vscode-react-native-preview.svg)
-![VS Marketplace rating](https://vsmarketplacebadge.apphb.com/rating-star/msjsdiag.vscode-react-native-preview.svg)
-
-> This is a preview version of the updated React Native Tools extension. It's not recommended to use the preview version and the stable one at the same time.
-
-## React Native Tools Preview migration guide
-
-In order to use the preview version of the extension it's required to add `-preview` suffix in the `type` field of a debug configuration of the RNT stable extension. The difference between the configurations is shown below:
-
-- React Native debug configuration:
-  ```diff
-  {
-      "name": "Debug Android",
-      "cwd": "${workspaceFolder}",
-  -    "type": "reactnative",
-  +    "type": "reactnative-preview",
-      "request": "launch",
-      "platform": "android"
-  }
-  ```
-- React Native Hermes debug configuration:
-  ```diff
-  {
-      "name": "Debug Android (Hermes)",
-      "cwd": "${workspaceFolder}",
-  -    "type": "reactnativedirect",
-  +    "type": "reactnativedirect-preview",
-      "request": "launch",
-      "platform": "android"
-  }
-  ```
-
-We also added `(Preview)` suffix to Command Palette command names.
-
-![React Native commands preview](https://raw.githubusercontent.com/Microsoft/vscode-react-native/preview/images/command-palette-preview.png)
-
-To avoid conflicts, it's not recommended to use Command Palette commands and debug configurations of the preview version and the stable one at the same time.
+[![Build Status](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_apis/build/status/%5BUnit%20tests%5D%20vscode-react-native%20%5Bmaster%5D?branchName=master)](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_build/latest?definitionId=60&branchName=master)
+![Stable version](https://vsmarketplacebadge.apphb.com/version-short/msjsdiag.vscode-react-native.svg)
+![VS Marketplace rating](https://vsmarketplacebadge.apphb.com/rating-star/msjsdiag.vscode-react-native.svg)
 
 ## About the extension
 
@@ -50,19 +15,20 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 
 # Table of Contents
 
-- [React Native Tools Preview migration guide](#react-native-tools-preview-migration-guide)
 - [About the extension](#about-the-extension)
 - [Getting started](#getting-started)
 - [React Native commands in the Command Palette](#react-native-commands-in-the-command-palette)
 - [Debugging React Native applications](#debugging-react-native-applications)
-  - [Hermes (Android)](#hermes-android)
-  - [iOS devices](#ios-devices)
-  - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
-  - [iOS direct debugging](#iOS-direct-debugging)
+  - [Hermes (Android) applications](#hermes-android)
+  - [iOS applications](#ios-applications)
+      - [iOS devices](#ios-devices)
+      - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
+      - [iOS direct debugging](#iOS-direct-debugging)
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
   - [Windows applications](#react-native-for-windows)
-  - [TypeScript and Haul](#typescript-and-haul)
+  - [macOS applications](#react-native-for-macos)
+  - [TypeScript and Haul based applications](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
 - [Customization](#customization)
   - [Logging](#logging)
@@ -166,8 +132,9 @@ To debug while using Hermes engine, please choose one of the following debug con
   "request": "attach"
 }
 ```
+## iOS applications
 
-## iOS devices
+### iOS devices
 
 Debugging on an iOS device requires following manual steps:
 
@@ -177,7 +144,7 @@ Debugging on an iOS device requires following manual steps:
 - Choose the **Debug iOS** option from the "Configuration" dropdown and press F5.
 - Shake the device to open the development menu and select "Debug JS Remotely".
 
-## Custom scheme for iOS apps
+### Custom scheme for iOS apps
 
 If you want to use a custom scheme for your application you can either pass it as part of the `runArguments` parameter arguments, or set the `scheme` configuration parameter as shown below:
 
@@ -191,7 +158,7 @@ If you want to use a custom scheme for your application you can either pass it a
 
 Please be aware, specifying the scheme value as a part of the `runArguments` parameter arguments will override the `scheme` configuration parameter value, if it set.
 
-## iOS direct debugging
+### iOS direct debugging
 
 The extension provides experimental support of iOS direct debugging. See more info here: [react-native-community/discussions-and-proposals#40](https://github.com/react-native-community/discussions-and-proposals/issues/40), [react-native-community/discussions-and-proposals#206](https://github.com/react-native-community/discussions-and-proposals/issues/206)
 
@@ -281,7 +248,7 @@ If you want to change your app entrypoint (for example, from `index.js` to `inde
 
 **NOTE**: The extension caches the version of the exponent SDK used by your project. This is helpful since we don't want to install the SDK each time you run exponent. If you want the extension to update the SDK version based on your React Native version, just restart VS Code and if it is supported it should work. If it does not please open an issue.
 
-## Windows applications
+## React Native for Windows
 
 You can debug UWP and WPF React Native for Windows applications by changing the `platform` in your `launch.json` configuration:
 
@@ -308,6 +275,24 @@ You can debug UWP and WPF React Native for Windows applications by changing the 
     "platform": "wpf"
   }
   ```
+
+  You can find more information on how to setup your application to work with Windows in [React Native for Windows Getting started instruction](https://microsoft.github.io/react-native-windows/docs/getting-started)
+
+## React Native for macOS
+
+You can debug React Native for macOS applications by changing the `platform` in your `launch.json` configuration to `macos`:
+
+  ```json
+  {
+    "name": "Debug macOS",
+    "cwd": "${workspaceFolder}",
+    "type": "reactnative",
+    "request": "launch",
+    "platform": "macos"
+  }
+  ```
+
+  You can find more information on how to setup your application to work with macOS in [React Native for macOS Getting started instruction](https://microsoft.github.io/react-native-windows/docs/rnm-getting-started)
 
 ## TypeScript and Haul
 

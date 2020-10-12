@@ -1,902 +1,918 @@
 {
-	"name": "vscode-react-native-preview",
-	"displayName": "React Native Tools (Preview)",
-	"version": "0.0.0",
-	"private": true,
-	"publisher": "msjsdiag",
-	"icon": "images/icon.png",
-	"galleryBanner": {
-		"color": "#3B3738",
-		"theme": "dark"
-	},
-	"preview": true,
-	"description": "%reactNative.description%",
-	"keywords": [
-		"react-native",
-		"multi-root ready"
-	],
-	"bugs": "https://github.com/microsoft/vscode-react-native/issues",
-	"license": "%reactNative.license%",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/microsoft/vscode-react-native"
-	},
-	"engines": {
-		"vscode": "^1.40.0"
-	},
-	"categories": [
-		"Debuggers",
-		"Other"
-	],
-	"activationEvents": [
-		"workspaceContains:node_modules/react-native",
-		"onDebugResolve:reactnative-preview",
-		"onDebugResolve:reactnativedirect-preview",
-		"onDebugInitialConfigurations",
-		"onCommand:reactNative.runAndroidSimulator-preview",
-		"onCommand:reactNative.runAndroidDevice-preview",
-		"onCommand:reactNative.runIosSimulator-preview",
-		"onCommand:reactNative.runIosDevice-preview",
-		"onCommand:reactNative.runExponent-preview",
-		"onCommand:reactNative.startPackager-preview",
-		"onCommand:reactNative.stopPackager-preview",
-		"onCommand:reactNative.restartPackager-preview",
-		"onCommand:reactNative.publishToExpHost-preview",
-		"onCommand:reactNative.showDevMenu-preview",
-		"onCommand:reactNative.reloadApp-preview",
-		"onCommand:reactNative.runInspector-preview"
-	],
-	"main": "./src/extension/rn-extension",
-	"contributes": {
-		"commands": [
-			{
-				"command": "reactNative.launchAndroidSimulator-preview",
-				"title": "%reactNative.command.launchAndroidSimulator.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.runAndroidSimulator-preview",
-				"title": "%reactNative.command.runAndroidSimulator.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.runAndroidDevice-preview",
-				"title": "%reactNative.command.runAndroidDevice.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.runIosSimulator-preview",
-				"title": "%reactNative.command.runIosSimulator.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.runIosDevice-preview",
-				"title": "%reactNative.command.runIosDevice.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.runExponent-preview",
-				"title": "%reactNative.command.runExponent.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.startPackager-preview",
-				"title": "%reactNative.command.startPackager.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.stopPackager-preview",
-				"title": "%reactNative.command.stopPackager.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.restartPackager-preview",
-				"title": "%reactNative.command.restartPackager.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.publishToExpHost-preview",
-				"title": "%reactNative.command.publishToExpHost.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.showDevMenu-preview",
-				"title": "%reactNative.command.showDevMenu.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.reloadApp-preview",
-				"title": "%reactNative.command.reloadApp.title%",
-				"category": "React Native (Preview)"
-			},
-			{
-				"command": "reactNative.runInspector-preview",
-				"title": "%reactNative.command.runInspector.title%",
-				"category": "React Native (Preview)"
-			}
-		],
-		"debuggers": [
-			{
-				"type": "reactnative-preview",
-				"label": "React Native (Preview)",
-				"runtime": "node",
-				"enableBreakpointsFor": {
-					"languageIds": [
-						"javascript",
-						"typescript",
-						"javascriptreact",
-						"typescriptreact"
-					]
-				},
-				"configurationSnippets": [
-					{
-						"label": "React Native (Preview): Debug Android",
-						"description": "%reactNative.snippets.debugAndroid.description%",
-						"body": {
-							"name": "Debug Android (Preview)",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative-preview",
-							"request": "launch",
-							"platform": "android"
-						}
-					},
-					{
-						"label": "React Native (Preview): Run Android",
-						"description": "%reactNative.snippets.runAndroid.description%",
-						"body": {
-							"name": "Run Android (Preview)",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative-preview",
-							"request": "launch",
-							"platform": "android",
-							"enableDebug": false
-						}
-					},
-					{
-						"label": "React Native (Preview): Debug iOS",
-						"description": "%reactNative.snippets.debugiOS.description%",
-						"body": {
-							"name": "Debug iOS (Preview)",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative-preview",
-							"request": "launch",
-							"platform": "ios"
-						}
-					},
-					{
-						"label": "React Native (Preview): Run iOS",
-						"description": "%reactNative.snippets.runiOS.description%",
-						"body": {
-							"name": "Run iOS (Preview)",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative-preview",
-							"request": "launch",
-							"platform": "ios",
-							"enableDebug": false
-						}
-					},
-					{
-						"label": "React Native (Preview): Debug Windows",
-						"description": "%reactNative.snippets.debugWindows.description%",
-						"body": {
-							"name": "Debug Windows (Preview)",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative-preview",
-							"request": "launch",
-							"platform": "windows"
-						}
-					},
-					{
-						"label": "React Native (Preview): Attach to packager",
-						"description": "%reactNative.snippets.attachPackager.description%",
-						"body": {
-							"name": "Attach to packager (Preview)",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative-preview",
-							"request": "attach"
-						}
-					},
-					{
-						"label": "React Native (Preview): Debug in Exponent",
-						"description": "%reactNative.snippets.debugExpo.description%",
-						"body": {
-							"name": "Debug in Exponent (Preview)",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnative-preview",
-							"request": "launch",
-							"platform": "exponent"
-						}
-					}
-				],
-				"configurationAttributes": {
-					"attach": {
-						"required": [
-							"cwd"
-						],
-						"properties": {
-							"program": {
-								"type": "string",
-								"description": "%reactNative.attach.program.description%"
-							},
-							"cwd": {
-								"type": "string",
-								"description": "%reactNative.attach.cwd.description%",
-								"default": "${workspaceFolder}"
-							},
-							"sourceMaps": {
-								"type": "boolean",
-								"description": "%reactNative.attach.sourceMaps.description%",
-								"default": false
-							},
-							"sourceMapPathOverrides": {
-								"type": "object",
-								"description": "%reactNative.attach.sourceMapsPathOverrides.description%"
-							},
-							"trace": {
-								"type": "string",
-								"enum": [
-									"verbose",
-									"log",
-									"warn",
-									"error",
-									"stop"
-								],
-								"default": "log",
-								"description": "%reactNative.attach.trace.description%"
-							},
-							"address": {
-								"type": "string",
-								"description": "%reactNative.attach.address.description%",
-								"default": "localhost"
-							},
-							"port": {
-								"type": "string",
-								"description": "%reactNative.attach.port.description%",
-								"default": "8081"
-							},
-							"remoteRoot": {
-								"type": "string",
-								"description": "%reactNative.attach.remoteRoot.description%",
-								"default": null
-							},
-							"localRoot": {
-								"type": "string",
-								"description": "%reactNative.attach.localRoot.description%",
-								"default": "${workspaceFolder}"
-							},
-							"skipFiles": {
-								"type": "array",
-								"description": "%reactNative.attach.skipFiles.description%",
-								"items": {
-									"type": "string"
-								},
-								"default": []
-							},
-							"debuggerWorkerUrlPath": {
-								"type": "string",
-								"description": "%reactNative.attach.debuggerWorkerUrlPath.description%",
-								"default": "debugger-ui/"
-							}
-						}
-					},
-					"launch": {
-						"required": [
-							"cwd",
-							"platform"
-						],
-						"properties": {
-							"platform": {
-								"type": "string",
-								"enum": [
-									"ios",
-									"android",
-									"exponent",
-									"windows",
-									"wpf"
-								],
-								"description": "%reactNative.launch.platform.description%"
-							},
-							"program": {
-								"type": "string",
-								"description": "%reactNative.launch.program.description%"
-							},
-							"cwd": {
-								"type": "string",
-								"description": "%reactNative.launch.cwd.description%",
-								"default": "${workspaceFolder}"
-							},
-							"target": {
-								"anyOf": [
-									{
-										"type": "string",
-										"enum": [
-											"device",
-											"simulator"
-										]
-									},
-									{
-										"type": "string"
-									}
-								],
-								"default": "simulator",
-								"description": "%reactNative.launch.target.description%"
-							},
-							"sourceMaps": {
-								"type": "boolean",
-								"description": "%reactNative.launch.sourceMaps.description%",
-								"default": false
-							},
-							"logCatArguments": {
-								"type": "array",
-								"description": "%reactNative.launch.logCatArguments.description%",
-								"default": [
-									"*:S",
-									"ReactNative:V",
-									"ReactNativeJS:V"
-								]
-							},
-							"runArguments": {
-								"type": "array",
-								"description": "%reactNative.launch.runArguments.description%"
-							},
-							"env": {
-								"type": "object",
-								"additionalProperties": {
-									"type": "string"
-								},
-								"description": "%reactNative.launch.env.description%",
-								"default": {}
-							},
-							"envFile": {
-								"type": "string",
-								"description": "%reactNative.launch.envFile.description%",
-								"default": "${workspaceFolder}/.env"
-							},
-							"variant": {
-								"type": "string",
-								"description": "%reactNative.launch.variant.description%"
-							},
-							"scheme": {
-								"type": "string",
-								"description": "%reactNative.launch.scheme.description%"
-							},
-							"productName": {
-								"type": "string",
-								"description": "%reactNative.launch.productName.description%"
-							},
-							"skipFiles": {
-								"type": "array",
-								"description": "%reactNative.launch.skipFiles.description%",
-								"items": {
-									"type": "string"
-								},
-								"default": []
-							},
-							"trace": {
-								"type": "string",
-								"enum": [
-									"verbose",
-									"log",
-									"warn",
-									"error",
-									"stop"
-								],
-								"default": "log",
-								"description": "%reactNative.launch.trace.description%"
-							},
-							"debuggerWorkerUrlPath": {
-								"type": "string",
-								"description": "%reactNative.launch.debuggerWorkerUrlPath.description%",
-								"default": "debugger-ui/"
-							},
-							"launchActivity": {
-								"type": "string",
-								"description": "%reactNative.launch.launchActivity.description%",
-								"default": "MainActivity"
-							},
-							"expoHostType": {
-								"type": "string",
-								"enum": [
-									"tunnel",
-									"lan",
-									"local"
-								],
-								"default": "tunnel",
-								"description": "%reactNative.launch.expoHostType.description%"
-							},
-							"enableDebug": {
-								"type": "boolean",
-								"description": "%reactNative.launch.enableDebug.description%",
-								"default": true
-							}
-						}
-					}
-				}
-			},
-			{
-				"type": "reactnativedirect-preview",
-				"label": "React Native Direct (Preview) - Experimental",
-				"runtime": "node",
-				"enableBreakpointsFor": {
-					"languageIds": [
-						"javascript",
-						"typescript",
-						"javascriptreact",
-						"typescriptreact"
-					]
-				},
-				"configurationSnippets": [
-					{
-						"label": "React Native Direct (Preview): Debug Android Hermes - Experimental",
-						"description": "%reactNative.snippets.debugAndroidHermes.description%",
-						"body": {
-							"name": "Debug Android Hermes (Preview) - Experimental",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnativedirect-preview",
-							"request": "launch",
-							"platform": "android"
-						}
-					},
-					{
-						"label": "React Native Direct (Preview): Run Android Hermes- Experimental",
-						"description": "%reactNative.snippets.runAndroidHermes.description%",
-						"body": {
-							"name": "Run Android Hermes (Preview) - Experimental",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnativedirect-preview",
-							"request": "launch",
-							"platform": "android",
-							"enableDebug": false
-						}
-					},
-					{
-						"label": "React Native Direct (Preview): Attach to the React Native Hermes - Experimental",
-						"description": "%reactNative.snippets.directAttach.description%",
-						"body": {
-							"name": "React Native Direct (Preview): Attach to the React Native Hermes - Experimental",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnativedirect-preview",
-							"request": "attach"
-						}
-					},
-					{
-						"label": "React Native Direct (Preview): Attach to the React Native iOS - Experimental",
-						"description": "%reactNative.snippets.directAttach.description%",
-						"body": {
-							"name": "Attach to the React Native iOS - Experimental",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnativedirect-preview",
-							"request": "attach",
-							"platform": "ios",
-							"port": 9221
-						}
-					},
-					{
-						"label": "React Native Direct (Preview): Debug Direct iOS - Experimental",
-						"description": "%reactNative.snippets.debugDirectiOS.description%",
-						"body": {
-							"name": "Debug Direct iOS (Preview) - Experimental",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnativedirect-preview",
-							"request": "launch",
-							"platform": "ios",
-							"port": 9221
-						}
-					},
-					{
-						"label": "React Native Direct (Preview): Run Direct iOS - Experimental",
-						"description": "%reactNative.snippets.runDirectiOS.description%",
-						"body": {
-							"name": "Run Direct iOS (Preview) - Experimental",
-							"cwd": "^\"\\${workspaceFolder}\"",
-							"type": "reactnativedirect-preview",
-							"request": "launch",
-							"platform": "ios",
-							"enableDebug": false
-						}
-					}
-				],
-				"configurationAttributes": {
-					"attach": {
-						"required": [
-							"cwd"
-						],
-						"properties": {
-							"cwd": {
-								"type": "string",
-								"description": "%reactNative.attach.cwd.description%",
-								"default": "${workspaceFolder}"
-							},
-							"sourceMaps": {
-								"type": "boolean",
-								"description": "%reactNative.attach.sourceMaps.description%",
-								"default": false
-							},
-							"sourceMapPathOverrides": {
-								"type": "object",
-								"description": "%reactNative.attach.sourceMapsPathOverrides.description%"
-							},
-							"platform": {
-								"type": "string",
-								"enum": [
-									"ios",
-									"android"
-								],
-								"description": "%reactNative.launch.direct.platform.description%"
-							},
-							"trace": {
-								"type": "string",
-								"enum": [
-									"verbose",
-									"log",
-									"warn",
-									"error",
-									"stop"
-								],
-								"default": "log",
-								"description": "%reactNative.attach.trace.description%"
-							},
-							"address": {
-								"type": "string",
-								"description": "%reactNative.attach.address.description%",
-								"default": "localhost"
-							},
-							"port": {
-								"type": "number",
-								"description": "%reactNative.direct.attach.port.description%",
-								"default": 8081
-							},
-							"webkitRangeMin": {
-								"type": "number",
-								"description": "%reactNative.direct.attach.webkitRangeMin.description%",
-								"default": 9223
-							},
-							"webkitRangeMax": {
-								"type": "number",
-								"description": "%reactNative.direct.attach.webkitRangeMax.description%",
-								"default": 9322
-							},
-							"skipFiles": {
-								"type": "array",
-								"description": "%reactNative.attach.skipFiles.description%",
-								"items": {
-									"type": "string"
-								},
-								"default": []
-							}
-						}
-					},
-					"launch": {
-						"required": [
-							"cwd",
-							"platform"
-						],
-						"properties": {
-							"platform": {
-								"type": "string",
-								"enum": [
-									"android",
-									"ios"
-								],
-								"description": "%reactNative.launch.direct.platform.description%"
-							},
-							"cwd": {
-								"type": "string",
-								"description": "%reactNative.launch.cwd.description%",
-								"default": "${workspaceFolder}"
-							},
-							"port": {
-								"type": "number",
-								"description": "%reactNative.direct.attach.port.description%",
-								"default": 8081
-							},
-							"webkitRangeMin": {
-								"type": "number",
-								"description": "%reactNative.direct.attach.webkitRangeMin.description%",
-								"default": 9223
-							},
-							"webkitRangeMax": {
-								"type": "number",
-								"description": "%reactNative.direct.attach.webkitRangeMax.description%",
-								"default": 9322
-							},
-							"target": {
-								"anyOf": [
-									{
-										"type": "string",
-										"enum": [
-											"device",
-											"simulator"
-										]
-									},
-									{
-										"type": "string"
-									}
-								],
-								"default": "simulator",
-								"description": "%reactNative.launch.target.description%"
-							},
-							"sourceMaps": {
-								"type": "boolean",
-								"description": "%reactNative.launch.sourceMaps.description%",
-								"default": false
-							},
-							"logCatArguments": {
-								"type": "array",
-								"description": "%reactNative.launch.logCatArguments.description%",
-								"default": [
-									"*:S",
-									"ReactNative:V",
-									"ReactNativeJS:V"
-								]
-							},
-							"runArguments": {
-								"type": "array",
-								"description": "%reactNative.launch.runArguments.description%"
-							},
-							"env": {
-								"type": "object",
-								"additionalProperties": {
-									"type": "string"
-								},
-								"description": "%reactNative.launch.env.description%",
-								"default": {}
-							},
-							"envFile": {
-								"type": "string",
-								"description": "%reactNative.launch.envFile.description%",
-								"default": "${workspaceFolder}/.env"
-							},
-							"variant": {
-								"type": "string",
-								"description": "%reactNative.launch.variant.description%"
-							},
-							"skipFiles": {
-								"type": "array",
-								"description": "%reactNative.launch.skipFiles.description%",
-								"items": {
-									"type": "string"
-								},
-								"default": []
-							},
-							"trace": {
-								"type": "string",
-								"enum": [
-									"verbose",
-									"log",
-									"warn",
-									"error",
-									"stop"
-								],
-								"default": "log",
-								"description": "%reactNative.launch.trace.description%"
-							},
-							"launchActivity": {
-								"type": "string",
-								"description": "%reactNative.launch.launchActivity.description%",
-								"default": "MainActivity"
-							},
-							"enableDebug": {
-								"type": "boolean",
-								"description": "%reactNative.launch.enableDebug.description%",
-								"default": true
-							}
-						}
-					}
-				}
-			}
-		],
-		"configuration": {
-			"type": "object",
-			"title": "%reactNative.configuration.title%",
-			"properties": {
-				"react-native.ios.runArguments.simulator": {
-					"description": "%reactNative.configuration.properties.react-native.ios.runArguments.simulator.description%",
-					"type": "array",
-					"default": [],
-					"scope": "resource"
-				},
-				"react-native.ios.runArguments.device": {
-					"description": "%reactNative.configuration.properties.react-native.ios.runArguments.device.description%",
-					"type": "array",
-					"default": [],
-					"scope": "resource"
-				},
-				"react-native.ios.env.simulator": {
-					"type": "object",
-					"additionalProperties": {
-						"type": "string"
-					},
-					"description": "%reactNative.configuration.properties.react-native.ios.env.simulator.description%",
-					"default": {},
-					"scope": "resource"
-				},
-				"react-native.ios.env.device": {
-					"type": "object",
-					"additionalProperties": {
-						"type": "string"
-					},
-					"description": "%reactNative.configuration.properties.react-native.ios.env.device.description%",
-					"default": {},
-					"scope": "resource"
-				},
-				"react-native.ios.envFile.simulator": {
-					"type": "string",
-					"description": "%reactNative.configuration.properties.react-native.ios.envFile.simulator.description%",
-					"scope": "resource"
-				},
-				"react-native.ios.envFile.device": {
-					"type": "string",
-					"description": "%reactNative.configuration.properties.react-native.ios.envFile.device.description%",
-					"scope": "resource"
-				},
-				"react-native.android.runArguments.simulator": {
-					"description": "%reactNative.configuration.properties.react-native.android.runArguments.simulator.description%",
-					"type": "array",
-					"default": [],
-					"scope": "resource"
-				},
-				"react-native.android.runArguments.device": {
-					"description": "%reactNative.configuration.properties.react-native.android.runArguments.device.description%",
-					"type": "array",
-					"default": [],
-					"scope": "resource"
-				},
-				"react-native.android.env.simulator": {
-					"type": "object",
-					"additionalProperties": {
-						"type": "string"
-					},
-					"description": "%reactNative.configuration.properties.react-native.android.env.simulator.description%",
-					"default": {},
-					"scope": "resource"
-				},
-				"react-native.android.env.device": {
-					"type": "object",
-					"additionalProperties": {
-						"type": "string"
-					},
-					"description": "%reactNative.configuration.properties.react-native.android.env.device.description%",
-					"default": {},
-					"scope": "resource"
-				},
-				"react-native.android.envFile.simulator": {
-					"type": "string",
-					"description": "%reactNative.configuration.properties.react-native.android.envFile.simulator.description%",
-					"scope": "resource"
-				},
-				"react-native.android.envFile.device": {
-					"type": "string",
-					"description": "%reactNative.configuration.properties.react-native.android.envFile.device.description%",
-					"scope": "resource"
-				},
-				"react-native.packager.port": {
-					"description": "%reactNative.configuration.properties.react-native.packager.port.description%",
-					"type": "number",
-					"default": 8081,
-					"scope": "resource"
-				},
-				"react-native.packager.status-indicator": {
-					"description": "%reactNative.configuration.properties.react-native.packager.status-indicator.description%",
-					"type": "string",
-					"enum": [
-						"Full",
-						"Short"
-					],
-					"default": "Full",
-					"scope": "resource"
-				},
-				"react-native-tools.reactNativeGlobalCommandName": {
-					"description": "%reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description%",
-					"type": "string",
-					"scope": "resource"
-				},
-				"react-native-tools.projectRoot": {
-					"description": "%reactNative.configuration.properties.react-native-tools.projectRoot.description%",
-					"type": "string",
-					"scope": "resource",
-					"default": ""
-				},
-				"react-native-tools.logLevel": {
-					"description": "%reactNative.configuration.properties.react-native-tools.logLevel.description%",
-					"type": "enum",
-					"enum": [
-						"Trace",
-						"Debug",
-						"Info",
-						"Warning",
-						"Error",
-						"None"
-					],
-					"default": "Info",
-					"scope": "resource"
-				}
-			}
-		}
-	},
-	"scripts": {
-		"build": "gulp build",
-		"vscode:prepublish": "gulp",
-		"test": "node ./test/runTest.js",
-		"test-localization": "node ./test/localization/runTest.js",
-		"prepare-smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install",
-		"smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install && yarn --cwd ./vscode/test/smoke mocha",
-		"quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
-	},
-	"dependencies": {
-		"configstore": "^5.0.1",
-		"extract-opts": "2.2.0",
-		"flatten-source-map": "0.0.2",
-		"glob": "^7.1.6",
-		"ip": "^1.1.5",
-		"mkdirp": "^1.0.3",
-		"qr-image": "^3.2.0",
-		"semver": "^6.3.0",
-		"source-map": "0.5.2",
-		"source-map-resolve": "^0.5.3",
-		"strip-json-comments": "2.0.1",
-		"vscode-cdp-proxy": "^0.2.0",
-		"vscode-debugadapter": "^1.39.1",
-		"vscode-extension-telemetry": "0.0.5",
-		"vscode-nls": "^4.1.2",
-		"ws": "^7.3.0"
-	},
-	"devDependencies": {
-		"@types/configstore": "^4.0.0",
-		"@types/ip": "^1.1.0",
-		"@types/mkdirp": "^1.0.0",
-		"@types/mocha": "^7.0.2",
-		"@types/ncp": "^2.0.3",
-		"@types/node": "^10.17.17",
-		"@types/qr-image": "^3.2.0",
-		"@types/rimraf": "^3.0.0",
-		"@types/semver": "^6.2.1",
-		"@types/shelljs": "^0.7.0",
-		"@types/source-map": "0.5.2",
-		"@types/source-map-support": "^0.2.28",
-		"@types/vscode": "^1.40.0",
-		"@types/websocket": "0.0.33",
-		"@types/ws": "^0.0.39",
-		"@typescript-eslint/eslint-plugin": "^2.19.0",
-		"@typescript-eslint/parser": "^2.19.0",
-		"ansi-colors": "^3.2.4",
-		"copy-webpack-plugin": "^6.0.2",
-		"del": "^2.2.0",
-		"devtools-protocol": "0.0.762508",
-		"eslint": "^6.8.0",
-		"eslint-plugin-header": "^3.0.0",
-		"event-stream": "3.3.4",
-		"fancy-log": "^1.3.3",
-		"gulp": "^4.0.2",
-		"gulp-filter": "^6.0.0",
-		"gulp-istanbul": "^1.1.3",
-		"gulp-mocha": "^7.0.2",
-		"gulp-preprocess": "^3.0.3",
-		"gulp-sourcemaps": "^2.6.5",
-		"gulp-typescript": "^5.0.1",
-		"isparta": "^4.1.1",
-		"minimist": "^1.2.5",
-		"mocha": "^7.1.1",
-		"mocha-junit-reporter": "^1.23.3",
-		"mocha-multi-reporters": "^1.1.7",
-		"ncp": "^2.0.0",
-		"plugin-error": "^1.0.1",
-		"remap-istanbul": "^0.13.0",
-		"rimraf": "^3.0.2",
-		"should": "^8.3.0",
-		"sinon": "^1.17.3",
-		"source-map-support": "^0.4.0",
-		"through2": "^2.0.1",
-		"ts-loader": "^7.0.5",
-		"typescript": "^3.9.5",
-		"vsce": "^1.74.0",
-		"vscode-debugprotocol": "^1.40.0",
-		"vscode-nls-dev": "^3.3.1",
-		"vscode-test": "^1.4.0",
-		"webpack": "^4.43.0",
-		"webpack-bundle-analyzer": "^3.8.0"
-	},
-	"extensionDependencies": [
-		"ms-vscode.js-debug"
-	]
+  "name": "vscode-react-native",
+  "displayName": "React Native Tools",
+  "version": "1.0.1",
+  "private": true,
+  "publisher": "msjsdiag",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#3B3738",
+    "theme": "dark"
+  },
+  "description": "%reactNative.description%",
+  "keywords": [
+    "react-native",
+    "multi-root ready"
+  ],
+  "bugs": "https://github.com/microsoft/vscode-react-native/issues",
+  "license": "%reactNative.license%",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/vscode-react-native"
+  },
+  "engines": {
+    "vscode": "^1.40.0"
+  },
+  "categories": [
+    "Debuggers",
+    "Other"
+  ],
+  "activationEvents": [
+    "workspaceContains:node_modules/react-native",
+    "onDebugResolve:reactnative",
+    "onDebugResolve:reactnativedirect",
+    "onDebugInitialConfigurations",
+    "onCommand:reactNative.runAndroidSimulator",
+    "onCommand:reactNative.runAndroidDevice",
+    "onCommand:reactNative.runIosSimulator",
+    "onCommand:reactNative.runIosDevice",
+    "onCommand:reactNative.runExponent",
+    "onCommand:reactNative.startPackager",
+    "onCommand:reactNative.stopPackager",
+    "onCommand:reactNative.restartPackager",
+    "onCommand:reactNative.publishToExpHost",
+    "onCommand:reactNative.showDevMenu",
+    "onCommand:reactNative.reloadApp",
+    "onCommand:reactNative.runInspector"
+  ],
+  "main": "./src/extension/rn-extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "reactNative.launchAndroidSimulator",
+        "title": "%reactNative.command.launchAndroidSimulator.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.runAndroidSimulator",
+        "title": "%reactNative.command.runAndroidSimulator.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.runAndroidDevice",
+        "title": "%reactNative.command.runAndroidDevice.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.runIosSimulator",
+        "title": "%reactNative.command.runIosSimulator.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.runIosDevice",
+        "title": "%reactNative.command.runIosDevice.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.runExponent",
+        "title": "%reactNative.command.runExponent.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.startPackager",
+        "title": "%reactNative.command.startPackager.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.stopPackager",
+        "title": "%reactNative.command.stopPackager.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.restartPackager",
+        "title": "%reactNative.command.restartPackager.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.publishToExpHost",
+        "title": "%reactNative.command.publishToExpHost.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.showDevMenu",
+        "title": "%reactNative.command.showDevMenu.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.reloadApp",
+        "title": "%reactNative.command.reloadApp.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.runInspector",
+        "title": "%reactNative.command.runInspector.title%",
+        "category": "React Native"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "reactnative",
+        "label": "React Native",
+        "runtime": "node",
+        "enableBreakpointsFor": {
+          "languageIds": [
+            "javascript",
+            "typescript",
+            "javascriptreact",
+            "typescriptreact"
+          ]
+        },
+        "configurationSnippets": [
+          {
+            "label": "React Native: Debug Android",
+            "description": "%reactNative.snippets.debugAndroid.description%",
+            "body": {
+              "name": "Debug Android",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnative",
+              "request": "launch",
+              "platform": "android"
+            }
+          },
+          {
+            "label": "React Native: Run Android",
+            "description": "%reactNative.snippets.runAndroid.description%",
+            "body": {
+              "name": "Run Android",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnative",
+              "request": "launch",
+              "platform": "android",
+              "enableDebug": false
+            }
+          },
+          {
+            "label": "React Native: Debug iOS",
+            "description": "%reactNative.snippets.debugiOS.description%",
+            "body": {
+              "name": "Debug iOS",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnative",
+              "request": "launch",
+              "platform": "ios"
+            }
+          },
+          {
+            "label": "React Native: Run iOS",
+            "description": "%reactNative.snippets.runiOS.description%",
+            "body": {
+              "name": "Run iOS",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnative",
+              "request": "launch",
+              "platform": "ios",
+              "enableDebug": false
+            }
+          },
+          {
+            "label": "React Native: Debug Windows",
+            "description": "%reactNative.snippets.debugWindows.description%",
+            "body": {
+              "name": "Debug Windows",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnative",
+              "request": "launch",
+              "platform": "windows"
+            }
+          },
+          {
+            "label": "React Native: Debug macOS",
+            "description": "%reactNative.snippets.debugmacOS.description%",
+            "body": {
+              "name": "Debug macOS",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnative",
+              "request": "launch",
+              "platform": "macos"
+            }
+          },
+          {
+            "label": "React Native: Attach to packager",
+            "description": "%reactNative.snippets.attachPackager.description%",
+            "body": {
+              "name": "Attach to packager",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnative",
+              "request": "attach"
+            }
+          },
+          {
+            "label": "React Native: Debug in Exponent",
+            "description": "%reactNative.snippets.debugExpo.description%",
+            "body": {
+              "name": "Debug in Exponent",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnative",
+              "request": "launch",
+              "platform": "exponent"
+            }
+          }
+        ],
+        "configurationAttributes": {
+          "attach": {
+            "required": [
+              "cwd"
+            ],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "%reactNative.attach.program.description%"
+              },
+              "cwd": {
+                "type": "string",
+                "description": "%reactNative.attach.cwd.description%",
+                "default": "${workspaceFolder}"
+              },
+              "sourceMaps": {
+                "type": "boolean",
+                "description": "%reactNative.attach.sourceMaps.description%",
+                "default": false
+              },
+              "sourceMapPathOverrides": {
+                "type": "object",
+                "description": "%reactNative.attach.sourceMapsPathOverrides.description%"
+              },
+              "trace": {
+                "type": "string",
+                "enum": [
+                  "verbose",
+                  "log",
+                  "warn",
+                  "error",
+                  "stop"
+                ],
+                "default": "log",
+                "description": "%reactNative.attach.trace.description%"
+              },
+              "address": {
+                "type": "string",
+                "description": "%reactNative.attach.address.description%",
+                "default": "localhost"
+              },
+              "port": {
+                "type": "string",
+                "description": "%reactNative.attach.port.description%",
+                "default": "8081"
+              },
+              "remoteRoot": {
+                "type": "string",
+                "description": "%reactNative.attach.remoteRoot.description%",
+                "default": null
+              },
+              "localRoot": {
+                "type": "string",
+                "description": "%reactNative.attach.localRoot.description%",
+                "default": "${workspaceFolder}"
+              },
+              "skipFiles": {
+                "type": "array",
+                "description": "%reactNative.attach.skipFiles.description%",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "debuggerWorkerUrlPath": {
+                "type": "string",
+                "description": "%reactNative.attach.debuggerWorkerUrlPath.description%",
+                "default": "debugger-ui/"
+              }
+            }
+          },
+          "launch": {
+            "required": [
+              "cwd",
+              "platform"
+            ],
+            "properties": {
+              "platform": {
+                "type": "string",
+                "enum": [
+                  "ios",
+                  "android",
+                  "exponent",
+                  "windows",
+                  "wpf",
+                  "macos"
+                ],
+                "description": "%reactNative.launch.platform.description%"
+              },
+              "program": {
+                "type": "string",
+                "description": "%reactNative.launch.program.description%"
+              },
+              "cwd": {
+                "type": "string",
+                "description": "%reactNative.launch.cwd.description%",
+                "default": "${workspaceFolder}"
+              },
+              "target": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "device",
+                      "simulator"
+                    ]
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "default": "simulator",
+                "description": "%reactNative.launch.target.description%"
+              },
+              "sourceMaps": {
+                "type": "boolean",
+                "description": "%reactNative.launch.sourceMaps.description%",
+                "default": false
+              },
+              "logCatArguments": {
+                "type": "array",
+                "description": "%reactNative.launch.logCatArguments.description%",
+                "default": [
+                  "*:S",
+                  "ReactNative:V",
+                  "ReactNativeJS:V"
+                ]
+              },
+              "runArguments": {
+                "type": "array",
+                "description": "%reactNative.launch.runArguments.description%"
+              },
+              "env": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "%reactNative.launch.env.description%",
+                "default": {}
+              },
+              "envFile": {
+                "type": "string",
+                "description": "%reactNative.launch.envFile.description%",
+                "default": "${workspaceFolder}/.env"
+              },
+              "variant": {
+                "type": "string",
+                "description": "%reactNative.launch.variant.description%"
+              },
+              "scheme": {
+                "type": "string",
+                "description": "%reactNative.launch.scheme.description%"
+              },
+              "productName": {
+                "type": "string",
+                "description": "%reactNative.launch.productName.description%"
+              },
+              "skipFiles": {
+                "type": "array",
+                "description": "%reactNative.launch.skipFiles.description%",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "trace": {
+                "type": "string",
+                "enum": [
+                  "verbose",
+                  "log",
+                  "warn",
+                  "error",
+                  "stop"
+                ],
+                "default": "log",
+                "description": "%reactNative.launch.trace.description%"
+              },
+              "debuggerWorkerUrlPath": {
+                "type": "string",
+                "description": "%reactNative.launch.debuggerWorkerUrlPath.description%",
+                "default": "debugger-ui/"
+              },
+              "launchActivity": {
+                "type": "string",
+                "description": "%reactNative.launch.launchActivity.description%",
+                "default": "MainActivity"
+              },
+              "expoHostType": {
+                "type": "string",
+                "enum": [
+                  "tunnel",
+                  "lan",
+                  "local"
+                ],
+                "default": "tunnel",
+                "description": "%reactNative.launch.expoHostType.description%"
+              },
+              "enableDebug": {
+                "type": "boolean",
+                "description": "%reactNative.launch.enableDebug.description%",
+                "default": true
+              },
+              "openExpoQR": {
+                "type": "boolean",
+                "description": "%reactNative.launch.openExpoQR.description%",
+                "default": true
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "reactnativedirect",
+        "label": "React Native Direct - Experimental",
+        "runtime": "node",
+        "enableBreakpointsFor": {
+          "languageIds": [
+            "javascript",
+            "typescript",
+            "javascriptreact",
+            "typescriptreact"
+          ]
+        },
+        "configurationSnippets": [
+          {
+            "label": "React Native Direct: Debug Android Hermes - Experimental",
+            "description": "%reactNative.snippets.debugAndroidHermes.description%",
+            "body": {
+              "name": "Debug Android Hermes - Experimental",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnativedirect",
+              "request": "launch",
+              "platform": "android"
+            }
+          },
+          {
+            "label": "React Native Direct: Run Android Hermes- Experimental",
+            "description": "%reactNative.snippets.runAndroidHermes.description%",
+            "body": {
+              "name": "Run Android Hermes - Experimental",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnativedirect",
+              "request": "launch",
+              "platform": "android",
+              "enableDebug": false
+            }
+          },
+          {
+            "label": "React Native Direct: Attach to the React Native Hermes - Experimental",
+            "description": "%reactNative.snippets.directAttach.description%",
+            "body": {
+              "name": "React Native Direct: Attach to the React Native Hermes - Experimental",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnativedirect",
+              "request": "attach"
+            }
+          },
+          {
+            "label": "React Native Direct: Attach to the React Native iOS - Experimental",
+            "description": "%reactNative.snippets.directAttach.description%",
+            "body": {
+              "name": "Attach to the React Native iOS - Experimental",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnativedirect",
+              "request": "attach",
+              "platform": "ios",
+              "port": 9221
+            }
+          },
+          {
+            "label": "React Native Direct: Debug Direct iOS - Experimental",
+            "description": "%reactNative.snippets.debugDirectiOS.description%",
+            "body": {
+              "name": "Debug Direct iOS - Experimental",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnativedirect",
+              "request": "launch",
+              "platform": "ios",
+              "port": 9221
+            }
+          },
+          {
+            "label": "React Native Direct: Run Direct iOS - Experimental",
+            "description": "%reactNative.snippets.runDirectiOS.description%",
+            "body": {
+              "name": "Run Direct iOS - Experimental",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "type": "reactnativedirect",
+              "request": "launch",
+              "platform": "ios",
+              "enableDebug": false
+            }
+          }
+        ],
+        "configurationAttributes": {
+          "attach": {
+            "required": [
+              "cwd"
+            ],
+            "properties": {
+              "cwd": {
+                "type": "string",
+                "description": "%reactNative.attach.cwd.description%",
+                "default": "${workspaceFolder}"
+              },
+              "sourceMaps": {
+                "type": "boolean",
+                "description": "%reactNative.attach.sourceMaps.description%",
+                "default": false
+              },
+              "sourceMapPathOverrides": {
+                "type": "object",
+                "description": "%reactNative.attach.sourceMapsPathOverrides.description%"
+              },
+              "platform": {
+                "type": "string",
+                "enum": [
+                  "ios",
+                  "android"
+                ],
+                "description": "%reactNative.launch.direct.platform.description%"
+              },
+              "trace": {
+                "type": "string",
+                "enum": [
+                  "verbose",
+                  "log",
+                  "warn",
+                  "error",
+                  "stop"
+                ],
+                "default": "log",
+                "description": "%reactNative.attach.trace.description%"
+              },
+              "address": {
+                "type": "string",
+                "description": "%reactNative.attach.address.description%",
+                "default": "localhost"
+              },
+              "port": {
+                "type": "number",
+                "description": "%reactNative.direct.attach.port.description%",
+                "default": 8081
+              },
+              "webkitRangeMin": {
+                "type": "number",
+                "description": "%reactNative.direct.attach.webkitRangeMin.description%",
+                "default": 9223
+              },
+              "webkitRangeMax": {
+                "type": "number",
+                "description": "%reactNative.direct.attach.webkitRangeMax.description%",
+                "default": 9322
+              },
+              "skipFiles": {
+                "type": "array",
+                "description": "%reactNative.attach.skipFiles.description%",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              }
+            }
+          },
+          "launch": {
+            "required": [
+              "cwd",
+              "platform"
+            ],
+            "properties": {
+              "platform": {
+                "type": "string",
+                "enum": [
+                  "android",
+                  "ios"
+                ],
+                "description": "%reactNative.launch.direct.platform.description%"
+              },
+              "cwd": {
+                "type": "string",
+                "description": "%reactNative.launch.cwd.description%",
+                "default": "${workspaceFolder}"
+              },
+              "port": {
+                "type": "number",
+                "description": "%reactNative.direct.attach.port.description%",
+                "default": 8081
+              },
+              "webkitRangeMin": {
+                "type": "number",
+                "description": "%reactNative.direct.attach.webkitRangeMin.description%",
+                "default": 9223
+              },
+              "webkitRangeMax": {
+                "type": "number",
+                "description": "%reactNative.direct.attach.webkitRangeMax.description%",
+                "default": 9322
+              },
+              "target": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "device",
+                      "simulator"
+                    ]
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "default": "simulator",
+                "description": "%reactNative.launch.target.description%"
+              },
+              "sourceMaps": {
+                "type": "boolean",
+                "description": "%reactNative.launch.sourceMaps.description%",
+                "default": false
+              },
+              "logCatArguments": {
+                "type": "array",
+                "description": "%reactNative.launch.logCatArguments.description%",
+                "default": [
+                  "*:S",
+                  "ReactNative:V",
+                  "ReactNativeJS:V"
+                ]
+              },
+              "runArguments": {
+                "type": "array",
+                "description": "%reactNative.launch.runArguments.description%"
+              },
+              "env": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "%reactNative.launch.env.description%",
+                "default": {}
+              },
+              "envFile": {
+                "type": "string",
+                "description": "%reactNative.launch.envFile.description%",
+                "default": "${workspaceFolder}/.env"
+              },
+              "variant": {
+                "type": "string",
+                "description": "%reactNative.launch.variant.description%"
+              },
+              "skipFiles": {
+                "type": "array",
+                "description": "%reactNative.launch.skipFiles.description%",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "trace": {
+                "type": "string",
+                "enum": [
+                  "verbose",
+                  "log",
+                  "warn",
+                  "error",
+                  "stop"
+                ],
+                "default": "log",
+                "description": "%reactNative.launch.trace.description%"
+              },
+              "launchActivity": {
+                "type": "string",
+                "description": "%reactNative.launch.launchActivity.description%",
+                "default": "MainActivity"
+              },
+              "enableDebug": {
+                "type": "boolean",
+                "description": "%reactNative.launch.enableDebug.description%",
+                "default": true
+              }
+            }
+          }
+        }
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "%reactNative.configuration.title%",
+      "properties": {
+        "react-native.ios.runArguments.simulator": {
+          "description": "%reactNative.configuration.properties.react-native.ios.runArguments.simulator.description%",
+          "type": "array",
+          "default": [],
+          "scope": "resource"
+        },
+        "react-native.ios.runArguments.device": {
+          "description": "%reactNative.configuration.properties.react-native.ios.runArguments.device.description%",
+          "type": "array",
+          "default": [],
+          "scope": "resource"
+        },
+        "react-native.ios.env.simulator": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "%reactNative.configuration.properties.react-native.ios.env.simulator.description%",
+          "default": {},
+          "scope": "resource"
+        },
+        "react-native.ios.env.device": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "%reactNative.configuration.properties.react-native.ios.env.device.description%",
+          "default": {},
+          "scope": "resource"
+        },
+        "react-native.ios.envFile.simulator": {
+          "type": "string",
+          "description": "%reactNative.configuration.properties.react-native.ios.envFile.simulator.description%",
+          "scope": "resource"
+        },
+        "react-native.ios.envFile.device": {
+          "type": "string",
+          "description": "%reactNative.configuration.properties.react-native.ios.envFile.device.description%",
+          "scope": "resource"
+        },
+        "react-native.android.runArguments.simulator": {
+          "description": "%reactNative.configuration.properties.react-native.android.runArguments.simulator.description%",
+          "type": "array",
+          "default": [],
+          "scope": "resource"
+        },
+        "react-native.android.runArguments.device": {
+          "description": "%reactNative.configuration.properties.react-native.android.runArguments.device.description%",
+          "type": "array",
+          "default": [],
+          "scope": "resource"
+        },
+        "react-native.android.env.simulator": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "%reactNative.configuration.properties.react-native.android.env.simulator.description%",
+          "default": {},
+          "scope": "resource"
+        },
+        "react-native.android.env.device": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "%reactNative.configuration.properties.react-native.android.env.device.description%",
+          "default": {},
+          "scope": "resource"
+        },
+        "react-native.android.envFile.simulator": {
+          "type": "string",
+          "description": "%reactNative.configuration.properties.react-native.android.envFile.simulator.description%",
+          "scope": "resource"
+        },
+        "react-native.android.envFile.device": {
+          "type": "string",
+          "description": "%reactNative.configuration.properties.react-native.android.envFile.device.description%",
+          "scope": "resource"
+        },
+        "react-native.packager.port": {
+          "description": "%reactNative.configuration.properties.react-native.packager.port.description%",
+          "type": "number",
+          "default": 8081,
+          "scope": "resource"
+        },
+        "react-native.packager.status-indicator": {
+          "description": "%reactNative.configuration.properties.react-native.packager.status-indicator.description%",
+          "type": "string",
+          "enum": [
+            "Full",
+            "Short"
+          ],
+          "default": "Full",
+          "scope": "resource"
+        },
+        "react-native-tools.reactNativeGlobalCommandName": {
+          "description": "%reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description%",
+          "type": "string",
+          "scope": "resource"
+        },
+        "react-native-tools.projectRoot": {
+          "description": "%reactNative.configuration.properties.react-native-tools.projectRoot.description%",
+          "type": "string",
+          "scope": "resource",
+          "default": ""
+        },
+        "react-native-tools.logLevel": {
+          "description": "%reactNative.configuration.properties.react-native-tools.logLevel.description%",
+          "type": "enum",
+          "enum": [
+            "Trace",
+            "Debug",
+            "Info",
+            "Warning",
+            "Error",
+            "None"
+          ],
+          "default": "Info",
+          "scope": "resource"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "gulp build",
+    "vscode:prepublish": "gulp",
+    "test": "node ./test/runTest.js",
+    "test-localization": "node ./test/localization/runTest.js",
+    "prepare-smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install",
+    "smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install && yarn --cwd ./vscode/test/smoke mocha",
+    "quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
+  },
+  "dependencies": {
+    "configstore": "^5.0.1",
+    "extract-opts": "2.2.0",
+    "flatten-source-map": "0.0.2",
+    "glob": "^7.1.6",
+    "ip": "^1.1.5",
+    "mkdirp": "^1.0.3",
+    "qr-image": "^3.2.0",
+    "semver": "^6.3.0",
+    "source-map": "0.5.2",
+    "source-map-resolve": "^0.5.3",
+    "strip-json-comments": "2.0.1",
+    "vscode-cdp-proxy": "^0.2.0",
+    "vscode-debugadapter": "^1.39.1",
+    "vscode-extension-telemetry": "0.0.5",
+    "vscode-nls": "^4.1.2",
+    "ws": "^7.3.0"
+  },
+  "devDependencies": {
+    "@types/configstore": "^4.0.0",
+    "@types/ip": "^1.1.0",
+    "@types/mkdirp": "^1.0.0",
+    "@types/mocha": "^8.0.3",
+    "@types/ncp": "^2.0.3",
+    "@types/node": "^10.17.26",
+    "@types/qr-image": "^3.2.3",
+    "@types/rimraf": "^3.0.0",
+    "@types/semver": "^6.2.1",
+    "@types/shelljs": "^0.7.0",
+    "@types/source-map": "0.5.2",
+    "@types/source-map-support": "^0.2.28",
+    "@types/vscode": "^1.40.0",
+    "@types/websocket": "0.0.33",
+    "@types/ws": "^0.0.39",
+    "@typescript-eslint/eslint-plugin": "^3.7.1",
+    "@typescript-eslint/parser": "^3.7.1",
+    "ansi-colors": "^3.2.4",
+    "copy-webpack-plugin": "^6.0.2",
+    "del": "^2.2.0",
+    "devtools-protocol": "0.0.762508",
+    "eslint": "^6.8.0",
+    "eslint-plugin-header": "^3.0.0",
+    "event-stream": "3.3.4",
+    "fancy-log": "^1.3.3",
+    "gulp": "^4.0.2",
+    "gulp-filter": "^6.0.0",
+    "gulp-istanbul": "^1.1.3",
+    "gulp-mocha": "^7.0.2",
+    "gulp-preprocess": "^3.0.3",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-typescript": "^5.0.1",
+    "isparta": "^4.1.1",
+    "minimist": "^1.2.5",
+    "mocha": "^8.1.3",
+    "mocha-junit-reporter": "^1.23.3",
+    "mocha-multi-reporters": "^1.1.7",
+    "ncp": "^2.0.0",
+    "plugin-error": "^1.0.1",
+    "remap-istanbul": "^0.13.0",
+    "rimraf": "^3.0.2",
+    "should": "^8.3.0",
+    "sinon": "^1.17.3",
+    "source-map-support": "^0.4.0",
+    "through2": "^2.0.1",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.7",
+    "vsce": "^1.77.0",
+    "vscode-debugprotocol": "^1.40.0",
+    "vscode-nls-dev": "^3.3.2",
+    "vscode-test": "^1.4.0",
+    "webpack": "^4.43.0",
+    "webpack-bundle-analyzer": "^3.8.0"
+  },
+  "extensionDependencies": [
+    "ms-vscode.js-debug"
+  ]
 }

@@ -2,6 +2,7 @@
 {
   "javascript.validate.enable": false,
   "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "modifications",
   "files.trimTrailingWhitespace": true,
   "eslint.enable": true,
   "editor.insertSpaces": true,

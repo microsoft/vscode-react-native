@@ -91,7 +91,7 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
         return undefined;
     }
 
-    protected async getVirtualDevicesNamesList(filter?: (el: IiOSSimulator) => {}): Promise<string[]> {
+    protected async getVirtualDevicesNamesList(filter?: (el: IiOSSimulator) => unknown): Promise<string[]> {
         const names: string[] = [];
         this.simulators.forEach((el: IiOSSimulator) => {
             if (el.name && (!filter || filter(el))) {

@@ -37,17 +37,15 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             },
         };
 
-        extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeVersion, "reactNativeVersion", extProps);
-        extProps = TelemetryHelper.addPropertyToTelemetryProperties(this.runOptions.reactNativeVersions.reactNativeWindowsVersion, "reactNativeWindowsVersion", extProps);
+        extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(this.runOptions, this.runOptions.reactNativeVersions, extProps);
 
         return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
             const env = GeneralMobilePlatform.getEnvArgument(process.env, this.runOptions.env, this.runOptions.envFile);
 
             if (semver.gte(this.runOptions.reactNativeVersions.reactNativeWindowsVersion, "0.63.0")) {
                 this.runArguments.push("--logging");
-            } else {
                 if (enableDebug) {
-                    this.runArguments.push("--proxy");
+                    this.runArguments.push("--remote-debugging");
                 }
             }
 

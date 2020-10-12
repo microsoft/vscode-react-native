@@ -62,8 +62,8 @@ suite("commandExecutor", function() {
                 })
                 .catch((reason) => {
                     console.log(reason.message);
-                    assert.equal(reason.errorCode, 101);
-                    assert.equal(reason.errorLevel, 0);
+                    assert.strictEqual(reason.errorCode, 101);
+                    assert.strictEqual(reason.errorLevel, 0);
                 });
         });
 
@@ -76,8 +76,8 @@ suite("commandExecutor", function() {
                 })
                 .catch((reason) => {
                     console.log(reason.message);
-                    assert.equal(reason.errorCode, 101);
-                    assert.equal(reason.errorLevel, 0);
+                    assert.strictEqual(reason.errorCode, 101);
+                    assert.strictEqual(reason.errorLevel, 0);
                 });
         });
 
@@ -106,8 +106,8 @@ suite("commandExecutor", function() {
                 })
                 .catch((reason) => {
                     console.log(reason.message);
-                    assert.equal(reason.errorCode, 101);
-                    assert.equal(reason.errorLevel, 0);
+                    assert.strictEqual(reason.errorCode, 101);
+                    assert.strictEqual(reason.errorLevel, 0);
                 });
         });
 
@@ -122,7 +122,7 @@ suite("commandExecutor", function() {
             return new CommandExecutor()
                 .spawnReactCommand("run-ios").outcome
                 .then(null, err => {
-                    assert.fail(null, null, "react-native command was not expected to fail");
+                    assert.fail("react-native command was not expected to fail");
                 });
         });
 
@@ -149,7 +149,7 @@ suite("commandExecutor", function() {
 
                 return commandExecutor.getReactNativeVersion()
                 .then(version => {
-                    assert.equal(version, "0.22.0");
+                    assert.strictEqual(version, "0.22.0");
                 });
             });
 
@@ -163,8 +163,8 @@ suite("commandExecutor", function() {
 
                 return commandExecutor.getReactNativeVersion()
                 .then(version => {
-                    assert.equal(version, "0.22.2");
-                })
+                    assert.strictEqual(version, "0.22.2");
+                });
             });
         });
 
@@ -173,20 +173,20 @@ suite("commandExecutor", function() {
                 ["react-native-tools.reactNativeGlobalCommandName"]: "",
             };
 
-            test("selectReactNativeCLI should return local CLI", (done: MochaDone) => {
+            test("selectReactNativeCLI should return local CLI", (done: Mocha.Done) => {
                 const localCLIPath = path.join(sampleReactNative022ProjectDir, "node_modules", ".bin", "react-native");
                 let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
                 CommandExecutor.ReactNativeCommand = RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"];
-                assert.equal(commandExecutor.selectReactNativeCLI(), localCLIPath);
+                assert.strictEqual(commandExecutor.selectReactNativeCLI(), localCLIPath);
                 done();
             });
 
-            test("selectReactNativeCLI should return global CLI", (done: MochaDone) => {
+            test("selectReactNativeCLI should return global CLI", (done: Mocha.Done) => {
                 const randomHash = new Crypto().hash(Math.random().toString(36).substring(2, 15));
                 RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"] = randomHash;
                 let commandExecutor: CommandExecutor = new CommandExecutor(sampleReactNative022ProjectDir);
                 CommandExecutor.ReactNativeCommand = RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"];
-                assert.equal(commandExecutor.selectReactNativeCLI(), randomHash);
+                assert.strictEqual(commandExecutor.selectReactNativeCLI(), randomHash);
                 done();
             });
         });

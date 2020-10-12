@@ -8,7 +8,7 @@ import { InternalErrorCode } from "./error/internalErrorCode";
 export interface PatternToFailure {
     pattern: string | RegExp;
     errorCode: number;
-};
+}
 
 /* This class transforms a spawn process to only succeed if all defined success patterns
    are found on stdout, and none of the failure patterns were found on stderr */

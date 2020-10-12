@@ -17,20 +17,20 @@ suite("logHelper", function() {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = REACT_NATIVE_TOOLS_LOGS_DIR;
         });
 
-        test("getLoggingDirectory should return null if env variable REACT_NATIVE_TOOLS_LOGS_DIR is not defined", (done: MochaDone) => {
+        test("getLoggingDirectory should return null if env variable REACT_NATIVE_TOOLS_LOGS_DIR is not defined", (done: Mocha.Done) => {
             let loggingDir = getLoggingDirectory();
             assert.strictEqual(loggingDir, null);
             done();
         });
 
-        test("getLoggingDirectory should return null if env variable REACT_NATIVE_TOOLS_LOGS_DIR is defined by relative path", (done: MochaDone) => {
+        test("getLoggingDirectory should return null if env variable REACT_NATIVE_TOOLS_LOGS_DIR is defined by relative path", (done: Mocha.Done) => {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = "./logs";
             let loggingDir = getLoggingDirectory();
             assert.strictEqual(loggingDir, null);
             done();
         });
 
-        test("getLoggingDirectory should return correct value if env variable REACT_NATIVE_TOOLS_LOGS_DIR is defined by absolute path", (done: MochaDone) => {
+        test("getLoggingDirectory should return correct value if env variable REACT_NATIVE_TOOLS_LOGS_DIR is defined by absolute path", (done: Mocha.Done) => {
             process.env.REACT_NATIVE_TOOLS_LOGS_DIR = path.join(__dirname, "testFolder");
             let loggingDir = getLoggingDirectory();
             assert.strictEqual(loggingDir, process.env.REACT_NATIVE_TOOLS_LOGS_DIR);
