@@ -12,7 +12,7 @@ Preview:
 
 
 ## React Native Tools Preview
-The extension has a [nightly version](https://marketplace.visualstudio.com/items?itemName=msjsdiag.vscode-react-native-preview) that releases on a daily basis on 9 PM PST on each day that there are changes.
+The extension has a [nightly version](https://marketplace.visualstudio.com/items?itemName=msjsdiag.vscode-react-native-preview) which is released on a daily basis at 9 PM PST on each day that changes occur.
 To avoid conflicts, if both extensions are installed - the only stable version will be activated. So to use preview version it is needed to disable or remove stable version and reload VS Code.
 
 ## About the extension
