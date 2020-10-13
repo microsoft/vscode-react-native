@@ -33,9 +33,14 @@ const tsProject = ts.createProject("tsconfig.json");
  */
 const isNightly = process.argv.includes("--nightly");
 
-const ExtensionName = isNightly
+const fullExtensionName = isNightly
   ? "msjsdiag.vscode-react-native-preview"
   : "msjsdiag.vscode-react-native";
+
+const extensionName = isNightly
+  ? "vscode-react-native-preview"
+  : "vscode-react-native";
+
 const translationProjectName = "vscode-extensions";
 const defaultLanguages = [
   { id: "zh-tw", folderName: "cht", transifexId: "zh-hant" },
@@ -180,7 +185,7 @@ const generateSrcLocBundle = () => {
     .pipe(tsProject())
     .js.pipe(nls.createMetaDataFiles())
     .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, "i18n"))
-    .pipe(nls.bundleMetaDataFiles(ExtensionName, "dist"))
+    .pipe(nls.bundleMetaDataFiles(fullExtensionName, "dist"))
     .pipe(nls.bundleLanguageFiles())
     .pipe(
       filter([
@@ -213,7 +218,9 @@ function build(failOnError, buildNls) {
         ? nls.createAdditionalLanguageFiles(defaultLanguages, "i18n", ".")
         : es.through()
     )
-    .pipe(buildNls ? nls.bundleMetaDataFiles(ExtensionName, ".") : es.through())
+    .pipe(
+      buildNls ? nls.bundleMetaDataFiles(fullExtensionName, ".") : es.through()
+    )
     .pipe(buildNls ? nls.bundleLanguageFiles() : es.through())
     .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: "." }))
     .pipe(gulp.dest((file) => file.cwd))
@@ -458,7 +465,12 @@ const getVersionNumber = () => {
 };
 
 gulp.task("release", function prepareLicenses() {
-  const backupFiles = ["LICENSE.txt", "ThirdPartyNotices.txt", "package.json"];
+  const backupFiles = [
+    "LICENSE.txt",
+    "ThirdPartyNotices.txt",
+    "package.json",
+    "package-lock.json",
+  ];
   const backupFolder = path.resolve(
     path.join(os.tmpdir(), "vscode-react-native")
   );
@@ -491,6 +503,9 @@ gulp.task("release", function prepareLicenses() {
       if (isNightly) {
         log("Performing nightly release...");
         packageJson.version = getVersionNumber();
+        packageJson.name = extensionName;
+        packageJson.preview = true;
+        packageJson.displayName += " (Preview)";
       }
       writeJson("package.json", packageJson);
       log("Creating release package...");
@@ -539,7 +554,7 @@ gulp.task(
         "nls.metadata.header.json",
         "nls.metadata.json",
       ])
-      .pipe(nls.createXlfFiles(translationProjectName, ExtensionName))
+      .pipe(nls.createXlfFiles(translationProjectName, fullExtensionName))
       .pipe(
         gulp.dest(
           path.join("..", `${translationProjectName}-localization-export`)
@@ -566,7 +581,7 @@ gulp.task(
             options.location,
             id,
             "vscode-extensions",
-            `${ExtensionName}.xlf`
+            `${fullExtensionName}.xlf`
           )
         );
         return gulp
@@ -575,7 +590,7 @@ gulp.task(
               options.location,
               id,
               "vscode-extensions",
-              `${ExtensionName}.xlf`
+              `${fullExtensionName}.xlf`
             )
           )
           .pipe(nls.prepareJsonFiles())
