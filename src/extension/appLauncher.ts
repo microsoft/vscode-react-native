@@ -342,6 +342,7 @@ export class AppLauncher {
 
         if (args.platform === PlatformType.Exponent) {
             mobilePlatformOptions.expoHostType = args.expoHostType || "tunnel";
+            mobilePlatformOptions.openExpoQR = typeof args.openExpoQR !== "boolean" ? true : args.openExpoQR;
         }
 
         CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(workspaceFolder.uri);

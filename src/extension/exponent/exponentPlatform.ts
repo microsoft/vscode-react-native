@@ -82,8 +82,10 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                         return "exp://" + url.parse(exponentUrl).host;
                     })
                     .then(exponentUrl => {
-                        let exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, { });
-                        exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(vscode.Uri.parse(exponentUrl));
+                        if (this.runOptions.openExpoQR) {
+                            let exponentPage = vscode.window.createWebviewPanel("Expo QR Code", "Expo QR Code", vscode.ViewColumn.Two, { });
+                            exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(vscode.Uri.parse(exponentUrl));
+                        }
                         return exponentUrl;
                     })
                     .then(exponentUrl => {
@@ -91,8 +93,17 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                             return reject(ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath));
                         }
                         this.exponentTunnelPath = exponentUrl;
-                        const outputMessage = localize("ApplicationIsRunningOnExponentOpenToSeeIt", "Application is running on Expo. Open your Expo app at {0} to see it.", this.exponentTunnelPath);
+                        const outputMessage = localize("ExponentServerIsRunningOpenToSeeIt", "Expo server is running. Open your Expo app at {0} to see it.", this.exponentTunnelPath);
                         this.logger.info(outputMessage);
+
+                        const copyButton = localize("CopyToClipboard", "Copy to clipboard");
+
+                        vscode.window.showInformationMessage(outputMessage, copyButton)
+                        .then((selection) => {
+                            if (selection === copyButton) {
+                                vscode.env.clipboard.writeText(exponentUrl);
+                            }
+                        });
 
                         return resolve();
                     })
