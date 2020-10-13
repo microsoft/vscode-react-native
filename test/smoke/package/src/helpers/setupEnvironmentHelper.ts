@@ -213,7 +213,7 @@ export class SetupEnvironmentHelper {
         for (let i = 0; i < content.configurations.length; i++) {
             if (content.configurations[i].name === configName) {
                 found = true;
-                if (target) {
+                if (!target) {
                     delete content.configurations[i].target;
                 }
                 else {
