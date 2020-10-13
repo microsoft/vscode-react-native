@@ -394,7 +394,7 @@ The extension logging is divided by several output channels:
 * Extension debugger verbose logs (these logs are shown up only if the `trace: "verbose"` option is enabled in debug scenarios)
     * React Native Chrome Proxy - shows what runs in and out to the debugger and application
     * Debug Console becomes more informative and contains some debugging information from the debug adapter
-    * Global extension errors are controlled by VS Code and are printed in VS Code Developer Tools
+    * Global extension errors are controlled by VS Code and printed in VS Code Developer Tools
 
 There are also some global extension technical logs that might be exposed to the output. To see them set the following properties:
 
