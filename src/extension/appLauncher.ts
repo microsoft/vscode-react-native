@@ -297,7 +297,7 @@ export class AppLauncher {
                 }
                 else if (mobilePlatformOptions.target.indexOf("device") < 0 && launchArgs.platform === PlatformType.Android) {
                     // We should cleanup target only for Android platform,
-                    // because react-native-cli do not support launch with Android emulator name
+                    // because react-native-cli does not support launch with Android emulator name
                     this.cleanupTargetModifications(mobilePlatform, mobilePlatformOptions);
                 }
             })
