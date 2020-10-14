@@ -225,7 +225,7 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             console.log("iOS simulator save test: Debugging started at the first time");
             await app.workbench.quickinput.waitForQuickInputOpened();
-            await app.workbench.quickinput.submit(AppiumHelper.getIosPlatformVersion());
+            await app.workbench.quickinput.inputAndSelect(IosSimulatorHelper.getFormattedIOSVersion());
             await app.workbench.quickinput.submit(deviceName);
             let simulator = await IosSimulatorHelper.waitUntilIosSimulatorStarting(deviceName);
             compareSimulatorWithInputConfig(simulator);
