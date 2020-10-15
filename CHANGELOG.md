@@ -1,3 +1,10 @@
+## 1.1.0
+* Added React Native macOS debugging support: [more info](https://github.com/microsoft/vscode-react-native#react-native-for-macos) [#1409](https://github.com/microsoft/vscode-react-native/pull/1409)
+* Added support for `openExpoQR` debugging argument allowing to not show QR Code when Expo server is ready, also enhanced Expo server starting workflow [#1413](https://github.com/microsoft/vscode-react-native/pull/1413)
+* Fixed launch scenarios for iOS direct debugging [#1430](https://github.com/microsoft/vscode-react-native/pull/1430)
+* Fixed replacing `target` iOS debug scenarios argument in cases if the value is the existing iOS simulator name [#1431](https://github.com/microsoft/vscode-react-native/pull/1431)
+* Fixed minor extension issues [#1424](https://github.com/microsoft/vscode-react-native/issues/1424), [#1425](https://github.com/microsoft/vscode-react-native/issues/1425)
+
 ## 1.0.1
 * Fixed issue connected to incorrect project caching when the `projectRoot` argument is used in `settings.json`
 
