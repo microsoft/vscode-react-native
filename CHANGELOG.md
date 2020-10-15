@@ -5,6 +5,7 @@
 * Fixed replacing `target` iOS debug scenarios argument in cases if the value is the existing iOS simulator name, e.g. `'target': 'iPhone 8'` [#1431](https://github.com/microsoft/vscode-react-native/pull/1431)
 * Fixed minor extension issues [#1424](https://github.com/microsoft/vscode-react-native/issues/1424), [#1425](https://github.com/microsoft/vscode-react-native/issues/1425)
 
+
 ## 1.0.1
 * Fixed issue connected to incorrect project caching when the `projectRoot` argument is used in `settings.json`
 
