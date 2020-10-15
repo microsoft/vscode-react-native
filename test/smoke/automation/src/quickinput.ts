@@ -36,6 +36,11 @@ export class QuickInput {
         await this.code.waitForElement(QuickInput.QUICK_INPUT, r => !!r && r.attributes.style.indexOf("display: none;") !== -1);
     }
 
+    public async inputAndSelect(text: string): Promise<void> {
+        await this.code.waitForSetValue(QuickInput.QUICK_INPUT_INPUT, text);
+        await this.code.dispatchKeybinding("enter");
+    }
+
     public async submit(text: string): Promise<void> {
         await this.code.waitForSetValue(QuickInput.QUICK_INPUT_INPUT, text);
         await this.code.dispatchKeybinding("enter");

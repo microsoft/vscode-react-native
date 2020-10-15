@@ -59,4 +59,6 @@ export class SmokeTestsConstants {
     public static ChromeDebugCoreLogFileName = "ChromeDebugCoreLogs.txt";
     // File name where logs from VS Code driver will be saved
     public static VSCodeDriverLogFileName = "VSCodeDriverLogs.txt";
+    // String for simulator target in launch configuration
+    public static SimulatorString = "simulator";
 }

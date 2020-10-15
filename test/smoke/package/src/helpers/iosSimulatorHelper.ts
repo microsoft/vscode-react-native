@@ -10,7 +10,7 @@ interface RunResult {
     FailedState?: DeviceState;
 }
 
-interface IiOSSimulator {
+export interface IiOSSimulator {
     system: string;
     name: string;
     id: string;
@@ -39,6 +39,14 @@ export class IosSimulatorHelper {
             throw new Error("Environment variable 'IOS_SIMULATOR_UDID' is not set. Exiting...");
         }
         return process.env.IOS_SIMULATOR_UDID;
+    }
+
+    public static getFormattedIOSVersion(): string {
+        const iosVersion = process.env.IOS_VERSION;
+        if (!iosVersion) {
+            throw new Error("Environment variable 'IOS_VERSION' is not set. Exiting...");
+        }
+        return `IOS-${iosVersion.replace(".", "-")}`;
     }
 
     public static getSimulator(name: string): IiOSSimulator | null {
@@ -142,7 +150,7 @@ export class IosSimulatorHelper {
         });
     }
 
-    public static async waitUntilIosSimulatorStarting(name?: string) {
+    public static async waitUntilIosSimulatorStarting(name?: string): Promise<IiOSSimulator> {
         return new Promise((resolve, reject) => {
             const rejectTimeout = setTimeout(() => {
                 cleanup();
@@ -155,14 +163,14 @@ export class IosSimulatorHelper {
                     if (simulator?.state === DeviceState.Booted) {
                         console.log(`*** iOS simulator ${simulator.name} has been booted.`);
                         cleanup();
-                        resolve();
+                        resolve(simulator);
                     }
                 } else {
                     const bootedSimulators = this.getBootedDevices();
                     if (bootedSimulators.length > 0) {
                         console.log(`*** iOS simulator ${bootedSimulators[0].name} has been booted.`);
                         cleanup();
-                        resolve();
+                        resolve(bootedSimulators[0]);
                     }
                 }
             }, 1000);
@@ -186,12 +194,14 @@ export class IosSimulatorHelper {
         const simulators: IiOSSimulator[] = [];
         const res = execSync("xcrun simctl list --json devices available").toString();
         const simulatorsJson = JSON.parse(res);
-        Object.keys(simulatorsJson.devices).forEach((system) => {
-            simulatorsJson.devices[system].forEach((device: any) => {
+        Object.keys(simulatorsJson.devices).forEach((rawSystem) => {
+            let system = rawSystem.split(".").slice(-1)[0]; // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> "iOS-11-4"
+            system = system.split("-").slice(1).join("."); // "iOS-11-4" -> "11.4"
+            simulatorsJson.devices[rawSystem].forEach((device: any) => {
                 simulators.push({
                     name: device.name,
                     id: device.udid,
-                    system: system.split(".").slice(-1)[0],
+                    system: system,
                     state: device.state,
                 });
             });
