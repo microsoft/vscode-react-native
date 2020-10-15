@@ -2,7 +2,7 @@
 * Added React Native macOS debugging support: [more info](https://github.com/microsoft/vscode-react-native#react-native-for-macos) [#1409](https://github.com/microsoft/vscode-react-native/pull/1409)
 * Added support for `openExpoQR` debugging argument determining whether to open a tab with a QR code after launching the Expo server or not. Enhanced the workflow for Expo server starting [#1413](https://github.com/microsoft/vscode-react-native/pull/1413)
 * Fixed launch scenarios for iOS direct debugging [#1430](https://github.com/microsoft/vscode-react-native/pull/1430)
-* Fixed replacing `target` iOS debug scenarios argument in cases if the value is the existing iOS simulator name, e.g. `'target': 'iPhone 8'` [#1431](https://github.com/microsoft/vscode-react-native/pull/1431)
+* Values in the `target` debug scenario argument are no longer replaced by UDID in cases the existing simulator name is already used [#1431](https://github.com/microsoft/vscode-react-native/pull/1431)
 * Fixed minor extension issues [#1424](https://github.com/microsoft/vscode-react-native/issues/1424), [#1425](https://github.com/microsoft/vscode-react-native/issues/1425)
 
 
