@@ -24,7 +24,7 @@ type XPathSelector = { [TKey in Platform]: string };
 type XPathSelectors = { [key: string]: XPathSelector };
 
 export class AppiumHelper {
-    private static waitUntilOptions: wdio.WaitUntilOptions = {
+    private static waitUntilEnableRemoteDebugOptions: wdio.WaitUntilOptions = {
         timeout: SmokeTestsConstants.enableRemoteJSTimeout,
         timeoutMsg: `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`,
         interval: 1000
@@ -210,7 +210,7 @@ export class AppiumHelper {
                 return true;
             }
             return false;
-        }, this.waitUntilOptions);
+        }, this.waitUntilEnableRemoteDebugOptions);
     }
 
     public static async enableRemoteDebugJS(client: AppiumClient, platform: Platform): Promise<void> {
@@ -245,7 +245,7 @@ export class AppiumHelper {
             }
             await this.callRNDevMenu(client, platform);
             return false;
-        }, this.waitUntilOptions);
+        }, this.waitUntilEnableRemoteDebugOptions);
     }
 
     public static getIosPlatformVersion(): string {
