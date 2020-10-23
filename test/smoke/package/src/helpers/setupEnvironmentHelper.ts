@@ -11,7 +11,7 @@ import * as os from "os";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
 import { sleep } from "./utilities";
 import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
-import * as XDL from "@expo/xdl";
+const XDL = require("@expo/xdl");
 
 
 export class SetupEnvironmentHelper {
