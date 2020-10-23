@@ -113,7 +113,6 @@ export class AppiumHelper {
     public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName): wdio.RemoteOptions {
         return {
             capabilities: {
-                browserName: "",
                 platformName: "Android",
                 platformVersion: this.getAndroidPlatformVersion(),
                 deviceName: deviceName,
@@ -130,7 +129,6 @@ export class AppiumHelper {
     public static prepareAttachOptsForIosApp(deviceName: string, appPath: string): wdio.RemoteOptions {
         return {
             capabilities: {
-                browserName: "",
                 platformName: "iOS",
                 platformVersion: this.getIosPlatformVersion(),
                 deviceName: deviceName,
