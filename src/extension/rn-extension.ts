@@ -29,7 +29,7 @@ import { ReactNativeSessionManager } from "./reactNativeSessionManager";
 import { ProjectsStorage } from "./projectsStorage";
 import { AppLauncher } from "./appLauncher";
 import * as nls from "vscode-nls";
-import { getExtensionVersion } from "../common/extensionHelper";
+import { getExtensionVersion, getExtensionName } from "../common/extensionHelper";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -46,6 +46,14 @@ interface ISetupableDisposable extends vscode.Disposable {
 
 
 export function activate(context: vscode.ExtensionContext): Promise<void> {
+    const extensionName = getExtensionName();
+    if (extensionName && extensionName.includes("preview")) {
+        if (vscode.extensions.getExtension("msjsdiag.vscode-react-native")) {
+            vscode.window.showInformationMessage(localize("RNTTwoVersionsFound", "React Native Tools: Both Stable and Preview extensions are installed. Stable will be used. Disable or remove it to work with Preview version."));
+            return Promise.resolve();
+        }
+    }
+
     outputChannelLogger.debug("Begin to activate...");
     const appVersion = getExtensionVersion();
     if (!appVersion) {

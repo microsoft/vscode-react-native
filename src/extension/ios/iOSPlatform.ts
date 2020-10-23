@@ -118,10 +118,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                     GeneralMobilePlatform.removeRunArgument(this.runArguments, "--simulator", false);
                     GeneralMobilePlatform.setRunArgument(this.runArguments, "--udid", simulator.id);
                 }
-                else {
-                    simulator = this.simulatorManager.findSimulator(target, null, simulators);
-                }
-                return simulator;
+                return null;
             });
         }
         else {
@@ -206,6 +203,9 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     public disableJSDebuggingMode(): Promise<void> {
+        if (this.targetType === IOSPlatform.deviceString) {
+            return Promise.resolve();
+        }
         return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(/*enable=*/ false, this.runOptions.configuration, this.runOptions.productName);
     }
 

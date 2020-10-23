@@ -295,7 +295,9 @@ export class AppLauncher {
                     }
                     launchArgs.target = emulator.id;
                 }
-                else if (mobilePlatformOptions.target.indexOf("device") < 0) {
+                else if (mobilePlatformOptions.target.indexOf("device") < 0 && launchArgs.platform === PlatformType.Android) {
+                    // We should cleanup target only for Android platform,
+                    // because react-native-cli does not support launch with Android emulator name
                     this.cleanupTargetModifications(mobilePlatform, mobilePlatformOptions);
                 }
             })
@@ -342,6 +344,7 @@ export class AppLauncher {
 
         if (args.platform === PlatformType.Exponent) {
             mobilePlatformOptions.expoHostType = args.expoHostType || "tunnel";
+            mobilePlatformOptions.openExpoQR = typeof args.openExpoQR !== "boolean" ? true : args.openExpoQR;
         }
 
         CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(workspaceFolder.uri);
