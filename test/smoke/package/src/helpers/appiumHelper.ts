@@ -121,8 +121,8 @@ export class AppiumHelper {
                 automationName: "UiAutomator2",
                 newCommandTimeout: 300,
             },
+            path: "/wd/hub",
             port: 4723,
-            hostname: "localhost",
         };
     }
 
@@ -136,8 +136,8 @@ export class AppiumHelper {
                 automationName: "XCUITest",
                 newCommandTimeout: 500,
             },
+            path: "/wd/hub",
             port: 4723,
-            hostname: "localhost",
         };
     }
 
