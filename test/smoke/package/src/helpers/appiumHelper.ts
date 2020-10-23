@@ -70,7 +70,7 @@ export class AppiumHelper {
         },
     };
 
-    public static runAppium() {
+    public static runAppium(): void {
         const appiumLogFolder = artifactsPath;
         mkdirp.sync(appiumLogFolder);
         const appiumLogPath = path.join(appiumLogFolder, "appium.log");
@@ -87,7 +87,7 @@ export class AppiumHelper {
         });
     }
 
-    public static terminateAppium() {
+    public static terminateAppium(): void {
         if (appiumProcess) {
             console.log(`*** Terminating Appium with PID ${appiumProcess.pid}`);
             console.log(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
@@ -110,9 +110,9 @@ export class AppiumHelper {
         }
     }
 
-    public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName) {
+    public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName): wdio.RemoteOptions {
         return {
-            desiredCapabilities: {
+            requestedCapabilities: {
                 browserName: "",
                 platformName: "Android",
                 platformVersion: this.getAndroidPlatformVersion(),
@@ -123,13 +123,13 @@ export class AppiumHelper {
                 newCommandTimeout: 300,
             },
             port: 4723,
-            host: "localhost",
+            hostname: "localhost",
         };
     }
 
-    public static prepareAttachOptsForIosApp(deviceName: string, appPath: string) {
+    public static prepareAttachOptsForIosApp(deviceName: string, appPath: string): wdio.RemoteOptions {
         return {
-            desiredCapabilities: {
+            requestedCapabilities: {
                 browserName: "",
                 platformName: "iOS",
                 platformVersion: this.getIosPlatformVersion(),
@@ -139,16 +139,16 @@ export class AppiumHelper {
                 newCommandTimeout: 500,
             },
             port: 4723,
-            host: "localhost",
+            hostname: "localhost",
         };
     }
 
-    public static webdriverAttach(attachArgs: any) {
+    public static webdriverAttach(attachArgs: wdio.RemoteOptions): Promise<wdio.BrowserObject> {
         // Connect to the emulator with predefined opts
         return wdio.remote(attachArgs);
     }
 
-    public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string, projectFolder: string, firstLaunch?: boolean) {
+    public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string, projectFolder: string, firstLaunch?: boolean): Promise<void> {
         // There are two ways to run app in Expo app:
         // - via clipboard
         // - via expo XDL function
@@ -176,7 +176,7 @@ export class AppiumHelper {
      * @param client - Initialized Appium client
      * @param platform - Android or iOS
      */
-    public static async callRNDevMenu(client: AppiumClient, platform: Platform) {
+    public static async callRNDevMenu(client: AppiumClient, platform: Platform): Promise<void> {
         switch (platform) {
             case Platform.Android:
             case Platform.AndroidExpo:
@@ -197,7 +197,7 @@ export class AppiumHelper {
         }
     }
 
-    public static async reloadRNApp(client: AppiumClient, platform: Platform) {
+    public static async reloadRNApp(client: AppiumClient, platform: Platform): Promise<void> {
         console.log("*** Reloading React Native application with DevMenu...");
         const reloadButton = await client.$(this.XPATH.RN_RELOAD_BUTTON[platform]);
         await client
@@ -213,7 +213,7 @@ export class AppiumHelper {
         }, this.waitUntilOptions);
     }
 
-    public static async enableRemoteDebugJS(client: AppiumClient, platform: Platform) {
+    public static async enableRemoteDebugJS(client: AppiumClient, platform: Platform): Promise<void> {
         console.log("*** Enabling Remote JS Debugging for application with DevMenu...");
 
         const enableRemoteDebugButton = await client.$(this.XPATH.RN_ENABLE_REMOTE_DEBUGGING_BUTTON[platform]);
@@ -248,17 +248,17 @@ export class AppiumHelper {
         }, this.waitUntilOptions);
     }
 
-    public static getIosPlatformVersion() {
+    public static getIosPlatformVersion(): string {
         return process.env.IOS_VERSION || SmokeTestsConstants.defaultTargetIosPlatformVersion;
     }
 
-    public static getAndroidPlatformVersion() {
+    public static getAndroidPlatformVersion(): string {
         return process.env.ANDROID_VERSION || SmokeTestsConstants.defaultTargetAndroidPlatformVersion;
     }
 
     // Expo 32 has an error on iOS application start up
     // it is not breaking the app, but may broke the tests, so need to click Dismiss button in the RN Red Box to proceed further
-    public static async disableExpoErrorRedBox(client: AppiumClient) {
+    public static async disableExpoErrorRedBox(client: AppiumClient): Promise<void> {
         const DISMISS_BUTTON = await client.$("//XCUIElementTypeButton[@name='redbox-dismiss']");
         if (await DISMISS_BUTTON.isExisting()) {
             console.log("*** React Native Red Box found, disabling...");
@@ -268,7 +268,7 @@ export class AppiumHelper {
 
     // New Expo versions shows DevMenu at first launch with informational message,
     // it is better to disable this message and then call DevMenu ourselves
-    public static async disableDevMenuInformationalMsg(client: AppiumClient, platform: Platform) {
+    public static async disableDevMenuInformationalMsg(client: AppiumClient, platform: Platform): Promise<void> {
         const GOT_IT_BUTTON = await client.$(this.XPATH.GOT_IT_BUTTON[platform]);
         if (await GOT_IT_BUTTON.isExisting()) {
             console.log("*** Expo DevMenu informational message found, disabling...");
@@ -276,7 +276,7 @@ export class AppiumHelper {
         }
     }
 
-    public static async clickTestButtonHermes(client: AppiumClient) {
+    public static async clickTestButtonHermes(client: AppiumClient): Promise<void> {
         console.log(`*** Pressing button with text "Test Button"...`);
         const TEST_BUTTON = await client.$("//*[@text='TEST BUTTON']");
         await TEST_BUTTON.click();

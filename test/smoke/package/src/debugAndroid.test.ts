@@ -31,7 +31,7 @@ const debugAndroidTestTime = SmokeTestsConstants.androidAppBuildAndInstallTimeou
 // Time for Android Expo Debug Test before it reaches timeout
 const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
 
-export function setup(testParameters?: TestRunArguments) {
+export function setup(testParameters?: TestRunArguments): void {
 
     describe("Debugging Android", () => {
         let app: Application;

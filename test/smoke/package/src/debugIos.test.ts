@@ -28,7 +28,7 @@ const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 40
 
 let expoFirstLaunch = true;
 
-export function setup(testParameters?: TestRunArguments) {
+export function setup(testParameters?: TestRunArguments): void {
     describe("Debugging iOS", () => {
         let app: Application;
         let client: AppiumClient;
