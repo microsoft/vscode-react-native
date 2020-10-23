@@ -35,16 +35,16 @@ export function setup(testParameters?: TestRunArguments) {
 
     describe("Debugging Android", () => {
         let app: Application;
-        let clientInited: AppiumClient;
+        let client: AppiumClient;
         console.log(testParameters);
 
         async function disposeAll() {
             if (app) {
                 await app.stop();
             }
-            if (clientInited) {
-                clientInited.closeApp();
-                clientInited.endAll();
+            if (client) {
+                client.closeApp();
+                client.deleteSession();
             }
         }
 
@@ -100,16 +100,15 @@ export function setup(testParameters?: TestRunArguments) {
             assert.notStrictEqual(expoURL, null, "Expo URL pattern is not found");
             expoURL = expoURL as string;
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
-            let client = AppiumHelper.webdriverAttach(opts);
-            clientInited = client.init();
+            client = await AppiumHelper.webdriverAttach(opts);
             // TODO Add listener to trigger that main expo app has been ran
-            await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL, workspacePath);
+            await AppiumHelper.openExpoApplication(Platform.Android, client, expoURL, workspacePath);
             // TODO Add listener to trigger that child expo app has been ran instead of using timeout
             console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
-            await AppiumHelper.disableDevMenuInformationalMsg(clientInited, Platform.AndroidExpo);
+            await AppiumHelper.disableDevMenuInformationalMsg(client, Platform.AndroidExpo);
             await sleep(2 * 1000);
-            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.AndroidExpo);
+            await AppiumHelper.enableRemoteDebugJS(client, Platform.AndroidExpo);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log(`${testName}: Debugging started`);
             await app.workbench.debug.waitForStackFrame(sf => sf.name === appFileName && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for ${appFileName} and line ${ExpoSetBreakpointOnLine}`);
@@ -138,9 +137,8 @@ export function setup(testParameters?: TestRunArguments) {
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
-            let client = AppiumHelper.webdriverAttach(opts);
-            clientInited = client.init();
-            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
+            client = await AppiumHelper.webdriverAttach(opts);
+            await AppiumHelper.enableRemoteDebugJS(client, Platform.Android);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Android Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
@@ -173,12 +171,11 @@ export function setup(testParameters?: TestRunArguments) {
                 await app.workbench.quickaccess.runDebugScenario(RNHermesDebugConfigName);
                 const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
                 await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
-                let client = AppiumHelper.webdriverAttach(opts);
-                clientInited = client.init();
+                client = await AppiumHelper.webdriverAttach(opts);
                 await app.workbench.debug.waitForDebuggingToStart();
                 console.log("Android Debug Hermes test: Debugging started");
                 console.log("Android Debug Hermes test: Checking for Hermes mark");
-                let isHermesWorking = await AppiumHelper.isHermesWorking(clientInited);
+                let isHermesWorking = await AppiumHelper.isHermesWorking(client);
                 assert.strictEqual(isHermesWorking, true);
                 console.log("Android Debug Hermes test: Reattaching to Hermes app");
                 await app.workbench.debug.disconnectFromDebugger();
@@ -186,7 +183,7 @@ export function setup(testParameters?: TestRunArguments) {
                 console.log("Android Debug Hermes test: Reattached successfully");
                 await sleep(7000);
                 console.log("Android Debug Hermes test: Click Test Button");
-                await AppiumHelper.clickTestButtonHermes(clientInited);
+                await AppiumHelper.clickTestButtonHermes(client);
                 await app.workbench.debug.waitForStackFrame(sf => sf.name === "AppTestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`);
                 console.log("Android Debug Hermes test: Stack frame found");
                 await app.workbench.debug.continue();
