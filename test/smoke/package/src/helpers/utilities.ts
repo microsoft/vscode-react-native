@@ -5,7 +5,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as cp from "child_process";
 import * as request from "request";
-import * as URL from "url-parse";
+import URL from "url-parse";
 import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
