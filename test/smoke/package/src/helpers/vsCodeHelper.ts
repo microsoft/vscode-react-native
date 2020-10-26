@@ -7,11 +7,11 @@ import * as vfs from "vinyl-fs";
 import * as untar from "gulp-untar";
 import * as gunzip from "gulp-gunzip";
 import * as chmod from "gulp-chmod";
-import filter from "gulp-filter";
+import * as filter from "gulp-filter";
 import * as path from "path";
 import * as utilities from "./utilities";
-import request from "request";
-import source from "vinyl-source-stream";
+import * as request from "request";
+import * as source from "vinyl-source-stream";
 import * as rimraf from "rimraf";
 import * as cp from "child_process";
 

@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { spawn, execSync } from "child_process";
-import kill from "tree-kill";
+import * as kill from "tree-kill";
 import { sleep } from "./utilities";
 
 interface RunResult {

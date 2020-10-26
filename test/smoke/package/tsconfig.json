@@ -13,8 +13,7 @@
 		"lib": [
 			"es2017",
 			"dom"
-		],
-		"esModuleInterop": true
+		]
 	},
 	"exclude": [
 		"node_modules",

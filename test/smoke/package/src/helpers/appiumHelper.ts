@@ -5,7 +5,7 @@ import * as cp from "child_process";
 import * as wdio from "webdriverio";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
-import kill from "tree-kill";
+import * as kill from "tree-kill";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./utilities";
 import * as clipboardy from "clipboardy";
@@ -18,7 +18,7 @@ export enum Platform {
     iOS,
     iOSExpo,
 }
-import XDL from "@expo/xdl";
+const XDL = require("@expo/xdl");
 
 type XPathSelector = { [TKey in Platform]: string };
 type XPathSelectors = { [key: string]: XPathSelector };
