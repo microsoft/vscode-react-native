@@ -187,7 +187,7 @@ export class AppiumHelper {
             case Platform.iOSExpo:
                 // Sending Cmd+D doesn't work sometimes but shake gesture works flawlessly
                 console.log("*** Opening DevMenu by sending shake gesture...");
-                client.shake();
+                await client.shake();
                 await sleep(2 * 1000);
                 break;
             default:
