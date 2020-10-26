@@ -18,7 +18,7 @@ export enum Platform {
     iOS,
     iOSExpo,
 }
-const XDL = require("@expo/xdl");
+import XDL from "@expo/xdl";
 
 type XPathSelector = { [TKey in Platform]: string };
 type XPathSelectors = { [key: string]: XPathSelector };
