@@ -18,7 +18,7 @@ export enum Platform {
     iOS,
     iOSExpo,
 }
-const XDL = require("@expo/xdl");
+import XDL = require("@expo/xdl");
 
 type XPathSelector = { [TKey in Platform]: string };
 type XPathSelectors = { [key: string]: XPathSelector };
@@ -316,7 +316,7 @@ export class AppiumHelper {
         await EXPLORE_ELEMENT
             .waitForExist({ timeout: SmokeTestsConstants.waitForTimeout });
 
-        await XDL.Android.openProjectAsync(projectFolder);
+        await XDL.Android.openProjectAsync({ projectRoot: projectFolder });
     }
 
     private static async openExpoAppViaExpoXDLSimulatorFunction(client: AppiumClient, projectFolder: string, firstLaunch?: boolean) {
@@ -327,7 +327,7 @@ export class AppiumHelper {
         await EXPLORE_ELEMENT
             .waitForExist({ timeout: SmokeTestsConstants.waitForTimeout });
 
-        await XDL.Simulator.openProjectAsync(projectFolder);
+        await XDL.Simulator.openProjectAsync({ projectRoot: projectFolder });
 
         if (firstLaunch) { // it's required to allow launch of an Expo application when it's launched for the first time
             console.log(`*** First launch of Expo app`);
