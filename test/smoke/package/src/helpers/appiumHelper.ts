@@ -300,7 +300,7 @@ export class AppiumHelper {
         console.log(`*** Copying ${expoURL} to system clipboard...`);
         clipboardy.writeSync(expoURL);
         const expoOpenFromClipboard = await client.$("//*[@text='Open from Clipboard']");
-        console.log(`*** Searching for ${expoOpenFromClipboard} element for click...`);
+        console.log(`*** Searching for ${expoOpenFromClipboard.selector} element for click...`);
         // Run Expo app by expoURL
         await expoOpenFromClipboard
             .waitForExist({ timeout: SmokeTestsConstants.waitForTimeout });
