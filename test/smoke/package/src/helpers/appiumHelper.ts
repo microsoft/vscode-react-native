@@ -62,7 +62,7 @@ export class AppiumHelper {
             [Platform.iOS]: "", // todo
             [Platform.iOSExpo]: "", // todo
         },
-        GOT_IT_BUTTON: {
+        gotItButton: {
             [Platform.Android]: "",
             [Platform.AndroidExpo]: "//*[@text='Got it']",
             [Platform.iOS]: "",
@@ -257,63 +257,63 @@ export class AppiumHelper {
     // Expo 32 has an error on iOS application start up
     // it is not breaking the app, but may broke the tests, so need to click Dismiss button in the RN Red Box to proceed further
     public static async disableExpoErrorRedBox(client: AppiumClient): Promise<void> {
-        const DISMISS_BUTTON = await client.$("//XCUIElementTypeButton[@name='redbox-dismiss']");
-        if (await DISMISS_BUTTON.isExisting()) {
+        const dismissButton = await client.$("//XCUIElementTypeButton[@name='redbox-dismiss']");
+        if (await dismissButton.isExisting()) {
             console.log("*** React Native Red Box found, disabling...");
-            await DISMISS_BUTTON.click();
+            await dismissButton.click();
         }
     }
 
     // New Expo versions shows DevMenu at first launch with informational message,
     // it is better to disable this message and then call DevMenu ourselves
     public static async disableDevMenuInformationalMsg(client: AppiumClient, platform: Platform): Promise<void> {
-        const GOT_IT_BUTTON = await client.$(this.XPATH.GOT_IT_BUTTON[platform]);
-        if (await GOT_IT_BUTTON.isExisting()) {
+        const gotItButton = await client.$(this.XPATH.gotItButton[platform]);
+        if (await gotItButton.isExisting()) {
             console.log("*** Expo DevMenu informational message found, disabling...");
-            await GOT_IT_BUTTON.click();
+            await gotItButton.click();
         }
     }
 
     public static async clickTestButtonHermes(client: AppiumClient): Promise<void> {
         console.log(`*** Pressing button with text "Test Button"...`);
-        const TEST_BUTTON = await client.$("//*[@text='TEST BUTTON']");
-        await TEST_BUTTON.click();
+        const testButton = await client.$("//*[@text='TEST BUTTON']");
+        await testButton.click();
     }
 
     public static async isHermesWorking(client: AppiumClient): Promise<boolean> {
-        const HERMES_MARK = await client.$("//*[@text='Engine: Hermes']");
-        return await HERMES_MARK
+        const hermesMark = await client.$("//*[@text='Engine: Hermes']");
+        return await hermesMark
             .waitForExist({ timeout: SmokeTestsConstants.waitForTimeout });
     }
 
     private static async openExpoAppViaClipboardAndroid(client: AppiumClient, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
-        const EXPLORE_ELEMENT = await client.$("//android.widget.TextView[@text='Projects']");
-        await EXPLORE_ELEMENT
+        const exploreElement = await client.$("//android.widget.TextView[@text='Projects']");
+        await exploreElement
             .waitForExist({ timeout: SmokeTestsConstants.waitForTimeout });
-        await EXPLORE_ELEMENT.click();
+        await exploreElement.click();
 
         console.log(`*** Pressing "Projects" icon...`);
 
         console.log(`*** Opening Expo app via clipboard`);
         console.log(`*** Copying ${expoURL} to system clipboard...`);
         clipboardy.writeSync(expoURL);
-        const EXPO_OPEN_FROM_CLIPBOARD = await client.$("//*[@text='Open from Clipboard']");
-        console.log(`*** Searching for ${EXPO_OPEN_FROM_CLIPBOARD} element for click...`);
+        const expoOpenFromClipboard = await client.$("//*[@text='Open from Clipboard']");
+        console.log(`*** Searching for ${expoOpenFromClipboard} element for click...`);
         // Run Expo app by expoURL
-        await EXPO_OPEN_FROM_CLIPBOARD
+        await expoOpenFromClipboard
             .waitForExist({ timeout: SmokeTestsConstants.waitForTimeout });
 
-        await EXPO_OPEN_FROM_CLIPBOARD.click();
-        console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
+        await expoOpenFromClipboard.click();
+        console.log(`*** ${expoOpenFromClipboard} clicked...`);
     }
 
     private static async openExpoAppViaExpoXDLAndroidFunction(client: AppiumClient, projectFolder: string) {
         console.log(`*** Opening Expo app via XDL.Android function`);
         console.log(`*** Searching for the "Explore" button...`);
-        const EXPLORE_ELEMENT = await client.$("//android.widget.TextView[@text='Projects']");
-        await EXPLORE_ELEMENT
+        const exploreElement = await client.$("//android.widget.TextView[@text='Projects']");
+        await exploreElement
             .waitForExist({ timeout: SmokeTestsConstants.waitForTimeout });
 
         await XDL.Android.openProjectAsync({ projectRoot: projectFolder });
@@ -323,8 +323,8 @@ export class AppiumHelper {
         console.log(`*** Opening Expo app via XDL.Simulator function`);
         console.log(`*** Searching for the "Explore" button...`);
 
-        const EXPLORE_ELEMENT = await client.$(`//XCUIElementTypeButton[@name="Explore, tab, 2 of 4"]`);
-        await EXPLORE_ELEMENT
+        const exploreElement = await client.$(`//XCUIElementTypeButton[@name="Explore, tab, 2 of 4"]`);
+        await exploreElement
             .waitForExist({ timeout: SmokeTestsConstants.waitForTimeout });
 
         await XDL.Simulator.openProjectAsync({ projectRoot: projectFolder });
@@ -333,11 +333,11 @@ export class AppiumHelper {
             console.log(`*** First launch of Expo app`);
             console.log(`*** Pressing "Open" button...`);
 
-            const OPEN_BUTTON = await client.$(`//XCUIElementTypeButton[@name="Open"]`);
+            const openButton = await client.$(`//XCUIElementTypeButton[@name="Open"]`);
 
-            await OPEN_BUTTON
+            await openButton
                 .waitForExist({ timeout: 10 * 1000 });
-            await OPEN_BUTTON.click();
+            await openButton.click();
         }
     }
 }
