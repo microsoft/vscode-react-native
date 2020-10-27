@@ -62,7 +62,7 @@ export class AppiumHelper {
             [Platform.iOS]: "", // todo
             [Platform.iOSExpo]: "", // todo
         },
-        gotItButton: {
+        GOT_IT_BUTTON: {
             [Platform.Android]: "",
             [Platform.AndroidExpo]: "//*[@text='Got it']",
             [Platform.iOS]: "",
@@ -267,7 +267,7 @@ export class AppiumHelper {
     // New Expo versions shows DevMenu at first launch with informational message,
     // it is better to disable this message and then call DevMenu ourselves
     public static async disableDevMenuInformationalMsg(client: AppiumClient, platform: Platform): Promise<void> {
-        const gotItButton = await client.$(this.XPATH.gotItButton[platform]);
+        const gotItButton = await client.$(this.XPATH.GOT_IT_BUTTON[platform]);
         if (await gotItButton.isExisting()) {
             console.log("*** Expo DevMenu informational message found, disabling...");
             await gotItButton.click();
