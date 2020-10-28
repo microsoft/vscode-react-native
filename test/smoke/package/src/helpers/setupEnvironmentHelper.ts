@@ -11,8 +11,8 @@ import * as os from "os";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
 import { sleep } from "./utilities";
 import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
-
 const XDL = require("@expo/xdl");
+
 
 export class SetupEnvironmentHelper {
 
@@ -174,14 +174,26 @@ export class SetupEnvironmentHelper {
     // Installs Expo app on Android device using XDL function
     public static async installExpoAppOnAndroid() {
         console.log(`*** Installing Expo app on Android emulator using Expo XDL function`);
-        await XDL.Android.installExpoAsync();
+        await XDL.Android.installExpoAsync({
+            device: {
+                name: AndroidEmulatorHelper.getOnlineDevices()[0].id,
+                type: "emulator",
+                isBooted: true,
+                isAuthorized: true,
+            }
+        });
         AndroidEmulatorHelper.enableDrawPermitForApp(this.expoPackageName);
     }
 
     // Installs Expo app on iOS device using XDL function
     public static async installExpoAppOnIos() {
         console.log(`*** Installing Expo app on iOS simulator using Expo XDL function`);
-        await XDL.Simulator._installExpoOnSimulatorAsync();
+        await XDL.Simulator.installExpoOnSimulatorAsync({
+            simulator: {
+                name: IosSimulatorHelper.getDevice() || "",
+                udid: IosSimulatorHelper.getDeviceUdid() || ""
+            }
+        });
     }
 
     // Fix for https://github.com/expo/expo-cli/issues/951

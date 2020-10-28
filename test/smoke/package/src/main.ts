@@ -62,41 +62,11 @@ function getBuildElectronPath(root: string, isInsiders: boolean): string {
     }
 }
 
-function getVSCodeExecutablePath(testVSCodeFolder: string, isInsiders: boolean) {
-    switch (process.platform) {
-        case "darwin":
-            return isInsiders
-                ?
-                path.join(testVSCodeFolder, "Visual Studio Code - Insiders.app", "Contents", "Resources", "app", "bin", "code")
-                :
-                path.join(testVSCodeFolder, "Visual Studio Code.app", "Contents", "Resources", "app", "bin", "code");
-        case "win32":
-            return isInsiders
-                ?
-                path.join(testVSCodeFolder, "bin", "code-insiders.cmd")
-                :
-                path.join(testVSCodeFolder, "bin", "code.cmd");
-        case "linux":
-            return isInsiders
-                ?
-                path.join(testVSCodeFolder, "VSCode-linux-x64", "bin", "code-insiders")
-                :
-                path.join(testVSCodeFolder, "VSCode-linux-x64", "bin", "code");
-        default:
-            throw new Error(`Platform ${process.platform} isn't supported`);
-    }
-}
-
 // resolving path from VS Code smoke tests directory to repository root
 const repoRoot = path.join(__dirname, "..", "..", "..", "..", "..", "..");
 const resourcesPath = path.join(__dirname, "..", "resources");
 const isInsiders = process.env.CODE_VERSION === "insiders";
-let testVSCodeDirectory;
-if (!isInsiders) {
-    testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "stable");
-} else {
-    testVSCodeDirectory = path.join(resourcesPath, ".vscode-test", "insiders");
-}
+let testVSCodeDirectory = path.join(__dirname, "..", ".vscode-test", `vscode-${process.env.CODE_VERSION}`);
 
 let electronExecutablePath: string;
 
@@ -151,7 +121,7 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
     };
 }
 
-export function prepareReactNativeProjectForHermesTesting() {
+export function prepareReactNativeProjectForHermesTesting(): void {
     SetupEnvironmentHelper.prepareHermesReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNworkspacePath, SmokeTestsConstants.RNAppName, "HermesReactNativeSample", process.env.RN_VERSION);
 }
 
@@ -180,13 +150,14 @@ async function setup(): Promise<void> {
             await SetupEnvironmentHelper.installExpoAppOnIos();
         }
     }
-    await VSCodeHelper.downloadVSCodeExecutable(resourcesPath);
+
+    const testVSCodeEXE = await VSCodeHelper.downloadVSCodeExecutable();
 
     electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
     if (!fs.existsSync(testVSCodeDirectory || "")) {
         await fail(`Can't find VS Code executable at ${testVSCodeDirectory}.`);
     }
-    const testVSCodeExecutablePath = getVSCodeExecutablePath(testVSCodeDirectory, isInsiders);
+    const testVSCodeExecutablePath = VSCodeHelper.getVSCodeExecutablePath(testVSCodeEXE);
     VSCodeHelper.installExtensionFromVSIX(extensionsPath, testVSCodeExecutablePath, resourcesPath, !testParams.DontDeleteVSIX);
 
     if (process.env.EXPO_XDL_VERSION) {
