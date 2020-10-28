@@ -28,18 +28,18 @@ const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 40
 
 let expoFirstLaunch = true;
 
-export function setup(testParameters?: TestRunArguments) {
+export function setup(testParameters?: TestRunArguments): void {
     describe("Debugging iOS", () => {
         let app: Application;
-        let clientInited: AppiumClient;
+        let client: AppiumClient;
 
         async function disposeAll() {
             if (app) {
                 await app.stop();
             }
-            if (clientInited) {
-                clientInited.closeApp();
-                clientInited.endAll();
+            if (client) {
+                client.closeApp();
+                client.deleteSession();
             }
         }
 
@@ -108,16 +108,15 @@ export function setup(testParameters?: TestRunArguments) {
             }
             const appPath = path.join(SetupEnvironmentHelper.iOSExpoAppsCacheDir, appFile);
             const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
-            let client = AppiumHelper.webdriverAttach(opts);
-            clientInited = client.init();
-            await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL, workspacePath, expoFirstLaunch);
+            client = await AppiumHelper.webdriverAttach(opts);
+            await AppiumHelper.openExpoApplication(Platform.iOS, client, expoURL, workspacePath, expoFirstLaunch);
             expoFirstLaunch = false;
             console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
 
-            await AppiumHelper.disableExpoErrorRedBox(clientInited);
-            await AppiumHelper.disableDevMenuInformationalMsg(clientInited, Platform.iOSExpo);
-            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOSExpo);
+            await AppiumHelper.disableExpoErrorRedBox(client);
+            await AppiumHelper.disableDevMenuInformationalMsg(client, Platform.iOSExpo);
+            await AppiumHelper.enableRemoteDebugJS(client, Platform.iOSExpo);
             await sleep(5 * 1000);
 
             await app.workbench.debug.waitForDebuggingToStart();
@@ -160,9 +159,8 @@ export function setup(testParameters?: TestRunArguments) {
             );
             const appPath = `${buildPath}/${SmokeTestsConstants.RNAppName}.app`;
             const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
-            let client = AppiumHelper.webdriverAttach(opts);
-            clientInited = client.init();
-            await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS);
+            client = await AppiumHelper.webdriverAttach(opts);
+            await AppiumHelper.enableRemoteDebugJS(client, Platform.iOS);
             await sleep(5 * 1000);
 
             await app.workbench.debug.waitForDebuggingToStart();

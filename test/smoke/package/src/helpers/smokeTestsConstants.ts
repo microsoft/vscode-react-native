@@ -17,6 +17,8 @@ export class SmokeTestsConstants {
     public static elementResponseTimeout = 250;
     // Timeout for enabling Remote JS Debugging while testing RN app
     public static enableRemoteJSTimeout = 120 * 1000;
+    // Timeout for waitFor* commands
+    public static waitForTimeout = 30 * 1000;
     // Timeout for Android app to build and to install
     public static androidAppBuildAndInstallTimeout = 300 * 1000;
     // Timeout for iOS app to build and to install
