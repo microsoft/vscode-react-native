@@ -114,7 +114,7 @@ export class TestConfigurator {
         initLog += `ANDROID_EMULATOR = ${process.env.ANDROID_EMULATOR}\n`;
         initLog += `ANDROID_VERSION = ${process.env.ANDROID_VERSION}\n`;
         initLog += `IOS_SIMULATOR = ${process.env.IOS_SIMULATOR}\n`;
-        initLog += `IOS_SIMULATOR_UDID = ${process.env.IOS_SIMULATOR}\n`;
+        initLog += `IOS_SIMULATOR_UDID = ${process.env.IOS_SIMULATOR_UDID}\n`;
         initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
         initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
         initLog += `EXPO_XDL_VERSION = ${process.env.EXPO_XDL_VERSION}\n`;
