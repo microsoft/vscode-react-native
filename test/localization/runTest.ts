@@ -19,8 +19,7 @@ async function launchTests() {
     await runTests({
       extensionDevelopmentPath,
       extensionTestsPath,
-      launchArgs: ["--locale", "ru"],
-      version: "1.48.0"
+      launchArgs: ["--locale", "ru"]
     });
   } catch (err) {
     console.error(err);
