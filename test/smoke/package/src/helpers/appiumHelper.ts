@@ -203,7 +203,7 @@ export class AppiumHelper {
             await this.callRNDevMenu(client, platform);
             if (await reloadButton.isExisting()) {
                 console.log("*** Reload button found...");
-                await reloadButton.isExisting();
+                await reloadButton.click();
                 console.log("*** Reload button clicked...");
                 return true;
             }
