@@ -89,8 +89,8 @@ export function setup(testParameters?: TestRunArguments): void {
             }
             await runExpoDebugScenario(logFilePath, testName, workspacePath, debugConfigName, triesToLaunchApp);
 
-            await app.workbench.editors.waitForTab("Expo QR Code readonly");
-            await app.workbench.editors.waitForActiveTab("Expo QR Code readonly");
+            await app.workbench.editors.waitForTab("Expo QR Code", false, true);
+            await app.workbench.editors.waitForActiveTab("Expo QR Code", false, true);
             console.log(`${testName}: 'Expo QR Code' tab found`);
 
             let expoURL;
