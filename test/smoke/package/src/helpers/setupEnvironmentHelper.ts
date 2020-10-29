@@ -273,7 +273,7 @@ export class SetupEnvironmentHelper {
                 const match = processIdRgx.exec(processData);
                 if (match && match[1]) {
                     const terminateMacOSappProcessCommand = `kill ${match[1]}`;
-                    cp.execSync(terminateMacOSappProcessCommand)
+                    cp.execSync(terminateMacOSappProcessCommand);
                 }
             }
         }
