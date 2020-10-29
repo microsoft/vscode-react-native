@@ -19,6 +19,8 @@ export class SetupEnvironmentHelper {
     public static expoPackageName = "host.exp.exponent";
     public static expoBundleId = "host.exp.Exponent";
     public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
+    public static npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
+    public static npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
     public static prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
         let command = `react-native init ${appName}`;
@@ -255,11 +257,7 @@ export class SetupEnvironmentHelper {
     }
 
     public static installExpoXdlPackageToExtensionDir(extensionDir: any, packageVersion: string) {
-        let npmCmd = "npm";
-        if (process.platform === "win32") {
-            npmCmd = "npm.cmd";
-        }
-        const command = `${npmCmd} install @expo/xdl@${packageVersion} --no-save`;
+        const command = `${this.npmCommand} install @expo/xdl@${packageVersion} --no-save`;
 
         console.log(`*** Adding @expo/xdl dependency to ${extensionDir} via '${command}' command...`);
         cp.execSync(command, { cwd: extensionDir, stdio: "inherit" });
@@ -293,6 +291,11 @@ module.exports.watchFolders = ['.vscode'];`;
         fs.appendFileSync(metroConfigPath, patchContent);
         const contentAfterPatching = fs.readFileSync(metroConfigPath);
         console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
+    }
+
+    public static prepareRNWApp(workspacePath: string) {
+        const command = `${this.npxCommand} react-native-windows-init --overwrite`;
+        cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
     }
 
     private static copyGradleFilesToHermesApp(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {

@@ -89,6 +89,7 @@ export const ExpoWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.Ex
 const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.ApptsxFileName);
 export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.pureRNExpoApp);
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
+export const RNWWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNWAppName);
 
 export const artifactsPath = path.join(repoRoot, SmokeTestsConstants.artifactsDir);
 const userDataDir = path.join(repoRoot, SmokeTestsConstants.VSCodeUserDataDir);
@@ -143,6 +144,10 @@ async function setup(): Promise<void> {
         SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName, process.env.EXPO_SDK_MAJOR_VERSION);
         const PureRNVersionExpo = process.env.PURE_RN_VERSION || await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo(process.env.EXPO_SDK_MAJOR_VERSION);
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", PureRNVersionExpo);
+        if (process.platform === "win32") {
+            SetupEnvironmentHelper.prepareReactNativeApplication(RNworkspaceFilePath, resourcesPath, RNWWorkspacePath, SmokeTestsConstants.RNWAppName, "ReactNativeSample", process.env.RNW_VERSION);
+            SetupEnvironmentHelper.prepareRNWApp(RNworkspaceFilePath);
+        }
         SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath, process.env.PURE_EXPO_VERSION);
         await SetupEnvironmentHelper.installExpoAppOnAndroid();
         SetupEnvironmentHelper.patchExpoSettingsFile(ExpoWorkspacePath);
