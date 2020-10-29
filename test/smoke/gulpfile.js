@@ -7,7 +7,7 @@ const path = require("path");
 const ncp = require("ncp");
 const rimraf = require("rimraf");
 
-const CODE_REPO_VERSION = "1.45.1";
+const CODE_REPO_VERSION = "1.50.1";
 const CODE_REPO_URL = "https://github.com/microsoft/vscode.git";
 const SMOKE_TESTS_PACKAGE_FOLDER = path.join(__dirname, "package");
 const SMOKE_TESTS_AUTOMATION_FOLDER = path.join(__dirname, "automation");

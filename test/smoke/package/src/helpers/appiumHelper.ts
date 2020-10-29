@@ -306,7 +306,7 @@ export class AppiumHelper {
             .waitForExist({ timeout: SmokeTestsConstants.waitForTimeout });
 
         await expoOpenFromClipboard.click();
-        console.log(`*** ${expoOpenFromClipboard} clicked...`);
+        console.log(`*** ${expoOpenFromClipboard.selector} clicked...`);
     }
 
     private static async openExpoAppViaExpoXDLAndroidFunction(client: AppiumClient, projectFolder: string) {
