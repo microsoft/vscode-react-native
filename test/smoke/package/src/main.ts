@@ -10,6 +10,7 @@ import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
 import { setup as setupReactNativeDebugiOSTests } from "./debugIos.test";
 import { setup as setupLocalizationTests } from "./localization.test";
+import { setup as setupReactNativeDebugMacOSTests } from "./debugMacOS.test";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
@@ -89,6 +90,8 @@ export const ExpoWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.Ex
 const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.ApptsxFileName);
 export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.pureRNExpoApp);
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
+export const RNmacOSworkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNmacOSAppName);
+const RNmacOSworkspaceFilePath = path.join(RNworkspacePath, SmokeTestsConstants.AppjsFileName);
 
 export const artifactsPath = path.join(repoRoot, SmokeTestsConstants.artifactsDir);
 const userDataDir = path.join(repoRoot, SmokeTestsConstants.VSCodeUserDataDir);
@@ -148,6 +151,9 @@ async function setup(): Promise<void> {
         SetupEnvironmentHelper.patchExpoSettingsFile(ExpoWorkspacePath);
         if (process.platform === "darwin") {
             await SetupEnvironmentHelper.installExpoAppOnIos();
+
+            SetupEnvironmentHelper.prepareReactNativeApplication(RNmacOSworkspaceFilePath, resourcesPath, RNmacOSworkspacePath, SmokeTestsConstants.RNmacOSAppName, "MacOSReactNativeSample", process.env.RN_MAC_OS_VERSION);
+            SetupEnvironmentHelper.prepareMacOSApplication(RNmacOSworkspacePath);
         }
     }
 
@@ -226,6 +232,7 @@ describe("Extension smoke tests", () => {
             console.log("*** Android and iOS tests will be run");
             setupReactNativeDebugAndroidTests();
             setupReactNativeDebugiOSTests();
+            setupReactNativeDebugMacOSTests();
         } else if (testParams.RunBasicTests) {
             console.log("*** --basic-only parameter is set, basic Android and iOS tests will be run");
             setupReactNativeDebugAndroidTests(testParams);

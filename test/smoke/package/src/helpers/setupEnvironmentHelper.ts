@@ -88,6 +88,12 @@ export class SetupEnvironmentHelper {
         SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
+    public static prepareMacOSApplication(workspacePath: string) {
+        const macOSinitCommand = "npx react-native-macos-init";
+        console.log(`*** Installing the React Native for macOS packages via '${macOSinitCommand}' in ${workspacePath}...`);
+        cp.execSync(macOSinitCommand, { cwd: workspacePath, stdio: "inherit" });
+    }
+
     public static addExpoDependencyToRNProject(workspacePath: string, version?: string) {
         let npmCmd = "npm";
         if (process.platform === "win32") {
@@ -252,6 +258,25 @@ export class SetupEnvironmentHelper {
     public static async terminateIosSimulator() {
         const device = <string>IosSimulatorHelper.getDevice();
         await IosSimulatorHelper.shutdownSimulator(device);
+    }
+
+    public static terminateMacOSapp(appName: string) {
+        const searchForMacOSappProcessCommand = `ps -ax | grep ${appName}`;
+        const searchResults = cp.execSync(searchForMacOSappProcessCommand).toString();
+
+        if (searchResults) {
+            const processIdRgx = /(^\d*)\s\?\?/g;
+            const processData = searchResults.split("\n")
+                .find(str => str.includes(`${appName}.app`));
+
+            if (processData) {
+                const match = processIdRgx.exec(processData);
+                if (match && match[1]) {
+                    const terminateMacOSappProcessCommand = `kill ${match[1]}`;
+                    cp.execSync(terminateMacOSappProcessCommand)
+                }
+            }
+        }
     }
 
     public static installExpoXdlPackageToExtensionDir(extensionDir: any, packageVersion: string) {

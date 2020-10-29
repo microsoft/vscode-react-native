@@ -21,7 +21,7 @@ const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
 
 const RNSetBreakpointOnLine = 1;
 const ExpoSetBreakpointOnLine = 1;
-// Time for OS Debug Test before it reaches timeout
+// Time for iOS Debug Test before it reaches timeout
 const debugIosTestTime = SmokeTestsConstants.iosAppBuildAndInstallTimeout + 100 * 1000;
 // Time for iOS Expo Debug Test before it reaches timeout
 const debugExpoTestTime = SmokeTestsConstants.expoAppBuildAndInstallTimeout + 400 * 1000;
