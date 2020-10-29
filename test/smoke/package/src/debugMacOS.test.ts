@@ -3,7 +3,7 @@
 
 import * as assert from "assert";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { RNworkspacePath, runVSCode } from "./main";
+import { RNmacOSworkspacePath, runVSCode } from "./main";
 import { sleep } from "./helpers/utilities";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import { TestRunArguments } from "./helpers/configHelper";
@@ -31,7 +31,7 @@ export function setup(testParameters?: TestRunArguments): void {
 
         it("RN macOS app Debug test", async function () {
             this.timeout(debugMacOSTestTime);
-            app = await runVSCode(RNworkspacePath);
+            app = await runVSCode(RNmacOSworkspacePath);
             await app.workbench.quickaccess.openFile("App.js");
             await app.workbench.editors.scrollTop();
             console.log("macOS Debug test: App.js file is opened");
