@@ -139,16 +139,16 @@ export class SetupEnvironmentHelper {
                     reject(error);
                 }
                 try {
-                   const content = JSON.parse(versionsContent);
-                   if (content.sdkVersions) {
-                       let usesSdkVersion: string | undefined;
-                       if (expoSdkMajorVersion) {
+                    const content = JSON.parse(versionsContent);
+                    if (content.sdkVersions) {
+                        let usesSdkVersion: string | undefined;
+                        if (expoSdkMajorVersion) {
                             usesSdkVersion = Object.keys(content.sdkVersions).find((version) => semver.major(version) === parseInt(expoSdkMajorVersion));
                             if (!usesSdkVersion) {
                                 console.log(`*** Сould not find the version of Expo sdk matching the specified version - ${printSpecifiedMajorVersion}`);
                             }
-                       }
-                       if (!usesSdkVersion) {
+                        }
+                        if (!usesSdkVersion) {
                             usesSdkVersion = Object.keys(content.sdkVersions).sort((ver1, ver2) => {
                                 if (semver.lt(ver1, ver2)) {
                                     return 1;
@@ -157,17 +157,17 @@ export class SetupEnvironmentHelper {
                                 }
                                 return 0;
                             })[0];
-                       }
-                       if (content.sdkVersions[usesSdkVersion]) {
-                        if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
-                            console.log(`*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
-                            resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
+                        }
+                        if (content.sdkVersions[usesSdkVersion]) {
+                            if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
+                                console.log(`*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
+                                resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
+                            }
                         }
                     }
-                   }
-                   reject("Received object is incorrect");
+                    reject("Received object is incorrect");
                 } catch (error) {
-                   reject(error);
+                    reject(error);
                 }
             });
         });
@@ -295,7 +295,11 @@ module.exports.watchFolders = ['.vscode'];`;
 
     public static prepareRNWApp(workspacePath: string) {
         const command = `${this.npxCommand} react-native-windows-init --overwrite`;
-        cp.execSync(command, { cwd: workspacePath, stdio: "inherit", env: process.env });
+        cp.spawnSync(
+            this.npxCommand,
+            ["react-native-windows-init", "--overwrite"],
+            { cwd: workspacePath, stdio: "inherit" }
+        );
     }
 
     private static copyGradleFilesToHermesApp(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
