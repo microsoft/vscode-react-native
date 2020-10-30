@@ -123,6 +123,7 @@ export class AppiumHelper {
             },
             path: "/wd/hub",
             port: 4723,
+            outputDir: process.env.WEBDRIVER_IO_LOGS_DIR,
         };
     }
 
@@ -138,6 +139,7 @@ export class AppiumHelper {
             },
             path: "/wd/hub",
             port: 4723,
+            outputDir: process.env.WEBDRIVER_IO_LOGS_DIR,
         };
     }
 
