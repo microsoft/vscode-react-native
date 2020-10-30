@@ -294,7 +294,6 @@ module.exports.watchFolders = ['.vscode'];`;
     }
 
     public static prepareRNWApp(workspacePath: string) {
-        const command = `${this.npxCommand} react-native-windows-init --overwrite`;
         cp.spawnSync(
             this.npxCommand,
             ["react-native-windows-init", "--overwrite"],
