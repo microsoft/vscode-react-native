@@ -10,6 +10,7 @@ import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
 import { setup as setupReactNativeDebugiOSTests } from "./debugIos.test";
 import { setup as setupLocalizationTests } from "./localization.test";
+import { setup as setupWindowsTests } from "./debugWindows.test";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
@@ -231,6 +232,7 @@ describe("Extension smoke tests", () => {
             console.log("*** Android and iOS tests will be run");
             setupReactNativeDebugAndroidTests();
             setupReactNativeDebugiOSTests();
+
         } else if (testParams.RunBasicTests) {
             console.log("*** --basic-only parameter is set, basic Android and iOS tests will be run");
             setupReactNativeDebugAndroidTests(testParams);
@@ -248,6 +250,9 @@ describe("Extension smoke tests", () => {
             setupReactNativeDebugAndroidTests(testParams);
         } else {
             setupReactNativeDebugAndroidTests();
+            if (process.platform === "win32") {
+                setupWindowsTests();
+            }
         }
 
     }
