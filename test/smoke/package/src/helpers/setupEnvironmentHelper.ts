@@ -19,7 +19,7 @@ export class SetupEnvironmentHelper {
     public static expoPackageName = "host.exp.exponent";
     public static expoBundleId = "host.exp.Exponent";
     public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
-    public static npxCommand = "npx";
+    public static npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
     public static npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
     public static prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
@@ -295,7 +295,7 @@ module.exports.watchFolders = ['.vscode'];`;
 
     public static prepareRNWApp(workspacePath: string) {
         const command = `${this.npxCommand} react-native-windows-init --overwrite`;
-        cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
+        cp.execSync(command, { cwd: workspacePath, stdio: "inherit", env: process.env });
     }
 
     private static copyGradleFilesToHermesApp(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {
