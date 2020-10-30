@@ -25,7 +25,7 @@ export function setup(testParameters?: TestRunArguments): void {
 
         afterEach(disposeAll);
 
-        it("RN app Debug test", async () => {
+        it("RN app Debug test", async function () {
             this.timeout(SmokeTestsConstants.windowsAppBuildAndInstallTimeout);
             app = await runVSCode(RNWWorkspacePath);
             await app.workbench.quickaccess.openFile("App.js");
