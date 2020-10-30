@@ -91,7 +91,7 @@ const ExpoWorkspaceFilePath = path.join(ExpoWorkspacePath, SmokeTestsConstants.A
 export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.pureRNExpoApp);
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
 export const RNmacOSworkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNmacOSAppName);
-const RNmacOSworkspaceFilePath = path.join(RNworkspacePath, SmokeTestsConstants.AppjsFileName);
+const RNmacOSworkspaceFilePath = path.join(RNmacOSworkspacePath, SmokeTestsConstants.AppjsFileName);
 
 export const artifactsPath = path.join(repoRoot, SmokeTestsConstants.artifactsDir);
 const userDataDir = path.join(repoRoot, SmokeTestsConstants.VSCodeUserDataDir);

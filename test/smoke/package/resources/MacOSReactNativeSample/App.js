@@ -25,7 +25,6 @@ import {
   DebugInstructions,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-import AppTestButton from './AppTestButton';
 
 const App: () => React$Node = () => {
   NativeModules.DevSettings.setIsDebuggingRemotely(true);
@@ -42,7 +41,6 @@ const App: () => React$Node = () => {
               <Text style={styles.footer}>Engine: Hermes</Text>
             </View>
           )}
-          <AppTestButton />
           <View style={styles.body}>
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>Step One</Text>

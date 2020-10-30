@@ -261,6 +261,7 @@ export class SetupEnvironmentHelper {
     }
 
     public static terminateMacOSapp(appName: string) {
+        console.log(`*** Searching for ${appName} macOS application process`);
         const searchForMacOSappProcessCommand = `ps -ax | grep ${appName}`;
         const searchResults = cp.execSync(searchForMacOSappProcessCommand).toString();
 
@@ -272,6 +273,7 @@ export class SetupEnvironmentHelper {
             if (processData) {
                 const match = processIdRgx.exec(processData);
                 if (match && match[1]) {
+                    console.log(`*** Terminating ${appName} macOS application process with PID ${match[1]}`);
                     const terminateMacOSappProcessCommand = `kill ${match[1]}`;
                     cp.execSync(terminateMacOSappProcessCommand);
                 }
