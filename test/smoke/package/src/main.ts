@@ -184,7 +184,8 @@ let runName = 0;
 export async function runVSCode(workspaceOrFolder: string, locale?: string): Promise<Application> {
     runName++;
     const extensionLogsDir = path.join(artifactsPath, runName.toString(), "extensionLogs");
-    const webdriverIOLogsDir = path.join(artifactsPath);
+    const webdriverIOLogsDir = path.join(artifactsPath, runName.toString(), "webdriverIOLogs");
+    AppiumHelper.createWebdriverIOLogDir(webdriverIOLogsDir);
     process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
     process.env.WEBDRIVER_IO_LOGS_DIR = webdriverIOLogsDir;
     const options = createOptions(quality, workspaceOrFolder, runName.toString(), locale ? ["--locale", locale] : []);

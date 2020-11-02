@@ -148,6 +148,10 @@ export class AppiumHelper {
         return wdio.remote(attachArgs);
     }
 
+    public static createWebdriverIOLogDir(webdriverIOLogDir: string) {
+        mkdirp.sync(webdriverIOLogDir);
+    }
+
     public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string, projectFolder: string, firstLaunch?: boolean): Promise<void> {
         // There are two ways to run app in Expo app:
         // - via clipboard
