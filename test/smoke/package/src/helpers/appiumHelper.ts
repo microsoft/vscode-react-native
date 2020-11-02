@@ -111,6 +111,7 @@ export class AppiumHelper {
     }
 
     public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName): wdio.RemoteOptions {
+        console.log(`*** process.env.WEBDRIVER_IO_LOGS_DIR: ${process.env.WEBDRIVER_IO_LOGS_DIR}`);
         return {
             capabilities: {
                 platformName: "Android",
