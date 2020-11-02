@@ -18,7 +18,7 @@ import { TestConfigurator } from "./helpers/configHelper";
 import { findFile } from "./helpers/utilities";
 
 // TODO Incapsulate main.ts (get rid of function(), local variables, etc)
-ConsoleLogger.info(`*** Setting up configuration variables`);
+console.log(`\x1b[33m *** Setting up configuration variables`);
 const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
 // Assume that config.dev.json are stored in the same folder as original config.json
 const envConfigFilePathDev = path.resolve(__dirname, "..", SmokeTestsConstants.EnvDevConfigFileName);
@@ -184,7 +184,7 @@ let runName = 0;
 export async function runVSCode(workspaceOrFolder: string, locale?: string): Promise<Application> {
     runName++;
     const extensionLogsDir = path.join(artifactsPath, runName.toString(), "extensionLogs");
-    const webdriverIOLogsDir = path.join(artifactsPath, runName.toString(), "webdriverIOLogs");
+    const webdriverIOLogsDir = path.join(artifactsPath);
     process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
     process.env.WEBDRIVER_IO_LOGS_DIR = webdriverIOLogsDir;
     const options = createOptions(quality, workspaceOrFolder, runName.toString(), locale ? ["--locale", locale] : []);
