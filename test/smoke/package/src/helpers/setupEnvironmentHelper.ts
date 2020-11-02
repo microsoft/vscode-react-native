@@ -288,22 +288,9 @@ module.exports.watchFolders = ['.vscode'];`;
         console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
     }
 
-    public static prepareRNWApp(workspacePath: string) {
-        const command = `${this.npxCommand} react-native-windows-init --overwrite`;
-
-        console.log(`*** Install additional RNW packages using ${command}\nPath: ${process.env.PATH}`);
-        cp.execSync(
-            "where node",
-            { cwd: workspacePath, stdio: "inherit" }
-        );
-        cp.execSync(
-            "where npx",
-            { cwd: workspacePath, stdio: "inherit" }
-        );
-        cp.execSync(
-            "where npm",
-            { cwd: workspacePath, stdio: "inherit" }
-        );
+    public static prepareRNWApp(workspacePath: string): void {
+        const command = `react-native-windows-init --overwrite`;
+        console.log(`*** Install additional RNW packages using ${command}`);
         cp.execSync(
             command,
             { cwd: workspacePath, stdio: "inherit" }
