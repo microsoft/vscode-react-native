@@ -91,13 +91,8 @@ export class SetupEnvironmentHelper {
     }
 
     public static addExpoDependencyToRNProject(workspacePath: string, version?: string) {
-        let npmCmd = "npm";
-        if (process.platform === "win32") {
-            npmCmd = "npm.cmd";
-        }
-
         let expoPackage: string = version ? `expo@${version}` : "expo";
-        const command = `${npmCmd} install ${expoPackage} --save-dev`;
+        const command = `${this.npmCommand} install ${expoPackage} --save-dev`;
 
         console.log(`*** Adding expo dependency to ${workspacePath} via '${command}' command...`);
         cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
@@ -294,17 +289,10 @@ module.exports.watchFolders = ['.vscode'];`;
     }
 
     public static prepareRNWApp(workspacePath: string) {
-        const installCommand = `${this.npmCommand} react-native-windows-init -g`;
-        console.log(`*** Install additional RNW packages using ${installCommand}`);
+        const command = `${this.npxCommand} react-native-windows-init --overwrite`;
+        console.log(`*** Install additional RNW packages using ${command}`);
         cp.execSync(
-            installCommand,
-            { cwd: workspacePath, stdio: "inherit" }
-        );
-        const commandToRun = `react-native-windows-init --overwrite`;
-
-        console.log(`*** Initialize app as RNW using ${commandToRun} command`);
-        cp.execSync(
-            commandToRun,
+            command,
             { cwd: workspacePath, stdio: "inherit" }
         );
     }
