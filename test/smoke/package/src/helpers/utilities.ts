@@ -250,7 +250,7 @@ export async function findExpoSuccessAndFailurePatterns(filePath: string, succes
             console.log(`Searching for Expo launch logging patterns for ${retry} time...`);
             if (expoStarted || expoFailed) {
                 clearInterval(check);
-                const status: ExpoLaunch = {successful: expoStarted, failed: expoFailed};
+                const status: ExpoLaunch = { successful: expoStarted, failed: expoFailed };
                 console.log(`Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`);
                 resolve(status);
             } else {
@@ -258,7 +258,7 @@ export async function findExpoSuccessAndFailurePatterns(filePath: string, succes
                 if (retry >= awaitRetries) {
                     console.log(`Expo launch logging patterns are not found after ${retry} retries:`);
                     clearInterval(check);
-                    resolve({successful: expoStarted, failed: expoFailed});
+                    resolve({ successful: expoStarted, failed: expoFailed });
                 }
             }
         }, 5000);
@@ -266,12 +266,12 @@ export async function findExpoSuccessAndFailurePatterns(filePath: string, succes
 }
 
 export function findExpoURLInLogFile(filePath: string) {
-        let content = fs.readFileSync(filePath).toString().trim();
-        const match = content.match(/exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
-        if (!match) return null;
-        let expoURL = match[0];
-        console.log(`Found Expo URL: ${expoURL}`);
-        return expoURL;
+    let content = fs.readFileSync(filePath).toString().trim();
+    const match = content.match(/exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
+    if (!match) return null;
+    let expoURL = match[0];
+    console.log(`Found Expo URL: ${expoURL}`);
+    return expoURL;
 }
 
 export function getIOSBuildPath(

@@ -38,7 +38,7 @@ export class AndroidEmulatorHelper {
         let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
         let match = regex.exec(input);
         while (match != null) {
-            result.push({ id: match[1], isOnline: match[2] === "device"});
+            result.push({ id: match[1], isOnline: match[2] === "device" });
             match = regex.exec(input);
         }
         return result;
@@ -80,15 +80,15 @@ export class AndroidEmulatorHelper {
         this.terminateAndroidEmulator();
         // Boot options for emulator - https://developer.android.com/studio/run/emulator-commandline
         const emulatorOpts = ["-avd",
-        <string>this.getDevice(),
-         "-gpu", "swiftshader_indirect",
-         "-wipe-data",
-         "-port", this.androidEmulatorPort.toString(),
-         "-no-snapshot-save",
-         "-no-boot-anim",
-         "-no-audio"];
+            <string>this.getDevice(),
+            "-gpu", "swiftshader_indirect",
+            "-wipe-data",
+            "-port", this.androidEmulatorPort.toString(),
+            "-no-snapshot-save",
+            "-no-boot-anim",
+            "-no-audio"];
         console.log(`*** Executing Android emulator with 'emulator ${emulatorOpts.join(" ")}' command...`);
-        const proc = cp.spawn("emulator", emulatorOpts, {stdio: "pipe"});
+        const proc = cp.spawn("emulator", emulatorOpts, { stdio: "pipe" });
         let started = false;
         proc.stdout.on("data", (chunk) => {
             process.stdout.write(chunk);
@@ -131,7 +131,7 @@ export class AndroidEmulatorHelper {
         if (devices.length !== 0) {
             devices.forEach((device) => {
                 console.log(`*** Terminating Android '${device.id}'...`);
-                cp.execSync(`adb -s ${device.id} emu kill`, {stdio: "inherit"});
+                cp.execSync(`adb -s ${device.id} emu kill`, { stdio: "inherit" });
             });
         } else {
             console.log("*** No running android emulators found");
@@ -230,7 +230,7 @@ export class AndroidEmulatorHelper {
     public static uninstallTestAppFromEmulator(appPackage: string) {
         console.log(`*** Uninstalling test app ${appPackage}' from Emulator`);
         try {
-            cp.spawnSync("adb", ["shell", "pm", "uninstall", appPackage], {stdio: "inherit"});
+            cp.spawnSync("adb", ["shell", "pm", "uninstall", appPackage], { stdio: "inherit" });
         } catch (e) {
             console.error(`Error occured while uninstalling test app:\n ${e}`);
         }
@@ -239,6 +239,6 @@ export class AndroidEmulatorHelper {
     public static async enableDrawPermitForApp(packageName: string) {
         const drawPermitCommand = `adb -s ${AndroidEmulatorHelper.androidEmulatorName} shell appops set ${packageName} SYSTEM_ALERT_WINDOW allow`;
         console.log(`*** Enabling permission for drawing over apps via: ${drawPermitCommand}`);
-        cp.execSync(drawPermitCommand, {stdio: "inherit"});
+        cp.execSync(drawPermitCommand, { stdio: "inherit" });
     }
 }

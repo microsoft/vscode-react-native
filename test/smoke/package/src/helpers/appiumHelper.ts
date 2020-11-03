@@ -39,7 +39,7 @@ export class AppiumHelper {
             [Platform.iOSExpo]: "//XCUIElementTypeOther[@name='Reload JS Bundle']",
         },
         RN_ENABLE_REMOTE_DEBUGGING_BUTTON: {
-            [Platform.Android]:  "//*[@text='Debug JS Remotely' or @text='Debug']",
+            [Platform.Android]: "//*[@text='Debug JS Remotely' or @text='Debug']",
             [Platform.AndroidExpo]: "//*[@text='Debug Remote JS']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely' or @name='Debug']",
             [Platform.iOSExpo]: "//XCUIElementTypeOther[@name=' Debug Remote JS']",
@@ -199,16 +199,16 @@ export class AppiumHelper {
         console.log("*** Reloading React Native application with DevMenu...");
         const reloadButton = await client.$(this.XPATH.RN_RELOAD_BUTTON[platform]);
         await client
-        .waitUntil(async () => {
-            await this.callRNDevMenu(client, platform);
-            if (await reloadButton.isExisting()) {
-                console.log("*** Reload button found...");
-                await reloadButton.click();
-                console.log("*** Reload button clicked...");
-                return true;
-            }
-            return false;
-        }, this.waitUntilEnableRemoteDebugOptions);
+            .waitUntil(async () => {
+                await this.callRNDevMenu(client, platform);
+                if (await reloadButton.isExisting()) {
+                    console.log("*** Reload button found...");
+                    await reloadButton.click();
+                    console.log("*** Reload button clicked...");
+                    return true;
+                }
+                return false;
+            }, this.waitUntilEnableRemoteDebugOptions);
     }
 
     public static async enableRemoteDebugJS(client: AppiumClient, platform: Platform): Promise<void> {
@@ -218,32 +218,32 @@ export class AppiumHelper {
         const enableRemoteDebugStopButton = await client.$(this.XPATH.RN_STOP_REMOTE_DEBUGGING_BUTTON[platform]);
         const enableRemoteDebugCancelButton = await client.$(this.XPATH.RN_DEV_MENU_CANCEL[platform]);
         await client
-        .waitUntil(async () => {
-            if (await enableRemoteDebugButton.isExisting()) {
-                console.log("*** Debug JS Remotely button found...");
-                await enableRemoteDebugButton.click();
-                console.log("*** Debug JS Remotely button clicked...");
-                await sleep(1000);
+            .waitUntil(async () => {
                 if (await enableRemoteDebugButton.isExisting()) {
+                    console.log("*** Debug JS Remotely button found...");
                     await enableRemoteDebugButton.click();
-                    console.log("*** Debug JS Remotely button clicked second time...");
-                }
-                return true;
-            } else if (await enableRemoteDebugStopButton.isExisting()) {
-                console.log("*** Stop Remote JS Debugging button found, closing Dev Menu...");
-                if (await enableRemoteDebugCancelButton.isExisting()) {
-                    console.log("*** Cancel button found...");
-                    await enableRemoteDebugCancelButton.click();
-                    console.log("*** Cancel button clicked...");
+                    console.log("*** Debug JS Remotely button clicked...");
+                    await sleep(1000);
+                    if (await enableRemoteDebugButton.isExisting()) {
+                        await enableRemoteDebugButton.click();
+                        console.log("*** Debug JS Remotely button clicked second time...");
+                    }
                     return true;
-                } else {
-                    await this.callRNDevMenu(client, platform);
-                    return false;
+                } else if (await enableRemoteDebugStopButton.isExisting()) {
+                    console.log("*** Stop Remote JS Debugging button found, closing Dev Menu...");
+                    if (await enableRemoteDebugCancelButton.isExisting()) {
+                        console.log("*** Cancel button found...");
+                        await enableRemoteDebugCancelButton.click();
+                        console.log("*** Cancel button clicked...");
+                        return true;
+                    } else {
+                        await this.callRNDevMenu(client, platform);
+                        return false;
+                    }
                 }
-            }
-            await this.callRNDevMenu(client, platform);
-            return false;
-        }, this.waitUntilEnableRemoteDebugOptions);
+                await this.callRNDevMenu(client, platform);
+                return false;
+            }, this.waitUntilEnableRemoteDebugOptions);
     }
 
     public static getIosPlatformVersion(): string {
