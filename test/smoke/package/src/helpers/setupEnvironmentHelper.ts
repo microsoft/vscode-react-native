@@ -264,6 +264,7 @@ export class SetupEnvironmentHelper {
         console.log(`*** Searching for ${appName} macOS application process`);
         const searchForMacOSappProcessCommand = `ps -ax | grep ${appName}`;
         const searchResults = cp.execSync(searchForMacOSappProcessCommand).toString();
+        console.log(`*** Searching for ${appName} macOS application process: results ${JSON.stringify(searchResults)}`);
 
         if (searchResults) {
             const processIdRgx = /(^\d*)\s\?\?/g;
