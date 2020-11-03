@@ -230,9 +230,9 @@ describe("Extension smoke tests", () => {
         const noSelectArgs = !testParams.RunAndroidTests && !testParams.RunIosTests && !testParams.RunBasicTests;
         if (noSelectArgs) {
             console.log("*** Android and iOS tests will be run");
+            setupReactNativeDebugMacOSTests();
             setupReactNativeDebugAndroidTests();
             setupReactNativeDebugiOSTests();
-            setupReactNativeDebugMacOSTests();
         } else if (testParams.RunBasicTests) {
             console.log("*** --basic-only parameter is set, basic Android and iOS tests will be run");
             setupReactNativeDebugAndroidTests(testParams);
