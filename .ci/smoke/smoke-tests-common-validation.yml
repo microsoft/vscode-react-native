@@ -56,10 +56,6 @@ steps:
     displayName: "npm install --global windows-build-tools --vs2015"
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
 
-  - bash: npm install react-native-windows-init -g
-    displayName: "npm install react-native-windows-init -g"
-    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
-
   - bash: |
       export MOCHA_FILE=./ReactNativeSmokeTests.xml
       export BASIC_ONLY=""

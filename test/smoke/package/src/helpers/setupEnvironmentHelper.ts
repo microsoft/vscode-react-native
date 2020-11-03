@@ -289,7 +289,16 @@ module.exports.watchFolders = ['.vscode'];`;
     }
 
     public static prepareRNWApp(workspacePath: string): void {
-        const command = `react-native-windows-init --overwrite`;
+        cp.execSync(
+            "where.exe where",
+            { cwd: workspacePath, stdio: "inherit" }
+        );
+
+        cp.execSync(
+            "where.exe npx",
+            { cwd: workspacePath, stdio: "inherit" }
+        );
+        const command = `${this.npxCommand} react-native-windows-init --overwrite`;
         console.log(`*** Install additional RNW packages using ${command}`);
         cp.execSync(
             command,
