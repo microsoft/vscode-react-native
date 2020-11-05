@@ -28,7 +28,7 @@ export class SmokeTestsConstants {
     // Timeout for Expo app to launch
     public static expoAppLaunchTimeout = 120 * 1000;
     // Timeout for Windows app to build and to install
-    public static windowsAppBuildAndInstallTimeout = 300 * 1000;
+    public static windowsAppBuildAndInstallTimeout = 400 * 1000;
     // Timeout before search string in debug console
     public static debugConsoleSearchTimeout = 0.5 * 1000;
     // Default React Native app name
