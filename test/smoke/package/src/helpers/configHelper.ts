@@ -24,6 +24,7 @@ export interface TestEnvVariables {
     RN_VERSION?: string;
     PURE_RN_VERSION?: string;
     PURE_EXPO_VERSION?: string;
+    RN_MAC_OS_VERSION?: string;
 }
 
 export class TestConfigurator {
@@ -63,6 +64,9 @@ export class TestConfigurator {
         }
         if (!variables.PURE_EXPO_VERSION) {
             console.warn("Optional PURE_EXPO_VERSION variable is not set");
+        }
+        if (!variables.RN_MAC_OS_VERSION) {
+            console.warn("Optional RN_MAC_OS_VERSION variable is not set");
         }
     }
 
@@ -104,6 +108,9 @@ export class TestConfigurator {
         if (variables.PURE_EXPO_VERSION === "skip" || process.env.NIGHTLY) {
             delete variables.PURE_EXPO_VERSION;
         }
+        if (variables.RN_MAC_OS_VERSION === "skip" || process.env.NIGHTLY) {
+            delete variables.RN_MAC_OS_VERSION;
+        }
 
         this.verifyEnvVariables(variables);
         this.passEnvVariablesToProcessEnv(variables);
@@ -122,6 +129,7 @@ export class TestConfigurator {
         initLog += `RN_VERSION = ${process.env.RN_VERSION}\n`;
         initLog += `PURE_RN_VERSION = ${process.env.PURE_RN_VERSION}\n`;
         initLog += `PURE_EXPO_VERSION = ${process.env.PURE_EXPO_VERSION}\n`;
+        initLog += `RN_MAC_OS_VERSION = ${process.env.RN_MAC_OS_VERSION}\n`;
         console.log(initLog);
     }
 
