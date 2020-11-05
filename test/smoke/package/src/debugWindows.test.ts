@@ -30,26 +30,26 @@ export function setup(testParameters?: TestRunArguments): void {
             app = await runVSCode(RNWWorkspacePath);
             await app.workbench.quickaccess.openFile("App.js");
             await app.workbench.editors.scrollTop();
-            console.log("Android Debug test: App.js file is opened");
+            console.log("Windows Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
-            console.log(`Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
-            console.log(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
-            console.log("Android Debug test: Starting debugging");
+            console.log(`Windows Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
+            console.log(`Windows Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
+            console.log("Windows Debug test: Starting debugging");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
             await app.workbench.debug.waitForDebuggingToStart();
-            console.log("Android Debug test: Debugging started");
+            console.log("Windows Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
-            console.log("Android Debug test: Stack frame found");
+            console.log("Windows Debug test: Stack frame found");
             await app.workbench.debug.stepOver();
             // await for our debug string renders in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log("Android Debug test: Searching for \"Test output from debuggee\" string in console");
+            console.log("Windows Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             console.log(found);
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            console.log("Android Debug test: \"Test output from debuggee\" string is found");
+            console.log("Windows Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.disconnectFromDebugger();
-            console.log("Android Debug test: Debugging is stopped");
+            console.log("Windows Debug test: Debugging is stopped");
         });
     });
 }
