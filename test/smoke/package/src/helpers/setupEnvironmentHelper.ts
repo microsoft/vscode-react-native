@@ -264,10 +264,16 @@ export class SetupEnvironmentHelper {
         console.log(`*** Searching for ${appName} macOS application process`);
         const searchForMacOSappProcessCommand = `ps -ax | grep ${appName}`;
         const searchResults = cp.execSync(searchForMacOSappProcessCommand).toString();
+        // An example of the output from the command above:
+        // 40943 ??         4:13.97 node /Users/user/Documents/rn_for_mac_proj/node_modules/.bin/react-native start --port 8081
+        // 40959 ??         0:10.36 /Users/user/.nvm/versions/node/v10.19.0/bin/node /Users/user/Documents/rn_for_mac_proj/node_modules/metro/node_modules/jest-worker/build/workers/processChild.js
+        // 41004 ??         0:21.34 /Users/user/Library/Developer/Xcode/DerivedData/rn_for_mac_proj-ghuavabiztosiqfqkrityjoxqfmv/Build/Products/Debug/rn_for_mac_proj.app/Contents/MacOS/rn_for_mac_proj
+        // 75514 ttys007    0:00.00 grep --color=auto --exclude-dir=.bzr --exclude-dir=CVS --exclude-dir=.git --exclude-dir=.hg --exclude-dir=.svn rn_for_mac_proj
         console.log(`*** Searching for ${appName} macOS application process: results ${JSON.stringify(searchResults)}`);
 
         if (searchResults) {
             const processIdRgx = /(^\d*)\s\?\?/g;
+            //  We are looking for a process whose path contains the "appName.app" part
             const processData = searchResults.split("\n")
                 .find(str => str.includes(`${appName}.app`));
 
