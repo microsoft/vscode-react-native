@@ -36,7 +36,7 @@ export function setup(testParameters?: TestRunArguments): void {
             console.log(`Windows Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             console.log("Windows Debug test: Starting debugging");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            sleep(100 * 1000); // Give the RNW build process some time to build and run the app
+            await sleep(100 * 1000); // Give the RNW build process some time to build and run the app
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Windows Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
