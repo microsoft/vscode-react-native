@@ -1,14 +1,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as os from "os";
+
 export class SmokeTestsConstants {
     // Default code of android platform version which is being targeted during the tests.
     // 9 = Android Pie
     public static defaultTargetAndroidPlatformVersion = "9";
     // Default code of iOS platform version which is being targeted during the tests.
     public static defaultTargetIosPlatformVersion = "12.4";
+    // Default target emulator port
+    public static defaultTargetAndroidPort = 5554;
     // Default target emulator name "emulator-" + port
-    public static defaultTargetAndroidDeviceName = "emulator-5554";
+    public static defaultTargetAndroidDeviceName = `emulator-${SmokeTestsConstants.defaultTargetAndroidPort}`;
+    // Expo applocation cache for iOS platform
+    public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
     // Timeout for smoke tests setup
     public static smokeTestSetupAwaitTimeout = 30 * 60 * 1000;
     // Timeout for emulator boot
@@ -29,10 +35,20 @@ export class SmokeTestsConstants {
     public static debugConsoleSearchTimeout = 0.5 * 1000;
     // Default React Native app name
     public static RNAppName = "latestRNApp";
+    // Default React Native Hermes app name
+    public static HermesAppName = "latestHermesRNApp";
     // Default Expo app name
     public static ExpoAppName = "latestExpoApp";
     // Default pure React Native for Expo test app name
-    public static pureRNExpoApp = "pureRNExpoApp";
+    public static pureRNExpoAppName = "pureRNExpoApp";
+    // Default React Native app name
+    public static sampleRNAppName = "latestRNApp";
+    // Default React Native Hermes app name
+    public static sampleHermesAppName = "latestHermesRNApp";
+    // Default Expo app name
+    public static sampleExpoAppName = "latestExpoApp";
+    // Default pure React Native for Expo test app name
+    public static samplePureRNExpoAppName = "pureRNExpoApp";
     // Name of artifacts (test logs) directory
     public static artifactsDir = "SmokeTestLogs";
     // Name of the VS Code user data directory
@@ -61,4 +77,6 @@ export class SmokeTestsConstants {
     public static VSCodeDriverLogFileName = "VSCodeDriverLogs.txt";
     // String for simulator target in launch configuration
     public static SimulatorString = "simulator";
+    // Expo client app Android package name
+    public static expoPackageName = "host.exp.exponent";
 }

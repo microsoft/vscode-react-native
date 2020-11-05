@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as path from "path";
 import * as fs from "fs";
 import * as cp from "child_process";
 import * as request from "request";
@@ -9,9 +8,9 @@ import * as URL from "url-parse";
 import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
-import { Platform } from "./appiumHelper";
-import { IosSimulatorHelper } from "./iosSimulatorHelper";
-import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
+import AndroidEmulatorManager from "./AndroidEmulatorManager";
+import { AppiumHelper } from "./appiumHelper";
+import IosSimulatorManager from "./IosSimulatorManager";
 
 // eslint-disable-next-line
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
@@ -176,34 +175,37 @@ export function findStringInFile(filePath: string, strToFind: string): boolean {
     return false;
 }
 
-export interface ExpoLaunch {
-    successful: boolean;
-    failed: boolean;
+export function objectsContains(object: any, subObject: any): boolean {
+    Object.keys(subObject).forEach((key) => {
+        if (typeof subObject[key] === "object" && subObject[key] !== null) {
+            if (typeof object[key] === "object" && object[key] !== null) {
+                if (!objectsContains(object[key], subObject[key])) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        else if (subObject[key] !== object[key]) {
+            return false;
+        }
+    });
+    return true;
 }
 
-export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string, platform: Platform): Promise<boolean> {
+export function waitUntil(condition: () => boolean, timeout: number = 30000, interval: number = 1000): Promise<boolean> {
     return new Promise((resolve) => {
-        const LAUNCH_UPDATE_TIMEOUT = 30;
         const rejectTimeout = setTimeout(() => {
             cleanup();
             resolve(false);
-        }, LAUNCH_UPDATE_TIMEOUT * 1000);
+        }, timeout);
 
         const bootCheckInterval = setInterval(async () => {
-            let isUpdated: boolean = false;
-            switch (platform) {
-                case Platform.Android:
-                    isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, AndroidEmulatorHelper.getDevice());
-                    break;
-                case Platform.iOS:
-                    isUpdated = isLaunchScenarioContainsTarget(workspaceRoot, IosSimulatorHelper.getDeviceUdid());
-                    break;
-            }
-            if (isUpdated) {
+            if (condition()) {
                 cleanup();
                 resolve(true);
             }
-        }, 1000);
+        }, interval);
 
         const cleanup = () => {
             clearTimeout(rejectTimeout);
@@ -212,9 +214,9 @@ export function waitUntilLaunchScenarioTargetUpdate(workspaceRoot: string, platf
     });
 }
 
-export function isLaunchScenarioContainsTarget(workspaceRoot: string, targetValue?: string): boolean {
-    const pathToLaunchFile = path.resolve(workspaceRoot, ".vscode", "launch.json");
-    return findStringInFile(pathToLaunchFile, `"target": "${targetValue}"`);
+export interface ExpoLaunch {
+    successful: boolean;
+    failed: boolean;
 }
 
 export async function waitForRunningPackager(filePath: string) {
@@ -306,6 +308,20 @@ export function getIOSBuildPath(
         throw new Error("Failed to get the target build directory.");
     }
     return targetBuildDir;
+}
+
+export async function smokeTestFail(message: string): Promise<void> {
+    console.error(message);
+    await AndroidEmulatorManager.terminateAllAndroidEmulators();
+    if (process.platform === "darwin") {
+        try {
+            await IosSimulatorManager.shutdownAllSimulators();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    AppiumHelper.terminateAppium();
+    process.exit(1);
 }
 
 /**

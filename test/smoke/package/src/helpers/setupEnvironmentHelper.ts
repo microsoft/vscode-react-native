@@ -101,7 +101,7 @@ export class SetupEnvironmentHelper {
         cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
     }
 
-    public static cleanUp(testVSCodeDirectory: string, userDataDir: string, testLogsDirectory: string, workspacePaths: string[], iOSExpoAppsCacheDirectory: string) {
+    public cleanUp(testVSCodeDirectory: string, userDataDir: string, testLogsDirectory: string, workspacePaths: string[], iOSExpoAppsCacheDirectory: string) {
         console.log("\n*** Clean up...");
         if (fs.existsSync(testVSCodeDirectory)) {
             console.log(`*** Deleting test VS Code directory: ${testVSCodeDirectory}`);
