@@ -35,7 +35,7 @@ export function setup(testParameters?: TestRunArguments): void {
 
     describe("Debugging Android", () => {
         let app: Application;
-        let client: AppiumClient;
+        let client: AppiumClient | null;
         console.log(testParameters);
 
         async function disposeAll() {
@@ -43,8 +43,9 @@ export function setup(testParameters?: TestRunArguments): void {
                 await app.stop();
             }
             if (client) {
-                client.closeApp();
-                client.deleteSession();
+                await client.closeApp();
+                await client.deleteSession();
+                client = null;
             }
         }
 

@@ -10,15 +10,22 @@ import * as semver from "semver";
 import * as os from "os";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
 import { sleep } from "./utilities";
+import { artifactsPath } from "../main";
 import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
+import { SmokeTestLogger } from "./smokeTestLogger";
 const XDL = require("@expo/xdl");
 
-
 export class SetupEnvironmentHelper {
+
+    private static SetupEnvironmentCommandsLogFile: string;
 
     public static expoPackageName = "host.exp.exponent";
     public static expoBundleId = "host.exp.Exponent";
     public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
+
+    public static init() {
+        SetupEnvironmentHelper.SetupEnvironmentCommandsLogFile = path.join(artifactsPath, "SetupEnvironmentCommandsLogs.txt");
+    }
 
     public static prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
         let command = `react-native init ${appName}`;
@@ -26,7 +33,8 @@ export class SetupEnvironmentHelper {
             command += ` --version ${version}`;
         }
         console.log(`*** Creating RN app via '${command}' in ${workspacePath}...`);
-        cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
+        const commandOutput = cp.execSync(command, { cwd: resourcesPath }).toString();
+        SmokeTestLogger.saveLogsInFile(commandOutput, SetupEnvironmentHelper.SetupEnvironmentCommandsLogFile);
 
         const customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
         const launchConfigFile = path.join(resourcesPath, "launch.json");
@@ -68,7 +76,8 @@ export class SetupEnvironmentHelper {
         const useSpecificSdk = expoSdkMajorVersion ? `@sdk-${expoSdkMajorVersion}` : "";
         const command = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${appName} ${appName}`;
         console.log(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
-        cp.execSync(command, { cwd: resourcesPath, stdio: "inherit" });
+        const commandOutput = cp.execSync(command, { cwd: resourcesPath }).toString();
+        SmokeTestLogger.saveLogsInFile(commandOutput, SetupEnvironmentHelper.SetupEnvironmentCommandsLogFile);
 
         const customEntryPointFile = path.join(resourcesPath, "ExpoSample", "App.tsx");
         const launchConfigFile = path.join(resourcesPath, "launch.json");
@@ -98,7 +107,8 @@ export class SetupEnvironmentHelper {
         const command = `${npmCmd} install ${expoPackage} --save-dev`;
 
         console.log(`*** Adding expo dependency to ${workspacePath} via '${command}' command...`);
-        cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
+        const commandOutput = cp.execSync(command, { cwd: workspacePath }).toString();
+        SmokeTestLogger.saveLogsInFile(commandOutput, SetupEnvironmentHelper.SetupEnvironmentCommandsLogFile);
     }
 
     public static cleanUp(testVSCodeDirectory: string, userDataDir: string, testLogsDirectory: string, workspacePaths: string[], iOSExpoAppsCacheDirectory: string) {
@@ -262,7 +272,8 @@ export class SetupEnvironmentHelper {
         const command = `${npmCmd} install @expo/xdl@${packageVersion} --no-save`;
 
         console.log(`*** Adding @expo/xdl dependency to ${extensionDir} via '${command}' command...`);
-        cp.execSync(command, { cwd: extensionDir, stdio: "inherit" });
+        const commandOutput = cp.execSync(command, { cwd: extensionDir }).toString();
+        SmokeTestLogger.saveLogsInFile(commandOutput, SetupEnvironmentHelper.SetupEnvironmentCommandsLogFile);
     }
 
     public static async patchMetroConfig(appPath: string) {
