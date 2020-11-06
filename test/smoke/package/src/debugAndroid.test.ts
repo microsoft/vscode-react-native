@@ -43,8 +43,8 @@ export function setup(testParameters?: TestRunArguments): void {
                 await app.stop();
             }
             if (client) {
-                client.closeApp();
-                client.deleteSession();
+                await client.closeApp();
+                await client.deleteSession();
             }
         }
 
