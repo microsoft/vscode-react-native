@@ -106,7 +106,7 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
 
     loggers.push(new VSCodeConsoleLogger());
     const codePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
-    SmokeTestLogger.info(`*** Executing ${codePath}`);
+    SmokeTestLogger.projectInstallLog(`*** Executing ${codePath}`);
 
     return {
         quality,

@@ -4,35 +4,34 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as mkdirp from "mkdirp";
+import ansiСolors = require("ansi-colors");
 
 export class SmokeTestLogger {
-    private static colors = {
-        blue: "\x1b[34m",
-        yellow: "\x1b[33m",
-        green: "\x1b[32m",
-        red: "\x1b[31m",
-    };
 
-    private static resetMark = "\x1b[0m";
-
-    private static colorize(str: string, color: string) {
-        return `${color}${str}${SmokeTestLogger.resetMark}`;
+    private static colorize(str: string, color: ansiСolors.StyleType) {
+        return `${color.open}${str}${ansiСolors.styles.reset.open}`;
     }
 
     public static log(...str: string[]) {
         console.log(...str);
     }
     public static info(...str: string[]) {
-        console.log(SmokeTestLogger.colorize(str.join(" "), SmokeTestLogger.colors.blue));
+        console.log(SmokeTestLogger.colorize(str.join(" "), ansiСolors.styles.blue));
     }
     public static warn(...str: string[]) {
-        console.log(SmokeTestLogger.colorize(str.join(" "), SmokeTestLogger.colors.yellow));
+        console.log(SmokeTestLogger.colorize(str.join(" "), ansiСolors.styles.yellow));
     }
     public static success(...str: string[]) {
-        console.log(SmokeTestLogger.colorize(str.join(" "), SmokeTestLogger.colors.green));
+        console.log(SmokeTestLogger.colorize(str.join(" "), ansiСolors.styles.green));
+    }
+    public static projectInstallLog(...str: string[]) {
+        console.log(SmokeTestLogger.colorize(str.join(" "), ansiСolors.styles.cyanBright));
+    }
+    public static projectPatchingLog(...str: string[]) {
+        console.log(SmokeTestLogger.colorize(str.join(" "), ansiСolors.styles.magenta));
     }
     public static error(err: string | Error) {
-        console.error(SmokeTestLogger.colorize(err.toString(), SmokeTestLogger.colors.red));
+        console.error(SmokeTestLogger.colorize(err.toString(), ansiСolors.styles.red));
     }
     public static saveLogsInFile(str: string, filePath: string) {
         if (!fs.existsSync(filePath)) {

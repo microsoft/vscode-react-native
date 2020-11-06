@@ -12,6 +12,7 @@ import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { Platform } from "./appiumHelper";
 import { IosSimulatorHelper } from "./iosSimulatorHelper";
 import { AndroidEmulatorHelper } from "./androidEmulatorHelper";
+import { SmokeTestLogger } from "./smokeTestLogger";
 
 // eslint-disable-next-line
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
@@ -71,6 +72,26 @@ export function spawnSync(command: string, args?: string[], options?: SpawnSyncO
     if (result.error) {
         throw result.error;
     }
+}
+
+export function execSync(command: string, options?: cp.ExecSyncOptions | undefined, logFilePath?: string): string {
+    let output = "";
+    try {
+        output = cp.execSync(command, options).toString();
+    } catch (err) {
+        output += err.stdout && err.stdout.toString();
+        output += err.stderr && err.stderr.toString();
+        if (logFilePath) {
+            SmokeTestLogger.saveLogsInFile(output, logFilePath);
+        }
+        throw err;
+    }
+
+    if (logFilePath) {
+        SmokeTestLogger.saveLogsInFile(output, logFilePath);
+    }
+
+    return output;
 }
 
 /**
