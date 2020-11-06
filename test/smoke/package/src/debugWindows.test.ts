@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
-import { sleep } from "./helpers/utilities";
+import { checkIfAppIsInstalledOnWindows, sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { RNWWorkspacePath, runVSCode } from "./main";
 
@@ -26,7 +26,7 @@ export function setup(testParameters?: TestRunArguments): void {
         afterEach(disposeAll);
 
         it("RN app Debug test", async function () {
-            this.timeout(SmokeTestsConstants.windowsAppBuildAndInstallTimeout);
+            this.timeout(SmokeTestsConstants.windowsTestTime);
             app = await runVSCode(RNWWorkspacePath);
             await app.workbench.quickaccess.openFile("App.js");
             await app.workbench.editors.scrollTop();
@@ -36,7 +36,7 @@ export function setup(testParameters?: TestRunArguments): void {
             console.log(`Windows Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             console.log("Windows Debug test: Starting debugging");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            await sleep(100 * 1000); // Give the RNW build process some time to build and run the app
+            await checkIfAppIsInstalledOnWindows(SmokeTestsConstants.RNWAppName, SmokeTestsConstants.windowsAppBuildAndInstallTimeout);
             await app.workbench.debug.waitForDebuggingToStart();
             console.log("Windows Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);

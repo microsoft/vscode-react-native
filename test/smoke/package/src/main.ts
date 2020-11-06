@@ -10,7 +10,7 @@ import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
 import { setup as setupReactNativeDebugiOSTests } from "./debugIos.test";
 import { setup as setupLocalizationTests } from "./localization.test";
-import { setup as setupWindowsTests } from "./debugWindows.test";
+import { setup as setupReactNativeWindowsTests } from "./debugWindows.test";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
@@ -253,7 +253,7 @@ describe("Extension smoke tests", () => {
         } else {
             setupReactNativeDebugAndroidTests();
             if (process.platform === "win32") {
-                setupWindowsTests();
+                setupReactNativeWindowsTests();
             }
         }
 
