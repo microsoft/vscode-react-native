@@ -75,6 +75,7 @@ export function spawnSync(command: string, args?: string[], options?: SpawnSyncO
 }
 
 export function execSync(command: string, options?: cp.ExecSyncOptions | undefined, logFilePath?: string): string {
+    options = Object.assign(options, { stdio: "pipe" });
     let output = "";
     try {
         output = cp.execSync(command, options).toString();
