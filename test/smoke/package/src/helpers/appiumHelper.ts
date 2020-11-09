@@ -9,7 +9,6 @@ import * as kill from "tree-kill";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./utilities";
 import * as clipboardy from "clipboardy";
-import { artifactsPath } from "../main";
 let appiumProcess: null | cp.ChildProcess;
 export type AppiumClient = WebdriverIO.Client<WebdriverIO.RawResult<null>> & WebdriverIO.RawResult<null>;
 export enum Platform {
@@ -22,6 +21,22 @@ const XDL = require("@expo/xdl");
 
 type XPathSelector = { [TKey in Platform]: string };
 type XPathSelectors = { [key: string]: XPathSelector };
+
+interface IAttachOpts {
+    desiredCapabilities: {
+        browserName: string,
+        platformName: string,
+        platformVersion: string,
+        deviceName: string,
+        appActivity?: string,
+        appPackage?: string,
+        automationName: string,
+        newCommandTimeout: number,
+        app?: string,
+    };
+    port: number;
+    host: string;
+}
 
 export class AppiumHelper {
     // Paths for searching UI elements
@@ -64,7 +79,7 @@ export class AppiumHelper {
         },
     };
 
-    public static runAppium() {
+    public static runAppium(artifactsPath: string): void {
         const appiumLogFolder = artifactsPath;
         mkdirp.sync(appiumLogFolder);
         const appiumLogPath = path.join(appiumLogFolder, "appium.log");
@@ -81,7 +96,7 @@ export class AppiumHelper {
         });
     }
 
-    public static terminateAppium() {
+    public static terminateAppium(): void {
         if (appiumProcess) {
             console.log(`*** Terminating Appium with PID ${appiumProcess.pid}`);
             console.log(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
@@ -104,12 +119,12 @@ export class AppiumHelper {
         }
     }
 
-    public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName) {
+    public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName): IAttachOpts {
         return {
             desiredCapabilities: {
                 browserName: "",
                 platformName: "Android",
-                platformVersion: this.getAndroidPlatformVersion(),
+                platformVersion: process.env.ANDROID_VERSION || SmokeTestsConstants.defaultTargetAndroidPlatformVersion,
                 deviceName: deviceName,
                 appActivity: applicationActivity,
                 appPackage: applicationPackage,
@@ -121,12 +136,12 @@ export class AppiumHelper {
         };
     }
 
-    public static prepareAttachOptsForIosApp(deviceName: string, appPath: string) {
+    public static prepareAttachOptsForIosApp(deviceName: string, appPath: string): IAttachOpts{
         return {
             desiredCapabilities: {
                 browserName: "",
                 platformName: "iOS",
-                platformVersion: this.getIosPlatformVersion(),
+                platformVersion: process.env.IOS_VERSION || SmokeTestsConstants.defaultTargetIosPlatformVersion,
                 deviceName: deviceName,
                 app: appPath,
                 automationName: "XCUITest",
@@ -137,12 +152,12 @@ export class AppiumHelper {
         };
     }
 
-    public static webdriverAttach(attachArgs: any) {
+    public static webdriverAttach(attachArgs: IAttachOpts): any {
         // Connect to the emulator with predefined opts
         return wdio.remote(attachArgs);
     }
 
-    public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string, projectFolder: string, firstLaunch?: boolean) {
+    public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string, projectFolder: string, firstLaunch?: boolean): Promise<void> {
         // There are two ways to run app in Expo app:
         // - via clipboard
         // - via expo XDL function
@@ -170,7 +185,7 @@ export class AppiumHelper {
      * @param client - Initialized Appium client
      * @param platform - Android or iOS
      */
-    public static async callRNDevMenu(client: AppiumClient, platform: Platform) {
+    public static async callRNDevMenu(client: AppiumClient, platform: Platform): Promise<void> {
         switch (platform) {
             case Platform.Android:
             case Platform.AndroidExpo:
@@ -191,7 +206,7 @@ export class AppiumHelper {
         }
     }
 
-    public static async reloadRNApp(client: AppiumClient, platform: Platform) {
+    public static async reloadRNApp(client: AppiumClient, platform: Platform): Promise<void> {
         console.log("*** Reloading React Native application with DevMenu...");
         await client
         .waitUntil(async () => {
@@ -206,7 +221,7 @@ export class AppiumHelper {
         }, SmokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
     }
 
-    public static async enableRemoteDebugJS(client: AppiumClient, platform: Platform) {
+    public static async enableRemoteDebugJS(client: AppiumClient, platform: Platform): Promise<void> {
         console.log("*** Enabling Remote JS Debugging for application with DevMenu...");
 
         await client
@@ -238,17 +253,9 @@ export class AppiumHelper {
         }, SmokeTestsConstants.enableRemoteJSTimeout, `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`, 1000);
     }
 
-    public static getIosPlatformVersion() {
-        return process.env.IOS_VERSION || SmokeTestsConstants.defaultTargetIosPlatformVersion;
-    }
-
-    public static getAndroidPlatformVersion() {
-        return process.env.ANDROID_VERSION || SmokeTestsConstants.defaultTargetAndroidPlatformVersion;
-    }
-
     // Expo 32 has an error on iOS application start up
     // it is not breaking the app, but may broke the tests, so need to click Dismiss button in the RN Red Box to proceed further
-    public static async disableExpoErrorRedBox(client: AppiumClient) {
+    public static async disableExpoErrorRedBox(client: AppiumClient): Promise<void> {
         const DISMISS_BUTTON = "//XCUIElementTypeButton[@name='redbox-dismiss']";
         if (await client.isExisting(DISMISS_BUTTON)) {
             console.log("*** React Native Red Box found, disabling...");
@@ -258,7 +265,7 @@ export class AppiumHelper {
 
     // New Expo versions shows DevMenu at first launch with informational message,
     // it is better to disable this message and then call DevMenu ourselves
-    public static async disableDevMenuInformationalMsg(client: AppiumClient, platform: Platform) {
+    public static async disableDevMenuInformationalMsg(client: AppiumClient, platform: Platform): Promise<void> {
         const GOT_IT_BUTTON = this.XPATH.GOT_IT_BUTTON[platform];
         if (await client.isExisting(GOT_IT_BUTTON)) {
             console.log("*** Expo DevMenu informational message found, disabling...");
@@ -266,7 +273,7 @@ export class AppiumHelper {
         }
     }
 
-    public static async clickTestButtonHermes(client: AppiumClient) {
+    public static async clickTestButtonHermes(client: AppiumClient): Promise<void> {
         console.log(`*** Pressing button with text "Test Button"...`);
         const TEST_BUTTON = "//*[@text='TEST BUTTON']";
         await client.click(TEST_BUTTON);
@@ -300,7 +307,7 @@ export class AppiumHelper {
         console.log(`*** ${EXPO_OPEN_FROM_CLIPBOARD} clicked...`);
     }
 
-    private static async openExpoAppViaExpoXDLAndroidFunction(client: AppiumClient, projectFolder: string) {
+    private static async openExpoAppViaExpoXDLAndroidFunction(client: AppiumClient, projectFolder: string): Promise<void> {
         console.log(`*** Opening Expo app via XDL.Android function`);
         console.log(`*** Searching for the "Explore" button...`);
         const EXPLORE_ELEMENT = "//android.widget.TextView[@text='Projects']";

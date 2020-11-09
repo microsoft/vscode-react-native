@@ -11,6 +11,9 @@ import { SmokeTestsConstants } from "./smokeTestsConstants";
 
 export class TestApplicationSetupManager {
 
+    private cacheDirectory: string;
+    private testAppsDirectory: string;
+
     private rnWorkspaceDirectory: string;
     private hermesWorkspaceDirectory: string;
     private pureRnWorkspaceDirectory: string;
@@ -24,12 +27,13 @@ export class TestApplicationSetupManager {
     private launchJsonPath: string;
 
     constructor(resourcesDirectory: string, cacheDirectory: string) {
-        const testAppsDirectory = path.join(cacheDirectory, "TestApps");
+        this.testAppsDirectory = path.join(cacheDirectory, "TestApps");
+        this.cacheDirectory = cacheDirectory;
 
-        this.rnWorkspaceDirectory = path.join(testAppsDirectory, SmokeTestsConstants.RNAppName);
-        this.hermesWorkspaceDirectory = path.join(testAppsDirectory, SmokeTestsConstants.HermesAppName);
-        this.pureRnWorkspaceDirectory = path.join(testAppsDirectory, SmokeTestsConstants.pureRNExpoAppName);
-        this.expoWorkspaceDirectory = path.join(testAppsDirectory, SmokeTestsConstants.ExpoAppName);
+        this.rnWorkspaceDirectory = path.join(this.testAppsDirectory, SmokeTestsConstants.RNAppName);
+        this.hermesWorkspaceDirectory = path.join(this.testAppsDirectory, SmokeTestsConstants.HermesAppName);
+        this.pureRnWorkspaceDirectory = path.join(this.testAppsDirectory, SmokeTestsConstants.pureRNExpoAppName);
+        this.expoWorkspaceDirectory = path.join(this.testAppsDirectory, SmokeTestsConstants.ExpoAppName);
 
         this.rnSampleDirectory = path.join(resourcesDirectory, SmokeTestsConstants.sampleRNAppName);
         this.hermesSampleDirectory = path.join(resourcesDirectory, SmokeTestsConstants.sampleHermesAppName);
@@ -39,8 +43,35 @@ export class TestApplicationSetupManager {
         this.launchJsonPath = path.join(resourcesDirectory, "launch.json");
     }
 
+    public getRnWorkspaceDirectory() : string {
+        return this.rnWorkspaceDirectory;
+    }
+
+    public getHermesWorkspaceDirectory() : string {
+        return this.hermesWorkspaceDirectory;
+    }
+
+    public getPureRnWorkspaceDirectory() : string {
+        return this.pureRnWorkspaceDirectory;
+    }
+
+    public getExpoWorkspaceDirectory() : string {
+        return this.expoWorkspaceDirectory;
+    }
+
     public async prepareTestApplications(): Promise<void> {
         console.log("*** Preparing smoke tests applications...");
+
+
+        if (!fs.existsSync(this.cacheDirectory)) {
+            console.log(`*** Creating smoke tests cache directory: ${this.cacheDirectory}`);
+            fs.mkdirSync(this.cacheDirectory);
+        }
+        if (!fs.existsSync(this.testAppsDirectory)) {
+            console.log(`*** Creating test apps directory: ${this.testAppsDirectory}`);
+            fs.mkdirSync(this.testAppsDirectory);
+        }
+
         const rnVersion = process.env.RN_VERSION;
         const pureRnVersion = process.env.PURE_RN_VERSION || await TestApplicationSetupManager.getLatestSupportedRNVersionForExpo(process.env.EXPO_SDK_MAJOR_VERSION);
         const expoSdkVersion = process.env.EXPO_SDK_MAJOR_VERSION;
@@ -114,7 +145,7 @@ export class TestApplicationSetupManager {
     }
 
     private getKeyPathsForApplication(workspacePath: string): { appName: string, parentPathForWorkspace: string, vsCodeConfigPath: string, workspaceEntryPointPath: string } {
-        const appName = path.dirname(workspacePath);
+        const appName = path.basename(workspacePath);
         const parentPathForWorkspace = path.join(workspacePath, "..");
         const vsCodeConfigPath = path.join(workspacePath, ".vscode");
         let workspaceEntryPointPath = path.join(workspacePath, SmokeTestsConstants.ApptsxFileName);
@@ -125,8 +156,8 @@ export class TestApplicationSetupManager {
     }
 
     private getKeyPathsForSample(workspacePath: string): {testButtonPath: string, customEntryPointPath: string} {
-        const testButtonPath = path.join(this.rnSampleDirectory, "AppTestButton.js");
-        let customEntryPointPath = path.join(this.rnSampleDirectory, SmokeTestsConstants.ApptsxFileName);
+        const testButtonPath = path.join(workspacePath, "AppTestButton.js");
+        let customEntryPointPath = path.join(workspacePath, SmokeTestsConstants.ApptsxFileName);
         if (!fs.existsSync(customEntryPointPath)) {
             customEntryPointPath = path.join(workspacePath, SmokeTestsConstants.AppjsFileName);
         }
@@ -136,7 +167,7 @@ export class TestApplicationSetupManager {
 
     private prepareReactNativeApplication(workspacePath?: string, version?: string) {
         const workspaceDirectory = workspacePath ? workspacePath : this.rnWorkspaceDirectory;
-        const {appName, parentPathForWorkspace, vsCodeConfigPath, workspaceEntryPointPath} = this.getKeyPathsForApplication(workspaceDirectory);
+        const {appName, parentPathForWorkspace, vsCodeConfigPath} = this.getKeyPathsForApplication(workspaceDirectory);
         const {customEntryPointPath} = this.getKeyPathsForSample(this.rnSampleDirectory);
 
         let command = `react-native init ${appName}`;
@@ -145,6 +176,8 @@ export class TestApplicationSetupManager {
         }
         console.log(`*** Creating RN app via '${command}' in ${workspaceDirectory}...`);
         cp.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" });
+
+        const {workspaceEntryPointPath} = this.getKeyPathsForApplication(workspaceDirectory);
 
         console.log(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
         fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
@@ -162,13 +195,15 @@ export class TestApplicationSetupManager {
 
     private prepareExpoApplication(workspacePath?: string, expoSdkMajorVersion?: string) {
         const workspaceDirectory = workspacePath ? workspacePath : this.expoWorkspaceDirectory;
-        const {appName, parentPathForWorkspace, vsCodeConfigPath, workspaceEntryPointPath} = this.getKeyPathsForApplication(workspaceDirectory);
+        const {appName, parentPathForWorkspace, vsCodeConfigPath} = this.getKeyPathsForApplication(workspaceDirectory);
         const {customEntryPointPath} = this.getKeyPathsForSample(this.expoSampleDirectory);
         const useSpecificSdk = expoSdkMajorVersion ? `@sdk-${expoSdkMajorVersion}` : "";
         const command = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${appName} ${appName}`;
 
         console.log(`*** Creating Expo app via '${command}' in ${workspaceDirectory}...`);
         cp.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" });
+
+        const {workspaceEntryPointPath} = this.getKeyPathsForApplication(workspaceDirectory);
 
         console.log(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
         fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));

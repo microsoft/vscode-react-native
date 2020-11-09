@@ -30,8 +30,12 @@ export default class AndroidEmulatorManager {
         this.emulatorId = `emulator-${port}`;
     }
 
+    public getEmulatorName(): string {
+        return this.emulatorName;
+    }
+
     // Check if appPackage is installed on Android device for waitTime ms
-    public static async waitUntilAppIsInstalled(appPackage: string): Promise<boolean>{
+    public async waitUntilAppIsInstalled(appPackage: string): Promise<boolean>{
 
         console.log(`*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${AndroidEmulatorManager.PACKAGE_INSTALL_TIMEOUT / 1000} seconds`);
 

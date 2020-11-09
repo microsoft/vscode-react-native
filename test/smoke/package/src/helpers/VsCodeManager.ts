@@ -10,6 +10,7 @@ import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleL
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 
 export class VsCodeManager {
+    private cacheDirectory: string;
 
     private vsCodeClientDirectory: string;
     private resourcesDirectory: string;
@@ -19,15 +20,18 @@ export class VsCodeManager {
     private vsixDirectory: string;
     private vsCodeUserDataDirectory: string;
     private artifactDirectory: string;
+    private currentSessionLogsDir?: string;
 
     private clientIsInstalled: boolean = false;
     private clientVersion: string;
     private taskKillCommands: string[] = [];
     private downloadPlatform = (process.platform === "darwin") ? "darwin" : process.platform === "win32" ? "win32-x64-archive" : "linux-x64";
 
-    private static VS_CODE_CLIENT_NOT_INSTALLED_ERROR = "Not all paths required are defined, most likely the VS Code client was not installed";
+    private static VS_CODE_CLIENT_NOT_INSTALLED_ERROR = "VS Code client was not installed";
+    private static CURRENT_SESSION_LOGS_DIR_ERROR = "Сurrent session logs directory is not defined";
 
     constructor(vscodeTestDirectory: string, resourcesDirectory: string, cacheDirectory: string) {
+        this.cacheDirectory = cacheDirectory;
         this.resourcesDirectory = resourcesDirectory;
         this.vsCodeUserDataDirectory = path.join(cacheDirectory, SmokeTestsConstants.VSCodeUserDataDir);
         this.artifactDirectory = path.join(cacheDirectory, SmokeTestsConstants.artifactsDir);
@@ -39,6 +43,22 @@ export class VsCodeManager {
         this.vsCodeClientAppFileDirectory = this.downloadDirToExecutablePath();
         this.vsCodeClientCmdDirectory = vscodeTest.resolveCliPathFromVSCodeExecutablePath(this.vsCodeClientAppFileDirectory);
 
+        if (this.checkIfRequarePathsExists()) {
+            this.clientIsInstalled = true;
+        }
+    }
+
+    public getArtifactDirectory() : string {
+        return this.artifactDirectory;
+    }
+
+    public async downloadVSCodeExecutable(): Promise<any> {
+        console.log("*** Downloading VS Code executable...");
+
+        if (!fs.existsSync(this.cacheDirectory)) {
+            console.log(`*** Creating smoke tests cache directory: ${this.cacheDirectory}`);
+            fs.mkdirSync(this.cacheDirectory);
+        }
         if (!fs.existsSync(this.vsCodeUserDataDirectory)) {
             console.log(`*** Creating VS Code user data directory: ${this.vsCodeUserDataDirectory}`);
             fs.mkdirSync(this.vsCodeUserDataDirectory);
@@ -48,13 +68,6 @@ export class VsCodeManager {
             fs.mkdirSync(this.artifactDirectory);
         }
 
-        if (this.checkIfRequarePathsExists()) {
-            this.clientIsInstalled = true;
-        }
-    }
-
-    public async downloadVSCodeExecutable(): Promise<any> {
-        console.log("*** Downloading VS Code executable...");
         this.vsCodeClientAppFileDirectory = await vscodeTest.downloadAndUnzipVSCode(this.clientVersion, this.downloadPlatform);
         this.vsCodeClientCmdDirectory = vscodeTest.resolveCliPathFromVSCodeExecutablePath(this.vsCodeClientAppFileDirectory);
         this.clientIsInstalled = true;
@@ -150,13 +163,16 @@ export class VsCodeManager {
         }
     }
 
-    public async runVSCode(workspaceOrFolder: string, sessionName: string, locale?: string): Promise<Application> {
+    public async runVSCode(workspaceOrFolder: string, sessionName?: string, locale?: string): Promise<Application> {
         if (this.clientIsInstalled) {
-
+            if (!sessionName) {
+                sessionName = "UnknownTest";
+            }
             const dirName = `${sessionName}-[${new Date().toLocaleString(locale)}]`;
             if (this.artifactDirectory) {
                 const extensionLogsDir = path.join(this.artifactDirectory, dirName, "extensionLogs");
                 process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
+                this.currentSessionLogsDir = extensionLogsDir;
             }
             let quality: Quality;
             if (this.clientVersion === "insiders") {
@@ -176,31 +192,35 @@ export class VsCodeManager {
         }
     }
 
-    private createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolderName: string, extraArgs?: string[]): ApplicationOptions | null {
-        if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-            if (this.clientIsInstalled) {
-                const logsDir = process.env.REACT_NATIVE_TOOLS_LOGS_DIR;
-                const loggers: Logger[] = [];
-
-                loggers.push(new ConsoleLogger());
-
-                console.log(`*** Executing ${this.vsCodeClientAppFileDirectory}`);
-
-                return {
-                    quality,
-                    codePath: this.vsCodeClientAppFileDirectory,
-                    workspacePath: workspaceOrFolder,
-                    userDataDir: path.join(this.vsCodeUserDataDirectory, dataDirFolderName),
-                    extensionsPath: this.extensionDirectory,
-                    waitTime: SmokeTestsConstants.elementResponseTimeout,
-                    logger: new MultiLogger(loggers),
-                    verbose: true,
-                    screenshotsPath: path.join(logsDir, "screenshots"),
-                    extraArgs: extraArgs,
-                };
-            } else {
-                throw new Error(VsCodeManager.VS_CODE_CLIENT_NOT_INSTALLED_ERROR);
+    private createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolderName: string, extraArgs?: string[]): ApplicationOptions {
+        if (this.clientIsInstalled) {
+            let logsDir = "";
+            if (this.currentSessionLogsDir) {
+                logsDir = this.currentSessionLogsDir;
             }
+            else {
+                throw new Error(VsCodeManager.CURRENT_SESSION_LOGS_DIR_ERROR);
+            }
+            const loggers: Logger[] = [];
+
+            loggers.push(new ConsoleLogger());
+
+            console.log(`*** Executing ${this.vsCodeClientAppFileDirectory}`);
+
+            return {
+                quality,
+                codePath: this.vsCodeClientAppFileDirectory,
+                workspacePath: workspaceOrFolder,
+                userDataDir: path.join(this.vsCodeUserDataDirectory, dataDirFolderName),
+                extensionsPath: this.extensionDirectory,
+                waitTime: SmokeTestsConstants.elementResponseTimeout,
+                logger: new MultiLogger(loggers),
+                verbose: true,
+                screenshotsPath: path.join(logsDir, "screenshots"),
+                extraArgs: extraArgs,
+            };
+        } else {
+            throw new Error(VsCodeManager.VS_CODE_CLIENT_NOT_INSTALLED_ERROR);
         }
     }
 
@@ -250,6 +270,28 @@ export class VsCodeManager {
                     path.resolve(this.vsCodeClientDirectory, 'VSCode-linux-x64/code');
             default:
                 throw new Error(`Platform ${process.platform} isn't supported`);
+        }
+    }
+
+    public findStringInLogs(string: string, logFile: string): boolean {
+        if (this.currentSessionLogsDir) {
+            console.log(`*** Searching for \"Test output from Hermes debuggee\" string in output file`);
+            return utilities.findStringInFile(path.join(this.currentSessionLogsDir, logFile), string);
+        }
+        else {
+            throw new Error(VsCodeManager.CURRENT_SESSION_LOGS_DIR_ERROR);
+        }
+    }
+
+    public findPatternInLogs(reg: RegExp, logFile: string): string[] | null {
+        if (this.currentSessionLogsDir) {
+            let content = fs.readFileSync(path.join(this.currentSessionLogsDir, logFile)).toString().trim();
+            const match = content.match(reg);
+            if (!match) return null;
+            return match;
+        }
+        else {
+            throw new Error(VsCodeManager.CURRENT_SESSION_LOGS_DIR_ERROR);
         }
     }
 

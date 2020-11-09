@@ -59,7 +59,7 @@ export function sanitize(name: string): string {
     return name.replace(/[&*:\/]/g, "");
 }
 
-export function spawnSync(command: string, args?: string[], options?: SpawnSyncOptions) {
+export function spawnSync(command: string, args?: string[], options?: SpawnSyncOptions): void {
     const result = cp.spawnSync(command, args, options);
     if (result.stdout) {
         console.log(result.stdout);
@@ -99,7 +99,7 @@ export function runInParallel(promises: Promise<any>[]): Promise<any[]> {
     });
 }
 
-export function getContents(url, token, headers, callback) {
+export function getContents(url: string, token: string | null, headers: any, callback: (error: Error, versionsContent: string) => void): void {
     request.get(toRequestOptions(url, token, headers), function (error, response, body) {
         if (!error && response && response.statusCode >= 400) {
             error = new Error("Request returned status code: " + response.statusCode + "\nDetails: " + response.body);
@@ -109,7 +109,7 @@ export function getContents(url, token, headers, callback) {
     });
 }
 
-export function toRequestOptions(url, token?, headers?) {
+export function toRequestOptions(url: string, token: string | null, headers?: any): any {
     headers = headers || {
         "user-agent": "nodejs",
     };
@@ -141,7 +141,7 @@ export function toRequestOptions(url, token?, headers?) {
 }
 
 // Await function
-export async function sleep(time: number) {
+export async function sleep(time: number): Promise<void> {
     await new Promise(resolve => {
         const timer = setTimeout(() => {
             clearTimeout(timer);
@@ -161,7 +161,7 @@ export function findFile(directoryToSearch: string, filePattern: RegExp): string
     return null;
 }
 
-export function filterProgressBarChars(str: string) {
+export function filterProgressBarChars(str: string): string {
     const filterRegExp = /\||\/|\-|\\/;
     str = str.replace(filterRegExp, "");
     return str;
@@ -200,7 +200,7 @@ export function waitUntil(condition: () => boolean, timeout: number = 30000, int
             resolve(false);
         }, timeout);
 
-        const bootCheckInterval = setInterval(async () => {
+        const сheckInterval = setInterval(async () => {
             if (condition()) {
                 cleanup();
                 resolve(true);
@@ -209,17 +209,12 @@ export function waitUntil(condition: () => boolean, timeout: number = 30000, int
 
         const cleanup = () => {
             clearTimeout(rejectTimeout);
-            clearInterval(bootCheckInterval);
+            clearInterval(сheckInterval);
         };
     });
 }
 
-export interface ExpoLaunch {
-    successful: boolean;
-    failed: boolean;
-}
-
-export async function waitForRunningPackager(filePath: string) {
+export async function waitForRunningPackager(filePath: string): Promise<void> {
     let awaitRetries: number = 5;
     let retry = 1;
     return new Promise<void>((resolve, reject) => {
@@ -242,74 +237,6 @@ export async function waitForRunningPackager(filePath: string) {
     });
 }
 
-export async function findExpoSuccessAndFailurePatterns(filePath: string, successPattern: string, failurePattern: string): Promise<ExpoLaunch> {
-    let awaitRetries: number = SmokeTestsConstants.expoAppLaunchTimeout / 5000;
-    let retry = 1;
-    return new Promise<ExpoLaunch>((resolve) => {
-        let check = setInterval(async () => {
-            let expoStarted = findStringInFile(filePath, successPattern);
-            let expoFailed = findStringInFile(filePath, failurePattern);
-            console.log(`Searching for Expo launch logging patterns for ${retry} time...`);
-            if (expoStarted || expoFailed) {
-                clearInterval(check);
-                const status: ExpoLaunch = {successful: expoStarted, failed: expoFailed};
-                console.log(`Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`);
-                resolve(status);
-            } else {
-                retry++;
-                if (retry >= awaitRetries) {
-                    console.log(`Expo launch logging patterns are not found after ${retry} retries:`);
-                    clearInterval(check);
-                    resolve({successful: expoStarted, failed: expoFailed});
-                }
-            }
-        }, 5000);
-    });
-}
-
-export function findExpoURLInLogFile(filePath: string) {
-        let content = fs.readFileSync(filePath).toString().trim();
-        const match = content.match(/exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
-        if (!match) return null;
-        let expoURL = match[0];
-        console.log(`Found Expo URL: ${expoURL}`);
-        return expoURL;
-}
-
-export function getIOSBuildPath(
-    iosProjectRoot: string,
-    projectWorkspaceConfigName: string,
-    configuration: string,
-    scheme: string,
-    sdkType: string
-): string {
-    const buildSettings = cp.execFileSync(
-        "xcodebuild",
-        [
-            "-workspace",
-            projectWorkspaceConfigName,
-            "-scheme",
-            scheme,
-            "-sdk",
-            sdkType,
-            "-configuration",
-            configuration,
-            "-showBuildSettings",
-        ],
-        {
-            encoding: "utf8",
-            cwd: iosProjectRoot,
-        }
-    );
-
-    const targetBuildDir = getTargetBuildDir(<string>buildSettings);
-
-    if (!targetBuildDir) {
-        throw new Error("Failed to get the target build directory.");
-    }
-    return targetBuildDir;
-}
-
 export async function smokeTestFail(message: string): Promise<void> {
     console.error(message);
     await AndroidEmulatorManager.terminateAllAndroidEmulators();
@@ -322,18 +249,4 @@ export async function smokeTestFail(message: string): Promise<void> {
     }
     AppiumHelper.terminateAppium();
     process.exit(1);
-}
-
-/**
- *
- * The function was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
- *
- * @param {string} buildSettings
- * @returns {string | null}
- */
-function getTargetBuildDir(buildSettings: string) {
-    const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
-    return targetBuildMatch && targetBuildMatch[1]
-        ? targetBuildMatch[1].trim()
-        : null;
 }

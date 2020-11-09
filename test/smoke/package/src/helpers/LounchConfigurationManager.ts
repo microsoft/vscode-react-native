@@ -64,8 +64,9 @@ export class LaunchConfigurationManager {
         return this.launchScenarios;
     }
 
-    public updateLaunchScenario(launchArgs: IConfiguration, updates: any): void {
-        let launchConfigIndex = this.getFirstScenarioIndexByParams(launchArgs);
+    public updateLaunchScenario(launchConfig: IConfiguration, updates: any): void {
+        this.readLaunchScenarios();
+        let launchConfigIndex = this.getFirstScenarioIndexByParams(launchConfig);
         const launchScenarios = this.getLaunchScenarios();
         if (launchConfigIndex !== null && launchScenarios.configurations) {
             Object.assign(launchScenarios.configurations[launchConfigIndex], updates);
@@ -73,12 +74,12 @@ export class LaunchConfigurationManager {
         }
     }
 
-    public waitUntilLaunchScenarioUpdate(workspaceRoot: string, updates: any, configName?: string): Promise<boolean> {
+    public waitUntilLaunchScenarioUpdate(updates: any, launchConfig?: IConfiguration): Promise<boolean> {
         const condition = (): boolean => {
             const configs = this.readLaunchScenarios().configurations;
             if (configs) {
-                if (configName) {
-                    const index = this.getFirstScenarioIndexByParams({name: configName});
+                if (launchConfig) {
+                    const index = this.getFirstScenarioIndexByParams(launchConfig);
                     if (index) {
                         return objectsContains(configs[index], updates);
                     }

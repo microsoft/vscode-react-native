@@ -11,6 +11,7 @@ import { TestApplicationSetupManager } from "./helpers/TestApplicationSetupManag
 import { TestConfigProcessor } from "./helpers/TestConfigProcessor";
 import { VsCodeManager } from "./helpers/VsCodeManager";
 import { startSmokeTests } from "./smoke.test";
+import * as os from "os";
 
 // Check tests environments
 if (parseInt(process.version.substr(1), 10) < 10) {
@@ -22,47 +23,37 @@ const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvC
 const envConfigFilePathDev = path.resolve(__dirname, "..", SmokeTestsConstants.EnvDevConfigFileName);
 const vscodeTestPath = path.resolve(__dirname, "..", "vscode-test");
 const resourcesPath = path.resolve(__dirname, "..", "resources");
-const cachePath = path.resolve(__dirname, "..", "..", "..", "..", "..", "..", "..", "SmokeTestsCache");
+const cachePath = path.resolve(os.homedir(), "SmokeTestsCache");
 
 const configProcessor = new TestConfigProcessor(envConfigFilePath, envConfigFilePathDev);
-const testApplicationSetupManager = new TestApplicationSetupManager(resourcesPath, cachePath);
-const androidEmulatorManager = new AndroidEmulatorManager();
-const iosSimulatorManager = new IosSimulatorManager();
+export const testApplicationSetupManager = new TestApplicationSetupManager(resourcesPath, cachePath);
+export const androidEmulatorManager = new AndroidEmulatorManager();
+export const iosSimulatorManager = new IosSimulatorManager();
 export const vscodeManager = new VsCodeManager(vscodeTestPath, resourcesPath, cachePath);
 
 startSmokeTests(configProcessor.parseTestArguments(), setUp, cleanUp);
 
 async function setUp(): Promise<void> {
-    try {
-        return vscodeManager.downloadVSCodeExecutable()
-        .then(() => vscodeManager.installExtensionFromVSIX())
-        .then(() => vscodeManager.installExpoXdlPackageToExtensionDir())
-        .then(() => testApplicationSetupManager.prepareTestApplications())
-        .then(() => AppiumHelper.runAppium())
-        .then(async () => {
-            console.log("*** Preparing Android emulator...");
-            await androidEmulatorManager.runAndroidEmulator();
-            await androidEmulatorManager.installExpoAppOnAndroid();
-        })
-        .then(async () => {
-            if (process.platform === "darwin") {
-                console.log("*** Preparing iOS simulator...");
-                await iosSimulatorManager.runIosSimulator();
-                await iosSimulatorManager.installExpoAppOnIos();
-            }
-        });
-    }
-    catch (error) {
-        smokeTestFail(error);
-    }
+    return vscodeManager.downloadVSCodeExecutable()
+    .then(() => vscodeManager.installExtensionFromVSIX())
+    .then(() => vscodeManager.installExpoXdlPackageToExtensionDir())
+    .then(() => testApplicationSetupManager.prepareTestApplications())
+    .then(() => AppiumHelper.runAppium(vscodeManager.getArtifactDirectory()))
+    .then(async () => {
+        console.log("*** Preparing Android emulator...");
+        await androidEmulatorManager.runAndroidEmulator();
+        await androidEmulatorManager.installExpoAppOnAndroid();
+    })
+    .then(async () => {
+        if (process.platform === "darwin") {
+            console.log("*** Preparing iOS simulator...");
+            await iosSimulatorManager.runIosSimulator();
+            await iosSimulatorManager.installExpoAppOnIos();
+        }
+    });
 }
 
 async function cleanUp(): Promise<void> {
-    try {
-        vscodeManager.cleanUp();
-        testApplicationSetupManager.cleanUp();
-    }
-    catch (error) {
-        smokeTestFail(error);
-    }
+    vscodeManager.cleanUp();
+    testApplicationSetupManager.cleanUp();
 }

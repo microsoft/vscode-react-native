@@ -4,6 +4,8 @@
 import { spawn, execSync } from "child_process";
 import { sleep, waitUntil } from "./utilities";
 import * as kill from "tree-kill";
+import * as cp from "child_process";
+
 const XDL = require("@expo/xdl");
 
 interface IiOSSimulator {
@@ -39,6 +41,44 @@ export default class IosSimulatorManager {
         if (process.platform === "darwin") {
             this.updateSimulatorState(name, iosVersion);
         }
+    }
+
+    public getSimulator(): IiOSSimulator {
+        return this.simulator;
+    }
+
+    public static getIOSBuildPath(
+        iosProjectRoot: string,
+        projectWorkspaceConfigName: string,
+        configuration: string,
+        scheme: string,
+        sdkType: string
+    ): string {
+        const buildSettings = cp.execFileSync(
+            "xcodebuild",
+            [
+                "-workspace",
+                projectWorkspaceConfigName,
+                "-scheme",
+                scheme,
+                "-sdk",
+                sdkType,
+                "-configuration",
+                configuration,
+                "-showBuildSettings",
+            ],
+            {
+                encoding: "utf8",
+                cwd: iosProjectRoot,
+            }
+        );
+
+        const targetBuildDir = this.getTargetBuildDir(<string>buildSettings);
+
+        if (!targetBuildDir) {
+            throw new Error("Failed to get the target build directory.");
+        }
+        return targetBuildDir;
     }
 
     private updateSimulatorState(name: string, iosVersion?: string) {
@@ -131,7 +171,7 @@ export default class IosSimulatorManager {
     }
 
     public getFormattedIOSVersion(): string {
-        return `IOS-${this.simulator.id.replace(".", "-")}`;
+        return `IOS-${this.simulator.system.replace(".", "-")}`;
     }
 
     public async waitUntilIosAppIsInstalled(appBundleId: string): Promise<void> {
@@ -324,5 +364,19 @@ export default class IosSimulatorManager {
                 }
                 return result;
             });
+    }
+
+    /**
+    *
+    * The function was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
+    *
+    * @param {string} buildSettings
+    * @returns {string | null}
+    */
+    private static getTargetBuildDir(buildSettings: string) {
+        const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
+        return targetBuildMatch && targetBuildMatch[1]
+            ? targetBuildMatch[1].trim()
+            : null;
     }
 }
