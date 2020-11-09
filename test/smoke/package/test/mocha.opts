@@ -1,4 +1,5 @@
 --timeout 60000
 --slow 200000
 --color
+--exit
 out/main.js
