@@ -77,7 +77,7 @@ function getNativeModules() {
             for (var i = 0; i < ids.length; i++) {
               if (modules[ids[i]].verboseName) {
                  var packagePath = new String(modules[ids[i]].verboseName);
-                 if (packagePath.indexOf('Libraries/BatchedBridge/NativeModules.js') > 0) {
+                 if (packagePath.indexOf('Libraries/BatchedBridge/NativeModules.js') || packagePath.indexOf('Libraries\\BatchedBridge\\NativeModules.js') > 0) {
                    nativeModuleId = parseInt(ids[i], 10);
                    break;
                  }
