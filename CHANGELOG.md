@@ -1,3 +1,7 @@
+## 1.1.1
+* Updated the extension supported languages for breakpoints in order to work with the latest VS Code API [#1451](https://github.com/microsoft/vscode-react-native/pull/1451)
+
+
 ## 1.1.0
 * Added React Native macOS debugging support: [more info](https://github.com/microsoft/vscode-react-native#react-native-for-macos) [#1409](https://github.com/microsoft/vscode-react-native/pull/1409)
 * Added support for `openExpoQR` debugging argument determining whether to open a tab with a QR code after launching the Expo server or not. Enhanced the workflow for Expo server starting [#1413](https://github.com/microsoft/vscode-react-native/pull/1413)
