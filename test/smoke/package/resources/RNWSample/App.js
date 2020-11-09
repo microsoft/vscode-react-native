@@ -1,3 +1,4 @@
+console.log("Test output from debuggee");
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
