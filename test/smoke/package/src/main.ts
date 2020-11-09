@@ -219,7 +219,7 @@ describe("Extension smoke tests", () => {
             try {
                 await SetupEnvironmentHelper.terminateIosSimulator();
             } catch (e) {
-                console.error(e);
+                SmokeTestLogger.error(e);
             }
         }
         AppiumHelper.terminateAppium();

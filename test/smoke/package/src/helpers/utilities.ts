@@ -64,10 +64,10 @@ export function sanitize(name: string): string {
 export function spawnSync(command: string, args?: string[], options?: SpawnSyncOptions) {
     const result = cp.spawnSync(command, args, options);
     if (result.stdout) {
-        console.log(result.stdout);
+        SmokeTestLogger.log(result.stdout.toString());
     }
     if (result.stderr) {
-        console.log(result.stderr);
+        SmokeTestLogger.error(result.stderr.toString());
     }
     if (result.error) {
         throw result.error;
@@ -244,15 +244,15 @@ export async function waitForRunningPackager(filePath: string) {
     return new Promise<void>((resolve, reject) => {
         let check = setInterval(async () => {
             let packagerStarted = findStringInFile(filePath, SmokeTestsConstants.PackagerStartedPattern);
-            console.log(`Searching for Packager started logging pattern for ${retry} time...`);
+            SmokeTestLogger.info(`Searching for Packager started logging pattern for ${retry} time...`);
             if (packagerStarted) {
                 clearInterval(check);
-                console.log(`Packager started pattern is found`);
+                SmokeTestLogger.success(`Packager started pattern is found`);
                 resolve();
             } else {
                 retry++;
                 if (retry >= awaitRetries) {
-                    console.log(`Packager started logging pattern is not found after ${retry} retries`);
+                    SmokeTestLogger.info(`Packager started logging pattern is not found after ${retry} retries`);
                     clearInterval(check);
                     reject(`Packager started logging pattern is not found after ${retry} retries`);
                 }
@@ -268,16 +268,16 @@ export async function findExpoSuccessAndFailurePatterns(filePath: string, succes
         let check = setInterval(async () => {
             let expoStarted = findStringInFile(filePath, successPattern);
             let expoFailed = findStringInFile(filePath, failurePattern);
-            console.log(`Searching for Expo launch logging patterns for ${retry} time...`);
+            SmokeTestLogger.info(`Searching for Expo launch logging patterns for ${retry} time...`);
             if (expoStarted || expoFailed) {
                 clearInterval(check);
                 const status: ExpoLaunch = {successful: expoStarted, failed: expoFailed};
-                console.log(`Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`);
+                SmokeTestLogger.info(`Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`);
                 resolve(status);
             } else {
                 retry++;
                 if (retry >= awaitRetries) {
-                    console.log(`Expo launch logging patterns are not found after ${retry} retries:`);
+                    SmokeTestLogger.warn(`Expo launch logging patterns are not found after ${retry} retries:`);
                     clearInterval(check);
                     resolve({successful: expoStarted, failed: expoFailed});
                 }
@@ -291,7 +291,7 @@ export function findExpoURLInLogFile(filePath: string) {
         const match = content.match(/exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
         if (!match) return null;
         let expoURL = match[0];
-        console.log(`Found Expo URL: ${expoURL}`);
+        SmokeTestLogger.success(`Found Expo URL: ${expoURL}`);
         return expoURL;
 }
 

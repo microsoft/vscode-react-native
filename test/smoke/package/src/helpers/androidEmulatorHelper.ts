@@ -4,6 +4,7 @@
 import * as cp from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { sleep } from "./utilities";
+import { SmokeTestLogger } from "./smokeTestLogger";
 
 export interface IDevice {
     id: string;
@@ -54,7 +55,7 @@ export class AndroidEmulatorHelper {
             const bootCheckInterval = setInterval(async () => {
                 const connectedDevices = AndroidEmulatorHelper.getOnlineDevices();
                 if (connectedDevices.length > 0) {
-                    console.log(`*** Android emulator has been started.`);
+                    SmokeTestLogger.info(`*** Android emulator has been started.`);
                     cleanup();
                     resolve();
                 }
@@ -69,9 +70,9 @@ export class AndroidEmulatorHelper {
 
     public static async spawnAndKillEmulator() {
         cp.spawn("emulator", ["-avd", String(AndroidEmulatorHelper.getDevice())]);
-        console.log("*** Wait until emulator starting");
+        SmokeTestLogger.info("*** Wait until emulator starting");
         await AndroidEmulatorHelper.waitUntilEmulatorStarting();
-        console.log("*** Terminating Android emulator");
+        SmokeTestLogger.info("*** Terminating Android emulator");
         AndroidEmulatorHelper.terminateAndroidEmulator();
         await AndroidEmulatorHelper.waitUntilAndroidEmulatorTerminating();
     }
@@ -87,7 +88,7 @@ export class AndroidEmulatorHelper {
          "-no-snapshot-save",
          "-no-boot-anim",
          "-no-audio"];
-        console.log(`*** Executing Android emulator with 'emulator ${emulatorOpts.join(" ")}' command...`);
+         SmokeTestLogger.info(`*** Executing Android emulator with 'emulator ${emulatorOpts.join(" ")}' command...`);
         const proc = cp.spawn("emulator", emulatorOpts, {stdio: "pipe"});
         let started = false;
         proc.stdout.on("data", (chunk) => {
@@ -101,14 +102,14 @@ export class AndroidEmulatorHelper {
             process.stderr.write(chunk);
         });
 
-        console.log(`*** Waiting for emulator to load (timeout is ${SmokeTestsConstants.emulatorLoadTimeout}ms)`);
+        SmokeTestLogger.info(`*** Waiting for emulator to load (timeout is ${SmokeTestsConstants.emulatorLoadTimeout}ms)`);
         let awaitRetries: number = SmokeTestsConstants.emulatorLoadTimeout / 1000;
         let retry = 1;
         await new Promise((resolve, reject) => {
             let check = setInterval(async () => {
                 if (started) {
                     clearInterval(check);
-                    console.log("*** Emulator finished loading, waiting for 2 seconds");
+                    SmokeTestLogger.success("*** Emulator finished loading, waiting for 2 seconds");
                     await sleep(2000);
                     resolve();
                 } else {
@@ -127,14 +128,14 @@ export class AndroidEmulatorHelper {
     // Terminates emulator "emulator-PORT" if it exists, where PORT is 5554 by default
     public static terminateAndroidEmulator() {
         let devices = this.getOnlineDevices();
-        console.log("*** Checking for running android emulators...");
+        SmokeTestLogger.info("*** Checking for running android emulators...");
         if (devices.length !== 0) {
             devices.forEach((device) => {
-                console.log(`*** Terminating Android '${device.id}'...`);
+                SmokeTestLogger.info(`*** Terminating Android '${device.id}'...`);
                 cp.execSync(`adb -s ${device.id} emu kill`, {stdio: "inherit"});
             });
         } else {
-            console.log("*** No running android emulators found");
+            SmokeTestLogger.warn("*** No running android emulators found");
         }
     }
 
@@ -148,7 +149,7 @@ export class AndroidEmulatorHelper {
             const bootCheckInterval = setInterval(async () => {
                 const connectedDevices = AndroidEmulatorHelper.getConnectedDevices();
                 if (connectedDevices.length === 0) {
-                    console.log(`*** All Android emulators are terminated.`);
+                    SmokeTestLogger.success(`*** All Android emulators are terminated.`);
                     cleanup();
                     resolve();
                 }
@@ -168,7 +169,7 @@ export class AndroidEmulatorHelper {
         await new Promise((resolve, reject) => {
             let check = setInterval(async () => {
                 if (retry % 5 === 0) {
-                    console.log(`*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${retry} time`);
+                    SmokeTestLogger.info(`*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${retry} time`);
                 }
                 let result;
                 try {
@@ -180,7 +181,7 @@ export class AndroidEmulatorHelper {
                 if (result) {
                     clearInterval(check);
                     const initTimeout = waitInitTime || 10000;
-                    console.log(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`);
+                    SmokeTestLogger.info(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`);
                     await sleep(initTimeout);
                     resolve();
                 } else {
@@ -201,7 +202,7 @@ export class AndroidEmulatorHelper {
         await new Promise((resolve, reject) => {
             let check = setInterval(async () => {
                 if (retry % 5 === 0) {
-                    console.log(`*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${retry} time`);
+                    SmokeTestLogger.info(`*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${retry} time`);
                 }
                 let result;
                 try {
@@ -213,7 +214,7 @@ export class AndroidEmulatorHelper {
                 if (result) {
                     clearInterval(check);
                     const initTimeout = waitInitTime || 10000;
-                    console.log(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`);
+                    SmokeTestLogger.info(`*** Installed ${appPackage} app found, await ${initTimeout}ms for initializing...`);
                     await sleep(initTimeout);
                     resolve();
                 } else {
@@ -228,17 +229,17 @@ export class AndroidEmulatorHelper {
     }
 
     public static uninstallTestAppFromEmulator(appPackage: string) {
-        console.log(`*** Uninstalling test app ${appPackage}' from Emulator`);
+        SmokeTestLogger.info(`*** Uninstalling test app ${appPackage}' from Emulator`);
         try {
             cp.spawnSync("adb", ["shell", "pm", "uninstall", appPackage], {stdio: "inherit"});
         } catch (e) {
-            console.error(`Error occured while uninstalling test app:\n ${e}`);
+            SmokeTestLogger.error(`Error occured while uninstalling test app:\n ${e.toString()}`);
         }
     }
 
     public static async enableDrawPermitForApp(packageName: string) {
         const drawPermitCommand = `adb -s ${AndroidEmulatorHelper.androidEmulatorName} shell appops set ${packageName} SYSTEM_ALERT_WINDOW allow`;
-        console.log(`*** Enabling permission for drawing over apps via: ${drawPermitCommand}`);
+        SmokeTestLogger.info(`*** Enabling permission for drawing over apps via: ${drawPermitCommand}`);
         cp.execSync(drawPermitCommand, {stdio: "inherit"});
     }
 }

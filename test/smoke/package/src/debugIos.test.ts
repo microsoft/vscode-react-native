@@ -11,7 +11,8 @@ import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import * as path from "path";
 import { TestRunArguments } from "./helpers/configHelper";
 import { Application } from "../../automation";
-import {IiOSSimulator} from "./helpers/iosSimulatorHelper";
+import { IiOSSimulator } from "./helpers/iosSimulatorHelper";
+import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const RNDebugConfigName = "Debug iOS";
@@ -53,7 +54,7 @@ export function setup(testParameters?: TestRunArguments): void {
         }
 
         async function runExpoDebugScenario(logFilePath: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
-            console.log(`${testName}: Starting debugging`);
+            SmokeTestLogger.info(`${testName}: Starting debugging`);
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
                 await app.workbench.quickaccess.runDebugScenario(debugConfigName);
@@ -68,7 +69,7 @@ export function setup(testParameters?: TestRunArguments): void {
                         if (retry === triesToLaunchApp) {
                             assert.fail(`App start has failed after ${retry} retries`);
                         }
-                        console.log(`Attempt to start #${retry} failed, retrying...`);
+                        SmokeTestLogger.warn(`Attempt to start #${retry} failed, retrying...`);
                     }
                 }
             }
@@ -77,13 +78,13 @@ export function setup(testParameters?: TestRunArguments): void {
         async function expoTest(appFileName: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
             let logFilePath = "";
             app = await runVSCode(workspacePath);
-            console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
+            SmokeTestLogger.info(`${testName}: ${workspacePath} directory is opened in VS Code`);
             await app.workbench.quickaccess.openFile(appFileName);
             await app.workbench.editors.scrollTop();
-            console.log(`${testName}: ${appFileName} file is opened`);
+            SmokeTestLogger.info(`${testName}: ${appFileName} file is opened`);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
-            console.log(`${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
-            console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
+            SmokeTestLogger.info(`${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
+            SmokeTestLogger.info(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             const device = <string>IosSimulatorHelper.getDevice();
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                 logFilePath = path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName);
@@ -94,7 +95,7 @@ export function setup(testParameters?: TestRunArguments): void {
 
             await app.workbench.editors.waitForTab("Expo QR Code", false, true);
             await app.workbench.editors.waitForActiveTab("Expo QR Code", false, true);
-            console.log(`${testName}: 'Expo QR Code' tab found`);
+            SmokeTestLogger.info(`${testName}: 'Expo QR Code' tab found`);
 
             let expoURL;
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
@@ -112,7 +113,7 @@ export function setup(testParameters?: TestRunArguments): void {
             client = await AppiumHelper.webdriverAttach(opts);
             await AppiumHelper.openExpoApplication(Platform.iOS, client, expoURL, workspacePath, expoFirstLaunch);
             expoFirstLaunch = false;
-            console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
+            SmokeTestLogger.info(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
             await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
 
             await AppiumHelper.disableExpoErrorRedBox(client);
@@ -121,18 +122,18 @@ export function setup(testParameters?: TestRunArguments): void {
             await sleep(5 * 1000);
 
             await app.workbench.debug.waitForDebuggingToStart();
-            console.log(`${testName}: Debugging started`);
+            SmokeTestLogger.info(`${testName}: Debugging started`);
             await app.workbench.debug.waitForStackFrame(sf => sf.name === appFileName && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for ${appFileName} and line ${ExpoSetBreakpointOnLine}`);
-            console.log(`${testName}: Stack frame found`);
+            SmokeTestLogger.info(`${testName}: Stack frame found`);
             await app.workbench.debug.stepOver();
             // Wait for our debug string to render in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log(`${testName}: Searching for \"Test output from debuggee\" string in console`);
+            SmokeTestLogger.info(`${testName}: Searching for \"Test output from debuggee\" string in console`);
             let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            console.log(`${testName}: \"Test output from debuggee\" string is found`);
+            SmokeTestLogger.info(`${testName}: \"Test output from debuggee\" string is found`);
             await app.workbench.debug.disconnectFromDebugger();
-            console.log(`${testName}: Debugging is stopped`);
+            SmokeTestLogger.info(`${testName}: Debugging is stopped`);
         }
 
         it("RN app Debug test", async function () {
@@ -140,13 +141,13 @@ export function setup(testParameters?: TestRunArguments): void {
             app = await runVSCode(RNworkspacePath);
             await app.workbench.quickaccess.openFile("App.js");
             await app.workbench.editors.scrollTop();
-            console.log("iOS Debug test: App.js file is opened");
+            SmokeTestLogger.info("iOS Debug test: App.js file is opened");
             await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
-            console.log(`iOS Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
-            console.log(`iOS Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
+            SmokeTestLogger.info(`iOS Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
+            SmokeTestLogger.info(`iOS Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
             SetupEnvironmentHelper.setIosTargetToLaunchJson(RNworkspacePath, RNDebugConfigName, IosSimulatorHelper.getDevice());
-            console.log("iOS Debug test: Starting debugging");
+            SmokeTestLogger.info("iOS Debug test: Starting debugging");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
 
             await IosSimulatorHelper.waitUntilIosAppIsInstalled(RnAppBundleId, SmokeTestsConstants.iosAppBuildAndInstallTimeout, 40 * 1000);
@@ -165,18 +166,18 @@ export function setup(testParameters?: TestRunArguments): void {
             await sleep(5 * 1000);
 
             await app.workbench.debug.waitForDebuggingToStart();
-            console.log("iOS Debug test: Debugging started");
+            SmokeTestLogger.info("iOS Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
-            console.log("iOS Debug test: Stack frame found");
+            SmokeTestLogger.info("iOS Debug test: Stack frame found");
             await app.workbench.debug.stepOver();
             // Wait for our debug string to render in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log("iOS Debug test: Searching for \"Test output from debuggee\" string in console");
+            SmokeTestLogger.info("iOS Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            console.log("iOS Debug test: \"Test output from debuggee\" string is found");
+            SmokeTestLogger.info("iOS Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.disconnectFromDebugger();
-            console.log("iOS Debug test: Debugging is stopped");
+            SmokeTestLogger.info("iOS Debug test: Debugging is stopped");
         });
 
         it("Expo app Debug test(Tunnel)", async function () {
@@ -220,23 +221,23 @@ export function setup(testParameters?: TestRunArguments): void {
             await SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
             SetupEnvironmentHelper.setIosTargetToLaunchJson(RNworkspacePath, RNDebugConfigName, SmokeTestsConstants.SimulatorString);
-            console.log("iOS simulator save test: Starting debugging at the first time");
+            SmokeTestLogger.info("iOS simulator save test: Starting debugging at the first time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            console.log("iOS simulator save test: Debugging started at the first time");
+            SmokeTestLogger.info("iOS simulator save test: Debugging started at the first time");
             await app.workbench.quickinput.waitForQuickInputOpened();
             await app.workbench.quickinput.inputAndSelect(IosSimulatorHelper.getFormattedIOSVersion());
             await app.workbench.quickinput.submit(deviceName);
             let simulator = await IosSimulatorHelper.waitUntilIosSimulatorStarting(deviceName);
             compareSimulatorWithInputConfig(simulator);
             const isScenarioUpdated = await waitUntilLaunchScenarioTargetUpdate(RNworkspacePath, Platform.iOS);
-            console.log(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${IosSimulatorHelper.getDeviceUdid()}"' in launch.json`);
+            SmokeTestLogger.info(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${IosSimulatorHelper.getDeviceUdid()}"' in launch.json`);
             assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
             await disposeAll();
             await SetupEnvironmentHelper.terminateIosSimulator();
             app = await runVSCode(RNworkspacePath);
-            console.log("iOS simulator save test: Starting debugging at the second time");
+            SmokeTestLogger.info("iOS simulator save test: Starting debugging at the second time");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            console.log("iOS simulator save test: Debugging started at the second time");
+            SmokeTestLogger.info("iOS simulator save test: Debugging started at the second time");
             simulator = await IosSimulatorHelper.waitUntilIosSimulatorStarting(deviceName);
             compareSimulatorWithInputConfig(simulator);
         });

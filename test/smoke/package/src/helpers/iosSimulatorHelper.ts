@@ -4,6 +4,7 @@
 import { spawn, execSync } from "child_process";
 import * as kill from "tree-kill";
 import { sleep } from "./utilities";
+import { SmokeTestLogger } from "./smokeTestLogger";
 
 interface RunResult {
     Successful: boolean;
@@ -107,7 +108,7 @@ export class IosSimulatorHelper {
         const proc = spawn("xcrun", args, {stdio: "pipe"});
         proc.stdout.on("data", (data: string) => {
             data = data.toString();
-            console.log(data);
+            SmokeTestLogger.info(data);
             if (data.startsWith("Filtering the log data")) {
                 return;
             }
@@ -117,10 +118,10 @@ export class IosSimulatorHelper {
             }
         });
         proc.stderr.on("error", (data: string) => {
-            console.error(data.toString());
+            SmokeTestLogger.error(data.toString());
         });
         proc.on("error", (err) => {
-            console.error(err);
+            SmokeTestLogger.error(err);
             kill(proc.pid);
         });
 
@@ -129,12 +130,12 @@ export class IosSimulatorHelper {
         await new Promise((resolve, reject) => {
             const check = setInterval(async () => {
                 if (retry % 5 === 0) {
-                    console.log(`*** Check if app with bundleId ${appBundleId} is installed, ${retry} attempt`);
+                    SmokeTestLogger.info(`*** Check if app with bundleId ${appBundleId} is installed, ${retry} attempt`);
                 }
                 if (launched) {
                     clearInterval(check);
                     const initTimeout = waitInitTime || 10000;
-                    console.log(`*** Installed ${appBundleId} app found, await ${initTimeout}ms for initializing...`);
+                    SmokeTestLogger.info(`*** Installed ${appBundleId} app found, await ${initTimeout}ms for initializing...`);
                     await sleep(initTimeout);
                     resolve();
                 } else {
@@ -161,14 +162,14 @@ export class IosSimulatorHelper {
                 if (name) {
                     const simulator = this.getSimulator(name);
                     if (simulator?.state === DeviceState.Booted) {
-                        console.log(`*** iOS simulator ${simulator.name} has been booted.`);
+                        SmokeTestLogger.success(`*** iOS simulator ${simulator.name} has been booted.`);
                         cleanup();
                         resolve(simulator);
                     }
                 } else {
                     const bootedSimulators = this.getBootedDevices();
                     if (bootedSimulators.length > 0) {
-                        console.log(`*** iOS simulator ${bootedSimulators[0].name} has been booted.`);
+                        SmokeTestLogger.success(`*** iOS simulator ${bootedSimulators[0].name} has been booted.`);
                         cleanup();
                         resolve(bootedSimulators[0]);
                     }
@@ -239,7 +240,7 @@ export class IosSimulatorHelper {
                     }
                     const state = DeviceState[match![1]];
                     if (!state) {
-                        console.log(`Unknown state: ${match![1]}`);
+                        SmokeTestLogger.warn(`Unknown state: ${match![1]}`);
                         resolve({
                             Successful: false,
                             FailedState: DeviceState.Unknown,
