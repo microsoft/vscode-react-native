@@ -7,11 +7,6 @@ import * as mkdirp from "mkdirp";
 import ansiСolors = require("ansi-colors");
 
 export class SmokeTestLogger {
-
-    private static colorize(str: string, color: ansiСolors.StyleType) {
-        return `${color.open}${str}${ansiСolors.styles.reset.open}`;
-    }
-
     public static log(...str: string[]) {
         console.log(...str);
     }
@@ -28,7 +23,7 @@ export class SmokeTestLogger {
         console.log(SmokeTestLogger.colorize(str.join(" "), ansiСolors.styles.cyanBright));
     }
     public static projectPatchingLog(...str: string[]) {
-        console.log(SmokeTestLogger.colorize(str.join(" "), ansiСolors.styles.magenta));
+        console.log(SmokeTestLogger.colorize(str.join(" "), ansiСolors.styles.magentaBright));
     }
     public static error(err: string | Error) {
         console.error(SmokeTestLogger.colorize(err.toString(), ansiСolors.styles.red));
@@ -38,5 +33,13 @@ export class SmokeTestLogger {
             mkdirp.sync(path.dirname(filePath));
         }
         fs.appendFileSync(filePath, str);
+    }
+
+    private static colorize(str: string, color: ansiСolors.StyleType) {
+        return str.split("\n").map(line => SmokeTestLogger.colorizeLine(line, color)).join("\n");
+    }
+
+    private static colorizeLine(str: string, color: ansiСolors.StyleType) {
+        return `${color.open}${str}${ansiСolors.styles.reset.open}`;
     }
 }
