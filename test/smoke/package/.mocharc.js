@@ -9,5 +9,7 @@ module.exports = {
     color: true,
     exit: true,
     file: ["out/main.js"],
-    extension: ["js"]
+    extension: ["js"],
+    slow: 200000,
+    timeout: 120000
 };
