@@ -68,6 +68,7 @@ export class TestConfigurator {
         }
         if (!variables.RN_MAC_OS_VERSION) {
             console.warn("Optional RN_MAC_OS_VERSION variable is not set");
+        }
         if (!variables.RNW_VERSION) {
             console.warn("Optional PURE_EXPO_VERSION variable is not set");
         }
@@ -113,6 +114,7 @@ export class TestConfigurator {
         }
         if (variables.RN_MAC_OS_VERSION === "skip" || process.env.NIGHTLY) {
             delete variables.RN_MAC_OS_VERSION;
+        }
         if (variables.RNW_VERSION === "skip" || process.env.NIGHTLY) {
             delete variables.RNW_VERSION;
         }
