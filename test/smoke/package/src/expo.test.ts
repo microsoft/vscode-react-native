@@ -31,7 +31,7 @@ interface ExpoLaunch {
 
 export function startExpoTests(expoWorkspace: string, pureWorkspace: string, testParameters?: TestRunArguments): void {
 
-    describe("Debugging Android", () => {
+    describe("Expo tests", () => {
         let app: Application;
         let clientInited: AppiumClient;
         let expoFirstLaunch = true;

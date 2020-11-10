@@ -21,7 +21,7 @@ if (parseInt(process.version.substr(1), 10) < 10) {
 //Paths
 const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
 const envConfigFilePathDev = path.resolve(__dirname, "..", SmokeTestsConstants.EnvDevConfigFileName);
-const vscodeTestPath = path.resolve(__dirname, "..", "vscode-test");
+const vscodeTestPath = path.resolve(__dirname, "..", ".vscode-test");
 const resourcesPath = path.resolve(__dirname, "..", "resources");
 const cachePath = path.resolve(os.homedir(), "SmokeTestsCache");
 

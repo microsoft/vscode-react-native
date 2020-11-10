@@ -209,7 +209,7 @@ export class VsCodeManager {
 
             return {
                 quality,
-                codePath: this.vsCodeClientAppFileDirectory,
+                codePath: this.vsCodeClientDirectory,
                 workspacePath: workspaceOrFolder,
                 userDataDir: path.join(this.vsCodeUserDataDirectory, dataDirFolderName),
                 extensionsPath: this.extensionDirectory,

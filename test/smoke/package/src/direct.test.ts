@@ -20,7 +20,7 @@ const debugAndroidTestTime = SmokeTestsConstants.androidTestTimeout;
 
 export function startDirectDebugTests(workspace: string, testParameters?: TestRunArguments): void {
 
-    describe("Debugging Android", () => {
+    describe("Direct debugging", () => {
         let app: Application;
         let clientInited: AppiumClient;
 

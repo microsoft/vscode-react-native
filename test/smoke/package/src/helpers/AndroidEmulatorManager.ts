@@ -20,6 +20,7 @@ export default class AndroidEmulatorManager {
     private static readonly PACKAGE_INIT_TIMEOUT = 10_000;
 
     private emulatorName: string;
+    private emulatorPort: number;
     private emulatorId: string;
 
     constructor(name: string | undefined = process.env.ANDROID_EMULATOR, port: number = SmokeTestsConstants.defaultTargetAndroidPort) {
@@ -27,6 +28,7 @@ export default class AndroidEmulatorManager {
             throw new Error("Passed Android emulator name and process.env.ANDROID_EMULATOR is not defined!");
         }
         this.emulatorName = name;
+        this.emulatorPort = port;
         this.emulatorId = `emulator-${port}`;
     }
 
@@ -81,7 +83,7 @@ export default class AndroidEmulatorManager {
     }
 
     private async enableDrawPermitForApp(packageName: string) {
-        const drawPermitCommand = `adb -s ${this.emulatorName} shell appops set ${packageName} SYSTEM_ALERT_WINDOW allow`;
+        const drawPermitCommand = `adb -s ${this.emulatorId} shell appops set ${packageName} SYSTEM_ALERT_WINDOW allow`;
         console.log(`*** Enabling permission for drawing over apps via: ${drawPermitCommand}`);
         cp.execSync(drawPermitCommand, {stdio: "inherit"});
     }
@@ -93,7 +95,7 @@ export default class AndroidEmulatorManager {
         <string>this.emulatorName,
          "-gpu", "swiftshader_indirect",
          "-wipe-data",
-         "-port", this.emulatorId,
+         "-port", String(this.emulatorPort),
          "-no-snapshot-save",
          "-no-boot-anim",
          "-no-audio"];
@@ -157,12 +159,11 @@ export default class AndroidEmulatorManager {
     }
 
     public async waitUntilEmulatorTerminating(): Promise<boolean> {
-        ("*** Wait for Android emulator terminating...");
+        console.log("*** Wait for Android emulator terminating...");
 
         const condition = () => {
             const runningEmulators = AndroidEmulatorManager.getOnlineDevices();
             if (!runningEmulators.find((it) => it.id === this.emulatorId)) {
-                console.log(`*** Android emulator has been terminated.`);
                 return true;
             }
             return false;
@@ -171,7 +172,7 @@ export default class AndroidEmulatorManager {
         return waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT)
             .then((result) => {
                 if (result) {
-                    console.log(`*** Android emulator has been has been terminated.`);
+                    console.log(`*** Android emulator has been terminated.`);
                 }
                 else {
                     console.log(`*** Could not terminate Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`);
@@ -181,12 +182,11 @@ export default class AndroidEmulatorManager {
     }
 
     public static async waitUntilSomeEmulatorStarting(): Promise<boolean> {
-        ("*** Wait for Android emulator starting...");
+        console.log("*** Wait for Android emulator starting...");
         const countOfRunningEmulators = AndroidEmulatorManager.getOnlineDevices().length;
 
         const condition = () => {
             if (AndroidEmulatorManager.getOnlineDevices().length > countOfRunningEmulators) {
-                console.log(`*** Android emulator has been started.`);
                 return true;
             }
             return false;
@@ -205,11 +205,10 @@ export default class AndroidEmulatorManager {
     }
 
     public static async waitUntilAllEmulatorTerminating(): Promise<boolean> {
-        ("*** Wait for Android emulator terminating...");
+        console.log("*** Wait for Android emulator terminating...");
 
         const condition = () => {
             if (AndroidEmulatorManager.getOnlineDevices().length === 0) {
-                console.log(`*** Android emulator has been terminated.`);
                 return true;
             }
             return false;
@@ -218,7 +217,7 @@ export default class AndroidEmulatorManager {
         return waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT)
             .then((result) => {
                 if (result) {
-                    console.log(`*** All Android emulators has been has been terminated.`);
+                    console.log(`*** All Android emulators has been terminated.`);
                 }
                 else {
                     console.log(`*** Could not terminate all Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`);
