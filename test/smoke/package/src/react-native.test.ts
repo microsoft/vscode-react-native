@@ -29,16 +29,16 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
 
     describe("React Native", () => {
         let app: Application;
-        let clientInited: AppiumClient;
+        let client: AppiumClient;
         const launchConfigurationManager = new LaunchConfigurationManager(workspace);
 
         async function disposeAll() {
             if (app) {
                 await app.stop();
             }
-            if (clientInited) {
-                clientInited.closeApp();
-                clientInited.endAll();
+            if (client) {
+                client.closeApp();
+                client.deleteSession();
             }
         }
 
@@ -58,9 +58,8 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 await app.workbench.quickaccess.runDebugScenario(AndroidRNDebugConfigName);
                 const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, androidEmulatorManager.getEmulatorName());
                 await androidEmulatorManager.waitUntilAppIsInstalled(RN_APP_PACKAGE_NAME);
-                let client = AppiumHelper.webdriverAttach(opts);
-                clientInited = client.init();
-                await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.Android);
+                let client = await AppiumHelper.webdriverAttach(opts);
+                await AppiumHelper.enableRemoteDebugJS(client, Platform.Android);
                 await app.workbench.debug.waitForDebuggingToStart();
                 console.log("Android Debug test: Debugging started");
                 await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
@@ -138,9 +137,8 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 );
                 const appPath = `${buildPath}/${SmokeTestsConstants.RNAppName}.app`;
                 const opts = AppiumHelper.prepareAttachOptsForIosApp(deviceName, appPath);
-                let client = AppiumHelper.webdriverAttach(opts);
-                clientInited = client.init();
-                await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOS);
+                let client = await AppiumHelper.webdriverAttach(opts);
+                await AppiumHelper.enableRemoteDebugJS(client, Platform.iOS);
                 await sleep(5 * 1000);
 
                 await app.workbench.debug.waitForDebuggingToStart();

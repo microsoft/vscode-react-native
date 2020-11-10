@@ -22,15 +22,15 @@ export function startDirectDebugTests(workspace: string, testParameters?: TestRu
 
     describe("Direct debugging", () => {
         let app: Application;
-        let clientInited: AppiumClient;
+        let client: AppiumClient;
 
         async function disposeAll() {
             if (app) {
                 await app.stop();
             }
-            if (clientInited) {
-                clientInited.closeApp();
-                clientInited.endAll();
+            if (client) {
+                client.closeApp();
+                client.deleteSession();
             }
         }
 
@@ -52,12 +52,11 @@ export function startDirectDebugTests(workspace: string, testParameters?: TestRu
                     await app.workbench.quickaccess.runDebugScenario(RNHermesDebugConfigName);
                     const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(HERMES_APP_PACKAGE_NAME, HERMES_APP_ACTIVITY_NAME, androidEmulatorManager.getEmulatorName());
                     await androidEmulatorManager.waitUntilAppIsInstalled(HERMES_APP_PACKAGE_NAME);
-                    let client = AppiumHelper.webdriverAttach(opts);
-                    clientInited = client.init();
+                    let client = await AppiumHelper.webdriverAttach(opts);
                     await app.workbench.debug.waitForDebuggingToStart();
                     console.log("Android Debug Hermes test: Debugging started");
                     console.log("Android Debug Hermes test: Checking for Hermes mark");
-                    let isHermesWorking = await AppiumHelper.isHermesWorking(clientInited);
+                    let isHermesWorking = await AppiumHelper.isHermesWorking(client);
                     assert.strictEqual(isHermesWorking, true);
                     console.log("Android Debug Hermes test: Reattaching to Hermes app");
                     await app.workbench.debug.disconnectFromDebugger();
@@ -65,7 +64,7 @@ export function startDirectDebugTests(workspace: string, testParameters?: TestRu
                     console.log("Android Debug Hermes test: Reattached successfully");
                     await sleep(7000);
                     console.log("Android Debug Hermes test: Click Test Button");
-                    await AppiumHelper.clickTestButtonHermes(clientInited);
+                    await AppiumHelper.clickTestButtonHermes(client);
                     await app.workbench.debug.waitForStackFrame(sf => sf.name === "AppTestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`);
                     console.log("Android Debug Hermes test: Stack frame found");
                     await app.workbench.debug.continue();

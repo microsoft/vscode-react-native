@@ -33,16 +33,16 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
 
     describe("Expo tests", () => {
         let app: Application;
-        let clientInited: AppiumClient;
         let expoFirstLaunch = true;
+        let client: AppiumClient;
 
         async function disposeAll() {
             if (app) {
                 await app.stop();
             }
-            if (clientInited) {
-                clientInited.closeApp();
-                clientInited.endAll();
+            if (client) {
+                client.closeApp();
+                client.deleteSession();
             }
         }
 
@@ -141,31 +141,29 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
                 }
                 const appPath = path.join(SmokeTestsConstants.iOSExpoAppsCacheDir, appFile);
                 const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
-                let client = AppiumHelper.webdriverAttach(opts);
-                clientInited = client.init();
-                await AppiumHelper.openExpoApplication(Platform.iOS, clientInited, expoURL, workspacePath, expoFirstLaunch);
+                let client = await AppiumHelper.webdriverAttach(opts);
+                await AppiumHelper.openExpoApplication(Platform.iOS, client, expoURL, workspacePath, expoFirstLaunch);
                 expoFirstLaunch = false;
                 console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
                 await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
 
-                await AppiumHelper.disableExpoErrorRedBox(clientInited);
-                await AppiumHelper.disableDevMenuInformationalMsg(clientInited, Platform.iOSExpo);
-                await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.iOSExpo);
+                await AppiumHelper.disableExpoErrorRedBox(client);
+                await AppiumHelper.disableDevMenuInformationalMsg(client, Platform.iOSExpo);
+                await AppiumHelper.enableRemoteDebugJS(client, Platform.iOSExpo);
                 await sleep(5 * 1000);
             }
             else {
                 expoURL = expoURL as string;
                 const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, androidEmulatorManager.getEmulatorName());
-                let client = AppiumHelper.webdriverAttach(opts);
-                clientInited = client.init();
+                let client = await AppiumHelper.webdriverAttach(opts);
                 // TODO Add listener to trigger that main expo app has been ran
-                await AppiumHelper.openExpoApplication(Platform.Android, clientInited, expoURL, workspacePath);
+                await AppiumHelper.openExpoApplication(Platform.Android, client, expoURL, workspacePath);
                 // TODO Add listener to trigger that child expo app has been ran instead of using timeout
                 console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
                 await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
-                await AppiumHelper.disableDevMenuInformationalMsg(clientInited, Platform.AndroidExpo);
+                await AppiumHelper.disableDevMenuInformationalMsg(client, Platform.AndroidExpo);
                 await sleep(2 * 1000);
-                await AppiumHelper.enableRemoteDebugJS(clientInited, Platform.AndroidExpo);
+                await AppiumHelper.enableRemoteDebugJS(client, Platform.AndroidExpo);
                 await app.workbench.debug.waitForDebuggingToStart();
             }
 

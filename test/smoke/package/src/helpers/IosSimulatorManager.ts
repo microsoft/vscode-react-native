@@ -230,10 +230,15 @@ export default class IosSimulatorManager {
         this.updateSimulatorState(this.simulator.name, this.simulator.system);
         if (this.simulator.state === DeviceState.Booted) {
             console.log(`*** Installing Expo app on iOS simulator using Expo XDL function`);
-            await XDL.Simulator._installExpoOnSimulatorAsync();
+            await XDL.Simulator.installExpoOnSimulatorAsync({
+                simulator: {
+                    name: this.simulator.name || "",
+                    udid: this.simulator.id || ""
+                }
+        });
         }
         else {
-            throw new Error("*** Could not install Expo app on iOS simulator becouse it is not booted");
+            throw new Error("*** Could not install Expo app on iOS simulator because it is not booted");
         }
     }
 

@@ -69,7 +69,14 @@ export default class AndroidEmulatorManager {
     // Installs Expo app on Android device using XDL function
     public async installExpoAppOnAndroid(): Promise<void> {
         console.log(`*** Installing Expo app on Android emulator using Expo XDL function`);
-        await XDL.Android.installExpoAsync();
+        await XDL.Android.installExpoAsync({
+            device: {
+                name: this.emulatorId,
+                type: "emulator",
+                isBooted: true,
+                isAuthorized: true,
+            }
+        });
         return this.enableDrawPermitForApp(SmokeTestsConstants.expoPackageName);
     }
 
