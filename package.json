@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "images/icon.png",
@@ -114,19 +114,25 @@
         "category": "React Native"
       }
     ],
+    "breakpoints": [
+      {
+        "language": "javascript"
+      },
+      {
+        "language": "typescript"
+      },
+      {
+        "language": "javascriptreact"
+      },
+      {
+        "language": "typescriptreact"
+      }
+    ],
     "debuggers": [
       {
         "type": "reactnative",
         "label": "React Native",
         "runtime": "node",
-        "enableBreakpointsFor": {
-          "languageIds": [
-            "javascript",
-            "typescript",
-            "javascriptreact",
-            "typescriptreact"
-          ]
-        },
         "configurationSnippets": [
           {
             "label": "React Native: Debug Android",
@@ -433,14 +439,6 @@
         "type": "reactnativedirect",
         "label": "React Native Direct - Experimental",
         "runtime": "node",
-        "enableBreakpointsFor": {
-          "languageIds": [
-            "javascript",
-            "typescript",
-            "javascriptreact",
-            "typescriptreact"
-          ]
-        },
         "configurationSnippets": [
           {
             "label": "React Native Direct: Debug Android Hermes - Experimental",

@@ -17,7 +17,7 @@ export const enum StatusBarElement {
 
 export class StatusBar {
 
-    private readonly mainSelector = "div[id=\"workbench.parts.statusbar\"]";
+	private readonly mainSelector = "footer[id=\"workbench.parts.statusbar\"]";
 
     constructor(private code: Code) { }
 

@@ -25,6 +25,8 @@ export class SmokeTestsConstants {
     public static androidTestTimeout = 400 * 1000;
     // Timeout for iOS testing
     public static iosTestTimeout = 700 * 1000;
+    // Timeout for waitFor* commands
+    public static waitForElementTimeout = 30 * 1000;
     // Timeout for Expo app to execute
     public static expoAppBuildAndInstallTimeout = 60 * 1000;
     // Timeout for Expo testing
