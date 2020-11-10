@@ -11,6 +11,7 @@ import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test"
 import { setup as setupReactNativeDebugiOSTests } from "./debugIos.test";
 import { setup as setupLocalizationTests } from "./localization.test";
 import { setup as setupReactNativeDebugMacOSTests } from "./debugMacOS.test";
+import { setup as setupReactNativeWindowsTests } from "./debugWindows.test";
 import { AndroidEmulatorHelper } from "./helpers/androidEmulatorHelper";
 import { VSCodeHelper } from "./helpers/vsCodeHelper";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
@@ -92,6 +93,8 @@ export const pureRNWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.
 const pureRNWorkspaceFilePath = path.join(pureRNWorkspacePath, SmokeTestsConstants.AppjsFileName);
 export const RNmacOSworkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNmacOSAppName);
 const RNmacOSworkspaceFilePath = path.join(RNmacOSworkspacePath, SmokeTestsConstants.AppjsFileName);
+export const RNWWorkspacePath = path.join(resourcesPath, SmokeTestsConstants.RNWAppName);
+const RNWWorkspaceFilePath = path.join(RNWWorkspacePath, SmokeTestsConstants.AppjsFileName);
 
 export const artifactsPath = path.join(repoRoot, SmokeTestsConstants.artifactsDir);
 const userDataDir = path.join(repoRoot, SmokeTestsConstants.VSCodeUserDataDir);
@@ -146,6 +149,11 @@ async function setup(): Promise<void> {
         SetupEnvironmentHelper.prepareExpoApplication(ExpoWorkspaceFilePath, resourcesPath, ExpoWorkspacePath, SmokeTestsConstants.ExpoAppName, process.env.EXPO_SDK_MAJOR_VERSION);
         const PureRNVersionExpo = process.env.PURE_RN_VERSION || await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo(process.env.EXPO_SDK_MAJOR_VERSION);
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", PureRNVersionExpo);
+        if (process.platform === "win32") {
+
+            SetupEnvironmentHelper.prepareReactNativeApplication(RNWWorkspaceFilePath, resourcesPath, RNWWorkspacePath, SmokeTestsConstants.RNWAppName, "RNWSample", process.env.RNW_VERSION);
+            SetupEnvironmentHelper.prepareRNWApp(RNWWorkspacePath);
+        }
         SetupEnvironmentHelper.addExpoDependencyToRNProject(pureRNWorkspacePath, process.env.PURE_EXPO_VERSION);
         await SetupEnvironmentHelper.installExpoAppOnAndroid();
         SetupEnvironmentHelper.patchExpoSettingsFile(ExpoWorkspacePath);
@@ -233,6 +241,7 @@ describe("Extension smoke tests", () => {
             setupReactNativeDebugMacOSTests();
             setupReactNativeDebugAndroidTests();
             setupReactNativeDebugiOSTests();
+
         } else if (testParams.RunBasicTests) {
             console.log("*** --basic-only parameter is set, basic Android and iOS tests will be run");
             setupReactNativeDebugAndroidTests(testParams);
@@ -250,6 +259,9 @@ describe("Extension smoke tests", () => {
             setupReactNativeDebugAndroidTests(testParams);
         } else {
             setupReactNativeDebugAndroidTests();
+            if (process.platform === "win32") {
+                setupReactNativeWindowsTests();
+            }
         }
 
     }

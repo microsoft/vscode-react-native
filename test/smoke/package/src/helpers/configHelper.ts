@@ -25,11 +25,12 @@ export interface TestEnvVariables {
     PURE_RN_VERSION?: string;
     PURE_EXPO_VERSION?: string;
     RN_MAC_OS_VERSION?: string;
+    RNW_VERSION?: string;
 }
 
 export class TestConfigurator {
 
-    public static verifyEnvVariables(variables: TestEnvVariables) {
+    public static verifyEnvVariables(variables: TestEnvVariables): void {
         if (!variables.ANDROID_EMULATOR) {
             throw new Error(`Missing ANDROID_EMULATOR variable`);
         }
@@ -67,10 +68,12 @@ export class TestConfigurator {
         }
         if (!variables.RN_MAC_OS_VERSION) {
             console.warn("Optional RN_MAC_OS_VERSION variable is not set");
+        if (!variables.RNW_VERSION) {
+            console.warn("Optional PURE_EXPO_VERSION variable is not set");
         }
     }
 
-    public static passEnvVariablesToProcessEnv(variables: TestEnvVariables) {
+    public static passEnvVariablesToProcessEnv(variables: TestEnvVariables): void {
         const entries = Object.entries(variables);
         for (const entry of entries) {
             const variableName = entry[0];
@@ -79,7 +82,7 @@ export class TestConfigurator {
         }
     }
 
-    public static setUpEnvVariables(envConfigFilePath: string) {
+    public static setUpEnvVariables(envConfigFilePath: string): void {
         let variables: any;
 
         if (fs.existsSync(envConfigFilePath)) {
@@ -110,13 +113,15 @@ export class TestConfigurator {
         }
         if (variables.RN_MAC_OS_VERSION === "skip" || process.env.NIGHTLY) {
             delete variables.RN_MAC_OS_VERSION;
+        if (variables.RNW_VERSION === "skip" || process.env.NIGHTLY) {
+            delete variables.RNW_VERSION;
         }
 
         this.verifyEnvVariables(variables);
         this.passEnvVariablesToProcessEnv(variables);
     }
 
-    public static printEnvVariableConfiguration() {
+    public static printEnvVariableConfiguration(): void {
         let initLog: string = "";
         initLog += `ANDROID_EMULATOR = ${process.env.ANDROID_EMULATOR}\n`;
         initLog += `ANDROID_VERSION = ${process.env.ANDROID_VERSION}\n`;
@@ -127,6 +132,7 @@ export class TestConfigurator {
         initLog += `EXPO_XDL_VERSION = ${process.env.EXPO_XDL_VERSION}\n`;
         initLog += `EXPO_SDK_MAJOR_VERSION = ${process.env.EXPO_SDK_MAJOR_VERSION}\n`;
         initLog += `RN_VERSION = ${process.env.RN_VERSION}\n`;
+        initLog += `RNW_VERSION = ${process.env.RNW_VERSION}\n`;
         initLog += `PURE_RN_VERSION = ${process.env.PURE_RN_VERSION}\n`;
         initLog += `PURE_EXPO_VERSION = ${process.env.PURE_EXPO_VERSION}\n`;
         initLog += `RN_MAC_OS_VERSION = ${process.env.RN_MAC_OS_VERSION}\n`;

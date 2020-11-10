@@ -32,7 +32,7 @@ export class VSCodeHelper {
         extensionFile = path.join(artifactPath, extensionFile);
         args.push(`--install-extension=${extensionFile}`);
         console.log(`*** Installing extension to VS Code using command: ${testVSCodeExecutablePath} ${args.join(" ")}`);
-        spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
+        spawnSync(testVSCodeExecutablePath, args, { stdio: "inherit" });
 
         if (deleteVSIX) {
             console.log(`*** Deleting ${extensionFile} after installation`);
