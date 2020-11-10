@@ -19,6 +19,8 @@ export class SetupEnvironmentHelper {
     public static expoPackageName = "host.exp.exponent";
     public static expoBundleId = "host.exp.Exponent";
     public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
+    public static npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
+    public static npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
     public static prepareReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
         let command = `react-native init ${appName}`;
@@ -89,13 +91,8 @@ export class SetupEnvironmentHelper {
     }
 
     public static addExpoDependencyToRNProject(workspacePath: string, version?: string) {
-        let npmCmd = "npm";
-        if (process.platform === "win32") {
-            npmCmd = "npm.cmd";
-        }
-
         let expoPackage: string = version ? `expo@${version}` : "expo";
-        const command = `${npmCmd} install ${expoPackage} --save-dev`;
+        const command = `${this.npmCommand} install ${expoPackage} --save-dev`;
 
         console.log(`*** Adding expo dependency to ${workspacePath} via '${command}' command...`);
         cp.execSync(command, { cwd: workspacePath, stdio: "inherit" });
@@ -137,16 +134,16 @@ export class SetupEnvironmentHelper {
                     reject(error);
                 }
                 try {
-                   const content = JSON.parse(versionsContent);
-                   if (content.sdkVersions) {
-                       let usesSdkVersion: string | undefined;
-                       if (expoSdkMajorVersion) {
+                    const content = JSON.parse(versionsContent);
+                    if (content.sdkVersions) {
+                        let usesSdkVersion: string | undefined;
+                        if (expoSdkMajorVersion) {
                             usesSdkVersion = Object.keys(content.sdkVersions).find((version) => semver.major(version) === parseInt(expoSdkMajorVersion));
                             if (!usesSdkVersion) {
                                 console.log(`*** Сould not find the version of Expo sdk matching the specified version - ${printSpecifiedMajorVersion}`);
                             }
-                       }
-                       if (!usesSdkVersion) {
+                        }
+                        if (!usesSdkVersion) {
                             usesSdkVersion = Object.keys(content.sdkVersions).sort((ver1, ver2) => {
                                 if (semver.lt(ver1, ver2)) {
                                     return 1;
@@ -155,17 +152,17 @@ export class SetupEnvironmentHelper {
                                 }
                                 return 0;
                             })[0];
-                       }
-                       if (content.sdkVersions[usesSdkVersion]) {
-                        if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
-                            console.log(`*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
-                            resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
+                        }
+                        if (content.sdkVersions[usesSdkVersion]) {
+                            if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
+                                console.log(`*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
+                                resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
+                            }
                         }
                     }
-                   }
-                   reject("Received object is incorrect");
+                    reject("Received object is incorrect");
                 } catch (error) {
-                   reject(error);
+                    reject(error);
                 }
             });
         });
@@ -255,11 +252,7 @@ export class SetupEnvironmentHelper {
     }
 
     public static installExpoXdlPackageToExtensionDir(extensionDir: any, packageVersion: string) {
-        let npmCmd = "npm";
-        if (process.platform === "win32") {
-            npmCmd = "npm.cmd";
-        }
-        const command = `${npmCmd} install @expo/xdl@${packageVersion} --no-save`;
+        const command = `${this.npmCommand} install @expo/xdl@${packageVersion} --no-save`;
 
         console.log(`*** Adding @expo/xdl dependency to ${extensionDir} via '${command}' command...`);
         cp.execSync(command, { cwd: extensionDir, stdio: "inherit" });
@@ -293,6 +286,15 @@ module.exports.watchFolders = ['.vscode'];`;
         fs.appendFileSync(metroConfigPath, patchContent);
         const contentAfterPatching = fs.readFileSync(metroConfigPath);
         console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
+    }
+
+    public static prepareRNWApp(workspacePath: string): void {
+        const command = `${this.npxCommand} react-native-windows-init --overwrite`;
+        console.log(`*** Install additional RNW packages using ${command}`);
+        cp.execSync(
+            command,
+            { cwd: workspacePath, stdio: "inherit" }
+        );
     }
 
     private static copyGradleFilesToHermesApp(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {

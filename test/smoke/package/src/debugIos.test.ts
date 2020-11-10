@@ -31,15 +31,16 @@ let expoFirstLaunch = true;
 export function setup(testParameters?: TestRunArguments): void {
     describe("Debugging iOS", () => {
         let app: Application;
-        let client: AppiumClient;
+        let client: AppiumClient | null;
 
         async function disposeAll() {
             if (app) {
                 await app.stop();
             }
             if (client) {
-                client.closeApp();
-                client.deleteSession();
+                await client.closeApp();
+                await client.deleteSession();
+                client = null;
             }
         }
 

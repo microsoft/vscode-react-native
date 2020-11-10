@@ -104,7 +104,7 @@ export class IosSimulatorHelper {
         let launched = false;
         const predicate = `eventMessage contains "Launch successful for '${appBundleId}'"`;
         const args = ["simctl", "spawn", <string>IosSimulatorHelper.getDevice(), "log", "stream", "--predicate", predicate];
-        const proc = spawn("xcrun", args, {stdio: "pipe"});
+        const proc = spawn("xcrun", args, { stdio: "pipe" });
         proc.stdout.on("data", (data: string) => {
             data = data.toString();
             console.log(data);
