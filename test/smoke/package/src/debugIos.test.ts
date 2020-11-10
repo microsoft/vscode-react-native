@@ -131,7 +131,7 @@ export function setup(testParameters?: TestRunArguments): void {
             SmokeTestLogger.info(`${testName}: Searching for \"Test output from debuggee\" string in console`);
             let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            SmokeTestLogger.info(`${testName}: \"Test output from debuggee\" string is found`);
+            SmokeTestLogger.success(`${testName}: \"Test output from debuggee\" string is found`);
             await app.workbench.debug.disconnectFromDebugger();
             SmokeTestLogger.info(`${testName}: Debugging is stopped`);
         }
@@ -175,7 +175,7 @@ export function setup(testParameters?: TestRunArguments): void {
             SmokeTestLogger.info("iOS Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            SmokeTestLogger.info("iOS Debug test: \"Test output from debuggee\" string is found");
+            SmokeTestLogger.success("iOS Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.disconnectFromDebugger();
             SmokeTestLogger.info("iOS Debug test: Debugging is stopped");
         });

@@ -121,7 +121,7 @@ export function setup(testParameters?: TestRunArguments): void {
             SmokeTestLogger.info(`${testName}: Searching for \"Test output from debuggee\" string in console`);
             let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            SmokeTestLogger.info(`${testName}: \"Test output from debuggee\" string is found`);
+            SmokeTestLogger.success(`${testName}: \"Test output from debuggee\" string is found`);
             await app.workbench.debug.disconnectFromDebugger();
             SmokeTestLogger.info(`${testName}: Debugging is stopped`);
         }
@@ -151,7 +151,7 @@ export function setup(testParameters?: TestRunArguments): void {
             SmokeTestLogger.info("Android Debug test: Searching for \"Test output from debuggee\" string in console");
             let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            SmokeTestLogger.info("Android Debug test: \"Test output from debuggee\" string is found");
+            SmokeTestLogger.success("Android Debug test: \"Test output from debuggee\" string is found");
             await app.workbench.debug.disconnectFromDebugger();
             SmokeTestLogger.info("Android Debug test: Debugging is stopped");
         });
@@ -194,7 +194,7 @@ export function setup(testParameters?: TestRunArguments): void {
                     SmokeTestLogger.info("Android Debug Hermes test: Searching for \"Test output from Hermes debuggee\" string in output file");
                     let found = findStringInFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), "Test output from Hermes debuggee");
                     assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in output file");
-                    SmokeTestLogger.info("Android Debug test: \"Test output from Hermes debuggee\" string is found");
+                    SmokeTestLogger.success("Android Debug test: \"Test output from Hermes debuggee\" string is found");
                 }
                 await app.workbench.debug.disconnectFromDebugger();
                 SmokeTestLogger.info("Android Debug Hermes test: Debugging is stopped");
