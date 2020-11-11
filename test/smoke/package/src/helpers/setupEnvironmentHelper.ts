@@ -22,6 +22,8 @@ export class SetupEnvironmentHelper {
     public static expoPackageName = "host.exp.exponent";
     public static expoBundleId = "host.exp.Exponent";
     public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
+    public static npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
+    public static npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
     public static init() {
         SetupEnvironmentHelper.SetupEnvironmentCommandsLogFile = path.join(artifactsPath, "SetupEnvironmentCommandsLogs.txt");
@@ -95,14 +97,15 @@ export class SetupEnvironmentHelper {
         SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
-    public static addExpoDependencyToRNProject(workspacePath: string, version?: string) {
-        let npmCmd = "npm";
-        if (process.platform === "win32") {
-            npmCmd = "npm.cmd";
-        }
+    public static prepareMacOSApplication(workspacePath: string) {
+        const macOSinitCommand = "npx react-native-macos-init";
+        console.log(`*** Installing the React Native for macOS packages via '${macOSinitCommand}' in ${workspacePath}...`);
+        cp.execSync(macOSinitCommand, { cwd: workspacePath, stdio: "inherit" });
+    }
 
+    public static addExpoDependencyToRNProject(workspacePath: string, version?: string) {
         let expoPackage: string = version ? `expo@${version}` : "expo";
-        const command = `${npmCmd} install ${expoPackage} --save-dev`;
+        const command = `${this.npmCommand} install ${expoPackage} --save-dev`;
 
         SmokeTestLogger.projectPatchingLog(`*** Adding expo dependency to ${workspacePath} via '${command}' command...`);
         execSync(command, { cwd: workspacePath }, SetupEnvironmentHelper.SetupEnvironmentCommandsLogFile);
@@ -144,16 +147,16 @@ export class SetupEnvironmentHelper {
                     reject(error);
                 }
                 try {
-                   const content = JSON.parse(versionsContent);
-                   if (content.sdkVersions) {
-                       let usesSdkVersion: string | undefined;
-                       if (expoSdkMajorVersion) {
+                    const content = JSON.parse(versionsContent);
+                    if (content.sdkVersions) {
+                        let usesSdkVersion: string | undefined;
+                        if (expoSdkMajorVersion) {
                             usesSdkVersion = Object.keys(content.sdkVersions).find((version) => semver.major(version) === parseInt(expoSdkMajorVersion));
                             if (!usesSdkVersion) {
                                 SmokeTestLogger.warn(`*** Сould not find the version of Expo sdk matching the specified version - ${printSpecifiedMajorVersion}`);
                             }
-                       }
-                       if (!usesSdkVersion) {
+                        }
+                        if (!usesSdkVersion) {
                             usesSdkVersion = Object.keys(content.sdkVersions).sort((ver1, ver2) => {
                                 if (semver.lt(ver1, ver2)) {
                                     return 1;
@@ -162,17 +165,17 @@ export class SetupEnvironmentHelper {
                                 }
                                 return 0;
                             })[0];
-                       }
-                       if (content.sdkVersions[usesSdkVersion]) {
-                        if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
-                            SmokeTestLogger.info(`*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
-                            resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
+                        }
+                        if (content.sdkVersions[usesSdkVersion]) {
+                            if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
+                                SmokeTestLogger.info(`*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
+                                resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
+                            }
                         }
                     }
-                   }
-                   reject("Received object is incorrect");
+                    reject("Received object is incorrect");
                 } catch (error) {
-                   reject(error);
+                    reject(error);
                 }
             });
         });
@@ -261,12 +264,36 @@ export class SetupEnvironmentHelper {
         await IosSimulatorHelper.shutdownSimulator(device);
     }
 
-    public static installExpoXdlPackageToExtensionDir(extensionDir: any, packageVersion: string) {
-        let npmCmd = "npm";
-        if (process.platform === "win32") {
-            npmCmd = "npm.cmd";
+    public static terminateMacOSapp(appName: string) {
+        console.log(`*** Searching for ${appName} macOS application process`);
+        const searchForMacOSappProcessCommand = `ps -ax | grep ${appName}`;
+        const searchResults = cp.execSync(searchForMacOSappProcessCommand).toString();
+        // An example of the output from the command above:
+        // 40943 ??         4:13.97 node /Users/user/Documents/rn_for_mac_proj/node_modules/.bin/react-native start --port 8081
+        // 40959 ??         0:10.36 /Users/user/.nvm/versions/node/v10.19.0/bin/node /Users/user/Documents/rn_for_mac_proj/node_modules/metro/node_modules/jest-worker/build/workers/processChild.js
+        // 41004 ??         0:21.34 /Users/user/Library/Developer/Xcode/DerivedData/rn_for_mac_proj-ghuavabiztosiqfqkrityjoxqfmv/Build/Products/Debug/rn_for_mac_proj.app/Contents/MacOS/rn_for_mac_proj
+        // 75514 ttys007    0:00.00 grep --color=auto --exclude-dir=.bzr --exclude-dir=CVS --exclude-dir=.git --exclude-dir=.hg --exclude-dir=.svn rn_for_mac_proj
+        console.log(`*** Searching for ${appName} macOS application process: results ${JSON.stringify(searchResults)}`);
+
+        if (searchResults) {
+            const processIdRgx = /(^\d*)\s\?\?/g;
+            //  We are looking for a process whose path contains the "appName.app" part
+            const processData = searchResults.split("\n")
+                .find(str => str.includes(`${appName}.app`));
+
+            if (processData) {
+                const match = processIdRgx.exec(processData);
+                if (match && match[1]) {
+                    console.log(`*** Terminating ${appName} macOS application process with PID ${match[1]}`);
+                    const terminateMacOSappProcessCommand = `kill ${match[1]}`;
+                    cp.execSync(terminateMacOSappProcessCommand);
+                }
+            }
         }
-        const command = `${npmCmd} install @expo/xdl@${packageVersion} --no-save`;
+    }
+
+    public static installExpoXdlPackageToExtensionDir(extensionDir: any, packageVersion: string) {
+        const command = `${this.npmCommand} install @expo/xdl@${packageVersion} --no-save`;
 
         SmokeTestLogger.projectPatchingLog(`*** Adding @expo/xdl dependency to ${extensionDir} via '${command}' command...`);
         execSync(command, { cwd: extensionDir }, SetupEnvironmentHelper.SetupEnvironmentCommandsLogFile);
@@ -300,6 +327,15 @@ module.exports.watchFolders = ['.vscode'];`;
         fs.appendFileSync(metroConfigPath, patchContent);
         const contentAfterPatching = fs.readFileSync(metroConfigPath);
         SmokeTestLogger.projectPatchingLog(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
+    }
+
+    public static prepareRNWApp(workspacePath: string): void {
+        const command = `${this.npxCommand} react-native-windows-init --overwrite`;
+        console.log(`*** Install additional RNW packages using ${command}`);
+        cp.execSync(
+            command,
+            { cwd: workspacePath, stdio: "inherit" }
+        );
     }
 
     private static copyGradleFilesToHermesApp(workspacePath: string, resourcesPath: string, customEntryPointFolder: string) {

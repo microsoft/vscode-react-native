@@ -272,7 +272,7 @@ export async function findExpoSuccessAndFailurePatterns(filePath: string, succes
             SmokeTestLogger.info(`Searching for Expo launch logging patterns for ${retry} time...`);
             if (expoStarted || expoFailed) {
                 clearInterval(check);
-                const status: ExpoLaunch = {successful: expoStarted, failed: expoFailed};
+                const status: ExpoLaunch = { successful: expoStarted, failed: expoFailed };
                 SmokeTestLogger.info(`Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`);
                 resolve(status);
             } else {
@@ -280,7 +280,29 @@ export async function findExpoSuccessAndFailurePatterns(filePath: string, succes
                 if (retry >= awaitRetries) {
                     SmokeTestLogger.warn(`Expo launch logging patterns are not found after ${retry} retries:`);
                     clearInterval(check);
-                    resolve({successful: expoStarted, failed: expoFailed});
+                    resolve({ successful: expoStarted, failed: expoFailed });
+                }
+            }
+        }, 5000);
+    });
+}
+
+export async function checkIfAppIsInstalledOnWindows(appName: string, timeout: number): Promise<boolean> {
+    let awaitRetries: number = timeout / 5000;
+    let retry = 1;
+    return new Promise<boolean>((resolve) => {
+        let check = setInterval(async () => {
+            console.log(`Searching for app ${appName} patterns for ${retry} time...`);
+            if (cp.execSync("tasklist").toString().indexOf(appName) > 0) {
+                clearInterval(check);
+                console.log(`Found launched ${appName}`);
+                resolve(true);
+            } else {
+                retry++;
+                if (retry >= awaitRetries) {
+                    console.log(`App ${appName} not found after ${retry} retries:`);
+                    clearInterval(check);
+                    resolve(false);
                 }
             }
         }, 5000);
@@ -288,12 +310,12 @@ export async function findExpoSuccessAndFailurePatterns(filePath: string, succes
 }
 
 export function findExpoURLInLogFile(filePath: string) {
-        let content = fs.readFileSync(filePath).toString().trim();
-        const match = content.match(/exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
-        if (!match) return null;
-        let expoURL = match[0];
-        SmokeTestLogger.success(`Found Expo URL: ${expoURL}`);
-        return expoURL;
+    let content = fs.readFileSync(filePath).toString().trim();
+    const match = content.match(/exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm);
+    if (!match) return null;
+    let expoURL = match[0];
+    SmokeTestLogger.success(`Found Expo URL: ${expoURL}`);
+    return expoURL;
 }
 
 export function getIOSBuildPath(

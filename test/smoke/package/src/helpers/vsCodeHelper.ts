@@ -7,7 +7,6 @@ import * as rimraf from "rimraf";
 import * as cp from "child_process";
 import * as vscodeTest from "vscode-test";
 import { SmokeTestLogger } from "./smokeTestLogger";
-
 import { spawnSync } from "./utilities";
 
 export class VSCodeHelper {
@@ -33,7 +32,7 @@ export class VSCodeHelper {
         extensionFile = path.join(artifactPath, extensionFile);
         args.push(`--install-extension=${extensionFile}`);
         SmokeTestLogger.projectInstallLog(`*** Installing extension to VS Code using command: ${testVSCodeExecutablePath} ${args.join(" ")}`);
-        spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
+        spawnSync(testVSCodeExecutablePath, args, { stdio: "pipe" });
 
         if (deleteVSIX) {
             SmokeTestLogger.info(`*** Deleting ${extensionFile} after installation`);

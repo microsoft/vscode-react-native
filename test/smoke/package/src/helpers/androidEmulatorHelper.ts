@@ -39,7 +39,7 @@ export class AndroidEmulatorHelper {
         let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
         let match = regex.exec(input);
         while (match != null) {
-            result.push({ id: match[1], isOnline: match[2] === "device"});
+            result.push({ id: match[1], isOnline: match[2] === "device" });
             match = regex.exec(input);
         }
         return result;
@@ -231,7 +231,7 @@ export class AndroidEmulatorHelper {
     public static uninstallTestAppFromEmulator(appPackage: string) {
         SmokeTestLogger.info(`*** Uninstalling test app ${appPackage}' from Emulator`);
         try {
-            cp.spawnSync("adb", ["shell", "pm", "uninstall", appPackage], {stdio: "inherit"});
+            cp.spawnSync("adb", ["shell", "pm", "uninstall", appPackage], { stdio: "inherit" });
         } catch (e) {
             SmokeTestLogger.error(`Error occured while uninstalling test app:\n ${e.toString()}`);
         }

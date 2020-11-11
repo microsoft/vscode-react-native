@@ -40,7 +40,7 @@ export class AppiumHelper {
             [Platform.iOSExpo]: "//XCUIElementTypeOther[@name='Reload JS Bundle']",
         },
         RN_ENABLE_REMOTE_DEBUGGING_BUTTON: {
-            [Platform.Android]:  "//*[@text='Debug JS Remotely' or @text='Debug']",
+            [Platform.Android]: "//*[@text='Debug JS Remotely' or @text='Debug']",
             [Platform.AndroidExpo]: "//*[@text='Debug Remote JS']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely' or @name='Debug']",
             [Platform.iOSExpo]: "//XCUIElementTypeOther[@name=' Debug Remote JS']",
@@ -226,32 +226,32 @@ export class AppiumHelper {
         const enableRemoteDebugStopButton = await client.$(this.XPATH.RN_STOP_REMOTE_DEBUGGING_BUTTON[platform]);
         const enableRemoteDebugCancelButton = await client.$(this.XPATH.RN_DEV_MENU_CANCEL[platform]);
         await client
-        .waitUntil(async () => {
-            if (await enableRemoteDebugButton.isExisting()) {
-                SmokeTestLogger.info("*** Debug JS Remotely button found...");
-                await enableRemoteDebugButton.click();
-                SmokeTestLogger.info("*** Debug JS Remotely button clicked...");
-                await sleep(1000);
+            .waitUntil(async () => {
                 if (await enableRemoteDebugButton.isExisting()) {
+                    SmokeTestLogger.info("*** Debug JS Remotely button found...");
                     await enableRemoteDebugButton.click();
-                    SmokeTestLogger.info("*** Debug JS Remotely button clicked second time...");
-                }
-                return true;
-            } else if (await enableRemoteDebugStopButton.isExisting()) {
-                SmokeTestLogger.info("*** Stop Remote JS Debugging button found, closing Dev Menu...");
-                if (await enableRemoteDebugCancelButton.isExisting()) {
-                    SmokeTestLogger.info("*** Cancel button found...");
-                    await enableRemoteDebugCancelButton.click();
-                    SmokeTestLogger.info("*** Cancel button clicked...");
+                    SmokeTestLogger.info("*** Debug JS Remotely button clicked...");
+                    await sleep(1000);
+                    if (await enableRemoteDebugButton.isExisting()) {
+                        await enableRemoteDebugButton.click();
+                        SmokeTestLogger.info("*** Debug JS Remotely button clicked second time...");
+                    }
                     return true;
-                } else {
-                    await this.callRNDevMenu(client, platform);
-                    return false;
+                } else if (await enableRemoteDebugStopButton.isExisting()) {
+                    SmokeTestLogger.info("*** Stop Remote JS Debugging button found, closing Dev Menu...");
+                    if (await enableRemoteDebugCancelButton.isExisting()) {
+                        SmokeTestLogger.info("*** Cancel button found...");
+                        await enableRemoteDebugCancelButton.click();
+                        SmokeTestLogger.info("*** Cancel button clicked...");
+                        return true;
+                    } else {
+                        await this.callRNDevMenu(client, platform);
+                        return false;
+                    }
                 }
-            }
-            await this.callRNDevMenu(client, platform);
-            return false;
-        }, this.waitUntilEnableRemoteDebugOptions);
+                await this.callRNDevMenu(client, platform);
+                return false;
+            }, this.waitUntilEnableRemoteDebugOptions);
     }
 
     public static getIosPlatformVersion(): string {
