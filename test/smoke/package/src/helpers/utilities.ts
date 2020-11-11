@@ -292,15 +292,15 @@ export async function checkIfAppIsInstalledOnWindows(appName: string, timeout: n
     let retry = 1;
     return new Promise<boolean>((resolve) => {
         let check = setInterval(async () => {
-            console.log(`Searching for app ${appName} patterns for ${retry} time...`);
+            SmokeTestLogger.info(`Searching for app ${appName} patterns for ${retry} time...`);
             if (cp.execSync("tasklist").toString().indexOf(appName) > 0) {
                 clearInterval(check);
-                console.log(`Found launched ${appName}`);
+                SmokeTestLogger.success(`Found launched ${appName}`);
                 resolve(true);
             } else {
                 retry++;
                 if (retry >= awaitRetries) {
-                    console.log(`App ${appName} not found after ${retry} retries:`);
+                    SmokeTestLogger.warn(`App ${appName} not found after ${retry} retries:`);
                     clearInterval(check);
                     resolve(false);
                 }
