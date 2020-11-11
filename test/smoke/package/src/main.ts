@@ -4,7 +4,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as cp from "child_process";
-import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleLogger } from "../../automation";
+import { SmokeTestLogger } from "./helpers/smokeTestLogger";
+import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleLogger as VSCodeConsoleLogger } from "../../automation";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { setup as setupReactNativeDebugAndroidTests } from "./debugAndroid.test";
@@ -19,7 +20,7 @@ import { TestConfigurator } from "./helpers/configHelper";
 import { findFile } from "./helpers/utilities";
 
 // TODO Incapsulate main.ts (get rid of function(), local variables, etc)
-console.log(`*** Setting up configuration variables`);
+SmokeTestLogger.info("*** Setting up configuration variables");
 const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
 // Assume that config.dev.json are stored in the same folder as original config.json
 const envConfigFilePathDev = path.resolve(__dirname, "..", SmokeTestsConstants.EnvDevConfigFileName);
@@ -28,13 +29,13 @@ TestConfigurator.setUpEnvVariables(fs.existsSync(envConfigFilePathDev) ? envConf
 TestConfigurator.printEnvVariableConfiguration();
 
 async function fail(errorMessage) {
-    console.error(errorMessage);
+    SmokeTestLogger.error(errorMessage);
     AndroidEmulatorHelper.terminateAndroidEmulator();
     if (process.platform === "darwin") {
         try {
             await SetupEnvironmentHelper.terminateIosSimulator();
         } catch (e) {
-            console.error(e);
+            SmokeTestLogger.error(e);
         }
     }
     AppiumHelper.terminateAppium();
@@ -109,9 +110,9 @@ function createOptions(quality: Quality, workspaceOrFolder: string, dataDirFolde
     const logsDir = process.env.REACT_NATIVE_TOOLS_LOGS_DIR || artifactsPath;
     const loggers: Logger[] = [];
 
-    loggers.push(new ConsoleLogger());
+    loggers.push(new VSCodeConsoleLogger());
     const codePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
-    console.log(`*** Executing ${codePath}`);
+    SmokeTestLogger.projectInstallLog(`*** Executing ${codePath}`);
 
     return {
         quality,
@@ -133,8 +134,8 @@ export function prepareReactNativeProjectForHermesTesting(): void {
 
 const testParams = TestConfigurator.parseTestArguments();
 async function setup(): Promise<void> {
-    console.log("*** Test VS Code directory:", testVSCodeDirectory);
-    console.log("*** Preparing smoke tests setup...");
+    SmokeTestLogger.info(`*** Test VS Code directory: ${testVSCodeDirectory}`);
+    SmokeTestLogger.info("*** Preparing smoke tests setup...");
 
     AppiumHelper.runAppium();
 
@@ -183,31 +184,35 @@ async function setup(): Promise<void> {
         const extensionFullPath = path.join(extensionsPath, extensionDirName);
         SetupEnvironmentHelper.installExpoXdlPackageToExtensionDir(extensionFullPath, process.env.EXPO_XDL_VERSION);
     } else {
-        console.log(`*** EXPO_XDL_VERSION variable is not set, skipping installation of @expo/xdl package to the extension directory`);
+        SmokeTestLogger.warn(`*** EXPO_XDL_VERSION variable is not set, skipping installation of @expo/xdl package to the extension directory`);
     }
 
     if (!fs.existsSync(userDataDir)) {
-        console.log(`*** Creating VS Code user data directory: ${userDataDir}`);
+        SmokeTestLogger.info(`*** Creating VS Code user data directory: ${userDataDir}`);
         fs.mkdirSync(userDataDir);
     }
-    console.log("*** Smoke tests setup done!\n");
+    SmokeTestLogger.success("*** Smoke tests setup done!\n");
 }
 
 let runName = 0;
 export async function runVSCode(workspaceOrFolder: string, locale?: string): Promise<Application> {
     runName++;
     const extensionLogsDir = path.join(artifactsPath, runName.toString(), "extensionLogs");
+    const webdriverIOLogsDir = path.join(artifactsPath, runName.toString(), "webdriverIOLogs");
+    AppiumHelper.createWebdriverIOLogDir(webdriverIOLogsDir);
     process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
+    process.env.WEBDRIVER_IO_LOGS_DIR = webdriverIOLogsDir;
     const options = createOptions(quality, workspaceOrFolder, runName.toString(), locale ? ["--locale", locale] : []);
     const app = new Application(options!);
-    console.log(`Options for run #${runName}: ${JSON.stringify(options, null, 2)}`);
+    SmokeTestLogger.info(`Options for run #${runName}: ${JSON.stringify(options, null, 2)}`);
     await app!.start();
     return app!;
 }
 
 before(async function () {
+    SetupEnvironmentHelper.init();
     if (testParams.SkipSetup) {
-        console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
+        SmokeTestLogger.info("*** --skip-setup parameter is set, skipping clean up and apps installation");
         // Assume that VS Code is already installed
         electronExecutablePath = getBuildElectronPath(testVSCodeDirectory, isInsiders);
         return;
@@ -228,7 +233,7 @@ describe("Extension smoke tests", () => {
             try {
                 await SetupEnvironmentHelper.terminateIosSimulator();
             } catch (e) {
-                console.error(e);
+                SmokeTestLogger.error(e);
             }
         }
         AppiumHelper.terminateAppium();
@@ -237,25 +242,24 @@ describe("Extension smoke tests", () => {
     if (process.platform === "darwin") {
         const noSelectArgs = !testParams.RunAndroidTests && !testParams.RunIosTests && !testParams.RunBasicTests;
         if (noSelectArgs) {
-            console.log("*** Android and iOS tests will be run");
+            SmokeTestLogger.info("*** Android, iOS and macOS tests will be run");
             setupReactNativeDebugMacOSTests();
             setupReactNativeDebugAndroidTests();
             setupReactNativeDebugiOSTests();
-
         } else if (testParams.RunBasicTests) {
-            console.log("*** --basic-only parameter is set, basic Android and iOS tests will be run");
+            SmokeTestLogger.info("*** --basic-only parameter is set, basic Android and iOS tests will be run");
             setupReactNativeDebugAndroidTests(testParams);
             setupReactNativeDebugiOSTests(testParams);
         } else if (testParams.RunAndroidTests) {
-            console.log("*** --android parameter is set, Android tests will be run");
+            SmokeTestLogger.info("*** --android parameter is set, Android tests will be run");
             setupReactNativeDebugAndroidTests();
         } else if (testParams.RunIosTests) {
-            console.log("*** --ios parameter is set, iOS tests will be run");
+            SmokeTestLogger.info("*** --ios parameter is set, iOS tests will be run");
             setupReactNativeDebugiOSTests();
         }
     } else {
         if (testParams.RunBasicTests) {
-            console.log("*** --basic-only parameter is set, basic Android tests will be run");
+            SmokeTestLogger.info("*** --basic-only parameter is set, basic Android tests will be run");
             setupReactNativeDebugAndroidTests(testParams);
         } else {
             setupReactNativeDebugAndroidTests();
@@ -263,6 +267,5 @@ describe("Extension smoke tests", () => {
                 setupReactNativeWindowsTests();
             }
         }
-
     }
 });

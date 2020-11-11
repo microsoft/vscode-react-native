@@ -21,6 +21,7 @@
     "@types/vinyl-fs": "^2.4.11",
     "@types/vinyl-source-stream": "^0.0.30",
     "@types/webdriverio": "^5.0.0",
+    "ansi-styles": "^4.3.0",
     "clipboardy": "^2.1.0",
     "gulp-chmod": "^2.0.0",
     "gulp-filter": "^5.0.1",
