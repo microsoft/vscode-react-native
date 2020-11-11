@@ -90,6 +90,12 @@ export class SetupEnvironmentHelper {
         SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 
+    public static prepareMacOSApplication(workspacePath: string) {
+        const macOSinitCommand = "npx react-native-macos-init";
+        console.log(`*** Installing the React Native for macOS packages via '${macOSinitCommand}' in ${workspacePath}...`);
+        cp.execSync(macOSinitCommand, { cwd: workspacePath, stdio: "inherit" });
+    }
+
     public static addExpoDependencyToRNProject(workspacePath: string, version?: string) {
         let expoPackage: string = version ? `expo@${version}` : "expo";
         const command = `${this.npmCommand} install ${expoPackage} --save-dev`;
@@ -249,6 +255,34 @@ export class SetupEnvironmentHelper {
     public static async terminateIosSimulator() {
         const device = <string>IosSimulatorHelper.getDevice();
         await IosSimulatorHelper.shutdownSimulator(device);
+    }
+
+    public static terminateMacOSapp(appName: string) {
+        console.log(`*** Searching for ${appName} macOS application process`);
+        const searchForMacOSappProcessCommand = `ps -ax | grep ${appName}`;
+        const searchResults = cp.execSync(searchForMacOSappProcessCommand).toString();
+        // An example of the output from the command above:
+        // 40943 ??         4:13.97 node /Users/user/Documents/rn_for_mac_proj/node_modules/.bin/react-native start --port 8081
+        // 40959 ??         0:10.36 /Users/user/.nvm/versions/node/v10.19.0/bin/node /Users/user/Documents/rn_for_mac_proj/node_modules/metro/node_modules/jest-worker/build/workers/processChild.js
+        // 41004 ??         0:21.34 /Users/user/Library/Developer/Xcode/DerivedData/rn_for_mac_proj-ghuavabiztosiqfqkrityjoxqfmv/Build/Products/Debug/rn_for_mac_proj.app/Contents/MacOS/rn_for_mac_proj
+        // 75514 ttys007    0:00.00 grep --color=auto --exclude-dir=.bzr --exclude-dir=CVS --exclude-dir=.git --exclude-dir=.hg --exclude-dir=.svn rn_for_mac_proj
+        console.log(`*** Searching for ${appName} macOS application process: results ${JSON.stringify(searchResults)}`);
+
+        if (searchResults) {
+            const processIdRgx = /(^\d*)\s\?\?/g;
+            //  We are looking for a process whose path contains the "appName.app" part
+            const processData = searchResults.split("\n")
+                .find(str => str.includes(`${appName}.app`));
+
+            if (processData) {
+                const match = processIdRgx.exec(processData);
+                if (match && match[1]) {
+                    console.log(`*** Terminating ${appName} macOS application process with PID ${match[1]}`);
+                    const terminateMacOSappProcessCommand = `kill ${match[1]}`;
+                    cp.execSync(terminateMacOSappProcessCommand);
+                }
+            }
+        }
     }
 
     public static installExpoXdlPackageToExtensionDir(extensionDir: any, packageVersion: string) {

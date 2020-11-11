@@ -25,6 +25,8 @@ export class SmokeTestsConstants {
     public static iosAppBuildAndInstallTimeout = 600 * 1000;
     // Timeout for Expo app to execute
     public static expoAppBuildAndInstallTimeout = 60 * 1000;
+    // Timeout for macOS app to build and to install
+    public static macOSAppBuildAndInstallTimeout = 400 * 1000;
     // Timeout for Expo app to launch
     public static expoAppLaunchTimeout = 120 * 1000;
     // Timeout for Windows app to build and to install
@@ -39,6 +41,8 @@ export class SmokeTestsConstants {
     public static ExpoAppName = "latestExpoApp";
     // Default pure React Native for Expo test app name
     public static pureRNExpoApp = "pureRNExpoApp";
+    // Default React Native macOS app name
+    public static RNmacOSAppName = "latestRNmacOSApp";
     // Default React Native for Windows test app name
     public static RNWAppName = "RNWApp";
     // Name of artifacts (test logs) directory
