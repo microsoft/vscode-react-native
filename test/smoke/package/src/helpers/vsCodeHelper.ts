@@ -6,7 +6,7 @@ import * as utilities from "./utilities";
 import * as rimraf from "rimraf";
 import * as cp from "child_process";
 import * as vscodeTest from "vscode-test";
-
+import { SmokeTestLogger } from "./smokeTestLogger";
 import { spawnSync } from "./utilities";
 
 export class VSCodeHelper {
@@ -31,14 +31,14 @@ export class VSCodeHelper {
 
         extensionFile = path.join(artifactPath, extensionFile);
         args.push(`--install-extension=${extensionFile}`);
-        console.log(`*** Installing extension to VS Code using command: ${testVSCodeExecutablePath} ${args.join(" ")}`);
-        spawnSync(testVSCodeExecutablePath, args, {stdio: "inherit"});
+        SmokeTestLogger.projectInstallLog(`*** Installing extension to VS Code using command: ${testVSCodeExecutablePath} ${args.join(" ")}`);
+        spawnSync(testVSCodeExecutablePath, args, { stdio: "pipe" });
 
         if (deleteVSIX) {
-            console.log(`*** Deleting ${extensionFile} after installation`);
+            SmokeTestLogger.info(`*** Deleting ${extensionFile} after installation`);
             rimraf.sync(extensionFile);
         } else {
-            console.log("*** --dont-delete-vsix parameter is set, skipping deleting of VSIX");
+            SmokeTestLogger.info("*** --dont-delete-vsix parameter is set, skipping deleting of VSIX");
         }
     }
 
@@ -51,16 +51,16 @@ export class VSCodeHelper {
             return;
         }
         try {
-            console.log("*** Killing any running Code.exe instances");
+            SmokeTestLogger.info("*** Killing any running Code.exe instances");
             taskKillCommands.forEach(cmd => {
-                console.log(`*** Running ${cmd}`);
+                SmokeTestLogger.info(`*** Running ${cmd}`);
                 const result = cp.execSync(cmd);
-                console.log(result.toString());
+                SmokeTestLogger.info(result.toString());
             });
         } catch (e) {
             // Do not throw error, just print it to avoid any build failures
             // Sometimes taskkill process throws error but tasks are already killed so error is pointless
-            console.error(e);
+            SmokeTestLogger.error(e);
         }
     }
 

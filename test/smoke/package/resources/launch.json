@@ -10,6 +10,13 @@
       "target": "simulator"
     },
     {
+      "name": "Debug Windows",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnative",
+      "request": "launch",
+      "platform": "windows"
+    },
+    {
       "name": "Debug Android (Hermes) - Experimental",
       "cwd": "${workspaceFolder}",
       "type": "reactnativedirect",
@@ -57,6 +64,13 @@
       "request": "launch",
       "platform": "exponent",
       "expoHostType": "local"
+    },
+    {
+      "name": "Debug macOS",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnative",
+      "request": "launch",
+      "platform": "macos"
     }
   ]
 }

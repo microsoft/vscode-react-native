@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "tsc",
     "watch": "tsc --watch",
-    "mocha": "tsc && node ./node_modules/mocha/bin/_mocha --reporter mocha-multi-reporters --reporter-options configFile=./mochaReporterConfig.json"
+    "mocha": "tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters --reporter-options configFile=./mochaReporterConfig.json"
   },
   "devDependencies": {
     "@expo/xdl": "^58.0.16",
@@ -21,6 +21,7 @@
     "@types/vinyl-fs": "^2.4.11",
     "@types/vinyl-source-stream": "^0.0.30",
     "@types/webdriverio": "^5.0.0",
+    "ansi-styles": "^4.3.0",
     "clipboardy": "^2.1.0",
     "gulp-chmod": "^2.0.0",
     "gulp-filter": "^5.0.1",
