@@ -41,8 +41,8 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
                 await app.stop();
             }
             if (client) {
-                client.closeApp();
-                client.deleteSession();
+                await client.closeApp();
+                await client.deleteSession();
             }
         }
 
@@ -57,7 +57,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
                 console.log(`Searching for Expo launch logging patterns ...`);
 
                 if (expoStarted || expoFailed) {
-                    result = {successful: expoStarted, failed: expoFailed};
+                    result = { successful: expoStarted, failed: expoFailed };
                     console.log(`Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`);
                     return true;
                 }
@@ -72,7 +72,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
             }
             else {
                 console.log(`Expo launch logging patterns are not found`);
-                return {successful: false, failed: false};
+                return { successful: false, failed: false };
             }
         }
 

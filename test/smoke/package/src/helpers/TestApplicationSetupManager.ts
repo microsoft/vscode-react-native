@@ -43,19 +43,19 @@ export class TestApplicationSetupManager {
         this.launchJsonPath = path.join(resourcesDirectory, "launch.json");
     }
 
-    public getRnWorkspaceDirectory() : string {
+    public getRnWorkspaceDirectory(): string {
         return this.rnWorkspaceDirectory;
     }
 
-    public getHermesWorkspaceDirectory() : string {
+    public getHermesWorkspaceDirectory(): string {
         return this.hermesWorkspaceDirectory;
     }
 
-    public getPureRnWorkspaceDirectory() : string {
+    public getPureRnWorkspaceDirectory(): string {
         return this.pureRnWorkspaceDirectory;
     }
 
-    public getExpoWorkspaceDirectory() : string {
+    public getExpoWorkspaceDirectory(): string {
         return this.expoWorkspaceDirectory;
     }
 
@@ -92,16 +92,16 @@ export class TestApplicationSetupManager {
                     reject(error);
                 }
                 try {
-                   const content = JSON.parse(versionsContent);
-                   if (content.sdkVersions) {
-                       let usesSdkVersion: string | undefined;
-                       if (expoSdkMajorVersion) {
+                    const content = JSON.parse(versionsContent);
+                    if (content.sdkVersions) {
+                        let usesSdkVersion: string | undefined;
+                        if (expoSdkMajorVersion) {
                             usesSdkVersion = Object.keys(content.sdkVersions).find((version) => semver.major(version) === parseInt(expoSdkMajorVersion));
                             if (!usesSdkVersion) {
                                 console.log(`*** Сould not find the version of Expo sdk matching the specified version - ${printSpecifiedMajorVersion}`);
                             }
-                       }
-                       if (!usesSdkVersion) {
+                        }
+                        if (!usesSdkVersion) {
                             usesSdkVersion = Object.keys(content.sdkVersions).sort((ver1, ver2) => {
                                 if (semver.lt(ver1, ver2)) {
                                     return 1;
@@ -110,17 +110,17 @@ export class TestApplicationSetupManager {
                                 }
                                 return 0;
                             })[0];
-                       }
-                       if (content.sdkVersions[usesSdkVersion]) {
-                        if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
-                            console.log(`*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
-                            resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
+                        }
+                        if (content.sdkVersions[usesSdkVersion]) {
+                            if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
+                                console.log(`*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
+                                resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
+                            }
                         }
                     }
-                   }
-                   reject("Received object is incorrect");
+                    reject("Received object is incorrect");
                 } catch (error) {
-                   reject(error);
+                    reject(error);
                 }
             });
         });
@@ -128,9 +128,9 @@ export class TestApplicationSetupManager {
 
     private prepareReactNativeProjectForHermesTesting(workspacePath?: string) {
         const workspaceDirectory = workspacePath ? workspacePath : this.hermesWorkspaceDirectory;
-        const {workspaceEntryPointPath} = this.getKeyPathsForApplication(workspaceDirectory);
+        const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
         const commandClean = path.join(workspaceDirectory, "android", "gradlew") + " clean";
-        const {customEntryPointPath, testButtonPath} = this.getKeyPathsForSample(this.hermesSampleDirectory);
+        const { customEntryPointPath, testButtonPath } = this.getKeyPathsForSample(this.hermesSampleDirectory);
 
         console.log(`*** Executing  ${commandClean} ...`);
         cp.execSync(commandClean, { cwd: path.join(workspaceDirectory, "android"), stdio: "inherit" });
@@ -152,23 +152,23 @@ export class TestApplicationSetupManager {
         if (!fs.existsSync(workspaceEntryPointPath)) {
             workspaceEntryPointPath = path.join(workspacePath, SmokeTestsConstants.AppjsFileName);
         }
-        return {appName, parentPathForWorkspace, vsCodeConfigPath, workspaceEntryPointPath};
+        return { appName, parentPathForWorkspace, vsCodeConfigPath, workspaceEntryPointPath };
     }
 
-    private getKeyPathsForSample(workspacePath: string): {testButtonPath: string, customEntryPointPath: string} {
+    private getKeyPathsForSample(workspacePath: string): { testButtonPath: string, customEntryPointPath: string } {
         const testButtonPath = path.join(workspacePath, "AppTestButton.js");
         let customEntryPointPath = path.join(workspacePath, SmokeTestsConstants.ApptsxFileName);
         if (!fs.existsSync(customEntryPointPath)) {
             customEntryPointPath = path.join(workspacePath, SmokeTestsConstants.AppjsFileName);
         }
 
-        return {testButtonPath, customEntryPointPath};
+        return { testButtonPath, customEntryPointPath };
     }
 
     private prepareReactNativeApplication(workspacePath?: string, version?: string) {
         const workspaceDirectory = workspacePath ? workspacePath : this.rnWorkspaceDirectory;
-        const {appName, parentPathForWorkspace, vsCodeConfigPath} = this.getKeyPathsForApplication(workspaceDirectory);
-        const {customEntryPointPath} = this.getKeyPathsForSample(this.rnSampleDirectory);
+        const { appName, parentPathForWorkspace, vsCodeConfigPath } = this.getKeyPathsForApplication(workspaceDirectory);
+        const { customEntryPointPath } = this.getKeyPathsForSample(this.rnSampleDirectory);
 
         let command = `react-native init ${appName}`;
         if (version) {
@@ -177,7 +177,7 @@ export class TestApplicationSetupManager {
         console.log(`*** Creating RN app via '${command}' in ${workspaceDirectory}...`);
         cp.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" });
 
-        const {workspaceEntryPointPath} = this.getKeyPathsForApplication(workspaceDirectory);
+        const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
 
         console.log(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
         fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
@@ -195,15 +195,15 @@ export class TestApplicationSetupManager {
 
     private prepareExpoApplication(workspacePath?: string, expoSdkMajorVersion?: string) {
         const workspaceDirectory = workspacePath ? workspacePath : this.expoWorkspaceDirectory;
-        const {appName, parentPathForWorkspace, vsCodeConfigPath} = this.getKeyPathsForApplication(workspaceDirectory);
-        const {customEntryPointPath} = this.getKeyPathsForSample(this.expoSampleDirectory);
+        const { appName, parentPathForWorkspace, vsCodeConfigPath } = this.getKeyPathsForApplication(workspaceDirectory);
+        const { customEntryPointPath } = this.getKeyPathsForSample(this.expoSampleDirectory);
         const useSpecificSdk = expoSdkMajorVersion ? `@sdk-${expoSdkMajorVersion}` : "";
         const command = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${appName} ${appName}`;
 
         console.log(`*** Creating Expo app via '${command}' in ${workspaceDirectory}...`);
         cp.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" });
 
-        const {workspaceEntryPointPath} = this.getKeyPathsForApplication(workspaceDirectory);
+        const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
 
         console.log(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
         fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
@@ -234,8 +234,8 @@ export class TestApplicationSetupManager {
 
     private addExpoDependencyToRNProject(workspacePath?: string, version?: string) {
         const workspaceDirectory = workspacePath ? workspacePath : this.pureRnWorkspaceDirectory;
-        const {customEntryPointPath} = this.getKeyPathsForSample(this.pureRnSampleDirectory);
-        const {workspaceEntryPointPath} = this.getKeyPathsForApplication(workspaceDirectory);
+        const { customEntryPointPath } = this.getKeyPathsForSample(this.pureRnSampleDirectory);
+        const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
 
         let npmCmd = "npm";
         if (process.platform === "win32") {

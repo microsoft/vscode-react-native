@@ -32,7 +32,7 @@ export default class IosSimulatorManager {
 
     private static readonly APP_INSTALL_AND_BUILD_TIMEOUT = 600_000;
     private static readonly APP_INIT_TIMEOUT = 40_000;
-    private simulator:  IiOSSimulator;
+    private simulator: IiOSSimulator;
 
     constructor(name: string | undefined = process.env.IOS_SIMULATOR, iosVersion: string | undefined = process.env.IOS_VERSION) {
         if (!name) {
@@ -180,7 +180,7 @@ export default class IosSimulatorManager {
         let launched = false;
         const predicate = `eventMessage contains "Launch successful for '${appBundleId}'"`;
         const args = ["simctl", "spawn", this.simulator.name, "log", "stream", "--predicate", predicate];
-        const proc = spawn("xcrun", args, {stdio: "pipe"});
+        const proc = spawn("xcrun", args, { stdio: "pipe" });
         proc.stdout.on("data", (data: string) => {
             data = data.toString();
             console.log(data);
@@ -235,7 +235,7 @@ export default class IosSimulatorManager {
                     name: this.simulator.name || "",
                     udid: this.simulator.id || ""
                 }
-        });
+            });
         }
         else {
             throw new Error("*** Could not install Expo app on iOS simulator because it is not booted");

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {smokeTestFail} from "./helpers/utilities";
+import { smokeTestFail } from "./helpers/utilities";
 import * as path from "path";
 import AndroidEmulatorManager from "./helpers/AndroidEmulatorManager";
 import { AppiumHelper } from "./helpers/appiumHelper";
@@ -35,22 +35,22 @@ startSmokeTests(configProcessor.parseTestArguments(), setUp, cleanUp);
 
 async function setUp(): Promise<void> {
     return vscodeManager.downloadVSCodeExecutable()
-    .then(() => vscodeManager.installExtensionFromVSIX())
-    .then(() => vscodeManager.installExpoXdlPackageToExtensionDir())
-    .then(() => testApplicationSetupManager.prepareTestApplications())
-    .then(() => AppiumHelper.runAppium(vscodeManager.getArtifactDirectory()))
-    .then(async () => {
-        console.log("*** Preparing Android emulator...");
-        await androidEmulatorManager.runAndroidEmulator();
-        await androidEmulatorManager.installExpoAppOnAndroid();
-    })
-    .then(async () => {
-        if (process.platform === "darwin") {
-            console.log("*** Preparing iOS simulator...");
-            await iosSimulatorManager.runIosSimulator();
-            await iosSimulatorManager.installExpoAppOnIos();
-        }
-    });
+        .then(() => vscodeManager.installExtensionFromVSIX())
+        .then(() => vscodeManager.installExpoXdlPackageToExtensionDir())
+        .then(() => testApplicationSetupManager.prepareTestApplications())
+        .then(() => AppiumHelper.runAppium(vscodeManager.getArtifactDirectory()))
+        .then(async () => {
+            console.log("*** Preparing Android emulator...");
+            await androidEmulatorManager.runAndroidEmulator();
+            await androidEmulatorManager.installExpoAppOnAndroid();
+        })
+        .then(async () => {
+            if (process.platform === "darwin") {
+                console.log("*** Preparing iOS simulator...");
+                await iosSimulatorManager.runIosSimulator();
+                await iosSimulatorManager.installExpoAppOnIos();
+            }
+        });
 }
 
 async function cleanUp(): Promise<void> {

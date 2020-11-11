@@ -214,27 +214,22 @@ export function waitUntil(condition: () => boolean, timeout: number = 30000, int
     });
 }
 
-export async function waitForRunningPackager(filePath: string): Promise<void> {
-    let awaitRetries: number = 5;
-    let retry = 1;
-    return new Promise<void>((resolve, reject) => {
-        let check = setInterval(async () => {
-            let packagerStarted = findStringInFile(filePath, SmokeTestsConstants.PackagerStartedPattern);
-            console.log(`Searching for Packager started logging pattern for ${retry} time...`);
-            if (packagerStarted) {
-                clearInterval(check);
+export async function waitForRunningPackager(filePath: string): Promise<boolean> {
+
+    const condition = () => {
+        return findStringInFile(filePath, SmokeTestsConstants.PackagerStartedPattern);
+    };
+
+    return waitUntil(condition)
+        .then((result) => {
+            if (result) {
                 console.log(`Packager started pattern is found`);
-                resolve();
-            } else {
-                retry++;
-                if (retry >= awaitRetries) {
-                    console.log(`Packager started logging pattern is not found after ${retry} retries`);
-                    clearInterval(check);
-                    reject(`Packager started logging pattern is not found after ${retry} retries`);
-                }
             }
-        }, 5000);
-    });
+            else {
+                console.log(`Packager started logging pattern is not found`);
+            }
+            return result;
+        });
 }
 
 export async function smokeTestFail(message: string): Promise<void> {

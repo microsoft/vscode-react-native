@@ -13,7 +13,7 @@ export class SmokeTestsConstants {
     public static defaultTargetAndroidPort = 5554;
     // Default target emulator name "emulator-" + port
     public static defaultTargetAndroidDeviceName = `emulator-${SmokeTestsConstants.defaultTargetAndroidPort}`;
-    // Expo applocation cache for iOS platform
+    // Expo application cache for iOS platform
     public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
     // Timeout for smoke tests setup
     public static smokeTestSetupAwaitTimeout = 30 * 60 * 1000;

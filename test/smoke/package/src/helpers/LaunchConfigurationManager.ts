@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for details.
-
 import * as path from "path";
 import * as fs from "fs";
 import stripJsonComments = require("strip-json-comments");
@@ -43,8 +39,8 @@ export class LaunchConfigurationManager {
                     scenario.platform === config.platform &&
                     scenario.type === config.type &&
                     scenario.request === config.request) {
-                        return i;
-                    }
+                    return i;
+                }
             }
         }
         return null;

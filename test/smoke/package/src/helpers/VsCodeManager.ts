@@ -43,12 +43,12 @@ export class VsCodeManager {
         this.vsCodeClientAppFileDirectory = this.downloadDirToExecutablePath();
         this.vsCodeClientCmdDirectory = vscodeTest.resolveCliPathFromVSCodeExecutablePath(this.vsCodeClientAppFileDirectory);
 
-        if (this.checkIfRequarePathsExists()) {
+        if (this.checkIfRequirePathsExists()) {
             this.clientIsInstalled = true;
         }
     }
 
-    public getArtifactDirectory() : string {
+    public getArtifactDirectory(): string {
         return this.artifactDirectory;
     }
 
@@ -104,7 +104,7 @@ export class VsCodeManager {
             extensionFile = path.join(this.vsixDirectory, extensionFile);
             args.push(`--install-extension=${extensionFile}`);
             console.log(`*** Installing extension to VS Code using command: ${this.vsCodeClientCmdDirectory} ${args.join(" ")}`);
-            utilities.spawnSync(this.vsCodeClientCmdDirectory, args, {stdio: "inherit"});
+            utilities.spawnSync(this.vsCodeClientCmdDirectory, args, { stdio: "inherit" });
 
             if (deleteVSIX) {
                 console.log(`*** Deleting ${extensionFile} after installation`);
@@ -295,11 +295,11 @@ export class VsCodeManager {
         }
     }
 
-    private checkIfRequarePathsExists(): boolean {
+    private checkIfRequirePathsExists(): boolean {
         return fs.existsSync(this.vsCodeClientDirectory) &&
-        fs.existsSync(this.vsCodeClientAppFileDirectory) &&
-        fs.existsSync(this.vsCodeClientCmdDirectory) &&
-        fs.existsSync(this.vsCodeUserDataDirectory) &&
-        fs.existsSync(this.artifactDirectory);
+            fs.existsSync(this.vsCodeClientAppFileDirectory) &&
+            fs.existsSync(this.vsCodeClientCmdDirectory) &&
+            fs.existsSync(this.vsCodeUserDataDirectory) &&
+            fs.existsSync(this.artifactDirectory);
     }
 }

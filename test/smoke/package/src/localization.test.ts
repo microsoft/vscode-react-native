@@ -20,7 +20,7 @@ export function startLocalizationTests(workspace: string): void {
         });
 
         it("Test localization", async function () {
-            try{
+            try {
                 app = await vscodeManager.runVSCode(workspace, "LocalizationTest", "ru");
                 console.log("Localization test: Starting packager");
                 await app.workbench.quickaccess.runCommand(startPackagerCommand);

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { startDirectDebugTests } from "./direct.test";
-import { startExpoTests } from "./expo.test";
+import { startDirectDebugTests } from "./directDebug.test";
+import { startExpoTests } from "./expoDebug.test";
 import AndroidEmulatorManager from "./helpers/AndroidEmulatorManager";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import IosSimulatorManager from "./helpers/IosSimulatorManager";
@@ -11,7 +11,7 @@ import { TestRunArguments } from "./helpers/TestConfigProcessor";
 import { smokeTestFail } from "./helpers/utilities";
 import { startLocalizationTests } from "./localization.test";
 import { testApplicationSetupManager } from "./main";
-import { startReactNativeTests } from "./react-native.test";
+import { startReactNativeTests } from "./nativeDebug.test";
 
 
 export function startSmokeTests(args: TestRunArguments, setup: () => Promise<void>, cleanUp: () => Promise<void>): void {

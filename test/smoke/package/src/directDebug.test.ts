@@ -3,7 +3,7 @@
 
 import * as assert from "assert";
 import { Application } from "../../automation";
-import { AppiumClient, AppiumHelper} from "./helpers/appiumHelper";
+import { AppiumClient, AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { TestRunArguments } from "./helpers/TestConfigProcessor";
 import { sleep } from "./helpers/utilities";
@@ -29,8 +29,8 @@ export function startDirectDebugTests(workspace: string, testParameters?: TestRu
                 await app.stop();
             }
             if (client) {
-                client.closeApp();
-                client.deleteSession();
+                await client.closeApp();
+                await client.deleteSession();
             }
         }
 
