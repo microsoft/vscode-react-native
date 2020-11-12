@@ -12,6 +12,7 @@ import { TestConfigProcessor } from "./helpers/TestConfigProcessor";
 import { VsCodeManager } from "./helpers/VsCodeManager";
 import { startSmokeTests } from "./smoke.test";
 import * as os from "os";
+import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 
 // Check tests environments
 if (parseInt(process.version.substr(1), 10) < 10) {
@@ -40,13 +41,13 @@ async function setUp(): Promise<void> {
         .then(() => testApplicationSetupManager.prepareTestApplications())
         .then(() => AppiumHelper.runAppium(vscodeManager.getArtifactDirectory()))
         .then(async () => {
-            console.log("*** Preparing Android emulator...");
+            SmokeTestLogger.info("*** Preparing Android emulator...");
             await androidEmulatorManager.runAndroidEmulator();
             await androidEmulatorManager.installExpoAppOnAndroid();
         })
         .then(async () => {
             if (process.platform === "darwin") {
-                console.log("*** Preparing iOS simulator...");
+                SmokeTestLogger.info("*** Preparing iOS simulator...");
                 await iosSimulatorManager.runIosSimulator();
                 await iosSimulatorManager.installExpoAppOnIos();
             }

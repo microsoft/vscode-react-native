@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 import * as fs from "fs";
+import { SmokeTestLogger } from "./smokeTestLogger";
 
 export interface TestRunArguments {
     RunAndroidTests: boolean;
@@ -21,6 +22,8 @@ interface TestEnvVariables {
     RN_VERSION?: string;
     PURE_RN_VERSION?: string;
     PURE_EXPO_VERSION?: string;
+    RN_MAC_OS_VERSION?: string;
+    RNW_VERSION?: string;
 }
 
 export class TestConfigProcessor {
@@ -92,19 +95,25 @@ export class TestConfigProcessor {
             throw new Error(`Missing CODE_VERSION variable`);
         }
         if (!variables.EXPO_XDL_VERSION) {
-            console.warn("Optional EXPO_XDL_VERSION variable is not set");
+            SmokeTestLogger.warn("Optional EXPO_XDL_VERSION variable is not set");
         }
         if (!variables.EXPO_SDK_MAJOR_VERSION) {
-            console.warn("Optional EXPO_SDK_MAJOR_VERSION variable is not set. Use latest.");
+            SmokeTestLogger.warn("Optional EXPO_SDK_MAJOR_VERSION variable is not set. Use latest.");
         }
         if (!variables.RN_VERSION) {
-            console.warn("Optional RN_VERSION variable is not set");
+            SmokeTestLogger.warn("Optional RN_VERSION variable is not set");
         }
         if (!variables.PURE_RN_VERSION) {
-            console.warn("Optional PURE_RN_VERSION variable is not set");
+            SmokeTestLogger.warn("Optional PURE_RN_VERSION variable is not set");
         }
         if (!variables.PURE_EXPO_VERSION) {
-            console.warn("Optional PURE_EXPO_VERSION variable is not set");
+            SmokeTestLogger.warn("Optional PURE_EXPO_VERSION variable is not set");
+        }
+        if (!variables.RN_MAC_OS_VERSION) {
+            SmokeTestLogger.warn("Optional RN_MAC_OS_VERSION variable is not set");
+        }
+        if (!variables.RNW_VERSION) {
+            SmokeTestLogger.warn("Optional PURE_EXPO_VERSION variable is not set");
         }
     }
 
@@ -127,9 +136,11 @@ export class TestConfigProcessor {
         initLog += `EXPO_XDL_VERSION = ${process.env.EXPO_XDL_VERSION}\n`;
         initLog += `EXPO_SDK_MAJOR_VERSION = ${process.env.EXPO_SDK_MAJOR_VERSION}\n`;
         initLog += `RN_VERSION = ${process.env.RN_VERSION}\n`;
+        initLog += `RNW_VERSION = ${process.env.RNW_VERSION}\n`;
         initLog += `PURE_RN_VERSION = ${process.env.PURE_RN_VERSION}\n`;
         initLog += `PURE_EXPO_VERSION = ${process.env.PURE_EXPO_VERSION}\n`;
-        console.log(initLog);
+        initLog += `RN_MAC_OS_VERSION = ${process.env.RN_MAC_OS_VERSION}\n`;
+        SmokeTestLogger.info(initLog);
     }
 
     public parseTestArguments(): TestRunArguments {

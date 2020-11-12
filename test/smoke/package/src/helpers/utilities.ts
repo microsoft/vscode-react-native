@@ -11,6 +11,7 @@ import { SmokeTestsConstants } from "./smokeTestsConstants";
 import AndroidEmulatorManager from "./AndroidEmulatorManager";
 import { AppiumHelper } from "./appiumHelper";
 import IosSimulatorManager from "./IosSimulatorManager";
+import { SmokeTestLogger } from "./smokeTestLogger";
 
 // eslint-disable-next-line
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
@@ -62,14 +63,35 @@ export function sanitize(name: string): string {
 export function spawnSync(command: string, args?: string[], options?: SpawnSyncOptions): void {
     const result = cp.spawnSync(command, args, options);
     if (result.stdout) {
-        console.log(result.stdout);
+        SmokeTestLogger.log(result.stdout.toString());
     }
     if (result.stderr) {
-        console.log(result.stderr);
+        SmokeTestLogger.error(result.stderr.toString());
     }
     if (result.error) {
         throw result.error;
     }
+}
+
+export function execSync(command: string, options?: cp.ExecSyncOptions | undefined, logFilePath?: string): string {
+    options = Object.assign(options, { stdio: "pipe" });
+    let output = "";
+    try {
+        output = cp.execSync(command, options).toString();
+    } catch (err) {
+        output += err.stdout && err.stdout.toString();
+        output += err.stderr && err.stderr.toString();
+        if (logFilePath) {
+            SmokeTestLogger.saveLogsInFile(output, logFilePath);
+        }
+        throw err;
+    }
+
+    if (logFilePath) {
+        SmokeTestLogger.saveLogsInFile(output, logFilePath);
+    }
+
+    return output;
 }
 
 /**
@@ -233,13 +255,13 @@ export async function waitForRunningPackager(filePath: string): Promise<boolean>
 }
 
 export async function smokeTestFail(message: string): Promise<void> {
-    console.error(message);
+    SmokeTestLogger.error(message);
     await AndroidEmulatorManager.terminateAllAndroidEmulators();
     if (process.platform === "darwin") {
         try {
             await IosSimulatorManager.shutdownAllSimulators();
         } catch (e) {
-            console.error(e);
+            SmokeTestLogger.error(e);
         }
     }
     AppiumHelper.terminateAppium();

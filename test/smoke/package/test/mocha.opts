@@ -1,4 +1,0 @@
---timeout 60000
---slow 200000
---color
-out/main.js

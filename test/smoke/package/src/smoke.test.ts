@@ -6,6 +6,7 @@ import { startExpoTests } from "./expoDebug.test";
 import AndroidEmulatorManager from "./helpers/AndroidEmulatorManager";
 import { AppiumHelper } from "./helpers/appiumHelper";
 import IosSimulatorManager from "./helpers/IosSimulatorManager";
+import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { TestRunArguments } from "./helpers/TestConfigProcessor";
 import { smokeTestFail } from "./helpers/utilities";
@@ -17,7 +18,7 @@ import { startReactNativeTests } from "./nativeDebug.test";
 export function startSmokeTests(args: TestRunArguments, setup: () => Promise<void>, cleanUp: () => Promise<void>): void {
     before(async function () {
         if (args.SkipSetup) {
-            console.log("*** --skip-setup parameter is set, skipping clean up and apps installation");
+            SmokeTestLogger.info("*** --skip-setup parameter is set, skipping clean up and apps installation");
         }
         else {
             try {
@@ -37,7 +38,7 @@ export function startSmokeTests(args: TestRunArguments, setup: () => Promise<voi
                 try {
                     await IosSimulatorManager.shutdownAllSimulators();
                 } catch (e) {
-                    console.error(e);
+                    SmokeTestLogger.error(`${e.toString()}`);
                 }
             }
             AppiumHelper.terminateAppium();
@@ -45,7 +46,7 @@ export function startSmokeTests(args: TestRunArguments, setup: () => Promise<voi
         startLocalizationTests(testApplicationSetupManager.getRnWorkspaceDirectory());
         const noSelectArgs = !args.RunAndroidTests && !args.RunIosTests && !args.RunBasicTests;
         if (noSelectArgs) {
-            console.log("*** Android and iOS tests will be run");
+            SmokeTestLogger.info("*** Android and iOS tests will be run");
             startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory());
             startExpoTests(testApplicationSetupManager.getExpoWorkspaceDirectory(), testApplicationSetupManager.getPureRnWorkspaceDirectory());
             startDirectDebugTests(testApplicationSetupManager.getHermesWorkspaceDirectory());

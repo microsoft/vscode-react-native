@@ -8,6 +8,7 @@ import * as vscodeTest from "vscode-test";
 import * as rimraf from "rimraf";
 import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleLogger } from "../../../automation";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
+import { SmokeTestLogger } from "./smokeTestLogger";
 
 export class VsCodeManager {
     private cacheDirectory: string;
@@ -20,6 +21,9 @@ export class VsCodeManager {
     private vsixDirectory: string;
     private vsCodeUserDataDirectory: string;
     private artifactDirectory: string;
+
+    private appiumLogDir: string;
+    private setupEnvironmentLogDir: string;
     private currentSessionLogsDir?: string;
 
     private clientIsInstalled: boolean = false;
@@ -33,12 +37,16 @@ export class VsCodeManager {
     constructor(vscodeTestDirectory: string, resourcesDirectory: string, cacheDirectory: string) {
         this.cacheDirectory = cacheDirectory;
         this.resourcesDirectory = resourcesDirectory;
+        this.clientVersion = process.env.CODE_VERSION ? process.env.CODE_VERSION : "stable";
+
         this.vsCodeUserDataDirectory = path.join(cacheDirectory, SmokeTestsConstants.VSCodeUserDataDir);
         this.artifactDirectory = path.join(cacheDirectory, SmokeTestsConstants.artifactsDir);
-        this.clientVersion = process.env.CODE_VERSION ? process.env.CODE_VERSION : "stable";
-        this.vsCodeClientDirectory = path.resolve(vscodeTestDirectory, `vscode-${this.clientVersion}`);
-        this.extensionDirectory = path.resolve(this.vsCodeClientDirectory, "extension");
+        this.vsCodeClientDirectory = path.join(vscodeTestDirectory, `vscode-${this.clientVersion}`);
+        this.extensionDirectory = path.join(this.vsCodeClientDirectory, "extension");
         this.vsixDirectory = path.join(this.resourcesDirectory, "drop-win");
+
+        this.appiumLogDir = path.join(this.artifactDirectory, "appium.log");
+        this.setupEnvironmentLogDir = path.join(this.artifactDirectory, "SetupEnvironmentCommandsLogs.log");
 
         this.vsCodeClientAppFileDirectory = this.downloadDirToExecutablePath();
         this.vsCodeClientCmdDirectory = vscodeTest.resolveCliPathFromVSCodeExecutablePath(this.vsCodeClientAppFileDirectory);
@@ -48,23 +56,27 @@ export class VsCodeManager {
         }
     }
 
-    public getArtifactDirectory(): string {
-        return this.artifactDirectory;
+    public getAppiumLogDir(): string {
+        return this.appiumLogDir;
+    }
+
+    public getSetupEnvironmentLogDir(): string {
+        return this.setupEnvironmentLogDir;
     }
 
     public async downloadVSCodeExecutable(): Promise<any> {
-        console.log("*** Downloading VS Code executable...");
+        SmokeTestLogger.projectInstallLog("*** Downloading VS Code executable...");
 
         if (!fs.existsSync(this.cacheDirectory)) {
-            console.log(`*** Creating smoke tests cache directory: ${this.cacheDirectory}`);
+            SmokeTestLogger.projectInstallLog(`*** Creating smoke tests cache directory: ${this.cacheDirectory}`);
             fs.mkdirSync(this.cacheDirectory);
         }
         if (!fs.existsSync(this.vsCodeUserDataDirectory)) {
-            console.log(`*** Creating VS Code user data directory: ${this.vsCodeUserDataDirectory}`);
+            SmokeTestLogger.projectInstallLog(`*** Creating VS Code user data directory: ${this.vsCodeUserDataDirectory}`);
             fs.mkdirSync(this.vsCodeUserDataDirectory);
         }
         if (!fs.existsSync(this.artifactDirectory)) {
-            console.log(`*** Creating artifact directory: ${this.artifactDirectory}`);
+            SmokeTestLogger.projectInstallLog(`*** Creating artifact directory: ${this.artifactDirectory}`);
             fs.mkdirSync(this.artifactDirectory);
         }
 
@@ -75,17 +87,17 @@ export class VsCodeManager {
     }
 
     public cleanUp(): void {
-        console.log("\n*** Clean up...");
+        SmokeTestLogger.info("\n*** Clean up...");
         if (fs.existsSync(this.vsCodeClientDirectory)) {
-            console.log(`*** Deleting test VS Code directory: ${this.vsCodeClientDirectory}`);
+            SmokeTestLogger.info(`*** Deleting test VS Code directory: ${this.vsCodeClientDirectory}`);
             rimraf.sync(this.vsCodeClientDirectory);
         }
         if (fs.existsSync(this.vsCodeUserDataDirectory)) {
-            console.log(`*** Deleting VS Code temporary user data dir: ${this.vsCodeUserDataDirectory}`);
+            SmokeTestLogger.info(`*** Deleting VS Code temporary user data dir: ${this.vsCodeUserDataDirectory}`);
             rimraf.sync(this.vsCodeUserDataDirectory);
         }
         if (fs.existsSync(this.artifactDirectory)) {
-            console.log(`*** Deleting test logs directory: ${this.artifactDirectory}`);
+            SmokeTestLogger.info(`*** Deleting test logs directory: ${this.artifactDirectory}`);
             rimraf.sync(this.artifactDirectory);
         }
 
@@ -103,14 +115,14 @@ export class VsCodeManager {
 
             extensionFile = path.join(this.vsixDirectory, extensionFile);
             args.push(`--install-extension=${extensionFile}`);
-            console.log(`*** Installing extension to VS Code using command: ${this.vsCodeClientCmdDirectory} ${args.join(" ")}`);
+            SmokeTestLogger.projectPatchingLog(`*** Installing extension to VS Code using command: ${this.vsCodeClientCmdDirectory} ${args.join(" ")}`);
             utilities.spawnSync(this.vsCodeClientCmdDirectory, args, { stdio: "inherit" });
 
             if (deleteVSIX) {
-                console.log(`*** Deleting ${extensionFile} after installation`);
+                SmokeTestLogger.info(`*** Deleting ${extensionFile} after installation`);
                 rimraf.sync(extensionFile);
             } else {
-                console.log("*** --dont-delete-vsix parameter is set, skipping deleting of VSIX");
+                SmokeTestLogger.info("*** --dont-delete-vsix parameter is set, skipping deleting of VSIX");
             }
         }
         else {
@@ -133,11 +145,11 @@ export class VsCodeManager {
                 }
                 const command = `${npmCmd} install @expo/xdl@${process.env.EXPO_XDL_VERSION} --no-save`;
 
-                console.log(`*** Adding @expo/xdl dependency to ${extensionFullPath} via '${command}' command...`);
-                cp.execSync(command, { cwd: extensionFullPath, stdio: "inherit" });
+                SmokeTestLogger.projectPatchingLog(`*** Adding @expo/xdl dependency to ${extensionFullPath} via '${command}' command...`);
+                cp.execSync(command, { cwd: extensionFullPath, stdio: "inherit" }, this.setupEnvironmentLogDir);
             }
             else {
-                console.log(`*** EXPO_XDL_VERSION variable is not set, skipping installation of @expo/xdl package to the extension directory`);
+                SmokeTestLogger.warn(`*** EXPO_XDL_VERSION variable is not set, skipping installation of @expo/xdl package to the extension directory`);
             }
         }
         else {
@@ -150,16 +162,16 @@ export class VsCodeManager {
             return;
         }
         try {
-            console.log("*** Killing any running Code.exe instances");
+            SmokeTestLogger.info("*** Killing any running Code.exe instances");
             this.taskKillCommands.forEach(cmd => {
-                console.log(`*** Running ${cmd}`);
+                SmokeTestLogger.info(`*** Running ${cmd}`);
                 const result = cp.execSync(cmd);
-                console.log(result.toString());
+                SmokeTestLogger.info(result.toString());
             });
         } catch (e) {
             // Do not throw error, just print it to avoid any build failures
             // Sometimes taskkill process throws error but tasks are already killed so error is pointless
-            console.error(e);
+            SmokeTestLogger.error(`${e.toString()}`);
         }
     }
 
@@ -182,7 +194,7 @@ export class VsCodeManager {
             }
             const options = this.createOptions(quality, workspaceOrFolder, dirName, locale ? ["--locale", locale] : []);
             const app = new Application(options);
-            console.log(`Options for run ${dirName}: ${JSON.stringify(options, null, 2)}`);
+            SmokeTestLogger.info(`Options for run ${dirName}: ${JSON.stringify(options, null, 2)}`);
             await app.start();
             return app;
 
@@ -205,7 +217,7 @@ export class VsCodeManager {
 
             loggers.push(new ConsoleLogger());
 
-            console.log(`*** Executing ${this.vsCodeClientAppFileDirectory}`);
+            SmokeTestLogger.info(`*** Executing ${this.vsCodeClientAppFileDirectory}`);
 
             return {
                 quality,
@@ -275,7 +287,7 @@ export class VsCodeManager {
 
     public findStringInLogs(string: string, logFile: string): boolean {
         if (this.currentSessionLogsDir) {
-            console.log(`*** Searching for \"Test output from Hermes debuggee\" string in output file`);
+            SmokeTestLogger.info(`*** Searching for \"Test output from Hermes debuggee\" string in output file`);
             return utilities.findStringInFile(path.join(this.currentSessionLogsDir, logFile), string);
         }
         else {

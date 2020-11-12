@@ -8,6 +8,7 @@ import * as semver from "semver";
 import * as rimraf from "rimraf";
 import * as utilities from "./utilities";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
+import { SmokeTestLogger } from "./smokeTestLogger";
 
 export class TestApplicationSetupManager {
 
@@ -60,15 +61,15 @@ export class TestApplicationSetupManager {
     }
 
     public async prepareTestApplications(): Promise<void> {
-        console.log("*** Preparing smoke tests applications...");
+        SmokeTestLogger.projectInstallLog("*** Preparing smoke tests applications...");
 
 
         if (!fs.existsSync(this.cacheDirectory)) {
-            console.log(`*** Creating smoke tests cache directory: ${this.cacheDirectory}`);
+            SmokeTestLogger.projectInstallLog(`*** Creating smoke tests cache directory: ${this.cacheDirectory}`);
             fs.mkdirSync(this.cacheDirectory);
         }
         if (!fs.existsSync(this.testAppsDirectory)) {
-            console.log(`*** Creating test apps directory: ${this.testAppsDirectory}`);
+            SmokeTestLogger.projectInstallLog(`*** Creating test apps directory: ${this.testAppsDirectory}`);
             fs.mkdirSync(this.testAppsDirectory);
         }
 
@@ -85,7 +86,7 @@ export class TestApplicationSetupManager {
     private static async getLatestSupportedRNVersionForExpo(expoSdkMajorVersion?: string): Promise<any> {
         const printSpecifiedMajorVersion = expoSdkMajorVersion ? `sdk-${expoSdkMajorVersion}` : "";
         const printIsLatest = printSpecifiedMajorVersion ? "" : "latest ";
-        console.log(`*** Getting latest React Native version supported by ${printIsLatest}Expo ${printSpecifiedMajorVersion}...`);
+        SmokeTestLogger.info(`*** Getting latest React Native version supported by ${printIsLatest}Expo ${printSpecifiedMajorVersion}...`);
         return new Promise((resolve, reject) => {
             utilities.getContents("https://exp.host/--/api/v2/versions", null, null, function (error, versionsContent) {
                 if (error) {
@@ -98,7 +99,7 @@ export class TestApplicationSetupManager {
                         if (expoSdkMajorVersion) {
                             usesSdkVersion = Object.keys(content.sdkVersions).find((version) => semver.major(version) === parseInt(expoSdkMajorVersion));
                             if (!usesSdkVersion) {
-                                console.log(`*** Сould not find the version of Expo sdk matching the specified version - ${printSpecifiedMajorVersion}`);
+                                SmokeTestLogger.warn(`*** Сould not find the version of Expo sdk matching the specified version - ${printSpecifiedMajorVersion}`);
                             }
                         }
                         if (!usesSdkVersion) {
@@ -113,7 +114,7 @@ export class TestApplicationSetupManager {
                         }
                         if (content.sdkVersions[usesSdkVersion]) {
                             if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
-                                console.log(`*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
+                                SmokeTestLogger.success(`*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`);
                                 resolve(content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string);
                             }
                         }
@@ -132,15 +133,17 @@ export class TestApplicationSetupManager {
         const commandClean = path.join(workspaceDirectory, "android", "gradlew") + " clean";
         const { customEntryPointPath, testButtonPath } = this.getKeyPathsForSample(this.hermesSampleDirectory);
 
-        console.log(`*** Executing  ${commandClean} ...`);
+        SmokeTestLogger.projectPatchingLog(`*** Patching React Native project for Hermes debugging`);
+
+        SmokeTestLogger.projectPatchingLog(`*** Executing  ${commandClean} ...`);
         cp.execSync(commandClean, { cwd: path.join(workspaceDirectory, "android"), stdio: "inherit" });
 
-        console.log(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
+        SmokeTestLogger.projectPatchingLog(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
         fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
 
         this.copyGradleFilesToHermesApp(workspaceDirectory, customEntryPointPath);
 
-        console.log(`*** Copying ${testButtonPath} into ${workspaceDirectory}`);
+        SmokeTestLogger.projectPatchingLog(`*** Copying ${testButtonPath} into ${workspaceDirectory}`);
         fs.copyFileSync(testButtonPath, path.join(workspaceDirectory, "AppTestButton.js"));
     }
 
@@ -174,20 +177,20 @@ export class TestApplicationSetupManager {
         if (version) {
             command += ` --version ${version}`;
         }
-        console.log(`*** Creating RN app via '${command}' in ${workspaceDirectory}...`);
+        SmokeTestLogger.projectInstallLog(`*** Creating RN app via '${command}' in ${workspaceDirectory}...`);
         cp.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" });
 
         const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
 
-        console.log(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
+        SmokeTestLogger.projectPatchingLog(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
         fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
 
         if (!fs.existsSync(vsCodeConfigPath)) {
-            console.log(`*** Creating  ${vsCodeConfigPath}...`);
+            SmokeTestLogger.projectInstallLog(`*** Creating  ${vsCodeConfigPath}...`);
             fs.mkdirSync(vsCodeConfigPath);
         }
 
-        console.log(`*** Copying  ${this.launchJsonPath} into ${vsCodeConfigPath}...`);
+        SmokeTestLogger.projectPatchingLog(`*** Copying  ${this.launchJsonPath} into ${vsCodeConfigPath}...`);
         fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(this.launchJsonPath));
 
         this.patchMetroConfig(workspaceDirectory);
@@ -200,20 +203,20 @@ export class TestApplicationSetupManager {
         const useSpecificSdk = expoSdkMajorVersion ? `@sdk-${expoSdkMajorVersion}` : "";
         const command = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${appName} ${appName}`;
 
-        console.log(`*** Creating Expo app via '${command}' in ${workspaceDirectory}...`);
+        SmokeTestLogger.projectInstallLog(`*** Creating Expo app via '${command}' in ${workspaceDirectory}...`);
         cp.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" });
 
         const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
 
-        console.log(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
+        SmokeTestLogger.projectPatchingLog(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
         fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
 
         if (!fs.existsSync(vsCodeConfigPath)) {
-            console.log(`*** Creating  ${vsCodeConfigPath}...`);
+            SmokeTestLogger.projectInstallLog(`*** Creating  ${vsCodeConfigPath}...`);
             fs.mkdirSync(vsCodeConfigPath);
         }
 
-        console.log(`*** Copying  ${this.launchJsonPath} into ${vsCodeConfigPath}...`);
+        SmokeTestLogger.projectPatchingLog(`*** Copying  ${this.launchJsonPath} into ${vsCodeConfigPath}...`);
         fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(this.launchJsonPath));
 
         this.patchMetroConfig(workspaceDirectory);
@@ -245,10 +248,10 @@ export class TestApplicationSetupManager {
         let expoPackage: string = version ? `expo@${version}` : "expo";
         const command = `${npmCmd} install ${expoPackage} --save-dev`;
 
-        console.log(`*** Adding expo dependency to ${workspaceDirectory} via '${command}' command...`);
+        SmokeTestLogger.projectPatchingLog(`*** Adding expo dependency to ${workspaceDirectory} via '${command}' command...`);
         cp.execSync(command, { cwd: workspaceDirectory, stdio: "inherit" });
 
-        console.log(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
+        SmokeTestLogger.projectPatchingLog(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
         fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
     }
 
@@ -256,13 +259,13 @@ export class TestApplicationSetupManager {
         const appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
         const resGradleBuildFilePath = path.join(customEntryPointPath, "..", "build.gradle");
 
-        console.log(`*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`);
+        SmokeTestLogger.projectPatchingLog(`*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`);
         fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
     }
 
     private patchMetroConfig(appPath: string) {
         const metroConfigPath = path.join(appPath, "metro.config.js");
-        console.log(`*** Patching  ${metroConfigPath}`);
+        SmokeTestLogger.projectPatchingLog(`*** Patching  ${metroConfigPath}`);
         const patchContent = `
 // Sometimes on Windows Metro fails to resolve files located at .vscode\.react directory and throws EPERM errors
 // To avoid it this directory is added to black list for resolving by Metro
@@ -287,33 +290,33 @@ module.exports.hasteMapCacheDirectory = ".cache";
 module.exports.watchFolders = ['.vscode'];`;
         fs.appendFileSync(metroConfigPath, patchContent);
         const contentAfterPatching = fs.readFileSync(metroConfigPath);
-        console.log(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
+        SmokeTestLogger.projectPatchingLog(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
     }
 
     public cleanUp(): void {
 
         if (fs.existsSync(this.rnWorkspaceDirectory)) {
-            console.log(`*** Deleting test application: ${this.rnWorkspaceDirectory}`);
+            SmokeTestLogger.info(`*** Deleting test application: ${this.rnWorkspaceDirectory}`);
             rimraf.sync(this.rnWorkspaceDirectory);
         }
 
         if (fs.existsSync(this.hermesWorkspaceDirectory)) {
-            console.log(`*** Deleting test application: ${this.hermesWorkspaceDirectory}`);
+            SmokeTestLogger.info(`*** Deleting test application: ${this.hermesWorkspaceDirectory}`);
             rimraf.sync(this.hermesWorkspaceDirectory);
         }
 
         if (fs.existsSync(this.pureRnWorkspaceDirectory)) {
-            console.log(`*** Deleting test application: ${this.pureRnWorkspaceDirectory}`);
+            SmokeTestLogger.info(`*** Deleting test application: ${this.pureRnWorkspaceDirectory}`);
             rimraf.sync(this.pureRnWorkspaceDirectory);
         }
 
         if (fs.existsSync(this.expoWorkspaceDirectory)) {
-            console.log(`*** Deleting test application: ${this.expoWorkspaceDirectory}`);
+            SmokeTestLogger.info(`*** Deleting test application: ${this.expoWorkspaceDirectory}`);
             rimraf.sync(this.expoWorkspaceDirectory);
         }
 
         if (fs.existsSync(SmokeTestsConstants.iOSExpoAppsCacheDir)) {
-            console.log(`*** Deleting iOS expo app cache directory: ${SmokeTestsConstants.iOSExpoAppsCacheDir}`);
+            SmokeTestLogger.info(`*** Deleting iOS expo app cache directory: ${SmokeTestsConstants.iOSExpoAppsCacheDir}`);
             rimraf.sync(SmokeTestsConstants.iOSExpoAppsCacheDir);
         }
     }
@@ -323,10 +326,10 @@ module.exports.watchFolders = ['.vscode'];`;
     private patchExpoSettingsFile() {
         const settingsJsonPath = path.join(this.expoWorkspaceDirectory, ".expo", "settings.json");
         if (fs.existsSync(settingsJsonPath)) {
-            console.log(`*** Patching ${settingsJsonPath}...`);
+            SmokeTestLogger.projectPatchingLog(`*** Patching ${settingsJsonPath}...`);
             let content = JSON.parse(fs.readFileSync(settingsJsonPath).toString());
             if (content.https === false) {
-                console.log(`*** Deleting https: ${content.https} line...`);
+                SmokeTestLogger.projectPatchingLog(`*** Deleting https: ${content.https} line...`);
                 delete content.https;
                 content = JSON.stringify(content, null, 2);
                 fs.writeFileSync(settingsJsonPath, content);

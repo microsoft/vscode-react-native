@@ -5,6 +5,7 @@ import { spawn, execSync } from "child_process";
 import { sleep, waitUntil } from "./utilities";
 import * as kill from "tree-kill";
 import * as cp from "child_process";
+import { SmokeTestLogger } from "./smokeTestLogger";
 
 const XDL = require("@expo/xdl");
 
@@ -94,7 +95,7 @@ export default class IosSimulatorManager {
         await this.shutdownSimulator();
         // Wipe data on simulator
         await this.eraseSimulator();
-        console.log(`*** Executing iOS simulator with 'xcrun simctl boot "${this.simulator.name}"' command...`);
+        SmokeTestLogger.info(`*** Executing iOS simulator with 'xcrun simctl boot "${this.simulator.name}"' command...`);
         await this.bootSimulator();
         await sleep(15 * 1000);
     }
@@ -139,10 +140,10 @@ export default class IosSimulatorManager {
         return waitUntil(condition, IosSimulatorManager.SIMULATOR_START_TIMEOUT)
             .then((result) => {
                 if (result) {
-                    console.log(`*** iOS simulator ${this.simulator.name} has been booted.`);
+                    SmokeTestLogger.success(`*** iOS simulator ${this.simulator.name} has been started.`);
                 }
                 else {
-                    console.log(`*** Could not boot iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_START_TIMEOUT}.`);
+                    SmokeTestLogger.error(`*** Could not start iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_START_TIMEOUT}.`);
                 }
                 return result;
             });
@@ -161,10 +162,10 @@ export default class IosSimulatorManager {
         return waitUntil(condition, IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT)
             .then((result) => {
                 if (result) {
-                    console.log(`*** iOS simulator ${this.simulator.name} has been terminated.`);
+                    SmokeTestLogger.success(`*** iOS simulator ${this.simulator.name} has been terminated.`);
                 }
                 else {
-                    console.log(`*** Could not terminate iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`);
+                    SmokeTestLogger.error(`*** Could not terminate iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`);
                 }
                 return result;
             });
@@ -183,7 +184,7 @@ export default class IosSimulatorManager {
         const proc = spawn("xcrun", args, { stdio: "pipe" });
         proc.stdout.on("data", (data: string) => {
             data = data.toString();
-            console.log(data);
+            SmokeTestLogger.info(data);
             if (data.startsWith("Filtering the log data")) {
                 return;
             }
@@ -193,10 +194,10 @@ export default class IosSimulatorManager {
             }
         });
         proc.stderr.on("error", (data: string) => {
-            console.error(data.toString());
+            SmokeTestLogger.error(data.toString());
         });
         proc.on("error", (err) => {
-            console.error(err);
+            SmokeTestLogger.error(err);
             kill(proc.pid);
         });
 
@@ -205,12 +206,12 @@ export default class IosSimulatorManager {
         await new Promise((resolve, reject) => {
             const check = setInterval(async () => {
                 if (retry % 5 === 0) {
-                    console.log(`*** Check if app with bundleId ${appBundleId} is installed, ${retry} attempt`);
+                    SmokeTestLogger.info(`*** Check if app with bundleId ${appBundleId} is installed, ${retry} attempt`);
                 }
                 if (launched) {
                     clearInterval(check);
                     const initTimeout = IosSimulatorManager.APP_INIT_TIMEOUT || 10000;
-                    console.log(`*** Installed ${appBundleId} app found, await ${initTimeout}ms for initializing...`);
+                    SmokeTestLogger.success(`*** Installed ${appBundleId} app found, await ${initTimeout}ms for initializing...`);
                     await sleep(initTimeout);
                     resolve();
                 } else {
@@ -229,7 +230,7 @@ export default class IosSimulatorManager {
     public async installExpoAppOnIos(): Promise<void> {
         this.updateSimulatorState(this.simulator.name, this.simulator.system);
         if (this.simulator.state === DeviceState.Booted) {
-            console.log(`*** Installing Expo app on iOS simulator using Expo XDL function`);
+            SmokeTestLogger.projectPatchingLog(`*** Installing Expo app on iOS simulator using Expo XDL function`);
             await XDL.Simulator.installExpoOnSimulatorAsync({
                 simulator: {
                     name: this.simulator.name || "",
@@ -298,7 +299,7 @@ export default class IosSimulatorManager {
                     }
                     const state = DeviceState[match![1]];
                     if (!state) {
-                        console.log(`Unknown state: ${match![1]}`);
+                        SmokeTestLogger.warn(`Unknown state: ${match![1]}`);
                         resolve({
                             Successful: false,
                             FailedState: DeviceState.Unknown,
@@ -362,10 +363,10 @@ export default class IosSimulatorManager {
         return waitUntil(condition, IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT)
             .then((result) => {
                 if (result) {
-                    console.log(`*** All iOS simulators has been terminated.`);
+                    SmokeTestLogger.success(`*** All iOS simulators has been terminated.`);
                 }
                 else {
-                    console.log(`*** Could not terminate all iOS simulators after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`);
+                    SmokeTestLogger.error(`*** Could not terminate all iOS simulators after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`);
                 }
                 return result;
             });

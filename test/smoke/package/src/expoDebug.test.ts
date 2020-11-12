@@ -9,6 +9,7 @@ import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { findFile, findStringInFile, sleep, waitUntil } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 import { TestRunArguments } from "./helpers/TestConfigProcessor";
+import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 
 const EXPO_APP_LAUNCH_TIMEOUT = 120_000;
 const ExpoSuccessPattern = "Tunnel ready";
@@ -54,11 +55,11 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
             const condition = () => {
                 let expoStarted = findStringInFile(filePath, successPattern);
                 let expoFailed = findStringInFile(filePath, failurePattern);
-                console.log(`Searching for Expo launch logging patterns ...`);
+                SmokeTestLogger.info(`Searching for Expo launch logging patterns ...`);
 
                 if (expoStarted || expoFailed) {
                     result = { successful: expoStarted, failed: expoFailed };
-                    console.log(`Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`);
+                    SmokeTestLogger.info(`Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`);
                     return true;
                 }
                 else {
@@ -71,7 +72,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
                 return result;
             }
             else {
-                console.log(`Expo launch logging patterns are not found`);
+                SmokeTestLogger.info(`Expo launch logging patterns are not found`);
                 return { successful: false, failed: false };
             }
         }
@@ -80,12 +81,12 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
             const match = vscodeManager.findPatternInLogs(/exp:\/\/\d+\.\d+\.\d+\.\d+\:\d+/gm, SmokeTestsConstants.ReactNativeRunExpoLogFileName);
             if (!match) return null;
             let expoURL = match[0];
-            console.log(`Found Expo URL: ${expoURL}`);
+            SmokeTestLogger.info(`Found Expo URL: ${expoURL}`);
             return expoURL;
         }
 
         async function runExpoDebugScenario(logFilePath: string, testName: string, workspacePath: string, debugConfigName: string, triesToLaunchApp: number) {
-            console.log(`${testName}: Starting debugging`);
+            SmokeTestLogger.info(`${testName}: Starting debugging`);
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
                 await app.workbench.quickaccess.runDebugScenario(debugConfigName);
@@ -100,7 +101,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
                         if (retry === triesToLaunchApp) {
                             assert.fail(`App start has failed after ${retry} retries`);
                         }
-                        console.log(`Attempt to start #${retry} failed, retrying...`);
+                        SmokeTestLogger.warn(`Attempt to start #${retry} failed, retrying...`);
                     }
                 }
             }
@@ -109,13 +110,13 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
         async function expoTest(appFileName: string, testName: string, workspacePath: string, debugConfigName: string, platform: Platform.AndroidExpo | Platform.iOSExpo, triesToLaunchApp: number) {
             let logFilePath = "";
             app = await vscodeManager.runVSCode(workspacePath, testName);
-            console.log(`${testName}: ${workspacePath} directory is opened in VS Code`);
+            SmokeTestLogger.info(`${testName}: ${workspacePath} directory is opened in VS Code`);
             await app.workbench.quickaccess.openFile(appFileName);
             await app.workbench.editors.scrollTop();
-            console.log(`${testName}: ${appFileName} file is opened`);
+            SmokeTestLogger.info(`${testName}: ${appFileName} file is opened`);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
-            console.log(`${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
-            console.log(`${testName}: Chosen debug configuration: ${debugConfigName}`);
+            SmokeTestLogger.info(`${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`);
+            SmokeTestLogger.info(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                 logFilePath = path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName);
             } else {
@@ -125,7 +126,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
 
             await app.workbench.editors.waitForTab("Expo QR Code readonly");
             await app.workbench.editors.waitForActiveTab("Expo QR Code readonly");
-            console.log(`${testName}: 'Expo QR Code' tab found`);
+            SmokeTestLogger.info(`${testName}: 'Expo QR Code' tab found`);
 
             let expoURL = findExpoURLInLogFile();
             if (expoURL === null) {
@@ -144,7 +145,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
                 let client = await AppiumHelper.webdriverAttach(opts);
                 await AppiumHelper.openExpoApplication(Platform.iOS, client, expoURL, workspacePath, expoFirstLaunch);
                 expoFirstLaunch = false;
-                console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
+                SmokeTestLogger.info(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
                 await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
 
                 await AppiumHelper.disableExpoErrorRedBox(client);
@@ -159,7 +160,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
                 // TODO Add listener to trigger that main expo app has been ran
                 await AppiumHelper.openExpoApplication(Platform.Android, client, expoURL, workspacePath);
                 // TODO Add listener to trigger that child expo app has been ran instead of using timeout
-                console.log(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
+                SmokeTestLogger.info(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
                 await sleep(SmokeTestsConstants.expoAppBuildAndInstallTimeout);
                 await AppiumHelper.disableDevMenuInformationalMsg(client, Platform.AndroidExpo);
                 await sleep(2 * 1000);
@@ -167,18 +168,18 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
                 await app.workbench.debug.waitForDebuggingToStart();
             }
 
-            console.log(`${testName}: Debugging started`);
+            SmokeTestLogger.info(`${testName}: Debugging started`);
             await app.workbench.debug.waitForStackFrame(sf => sf.name === appFileName && sf.lineNumber === ExpoSetBreakpointOnLine, `looking for ${appFileName} and line ${ExpoSetBreakpointOnLine}`);
-            console.log(`${testName}: Stack frame found`);
+            SmokeTestLogger.info(`${testName}: Stack frame found`);
             await app.workbench.debug.stepOver();
             // Wait for debug string to be rendered in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-            console.log(`${testName}: Searching for \"Test output from debuggee\" string in console`);
+            SmokeTestLogger.info(`${testName}: Searching for \"Test output from debuggee\" string in console`);
             let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
             assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-            console.log(`${testName}: \"Test output from debuggee\" string is found`);
+            SmokeTestLogger.success(`${testName}: \"Test output from debuggee\" string is found`);
             await app.workbench.debug.disconnectFromDebugger();
-            console.log(`${testName}: Debugging is stopped`);
+            SmokeTestLogger.info(`${testName}: Debugging is stopped`);
         }
 
         if (!testParameters || !testParameters.RunBasicTests) {

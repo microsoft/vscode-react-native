@@ -21,20 +21,29 @@ export class SmokeTestsConstants {
     public static elementResponseTimeout = 250;
     // Timeout for enabling Remote JS Debugging while testing RN app
     public static enableRemoteJSTimeout = 120 * 1000;
-    // Timeout for Android testing
-    public static androidTestTimeout = 400 * 1000;
+
+    // Timeout for Windows smoke test
+    public static windowsTestTime = 700 * 1000;
+    // Timeout for Expo testing
+    public static expoTestTimeout = 460 * 1000;
     // Timeout for iOS testing
     public static iosTestTimeout = 700 * 1000;
+    // Timeout for Android testing
+    public static androidTestTimeout = 400 * 1000;
+
     // Timeout for waitFor* commands
     public static waitForElementTimeout = 30 * 1000;
     // Timeout for Expo app to execute
     public static expoAppBuildAndInstallTimeout = 60 * 1000;
-    // Timeout for Expo testing
-    public static expoTestTimeout = 460 * 1000;
+    // Timeout for macOS app to build and to install
+    public static macOSAppBuildAndInstallTimeout = 400 * 1000;
     // Timeout for Expo app to launch
     public static expoAppLaunchTimeout = 120 * 1000;
+    // Timeout for Windows app to build and to install
+    public static windowsAppBuildAndInstallTimeout = 400 * 1000;
     // Timeout before search string in debug console
     public static debugConsoleSearchTimeout = 0.5 * 1000;
+
     // Default React Native app name
     public static RNAppName = "latestRNApp";
     // Default React Native Hermes app name
@@ -43,6 +52,11 @@ export class SmokeTestsConstants {
     public static ExpoAppName = "latestExpoApp";
     // Default pure React Native for Expo test app name
     public static pureRNExpoAppName = "pureRNExpoApp";
+    // Default React Native for Windows test app name
+    public static RNWAppName = "RNWApp";
+    // Default React Native macOS app name
+    public static RNmacOSAppName = "latestRNmacOSApp";
+
     // Default React Native app name
     public static sampleRNAppName = "ReactNativeSample";
     // Default React Native Hermes app name
@@ -51,6 +65,11 @@ export class SmokeTestsConstants {
     public static sampleExpoAppName = "ExpoSample";
     // Default pure React Native for Expo test app name
     public static samplePureRNExpoAppName = "PureRNExpoSample";
+    // Default React Native for Windows test app name
+    public static sampleRNWAppName = "RNWSample";
+    // Default React Native macOS app name
+    public static sampleRNmacOSAppName = "MacOSReactNativeSample";
+
     // Name of artifacts (test logs) directory
     public static artifactsDir = "SmokeTestLogs";
     // Name of the VS Code user data directory
