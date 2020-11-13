@@ -21,17 +21,18 @@ const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const IosRNDebugConfigName = "Debug iOS";
 
 const RNSetBreakpointOnLine = 1;
+
 // Time for Android Debug Test before it reaches timeout
 const debugAndroidTestTime = SmokeTestsConstants.androidTestTimeout;
-// Time for OS Debug Test before it reaches timeout
+// Time for iOS Debug Test before it reaches timeout
 const debugIosTestTime = SmokeTestsConstants.iosTestTimeout;
+
 
 export function startReactNativeTests(workspace: string, testParameters?: TestRunArguments): void {
 
     describe("React Native", () => {
         let app: Application;
         let client: AppiumClient;
-        const launchConfigurationManager = new LaunchConfigurationManager(workspace);
 
         async function disposeAll() {
             if (app) {
@@ -45,6 +46,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
 
         afterEach(disposeAll);
 
+        // Android debug tests
         if (!testParameters || testParameters.RunAndroidTests) {
             it("Android RN app Debug test", async function () {
                 this.timeout(debugAndroidTestTime);
@@ -70,7 +72,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
                 SmokeTestLogger.info("Android Debug test: Searching for \"Test output from debuggee\" string in console");
                 let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
-                SmokeTestLogger.info(found);
+                SmokeTestLogger.info(found.toString());
                 assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
                 SmokeTestLogger.success("Android Debug test: \"Test output from debuggee\" string is found");
                 await app.workbench.debug.disconnectFromDebugger();
@@ -85,7 +87,8 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                     return this.skip();
                 }
                 this.timeout(debugAndroidTestTime);
-                app = await vscodeManager.runVSCode(workspace);
+                const launchConfigurationManager = new LaunchConfigurationManager(workspace);
+                app = await vscodeManager.runVSCode(workspace, `${this.currentTest?.title} (first launch)`);
                 SmokeTestLogger.info("Android emulator save test: Terminating all Android emulators");
                 await AndroidEmulatorManager.terminateAllAndroidEmulators();
                 SmokeTestLogger.info("Android emulator save test: Starting debugging in first time");
@@ -98,7 +101,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
                 SmokeTestLogger.info("Android emulator save test: Dispose all");
                 await disposeAll();
-                app = await vscodeManager.runVSCode(workspace);
+                app = await vscodeManager.runVSCode(workspace, `${this.currentTest?.title} (second launch)`);
                 SmokeTestLogger.info("Android emulator save test: Terminating all Android emulators");
                 await AndroidEmulatorManager.terminateAllAndroidEmulators();
                 SmokeTestLogger.info("Android emulator save test: Starting debugging in second time");
@@ -109,6 +112,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
             });
         }
 
+        // iOS debug tests
         if (process.platform === "darwin" && (!testParameters || testParameters.RunIosTests)) {
             it("iOS RN app Debug test", async function () {
                 if (process.platform !== "darwin") {
@@ -116,6 +120,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                     return this.skip();
                 }
                 this.timeout(debugIosTestTime);
+                const launchConfigurationManager = new LaunchConfigurationManager(workspace);
                 const deviceName = iosSimulatorManager.getSimulator().name;
                 app = await vscodeManager.runVSCode(workspace, this.currentTest?.title);
                 await app.workbench.quickaccess.openFile("App.js");
@@ -162,11 +167,11 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                     SmokeTestLogger.info(`Save iOS simulator test: skip test if running not on macOS`);
                     return this.skip();
                 }
-
                 let simulator = iosSimulatorManager.getSimulator();
                 this.timeout(debugIosTestTime);
+                const launchConfigurationManager = new LaunchConfigurationManager(workspace);
                 await IosSimulatorManager.shutdownAllSimulators();
-                app = await vscodeManager.runVSCode(workspace);
+                app = await vscodeManager.runVSCode(workspace, `${this.currentTest?.title} (first launch)`);
                 launchConfigurationManager.updateLaunchScenario({ name: IosRNDebugConfigName }, { target: "simulator" });
                 SmokeTestLogger.info("iOS simulator save test: Starting debugging at the first time");
                 await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
@@ -181,7 +186,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
                 await disposeAll();
                 await IosSimulatorManager.shutdownAllSimulators();
-                app = await vscodeManager.runVSCode(workspace);
+                app = await vscodeManager.runVSCode(workspace, `${this.currentTest?.title} (second launch)`);
                 SmokeTestLogger.info("iOS simulator save test: Starting debugging at the second time");
                 await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
                 SmokeTestLogger.info("iOS simulator save test: Debugging started at the second time");

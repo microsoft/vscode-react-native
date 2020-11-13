@@ -3,7 +3,7 @@
 
 import * as cp from "child_process";
 import * as wdio from "webdriverio";
-import * as path from "path";
+import * as fs from "fs";
 import * as mkdirp from "mkdirp";
 import * as kill from "tree-kill";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
@@ -72,9 +72,10 @@ export class AppiumHelper {
     };
 
     public static runAppium(appiumLogPath: string): void {
-        const appiumLogFolder = artifactsPath;
-        mkdirp.sync(appiumLogFolder);
-        const appiumLogPath = path.join(appiumLogFolder, "appium.log");
+        if (!fs.existsSync(appiumLogPath)) {
+            SmokeTestLogger.projectInstallLog(`*** Creating appium log file: ${appiumLogPath}`);
+            fs.mkdirSync(appiumLogPath);
+        }
         SmokeTestLogger.info(`*** Executing Appium with logging to ${appiumLogPath}`);
         let appiumCommand = process.platform === "win32" ? "appium.cmd" : "appium";
         // We need to inherit stdio streams because, otherwise, on Windows appium is stuck at the middle of the Expo test.
@@ -207,16 +208,16 @@ export class AppiumHelper {
         SmokeTestLogger.info("*** Reloading React Native application with DevMenu...");
         const reloadButton = await client.$(this.XPATH.RN_RELOAD_BUTTON[platform]);
         await client
-        .waitUntil(async () => {
-            await this.callRNDevMenu(client, platform);
-            if (await reloadButton.isExisting()) {
-                SmokeTestLogger.info("*** Reload button found...");
-                await reloadButton.click();
-                SmokeTestLogger.info("*** Reload button clicked...");
-                return true;
-            }
-            return false;
-        }, this.waitUntilEnableRemoteDebugOptions);
+            .waitUntil(async () => {
+                await this.callRNDevMenu(client, platform);
+                if (await reloadButton.isExisting()) {
+                    SmokeTestLogger.info("*** Reload button found...");
+                    await reloadButton.click();
+                    SmokeTestLogger.info("*** Reload button clicked...");
+                    return true;
+                }
+                return false;
+            }, this.waitUntilEnableRemoteDebugOptions);
     }
 
     public static async enableRemoteDebugJS(client: AppiumClient, platform: Platform): Promise<void> {
@@ -330,8 +331,8 @@ export class AppiumHelper {
         await XDL.Simulator.openProjectAsync({ projectRoot: projectFolder });
 
         if (firstLaunch) { // it's required to allow launch of an Expo application when it's launched for the first time
-        SmokeTestLogger.info(`*** First launch of Expo app`);
-        SmokeTestLogger.info(`*** Pressing "Open" button...`);
+            SmokeTestLogger.info(`*** First launch of Expo app`);
+            SmokeTestLogger.info(`*** Pressing "Open" button...`);
 
             const openButton = await client.$(`//XCUIElementTypeButton[@name="Open"]`);
 

@@ -39,7 +39,7 @@ async function setUp(): Promise<void> {
         .then(() => vscodeManager.installExtensionFromVSIX())
         .then(() => vscodeManager.installExpoXdlPackageToExtensionDir())
         .then(() => testApplicationSetupManager.prepareTestApplications())
-        .then(() => AppiumHelper.runAppium(vscodeManager.getArtifactDirectory()))
+        .then(() => AppiumHelper.runAppium(vscodeManager.getAppiumLogDir()))
         .then(async () => {
             SmokeTestLogger.info("*** Preparing Android emulator...");
             await androidEmulatorManager.runAndroidEmulator();

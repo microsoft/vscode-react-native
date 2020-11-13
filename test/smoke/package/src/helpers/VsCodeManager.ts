@@ -146,7 +146,7 @@ export class VsCodeManager {
                 const command = `${npmCmd} install @expo/xdl@${process.env.EXPO_XDL_VERSION} --no-save`;
 
                 SmokeTestLogger.projectPatchingLog(`*** Adding @expo/xdl dependency to ${extensionFullPath} via '${command}' command...`);
-                cp.execSync(command, { cwd: extensionFullPath, stdio: "inherit" }, this.setupEnvironmentLogDir);
+                utilities.execSync(command, { cwd: extensionFullPath, stdio: "inherit" }, this.setupEnvironmentLogDir);
             }
             else {
                 SmokeTestLogger.warn(`*** EXPO_XDL_VERSION variable is not set, skipping installation of @expo/xdl package to the extension directory`);
@@ -165,7 +165,7 @@ export class VsCodeManager {
             SmokeTestLogger.info("*** Killing any running Code.exe instances");
             this.taskKillCommands.forEach(cmd => {
                 SmokeTestLogger.info(`*** Running ${cmd}`);
-                const result = cp.execSync(cmd);
+                const result = utilities.execSync(cmd, undefined, this.setupEnvironmentLogDir);
                 SmokeTestLogger.info(result.toString());
             });
         } catch (e) {

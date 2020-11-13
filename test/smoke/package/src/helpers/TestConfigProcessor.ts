@@ -6,6 +6,8 @@ import { SmokeTestLogger } from "./smokeTestLogger";
 export interface TestRunArguments {
     RunAndroidTests: boolean;
     RunIosTests: boolean;
+    RunMacOSTests: boolean;
+    RunWindowsTests: boolean;
     RunBasicTests: boolean;
     SkipSetup: boolean;
     DontDeleteVSIX: boolean;
@@ -140,13 +142,15 @@ export class TestConfigProcessor {
         initLog += `PURE_RN_VERSION = ${process.env.PURE_RN_VERSION}\n`;
         initLog += `PURE_EXPO_VERSION = ${process.env.PURE_EXPO_VERSION}\n`;
         initLog += `RN_MAC_OS_VERSION = ${process.env.RN_MAC_OS_VERSION}\n`;
-        SmokeTestLogger.info(initLog);
+        SmokeTestLogger.projectInstallLog(initLog);
     }
 
     public parseTestArguments(): TestRunArguments {
         return {
             RunAndroidTests: process.argv.includes("--android"),
             RunIosTests: process.argv.includes("--ios"),
+            RunWindowsTests: process.argv.includes("--windows"),
+            RunMacOSTests: process.argv.includes("--macos"),
             RunBasicTests: process.argv.includes("--basic-only"),
             SkipSetup: process.argv.includes("--skip-setup"),
             DontDeleteVSIX: process.argv.includes("--dont-delete-vsix"),
