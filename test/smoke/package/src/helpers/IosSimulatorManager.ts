@@ -84,7 +84,11 @@ export default class IosSimulatorManager {
 
     private updateSimulatorState(name: string, iosVersion?: string) {
         const simulators = IosSimulatorManager.collectSimulators();
+        console.log("SIMULATORS: ");
+        console.log(simulators.toString());
         const simulator = this.findSimulator(simulators, name, iosVersion);
+        console.log("SIM: ");
+        console.log(simulator);
         if (!simulator) {
             throw new Error(`Could not find simulator with name: '${name}'${iosVersion ? ` and iOS version: '${iosVersion}'` : ""} in system. Exiting...`);
         }
