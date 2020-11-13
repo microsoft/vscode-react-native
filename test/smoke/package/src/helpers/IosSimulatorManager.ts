@@ -40,6 +40,10 @@ export default class IosSimulatorManager {
             throw new Error("Passed iOS simulator name and process.env.IOS_SIMULATOR is not defined!");
         }
         if (process.platform === "darwin") {
+            if (iosVersion) {
+                const versions = iosVersion?.split(".");
+                iosVersion = `iOS-${versions[0]}-${versions[1]}`;
+            }
             this.updateSimulatorState(name, iosVersion);
         }
     }
@@ -84,11 +88,7 @@ export default class IosSimulatorManager {
 
     private updateSimulatorState(name: string, iosVersion?: string) {
         const simulators = IosSimulatorManager.collectSimulators();
-        console.log("SIMULATORS: ");
-        console.log(simulators.toString());
         const simulator = this.findSimulator(simulators, name, iosVersion);
-        console.log("SIM: ");
-        console.log(simulator);
         if (!simulator) {
             throw new Error(`Could not find simulator with name: '${name}'${iosVersion ? ` and iOS version: '${iosVersion}'` : ""} in system. Exiting...`);
         }
