@@ -97,8 +97,12 @@ export class TestApplicationSetupManager {
         this.prepareExpoApplication(this.expoWorkspaceDirectory, this.expoSampleDirectory, expoSdkVersion);
         this.preparePureExpoApplication(this.pureRnWorkspaceDirectory, this.pureRnSampleDirectory, pureRnVersion, pureExpoSdkVersion);
         this.prepareHermesApplication(this.hermesWorkspaceDirectory, this.hermesSampleDirectory, rnVersion);
-        this.prepareMacOSApplication(this.macOSRnWorkspaceDirectory, this.macOSRnSampleDirectory, rnVersion);
-        this.prepareRNWApplication(this.windowsRnWorkspaceDirectory, this.windowsRnSampleDirectory, rnVersion);
+        if (process.platform === "darwin") {
+            this.prepareMacOSApplication(this.macOSRnWorkspaceDirectory, this.macOSRnSampleDirectory, rnVersion);
+        }
+        if (process.platform === "win32") {
+            this.prepareRNWApplication(this.windowsRnWorkspaceDirectory, this.windowsRnSampleDirectory, rnVersion);
+        }
     }
 
     private static async getLatestSupportedRNVersionForExpo(expoSdkMajorVersion?: string): Promise<any> {
@@ -272,7 +276,7 @@ export class TestApplicationSetupManager {
         const workspaceDirectory = workspacePath ? workspacePath : this.pureRnWorkspaceDirectory;
         const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : this.pureRnSampleDirectory;
 
-        this.prepareReactNativeApplication(workspaceDirectory, rnVersion);
+        this.prepareReactNativeApplication(workspaceDirectory, undefined, rnVersion);
         this.addExpoDependencyToRNProject(workspaceDirectory, sampleWorkspaceDirectory, expoVersion);
     }
 
@@ -296,7 +300,7 @@ export class TestApplicationSetupManager {
         const workspaceDirectory = workspacePath ? workspacePath : this.pureRnWorkspaceDirectory;
         const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : this.hermesSampleDirectory;
 
-        this.prepareReactNativeApplication(workspaceDirectory, rnVersion);
+        this.prepareReactNativeApplication(workspaceDirectory, undefined, rnVersion);
         this.prepareReactNativeProjectForHermesTesting(workspaceDirectory, sampleWorkspaceDirectory);
     }
 
