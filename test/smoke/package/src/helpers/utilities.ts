@@ -198,7 +198,9 @@ export function findStringInFile(filePath: string, strToFind: string): boolean {
 }
 
 export function objectsContains(object: any, subObject: any): boolean {
-    Object.keys(subObject).forEach((key) => {
+    for (let i = 0; i < Object.keys(subObject).length ; i++) {
+        const key = Object.keys(subObject)[i];
+        console.log(key);
         if (typeof subObject[key] === "object" && subObject[key] !== null) {
             if (typeof object[key] === "object" && object[key] !== null) {
                 if (!objectsContains(object[key], subObject[key])) {
@@ -211,7 +213,7 @@ export function objectsContains(object: any, subObject: any): boolean {
         else if (subObject[key] !== object[key]) {
             return false;
         }
-    });
+    }
     return true;
 }
 
