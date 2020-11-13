@@ -59,7 +59,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
 
                 if (expoStarted || expoFailed) {
                     result = { successful: expoStarted, failed: expoFailed };
-                    SmokeTestLogger.info(`Expo launch status patterns found: ${JSON.stringify(status, null, 2)}`);
+                    SmokeTestLogger.info(`Expo launch status patterns found: ${JSON.stringify(result, null, 2)}`);
                     return true;
                 }
                 else {
