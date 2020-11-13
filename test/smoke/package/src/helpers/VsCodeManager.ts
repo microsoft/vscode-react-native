@@ -214,14 +214,14 @@ export class VsCodeManager {
                 throw new Error(VsCodeManager.CURRENT_SESSION_LOGS_DIR_ERROR);
             }
             const loggers: Logger[] = [];
-
             loggers.push(new ConsoleLogger());
+            const codePath = process.platform === "linux" ? path.join(this.vsCodeClientDirectory, "VSCode-linux-x64") : this.vsCodeClientDirectory;
 
             SmokeTestLogger.info(`*** Executing ${this.vsCodeClientAppFileDirectory}`);
 
             return {
                 quality,
-                codePath: this.vsCodeClientDirectory,
+                codePath: codePath,
                 workspacePath: workspaceOrFolder,
                 userDataDir: path.join(this.vsCodeUserDataDirectory, dataDirFolderName),
                 extensionsPath: this.extensionDirectory,
