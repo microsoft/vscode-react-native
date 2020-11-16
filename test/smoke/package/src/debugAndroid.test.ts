@@ -137,10 +137,7 @@ export function setup(testParameters?: TestRunArguments): void {
             SmokeTestLogger.info(`Android Debug test: Chosen debug configuration: ${RNDebugConfigName}`);
             SmokeTestLogger.info("Android Debug test: Starting debugging");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-            const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, AndroidEmulatorHelper.androidEmulatorName);
             await AndroidEmulatorHelper.checkIfAppIsInstalled(RN_APP_PACKAGE_NAME, SmokeTestsConstants.androidAppBuildAndInstallTimeout);
-            client = await AppiumHelper.webdriverAttach(opts);
-            await AppiumHelper.enableRemoteDebugJS(client, Platform.Android);
             await app.workbench.debug.waitForDebuggingToStart();
             SmokeTestLogger.info("Android Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);

@@ -151,7 +151,6 @@ async function setup(): Promise<void> {
         const PureRNVersionExpo = process.env.PURE_RN_VERSION || await SetupEnvironmentHelper.getLatestSupportedRNVersionForExpo(process.env.EXPO_SDK_MAJOR_VERSION);
         SetupEnvironmentHelper.prepareReactNativeApplication(pureRNWorkspaceFilePath, resourcesPath, pureRNWorkspacePath, SmokeTestsConstants.pureRNExpoApp, "PureRNExpoSample", PureRNVersionExpo);
         if (process.platform === "win32") {
-
             SetupEnvironmentHelper.prepareReactNativeApplication(RNWWorkspaceFilePath, resourcesPath, RNWWorkspacePath, SmokeTestsConstants.RNWAppName, "RNWSample", process.env.RNW_VERSION);
             SetupEnvironmentHelper.prepareRNWApp(RNWWorkspacePath);
         }

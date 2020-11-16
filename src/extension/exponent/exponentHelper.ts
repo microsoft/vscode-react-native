@@ -195,10 +195,10 @@ var React = require('${this.pathToFileInWorkspace("/node_modules/react")}');
 var { Component } = React;
 var ReactNative = require('${this.pathToFileInWorkspace("/node_modules/react-native")}');
 var { AppRegistry } = ReactNative;
-var entryPoint = require('${entryPoint}');
 AppRegistry.registerRunnable('main', function(appParameters) {
     AppRegistry.runApplication('${name}', appParameters);
-});`;
+});
+var entryPoint = require('${entryPoint}');`;
     }
 
     private patchAppJson(isExpo: boolean = true): Promise<void> {
