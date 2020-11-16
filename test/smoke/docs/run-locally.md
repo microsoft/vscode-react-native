@@ -1,7 +1,7 @@
 # Running automated smoke tests locally
 
-Tests supports running on **Windows 10**, **MacOS Catalina** and **Ubuntu 18.04** machines. Use instructions respected to your machine type.
-Please, be aware that automated tests doesn't cover debugging cases on a real devices - only emulators/simulators.
+Tests support running on **Windows 10**, **MacOS Catalina** and **Ubuntu 18.04** machines. Use instructions respected to your machine type.
+Please, be aware that automated tests don't cover debugging cases on real devices - only emulators/simulators.
 
 ## Prerequisites
 
@@ -42,7 +42,7 @@ Tests are running using [VS Code automation package](https://github.com/microsof
     sudo apt install xvfb
     ```
 
-1. Open Android Studio, and go through the setup.
+1. Open Android Studio and go through the setup.
    * Select `Custom Installation`
    * When you will be asked where to install android sdk choose the following directory:
      * **Windows**: `C:\Users\<username>\Android\sdk`
@@ -83,7 +83,7 @@ Add these lines to `~/.bash_profile` (create one if it doesn't exist):
    where **<user_name>** - name of the user you want to add access to the **KVM**.
 
 1. Open Android studio for any workspace and open **Android Virtual Device Manager(AVD Manager)** at the right top of the window.
-1. Create new android virtual device using **x86** image with the parameters you need for testing.
+1. Create a new android virtual device using **x86** image with the parameters you need for testing.
 1. Run this command and if emulator starts - you are all set with Android!
     ```bash
     emulator -avd <device_name>
@@ -104,6 +104,9 @@ Add these lines to `~/.bash_profile` (create one if it doesn't exist):
 1. Launch Xcode and install additional required components when prompted.
 1. Run `sudo xcode-select -s /Applications/Xcode.app` in terminal
 1. Run `brew install carthage` in terminal (*required by Appium*)
+
+## Set up Windows development dependencies (**Windows** only)
+Follow [the official RNW guide](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies)
 
 ## Set up tests
 
@@ -127,44 +130,46 @@ Add these lines to `~/.bash_profile` (create one if it doesn't exist):
    ```sh
    expo login -u 'YOUR_EXPO_LOGIN' -p 'YOUR_EXPO_PASSWORD'
    ```
-1. Open `test/smoke` directory and install node packages
+1. Open the root directory of the extension project and install node packages
    ```sh
-   yarn install
+   npm install
    ```
 1. Copy extension VSIX to `test/smoke/package/resources/drop-win` directory
 
 ## Running tests
 
-Tests requires several environment variables to be set up before starting:
+Tests require several environment variables to be set up before starting:
 
 |Variable|Examples|Explanation|
 |---|---|---|
 |`ANDROID_EMULATOR`|`Nexus_5X_API_28`|Name of the emulated device|
-|`ANDROID_VERSION`|9|Version of android installed on emulated device|
+|`ANDROID_VERSION`|9|Version of Android installed on emulated device|
 |`IOS_SIMULATOR`|`iPhone 11`|(**Only for iOS tests**) Name of the simulated device|
-|`IOS_VERSION`|13.0|(**Only for iOS tests**) Version of iOS on the simulated device|
-|`CODE_VERSION`|`*`, `1.34.1`, `insiders`|Version of VS Code to download and run while running tests|
-|`EXPO_XDL_VERSION` (optional)|`54.1.4`, `skip`|Version of @expo/xdl package to install to the extension directory. If set to "skip" then package installation will be skipped|
+|`IOS_VERSION`|13.5|(**Only for iOS tests**) Version of iOS on the simulated device|
+|`CODE_VERSION`|`*`, `1.50.1`, `insiders`|Version of VS Code to download and run while running tests|
+|`EXPO_XDL_VERSION` (optional)|`58.0.11`, `skip`|Version of @expo/xdl package to install to the extension directory. If set to "skip" then package installation will be skipped|
 |`EXPO_SDK_MAJOR_VERSION` (optional)|`38`, `skip`|Version of `expo-sdk` for Expo applications. If set to "skip" then the latest `expo-sdk` version will be used|
-|`RN_VERSION` (optional)|`0.60.0`, `skip`|Version of React Native application to debug while running tests. If set to "skip" then the latest version will be installed|
-|`PURE_RN_VERSION` (optional)|`0.59.8`, `skip`|Version of React Native while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
-|`PURE_EXPO_VERSION` (optional)|`34.0.2`, `skip`|Version of Expo while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
+|`RN_VERSION` (optional)|`0.63.2`, `skip`|Version of a React Native application to debug while running tests. If set to "skip" then the latest version will be installed|
+|`PURE_RN_VERSION` (optional)|`0.62.2`, `skip`|Version of React Native while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
+|`PURE_EXPO_VERSION` (optional)|`38.0.10`, `skip`|Version of Expo while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
+|`RN_MAC_OS_VERSION` (optional)|`0.62.0`, `skip`|(**Only for macOS tests**) Version of a React Native application for RN macOS tests. If set to "skip" then the latest version will be installed|
+|`RNW_VERSION` (optional)|`0.63.2`, `skip`|(**Only for RNW tests**) Version of a React Native application for RNW tests. If set to "skip" then the latest version will be installed|
 
-To create environment variable you can use this commands:
+To create environment variable you can use these commands:
    * **Windows** (Powershell):
 
    ```ps1
    [Environment]::SetEnvironmentVariable("YOUR_VARIABLE", VALUE, [System.EnvironmentVariableTarget]::Machine)
    ```
 
-   * **Mac/Linux**: Add these lines to `~/.bash_profile`:
+   * **Mac/Linux**: Add these lines to `~/.bash_profile` or `~/.zshrc`:
 
    ```bash
    export YOUR_VARIABLE=VALUE
    ```
 
 In the directory `test/smoke/package` there is a `config.json` configuration file with predefined settings for environment variables.
-This approach would be more suited for CI.
+This approach would be more suitable for CI.
 
 For local runs, it is more convenient to create file `config.dev.json` inside `test/smoke/package` directory and specify variables there. For example:
 ```js
@@ -172,18 +177,18 @@ For local runs, it is more convenient to create file `config.dev.json` inside `t
     "ANDROID_EMULATOR": "Nexus_5X_API_28_x86",
     "ANDROID_VERSION": "9",
     "IOS_SIMULATOR": "iPhone 11",
-    "IOS_VERSION": "13.0",
+    "IOS_VERSION": "13.5",
     "CODE_VERSION" : "*"
 }
 ```
 
-To run tests simply go to root directory and run command:
+To run tests simply go to the root directory and run the command:
 ```sh
 yarn smoke-tests
 ```
-These command will perform pre-tests setup (creating applications, downloading VS Code, cleaning up, etc) and then run Android and iOS tests.
+This command will perform pre-tests setup (creating applications, downloading VS Code, cleaning up, etc) and then run Android, iOS, RNW and macOS tests.
 
-> Notice (**Mac only**): when the tests are being ran for the first time, you need to give permissions for `runsvc.sh` agent process for System Events. Request for the permissions will appear automatically during the tests, so you need to just press `Allow` button. This is required for `expo client:install:ios` command which runs graphical iOS simulator.
+> Notice (**Mac only**): when the tests are being run for the first time, you need to give permissions for `runsvc.sh` agent process for System Events. Request for the permissions will appear automatically during the tests, so you need to just press `Allow` button. This is required for `expo client:install:ios` command which runs graphical iOS simulator.
 
 Also, it supports the following parameters:
 
@@ -204,8 +209,10 @@ Also, it supports the following parameters:
 1. Several diagnostic logs are written during tests run. `SmokeTestLogs` directory is created on each tests run and contains
 * zero-based numbering named directories that corresponds to particular test. There are different diagnostic logs inside such as:
   * `extensionLogs/ReactNative*` - extension output windows logs
+  * `extensionLogs/webdriverIOLogs*` - logs of webdriverIO library
   * `chromedriver.log` - logs of Chrome Driver that are used by Spectron
 * `appium.log` - logs of Appium server
+* `SetupEnvironmentCommandsLogs.txt` - logs of console commands that are used for installing and patching RN projects
 Also, VS Code instance, that is downloaded and used for running tests, is located in `test/smoke/vscode/test/smoke/resources/.vscode-test` directory.
 2. (Linux only) There are some known issues with launching VS Code using virtual display servers:
 ```
