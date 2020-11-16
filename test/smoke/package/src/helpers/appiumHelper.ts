@@ -3,7 +3,6 @@
 
 import * as cp from "child_process";
 import * as wdio from "webdriverio";
-import * as fs from "fs";
 import * as mkdirp from "mkdirp";
 import * as kill from "tree-kill";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
@@ -72,10 +71,6 @@ export class AppiumHelper {
     };
 
     public static runAppium(appiumLogPath: string): void {
-        if (!fs.existsSync(appiumLogPath)) {
-            SmokeTestLogger.projectInstallLog(`*** Creating appium log file: ${appiumLogPath}`);
-            fs.mkdirSync(appiumLogPath);
-        }
         SmokeTestLogger.info(`*** Executing Appium with logging to ${appiumLogPath}`);
         let appiumCommand = process.platform === "win32" ? "appium.cmd" : "appium";
         // We need to inherit stdio streams because, otherwise, on Windows appium is stuck at the middle of the Expo test.

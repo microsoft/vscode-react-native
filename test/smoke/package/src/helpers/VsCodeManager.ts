@@ -180,7 +180,8 @@ export class VsCodeManager {
             if (!sessionName) {
                 sessionName = "UnknownTest";
             }
-            const dirName = `${sessionName}-[${new Date().toLocaleString(locale)}]`;
+            const date = new Date().toLocaleString(locale).split("/").join(".").split(":").join("-");
+            const dirName = `${sessionName}-[${date}]`;
             if (this.artifactDirectory) {
                 const extensionLogsDir = path.join(this.artifactDirectory, dirName, "extensionLogs");
                 process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
