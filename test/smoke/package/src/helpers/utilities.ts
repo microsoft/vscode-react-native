@@ -198,6 +198,8 @@ export function findStringInFile(filePath: string, strToFind: string): boolean {
 }
 
 export function objectsContains(object: any, subObject: any): boolean {
+    console.log(object);
+    console.log(subObject);
     for (let i = 0; i < Object.keys(subObject).length ; i++) {
         const key = Object.keys(subObject)[i];
         console.log(key);

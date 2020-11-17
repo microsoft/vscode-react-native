@@ -31,14 +31,26 @@ export class LaunchConfigurationManager {
         return this.launchScenarios;
     }
 
-    private getFirstScenarioIndexByParams(scenario: IConfiguration): number | null {
+    // private getFirstScenarioIndexByParams(scenario: IConfiguration): number | null {
+    //     if (this.launchScenarios.configurations) {
+    //         for (let i = 0; i < this.launchScenarios.configurations.length; i++) {
+    //             const config = this.launchScenarios.configurations[i];
+    //             if (scenario.name === config.name &&
+    //                 scenario.platform === config.platform &&
+    //                 scenario.type === config.type &&
+    //                 scenario.request === config.request) {
+    //                 return i;
+    //             }
+    //         }
+    //     }
+    //     return null;
+    // }
+
+    private getScenarioByName(scenarioName: string): number | null{
         if (this.launchScenarios.configurations) {
             for (let i = 0; i < this.launchScenarios.configurations.length; i++) {
                 const config = this.launchScenarios.configurations[i];
-                if (scenario.name === config.name &&
-                    scenario.platform === config.platform &&
-                    scenario.type === config.type &&
-                    scenario.request === config.request) {
+                if (scenarioName === config.name) {
                     return i;
                 }
             }
@@ -60,9 +72,9 @@ export class LaunchConfigurationManager {
         return this.launchScenarios;
     }
 
-    public updateLaunchScenario(launchConfig: IConfiguration, updates: any): void {
+    public updateLaunchScenario(configName: string, updates: any): void {
         this.readLaunchScenarios();
-        let launchConfigIndex = this.getFirstScenarioIndexByParams(launchConfig);
+        let launchConfigIndex = this.getScenarioByName(configName);
         const launchScenarios = this.getLaunchScenarios();
         if (launchConfigIndex !== null && launchScenarios.configurations) {
             Object.assign(launchScenarios.configurations[launchConfigIndex], updates);
@@ -70,13 +82,15 @@ export class LaunchConfigurationManager {
         }
     }
 
-    public waitUntilLaunchScenarioUpdate(updates: any, launchConfig?: IConfiguration): Promise<boolean> {
+    public waitUntilLaunchScenarioUpdate(updates: any, configName?: string): Promise<boolean> {
         const condition = (): boolean => {
             const configs = this.readLaunchScenarios().configurations;
+            console.log(configs);
             if (configs) {
-                if (launchConfig) {
-                    const index = this.getFirstScenarioIndexByParams(launchConfig);
-                    if (index) {
+                if (configName) {
+                    const index = this.getScenarioByName(configName);
+                    console.log(index);
+                    if (index !== null) {
                         return objectsContains(configs[index], updates);
                     }
                 }

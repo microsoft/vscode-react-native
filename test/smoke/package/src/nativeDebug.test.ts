@@ -96,7 +96,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 SmokeTestLogger.info("Android emulator save test: Debugging started in first time");
                 SmokeTestLogger.info("Android emulator save test: Wait until emulator starting");
                 await androidEmulatorManager.waitUntilEmulatorStarting();
-                const isScenarioUpdated = await launchConfigurationManager.waitUntilLaunchScenarioUpdate({ target: androidEmulatorManager.getEmulatorName() }, { name: AndroidRNDebugConfigName });
+                const isScenarioUpdated = await launchConfigurationManager.waitUntilLaunchScenarioUpdate({ target: androidEmulatorManager.getEmulatorName() }, AndroidRNDebugConfigName);
                 SmokeTestLogger.info(`Android emulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${androidEmulatorManager.getEmulatorName()}"'`);
                 assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
                 SmokeTestLogger.info("Android emulator save test: Dispose all");
@@ -130,7 +130,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 SmokeTestLogger.info(`iOS Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
                 SmokeTestLogger.info(`iOS Debug test: Chosen debug configuration: ${IosRNDebugConfigName}`);
                 // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
-                launchConfigurationManager.updateLaunchScenario({ name: IosRNDebugConfigName }, { target: deviceName });
+                launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, { target: deviceName });
                 SmokeTestLogger.info("iOS Debug test: Starting debugging");
                 await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
                 await iosSimulatorManager.waitUntilIosAppIsInstalled(RnAppBundleId);
@@ -172,7 +172,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 const launchConfigurationManager = new LaunchConfigurationManager(workspace);
                 await IosSimulatorManager.shutdownAllSimulators();
                 app = await vscodeManager.runVSCode(workspace, `Save iOS simulator test (first launch)`);
-                launchConfigurationManager.updateLaunchScenario({ name: IosRNDebugConfigName }, { target: "simulator" });
+                launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, { target: "simulator" });
                 SmokeTestLogger.info("iOS simulator save test: Starting debugging at the first time");
                 await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
                 SmokeTestLogger.info("iOS simulator save test: Debugging started at the first time");
@@ -181,7 +181,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 await app.workbench.quickinput.submit(simulator.name);
                 let isStarted = await iosSimulatorManager.waitUntilIosSimulatorStarting();
                 assert.strictEqual(isStarted, true, `Could not boot iOS simulator ${this.simulator.name} in first time`);
-                const isScenarioUpdated = launchConfigurationManager.waitUntilLaunchScenarioUpdate({ target: simulator.id }, { name: IosRNDebugConfigName });
+                const isScenarioUpdated = launchConfigurationManager.waitUntilLaunchScenarioUpdate({ target: simulator.id }, IosRNDebugConfigName);
                 SmokeTestLogger.info(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${simulator.id}"' in launch.json`);
                 assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
                 await disposeAll();

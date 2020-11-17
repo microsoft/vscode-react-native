@@ -49,9 +49,9 @@ export function startSmokeTests(args: TestRunArguments, setup: () => Promise<voi
         const noSelectArgs = !args.RunAndroidTests && !args.RunIosTests && !args.RunBasicTests && !args.RunMacOSTests && !args.RunWindowsTests;
         if (noSelectArgs) {
             SmokeTestLogger.info("*** Android and iOS tests will be run");
-            startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory());
-            startExpoTests(testApplicationSetupManager.getExpoWorkspaceDirectory(), testApplicationSetupManager.getPureRnWorkspaceDirectory());
-            startDirectDebugTests(testApplicationSetupManager.getHermesWorkspaceDirectory());
+            // startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory());
+            // startExpoTests(testApplicationSetupManager.getExpoWorkspaceDirectory(), testApplicationSetupManager.getPureRnWorkspaceDirectory());
+            // startDirectDebugTests(testApplicationSetupManager.getHermesWorkspaceDirectory());
             startDebugMacOSTests(testApplicationSetupManager.getMacOSRnWorkspaceDirectory());
             startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory());
         } else {
