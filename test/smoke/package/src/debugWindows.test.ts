@@ -50,7 +50,7 @@ export function startDebugRNWTests(workspace: string, testParameters?: TestRunAr
         if (process.platform === "win32" && (!testParameters || testParameters.RunWindowsTests)) {
             it("RN Windows app Debug test", async function () {
                 this.timeout(debugWindowsTestTime);
-                app = await vscodeManager.runVSCode(workspace, this.currentTest?.title);
+                app = await vscodeManager.runVSCode(workspace, "RN Windows app Debug test");
                 await app.workbench.quickaccess.openFile("App.js");
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("Windows Debug test: App.js file is opened");

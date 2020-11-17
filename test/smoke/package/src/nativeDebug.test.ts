@@ -50,7 +50,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
         if (!testParameters || testParameters.RunAndroidTests) {
             it("Android RN app Debug test", async function () {
                 this.timeout(debugAndroidTestTime);
-                app = await vscodeManager.runVSCode(workspace, this.currentTest?.title);
+                app = await vscodeManager.runVSCode(workspace, "Android RN app Debug test");
                 await app.workbench.quickaccess.openFile("App.js");
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("Android Debug test: App.js file is opened");
@@ -80,15 +80,15 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
             });
 
             it("Save Android emulator test", async function () {
-                // Theres is a problem with starting an emulator by the VS Code process on Windows testing machine.
-                // The issue will be investigated
-                if (process.platform === "win32") {
-                    SmokeTestLogger.warn(`Android emulator save test: Theres is a problem with starting an emulator by the VS Code process on Windows testing machine, so we skip this test.`);
-                    return this.skip();
-                }
+                // // Theres is a problem with starting an emulator by the VS Code process on Windows testing machine.
+                // // The issue will be investigated
+                // if (process.platform === "win32") {
+                //     SmokeTestLogger.warn(`Android emulator save test: Theres is a problem with starting an emulator by the VS Code process on Windows testing machine, so we skip this test.`);
+                //     return this.skip();
+                // }
                 this.timeout(debugAndroidTestTime);
                 const launchConfigurationManager = new LaunchConfigurationManager(workspace);
-                app = await vscodeManager.runVSCode(workspace, `${this.currentTest?.title} (first launch)`);
+                app = await vscodeManager.runVSCode(workspace, `Save Android emulator test (first launch)`);
                 SmokeTestLogger.info("Android emulator save test: Terminating all Android emulators");
                 await AndroidEmulatorManager.terminateAllAndroidEmulators();
                 SmokeTestLogger.info("Android emulator save test: Starting debugging in first time");
@@ -101,7 +101,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
                 SmokeTestLogger.info("Android emulator save test: Dispose all");
                 await disposeAll();
-                app = await vscodeManager.runVSCode(workspace, `${this.currentTest?.title} (second launch)`);
+                app = await vscodeManager.runVSCode(workspace, `Save Android emulator test (second launch)`);
                 SmokeTestLogger.info("Android emulator save test: Terminating all Android emulators");
                 await AndroidEmulatorManager.terminateAllAndroidEmulators();
                 SmokeTestLogger.info("Android emulator save test: Starting debugging in second time");
@@ -122,7 +122,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 this.timeout(debugIosTestTime);
                 const launchConfigurationManager = new LaunchConfigurationManager(workspace);
                 const deviceName = iosSimulatorManager.getSimulator().name;
-                app = await vscodeManager.runVSCode(workspace, this.currentTest?.title);
+                app = await vscodeManager.runVSCode(workspace, "iOS RN app Debug test");
                 await app.workbench.quickaccess.openFile("App.js");
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("iOS Debug test: App.js file is opened");
@@ -171,7 +171,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 this.timeout(debugIosTestTime);
                 const launchConfigurationManager = new LaunchConfigurationManager(workspace);
                 await IosSimulatorManager.shutdownAllSimulators();
-                app = await vscodeManager.runVSCode(workspace, `${this.currentTest?.title} (first launch)`);
+                app = await vscodeManager.runVSCode(workspace, `Save iOS simulator test (first launch)`);
                 launchConfigurationManager.updateLaunchScenario({ name: IosRNDebugConfigName }, { target: "simulator" });
                 SmokeTestLogger.info("iOS simulator save test: Starting debugging at the first time");
                 await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
@@ -186,7 +186,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
                 await disposeAll();
                 await IosSimulatorManager.shutdownAllSimulators();
-                app = await vscodeManager.runVSCode(workspace, `${this.currentTest?.title} (second launch)`);
+                app = await vscodeManager.runVSCode(workspace, `Save iOS simulator test (second launch)`);
                 SmokeTestLogger.info("iOS simulator save test: Starting debugging at the second time");
                 await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
                 SmokeTestLogger.info("iOS simulator save test: Debugging started at the second time");

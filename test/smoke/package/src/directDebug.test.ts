@@ -42,7 +42,7 @@ export function startDirectDebugTests(workspace: string, testParameters?: TestRu
                 try {
                     this.timeout(debugAndroidTestTime);
                     androidEmulatorManager.uninstallTestAppFromEmulator(HERMES_APP_PACKAGE_NAME);
-                    app = await vscodeManager.runVSCode(workspace);
+                    app = await vscodeManager.runVSCode(workspace, "Hermes RN app Debug test");
                     await app.workbench.quickaccess.openFile("AppTestButton.js");
                     await app.workbench.editors.scrollTop();
                     SmokeTestLogger.info("Android Debug Hermes test: AppTestButton.js file is opened");

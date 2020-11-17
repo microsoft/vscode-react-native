@@ -216,13 +216,12 @@ export class VsCodeManager {
             }
             const loggers: Logger[] = [];
             loggers.push(new ConsoleLogger());
-            const codePath = process.platform === "linux" ? path.join(this.vsCodeClientDirectory, "VSCode-linux-x64") : this.vsCodeClientDirectory;
 
             SmokeTestLogger.info(`*** Executing ${this.vsCodeClientAppFileDirectory}`);
 
             return {
                 quality,
-                codePath: codePath,
+                codePath: this.getElectronExecutablePath(),
                 workspacePath: workspaceOrFolder,
                 userDataDir: path.join(this.vsCodeUserDataDirectory, dataDirFolderName),
                 extensionsPath: this.extensionDirectory,
@@ -256,6 +255,25 @@ export class VsCodeManager {
         }
         else {
             throw new Error(VsCodeManager.VS_CODE_CLIENT_NOT_INSTALLED_ERROR);
+        }
+    }
+
+    private getElectronExecutablePath() {
+        const isInsiders = this.clientVersion === "insiders";
+
+        switch (process.platform) {
+            case "darwin":
+                return isInsiders
+                    ?
+                    path.resolve(this.vsCodeClientDirectory, 'Visual Studio Code - Insiders.app')
+                    :
+                    path.resolve(this.vsCodeClientDirectory, 'Visual Studio Code.app');
+            case "win32":
+                return this.vsCodeClientDirectory;
+            case "linux":
+                return path.resolve(this.vsCodeClientDirectory, 'VSCode-linux-x64');
+            default:
+                throw new Error(`Platform ${process.platform} isn't supported`);
         }
     }
 

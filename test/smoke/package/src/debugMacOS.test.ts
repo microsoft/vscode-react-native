@@ -61,7 +61,7 @@ export function startDebugMacOSTests(workspace: string, testParameters?: TestRun
         if (process.platform === "darwin" && (!testParameters || testParameters.RunMacOSTests)) {
             it("RN macOS app Debug test", async function () {
                 this.timeout(debugMacOSTestTime);
-                app = await vscodeManager.runVSCode(workspace, this.currentTest?.title);
+                app = await vscodeManager.runVSCode(workspace, "RN macOS app Debug test");
                 await app.workbench.quickaccess.openFile("App.js");
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("macOS Debug test: App.js file is opened");
