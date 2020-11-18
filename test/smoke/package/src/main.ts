@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { smokeTestFail } from "./helpers/utilities";
+import { sleep, smokeTestFail } from "./helpers/utilities";
 import * as path from "path";
 import AndroidEmulatorManager from "./helpers/AndroidEmulatorManager";
 import { AppiumHelper } from "./helpers/appiumHelper";
@@ -43,12 +43,16 @@ async function setUp(): Promise<void> {
         .then(async () => {
             SmokeTestLogger.info("*** Preparing Android emulator...");
             await androidEmulatorManager.runAndroidEmulator();
+            // Waiting for all services to start
+            await sleep(60_000);
             await androidEmulatorManager.installExpoAppOnAndroid();
         })
         .then(async () => {
             if (process.platform === "darwin") {
                 SmokeTestLogger.info("*** Preparing iOS simulator...");
                 await iosSimulatorManager.runIosSimulator();
+                // Waiting for all services to start
+                await sleep(60_000);
                 await iosSimulatorManager.installExpoAppOnIos();
             }
         });
