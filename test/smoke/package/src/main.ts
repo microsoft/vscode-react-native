@@ -3,13 +3,13 @@
 
 import { sleep, smokeTestFail } from "./helpers/utilities";
 import * as path from "path";
-import AndroidEmulatorManager from "./helpers/AndroidEmulatorManager";
+import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
 import { AppiumHelper } from "./helpers/appiumHelper";
-import IosSimulatorManager from "./helpers/IosSimulatorManager";
+import IosSimulatorManager from "./helpers/iosSimulatorManager";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { TestApplicationSetupManager } from "./helpers/TestApplicationSetupManager";
-import { TestConfigProcessor } from "./helpers/TestConfigProcessor";
-import { VsCodeManager } from "./helpers/VsCodeManager";
+import { TestApplicationSetupManager } from "./helpers/testApplicationSetupManager";
+import { TestConfigProcessor } from "./helpers/testConfigProcessor";
+import { VsCodeManager } from "./helpers/vsCodeManager";
 import { startSmokeTests } from "./smoke.test";
 import * as os from "os";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";

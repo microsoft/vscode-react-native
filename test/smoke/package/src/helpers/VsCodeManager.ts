@@ -139,11 +139,7 @@ export class VsCodeManager {
                 }
                 const extensionFullPath = path.join(this.extensionDirectory, extensionDirName);
 
-                let npmCmd = "npm";
-                if (process.platform === "win32") {
-                    npmCmd = "npm.cmd";
-                }
-                const command = `${npmCmd} install @expo/xdl@${process.env.EXPO_XDL_VERSION} --no-save`;
+                const command = `${utilities.npmCommand} install @expo/xdl@${process.env.EXPO_XDL_VERSION} --no-save`;
 
                 SmokeTestLogger.projectPatchingLog(`*** Adding @expo/xdl dependency to ${extensionFullPath} via '${command}' command...`);
                 utilities.execSync(command, { cwd: extensionFullPath, stdio: "inherit" }, this.setupEnvironmentLogDir);

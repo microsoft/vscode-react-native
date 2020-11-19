@@ -150,7 +150,7 @@ export class TestApplicationSetupManager {
     }
 
     private prepareReactNativeProjectForWindowsApplication(workspacePath: string): void {
-        const command = `${process.platform === "win32" ? "npx.cmd" : "npx"} react-native-windows-init --overwrite`;
+        const command = `${utilities.npxCommand} react-native-windows-init --overwrite`;
         SmokeTestLogger.projectPatchingLog(`*** Install additional RNW packages using ${command}`);
         utilities.execSync(
             command,
@@ -317,13 +317,8 @@ export class TestApplicationSetupManager {
         const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
         const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
 
-        let npmCmd = "npm";
-        if (process.platform === "win32") {
-            npmCmd = "npm.cmd";
-        }
-
         let expoPackage: string = version ? `expo@${version}` : "expo";
-        const command = `${npmCmd} install ${expoPackage} --save-dev`;
+        const command = `${utilities.npmCommand} install ${expoPackage} --save-dev`;
 
         SmokeTestLogger.projectPatchingLog(`*** Adding expo dependency to ${workspaceDirectory} via '${command}' command...`);
         utilities.execSync(command, { cwd: workspaceDirectory, stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());

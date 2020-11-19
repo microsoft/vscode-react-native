@@ -3,13 +3,13 @@
 
 import * as assert from "assert";
 import { Application } from "../../automation";
-import AndroidEmulatorManager from "./helpers/AndroidEmulatorManager";
+import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
 import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
-import IosSimulatorManager from "./helpers/IosSimulatorManager";
-import { LaunchConfigurationManager } from "./helpers/LaunchConfigurationManager";
+import IosSimulatorManager from "./helpers/iosSimulatorManager";
+import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { TestRunArguments } from "./helpers/TestConfigProcessor";
+import { TestRunArguments } from "./helpers/testConfigProcessor";
 import { sleep } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 

@@ -8,7 +8,7 @@ import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { findFile, findStringInFile, sleep, waitUntil } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
-import { TestRunArguments } from "./helpers/TestConfigProcessor";
+import { TestRunArguments } from "./helpers/testConfigProcessor";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 
 const EXPO_APP_LAUNCH_TIMEOUT = 120_000;

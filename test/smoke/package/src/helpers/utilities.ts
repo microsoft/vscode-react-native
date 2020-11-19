@@ -8,9 +8,9 @@ import * as URL from "url-parse";
 import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
-import AndroidEmulatorManager from "./AndroidEmulatorManager";
+import AndroidEmulatorManager from "./androidEmulatorManager";
 import { AppiumHelper } from "./appiumHelper";
-import IosSimulatorManager from "./IosSimulatorManager";
+import IosSimulatorManager from "./iosSimulatorManager";
 import { SmokeTestLogger } from "./smokeTestLogger";
 
 export const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
