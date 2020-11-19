@@ -6,7 +6,7 @@ import { AppiumHelper, AppiumClient, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { RNworkspacePath, runVSCode, ExpoWorkspacePath, pureRNWorkspacePath } from "./main";
 import { IosSimulatorHelper } from "./helpers/iosSimulatorHelper";
-import { sleep, findFile, findExpoURLInLogFile, findExpoSuccessAndFailurePatterns, ExpoLaunch, getIOSBuildPath, waitUntilLaunchScenarioTargetUpdate } from "./helpers/utilities";
+import { sleep, findFile, findExpoURLInLogFile, findExpoSuccessAndFailurePatterns, ExpoLaunch, waitUntilLaunchScenarioTargetUpdate } from "./helpers/utilities";
 import { SetupEnvironmentHelper } from "./helpers/setupEnvironmentHelper";
 import * as path from "path";
 import { TestRunArguments } from "./helpers/configHelper";
@@ -149,22 +149,7 @@ export function setup(testParameters?: TestRunArguments): void {
             SetupEnvironmentHelper.setIosTargetToLaunchJson(RNworkspacePath, RNDebugConfigName, IosSimulatorHelper.getDevice());
             SmokeTestLogger.info("iOS Debug test: Starting debugging");
             await app.workbench.quickaccess.runDebugScenario(RNDebugConfigName);
-
             await IosSimulatorHelper.waitUntilIosAppIsInstalled(RnAppBundleId, SmokeTestsConstants.iosAppBuildAndInstallTimeout, 40 * 1000);
-            const device = <string>IosSimulatorHelper.getDevice();
-            const buildPath = getIOSBuildPath(
-                `${RNworkspacePath}/ios`,
-                `${SmokeTestsConstants.RNAppName}.xcworkspace`,
-                "Debug",
-                SmokeTestsConstants.RNAppName,
-                "iphonesimulator"
-            );
-            const appPath = `${buildPath}/${SmokeTestsConstants.RNAppName}.app`;
-            const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
-            client = await AppiumHelper.webdriverAttach(opts);
-            await AppiumHelper.enableRemoteDebugJS(client, Platform.iOS);
-            await sleep(5 * 1000);
-
             await app.workbench.debug.waitForDebuggingToStart();
             SmokeTestLogger.info("iOS Debug test: Debugging started");
             await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
