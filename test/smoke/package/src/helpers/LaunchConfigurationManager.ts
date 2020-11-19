@@ -85,11 +85,9 @@ export class LaunchConfigurationManager {
     public waitUntilLaunchScenarioUpdate(updates: any, configName?: string): Promise<boolean> {
         const condition = (): boolean => {
             const configs = this.readLaunchScenarios().configurations;
-            console.log(configs);
             if (configs) {
                 if (configName) {
                     const index = this.getScenarioByName(configName);
-                    console.log(index);
                     if (index !== null) {
                         return objectsContains(configs[index], updates);
                     }

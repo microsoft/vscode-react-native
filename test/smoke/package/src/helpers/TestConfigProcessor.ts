@@ -33,7 +33,7 @@ export class TestConfigProcessor {
     private configVariables: TestEnvVariables;
 
     constructor(envConfigFilePath: string, envConfigFilePathDev?: string) {
-        console.log(`*** Setting up configuration variables`);
+        SmokeTestLogger.projectInstallLog(`*** Setting up configuration variables`);
         const config = this.readConfiguration(envConfigFilePath, envConfigFilePathDev);
         this.configVariables = this.getConfiguration(config);
         this.passEnvVariablesToProcessEnv(this.configVariables);
