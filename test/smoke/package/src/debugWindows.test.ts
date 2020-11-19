@@ -10,7 +10,7 @@ import { TestRunArguments } from "./helpers/configHelper";
 import { Application } from "../../automation";
 
 const RNSetBreakpointOnLine = 1;
-const RNDebugConfigName = "Debug Windows";
+const RNDebugConfigName = "Debug RN Wind";
 
 export function setup(testParameters?: TestRunArguments): void {
     describe("Debugging Windows", () => {

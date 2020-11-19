@@ -34,25 +34,7 @@ export class SetupEnvironmentHelper {
         if (version) {
             command += ` --version ${version}`;
         }
-        SmokeTestLogger.projectInstallLog(`*** Creating RN app via '${command}' in ${workspacePath}...`);
-        execSync(command, { cwd: resourcesPath }, SetupEnvironmentHelper.SetupEnvironmentCommandsLogFile);
-
-        const customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
-        const launchConfigFile = path.join(resourcesPath, "launch.json");
-        const vsCodeConfigPath = path.join(workspacePath, ".vscode");
-
-        SmokeTestLogger.projectPatchingLog(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
-        fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
-
-        if (!fs.existsSync(vsCodeConfigPath)) {
-            SmokeTestLogger.projectPatchingLog(`*** Creating  ${vsCodeConfigPath}...`);
-            fs.mkdirSync(vsCodeConfigPath);
-        }
-
-        SmokeTestLogger.projectPatchingLog(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
-        fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
-
-        SetupEnvironmentHelper.patchMetroConfig(workspacePath);
+        SetupEnvironmentHelper.setupReactNativeApplication(workspaceFilePath, resourcesPath, workspacePath, customEntryPointFolder, command);
     }
 
     public static prepareHermesReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string) {
@@ -329,7 +311,9 @@ module.exports.watchFolders = ['.vscode'];`;
         SmokeTestLogger.projectPatchingLog(`*** Content of a metro.config.js after patching: ${contentAfterPatching}`);
     }
 
-    public static prepareRNWApp(workspacePath: string): void {
+    public static prepareRNWApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, appName: string, customEntryPointFolder: string, version?: string): void {
+        const setupCommand = `${this.npxCommand} --ignore-existing react-native init ${appName} --template react-native@^${version}`;
+        SetupEnvironmentHelper.setupReactNativeApplication(workspaceFilePath, resourcesPath, workspacePath, customEntryPointFolder, setupCommand);
         const command = `${this.npxCommand} react-native-windows-init --overwrite`;
         SmokeTestLogger.projectPatchingLog(`*** Install additional RNW packages using ${command}`);
         execSync(command, { cwd: workspacePath, stdio: "pipe" }, SetupEnvironmentHelper.SetupEnvironmentCommandsLogFile);
@@ -341,5 +325,27 @@ module.exports.watchFolders = ['.vscode'];`;
 
         SmokeTestLogger.projectPatchingLog(`*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`);
         fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
+    }
+
+    private static setupReactNativeApplication(workspaceFilePath: string, resourcesPath: string, workspacePath: string, customEntryPointFolder: string, setupCommand: string) {
+        SmokeTestLogger.projectInstallLog(`*** Creating RN app via '${setupCommand}' in ${workspacePath}...`);
+        execSync(setupCommand, { cwd: resourcesPath }, SetupEnvironmentHelper.SetupEnvironmentCommandsLogFile);
+
+        const customEntryPointFile = path.join(resourcesPath, customEntryPointFolder, "App.js");
+        const launchConfigFile = path.join(resourcesPath, "launch.json");
+        const vsCodeConfigPath = path.join(workspacePath, ".vscode");
+
+        SmokeTestLogger.projectPatchingLog(`*** Copying  ${customEntryPointFile} into ${workspaceFilePath}...`);
+        fs.writeFileSync(workspaceFilePath, fs.readFileSync(customEntryPointFile));
+
+        if (!fs.existsSync(vsCodeConfigPath)) {
+            SmokeTestLogger.projectPatchingLog(`*** Creating  ${vsCodeConfigPath}...`);
+            fs.mkdirSync(vsCodeConfigPath);
+        }
+
+        SmokeTestLogger.projectPatchingLog(`*** Copying  ${launchConfigFile} into ${vsCodeConfigPath}...`);
+        fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(launchConfigFile));
+
+        SetupEnvironmentHelper.patchMetroConfig(workspacePath);
     }
 }

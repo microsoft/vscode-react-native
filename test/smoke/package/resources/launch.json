@@ -10,7 +10,7 @@
       "target": "simulator"
     },
     {
-      "name": "Debug Windows",
+      "name": "Debug RN Wind",
       "cwd": "${workspaceFolder}",
       "type": "reactnative",
       "request": "launch",
