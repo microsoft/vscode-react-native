@@ -9,6 +9,7 @@ import * as rimraf from "rimraf";
 import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleLogger } from "../../../automation";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { SmokeTestLogger } from "./smokeTestLogger";
+import { AppiumHelper } from "./appiumHelper";
 
 export class VsCodeManager {
     private cacheDirectory: string;
@@ -183,6 +184,7 @@ export class VsCodeManager {
                 process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
                 this.currentSessionLogsDir = extensionLogsDir;
                 const webdriverIOLogsDir = path.join(this.artifactDirectory, dirName, "webdriverIOLogs");
+                AppiumHelper.createWebdriverIOLogDir(webdriverIOLogsDir);
                 process.env.WEBDRIVER_IO_LOGS_DIR = webdriverIOLogsDir;
             }
             let quality: Quality;
