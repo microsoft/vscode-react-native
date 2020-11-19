@@ -45,6 +45,7 @@ export function startSmokeTests(args: TestRunArguments, setup: () => Promise<voi
             }
             AppiumHelper.terminateAppium();
         });
+        
         startLocalizationTests(testApplicationSetupManager.getRnWorkspaceDirectory());
         const noSelectArgs = !args.RunAndroidTests && !args.RunIosTests && !args.RunBasicTests && !args.RunMacOSTests && !args.RunWindowsTests;
         if (noSelectArgs) {

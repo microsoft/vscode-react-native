@@ -182,6 +182,8 @@ export class VsCodeManager {
                 const extensionLogsDir = path.join(this.artifactDirectory, dirName, "extensionLogs");
                 process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
                 this.currentSessionLogsDir = extensionLogsDir;
+                const webdriverIOLogsDir = path.join(this.artifactDirectory, dirName, "webdriverIOLogs");
+                process.env.WEBDRIVER_IO_LOGS_DIR = webdriverIOLogsDir;
             }
             let quality: Quality;
             if (this.clientVersion === "insiders") {

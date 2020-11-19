@@ -126,6 +126,7 @@ export class AppiumHelper {
     }
 
     public static prepareAttachOptsForIosApp(deviceName: string, appPath: string): wdio.RemoteOptions {
+        SmokeTestLogger.info(`*** process.env.WEBDRIVER_IO_LOGS_DIR: ${process.env.WEBDRIVER_IO_LOGS_DIR}`);
         return {
             capabilities: {
                 platformName: "iOS",

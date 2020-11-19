@@ -35,27 +35,25 @@ export const vscodeManager = new VsCodeManager(vscodeTestPath, resourcesPath, ca
 startSmokeTests(configProcessor.parseTestArguments(), setUp, cleanUp);
 
 async function setUp(): Promise<void> {
-    return vscodeManager.downloadVSCodeExecutable()
-        .then(() => vscodeManager.installExtensionFromVSIX())
-        .then(() => vscodeManager.installExpoXdlPackageToExtensionDir())
-        .then(() => testApplicationSetupManager.prepareTestApplications())
-        .then(() => AppiumHelper.runAppium(vscodeManager.getAppiumLogDir()))
-        .then(async () => {
-            SmokeTestLogger.info("*** Preparing Android emulator...");
-            await androidEmulatorManager.runAndroidEmulator();
-            // Waiting for all services to start
-            await sleep(60_000);
-            await androidEmulatorManager.installExpoAppOnAndroid();
-        })
-        .then(async () => {
-            if (process.platform === "darwin") {
-                SmokeTestLogger.info("*** Preparing iOS simulator...");
-                await iosSimulatorManager.runIosSimulator();
-                // Waiting for all services to start
-                await sleep(60_000);
-                await iosSimulatorManager.installExpoAppOnIos();
-            }
-        });
+    await vscodeManager.downloadVSCodeExecutable();
+    await vscodeManager.installExtensionFromVSIX();
+    await vscodeManager.installExpoXdlPackageToExtensionDir();
+    await testApplicationSetupManager.prepareTestApplications();
+    await AppiumHelper.runAppium(vscodeManager.getAppiumLogDir());
+
+    SmokeTestLogger.info("*** Preparing Android emulator...");
+    await androidEmulatorManager.runAndroidEmulator();
+    // Waiting for all services to start
+    await sleep(60_000);
+    await androidEmulatorManager.installExpoAppOnAndroid();
+
+    if (process.platform === "darwin") {
+        SmokeTestLogger.info("*** Preparing iOS simulator...");
+        await iosSimulatorManager.runIosSimulator();
+        // Waiting for all services to start
+        await sleep(60_000);
+        await iosSimulatorManager.installExpoAppOnIos();
+    }
 }
 
 async function cleanUp(): Promise<void> {
