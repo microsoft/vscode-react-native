@@ -11,7 +11,7 @@ import { Application } from "../../automation";
 import { TestRunArguments } from "./helpers/TestConfigProcessor";
 
 const RNwindowsSetBreakpointOnLine = 1;
-const RNWDebugConfigName = "Debug Windows";
+const RNWDebugConfigName = "Debug RN Wind";
 
 // Time for macOS Debug Test before it reaches timeout
 const debugWindowsTestTime = SmokeTestsConstants.windowsTestTimeout;

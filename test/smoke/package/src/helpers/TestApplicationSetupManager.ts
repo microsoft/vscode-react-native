@@ -211,15 +211,23 @@ export class TestApplicationSetupManager {
         return { testButtonPath, customEntryPointPath };
     }
 
+    private generateReactNativeInitCommand(appName: string, version?: string): string {
+        let command = "";
+        if (appName === SmokeTestsConstants.RNWAppName) {
+            command = `${utilities.npxCommand} --ignore-existing react-native init ${appName} --template react-native@^${version}`;
+        } else {
+            command = `react-native init ${appName}${version ? ` --version ${version}` : ""}`;
+        }
+
+        return command;
+    }
+
     private prepareReactNativeApplication(workspacePath?: string, sampleWorkspace?: string, version?: string) {
         const workspaceDirectory = workspacePath ? workspacePath : this.rnWorkspaceDirectory;
         const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
         const { appName, parentPathForWorkspace, vsCodeConfigPath } = this.getKeyPathsForApplication(workspaceDirectory);
 
-        let command = `react-native init ${appName}`;
-        if (version) {
-            command += ` --version ${version}`;
-        }
+        const command = this.generateReactNativeInitCommand(appName, version);
         SmokeTestLogger.projectInstallLog(`*** Creating RN app via '${command}' in ${workspaceDirectory}...`);
         utilities.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());
 

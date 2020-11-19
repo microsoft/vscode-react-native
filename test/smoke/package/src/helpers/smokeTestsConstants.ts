@@ -5,10 +5,10 @@ import * as os from "os";
 
 export class SmokeTestsConstants {
     // Default code of android platform version which is being targeted during the tests.
-    // 9 = Android Pie
-    public static defaultTargetAndroidPlatformVersion = "9";
+    // 10 = Android Q
+    public static defaultTargetAndroidPlatformVersion = "10";
     // Default code of iOS platform version which is being targeted during the tests.
-    public static defaultTargetIosPlatformVersion = "12.4";
+    public static defaultTargetIosPlatformVersion = "14.2";
     // Default target emulator port
     public static defaultTargetAndroidPort = 5554;
     // Default target emulator name "emulator-" + port
@@ -38,12 +38,14 @@ export class SmokeTestsConstants {
     // Timeout for macOS app to build and to install
     public static macOSAppBuildAndInstallTimeout = 400 * 1000;
     // Timeout for Windows app to build and to install
-    public static windowsAppBuildAndInstallTimeout = 400 * 1000;
+    public static windowsAppBuildAndInstallTimeout = 600 * 1000;
 
     // Timeout for waitFor* commands
     public static waitForElementTimeout = 30 * 1000;
     // Timeout for Expo app to launch
     public static expoAppLaunchTimeout = 120 * 1000;
+    // Timeout for Windows smoke test
+    public static windowsTestTime = 800 * 1000;
     // Timeout before search string in debug console
     public static debugConsoleSearchTimeout = 0.5 * 1000;
     // Default React Native app name
