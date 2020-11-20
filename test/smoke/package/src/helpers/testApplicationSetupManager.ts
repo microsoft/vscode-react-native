@@ -150,7 +150,7 @@ export class TestApplicationSetupManager {
     }
 
     private prepareReactNativeProjectForWindowsApplication(workspacePath: string): void {
-        const command = `${process.platform === "win32" ? "npx.cmd" : "npx"} react-native-windows-init --overwrite`;
+        const command = `${utilities.npxCommand} react-native-windows-init --overwrite`;
         SmokeTestLogger.projectPatchingLog(`*** Install additional RNW packages using ${command}`);
         utilities.execSync(
             command,
@@ -211,15 +211,23 @@ export class TestApplicationSetupManager {
         return { testButtonPath, customEntryPointPath };
     }
 
+    private generateReactNativeInitCommand(appName: string, version?: string): string {
+        let command = "";
+        if (appName === SmokeTestsConstants.RNWAppName) {
+            command = `${utilities.npxCommand} --ignore-existing react-native init ${appName} --template react-native@^${version}`;
+        } else {
+            command = `react-native init ${appName}${version ? ` --version ${version}` : ""}`;
+        }
+
+        return command;
+    }
+
     private prepareReactNativeApplication(workspacePath?: string, sampleWorkspace?: string, version?: string) {
         const workspaceDirectory = workspacePath ? workspacePath : this.rnWorkspaceDirectory;
         const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
         const { appName, parentPathForWorkspace, vsCodeConfigPath } = this.getKeyPathsForApplication(workspaceDirectory);
 
-        let command = `react-native init ${appName}`;
-        if (version) {
-            command += ` --version ${version}`;
-        }
+        const command = this.generateReactNativeInitCommand(appName, version);
         SmokeTestLogger.projectInstallLog(`*** Creating RN app via '${command}' in ${workspaceDirectory}...`);
         utilities.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());
 
@@ -309,13 +317,8 @@ export class TestApplicationSetupManager {
         const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
         const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
 
-        let npmCmd = "npm";
-        if (process.platform === "win32") {
-            npmCmd = "npm.cmd";
-        }
-
         let expoPackage: string = version ? `expo@${version}` : "expo";
-        const command = `${npmCmd} install ${expoPackage} --save-dev`;
+        const command = `${utilities.npmCommand} install ${expoPackage} --save-dev`;
 
         SmokeTestLogger.projectPatchingLog(`*** Adding expo dependency to ${workspaceDirectory} via '${command}' command...`);
         utilities.execSync(command, { cwd: workspaceDirectory, stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());

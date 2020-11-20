@@ -6,7 +6,7 @@ import { Application } from "../../automation";
 import { AppiumClient, AppiumHelper } from "./helpers/appiumHelper";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { TestRunArguments } from "./helpers/TestConfigProcessor";
+import { TestRunArguments } from "./helpers/testConfigProcessor";
 import { sleep } from "./helpers/utilities";
 import { androidEmulatorManager, vscodeManager } from "./main";
 

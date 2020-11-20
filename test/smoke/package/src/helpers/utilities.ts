@@ -8,10 +8,13 @@ import * as URL from "url-parse";
 import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
-import AndroidEmulatorManager from "./AndroidEmulatorManager";
+import AndroidEmulatorManager from "./androidEmulatorManager";
 import { AppiumHelper } from "./appiumHelper";
-import IosSimulatorManager from "./IosSimulatorManager";
+import IosSimulatorManager from "./iosSimulatorManager";
 import { SmokeTestLogger } from "./smokeTestLogger";
+
+export const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
+export const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
 // eslint-disable-next-line
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
@@ -246,10 +249,10 @@ export async function waitForRunningPackager(filePath: string): Promise<boolean>
     return waitUntil(condition)
         .then((result) => {
             if (result) {
-                console.log(`Packager started pattern is found`);
+                SmokeTestLogger.success(`Packager started pattern is found`);
             }
             else {
-                console.log(`Packager started logging pattern is not found`);
+                SmokeTestLogger.warn(`Packager started logging pattern is not found`);
             }
             return result;
         });
@@ -262,7 +265,7 @@ export async function smokeTestFail(message: string): Promise<void> {
         try {
             await IosSimulatorManager.shutdownAllSimulators();
         } catch (e) {
-            SmokeTestLogger.error(e);
+            SmokeTestLogger.error(e.toString());
         }
     }
     AppiumHelper.terminateAppium();

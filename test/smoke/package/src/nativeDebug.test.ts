@@ -3,18 +3,16 @@
 
 import * as assert from "assert";
 import { Application } from "../../automation";
-import AndroidEmulatorManager from "./helpers/AndroidEmulatorManager";
-import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
-import IosSimulatorManager from "./helpers/IosSimulatorManager";
-import { LaunchConfigurationManager } from "./helpers/LaunchConfigurationManager";
+import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
+import IosSimulatorManager from "./helpers/iosSimulatorManager";
+import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { TestRunArguments } from "./helpers/TestConfigProcessor";
+import { TestRunArguments } from "./helpers/testConfigProcessor";
 import { sleep } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
-const RN_APP_ACTIVITY_NAME = "com.latestrnapp.MainActivity";
 const AndroidRNDebugConfigName = "Debug Android";
 
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
@@ -32,15 +30,10 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
 
     describe("React Native", () => {
         let app: Application;
-        let client: AppiumClient;
 
         async function disposeAll() {
             if (app) {
                 await app.stop();
-            }
-            if (client) {
-                await client.closeApp();
-                await client.deleteSession();
             }
         }
 
@@ -59,10 +52,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 SmokeTestLogger.info(`Android Debug test: Chosen debug configuration: ${AndroidRNDebugConfigName}`);
                 SmokeTestLogger.info("Android Debug test: Starting debugging");
                 await app.workbench.quickaccess.runDebugScenario(AndroidRNDebugConfigName);
-                const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(RN_APP_PACKAGE_NAME, RN_APP_ACTIVITY_NAME, androidEmulatorManager.getEmulatorName());
                 await androidEmulatorManager.waitUntilAppIsInstalled(RN_APP_PACKAGE_NAME);
-                let client = await AppiumHelper.webdriverAttach(opts);
-                await AppiumHelper.enableRemoteDebugJS(client, Platform.Android);
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("Android Debug test: Debugging started");
                 await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
@@ -134,19 +124,6 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 SmokeTestLogger.info("iOS Debug test: Starting debugging");
                 await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
                 await iosSimulatorManager.waitUntilIosAppIsInstalled(RnAppBundleId);
-                const buildPath = IosSimulatorManager.getIOSBuildPath(
-                    `${workspace}/ios`,
-                    `${SmokeTestsConstants.RNAppName}.xcworkspace`,
-                    "Debug",
-                    SmokeTestsConstants.RNAppName,
-                    "iphonesimulator"
-                );
-                const appPath = `${buildPath}/${SmokeTestsConstants.RNAppName}.app`;
-                const opts = AppiumHelper.prepareAttachOptsForIosApp(deviceName, appPath);
-                let client = await AppiumHelper.webdriverAttach(opts);
-                await AppiumHelper.enableRemoteDebugJS(client, Platform.iOS);
-                await sleep(5 * 1000);
-
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("iOS Debug test: Debugging started");
                 await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);

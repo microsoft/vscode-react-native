@@ -8,7 +8,7 @@ import { vscodeManager } from "./main";
 import { sleep } from "./helpers/utilities";
 import { Application } from "../../automation";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
-import { TestRunArguments } from "./helpers/TestConfigProcessor";
+import { TestRunArguments } from "./helpers/testConfigProcessor";
 
 const RNmacOSDebugConfigName = "Debug macOS";
 

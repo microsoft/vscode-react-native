@@ -9,6 +9,7 @@ import * as rimraf from "rimraf";
 import { Application, Quality, ApplicationOptions, MultiLogger, Logger, ConsoleLogger } from "../../../automation";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { SmokeTestLogger } from "./smokeTestLogger";
+import { AppiumHelper } from "./appiumHelper";
 
 export class VsCodeManager {
     private cacheDirectory: string;
@@ -139,11 +140,7 @@ export class VsCodeManager {
                 }
                 const extensionFullPath = path.join(this.extensionDirectory, extensionDirName);
 
-                let npmCmd = "npm";
-                if (process.platform === "win32") {
-                    npmCmd = "npm.cmd";
-                }
-                const command = `${npmCmd} install @expo/xdl@${process.env.EXPO_XDL_VERSION} --no-save`;
+                const command = `${utilities.npmCommand} install @expo/xdl@${process.env.EXPO_XDL_VERSION} --no-save`;
 
                 SmokeTestLogger.projectPatchingLog(`*** Adding @expo/xdl dependency to ${extensionFullPath} via '${command}' command...`);
                 utilities.execSync(command, { cwd: extensionFullPath, stdio: "inherit" }, this.setupEnvironmentLogDir);
@@ -186,6 +183,9 @@ export class VsCodeManager {
                 const extensionLogsDir = path.join(this.artifactDirectory, dirName, "extensionLogs");
                 process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;
                 this.currentSessionLogsDir = extensionLogsDir;
+                const webdriverIOLogsDir = path.join(this.artifactDirectory, dirName, "webdriverIOLogs");
+                AppiumHelper.createWebdriverIOLogDir(webdriverIOLogsDir);
+                process.env.WEBDRIVER_IO_LOGS_DIR = webdriverIOLogsDir;
             }
             let quality: Quality;
             if (this.clientVersion === "insiders") {

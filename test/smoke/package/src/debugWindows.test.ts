@@ -8,10 +8,10 @@ import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { vscodeManager } from "./main";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { Application } from "../../automation";
-import { TestRunArguments } from "./helpers/TestConfigProcessor";
+import { TestRunArguments } from "./helpers/testConfigProcessor";
 
 const RNwindowsSetBreakpointOnLine = 1;
-const RNWDebugConfigName = "Debug Windows";
+const RNWDebugConfigName = "Debug RN Wind";
 
 // Time for macOS Debug Test before it reaches timeout
 const debugWindowsTestTime = SmokeTestsConstants.windowsTestTimeout;
