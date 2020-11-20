@@ -79,21 +79,12 @@ steps:
       testRunTitle: $(Agent.OS) React Native extension smoke tests - Attempt №$(System.JobAttempt)
     condition: always()
 
-    # macOS or Linux
   - task: ArchiveFiles@2
-    displayName: "Archive SmokeTestLogs for macOS or Linux"
+    displayName: "Archive SmokeTestLogs"
     inputs:
-      rootFolderOrFile: "~/SmokeTestsCache/SmokeTestLogs"
+      rootFolderOrFile: SmokeTestLogs
       archiveFile: "$(Build.ArtifactStagingDirectory)/SmokeTestLogs_$(Agent.JobName)"
-    condition: or(eq( variables['Agent.OS'], 'Darwin' ), eq( variables['Agent.OS'], 'Linux' ))
-
-    # Windows
-  - task: ArchiveFiles@2
-    displayName: "Archive SmokeTestLogs for Windows"
-    inputs:
-      rootFolderOrFile: "%userprofile%\\SmokeTestsCache\\SmokeTestLogs"
-      archiveFile: "$(Build.ArtifactStagingDirectory)/SmokeTestLogs_$(Agent.JobName)"
-    condition: eq( variables['Agent.OS'], 'Windows_NT' )
+    condition: always()
 
   - task: PublishBuildArtifacts@1
     displayName: "Publish Artifact: SmokeTestLogs"

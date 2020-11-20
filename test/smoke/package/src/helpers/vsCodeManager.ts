@@ -35,13 +35,13 @@ export class VsCodeManager {
     private static VS_CODE_CLIENT_NOT_INSTALLED_ERROR = "VS Code client was not installed";
     private static CURRENT_SESSION_LOGS_DIR_ERROR = "Сurrent session logs directory is not defined";
 
-    constructor(vscodeTestDirectory: string, resourcesDirectory: string, cacheDirectory: string) {
+    constructor(vscodeTestDirectory: string, resourcesDirectory: string, cacheDirectory: string, artifactDirectory: string) {
         this.cacheDirectory = cacheDirectory;
         this.resourcesDirectory = resourcesDirectory;
         this.clientVersion = process.env.CODE_VERSION ? process.env.CODE_VERSION : "stable";
 
+        this.artifactDirectory = artifactDirectory;
         this.vsCodeUserDataDirectory = path.join(cacheDirectory, SmokeTestsConstants.VSCodeUserDataDir);
-        this.artifactDirectory = path.join(cacheDirectory, SmokeTestsConstants.artifactsDir);
         this.vsCodeClientDirectory = path.join(vscodeTestDirectory, `vscode-${this.clientVersion}`);
         this.extensionDirectory = path.join(this.vsCodeClientDirectory, "extension");
         this.vsixDirectory = path.join(this.resourcesDirectory, "drop-win");
