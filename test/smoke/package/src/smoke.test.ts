@@ -51,7 +51,6 @@ export function startSmokeTests(args: TestRunArguments, setup: () => Promise<voi
         if (noSelectArgs) {
             SmokeTestLogger.info("*** Android and iOS tests will be run");
             startExpoTests(testApplicationSetupManager.getExpoWorkspaceDirectory(), testApplicationSetupManager.getPureRnWorkspaceDirectory());
-            startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory());
             startDirectDebugTests(testApplicationSetupManager.getHermesWorkspaceDirectory());
             startDebugMacOSTests(testApplicationSetupManager.getMacOSRnWorkspaceDirectory());
             startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory());
