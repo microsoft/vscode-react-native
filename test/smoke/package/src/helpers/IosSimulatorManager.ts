@@ -175,10 +175,6 @@ export default class IosSimulatorManager {
             });
     }
 
-    public getFormattedIOSVersion(): string {
-        return `IOS-${this.simulator.system.replace(".", "-")}`;
-    }
-
     public async waitUntilIosAppIsInstalled(appBundleId: string): Promise<void> {
         // Start watcher for launch events console logs in simulator and wait until needed app is launched
         // TODO is not compatible with parallel test run (race condition)

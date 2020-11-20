@@ -177,7 +177,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
                 SmokeTestLogger.info("iOS simulator save test: Debugging started at the first time");
                 await app.workbench.quickinput.waitForQuickInputOpened();
-                await app.workbench.quickinput.inputAndSelect(iosSimulatorManager.getFormattedIOSVersion());
+                await app.workbench.quickinput.inputAndSelect(simulator.system);
                 await app.workbench.quickinput.submit(simulator.name);
                 let isStarted = await iosSimulatorManager.waitUntilIosSimulatorStarting();
                 assert.strictEqual(isStarted, true, `Could not boot iOS simulator ${this.simulator.name} in first time`);
