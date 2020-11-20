@@ -80,7 +80,7 @@ steps:
     condition: always()
 
     # macOS or Linux
-    - task: ArchiveFiles@2
+  - task: ArchiveFiles@2
     displayName: "Archive SmokeTestLogs"
     inputs:
       rootFolderOrFile: "~/SmokeTestsCache/SmokeTestLogs"
@@ -88,7 +88,7 @@ steps:
     condition: or(eq( variables['Agent.OS'], 'Darwin' ), eq( variables['Agent.OS'], 'Linux' ))
 
     # Windows
-    - task: ArchiveFiles@2
+  - task: ArchiveFiles@2
     displayName: "Archive SmokeTestLogs"
     inputs:
       rootFolderOrFile: "%userprofile%\SmokeTestsCache\SmokeTestLogs"

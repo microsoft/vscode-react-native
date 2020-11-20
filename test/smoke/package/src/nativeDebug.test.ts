@@ -62,7 +62,6 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
                 SmokeTestLogger.info("Android Debug test: Searching for \"Test output from debuggee\" string in console");
                 let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
-                SmokeTestLogger.info(found.toString());
                 assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
                 SmokeTestLogger.success("Android Debug test: \"Test output from debuggee\" string is found");
                 await app.workbench.debug.disconnectFromDebugger();

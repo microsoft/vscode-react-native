@@ -30,12 +30,12 @@ export function startDebugRNWTests(workspace: string, testParameters?: TestRunAr
         afterEach(disposeAll);
 
         async function checkIfAppIsInstalledOnWindows(appName: string, timeout: number): Promise<boolean> {
-
+            SmokeTestLogger.info(`Searching for app ${appName} patterns...`);
             const condition = () => {
                 return cp.execSync("tasklist").toString().indexOf(appName) > 0;
             };
 
-            return waitUntil(condition, timeout)
+            return waitUntil(condition, timeout, 5000)
                 .then((result: boolean) => {
                     if (result) {
                         SmokeTestLogger.success(`Found launched ${appName}`);
