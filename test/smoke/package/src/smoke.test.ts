@@ -45,24 +45,25 @@ export function startSmokeTests(args: TestRunArguments, setup: () => Promise<voi
             }
             AppiumHelper.terminateAppium();
         });
-        
+
         startLocalizationTests(testApplicationSetupManager.getRnWorkspaceDirectory());
         const noSelectArgs = !args.RunAndroidTests && !args.RunIosTests && !args.RunBasicTests && !args.RunMacOSTests && !args.RunWindowsTests;
         if (noSelectArgs) {
             SmokeTestLogger.info("*** Android and iOS tests will be run");
-            startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory());
             startExpoTests(testApplicationSetupManager.getExpoWorkspaceDirectory(), testApplicationSetupManager.getPureRnWorkspaceDirectory());
+            startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory());
             startDirectDebugTests(testApplicationSetupManager.getHermesWorkspaceDirectory());
             startDebugMacOSTests(testApplicationSetupManager.getMacOSRnWorkspaceDirectory());
             startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory());
+            startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory());
         } else {
-            startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
             if (!args.RunBasicTests) {
                 startExpoTests(testApplicationSetupManager.getExpoWorkspaceDirectory(), testApplicationSetupManager.getPureRnWorkspaceDirectory(), args);
                 startDirectDebugTests(testApplicationSetupManager.getHermesWorkspaceDirectory(), args);
                 startDebugMacOSTests(testApplicationSetupManager.getMacOSRnWorkspaceDirectory(), args);
                 startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory(), args);
             }
+            startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
         }
     });
 }
