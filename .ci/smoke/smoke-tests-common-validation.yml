@@ -81,7 +81,7 @@ steps:
 
     # macOS or Linux
   - task: ArchiveFiles@2
-    displayName: "Archive SmokeTestLogs"
+    displayName: "Archive SmokeTestLogs for macOS or Linux"
     inputs:
       rootFolderOrFile: "~/SmokeTestsCache/SmokeTestLogs"
       archiveFile: "$(Build.ArtifactStagingDirectory)/SmokeTestLogs_$(Agent.JobName)"
@@ -89,7 +89,7 @@ steps:
 
     # Windows
   - task: ArchiveFiles@2
-    displayName: "Archive SmokeTestLogs"
+    displayName: "Archive SmokeTestLogs for Windows"
     inputs:
       rootFolderOrFile: "%userprofile%\\SmokeTestsCache\\SmokeTestLogs"
       archiveFile: "$(Build.ArtifactStagingDirectory)/SmokeTestLogs_$(Agent.JobName)"
