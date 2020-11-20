@@ -159,11 +159,20 @@ export class TestApplicationSetupManager {
         );
     }
 
-    private prepareReactNativeProjectForMacOSApplication(workspacePath?: string): void {
+    private prepareReactNativeProjectForMacOSApplication(workspacePath?: string, sampleWorkspace?: string): void {
         const workspaceDirectory = workspacePath ? workspacePath : this.macOSRnWorkspaceDirectory;
+        const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
+
         const macOSinitCommand = "npx react-native-macos-init";
         SmokeTestLogger.projectPatchingLog(`*** Installing the React Native for macOS packages via '${macOSinitCommand}' in ${workspaceDirectory}...`);
         utilities.execSync(macOSinitCommand, { cwd: workspaceDirectory, stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());
+
+        if (sampleWorkspaceDirectory) {
+            const { customEntryPointPath } = this.getKeyPathsForSample(sampleWorkspaceDirectory);
+            const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
+            SmokeTestLogger.projectPatchingLog(`*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`);
+            fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
+        }
     }
 
     private prepareReactNativeProjectForHermesTesting(workspacePath?: string, sampleWorkspace?: string) {
@@ -300,8 +309,8 @@ export class TestApplicationSetupManager {
         const workspaceDirectory = workspacePath ? workspacePath : this.macOSRnWorkspaceDirectory;
         const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : this.macOSRnSampleDirectory;
 
-        this.prepareReactNativeApplication(workspaceDirectory, sampleWorkspaceDirectory, rnVersion);
-        this.prepareReactNativeProjectForMacOSApplication(workspaceDirectory);
+        this.prepareReactNativeApplication(workspaceDirectory, undefined, rnVersion);
+        this.prepareReactNativeProjectForMacOSApplication(workspaceDirectory, sampleWorkspaceDirectory);
     }
 
     private prepareHermesApplication(workspacePath?: string, sampleWorkspace?: string, rnVersion?: string) {
