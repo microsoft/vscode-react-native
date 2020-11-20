@@ -91,7 +91,7 @@ steps:
   - task: ArchiveFiles@2
     displayName: "Archive SmokeTestLogs"
     inputs:
-      rootFolderOrFile: "%userprofile%\SmokeTestsCache\SmokeTestLogs"
+      rootFolderOrFile: "%userprofile%\\SmokeTestsCache\\SmokeTestLogs"
       archiveFile: "$(Build.ArtifactStagingDirectory)/SmokeTestLogs_$(Agent.JobName)"
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
 
