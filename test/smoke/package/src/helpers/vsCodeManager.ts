@@ -35,13 +35,13 @@ export class VsCodeManager {
     private static VS_CODE_CLIENT_NOT_INSTALLED_ERROR = "VS Code client was not installed";
     private static CURRENT_SESSION_LOGS_DIR_ERROR = "Сurrent session logs directory is not defined";
 
-    constructor(vscodeTestDirectory: string, resourcesDirectory: string, cacheDirectory: string, artifactDirectory: string) {
+    constructor(vscodeTestDirectory: string, resourcesDirectory: string, cacheDirectory: string, tmpDirectory: string) {
         this.cacheDirectory = cacheDirectory;
         this.resourcesDirectory = resourcesDirectory;
         this.clientVersion = process.env.CODE_VERSION ? process.env.CODE_VERSION : "stable";
 
-        this.artifactDirectory = artifactDirectory;
-        this.vsCodeUserDataDirectory = path.join(cacheDirectory, SmokeTestsConstants.VSCodeUserDataDir);
+        this.artifactDirectory = path.join(tmpDirectory, SmokeTestsConstants.artifactsDir);
+        this.vsCodeUserDataDirectory = path.join(tmpDirectory, SmokeTestsConstants.VSCodeUserDataDir);
         this.vsCodeClientDirectory = path.join(vscodeTestDirectory, `vscode-${this.clientVersion}`);
         this.extensionDirectory = path.join(this.vsCodeClientDirectory, "extension");
         this.vsixDirectory = path.join(this.resourcesDirectory, "drop-win");
@@ -177,8 +177,8 @@ export class VsCodeManager {
             if (!sessionName) {
                 sessionName = "UnknownTest";
             }
-            const date = new Date().toLocaleString(locale).split("/").join(".").split(":").join("-");
-            const dirName = `${sessionName}-[${date}]`;
+            //const date = new Date().toLocaleString(locale).split("/").join(".").split(":").join("-");
+            const dirName = sessionName;
             if (this.artifactDirectory) {
                 const extensionLogsDir = path.join(this.artifactDirectory, dirName, "extensionLogs");
                 process.env.REACT_NATIVE_TOOLS_LOGS_DIR = extensionLogsDir;

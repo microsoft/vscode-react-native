@@ -311,8 +311,8 @@ export class TestApplicationSetupManager {
         const workspaceDirectory = workspacePath ? workspacePath : this.macOSRnWorkspaceDirectory;
         const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : this.macOSRnSampleDirectory;
 
-        this.prepareReactNativeApplication(workspaceDirectory, undefined, rnVersion);
-        this.prepareReactNativeProjectForMacOSApplication(workspaceDirectory, sampleWorkspaceDirectory);
+        this.prepareReactNativeApplication(workspaceDirectory, sampleWorkspaceDirectory, rnVersion);
+        this.prepareReactNativeProjectForMacOSApplication(workspaceDirectory);
     }
 
     private prepareHermesApplication(workspacePath?: string, sampleWorkspace?: string, rnVersion?: string) {

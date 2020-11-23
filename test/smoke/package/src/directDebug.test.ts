@@ -17,7 +17,7 @@ const RNHermesAttachConfigName = "Attach to Hermes application - Experimental";
 
 const RNHermesSetBreakpointOnLine = 11;
 // Time for Android Debug Test before it reaches timeout
-const debugAndroidTestTime = SmokeTestsConstants.androidTestTimeout;
+const debugAndroidTestTime = SmokeTestsConstants.hermesTestTimeout;
 
 export function startDirectDebugTests(workspace: string, testParameters?: TestRunArguments): void {
 
