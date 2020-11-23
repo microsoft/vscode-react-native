@@ -155,7 +155,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
             }
             else {
                 expoURL = expoURL as string;
-                const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, androidEmulatorManager.getEmulatorName());
+                const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, androidEmulatorManager.getEmulatorId());
                 let client = await AppiumHelper.webdriverAttach(opts);
                 // TODO Add listener to trigger that main expo app has been ran
                 await AppiumHelper.openExpoApplication(Platform.Android, client, expoURL, workspacePath);

@@ -50,7 +50,7 @@ export function startDirectDebugTests(workspace: string, testParameters?: TestRu
                     SmokeTestLogger.info(`Android Debug Hermes test: Chosen debug configuration: ${RNHermesDebugConfigName}`);
                     SmokeTestLogger.info("Android Debug Hermes test: Starting debugging");
                     await app.workbench.quickaccess.runDebugScenario(RNHermesDebugConfigName);
-                    const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(HERMES_APP_PACKAGE_NAME, HERMES_APP_ACTIVITY_NAME, androidEmulatorManager.getEmulatorName());
+                    const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(HERMES_APP_PACKAGE_NAME, HERMES_APP_ACTIVITY_NAME, androidEmulatorManager.getEmulatorId());
                     await androidEmulatorManager.waitUntilAppIsInstalled(HERMES_APP_PACKAGE_NAME);
                     let client = await AppiumHelper.webdriverAttach(opts);
                     await app.workbench.debug.waitForDebuggingToStart();

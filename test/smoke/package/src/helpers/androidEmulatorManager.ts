@@ -36,6 +36,10 @@ export default class AndroidEmulatorManager {
         return this.emulatorName;
     }
 
+    public getEmulatorId(): string {
+        return this.emulatorId;
+    }
+
     // Check if appPackage is installed on Android device for waitTime ms
     public async waitUntilAppIsInstalled(appPackage: string): Promise<boolean> {
 
