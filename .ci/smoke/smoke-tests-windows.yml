@@ -1,13 +1,11 @@
 trigger:
   - master
-  - preview
 pr:
   - master
-  - preview
 
 variables:
   vswdbotLogin: vswdbot
-  appiumVersion: 1.17.1
+  appiumVersion: 1.19.0
   basicOnly: false
   expoCLIVersion: latest
   nightlyBuild: false
