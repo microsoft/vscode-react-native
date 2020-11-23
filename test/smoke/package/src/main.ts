@@ -36,11 +36,11 @@ export const vscodeManager = new VsCodeManager(vscodeTestPath, resourcesPath, ca
 
 startSmokeTests(configProcessor.parseTestArguments(), setUp, cleanUp);
 
-async function setUp(): Promise<void> {
+async function setUp(useCachedApplications: boolean): Promise<void> {
     await vscodeManager.downloadVSCodeExecutable();
     await vscodeManager.installExtensionFromVSIX();
     await vscodeManager.installExpoXdlPackageToExtensionDir();
-    await testApplicationSetupManager.prepareTestApplications();
+    await testApplicationSetupManager.prepareTestApplications(useCachedApplications);
     await AppiumHelper.runAppium(vscodeManager.getAppiumLogDir());
 
     SmokeTestLogger.info("*** Preparing Android emulator...");
@@ -58,7 +58,7 @@ async function setUp(): Promise<void> {
     }
 }
 
-async function cleanUp(): Promise<void> {
+async function cleanUp(saveCache: boolean): Promise<void> {
     vscodeManager.cleanUp();
-    testApplicationSetupManager.cleanUp();
+    testApplicationSetupManager.cleanUp(saveCache);
 }
