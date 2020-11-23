@@ -92,16 +92,18 @@ export class TestApplicationSetupManager {
         const pureRnVersion = process.env.PURE_RN_VERSION || await TestApplicationSetupManager.getLatestSupportedRNVersionForExpo(process.env.EXPO_SDK_MAJOR_VERSION);
         const expoSdkVersion = process.env.EXPO_SDK_MAJOR_VERSION;
         const pureExpoSdkVersion = process.env.PURE_EXPO_VERSION;
+        const macOSrnVersion = process.env.RN_MAC_OS_VERSION;
+        const rnwVersion = process.env.RNW_VERSION;
 
         this.prepareReactNativeApplication(this.rnWorkspaceDirectory, this.rnSampleDirectory, rnVersion);
         this.prepareExpoApplication(this.expoWorkspaceDirectory, this.expoSampleDirectory, expoSdkVersion);
         this.preparePureExpoApplication(this.pureRnWorkspaceDirectory, this.pureRnSampleDirectory, pureRnVersion, pureExpoSdkVersion);
         this.prepareHermesApplication(this.hermesWorkspaceDirectory, this.hermesSampleDirectory, rnVersion);
         if (process.platform === "darwin") {
-            this.prepareMacOSApplication(this.macOSRnWorkspaceDirectory, this.macOSRnSampleDirectory, rnVersion);
+            this.prepareMacOSApplication(this.macOSRnWorkspaceDirectory, this.macOSRnSampleDirectory, macOSrnVersion);
         }
         if (process.platform === "win32") {
-            this.prepareRNWApplication(this.windowsRnWorkspaceDirectory, this.windowsRnSampleDirectory, rnVersion);
+            this.prepareRNWApplication(this.windowsRnWorkspaceDirectory, this.windowsRnSampleDirectory, rnwVersion);
         }
     }
 
