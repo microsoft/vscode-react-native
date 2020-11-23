@@ -156,7 +156,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 await app.workbench.quickinput.inputAndSelect(simulator.system);
                 await app.workbench.quickinput.submit(simulator.name);
                 let isStarted = await iosSimulatorManager.waitUntilIosSimulatorStarting();
-                assert.strictEqual(isStarted, true, `Could not boot iOS simulator ${this.simulator.name} in first time`);
+                assert.strictEqual(isStarted, true, `Could not boot iOS simulator ${simulator.name} in first time`);
                 const isScenarioUpdated = launchConfigurationManager.waitUntilLaunchScenarioUpdate({ target: simulator.id }, IosRNDebugConfigName);
                 SmokeTestLogger.info(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${simulator.id}"' in launch.json`);
                 assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
@@ -167,7 +167,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
                 SmokeTestLogger.info("iOS simulator save test: Debugging started at the second time");
                 isStarted = await iosSimulatorManager.waitUntilIosSimulatorStarting();
-                assert.strictEqual(isStarted, true, `Could not boot iOS simulator ${this.simulator.name} in first time`);
+                assert.strictEqual(isStarted, true, `Could not boot iOS simulator ${simulator.name} in first time`);
             });
         }
     });

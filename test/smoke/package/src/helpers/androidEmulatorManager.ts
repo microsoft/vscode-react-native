@@ -16,7 +16,7 @@ export default class AndroidEmulatorManager {
     private static readonly EMULATOR_START_TIMEOUT = 120_000;
     private static readonly EMULATOR_TERMINATING_TIMEOUT = 30_000;
 
-    private static readonly PACKAGE_INSTALL_TIMEOUT = 300_000;
+    private static readonly PACKAGE_INSTALL_TIMEOUT = 600_000;
     private static readonly PACKAGE_INIT_TIMEOUT = 10_000;
 
     private emulatorName: string;

@@ -331,12 +331,13 @@ export default class IosSimulatorManager {
         return new Error(`Couldn't run ${command} simulator` + (failedState) ? `, because it in ${failedState} state` : "");
     }
 
-    public static async shutdownAllSimulators(): Promise<void> {
+    public static async shutdownAllSimulators(): Promise<boolean> {
         const promises: Promise<void>[] = [];
         IosSimulatorManager.getBootedDevices().forEach((device) => {
             promises.push(IosSimulatorManager.shutdownSimulator(device.name));
         });
         await Promise.all(promises);
+        return this.waitUntilAllIosSimulatorsTerminating();
     }
 
     private static async shutdownSimulator(simulatorName: string): Promise<void> {
