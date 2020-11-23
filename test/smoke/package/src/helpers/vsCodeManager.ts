@@ -13,6 +13,7 @@ import { AppiumHelper } from "./appiumHelper";
 
 export class VsCodeManager {
     private cacheDirectory: string;
+    private tmpDirectory: string;
 
     private vsCodeClientDirectory: string;
     private resourcesDirectory: string;
@@ -37,6 +38,7 @@ export class VsCodeManager {
 
     constructor(vscodeTestDirectory: string, resourcesDirectory: string, cacheDirectory: string, tmpDirectory: string) {
         this.cacheDirectory = cacheDirectory;
+        this.tmpDirectory = tmpDirectory;
         this.resourcesDirectory = resourcesDirectory;
         this.clientVersion = process.env.CODE_VERSION ? process.env.CODE_VERSION : "stable";
 
@@ -71,6 +73,10 @@ export class VsCodeManager {
         if (!fs.existsSync(this.cacheDirectory)) {
             SmokeTestLogger.projectInstallLog(`*** Creating smoke tests cache directory: ${this.cacheDirectory}`);
             fs.mkdirSync(this.cacheDirectory);
+        }
+        if (!fs.existsSync(this.tmpDirectory)) {
+            SmokeTestLogger.projectInstallLog(`*** Creating smoke tests tmp directory: ${this.tmpDirectory}`);
+            fs.mkdirSync(this.tmpDirectory);
         }
         if (!fs.existsSync(this.vsCodeUserDataDirectory)) {
             SmokeTestLogger.projectInstallLog(`*** Creating VS Code user data directory: ${this.vsCodeUserDataDirectory}`);
