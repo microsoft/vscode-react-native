@@ -23,7 +23,6 @@ if (parseInt(process.version.substr(1), 10) < 10) {
 const repoRoot = path.join(__dirname, "..", "..", "..", "..", "..", "..");
 const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
 const envConfigFilePathDev = path.resolve(__dirname, "..", SmokeTestsConstants.EnvDevConfigFileName);
-const tmpPath = path.join(repoRoot, "SmokeTestsTmp");
 const vscodeTestPath = path.resolve(__dirname, "..", ".vscode-test");
 const resourcesPath = path.resolve(__dirname, "..", "resources");
 const cachePath = path.resolve(os.homedir(), "SmokeTestsCache");
@@ -32,7 +31,7 @@ const configProcessor = new TestConfigProcessor(envConfigFilePath, envConfigFile
 export const testApplicationSetupManager = new TestApplicationSetupManager(resourcesPath, cachePath);
 export const androidEmulatorManager = new AndroidEmulatorManager();
 export const iosSimulatorManager = new IosSimulatorManager();
-export const vscodeManager = new VsCodeManager(vscodeTestPath, resourcesPath, cachePath, tmpPath);
+export const vscodeManager = new VsCodeManager(vscodeTestPath, resourcesPath, cachePath, repoRoot);
 
 startSmokeTests(configProcessor.parseTestArguments(), setUp, cleanUp);
 
