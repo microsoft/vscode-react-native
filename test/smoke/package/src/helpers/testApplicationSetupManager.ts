@@ -479,17 +479,22 @@ module.exports.watchFolders = ['.vscode'];`;
         }
 
         let useCachedApp = false;
-        const packageJsonData = JSON.parse(fs.readFileSync(packageJsonPath).toString());
 
-        if (isExpoProject) {
-            if (
-                packageJsonData.dependencies.expo.includes(packageVersion)
-                || packageJsonData.devDependencies.expo.includes(packageVersion)
-            ) {
+        try {
+            const packageJsonData = JSON.parse(fs.readFileSync(packageJsonPath).toString());
+
+            if (isExpoProject) {
+                if (
+                    packageJsonData.dependencies.expo.includes(packageVersion)
+                    || packageJsonData.devDependencies.expo.includes(packageVersion)
+                ) {
+                    useCachedApp = true;
+                }
+            } else if (packageJsonData.dependencies["react-native"].includes(packageVersion)) {
                 useCachedApp = true;
             }
-        } else if (packageJsonData.dependencies["react-native"].includes(packageVersion)) {
-            useCachedApp = true;
+        } catch (err) {
+            // Do nothing
         }
 
         return useCachedApp;
