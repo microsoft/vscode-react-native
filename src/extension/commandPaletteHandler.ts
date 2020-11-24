@@ -286,7 +286,7 @@ export class CommandPaletteHandler {
             .then(appLauncher => {
                 const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
                 const avdManager = new AndroidEmulatorManager(adbHelper);
-                return avdManager.startSelection()
+                return avdManager.selectOnlineDevice()
                     .then((deviceId) => {
                         if (deviceId) {
                             LogCatMonitorManager.delMonitor(deviceId); // Stop previous logcat monitor if it's running
@@ -296,6 +296,8 @@ export class CommandPaletteHandler {
                             LogCatMonitorManager.addMonitor(logCatMonitor);
                             logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
                                 .catch(error => this.logger.warning(localize("ErrorWhileMonitoringLogCat", "Error while monitoring LogCat"), error));
+                        } else {
+                            vscode.window.showErrorMessage(localize("OnlineAndroidDeviceNotFound", "Could not find a proper online Android device to start a LogCat monitor"));
                         }
                     });
             });
@@ -428,13 +430,13 @@ export class CommandPaletteHandler {
                 vscode.window.showQuickPick(keys)
                     .then((selected) => {
                         if (selected) {
-                            this.logger.debug(`Command palette: selected project ${selected}`);
+                            this.logger.debug(`Command palette: selected LogCat monitor ${selected}`);
                             resolve(LogCatMonitorManager.logCatMonitorsCache[selected]);
                         }
                     }, reject);
             });
         } else if (keys.length === 1) {
-            this.logger.debug(`Command palette: once project ${keys[0]}`);
+            this.logger.debug(`Command palette: once LogCat monitor ${keys[0]}`);
             return Promise.resolve(LogCatMonitorManager.logCatMonitorsCache[keys[0]]);
         } else {
             return Promise.reject(ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotFindActiveLogCatMonitor));
