@@ -15,8 +15,11 @@ export function startLocalizationTests(workspace: string): void {
         let app: Application;
 
         afterEach(async () => {
+            SmokeTestLogger.info("Dispose all ...");
             if (app) {
+                SmokeTestLogger.info("Stopping React Native packager ...");
                 await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await sleep(3000);
                 await app.stop();
             }
         });

@@ -9,6 +9,7 @@ import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
+import { sleep } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 
 const AndroidRNDebugConfigName = "Debug Android";
@@ -27,8 +28,11 @@ export function startOtherTests(workspace: string, testParameters?: TestRunArgum
         let app: Application;
 
         async function disposeAll() {
+            SmokeTestLogger.info("Dispose all ...");
             if (app) {
+                SmokeTestLogger.info("Stopping React Native packager ...");
                 await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await sleep(3000);
                 await app.stop();
             }
         }

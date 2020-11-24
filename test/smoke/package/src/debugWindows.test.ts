@@ -22,8 +22,11 @@ export function startDebugRNWTests(workspace: string, testParameters?: TestRunAr
         SmokeTestLogger.info(JSON.stringify(testParameters));
 
         async function disposeAll() {
+            SmokeTestLogger.info("Dispose all ...");
             if (app) {
+                SmokeTestLogger.info("Stopping React Native packager ...");
                 await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await sleep(3000);
                 await app.stop();
             }
         }

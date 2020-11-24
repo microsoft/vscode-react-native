@@ -22,8 +22,11 @@ export function startDebugMacOSTests(workspace: string, testParameters?: TestRun
         let app: Application;
 
         async function disposeAll() {
+            SmokeTestLogger.info("Dispose all ...");
             if (app) {
+                SmokeTestLogger.info("Stopping React Native packager ...");
                 await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await sleep(3000);
                 await app.stop();
             }
             terminateMacOSapp(SmokeTestsConstants.RNmacOSAppName);

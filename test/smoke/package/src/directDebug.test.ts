@@ -26,8 +26,11 @@ export function startDirectDebugTests(workspace: string, testParameters?: TestRu
         let client: AppiumClient;
 
         async function disposeAll() {
+            SmokeTestLogger.info("Dispose all ...");
             if (app) {
+                SmokeTestLogger.info("Stopping React Native packager ...");
                 await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await sleep(3000);
                 await app.stop();
             }
             if (client) {
