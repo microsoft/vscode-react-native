@@ -23,6 +23,7 @@ export function startDebugRNWTests(workspace: string, testParameters?: TestRunAr
 
         async function disposeAll() {
             if (app) {
+                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
                 await app.stop();
             }
         }

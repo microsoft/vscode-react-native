@@ -28,6 +28,7 @@ export function startOtherTests(workspace: string, testParameters?: TestRunArgum
 
         async function disposeAll() {
             if (app) {
+                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
                 await app.stop();
             }
         }

@@ -23,6 +23,7 @@ export function startDebugMacOSTests(workspace: string, testParameters?: TestRun
 
         async function disposeAll() {
             if (app) {
+                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
                 await app.stop();
             }
             terminateMacOSapp(SmokeTestsConstants.RNmacOSAppName);

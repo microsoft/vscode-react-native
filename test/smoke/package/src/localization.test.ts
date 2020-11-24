@@ -16,6 +16,7 @@ export function startLocalizationTests(workspace: string): void {
 
         afterEach(async () => {
             if (app) {
+                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
                 await app.stop();
             }
         });

@@ -39,6 +39,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
 
         async function disposeAll() {
             if (app) {
+                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
                 await app.stop();
             }
             if (client) {

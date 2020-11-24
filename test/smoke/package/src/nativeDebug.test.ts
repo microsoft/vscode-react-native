@@ -31,6 +31,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
 
         async function disposeAll() {
             if (app) {
+                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
                 await app.stop();
             }
         }
