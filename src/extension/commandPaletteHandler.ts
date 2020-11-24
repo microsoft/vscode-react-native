@@ -24,6 +24,8 @@ import {InternalErrorCode} from "../common/error/internalErrorCode";
 import {AppLauncher} from "./appLauncher";
 import { AndroidEmulatorManager } from "./android/androidEmulatorManager";
 import { AdbHelper } from "./android/adb";
+import { LogCatMonitor } from "./android/logCatMonitor";
+import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -279,6 +281,33 @@ export class CommandPaletteHandler {
         return "";
     }
 
+    public static startLogCatMonitor(): Promise<void> {
+        return this.selectProject()
+            .then(appLauncher => {
+                const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
+                const avdManager = new AndroidEmulatorManager(adbHelper);
+                return avdManager.startSelection()
+                    .then((deviceId) => {
+                        if (deviceId) {
+                            LogCatMonitorManager.delMonitor(deviceId); // Stop previous logcat monitor if it's running
+                            let logCatArguments = SettingsHelper.getLogCatFilteringArgs(appLauncher.getWorkspaceFolderUri());
+                            // this.logCatMonitor can be mutated, so we store it locally too
+                            let logCatMonitor = new LogCatMonitor(deviceId, logCatArguments, adbHelper);
+                            LogCatMonitorManager.addMonitor(logCatMonitor);
+                            logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
+                                .catch(error => this.logger.warning(localize("ErrorWhileMonitoringLogCat", "Error while monitoring LogCat"), error));
+                        }
+                    });
+            });
+    }
+
+    public static stopLogCatMonitor(): Promise<void> {
+        return this.selectLogCatMonitor()
+            .then(monitor => {
+                LogCatMonitorManager.delMonitor(monitor.deviceId);
+            });
+    }
+
     private static createPlatform(appLauncher: AppLauncher, platform: PlatformType.iOS | PlatformType.Android | PlatformType.Exponent, platformClass: typeof GeneralMobilePlatform, target?: TargetType): GeneralMobilePlatform {
         const runOptions = CommandPaletteHandler.getRunOptions(appLauncher, platform, target);
         return new platformClass(runOptions, {
@@ -389,6 +418,26 @@ export class CommandPaletteHandler {
             return Promise.resolve(ProjectsStorage.projectsCache[keys[0]]);
         } else {
             return Promise.reject(ErrorHelper.getInternalError(InternalErrorCode.WorkspaceNotFound, "Current workspace does not contain React Native projects."));
+        }
+    }
+
+    private static selectLogCatMonitor(): Promise<LogCatMonitor> {
+        let keys = Object.keys(LogCatMonitorManager.logCatMonitorsCache);
+        if (keys.length > 1) {
+            return new Promise((resolve, reject) => {
+                vscode.window.showQuickPick(keys)
+                    .then((selected) => {
+                        if (selected) {
+                            this.logger.debug(`Command palette: selected project ${selected}`);
+                            resolve(LogCatMonitorManager.logCatMonitorsCache[selected]);
+                        }
+                    }, reject);
+            });
+        } else if (keys.length === 1) {
+            this.logger.debug(`Command palette: once project ${keys[0]}`);
+            return Promise.resolve(LogCatMonitorManager.logCatMonitorsCache[keys[0]]);
+        } else {
+            return Promise.reject(ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotFindActiveLogCatMonitor));
         }
     }
 

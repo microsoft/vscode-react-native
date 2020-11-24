@@ -30,6 +30,7 @@ import { ProjectsStorage } from "./projectsStorage";
 import { AppLauncher } from "./appLauncher";
 import * as nls from "vscode-nls";
 import { getExtensionVersion, getExtensionName } from "../common/extensionHelper";
+import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
 
@@ -124,6 +125,7 @@ export function deactivate(): Promise<void> {
                         return CommandPaletteHandler.stopElementInspector();
                     })
                     .then(() => {
+                        LogCatMonitorManager.cleanUp();
                         // Tell vscode that we are done with deactivation
                         resolve();
                     });
@@ -204,8 +206,6 @@ function onFolderRemoved(context: vscode.ExtensionContext, folder: vscode.Worksp
     }
 }
 
-
-
 function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T, context: vscode.ExtensionContext): Promise<T> {
     return setuptableDisposable.setup()
         .then(() => {
@@ -239,6 +239,8 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     registerVSCodeCommand(context, "stopPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager), () => CommandPaletteHandler.stopPackager());
     registerVSCodeCommand(context, "restartPackager", ErrorHelper.getInternalError(InternalErrorCode.FailedToRestartPackager), () => CommandPaletteHandler.restartPackager());
     registerVSCodeCommand(context, "publishToExpHost", ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost), () => CommandPaletteHandler.publishToExpHost());
+    registerVSCodeCommand(context, "startLogCatMonitor", ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStartLogCatMonitor), () => CommandPaletteHandler.startLogCatMonitor());
+    registerVSCodeCommand(context, "stopLogCatMonitor", ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStopLogCatMonitor), () => CommandPaletteHandler.stopLogCatMonitor());
     registerVSCodeCommand(context, "showDevMenu", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeShowDevMenu", "React Native: Show Developer Menu for app")), () => CommandPaletteHandler.showDevMenu());
     registerVSCodeCommand(context, "reloadApp", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeReloadApp", "React Native: Reload App")), () => CommandPaletteHandler.reloadApp());
     registerVSCodeCommand(context, "runInspector", ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, localize("ReactNativeRunElementInspector", "React Native: Run Element Inspector")), () => CommandPaletteHandler.runElementInspector());

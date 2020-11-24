@@ -113,4 +113,13 @@ export class SettingsHelper {
         }
         return PackagerStatusIndicator.FULL_VERSION;
     }
+
+    public static getLogCatFilteringArgs(uri: vscode.Uri): string {
+        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("react-native", uri);
+        if (workspaceConfiguration.has("logCatArguments")) {
+            return ConfigurationReader.readString(workspaceConfiguration.get("logCatArguments"));
+        }
+
+        return "";
+    }
 }

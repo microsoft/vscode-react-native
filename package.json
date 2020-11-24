@@ -112,6 +112,16 @@
         "command": "reactNative.runInspector",
         "title": "%reactNative.command.runInspector.title%",
         "category": "React Native"
+      },
+      {
+        "command": "reactNative.startLogCatMonitor",
+        "title": "%reactNative.command.startLogCatMonitor.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.stopLogCatMonitor",
+        "title": "%reactNative.command.stopLogCatMonitor.title%",
+        "category": "React Native"
       }
     ],
     "breakpoints": [
