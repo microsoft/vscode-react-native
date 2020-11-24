@@ -36,14 +36,14 @@ export class VsCodeManager {
     private static VS_CODE_CLIENT_NOT_INSTALLED_ERROR = "VS Code client was not installed";
     private static CURRENT_SESSION_LOGS_DIR_ERROR = "Сurrent session logs directory is not defined";
 
-    constructor(vscodeTestDirectory: string, resourcesDirectory: string, cacheDirectory: string, tmpDirectory: string) {
+    constructor(vscodeTestDirectory: string, resourcesDirectory: string, cacheDirectory: string, projectRoot: string) {
         this.cacheDirectory = cacheDirectory;
         this.tmpDirectory = tmpDirectory;
         this.resourcesDirectory = resourcesDirectory;
         this.clientVersion = process.env.CODE_VERSION ? process.env.CODE_VERSION : "stable";
 
-        this.artifactDirectory = path.join(tmpDirectory, SmokeTestsConstants.artifactsDir);
-        this.vsCodeUserDataDirectory = path.join(tmpDirectory, SmokeTestsConstants.VSCodeUserDataDir);
+        this.artifactDirectory = path.join(projectRoot, SmokeTestsConstants.artifactsDir);
+        this.vsCodeUserDataDirectory = path.join(projectRoot, SmokeTestsConstants.VSCodeUserDataDir);
         this.vsCodeClientDirectory = path.join(vscodeTestDirectory, `vscode-${this.clientVersion}`);
         this.extensionDirectory = path.join(this.vsCodeClientDirectory, "extension");
         this.vsixDirectory = path.join(this.resourcesDirectory, "drop-win");
@@ -204,9 +204,7 @@ export class VsCodeManager {
             SmokeTestLogger.info(`Options for run ${dirName}: ${JSON.stringify(options, null, 2)}`);
             await app.start();
             return app;
-
-        }
-        else {
+        } else {
             throw new Error(VsCodeManager.VS_CODE_CLIENT_NOT_INSTALLED_ERROR);
         }
     }

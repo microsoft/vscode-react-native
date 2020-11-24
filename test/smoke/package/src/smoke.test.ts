@@ -18,16 +18,23 @@ import { startReactNativeTests } from "./nativeDebug.test";
 import { startOtherTests } from "./otherTests.test";
 
 
-export function startSmokeTests(args: TestRunArguments, setup: () => Promise<void>, cleanUp: () => Promise<void>): void {
+export function startSmokeTests(
+    args: TestRunArguments,
+    setup: (useCachedApplications: boolean) => Promise<void>,
+    cleanUp: (saveCache: boolean) => Promise<void>
+): void {
     before(async function () {
+        if (args.UseCachedApplications) {
+            SmokeTestLogger.info("*** --use-cache parameter is set, skipping reinstallation of test projects");
+        }
         if (args.SkipSetup) {
             SmokeTestLogger.info("*** --skip-setup parameter is set, skipping clean up and apps installation");
         }
         else {
             try {
                 this.timeout(SmokeTestsConstants.smokeTestSetupAwaitTimeout);
-                await cleanUp();
-                await setup();
+                await cleanUp(args.UseCachedApplications);
+                await setup(args.UseCachedApplications);
             } catch (err) {
                 await smokeTestFail(err);
             }

@@ -7,6 +7,7 @@ variables:
   vswdbotLogin: vswdbot
   appiumVersion: 1.19.0
   basicOnly: false
+  useCachedApplications: true
   expoCLIVersion: latest
   nightlyBuild: false
   smokeTestDirectory: test/smoke
