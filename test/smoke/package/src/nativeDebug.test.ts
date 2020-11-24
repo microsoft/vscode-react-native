@@ -3,8 +3,6 @@
 
 import * as assert from "assert";
 import { Application } from "../../automation";
-import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
-import IosSimulatorManager from "./helpers/iosSimulatorManager";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
@@ -67,38 +65,6 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 await app.workbench.debug.disconnectFromDebugger();
                 SmokeTestLogger.info("Android Debug test: Debugging is stopped");
             });
-
-            it("Save Android emulator test", async function () {
-                // // Theres is a problem with starting an emulator by the VS Code process on Windows testing machine.
-                // // The issue will be investigated
-                // if (process.platform === "win32") {
-                //     SmokeTestLogger.warn(`Android emulator save test: Theres is a problem with starting an emulator by the VS Code process on Windows testing machine, so we skip this test.`);
-                //     return this.skip();
-                // }
-                this.timeout(debugAndroidTestTime);
-                const launchConfigurationManager = new LaunchConfigurationManager(workspace);
-                app = await vscodeManager.runVSCode(workspace, `Save Android emulator test (first launch)`);
-                SmokeTestLogger.info("Android emulator save test: Terminating all Android emulators");
-                await AndroidEmulatorManager.terminateAllAndroidEmulators();
-                SmokeTestLogger.info("Android emulator save test: Starting debugging in first time");
-                await app.workbench.quickaccess.runDebugScenario(AndroidRNDebugConfigName);
-                SmokeTestLogger.info("Android emulator save test: Debugging started in first time");
-                SmokeTestLogger.info("Android emulator save test: Wait until emulator starting");
-                await androidEmulatorManager.waitUntilEmulatorStarting();
-                const isScenarioUpdated = await launchConfigurationManager.waitUntilLaunchScenarioUpdate({ target: androidEmulatorManager.getEmulatorName() }, AndroidRNDebugConfigName);
-                SmokeTestLogger.info(`Android emulator save test: launch.json is ${isScenarioUpdated ? "" : "not "}contains '"target": "${androidEmulatorManager.getEmulatorName()}"'`);
-                assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
-                SmokeTestLogger.info("Android emulator save test: Dispose all");
-                await disposeAll();
-                app = await vscodeManager.runVSCode(workspace, `Save Android emulator test (second launch)`);
-                SmokeTestLogger.info("Android emulator save test: Terminating all Android emulators");
-                await AndroidEmulatorManager.terminateAllAndroidEmulators();
-                SmokeTestLogger.info("Android emulator save test: Starting debugging in second time");
-                await app.workbench.quickaccess.runDebugScenario(AndroidRNDebugConfigName);
-                SmokeTestLogger.info("Android emulator save test: Debugging started in second time");
-                const emulatorIsStarted = await androidEmulatorManager.waitUntilEmulatorStarting();
-                assert.strictEqual(emulatorIsStarted, true, "The emulator has not been started after update launch.json");
-            });
         }
 
         // iOS debug tests
@@ -136,38 +102,6 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
                 SmokeTestLogger.success("iOS Debug test: \"Test output from debuggee\" string is found");
                 await app.workbench.debug.disconnectFromDebugger();
                 SmokeTestLogger.info("iOS Debug test: Debugging is stopped");
-            });
-
-            it("Save iOS simulator test", async function () {
-                if (process.platform !== "darwin") {
-                    SmokeTestLogger.info(`Save iOS simulator test: skip test if running not on macOS`);
-                    return this.skip();
-                }
-                let simulator = iosSimulatorManager.getSimulator();
-                this.timeout(debugIosTestTime);
-                const launchConfigurationManager = new LaunchConfigurationManager(workspace);
-                await IosSimulatorManager.shutdownAllSimulators();
-                app = await vscodeManager.runVSCode(workspace, `Save iOS simulator test (first launch)`);
-                launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, { target: "simulator" });
-                SmokeTestLogger.info("iOS simulator save test: Starting debugging at the first time");
-                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
-                SmokeTestLogger.info("iOS simulator save test: Debugging started at the first time");
-                await app.workbench.quickinput.waitForQuickInputOpened();
-                await app.workbench.quickinput.inputAndSelect(simulator.system);
-                await app.workbench.quickinput.submit(simulator.name);
-                let isStarted = await iosSimulatorManager.waitUntilIosSimulatorStarting();
-                assert.strictEqual(isStarted, true, `Could not boot iOS simulator ${simulator.name} in first time`);
-                const isScenarioUpdated = launchConfigurationManager.waitUntilLaunchScenarioUpdate({ target: simulator.id }, IosRNDebugConfigName);
-                SmokeTestLogger.info(`iOS simulator save test: there is ${isScenarioUpdated ? "" : "no"} '"target": "${simulator.id}"' in launch.json`);
-                assert.notStrictEqual(isScenarioUpdated, false, "The launch.json has not been updated");
-                await disposeAll();
-                await IosSimulatorManager.shutdownAllSimulators();
-                app = await vscodeManager.runVSCode(workspace, `Save iOS simulator test (second launch)`);
-                SmokeTestLogger.info("iOS simulator save test: Starting debugging at the second time");
-                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
-                SmokeTestLogger.info("iOS simulator save test: Debugging started at the second time");
-                isStarted = await iosSimulatorManager.waitUntilIosSimulatorStarting();
-                assert.strictEqual(isStarted, true, `Could not boot iOS simulator ${simulator.name} in first time`);
             });
         }
     });
