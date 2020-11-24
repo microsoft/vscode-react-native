@@ -292,7 +292,7 @@ export class CommandPaletteHandler {
                             LogCatMonitorManager.delMonitor(deviceId); // Stop previous logcat monitor if it's running
                             let logCatArguments = SettingsHelper.getLogCatFilteringArgs(appLauncher.getWorkspaceFolderUri());
                             // this.logCatMonitor can be mutated, so we store it locally too
-                            let logCatMonitor = new LogCatMonitor(deviceId, logCatArguments, adbHelper);
+                            let logCatMonitor = new LogCatMonitor(deviceId, adbHelper, logCatArguments);
                             LogCatMonitorManager.addMonitor(logCatMonitor);
                             logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
                                 .catch(error => this.logger.warning(localize("ErrorWhileMonitoringLogCat", "Error while monitoring LogCat"), error));

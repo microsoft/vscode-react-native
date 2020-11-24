@@ -30,7 +30,7 @@ export class LogCatMonitor implements vscode.Disposable {
     private adbHelper: AdbHelper;
     public deviceId: string;
 
-    constructor(deviceId: string, userProvidedLogCatArguments: string, adbHelper: AdbHelper) {
+    constructor(deviceId: string, adbHelper: AdbHelper, userProvidedLogCatArguments?: string) {
         this.deviceId = deviceId;
         this._userProvidedLogCatArguments = userProvidedLogCatArguments;
 
