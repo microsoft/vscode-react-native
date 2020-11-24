@@ -53,21 +53,20 @@ export default class AndroidEmulatorManager {
             return false;
         };
 
-        return waitUntil(condition, AndroidEmulatorManager.PACKAGE_INSTALL_TIMEOUT)
-            .then((result) => {
-                if (result) {
-                    SmokeTestLogger.success(`*** Installed ${appPackage} app found, await ${AndroidEmulatorManager.PACKAGE_INIT_TIMEOUT}ms for initializing...`);
-                    return sleep(AndroidEmulatorManager.PACKAGE_INIT_TIMEOUT)
-                        .then(() => result);
-                }
-                else {
-                    SmokeTestLogger.error(`${appPackage} not found after ${AndroidEmulatorManager.PACKAGE_INSTALL_TIMEOUT} ms`);
-                }
-                return result;
-            })
-            .catch((e) => {
-                return Promise.reject(`Error occured while check app is installed:\n ${e}`);
-            });
+        try {
+            const result = await waitUntil(condition, AndroidEmulatorManager.PACKAGE_INSTALL_TIMEOUT);
+            if (result) {
+                SmokeTestLogger.success(`*** Installed ${appPackage} app found, await ${AndroidEmulatorManager.PACKAGE_INIT_TIMEOUT}ms for initializing...`);
+                await sleep(AndroidEmulatorManager.PACKAGE_INIT_TIMEOUT);
+            }
+            else {
+                SmokeTestLogger.error(`${appPackage} not found after ${AndroidEmulatorManager.PACKAGE_INSTALL_TIMEOUT} ms`);
+            }
+            return result;
+        }
+        catch(e) {
+            return Promise.reject(`Error occured while check app is installed:\n ${e}`);
+        }
     }
 
     // Installs Expo app on Android device using XDL function
