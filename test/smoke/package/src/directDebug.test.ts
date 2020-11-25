@@ -22,7 +22,7 @@ const debugAndroidTestTime = SmokeTestsConstants.hermesTestTimeout;
 export function startDirectDebugTests(workspace: string, testParameters?: TestRunArguments): void {
 
     describe("Direct debugging", () => {
-        let app: Application;
+        let app: Application | null;
         let client: AppiumClient;
 
         async function disposeAll() {
@@ -32,6 +32,7 @@ export function startDirectDebugTests(workspace: string, testParameters?: TestRu
                 await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
                 await app.stop();
+                app = null;
             }
             if (client) {
                 await client.closeApp();
@@ -83,6 +84,7 @@ export function startDirectDebugTests(workspace: string, testParameters?: TestRu
                     SmokeTestLogger.info("Android Debug Hermes test: Debugging is stopped");
                 } catch (e) {
                     SmokeTestLogger.error(`Android Debug Hermes test failed: ${e.toString()}`);
+                    await disposeAll();
                     return this.skip();
                 }
             });
