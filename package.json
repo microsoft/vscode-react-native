@@ -794,6 +794,11 @@
           "description": "%reactNative.configuration.properties.react-native.android.envFile.device.description%",
           "scope": "resource"
         },
+        "react-native.android.logCatArguments": {
+          "type": "string",
+          "description": "%reactNative.launch.logCatArguments.description%",
+          "scope": "resource"
+        },
         "react-native.packager.port": {
           "description": "%reactNative.configuration.properties.react-native.packager.port.description%",
           "type": "number",
