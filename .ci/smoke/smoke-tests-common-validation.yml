@@ -10,9 +10,9 @@ steps:
     condition: and(succeeded(), or(eq(variables['Agent.OS'], 'Linux'), eq(variables['Agent.OS'], 'Darwin')))
 
   - task: NodeTool@0
-    displayName: Use Node
+    displayName: Use Node 12.x
     inputs:
-      versionSpec: 10.x
+      versionSpec: 12.x
       checkLatest: true
 
   - task: Npm@1

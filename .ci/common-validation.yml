@@ -1,8 +1,8 @@
 steps:
   - task: NodeTool@0
-    displayName: "Use Node 12.x"
+    displayName: "Use Node 10.x"
     inputs:
-      versionSpec: 12.x
+      versionSpec: 10.x
 
   - bash: npm install gulp react-devtools vsce -g --force
     displayName: "npm install gulp react-devtools vsce -g"
