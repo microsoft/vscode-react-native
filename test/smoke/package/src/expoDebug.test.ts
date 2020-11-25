@@ -146,7 +146,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
                 }
                 const appPath = path.join(SmokeTestsConstants.iOSExpoAppsCacheDir, appFile);
                 const opts = AppiumHelper.prepareAttachOptsForIosApp(device, appPath);
-                let client = await AppiumHelper.webdriverAttach(opts);
+                client = await AppiumHelper.webdriverAttach(opts);
                 await AppiumHelper.openExpoApplication(Platform.iOS, client, expoURL, workspacePath, expoFirstLaunch);
                 expoFirstLaunch = false;
                 SmokeTestLogger.info(`${testName}: Waiting ${SmokeTestsConstants.expoAppBuildAndInstallTimeout}ms until Expo app is ready...`);
@@ -160,7 +160,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
             else {
                 expoURL = expoURL as string;
                 const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(EXPO_APP_PACKAGE_NAME, EXPO_APP_ACTIVITY_NAME, androidEmulatorManager.getEmulatorId());
-                let client = await AppiumHelper.webdriverAttach(opts);
+                client = await AppiumHelper.webdriverAttach(opts);
                 // TODO Add listener to trigger that main expo app has been ran
                 await AppiumHelper.openExpoApplication(Platform.Android, client, expoURL, workspacePath);
                 // TODO Add listener to trigger that child expo app has been ran instead of using timeout
