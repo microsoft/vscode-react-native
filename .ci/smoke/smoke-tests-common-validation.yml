@@ -99,4 +99,3 @@ steps:
     inputs:
       ArtifactName: SmokeTestLogs
     condition: always()
-
