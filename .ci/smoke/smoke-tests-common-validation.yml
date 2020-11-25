@@ -75,6 +75,10 @@ steps:
     env:
       DISPLAY: ":99.0"
 
+  - powershell: Get-AppxPackage | where-object {$_.InstallLocation –Match "RNWApp"} | Remove-AppxPackage
+    displayName: "Clean up RNW app"
+    condition: and(always(), eq(variables['Agent.OS'], 'Windows_NT'))
+
   - task: PublishTestResults@2
     displayName: "Publish Test Results"
     inputs:
@@ -96,6 +100,3 @@ steps:
       ArtifactName: SmokeTestLogs
     condition: always()
 
-  - powershell: Get-AppxPackage | where-object {$_.InstallLocation –Match "RNWApp"} | Remove-AppxPackage
-    displayName: "Clean up RNW app"
-    condition: and(always(), eq(variables['Agent.OS'], 'Windows_NT'))
