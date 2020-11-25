@@ -264,7 +264,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return activeDevices && activeDevices[0];
     }
 
-    private startMonitoringLogCat(device: IDevice, logCatArguments: string): void {
+    private startMonitoringLogCat(device: IDevice, logCatArguments: string[]): void {
         LogCatMonitorManager.delMonitor(device.id); // Stop previous logcat monitor if it's running
 
         // this.logCatMonitor can be mutated, so we store it locally too

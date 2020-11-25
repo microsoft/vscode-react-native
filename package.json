@@ -795,9 +795,14 @@
           "scope": "resource"
         },
         "react-native.android.logCatArguments": {
-          "type": "string",
+          "type": "array",
           "description": "%reactNative.launch.logCatArguments.description%",
-          "scope": "resource"
+          "scope": "resource",
+          "default": [
+            "*:S",
+            "ReactNative:V",
+            "ReactNativeJS:V"
+          ]
         },
         "react-native.packager.port": {
           "description": "%reactNative.configuration.properties.react-native.packager.port.description%",
