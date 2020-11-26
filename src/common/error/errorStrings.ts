@@ -83,4 +83,7 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.FailedToStartAndroidEmulator]: localize("FailedToStartAndroidEmulator", "The command \"emulator -avd {0}\" threw an exception: {1}"),
     [InternalErrorCode.VirtualDeviceSelectionError]: localize("VirtualDeviceSelectionError", "Virtual device launch finished with an exception: {0}"),
     [InternalErrorCode.ReactNativemacOSIsNotInstalled]: localize("ReactNativemacOSIsNotInstalled", "It appears you don't have 'react-native-macos' package installed. Please proceed to https://microsoft.github.io/react-native-windows/docs/rnm-getting-started for more info."),
+    [InternalErrorCode.AndroidCouldNotStartLogCatMonitor]: localize("ErrorWhileStartMonitoringLogCat", "Error while starting monitoring LogCat"),
+    [InternalErrorCode.AndroidCouldNotStopLogCatMonitor]: localize("ErrorWhileStopMonitoringLogCat", "Error while stopping monitoring LogCat"),
+    [InternalErrorCode.AndroidCouldNotFindActiveLogCatMonitor]: localize("ErrorWhileSelectMonitoringLogCat", "No active Android LogCat monitors found"),
 };
