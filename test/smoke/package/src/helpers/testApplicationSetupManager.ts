@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import * as cp from "child_process";
 import * as fs from "fs";
 import * as semver from "semver";
 import * as rimraf from "rimraf";
@@ -231,11 +230,7 @@ export class TestApplicationSetupManager {
     private prepareReactNativeProjectForWindowsApplication(workspacePath: string): void {
         const command = `${utilities.npxCommand} react-native-windows-init --overwrite`;
         SmokeTestLogger.projectPatchingLog(`*** Install additional RNW packages using ${command}`);
-        utilities.execSync(
-            command,
-            { cwd: workspacePath, stdio: "inherit" },
-            vscodeManager.getSetupEnvironmentLogDir()
-        );
+        utilities.execSync(command, { cwd: workspacePath }, vscodeManager.getSetupEnvironmentLogDir());
     }
 
     private prepareReactNativeProjectForMacOSApplication(workspacePath?: string, sampleWorkspace?: string): void {
@@ -244,7 +239,7 @@ export class TestApplicationSetupManager {
 
         const macOSinitCommand = "npx react-native-macos-init";
         SmokeTestLogger.projectPatchingLog(`*** Installing the React Native for macOS packages via '${macOSinitCommand}' in ${workspaceDirectory}...`);
-        utilities.execSync(macOSinitCommand, { cwd: workspaceDirectory, stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());
+        utilities.execSync(macOSinitCommand, { cwd: workspaceDirectory }, vscodeManager.getSetupEnvironmentLogDir());
 
         if (sampleWorkspaceDirectory) {
             const { customEntryPointPath } = this.getKeyPathsForSample(sampleWorkspaceDirectory);
@@ -263,7 +258,7 @@ export class TestApplicationSetupManager {
         SmokeTestLogger.projectPatchingLog(`*** Patching React Native project for Hermes debugging`);
 
         SmokeTestLogger.projectPatchingLog(`*** Executing  ${commandClean} ...`);
-        utilities.execSync(commandClean, { cwd: path.join(workspaceDirectory, "android"), stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());
+        utilities.execSync(commandClean, { cwd: path.join(workspaceDirectory, "android") }, vscodeManager.getSetupEnvironmentLogDir());
 
         if (sampleWorkspaceDirectory) {
             const { customEntryPointPath, testButtonPath } = this.getKeyPathsForSample(sampleWorkspaceDirectory);
@@ -316,8 +311,7 @@ export class TestApplicationSetupManager {
 
         const command = this.generateReactNativeInitCommand(appName, version);
         SmokeTestLogger.projectInstallLog(`*** Creating RN app via '${command}' in ${workspacePath}...`);
-        // utilities.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());
-        cp.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" });
+        utilities.execSync(command, { cwd: parentPathForWorkspace }, vscodeManager.getSetupEnvironmentLogDir());
 
         const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspacePath);
 
@@ -345,7 +339,7 @@ export class TestApplicationSetupManager {
         const command = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${appName} ${appName}`;
 
         SmokeTestLogger.projectInstallLog(`*** Creating Expo app via '${command}' in ${workspacePath}...`);
-        utilities.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());
+        utilities.execSync(command, { cwd: parentPathForWorkspace }, vscodeManager.getSetupEnvironmentLogDir());
 
         const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspacePath);
 
@@ -404,7 +398,7 @@ export class TestApplicationSetupManager {
         const command = `${utilities.npmCommand} install ${expoPackage} --save-dev`;
 
         SmokeTestLogger.projectPatchingLog(`*** Adding expo dependency to ${workspaceDirectory} via '${command}' command...`);
-        utilities.execSync(command, { cwd: workspaceDirectory, stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());
+        utilities.execSync(command, { cwd: workspaceDirectory }, vscodeManager.getSetupEnvironmentLogDir());
 
         if (sampleWorkspaceDirectory) {
             const { customEntryPointPath } = this.getKeyPathsForSample(sampleWorkspaceDirectory);
