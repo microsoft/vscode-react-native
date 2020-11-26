@@ -53,6 +53,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private packageName: string;
     private adbHelper: AdbHelper;
     private emulatorManager: AndroidEmulatorManager;
+    private logCatMonitor: LogCatMonitor | null = null;
 
     private needsToLaunchApps: boolean = false;
 
@@ -194,6 +195,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return runArguments;
     }
 
+    public dispose() {
+        if (this.logCatMonitor) {
+            LogCatMonitorManager.delMonitor(this.logCatMonitor.deviceId);
+            this.logCatMonitor = null;
+        }
+    }
+
     private initializeTargetDevicesAndPackageName(): Promise<void> {
         return this.adbHelper.getConnectedDevices().then(devices => {
             this.devices = devices;
@@ -268,10 +276,9 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         LogCatMonitorManager.delMonitor(device.id); // Stop previous logcat monitor if it's running
 
         // this.logCatMonitor can be mutated, so we store it locally too
-        let logCatMonitor = new LogCatMonitor(device.id, this.adbHelper, logCatArguments);
-        LogCatMonitorManager.addMonitor(logCatMonitor);
-        logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
+        this.logCatMonitor = new LogCatMonitor(device.id, this.adbHelper, logCatArguments);
+        LogCatMonitorManager.addMonitor(this.logCatMonitor);
+        this.logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
             .catch(error => this.logger.warning(localize("ErrorWhileMonitoringLogCat", "Error while monitoring LogCat"), error)); // The LogCatMonitor failing won't stop the debugging experience
     }
-
 }
