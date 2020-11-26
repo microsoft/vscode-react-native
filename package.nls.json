@@ -14,6 +14,8 @@
   "reactNative.command.showDevMenu.title": "Show Dev Menu",
   "reactNative.command.reloadApp.title": "Reload App",
   "reactNative.command.runInspector.title": "Run Element Inspector",
+  "reactNative.command.startLogCatMonitor.title": "Run React Native LogCat Monitor",
+  "reactNative.command.stopLogCatMonitor.title": "Stop React Native LogCat Monitor",
   "reactNative.snippets.debugAndroid.description": "A new configuration for launching React Native app on Android with debugging enabled",
   "reactNative.snippets.runAndroid.description": "A new configuration for launching React Native app on Android without debugging",
   "reactNative.snippets.debugAndroidHermes.description": "A new configuration for launching React Native Hermes app on Android with debugging enabled",

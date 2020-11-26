@@ -23,14 +23,15 @@ export class LogCatMonitor implements vscode.Disposable {
 
     private _logger: OutputChannelLogger;
 
-    private _deviceId: string;
+
     private _userProvidedLogCatArguments: any; // This is user input, we don't know what's here
 
     private _logCatSpawn: ISpawnResult | null;
     private adbHelper: AdbHelper;
+    public deviceId: string;
 
-    constructor(deviceId: string, userProvidedLogCatArguments: string, adbHelper: AdbHelper) {
-        this._deviceId = deviceId;
+    constructor(deviceId: string, adbHelper: AdbHelper, userProvidedLogCatArguments?: string[]) {
+        this.deviceId = deviceId;
         this._userProvidedLogCatArguments = userProvidedLogCatArguments;
 
         this._logger = OutputChannelLogger.getChannel(`LogCat - ${deviceId}`);
@@ -39,8 +40,8 @@ export class LogCatMonitor implements vscode.Disposable {
 
     public start(): Promise<void> {
         const logCatArguments = this.getLogCatArguments();
-        const adbParameters = ["-s", this._deviceId, "logcat"].concat(logCatArguments);
-        this._logger.debug(`Monitoring LogCat for device ${this._deviceId} with arguments: ${logCatArguments}`);
+        const adbParameters = ["-s", this.deviceId, "logcat"].concat(logCatArguments);
+        this._logger.debug(`Monitoring LogCat for device ${this.deviceId} with arguments: ${logCatArguments}`);
 
         this._logCatSpawn = this.adbHelper.startLogCat(adbParameters);
 
@@ -62,7 +63,7 @@ export class LogCatMonitor implements vscode.Disposable {
                     this._logger.info(localize("LogCatMonitoringStoppedBecauseTheDebuggingSessionFinished", "LogCat monitoring stopped because the debugging session finished"));
                     return Promise.resolve();
                 } else {
-                    return Promise.reject(reason); // Unkown error. Pass it up the promise chain
+                    return Promise.reject(reason); // Unknown error. Pass it up the promise chain
                 }
             }).finally(() => {
                 this._logCatSpawn = null;

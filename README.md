@@ -10,8 +10,8 @@ Preview:
 ![VS Marketplace version](https://vsmarketplacebadge.apphb.com/version-short/msjsdiag.vscode-react-native-preview.svg)
 ![VS Marketplace rating](https://vsmarketplacebadge.apphb.com/rating-star/msjsdiag.vscode-react-native-preview.svg)
 
-
 ## React Native Tools Preview
+
 The extension has a [nightly version](https://marketplace.visualstudio.com/items?itemName=msjsdiag.vscode-react-native-preview) which is released on a daily basis at 9 PM PST on each day that changes occur.
 To avoid conflicts, if both extensions are installed - the only stable version will be activated. So to use the preview version it is needed to disable or remove the stable version and reload VS Code.
 
@@ -33,9 +33,9 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [Debugging React Native applications](#debugging-react-native-applications)
   - [Hermes (Android) applications](#hermes-android)
   - [iOS applications](#ios-applications)
-      - [iOS devices](#ios-devices)
-      - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
-      - [iOS direct debugging](#iOS-direct-debugging)
+    - [iOS devices](#ios-devices)
+    - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
+    - [iOS direct debugging](#iOS-direct-debugging)
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
   - [Windows applications](#react-native-for-windows)
@@ -76,21 +76,23 @@ The **Packager** commands allow you to start/stop the [**Metro Bundler**](https:
 
 The full list of commands is:
 
-| Name                    | Description                                                                                                                                                  |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Launch Android Emulator | Prompts you to select the name of the available emulator and launch it. If only one emulator is installed in the system, it will be selected automatically   |
-| Run Android on Emulator | Run an Android application on Emulator. Launch order: check target platform support, load run arguments, start Packager, run app in all connected emulators  |
-| Run Android on Device   | Run an Android application on Device. Launch order: check target platform support, load run arguments, start Packager, run app in all connected devices      |
-| Run iOS on Simulator    | Run an iOS application on Simulator. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected emulator |
-| Run iOS on Device       | Run an iOS application on Device. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected device      |
-| Run Expo                | Run Exponent application. Launch order: login to exponent, load run arguments, start Packager, run app                                                       |
-| Start Packager          | Start Packager in context project workspace folder                                                                                                           |
-| Stop Packager           | Stop Packager                                                                                                                                                |
-| Restart Packager        | Restart Packager                                                                                                                                             |
-| Publish To Expo         | Publish to Exponent Host. Launch order: login to exponent, execute `Run Expo` command, then publish app to host                                              |
-| Show Dev Menu           | Show development menu for running aplication on iOS or Android device or emulator                                                                            |
-| ReloadApp               | Reload an application                                                                                                                                        |
-| Run Element Inspector   | Load development tools for inspect application UI elements                                                                                                   |
+| Name                             | Description                                                                                                                                                                                                                    |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Launch Android Emulator          | Prompts you to select the name of the available emulator and launch it. If only one emulator is installed in the system, it will be selected automatically                                                                     |
+| Run Android on Emulator          | Run an Android application on Emulator. Launch order: check target platform support, load run arguments, start Packager, run app in all connected emulators                                                                    |
+| Run Android on Device            | Run an Android application on Device. Launch order: check target platform support, load run arguments, start Packager, run app in all connected devices                                                                        |
+| Run iOS on Simulator             | Run an iOS application on Simulator. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected emulator                                                                   |
+| Run iOS on Device                | Run an iOS application on Device. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected device                                                                        |
+| Run Expo                         | Run Exponent application. Launch order: login to exponent, load run arguments, start Packager, run app                                                                                                                         |
+| Start Packager                   | Start Packager in context project workspace folder                                                                                                                                                                             |
+| Stop Packager                    | Stop Packager                                                                                                                                                                                                                  |
+| Restart Packager                 | Restart Packager                                                                                                                                                                                                               |
+| Publish To Expo                  | Publish to Exponent Host. Launch order: login to exponent, execute `Run Expo` command, then publish app to host                                                                                                                |
+| Show Dev Menu                    | Show development menu for running aplication on iOS or Android device or emulator                                                                                                                                              |
+| ReloadApp                        | Reload an application                                                                                                                                                                                                          |
+| Run Element Inspector            | Load development tools for inspect application UI elements                                                                                                                                                                     |
+| Run React Native LogCat Monitor  | Creates a LogCat Monitor for the chosen online Android device to see the device LogCat logs. Default filtering arguments: ["*:S", "ReactNative:V", "ReactNativeJS:V"]. [How to configure filtering.](#configure-an-Android-LogCat-Monitor) |
+| Stop React Native LogCat Monitor | Stops an existing LogCat Monitor and removes its output channel                                                                                                                                                                |
 
 # Debugging React Native applications
 
@@ -144,6 +146,7 @@ To debug while using Hermes engine, please choose one of the following debug con
   "request": "attach"
 }
 ```
+
 ## iOS applications
 
 ### iOS devices
@@ -294,17 +297,17 @@ You can debug UWP and WPF React Native for Windows applications by changing the 
 
 You can debug React Native for macOS applications by changing the `platform` in your `launch.json` configuration to `macos`:
 
-  ```json
-  {
-    "name": "Debug macOS",
-    "cwd": "${workspaceFolder}",
-    "type": "reactnative",
-    "request": "launch",
-    "platform": "macos"
-  }
-  ```
+```json
+{
+  "name": "Debug macOS",
+  "cwd": "${workspaceFolder}",
+  "type": "reactnative",
+  "request": "launch",
+  "platform": "macos"
+}
+```
 
-  You can find more information on how to setup your application to work with macOS in [React Native for macOS Getting started instruction](https://microsoft.github.io/react-native-windows/docs/rnm-getting-started)
+You can find more information on how to setup your application to work with macOS in [React Native for macOS Getting started instruction](https://microsoft.github.io/react-native-windows/docs/rnm-getting-started)
 
 ## TypeScript and Haul
 
@@ -383,18 +386,19 @@ The extension can be further customized for other React Native scenarios. These 
 ## Logging
 
 The extension logging is divided by several output channels:
-* React Native - the main extension channel which collects outputs from React Native Packager and shows critical errors in the extension
-* These channels are spawned only when the specific launch scenario is executed:
-    * React Native: Run Android
-      * LogCat monitor(to get LogCat output from Android device, can be filtered by debug configuration settings)
-    * React Native: Run iOS
-    * React Native: Run macOS
-    * React Native: Run exponent
-* Debug Console which is used to receive application logs and logs generated by the debug adapter (`console.log` and other `std` outputs from the app)
-* Extension debugger verbose logs (these logs are shown up only if the `trace: "verbose"` option is enabled in debug scenarios)
-    * React Native Chrome Proxy - shows what runs in and out to the debugger and application
-    * Debug Console becomes more informative and contains some debugging information from the debug adapter
-    * Global extension errors are controlled by VS Code and printed in VS Code Developer Tools
+
+- React Native - the main extension channel which collects outputs from React Native Packager and shows critical errors in the extension
+- These channels are spawned only when the specific launch scenario is executed:
+  - React Native: Run Android
+    - LogCat monitor(to get LogCat output from Android device, can be filtered by debug configuration settings)
+  - React Native: Run iOS
+  - React Native: Run macOS
+  - React Native: Run exponent
+- Debug Console which is used to receive application logs and logs generated by the debug adapter (`console.log` and other `std` outputs from the app)
+- Extension debugger verbose logs (these logs are shown up only if the `trace: "verbose"` option is enabled in debug scenarios)
+  - React Native Chrome Proxy - shows what runs in and out to the debugger and application
+  - Debug Console becomes more informative and contains some debugging information from the debug adapter
+  - Global extension errors are controlled by VS Code and printed in VS Code Developer Tools
 
 There are also some global extension technical logs that might be exposed to the output. To see them set the following properties:
 
@@ -505,7 +509,7 @@ adb devices
 
 `npm install -g ios-deploy`
 
-## Setting up the react-native packager
+## Setting up the React Native packager
 
 To use a custom port for the `react-native` packager:
 
@@ -578,6 +582,37 @@ To specify a subfolder in which the react-native project is located, set `react-
 }
 ```
 
+## Configure an Android LogCat Monitor
+
+There are two ways to filter your LogCat Monitor output depending on how LogCat Monitor was launched:
+
+1. Since LogCat Monitor is launched for all Android launch scenarios by default, you can add `logCatArguments` to your debug scenario in `launch.json` file like in the following example:
+
+```json
+{
+  "name": "Debug Android",
+  "cwd": "${workspaceFolder}",
+  "type": "reactnative",
+  "request": "launch",
+  "platform": "android",
+  "logCatArguments": ["ReactNativeJS:V"]
+}
+```
+
+2. If you want to launch LogCat Monitor from the Command Pallette command `React Native: Run React Native LogCat Monitor` with filtering options set `react-native.android.logCatArguments` settings in your `settings.json`:
+
+```json
+{
+  "react-native.android.logCatArguments": [
+    "*:S",
+    "ReactNative:V",
+    "ReactNativeJS:V"
+  ]
+}
+```
+
+To have better understanding on how LogCat filtering works take into account that the extension launches LogCat with flag `-s` and then adds user-provided filters as arguments. Please see the [official instruction on how does LogCat filtering works](https://developer.android.com/studio/command-line/logcat#filteringOutput).
+
 # Developing inside a Docker Container
 
 The extension supports [VS Code Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) features on Linux. Please follow the [VS Code official documentation](https://code.visualstudio.com/docs/remote/containers) to setup your environment to use a remote development approach.
@@ -645,14 +680,14 @@ Please see our [contributing guide](CONTRIBUTING.md) for more information.
 
 Here is the list of common known issues you may experience while using the extension:
 
-| Issue                                                                                                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Debugger doesn't stop at breakpoints                                                                       | Breakpoints require sourcemaps to be correctly configured. If you are using TypeScript, then make sure to follow the `Getting started` section for how to ensure sourcemaps are correctly set up. Also, similar issues may occur on React Native version `0.58.*` in some special cases (see [#928](https://github.com/microsoft/vscode-react-native/issues/928), [#907](https://github.com/microsoft/vscode-react-native/issues/907)), bumping dependencies versions of `react` and `react-native` package to the more recent ones should resolve these. If you are on Linux, make sure that the project folder which is opened is not a symbolic link to the real folder, that might cause problems with sourcemaps (see [#1456](https://github.com/microsoft/vscode-react-native/issues/1456))|
-| 'adb: command not found'                                                                                   | If you receive an error `adb: command not found`, you need to update your system Path to include the location of your _ADB_ executable.The _ADB_ executable file is located in a subdirectory along with your other Android SDK files.                                                                                                                                                                                                                                                                                                                    |
-| Targeting iPhone 6 doesn't work                                                                            | There was a known issue with React Native ([#5850](https://github.com/facebook/react-native/issues/5850)) but it was fixed. Please upgrade your version of React Native.                                                                                                                                                                                                                                                                                                                                                                                  |
-| Can't communicate with socket pipe                                                                         | (Linux only) If you have two workspaces open that only differ in casing, the extension will fail to communicate effectively.                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| "Add configuration" button doesn't work when trying to add debug configuration to `launch.json`            | You have to add some json configuration to `launch.json` manually. Please, see ([#985](https://github.com/microsoft/vscode-react-native/issues/985)).                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Error `None of these files exist: * .vscode/exponentIndex` appears when running React Native apps via Expo | On some project configurations (mostly on macOS) there could be problems with running RN app via Expo for the first time. You can resolve this by explicitly adding `module.exports.watchFolders = ['.vscode'];` to your Metro config. This will help Metro bundler to find the custom entry point generated by the extension needed to work with Expo. For details you can see the issue ([#1327](https://github.com/microsoft/vscode-react-native/issues/1327)).                                                                                        |
+| Issue                                                                                                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Debugger doesn't stop at breakpoints                                                                       | Breakpoints require sourcemaps to be correctly configured. If you are using TypeScript, then make sure to follow the `Getting started` section for how to ensure sourcemaps are correctly set up. Also, similar issues may occur on React Native version `0.58.*` in some special cases (see [#928](https://github.com/microsoft/vscode-react-native/issues/928), [#907](https://github.com/microsoft/vscode-react-native/issues/907)), bumping dependencies versions of `react` and `react-native` package to the more recent ones should resolve these. If you are on Linux, make sure that the project folder which is opened is not a symbolic link to the real folder, that might cause problems with sourcemaps (see [#1456](https://github.com/microsoft/vscode-react-native/issues/1456)) |
+| 'adb: command not found'                                                                                   | If you receive an error `adb: command not found`, you need to update your system Path to include the location of your _ADB_ executable.The _ADB_ executable file is located in a subdirectory along with your other Android SDK files.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Targeting iPhone 6 doesn't work                                                                            | There was a known issue with React Native ([#5850](https://github.com/facebook/react-native/issues/5850)) but it was fixed. Please upgrade your version of React Native.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Can't communicate with socket pipe                                                                         | (Linux only) If you have two workspaces open that only differ in casing, the extension will fail to communicate effectively.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| "Add configuration" button doesn't work when trying to add debug configuration to `launch.json`            | You have to add some json configuration to `launch.json` manually. Please, see ([#985](https://github.com/microsoft/vscode-react-native/issues/985)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Error `None of these files exist: * .vscode/exponentIndex` appears when running React Native apps via Expo | On some project configurations (mostly on macOS) there could be problems with running RN app via Expo for the first time. You can resolve this by explicitly adding `module.exports.watchFolders = ['.vscode'];` to your Metro config. This will help Metro bundler to find the custom entry point generated by the extension needed to work with Expo. For details you can see the issue ([#1327](https://github.com/microsoft/vscode-react-native/issues/1327)).                                                                                                                                                                                                                                                                                                                                |
 
 [Known-Issues](https://github.com/microsoft/vscode-react-native/issues?q=is%3Aissue+label%3Aknown-issues) provides a complete list of active and resolved issues.
 
