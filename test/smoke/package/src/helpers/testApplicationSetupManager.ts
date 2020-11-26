@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
+import * as cp from "child_process";
 import * as fs from "fs";
 import * as semver from "semver";
 import * as rimraf from "rimraf";
@@ -315,7 +316,8 @@ export class TestApplicationSetupManager {
 
         const command = this.generateReactNativeInitCommand(appName, version);
         SmokeTestLogger.projectInstallLog(`*** Creating RN app via '${command}' in ${workspacePath}...`);
-        utilities.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());
+        // utilities.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" }, vscodeManager.getSetupEnvironmentLogDir());
+        cp.execSync(command, { cwd: parentPathForWorkspace, stdio: "inherit" });
 
         const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspacePath);
 
