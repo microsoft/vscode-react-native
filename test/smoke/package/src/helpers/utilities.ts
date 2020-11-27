@@ -268,6 +268,6 @@ export async function smokeTestFail(message: string): Promise<void> {
             SmokeTestLogger.error(e.toString());
         }
     }
-    AppiumHelper.terminateAppium();
+    await AppiumHelper.terminateAppium();
     process.exit(1);
 }

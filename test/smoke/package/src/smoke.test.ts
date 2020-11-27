@@ -51,7 +51,7 @@ export function startSmokeTests(
                     SmokeTestLogger.error(`${e.toString()}`);
                 }
             }
-            AppiumHelper.terminateAppium();
+            await AppiumHelper.terminateAppium();
         });
 
         startLocalizationTests(testApplicationSetupManager.getRnWorkspaceDirectory());
