@@ -134,7 +134,7 @@ export class AdbHelper {
         return this.childProcess.spawn(this.adbExecutable.replace(/\"/g, ""), adbParameters);
     }
 
-    public parseSdkLocation(fileContent: string, logger?: ILogger) {
+    public parseSdkLocation(fileContent: string, logger?: ILogger): string | null {
         const matches = fileContent.match(/^sdk\.dir=(.+)$/m);
         if (!matches || !matches[1]) {
             if (logger) {

@@ -50,7 +50,7 @@ const localize = nls.loadMessageBundle();
     getReactNativeWorkspaceForFile(filename, workspace).then(projectRootPath => {
         const appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
         return appLauncher.openFileAtLocation(filename, lineNumber);
-    }).then(() => { }, (reason) => {
+    }).catch(reason => {
         throw ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed,
             "Unable to communicate with VSCode. Please make sure it is open in the appropriate workspace.");
     });

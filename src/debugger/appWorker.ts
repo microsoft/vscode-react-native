@@ -247,7 +247,7 @@ function fetch(url) {
             .then(() => this.createSocketToApp(retryAttempt));
     }
 
-    public stop() {
+    public stop(): void {
         if (this.socketToApp) {
             this.socketToApp.removeAllListeners();
             this.socketToApp.close();

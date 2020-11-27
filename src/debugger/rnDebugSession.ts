@@ -45,6 +45,7 @@ export class RNDebugSession extends DebugSessionBase {
         );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected async launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
         return new Promise<void>((resolve, reject) => this.initializeSettings(launchArgs)
             .then(() => {
@@ -74,6 +75,7 @@ export class RNDebugSession extends DebugSessionBase {
         .catch(err => this.showError(err, response));
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void>  {
         let extProps = {
             platform: {
@@ -92,7 +94,7 @@ export class RNDebugSession extends DebugSessionBase {
             .then(versions => {
                 extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(attachArgs, versions, extProps);
 
-                return TelemetryHelper.generate("attach", extProps, (generator) => {
+                return TelemetryHelper.generate("attach", extProps, (generator) => { // eslint-disable-line @typescript-eslint/no-unused-vars
                     attachArgs.port = attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
                     return this.appLauncher.getRnCdpProxy().stopServer()
                         .then(() => this.appLauncher.getRnCdpProxy().initializeServer(new RnCDPMessageHandler(), this.cdpProxyLogLevel))

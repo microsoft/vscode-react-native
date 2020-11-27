@@ -48,7 +48,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, this.sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
     }
 
-    public stop() {
+    public stop(): void {
         if (this.debuggeeProcess) {
             logger.verbose(`About to kill debuggee with pid ${this.debuggeeProcess.pid}`);
             this.debuggeeProcess.kill();
@@ -172,7 +172,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     }
 
     // TODO: Replace by url.pathToFileURL method when Node 10 LTS become deprecated
-    public pathToFileUrl(url: string) {
+    public pathToFileUrl(url: string): string {
         const filePrefix = process.platform === "win32" ? "file:///" : "file://";
         return filePrefix + url;
     }

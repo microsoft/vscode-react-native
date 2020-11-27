@@ -5,7 +5,7 @@
 export class ExecutionsLimiter {
     private executionToLastTimestamp: {[id: string]: number} = {};
 
-    public execute(id: string, limitInSeconds: number, lambda: () => void) {
+    public execute(id: string, limitInSeconds: number, lambda: () => void): void {
         const now = new Date().getTime();
 
         const lastExecution = this.executionToLastTimestamp[id] || 0;
@@ -25,7 +25,7 @@ export class ExecutionsFilterBeforeTimestamp {
         this.sinceWhenToStopFiltering = this.now() + delayInSeconds * ExecutionsFilterBeforeTimestamp.MILLISECONDS_IN_ONE_SECOND;
     }
 
-    public execute(lambda: () => void) {
+    public execute(lambda: () => void): void {
         if (this.now() >= this.sinceWhenToStopFiltering) {
             lambda();
         }

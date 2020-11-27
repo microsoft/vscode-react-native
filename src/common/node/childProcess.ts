@@ -52,7 +52,7 @@ export class ChildProcess {
         let process: nodeChildProcess.ChildProcess;
         return new Promise<IExecResult>((resolveRes) => {
             outcome = new Promise<string>((resolve, reject) => {
-                process = this.childProcess.exec(command, options, (error: Error, stdout: string, stderr: string) => {
+                process = this.childProcess.exec(command, options, (error: Error, stdout: string, stderr: string) => { // eslint-disable-line @typescript-eslint/no-unused-vars
                         if (error) {
                             reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
                         } else {

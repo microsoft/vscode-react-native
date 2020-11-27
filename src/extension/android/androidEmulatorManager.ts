@@ -10,8 +10,11 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
 const localize = nls.loadMessageBundle();
+
+/* eslint-disable @typescript-eslint/no-empty-interface */
 export interface IAndroidEmulator extends IVirtualDevice {
 }
+/* eslint-enable @typescript-eslint/no-empty-interface */
 
 export class AndroidEmulatorManager extends VirtualDeviceManager {
     private static readonly EMULATOR_COMMAND = "emulator";

@@ -19,11 +19,11 @@ export class ConsoleLogger implements ILogger {
         this.log(message, LogLevel.Info);
     }
 
-    public warning(message: string, logStack = false): void {
+    public warning(message: string): void {
         this.log(message, LogLevel.Warning);
     }
 
-    public error(errorMessage: string, error?: Error, logStack: boolean = true) {
+    public error(errorMessage: string, error?: Error, logStack: boolean = true): void {
         console.error(ConsoleLogger.getFormattedMessage(errorMessage, LogLevel.Error));
 
         // Print the error stack if necessary
@@ -36,7 +36,7 @@ export class ConsoleLogger implements ILogger {
         this.log(message, LogLevel.Debug);
     }
 
-    public logStream(data: Buffer, stream: NodeJS.WritableStream) {
+    public logStream(data: Buffer, stream: NodeJS.WritableStream): void {
         stream.write(data.toString());
     }
 

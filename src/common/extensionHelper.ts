@@ -4,7 +4,7 @@
 import * as path from "path";
 import * as fs from "fs";
 
-export function getExtensionVersion() {
+export function getExtensionVersion(): string | null {
     const packageJsonPath = findFileInFolderHierarchy(__dirname, "package.json");
     if (packageJsonPath) {
         return JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")).version;
@@ -47,6 +47,6 @@ export function findFileInFolderHierarchy(dir: string, filename: string): string
     return path.join(projectRoot, filename);
 }
 
-export function generateRandomPortNumber() {
+export function generateRandomPortNumber(): number {
     return Math.round(Math.random() * 40000 + 3000);
 }

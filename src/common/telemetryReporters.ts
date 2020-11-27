@@ -8,7 +8,7 @@ export class RemoteTelemetryReporter implements Telemetry.ITelemetryReporter {
     private extensionVersion: string;
     private appInsightsKey: string;
 
-    constructor(extensionId: string, extensionVersion: string, key: string, projectRootPath: string) {
+    constructor(extensionId: string, extensionVersion: string, key: string) {
         this.extensionId = extensionId;
         this.extensionVersion = extensionVersion;
         this.appInsightsKey = key;
@@ -23,6 +23,7 @@ export class RemoteTelemetryReporter implements Telemetry.ITelemetryReporter {
 }
 
 export class NullTelemetryReporter implements Telemetry.ITelemetryReporter {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public sendTelemetryEvent(eventName: string, properties?: Telemetry.ITelemetryEventProperties, measures?: Telemetry.ITelemetryEventMeasures): void {
         // Don't do anything
     }
@@ -35,7 +36,7 @@ export class ReassignableTelemetryReporter implements Telemetry.ITelemetryReport
         this.reporter = initialReporter;
     }
 
-    public reassignTo(reporter: Telemetry.ITelemetryReporter) {
+    public reassignTo(reporter: Telemetry.ITelemetryReporter): void {
         this.reporter = reporter;
     }
 

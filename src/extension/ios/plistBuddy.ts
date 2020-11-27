@@ -93,7 +93,7 @@ export class PlistBuddy {
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
         return this.invokePlistBuddy(`Set ${property} ${value}`, plistFile).catch(() =>
             this.invokePlistBuddy(`Add ${property} string ${value}`, plistFile)
-        ).then(() => { });
+        ).then(() => { }); // eslint-disable-line @typescript-eslint/no-empty-function
     }
 
     public setPlistBooleanProperty(plistFile: string, property: string, value: boolean): Promise<void> {
@@ -102,11 +102,12 @@ export class PlistBuddy {
             .catch(() =>
                 this.invokePlistBuddy(`Add ${property} bool ${value}`, plistFile)
             )
-            .then(() => { });
+            .then(() => { }); // eslint-disable-line @typescript-eslint/no-empty-function
     }
 
     public deletePlistProperty(plistFile: string, property: string): Promise<void> {
-        return this.invokePlistBuddy(`Delete ${property}`, plistFile).then(() => { });
+        return this.invokePlistBuddy(`Delete ${property}`, plistFile)
+            .then(() => { }); // eslint-disable-line @typescript-eslint/no-empty-function
     }
 
     public readPlistProperty(plistFile: string, property: string): Promise<string> {
@@ -155,7 +156,7 @@ export class PlistBuddy {
         };
     }
 
-    public getInferredScheme(iosProjectRoot: string, projectRoot: string, rnVersion: string) {
+    public getInferredScheme(iosProjectRoot: string, projectRoot: string, rnVersion: string): string {
         const projectWorkspaceConfigName = this.getProjectWorkspaceConfigName(iosProjectRoot, projectRoot, rnVersion);
         return getFileNameWithoutExtension(projectWorkspaceConfigName);
     }
@@ -216,7 +217,7 @@ export class PlistBuddy {
      * @param {string} parameterName
      * @returns {string | null}
      */
-    public fetchParameterFromBuildSettings(buildSettings: string, parameterName: string) {
+    public fetchParameterFromBuildSettings(buildSettings: string, parameterName: string): string | null {
         const targetBuildMatch = new RegExp(`${parameterName} = (.+)$`, "m").exec(buildSettings);
         return targetBuildMatch && targetBuildMatch[1]
             ? targetBuildMatch[1].trim()

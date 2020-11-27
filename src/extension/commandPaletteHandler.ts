@@ -38,7 +38,7 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
                 return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(appLauncher.getPackager().getProjectPath())
-                    .then(versions => {
+                    .then(versions => { // eslint-disable-line @typescript-eslint/no-unused-vars
                         return this.executeCommandInContext("startPackager", appLauncher.getWorkspaceFolder(), () => {
                             return appLauncher.getPackager().isRunning()
                                 .then((running) => {
@@ -68,7 +68,7 @@ export class CommandPaletteHandler {
             promises.push(this.executeCommandInContext("stopPackager", appLauncher.getWorkspaceFolder(), () => appLauncher.getPackager().stop()));
         });
 
-        return Promise.all(promises).then(() => {});
+        return Promise.all(promises).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
     }
 
     /**
@@ -78,7 +78,7 @@ export class CommandPaletteHandler {
         return this.selectProject()
             .then((appLauncher: AppLauncher) => {
                 return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(appLauncher.getPackager().getProjectPath())
-                    .then(versions => {
+                    .then(versions => { // eslint-disable-line @typescript-eslint/no-unused-vars
                         return this.executeCommandInContext("restartPackager", appLauncher.getWorkspaceFolder(), () =>
                             this.runRestartPackagerCommandAndUpdateStatus(appLauncher));
                     });
@@ -160,6 +160,7 @@ export class CommandPaletteHandler {
                                     // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
                                     return platform.disableJSDebuggingMode();
                                 })
+                                // eslint-disable-next-line @typescript-eslint/no-empty-function
                                 .catch(() => { }) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
                                 .then(() => {
                                     return platform.runApp();
@@ -200,11 +201,13 @@ export class CommandPaletteHandler {
             .then((appLauncher: AppLauncher) => {
                 const androidPlatform = <AndroidPlatform>this.createPlatform(appLauncher, PlatformType.Android, AndroidPlatform);
                 androidPlatform.showDevMenu()
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                     .catch(() => { }); // Ignore any errors
 
                 if (process.platform === "darwin") {
                     const iosPlatform = <IOSPlatform>this.createPlatform(appLauncher, PlatformType.iOS, IOSPlatform);
                     iosPlatform.showDevMenu(appLauncher)
+                        // eslint-disable-next-line @typescript-eslint/no-empty-function
                         .catch(() => { }); // Ignore any errors
                 }
                 return Promise.resolve();
@@ -216,11 +219,13 @@ export class CommandPaletteHandler {
             .then((appLauncher: AppLauncher) => {
                 const androidPlatform = <AndroidPlatform>this.createPlatform(appLauncher, PlatformType.Android, AndroidPlatform);
                 androidPlatform.reloadApp()
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                     .catch(() => { }); // Ignore any errors
 
                 if (process.platform === "darwin") {
                     const iosPlatform = <IOSPlatform>this.createPlatform(appLauncher, PlatformType.iOS, IOSPlatform);
                     iosPlatform.reloadApp(appLauncher)
+                        // eslint-disable-next-line @typescript-eslint/no-empty-function
                         .catch(() => { }); // Ignore any errors
                 }
                 return Promise.resolve();

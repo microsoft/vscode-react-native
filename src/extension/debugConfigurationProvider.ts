@@ -176,6 +176,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         },
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public async provideDebugConfigurations(folder: vscode.WorkspaceFolder | undefined, token?: vscode.CancellationToken): Promise<vscode.DebugConfiguration[]> {
         return new Promise<vscode.DebugConfiguration[]>((resolve) => {
             const configPicker = this.prepareDebugConfigPicker();

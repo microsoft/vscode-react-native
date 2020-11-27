@@ -70,7 +70,7 @@ export class Package {
             });
     }
 
-    public dependencyPath(dependencyName: string) {
+    public dependencyPath(dependencyName: string): string {
         return pathModule.resolve(this._path, this.DEPENDENCIES_SUBFOLDER, dependencyName);
     }
 

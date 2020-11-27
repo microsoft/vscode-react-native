@@ -92,7 +92,7 @@ export class OutputChannelLogger implements ILogger {
         this.log(message, LogLevel.Info);
     }
 
-    public warning(message: string | Error, logStack = false): void {
+    public warning(message: string | Error): void {
         this.log(message.toString(), LogLevel.Warning);
     }
 
@@ -116,7 +116,7 @@ export class OutputChannelLogger implements ILogger {
         this.log(message, LogLevel.Debug);
     }
 
-    public logStream(data: Buffer | string) {
+    public logStream(data: Buffer | string): void {
         this.channel.append(data.toString());
         if (this.channelLogFileStream) {
             this.channelLogFileStream.write(data);

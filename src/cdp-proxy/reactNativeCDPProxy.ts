@@ -78,7 +78,7 @@ export class ReactNativeCDPProxy {
         this.cancellationToken = undefined;
     }
 
-    public setBrowserInspectUri(browserInspectUri: string) {
+    public setBrowserInspectUri(browserInspectUri: string): void {
         this.browserInspectUri = browserInspectUri;
     }
 
@@ -86,7 +86,7 @@ export class ReactNativeCDPProxy {
         this.applicationTargetPort = applicationTargetPort;
     }
 
-    private async onConnectionHandler([debuggerTarget, request]: [Connection, IncomingMessage]): Promise<void> {
+    private async onConnectionHandler([debuggerTarget, request]: [Connection, IncomingMessage]): Promise<void> { // eslint-disable-line @typescript-eslint/no-unused-vars
         this.debuggerTarget = debuggerTarget;
 
         this.debuggerTarget.pause(); // don't listen for events until the target is ready

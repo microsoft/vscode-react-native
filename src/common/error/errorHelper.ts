@@ -21,11 +21,11 @@ export class ErrorHelper {
         return NestedError.getWrappedError(error, innerError);
     }
 
-    public static getWarning(message: string, ...optionalArgs: any[]): InternalError {
+    public static getWarning(message: string): InternalError {
         return new InternalError(-1, message, InternalErrorLevel.Warning);
     }
 
-    public static getNestedWarning(innerError: Error, message: string, ...optionalArgs: any[]): NestedError {
+    public static getNestedWarning(innerError: Error, message: string): NestedError {
         return new NestedError(-1, message, innerError, null /* extras */, InternalErrorLevel.Warning);
     }
 
@@ -39,26 +39,10 @@ export class ErrorHelper {
         }
 
         let result: string = <string> errorMessage;
-        /* eslint-disable prefer-rest-params */
-        let args: string[] = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
-        if (args) {
-            for (let i: number = 0; i < args.length; i++) {
-                result = result.replace(new RegExp("\\{" + i + "\\}", "g"), args[i]);
-            }
+        for (let i: number = 0; i < optionalArgs.length; i++) {
+            result = result.replace(new RegExp("\\{" + i + "\\}", "g"), optionalArgs[i]);
         }
 
         return result;
-    }
-
-    private static getOptionalArgsArrayFromFunctionCall(functionArguments: IArguments, startIndex: number): any[] {
-        if (functionArguments.length <= startIndex) {
-            return [];
-        }
-
-        if (Array.isArray(functionArguments[startIndex])) {
-            return functionArguments[startIndex];
-        }
-
-        return Array.prototype.slice.apply(functionArguments, [startIndex]);
     }
 }

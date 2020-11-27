@@ -54,7 +54,7 @@ export class Packager {
         this.packagerStatusIndicator = packagerStatusIndicator || new PackagerStatusIndicator(projectPath);
     }
 
-    public setExponentHelper(expoHelper: ExponentHelper) {
+    public setExponentHelper(expoHelper: ExponentHelper): void {
         this.expoHelper = expoHelper;
     }
 
@@ -69,7 +69,7 @@ export class Packager {
         return this.packagerPort || SettingsHelper.getPackagerPort(this.workspacePath);
     }
 
-    public setRunOptions(runOptions: IRunOptions) {
+    public setRunOptions(runOptions: IRunOptions): void {
         this.runOptions = runOptions;
     }
 
@@ -187,6 +187,7 @@ export class Packager {
 
                         const packagerSpawnResult = new CommandExecutor(this.projectPath, this.logger).spawnReactPackager(args, spawnOptions);
                         this.packagerProcess = packagerSpawnResult.spawnedProcess;
+                        // eslint-disable-next-line @typescript-eslint/no-empty-function
                         packagerSpawnResult.outcome.then(() => { }, () => { }); // We ignore all outcome errors
 
                         return Promise.resolve();
@@ -307,9 +308,9 @@ export class Packager {
             .then((body: string) => {
                 return body === "packager-status:running";
             },
-                (error: any) => {
-                    return false;
-                });
+            (error: any) => { // eslint-disable-line @typescript-eslint/no-unused-vars
+                return false;
+            });
     }
 
     private awaitStart(retryCount = 60, delay = 3000): Promise<boolean> {

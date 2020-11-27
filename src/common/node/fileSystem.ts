@@ -60,7 +60,7 @@ export class FileSystem {
             .then(() => {
                 return Promise.resolve(true);
             })
-            .catch((err) => {
+            .catch((err) => { // eslint-disable-line @typescript-eslint/no-unused-vars
                 return Promise.resolve(false);
             });
     }
@@ -91,7 +91,7 @@ export class FileSystem {
         return this.fs.promises.copyFile(from, to);
     }
 
-    public deleteFileIfExistsSync(filename: string) {
+    public deleteFileIfExistsSync(filename: string): void {
         if (this.existsSync(filename)) {
             this.fs.unlinkSync(filename);
         }

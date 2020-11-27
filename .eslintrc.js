@@ -27,6 +27,9 @@ module.exports = {
       "@typescript-eslint/no-var-requires": "off",
       "@typescript-eslint/triple-slash-reference": "off",
       "@typescript-eslint/no-namespace": "off",
+      "@typescript-eslint/explicit-module-boundary-types": ["warn" ,{
+        allowArgumentsExplicitlyTypedAsAny: true
+      }],
       "@typescript-eslint/member-delimiter-style": ["error", {
         multiline: {
           delimiter: 'comma',

@@ -80,7 +80,7 @@ export class TelemetryHelper {
         });
     }
 
-    public static sendErrorEvent(eventName: string, error: Error, errorDescription?: string, isPii: boolean = true) {
+    public static sendErrorEvent(eventName: string, error: Error, errorDescription?: string, isPii: boolean = true): void {
         const event = TelemetryHelper.createTelemetryEvent(eventName);
         TelemetryHelper.addTelemetryEventErrorProperty(event, error, errorDescription, "", isPii);
         Telemetry.send(event);

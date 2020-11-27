@@ -43,7 +43,7 @@ export class ExperimentService implements vscode.Disposable {
     private downloadConfigRequest: Promise<ExperimentConfig[]>;
     private cancellationTokenSource: vscode.CancellationTokenSource;
 
-    public static create () {
+    public static create(): ExperimentService {
         if (!ExperimentService.instance) {
             ExperimentService.instance = new ExperimentService();
         }
@@ -64,7 +64,7 @@ export class ExperimentService implements vscode.Disposable {
         this.sendExperimentTelemetry(experimentResults);
     }
 
-    public dispose() {
+    public dispose(): void {
         this.cancellationTokenSource.cancel();
         this.cancellationTokenSource.dispose();
     }

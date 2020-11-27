@@ -64,7 +64,7 @@ export class SourceMapUtil {
             if (sourceMap.sections) {
 
                 // TODO: there is a need to handle value.map == null, make a fake map
-                sourceMap.sections = sourceMap.sections.filter((value, index, array) => {
+                sourceMap.sections = sourceMap.sections.filter((value) => {
                     return value.map != null;
                 });
 
@@ -89,7 +89,7 @@ export class SourceMapUtil {
         }
     }
 
-    public appendSourceMapPaths(scriptBody: string, sourceMappingUrl: string) {
+    public appendSourceMapPaths(scriptBody: string, sourceMappingUrl: string): string {
         scriptBody += `//# sourceMappingURL=${sourceMappingUrl}`;
         return scriptBody;
     }
@@ -97,7 +97,7 @@ export class SourceMapUtil {
     /**
      * Updates source map URLs in the script body.
      */
-    public updateScriptPaths(scriptBody: string, sourceMappingUrl: IStrictUrl) {
+    public updateScriptPaths(scriptBody: string, sourceMappingUrl: IStrictUrl): string {
         // Update the body with the new location of the source map on storage.
         return scriptBody.replace(SourceMapUtil.SourceMapURLRegex,
             "//# sourceMappingURL=" + path.basename(sourceMappingUrl.pathname));
@@ -107,7 +107,7 @@ export class SourceMapUtil {
      * Removes sourceURL from the script body since RN 0.61 because it breaks sourcemaps.
      * Example: //# sourceURL=http://localhost:8081/index.bundle?platform=android&dev=true&minify=false -> ""
      */
-    public removeSourceURL(scriptBody: string) {
+    public removeSourceURL(scriptBody: string): string {
         return scriptBody.replace(SourceMapUtil.SourceURLRegex, "");
     }
 
@@ -121,7 +121,7 @@ export class SourceMapUtil {
      *
      * Returns the last match if found, null otherwise.
      */
-    public getSourceMapRelativeUrl(body: string) {
+    public getSourceMapRelativeUrl(body: string): string | null {
         let matchesList = body.match(SourceMapUtil.SourceMapURLGlobalRegex);
         // If match is null, the body doesn't contain the source map
         if (matchesList) {

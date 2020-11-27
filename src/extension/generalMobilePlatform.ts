@@ -41,6 +41,7 @@ export class GeneralMobilePlatform {
         this.runArguments = this.getRunArguments();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public resolveVirtualDevice(target: string): Promise<IVirtualDevice | null> {
         return Promise.resolve(null);
     }
@@ -87,7 +88,7 @@ export class GeneralMobilePlatform {
         return Promise.resolve();
     }
 
-    public static removeRunArgument(runArguments: any[], optName: string, binary: boolean) {
+    public static removeRunArgument(runArguments: any[], optName: string, binary: boolean): void {
         const optIdx = runArguments.indexOf(optName);
         if (optIdx > -1) {
             if (binary) {
@@ -99,7 +100,7 @@ export class GeneralMobilePlatform {
         }
     }
 
-    public static setRunArgument(runArguments: any[], optName: string, value: string | boolean) {
+    public static setRunArgument(runArguments: any[], optName: string, value: string | boolean): void {
         const isBinary = isBoolean(value);
         const optIdx = runArguments.indexOf(optName);
         if (optIdx > -1) {

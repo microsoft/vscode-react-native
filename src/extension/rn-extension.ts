@@ -145,6 +145,7 @@ function onChangeWorkspaceFolders(context: vscode.ExtensionContext, event: vscod
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function onChangeConfiguration(context: vscode.ExtensionContext) {
     // TODO implements
 }
@@ -179,7 +180,9 @@ function onFolderAdded(context: vscode.ExtensionContext, folder: vscode.Workspac
                 outputChannelLogger.debug(`react-native@${versions.reactNativeVersion} isn't supported`);
             }
 
-            return Promise.all(promises).then(() => { });
+            return Promise.all(promises).then(() => {
+                console.log("dsfsdf");
+            }); // eslint-disable-line @typescript-eslint/no-empty-function
         });
 }
 

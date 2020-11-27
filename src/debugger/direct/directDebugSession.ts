@@ -36,6 +36,7 @@ export class DirectDebugSession extends DebugSessionBase {
         );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected async launchRequest(response: DebugProtocol.LaunchResponse, launchArgs: ILaunchRequestArgs, request?: DebugProtocol.Request): Promise<void> {
         let extProps = {
             platform: {
@@ -58,7 +59,7 @@ export class DirectDebugSession extends DebugSessionBase {
             .then(versions => {
                 extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(launchArgs, versions, extProps);
 
-                return TelemetryHelper.generate("launch", extProps, (generator) => {
+                return TelemetryHelper.generate("launch", extProps, (generator) => { // eslint-disable-line @typescript-eslint/no-unused-vars
                     return this.appLauncher.launch(launchArgs)
                         .then(() => {
                             if (launchArgs.enableDebug) {
@@ -80,6 +81,7 @@ export class DirectDebugSession extends DebugSessionBase {
             .catch(err => this.showError(err, response));
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected async attachRequest(response: DebugProtocol.AttachResponse, attachArgs: IAttachRequestArgs, request?: DebugProtocol.Request): Promise<void> {
         let extProps = {
             platform: {
@@ -106,7 +108,7 @@ export class DirectDebugSession extends DebugSessionBase {
             .then(versions => {
                 extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(attachArgs, versions, extProps);
 
-                return TelemetryHelper.generate("attach", extProps, (generator) => {
+                return TelemetryHelper.generate("attach", extProps, (generator) => { // eslint-disable-line @typescript-eslint/no-unused-vars
                     attachArgs.port = attachArgs.platform === PlatformType.iOS ?
                         attachArgs.port || IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT :
                         attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);

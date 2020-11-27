@@ -45,7 +45,7 @@ export class EntryPointHandler {
     }
 
     private handleErrors(error: InternalError, resultOfCode: Promise<void>, errorsAreFatal: boolean): Promise<void> {
-        resultOfCode.then(() => { }, reason => {
+        resultOfCode.catch(reason => {
             const isDebugeeProcess = this.processType === ProcessType.Debugee;
             const shouldLogStack = !errorsAreFatal || isDebugeeProcess;
             this.logger.error(error.message, ErrorHelper.wrapError(error, reason), shouldLogStack);

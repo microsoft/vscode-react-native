@@ -8,7 +8,7 @@ export class PromiseUtil {
     public forEach<T>(sources: T[], promiseGenerator: (source: T) => Promise<void>): Promise<void> {
             return Promise.all(sources.map(source => {
                 return promiseGenerator(source);
-            })).then(() => { });
+            })).then(() => { }); // eslint-disable-line @typescript-eslint/no-empty-function
     }
     /**
      * Retries an operation a given number of times. For each retry, a condition is checked.

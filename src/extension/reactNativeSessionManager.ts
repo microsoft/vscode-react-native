@@ -13,6 +13,7 @@ export class ReactNativeSessionManager implements vscode.DebugAdapterDescriptorF
     private servers = new Map<string, Net.Server>();
     private connections = new Map<string, Net.Socket>();
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public createDebugAdapterDescriptor(session: vscode.DebugSession, executable: vscode.DebugAdapterExecutable | undefined): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
         const debugServer = Net.createServer(socket => {
             let rnDebugSession: DebugSessionBase;
@@ -34,7 +35,7 @@ export class ReactNativeSessionManager implements vscode.DebugAdapterDescriptorF
         return new vscode.DebugAdapterServer((<Net.AddressInfo>debugServer.address()).port);
     }
 
-    public terminate(terminateEvent: TerminateEventArgs) {
+    public terminate(terminateEvent: TerminateEventArgs): void {
         this.destroyServer(terminateEvent.debugSession.id, this.servers.get(terminateEvent.debugSession.id));
 
         let connection = this.connections.get(terminateEvent.debugSession.id);
@@ -46,7 +47,7 @@ export class ReactNativeSessionManager implements vscode.DebugAdapterDescriptorF
         }
     }
 
-    public dispose() {
+    public dispose(): void {
         this.servers.forEach((server, key) => {
             this.destroyServer(key, server);
         });

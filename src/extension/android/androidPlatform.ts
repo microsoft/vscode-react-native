@@ -72,7 +72,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     // TODO: remove this method when sinon will be updated to upper version. Now it is used for tests only.
-    public setAdbHelper(adbHelper: AdbHelper) {
+    public setAdbHelper(adbHelper: AdbHelper): void {
         this.adbHelper = adbHelper;
     }
 
@@ -270,7 +270,10 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         // this.logCatMonitor can be mutated, so we store it locally too
         this.logCatMonitor = new LogCatMonitor(device.id, logCatArguments, this.adbHelper);
         this.logCatMonitor.start() // The LogCat will continue running forever, so we don't wait for it
-            .catch(error => this.logger.warning(localize("ErrorWhileMonitoringLogCat", "Error while monitoring LogCat"), error)); // The LogCatMonitor failing won't stop the debugging experience
+            .catch(error => {
+                this.logger.warning(error);
+                this.logger.warning(localize("ErrorWhileMonitoringLogCat", "Error while monitoring LogCat")); // The LogCatMonitor failing won't stop the debugging experience
+            });
     }
 
     private stopMonitoringLogCat(): void {

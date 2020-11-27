@@ -88,6 +88,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
         response.body = response.body || {};
 
@@ -142,6 +143,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
         if (this.appLauncher) {
             await this.appLauncher.getRnCdpProxy().stopServer();
