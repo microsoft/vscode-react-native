@@ -6,8 +6,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { getLoggingDirectory } from "../../src/extension/log/LogHelper";
 
-suite("logHelper", function() {
-    suite("commonContext", function() {
+suite("logHelper", function () {
+    suite("commonContext", function () {
         const REACT_NATIVE_TOOLS_LOGS_DIR = process.env.REACT_NATIVE_TOOLS_LOGS_DIR;
         suiteSetup(() => {
             delete process.env.REACT_NATIVE_TOOLS_LOGS_DIR;

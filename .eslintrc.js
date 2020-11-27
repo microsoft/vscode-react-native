@@ -30,24 +30,6 @@ module.exports = {
       "@typescript-eslint/explicit-module-boundary-types": ["warn" ,{
         allowArgumentsExplicitlyTypedAsAny: true
       }],
-      "@typescript-eslint/member-delimiter-style": ["error", {
-        multiline: {
-          delimiter: 'comma',
-          requireLast: true,
-        },
-        singleline: {
-          delimiter: 'comma',
-          requireLast: false,
-        },
-        overrides: {
-          interface: {
-              multiline: {
-                  delimiter: "semi",
-                  requireLast: true
-              }
-          }
-      }
-      }],
       "prefer-const": "off",
       "header/header": [
         "error",

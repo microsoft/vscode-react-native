@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {CommandExecutor, CommandVerbosity} from "../../common/commandExecutor";
-import {HostPlatform} from "../../common/hostPlatform";
-import {OutputChannelLogger} from "../log/OutputChannelLogger";
+import { CommandExecutor, CommandVerbosity } from "../../common/commandExecutor";
+import { HostPlatform } from "../../common/hostPlatform";
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
 
 import * as XDLPackage from "xdl";
 import * as path from "path";
@@ -37,10 +37,16 @@ function getPackage(): Promise<typeof XDLPackage> {
             throw e;
         }
     }
-    let commandExecutor = new CommandExecutor(path.dirname(findFileInFolderHierarchy(__dirname, "package.json") || __dirname), logger);
-    xdlPackage = commandExecutor.spawnWithProgress(HostPlatform.getNpmCliCommand("npm"),
-        ["install", ...EXPO_DEPS, "--verbose", "--no-save"],
-        { verbosity: CommandVerbosity.PROGRESS })
+    let commandExecutor = new CommandExecutor(
+        path.dirname(findFileInFolderHierarchy(__dirname, "package.json") || __dirname),
+        logger,
+    );
+    xdlPackage = commandExecutor
+        .spawnWithProgress(
+            HostPlatform.getNpmCliCommand("npm"),
+            ["install", ...EXPO_DEPS, "--verbose", "--no-save"],
+            { verbosity: CommandVerbosity.PROGRESS },
+        )
         .then((): typeof XDLPackage => {
             return customRequire(XDL_PACKAGE);
         });
@@ -50,86 +56,73 @@ function getPackage(): Promise<typeof XDLPackage> {
 export type IUser = XDLPackage.IUser;
 
 export function configReactNativeVersionWargnings(): Promise<void> {
-    return getPackage()
-        .then((xdl) => {
-            xdl.Config.validation.reactNativeVersionWarnings = false;
-        });
+    return getPackage().then(xdl => {
+        xdl.Config.validation.reactNativeVersionWarnings = false;
+    });
 }
 
-export function attachLoggerStream(rootPath: string, options?: XDLPackage.IBunyanStream | any): Promise<void> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.ProjectUtils.attachLoggerStream(rootPath, options));
+export function attachLoggerStream(
+    rootPath: string,
+    options?: XDLPackage.IBunyanStream | any,
+): Promise<void> {
+    return getPackage().then(xdl => xdl.ProjectUtils.attachLoggerStream(rootPath, options));
 }
 
 export function supportedVersions(): Promise<string[]> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.Versions.facebookReactNativeVersionsAsync());
+    return getPackage().then(xdl => xdl.Versions.facebookReactNativeVersionsAsync());
 }
 
 export function currentUser(): Promise<XDLPackage.IUser> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.User ? xdl.User.getCurrentUserAsync() : xdl.UserManager.getCurrentUserAsync());
+    return getPackage().then(xdl =>
+        xdl.User ? xdl.User.getCurrentUserAsync() : xdl.UserManager.getCurrentUserAsync(),
+    );
 }
 
 export function login(username: string, password: string): Promise<XDLPackage.IUser> {
-    return getPackage()
-        .then((xdl) =>
-        xdl.User ? xdl.User.loginAsync("user-pass", { username: username, password: password }) : xdl.UserManager.loginAsync("user-pass", { username: username, password: password }));
+    return getPackage().then(xdl =>
+        xdl.User
+            ? xdl.User.loginAsync("user-pass", { username: username, password: password })
+            : xdl.UserManager.loginAsync("user-pass", { username: username, password: password }),
+    );
 }
 
 export function mapVersion(reactNativeVersion: string): Promise<string> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.Versions.facebookReactNativeVersionToExpoVersionAsync(reactNativeVersion));
+    return getPackage().then(xdl =>
+        xdl.Versions.facebookReactNativeVersionToExpoVersionAsync(reactNativeVersion),
+    );
 }
 
-export function publish(projectRoot: string, options?: XDLPackage.IPublishOptions): Promise<XDLPackage.IPublishResponse> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.Project.publishAsync(projectRoot, options));
+export function publish(
+    projectRoot: string,
+    options?: XDLPackage.IPublishOptions,
+): Promise<XDLPackage.IPublishResponse> {
+    return getPackage().then(xdl => xdl.Project.publishAsync(projectRoot, options));
 }
 
 export function setOptions(projectRoot: string, options?: XDLPackage.IOptions): Promise<void> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.Project.setOptionsAsync(projectRoot, options));
+    return getPackage().then(xdl => xdl.Project.setOptionsAsync(projectRoot, options));
 }
 
 export function startExponentServer(projectRoot: string): Promise<void> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.Project.startExpoServerAsync(projectRoot));
+    return getPackage().then(xdl => xdl.Project.startExpoServerAsync(projectRoot));
 }
 
 export function startTunnels(projectRoot: string): Promise<void> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.Project.startTunnelsAsync(projectRoot));
+    return getPackage().then(xdl => xdl.Project.startTunnelsAsync(projectRoot));
 }
 
 export function getUrl(projectRoot: string, options?: XDLPackage.IUrlOptions): Promise<string> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.UrlUtils.constructManifestUrlAsync(projectRoot, options));
+    return getPackage().then(xdl => xdl.UrlUtils.constructManifestUrlAsync(projectRoot, options));
 }
 
 export function stopAll(projectRoot: string): Promise<void> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.Project.stopAsync(projectRoot));
+    return getPackage().then(xdl => xdl.Project.stopAsync(projectRoot));
 }
 
 export function startAdbReverse(projectRoot: string): Promise<boolean> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.Android.startAdbReverseAsync(projectRoot));
+    return getPackage().then(xdl => xdl.Android.startAdbReverseAsync(projectRoot));
 }
 
 export function stopAdbReverse(projectRoot: string): Promise<void> {
-    return getPackage()
-        .then((xdl) =>
-            xdl.Android.stopAdbReverseAsync(projectRoot));
+    return getPackage().then(xdl => xdl.Android.stopAdbReverseAsync(projectRoot));
 }

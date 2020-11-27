@@ -4,10 +4,10 @@
 import * as assert from "assert";
 import * as child_process from "child_process";
 
-import {ISpawnResult, ChildProcess} from "../../../src/common/node/childProcess";
-import {PromiseUtil} from "../../../src/common/node/promise";
+import { ISpawnResult, ChildProcess } from "../../../src/common/node/childProcess";
+import { PromiseUtil } from "../../../src/common/node/promise";
 
-import {IStdOutEvent, IStdErrEvent, IErrorEvent, IExitEvent, ICustomEvent} from "./recording";
+import { IStdOutEvent, IStdErrEvent, IErrorEvent, IExitEvent, ICustomEvent } from "./recording";
 import * as recording from "./recording";
 import * as simulators from "../simulators/childProcess";
 
@@ -28,7 +28,9 @@ export interface ISideEffectsDefinition {
     beforeSuccess: (stdout: string, stderr: string) => Promise<void>;
 }
 
-type IOutputBasedSideEffectDefinition = IOutputSingleEventBasedSideEffectDefinition | IWholeOutputBasedSideEffectDefinition;
+type IOutputBasedSideEffectDefinition =
+    | IOutputSingleEventBasedSideEffectDefinition
+    | IWholeOutputBasedSideEffectDefinition;
 
 // Side effects based on analyzing each stdout event individually
 export interface IOutputSingleEventBasedSideEffectDefinition {
@@ -57,21 +59,27 @@ export class Simulator {
 
     constructor(private sideEffectsDefinition: ISideEffectsDefinition) {
         // We extract the whole output rules and the single event output rules into two different lists.
-        this.outputEventBasedDefinitions = <IOutputSingleEventBasedSideEffectDefinition[]>this.sideEffectsDefinition.outputBased.filter(definition =>
-            !this.isWholeOutputDefinition(definition));
-        this.wholeOutputBasedDefinitions = <IWholeOutputBasedSideEffectDefinition[]>this.sideEffectsDefinition.outputBased.filter(definition =>
-            this.isWholeOutputDefinition(definition));
+        this.outputEventBasedDefinitions = <IOutputSingleEventBasedSideEffectDefinition[]>(
+            this.sideEffectsDefinition.outputBased.filter(
+                definition => !this.isWholeOutputDefinition(definition),
+            )
+        );
+        this.wholeOutputBasedDefinitions = <IWholeOutputBasedSideEffectDefinition[]>(
+            this.sideEffectsDefinition.outputBased.filter(definition =>
+                this.isWholeOutputDefinition(definition),
+            )
+        );
     }
 
     /* Given that we use ChildProcess for spawning processes, we create this spawn method with a
        similar result, so it'll be easier for simulated/fake classes to behave similar to the real
        ChildProcess class when spawning a simulated process */
     public spawn(): ISpawnResult {
-        const fakeChildProcessModule = <typeof child_process><any>{
+        const fakeChildProcessModule = <typeof child_process>(<any>{
             spawn: () => {
                 return this.process;
             },
-        };
+        });
 
         /* We call spawn to fill the ISpawnResult object appropiatedly. The command
            and the arguments don't affect that object, so we just pass an empty command and parameters */
@@ -86,7 +94,9 @@ export class Simulator {
     }
 
     public simulateAllEvents(events: IEventArguments[]): Promise<void> {
-        return new PromiseUtil().reduce(events, (event: IEventArguments) => this.simulateSingleEvent(event));
+        return new PromiseUtil().reduce(events, (event: IEventArguments) =>
+            this.simulateSingleEvent(event),
+        );
     }
 
     public getAllSimulatedEvents(): IEventArguments[] {
@@ -100,7 +110,10 @@ export class Simulator {
     private simulateOutputSideEffects(data: string, previousOutputLength: number): Promise<void> {
         /* We store the applicable side effects with the index where they were applicable, so we execute the
            ones that were detected earlier in the recording first */
-        const applicableSideEffectDefinitions: { index: number, definition: IOutputBasedSideEffectDefinition }[] = [];
+        const applicableSideEffectDefinitions: {
+            index: number;
+            definition: IOutputBasedSideEffectDefinition;
+        }[] = [];
 
         this.outputEventBasedDefinitions.forEach(definition => {
             const match = data.match(definition.eventPattern);
@@ -130,13 +143,15 @@ export class Simulator {
         // Sort by index, so the action matching the earlier text gets executed first
         applicableSideEffectDefinitions.sort((a, b) => a.index - b.index);
 
-        return new PromiseUtil().reduce(applicableSideEffectDefinitions, definition => definition.definition.action());
+        return new PromiseUtil().reduce(applicableSideEffectDefinitions, definition =>
+            definition.definition.action(),
+        );
     }
 
     private simulateSingleEvent(event: IEventArguments): Promise<void> {
         /* TODO: Implement proper timing logic based on return Q.delay(event.at).then(() => {
             using sinon fake timers to simulate time passing by */
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             this.allSimulatedEvents.push(event);
             const key = Object.keys(event).find(eventKey => eventKey !== "after"); // At the moment we are only using a single key/parameter per event
             switch (key) {
@@ -163,7 +178,12 @@ export class Simulator {
 
                     let beforeFinishing = Promise.resolve();
                     if (code === 0) {
-                        beforeFinishing = Promise.resolve(this.sideEffectsDefinition.beforeSuccess(this.allStdout, this.allStderr));
+                        beforeFinishing = Promise.resolve(
+                            this.sideEffectsDefinition.beforeSuccess(
+                                this.allStdout,
+                                this.allStderr,
+                            ),
+                        );
                     }
 
                     beforeFinishing.then(() => {

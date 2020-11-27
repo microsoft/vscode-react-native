@@ -50,33 +50,53 @@ export class ChildProcess {
     public exec(command: string, options: IExecOptions = {}): Promise<IExecResult> {
         let outcome: Promise<string>;
         let process: nodeChildProcess.ChildProcess;
-        return new Promise<IExecResult>((resolveRes) => {
+        return new Promise<IExecResult>(resolveRes => {
             outcome = new Promise<string>((resolve, reject) => {
-                process = this.childProcess.exec(command, options, (error: Error, stdout: string, stderr: string) => { // eslint-disable-line @typescript-eslint/no-unused-vars
+                process = this.childProcess.exec(
+                    command,
+                    options,
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    (error: Error, stdout: string, stderr: string) => {
                         if (error) {
-                            reject(ErrorHelper.getNestedError(error, InternalErrorCode.CommandFailed, command));
+                            reject(
+                                ErrorHelper.getNestedError(
+                                    error,
+                                    InternalErrorCode.CommandFailed,
+                                    command,
+                                ),
+                            );
                         } else {
                             resolve(stdout);
                         }
-                    });
-                });
-            resolveRes({process: process, outcome: outcome});
+                    },
+                );
+            });
+            resolveRes({ process: process, outcome: outcome });
         });
-
     }
 
     public execToString(command: string, options: IExecOptions = {}): Promise<string> {
-        return this.exec(command, options).then(result => result.outcome.then(stdout => stdout.toString()));
+        return this.exec(command, options).then(result =>
+            result.outcome.then(stdout => stdout.toString()),
+        );
     }
 
-    public execFileSync(command: string, args: string[] = [], options: IExecOptions = {}): Buffer | string {
+    public execFileSync(
+        command: string,
+        args: string[] = [],
+        options: IExecOptions = {},
+    ): Buffer | string {
         return this.childProcess.execFileSync(command, args, options);
     }
 
-    public spawn(command: string, args: string[] = [], options: ISpawnOptions = {}, showStdOutputsOnError: boolean = false): ISpawnResult {
+    public spawn(
+        command: string,
+        args: string[] = [],
+        options: ISpawnOptions = {},
+        showStdOutputsOnError: boolean = false,
+    ): ISpawnResult {
         const spawnedProcess = this.childProcess.spawn(command, args, options);
         let outcome: Promise<void> = new Promise((resolve, reject) => {
-
             spawnedProcess.once("error", (error: any) => {
                 reject(error);
             });
@@ -84,11 +104,11 @@ export class ChildProcess {
             const stderrChunks: string[] = [];
             const stdoutChunks: string[] = [];
 
-            spawnedProcess.stderr.on("data", (data) => {
+            spawnedProcess.stderr.on("data", data => {
                 stderrChunks.push(data.toString());
             });
 
-            spawnedProcess.stdout.on("data", (data) => {
+            spawnedProcess.stdout.on("data", data => {
                 stdoutChunks.push(data.toString());
             });
 
@@ -100,7 +120,9 @@ export class ChildProcess {
                     if (showStdOutputsOnError) {
                         let details = "";
                         if (stdoutChunks.length > 0) {
-                            details = details.concat(`\n\tSTDOUT: ${stdoutChunks[stdoutChunks.length-1]}`);
+                            details = details.concat(
+                                `\n\tSTDOUT: ${stdoutChunks[stdoutChunks.length - 1]}`,
+                            );
                         }
                         if (stderrChunks.length > 0) {
                             details = details.concat(`\n\tSTDERR: ${stderrChunks.join("\n\t")}`);
@@ -108,10 +130,21 @@ export class ChildProcess {
                         if (details === "") {
                             details = "STDOUT and STDERR are empty!";
                         }
-                        reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailedWithDetails, commandWithArgs, details));
-                    }
-                    else {
-                        reject(ErrorHelper.getInternalError(InternalErrorCode.CommandFailed, commandWithArgs, code));
+                        reject(
+                            ErrorHelper.getInternalError(
+                                InternalErrorCode.CommandFailedWithDetails,
+                                commandWithArgs,
+                                details,
+                            ),
+                        );
+                    } else {
+                        reject(
+                            ErrorHelper.getInternalError(
+                                InternalErrorCode.CommandFailed,
+                                commandWithArgs,
+                                code,
+                            ),
+                        );
                     }
                 }
             });
@@ -122,7 +155,6 @@ export class ChildProcess {
             stdout: spawnedProcess.stdout,
             stderr: spawnedProcess.stderr,
             outcome: outcome,
-     };
-
+        };
     }
 }

@@ -15,9 +15,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 export class WindowsPlatform extends GeneralMobilePlatform {
     protected static NO_PACKAGER_VERSION = "0.53.0";
 
-    private static SUCCESS_PATTERNS = [
-        "Starting the app",
-    ];
+    private static SUCCESS_PATTERNS = ["Starting the app"];
     private static FAILURE_PATTERNS: PatternToFailure[] = [
         {
             pattern: "Unrecognized command 'run-windows'",
@@ -37,25 +35,49 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             },
         };
 
-        extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(this.runOptions, this.runOptions.reactNativeVersions, extProps);
+        extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
+            this.runOptions,
+            this.runOptions.reactNativeVersions,
+            extProps,
+        );
 
         return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
-            const env = GeneralMobilePlatform.getEnvArgument(process.env, this.runOptions.env, this.runOptions.envFile);
+            const env = GeneralMobilePlatform.getEnvArgument(
+                process.env,
+                this.runOptions.env,
+                this.runOptions.envFile,
+            );
 
-            if (semver.gte(this.runOptions.reactNativeVersions.reactNativeWindowsVersion, "0.63.0")) {
+            if (
+                semver.gte(this.runOptions.reactNativeVersions.reactNativeWindowsVersion, "0.63.0")
+            ) {
                 this.runArguments.push("--logging");
                 if (enableDebug) {
                     this.runArguments.push("--remote-debugging");
                 }
             }
 
-            if (!semver.valid(this.runOptions.reactNativeVersions.reactNativeVersion) /*Custom RN implementations should support this flag*/ || semver.gte(this.runOptions.reactNativeVersions.reactNativeVersion, WindowsPlatform.NO_PACKAGER_VERSION)) {
+            if (
+                !semver.valid(
+                    this.runOptions.reactNativeVersions.reactNativeVersion,
+                ) /*Custom RN implementations should support this flag*/ ||
+                semver.gte(
+                    this.runOptions.reactNativeVersions.reactNativeVersion,
+                    WindowsPlatform.NO_PACKAGER_VERSION,
+                )
+            ) {
                 this.runArguments.push("--no-packager");
             }
 
-            const runWindowsSpawn = new CommandExecutor(this.projectPath, this.logger).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });
-            return new OutputVerifier(() => Promise.resolve(WindowsPlatform.SUCCESS_PATTERNS), () => Promise.resolve(WindowsPlatform.FAILURE_PATTERNS), this.platformName)
-                .process(runWindowsSpawn);
+            const runWindowsSpawn = new CommandExecutor(
+                this.projectPath,
+                this.logger,
+            ).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });
+            return new OutputVerifier(
+                () => Promise.resolve(WindowsPlatform.SUCCESS_PATTERNS),
+                () => Promise.resolve(WindowsPlatform.FAILURE_PATTERNS),
+                this.platformName,
+            ).process(runWindowsSpawn);
         });
     }
 
@@ -69,7 +91,10 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
             runArguments.push(...this.runOptions.runArguments);
         } else {
-            let target = this.runOptions.target === WindowsPlatform.simulatorString ? "" : this.runOptions.target;
+            let target =
+                this.runOptions.target === WindowsPlatform.simulatorString
+                    ? ""
+                    : this.runOptions.target;
             if (target) {
                 runArguments.push(`--${target}`);
             }

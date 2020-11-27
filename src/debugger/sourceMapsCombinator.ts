@@ -5,29 +5,36 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { SourceMapConsumer, RawSourceMap, SourceMapGenerator, MappingItem, Mapping, Position, NullableMappedPosition } from "source-map";
+import {
+    SourceMapConsumer,
+    RawSourceMap,
+    SourceMapGenerator,
+    MappingItem,
+    Mapping,
+    Position,
+    NullableMappedPosition,
+} from "source-map";
 import * as sourceMapResolve from "source-map-resolve";
 
 const DISK_LETTER_RE: RegExp = /^(?:[a-z]{2,}:\/\/\/)?[a-z]:/i;
 
 export class SourceMapsCombinator {
-
     public convert(rawBundleSourcemap: RawSourceMap): RawSourceMap {
-
         // Find user files from bundle files list
-        const consumers: { [key: string]: SourceMapConsumer } = rawBundleSourcemap.sources
-            .reduce((result: { [key: string]: SourceMapConsumer }, file) => {
+        const consumers: { [key: string]: SourceMapConsumer } = rawBundleSourcemap.sources.reduce(
+            (result: { [key: string]: SourceMapConsumer }, file) => {
                 // Skip files inside node_modules
                 if (file.indexOf("node_modules") >= 0) return result;
 
                 try {
                     let consumer: SourceMapConsumer | null = this.getSourceMapConsumerFrom(file);
-                    if (consumer)
-                        result[file] = consumer;
+                    if (consumer) result[file] = consumer;
                 } finally {
                     return result;
                 }
-            }, {});
+            },
+            {},
+        );
 
         if (Object.keys(consumers).length === 0) {
             // Sourcemaps not found, so return original bundle sourcemap
@@ -53,7 +60,9 @@ export class SourceMapsCombinator {
 
             if (consumers[item.source]) {
                 let jsPosition: Position = { line: item.originalLine, column: item.originalColumn };
-                let tsPosition: NullableMappedPosition = consumers[item.source].originalPositionFor(jsPosition);
+                let tsPosition: NullableMappedPosition = consumers[item.source].originalPositionFor(
+                    jsPosition,
+                );
 
                 if (tsPosition.source === null) {
                     // Some positions from react native generated bundle can not translate to TS source positions
@@ -63,11 +72,12 @@ export class SourceMapsCombinator {
 
                 // Resolve TS source path to absolute because it might be relative to generated JS
                 // (this depends on whether "sourceRoot" option is specified in tsconfig.json)
-                if (!tsPosition.source.match(DISK_LETTER_RE)) { // This check for Windows tests which were run on MacOs
+                if (!tsPosition.source.match(DISK_LETTER_RE)) {
+                    // This check for Windows tests which were run on MacOs
                     tsPosition.source = path.resolve(
                         <string>rawBundleSourcemap.sourceRoot,
                         path.dirname(item.source),
-                        tsPosition.source
+                        tsPosition.source,
                     );
                 }
 
@@ -75,15 +85,13 @@ export class SourceMapsCombinator {
                 mapping.source = tsPosition.source;
                 mapping.name = tsPosition.name || mapping.name;
                 if (tsPosition.line !== null && tsPosition.column !== null) {
-                    mapping.original = { line: tsPosition.line, column: tsPosition.column};
+                    mapping.original = { line: tsPosition.line, column: tsPosition.column };
                 }
             }
 
             try {
                 generator.addMapping(mapping);
-            } catch (err) {
-
-            }
+            } catch (err) {}
         });
 
         return generator.toJSON();
@@ -97,7 +105,11 @@ export class SourceMapsCombinator {
     }
 
     private readSourcemap(file: string, code: string): SourceMapConsumer | null {
-        let result = sourceMapResolve.resolveSync(code, file, readFileSync.bind(null, getDiskLetter(file)));
+        let result = sourceMapResolve.resolveSync(
+            code,
+            file,
+            readFileSync.bind(null, getDiskLetter(file)),
+        );
         if (result === null) {
             return null;
         }

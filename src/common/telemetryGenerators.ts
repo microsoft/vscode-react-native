@@ -32,16 +32,20 @@ export abstract class TelemetryGeneratorBase {
         return this.addWithPiiEvaluator(baseName, value, () => isPii);
     }
 
-    public addWithPiiEvaluator(baseName: string, value: any, piiEvaluator: { (value: string, name: string): boolean }): TelemetryGeneratorBase {
+    public addWithPiiEvaluator(
+        baseName: string,
+        value: any,
+        piiEvaluator: { (value: string, name: string): boolean },
+    ): TelemetryGeneratorBase {
         // We have 3 cases:
         //     * Object is an array, we add each element as baseNameNNN
         //     * Object is a hash, we add each element as baseName.KEY
         //     * Object is a value, we add the element as baseName
         try {
             if (Array.isArray(value)) {
-                this.addArray(baseName, <any[]> value, piiEvaluator);
+                this.addArray(baseName, <any[]>value, piiEvaluator);
             } else if (!!value && (typeof value === "object" || typeof value === "function")) {
-                this.addHash(baseName, <IDictionary<any>> value, piiEvaluator);
+                this.addHash(baseName, <IDictionary<any>>value, piiEvaluator);
             } else {
                 this.addString(baseName, String(value), piiEvaluator);
             }
@@ -56,7 +60,7 @@ export abstract class TelemetryGeneratorBase {
 
     public addError(error: Error): TelemetryGeneratorBase {
         this.add("error.message" + ++this.errorIndex, error.message, /*isPii*/ true);
-        let errorWithErrorCode: IHasErrorCode = <IHasErrorCode> <Record<string, any>> error;
+        let errorWithErrorCode: IHasErrorCode = <IHasErrorCode>(<Record<string, any>>error);
         if (errorWithErrorCode.errorCode) {
             this.add("error.code" + this.errorIndex, errorWithErrorCode.errorCode, /*isPii*/ false);
         }
@@ -64,7 +68,7 @@ export abstract class TelemetryGeneratorBase {
         return this;
     }
 
-    public time<T>(name: string, codeToMeasure: { (): Promise<T>|T }): Promise<T> {
+    public time<T>(name: string, codeToMeasure: { (): Promise<T> | T }): Promise<T> {
         let startTime: [number, number] = process.hrtime();
 
         return new Promise<T>((resolve, reject) => {
@@ -75,11 +79,11 @@ export abstract class TelemetryGeneratorBase {
                 resolve();
             }
         })
-        .finally(() => this.finishTime(name, startTime))
-        .catch((reason: any) => {
-            this.addError(reason);
-            return Promise.reject(reason);
-        });
+            .finally(() => this.finishTime(name, startTime))
+            .catch((reason: any) => {
+                this.addError(reason);
+                return Promise.reject(reason);
+            });
     }
 
     public step(name: string): TelemetryGeneratorBase {
@@ -104,24 +108,48 @@ export abstract class TelemetryGeneratorBase {
 
     private sendCurrentStep(): void {
         this.add("step", this.currentStep, /*isPii*/ false);
-        let telemetryEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(this.componentName);
-        TelemetryHelper.addTelemetryEventProperties(telemetryEvent, Object.assign(this.telemetryProperties, this.extendedTelemetryProperties));
+        let telemetryEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(
+            this.componentName,
+        );
+        TelemetryHelper.addTelemetryEventProperties(
+            telemetryEvent,
+            Object.assign(this.telemetryProperties, this.extendedTelemetryProperties),
+        );
         this.sendTelemetryEvent(telemetryEvent);
     }
 
-    private addArray(baseName: string, array: any[], piiEvaluator: { (value: string, name: string): boolean }): void {
+    private addArray(
+        baseName: string,
+        array: any[],
+        piiEvaluator: { (value: string, name: string): boolean },
+    ): void {
         // Object is an array, we add each element as baseNameNNN
         let elementIndex: number = 1; // We send telemetry properties in a one-based index
-        array.forEach((element: any) => this.addWithPiiEvaluator(baseName + elementIndex++, element, piiEvaluator));
+        array.forEach((element: any) =>
+            this.addWithPiiEvaluator(baseName + elementIndex++, element, piiEvaluator),
+        );
     }
 
-    private addHash(baseName: string, hash: IDictionary<any>, piiEvaluator: { (value: string, name: string): boolean }): void {
+    private addHash(
+        baseName: string,
+        hash: IDictionary<any>,
+        piiEvaluator: { (value: string, name: string): boolean },
+    ): void {
         // Object is a hash, we add each element as baseName.KEY
-        Object.keys(hash).forEach((key: string) => this.addWithPiiEvaluator(baseName + "." + key, hash[key], piiEvaluator));
+        Object.keys(hash).forEach((key: string) =>
+            this.addWithPiiEvaluator(baseName + "." + key, hash[key], piiEvaluator),
+        );
     }
 
-    private addString(name: string, value: string, piiEvaluator: { (value: string, name: string): boolean }): void {
-        this.telemetryProperties[name] = TelemetryHelper.telemetryProperty(value, piiEvaluator(value, name));
+    private addString(
+        name: string,
+        value: string,
+        piiEvaluator: { (value: string, name: string): boolean },
+    ): void {
+        this.telemetryProperties[name] = TelemetryHelper.telemetryProperty(
+            value,
+            piiEvaluator(value, name),
+        );
     }
 
     private combine(...components: string[]): string {
@@ -130,9 +158,14 @@ export abstract class TelemetryGeneratorBase {
     }
 
     private finishTime(name: string, startTime: [number, number]): void {
-        if (!!name) { // not a ghost step
+        if (!!name) {
+            // not a ghost step
             let endTime: [number, number] = process.hrtime(startTime);
-            this.add(this.combine(name, "time"), String(endTime[0] * 1000 + endTime[1] / 1000000), /*isPii*/ false);
+            this.add(
+                this.combine(name, "time"),
+                String(endTime[0] * 1000 + endTime[1] / 1000000),
+                /*isPii*/ false,
+            );
         }
     }
 }

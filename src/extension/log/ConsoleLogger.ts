@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {ILogger, LogLevel, LogHelper} from "./LogHelper";
+import { ILogger, LogLevel, LogHelper } from "./LogHelper";
 
 export class ConsoleLogger implements ILogger {
     public log(message: string, level: LogLevel): void {

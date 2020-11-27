@@ -8,12 +8,14 @@ import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
-export interface IAndroidEmulator extends IVirtualDevice {
-}
+export interface IAndroidEmulator extends IVirtualDevice {}
 /* eslint-enable @typescript-eslint/no-empty-interface */
 
 export class AndroidEmulatorManager extends VirtualDeviceManager {
@@ -23,7 +25,10 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
 
     private static readonly EMULATOR_START_TIMEOUT = 120;
 
-    private logger: OutputChannelLogger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
+    private logger: OutputChannelLogger = OutputChannelLogger.getChannel(
+        OutputChannelLogger.MAIN_CHANNEL_NAME,
+        true,
+    );
 
     private adbHelper: AdbHelper;
     private childProcess: ChildProcess;
@@ -36,9 +41,9 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
 
     public async startEmulator(target: string): Promise<IAndroidEmulator | null> {
         const onlineDevices = await this.adbHelper.getOnlineDevices();
-        for (let i = 0; i < onlineDevices.length; i++){
+        for (let i = 0; i < onlineDevices.length; i++) {
             if (onlineDevices[i].id === target) {
-                return {id: onlineDevices[i].id};
+                return { id: onlineDevices[i].id };
             }
         }
         if (target && (await this.adbHelper.getOnlineDevices()).length === 0) {
@@ -46,12 +51,11 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
                 const newEmulator = await this.startSelection();
                 if (newEmulator) {
                     const emulatorId = await this.tryLaunchEmulatorByName(newEmulator);
-                    return {name: newEmulator, id: emulatorId};
+                    return { name: newEmulator, id: emulatorId };
                 }
-            }
-            else if (!target.includes("device")) {
+            } else if (!target.includes("device")) {
                 const emulatorId = await this.tryLaunchEmulatorByName(target);
-                return {name: target, id: emulatorId};
+                return { name: target, id: emulatorId };
             }
         }
         return null;
@@ -59,26 +63,57 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
 
     public async tryLaunchEmulatorByName(emulatorName: string): Promise<string> {
         return new Promise((resolve, reject) => {
-            const emulatorProcess = this.childProcess.spawn(AndroidEmulatorManager.EMULATOR_COMMAND, [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName], {
-                detached: true,
-            }, true);
-            emulatorProcess.outcome.catch((error) => {
-                if (process.platform == "win32" && process.env.SESSIONNAME && process.env.SESSIONNAME.toLowerCase().includes("rdp-tcp")) {
-                    this.logger.warning(localize("RDPEmulatorWarning", "Android emulator was launched from the Windows RDP session, this might lead to failures."));
+            const emulatorProcess = this.childProcess.spawn(
+                AndroidEmulatorManager.EMULATOR_COMMAND,
+                [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName],
+                {
+                    detached: true,
+                },
+                true,
+            );
+            emulatorProcess.outcome.catch(error => {
+                if (
+                    process.platform == "win32" &&
+                    process.env.SESSIONNAME &&
+                    process.env.SESSIONNAME.toLowerCase().includes("rdp-tcp")
+                ) {
+                    this.logger.warning(
+                        localize(
+                            "RDPEmulatorWarning",
+                            "Android emulator was launched from the Windows RDP session, this might lead to failures.",
+                        ),
+                    );
                 }
-                reject(ErrorHelper.getInternalError(InternalErrorCode.VirtualDeviceSelectionError, error));
+                reject(
+                    ErrorHelper.getInternalError(
+                        InternalErrorCode.VirtualDeviceSelectionError,
+                        error,
+                    ),
+                );
             });
             emulatorProcess.spawnedProcess.unref();
 
             const rejectTimeout = setTimeout(() => {
                 cleanup();
-                reject(ErrorHelper.getInternalError(InternalErrorCode.VirtualDeviceSelectionError, localize("EmulatorStartWarning", "Could not start the emulator {0} within {1} seconds.", emulatorName, AndroidEmulatorManager.EMULATOR_START_TIMEOUT)));
+                reject(
+                    ErrorHelper.getInternalError(
+                        InternalErrorCode.VirtualDeviceSelectionError,
+                        localize(
+                            "EmulatorStartWarning",
+                            "Could not start the emulator {0} within {1} seconds.",
+                            emulatorName,
+                            AndroidEmulatorManager.EMULATOR_START_TIMEOUT,
+                        ),
+                    ),
+                );
             }, AndroidEmulatorManager.EMULATOR_START_TIMEOUT * 1000);
 
             const bootCheckInterval = setInterval(async () => {
                 const connectedDevices = await this.adbHelper.getOnlineDevices();
                 if (connectedDevices.length > 0) {
-                    this.logger.info(localize("EmulatorLaunched", "Launched emulator {0}", emulatorName));
+                    this.logger.info(
+                        localize("EmulatorLaunched", "Launched emulator {0}", emulatorName),
+                    );
                     cleanup();
                     resolve(connectedDevices[0].id);
                 }
@@ -96,7 +131,9 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
     }
 
     protected async getVirtualDevicesNamesList(): Promise<string[]> {
-        const res = await this.childProcess.execToString(`${AndroidEmulatorManager.EMULATOR_COMMAND} ${AndroidEmulatorManager.EMULATOR_LIST_AVDS_COMMAND}`);
+        const res = await this.childProcess.execToString(
+            `${AndroidEmulatorManager.EMULATOR_COMMAND} ${AndroidEmulatorManager.EMULATOR_LIST_AVDS_COMMAND}`,
+        );
         let emulatorsList: string[] = [];
         if (res) {
             emulatorsList = res.split(/\r?\n|\r/g);

@@ -43,8 +43,12 @@ export class IOSDirectCDPMessageHandler extends BaseCDPMessageHandler {
             params: {
                 type: event.params.message.type,
                 timestamp: event.params.message.timestamp,
-                args: event.params.message.parameters || [{ type: "string", value: event.params.message.text }],
-                stackTrace: { callFrames: event.params.message.stack || event.params.message.stackTrace },
+                args: event.params.message.parameters || [
+                    { type: "string", value: event.params.message.text },
+                ],
+                stackTrace: {
+                    callFrames: event.params.message.stack || event.params.message.stackTrace,
+                },
                 executionContextId: 1,
             },
         };

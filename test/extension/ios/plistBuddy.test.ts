@@ -25,8 +25,14 @@ suite("plistBuddy", function () {
             const addCallArgs = `/usr/libexec/PlistBuddy -c 'Add ${plistProperty} string ${plistValue}' '${plistFileName}'`;
 
             const mockedExecFunc = sandbox.stub();
-            mockedExecFunc.withArgs(setCallArgs).returns(Promise.resolve({ outcome: Promise.reject(new Error("Setting does not exist")) }));
-            mockedExecFunc.withArgs(addCallArgs).returns(Promise.resolve({ outcome: Promise.resolve("stdout") }));
+            mockedExecFunc.withArgs(setCallArgs).returns(
+                Promise.resolve({
+                    outcome: Promise.reject(new Error("Setting does not exist")),
+                }),
+            );
+            mockedExecFunc
+                .withArgs(addCallArgs)
+                .returns(Promise.resolve({ outcome: Promise.resolve("stdout") }));
             mockedExecFunc.throws();
 
             const mockChildProcess: any = {
@@ -34,10 +40,17 @@ suite("plistBuddy", function () {
             };
             const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess });
 
-            return plistBuddy.setPlistProperty(plistFileName, plistProperty, plistValue)
+            return plistBuddy
+                .setPlistProperty(plistFileName, plistProperty, plistValue)
                 .then(() => {
-                    assert(mockedExecFunc.calledWithExactly(setCallArgs), "plistBuddy did not attempt to set first");
-                    assert(mockedExecFunc.calledWithExactly(addCallArgs), "plistBuddy did not attempt to add after set failed");
+                    assert(
+                        mockedExecFunc.calledWithExactly(setCallArgs),
+                        "plistBuddy did not attempt to set first",
+                    );
+                    assert(
+                        mockedExecFunc.calledWithExactly(addCallArgs),
+                        "plistBuddy did not attempt to add after set failed",
+                    );
                     assert.strictEqual(mockedExecFunc.callCount, 2);
                 });
         });
@@ -50,7 +63,9 @@ suite("plistBuddy", function () {
             const setCallArgs = `/usr/libexec/PlistBuddy -c 'Set ${plistProperty} ${plistValue}' '${plistFileName}'`;
 
             const mockedExecFunc = sandbox.stub();
-            mockedExecFunc.withArgs(setCallArgs).returns(Promise.resolve({ outcome: Promise.resolve("stdout") }));
+            mockedExecFunc
+                .withArgs(setCallArgs)
+                .returns(Promise.resolve({ outcome: Promise.resolve("stdout") }));
             mockedExecFunc.throws();
 
             const mockChildProcess: any = {
@@ -58,9 +73,13 @@ suite("plistBuddy", function () {
             };
             const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess });
 
-            return plistBuddy.setPlistProperty(plistFileName, plistProperty, plistValue)
+            return plistBuddy
+                .setPlistProperty(plistFileName, plistProperty, plistValue)
                 .then(() => {
-                    assert(mockedExecFunc.calledWithExactly(setCallArgs), "plistBuddy did not attempt to set first");
+                    assert(
+                        mockedExecFunc.calledWithExactly(setCallArgs),
+                        "plistBuddy did not attempt to set first",
+                    );
                     assert.strictEqual(mockedExecFunc.callCount, 1);
                 });
         });
@@ -71,16 +90,41 @@ suite("plistBuddy", function () {
             const appName = "myApp";
             const simulatorBundleId = "com.contoso.simulator";
             const deviceBundleId = "com.contoso.device";
-            const plistBuddy = getPlistBuddy(appName, iosProjectRoot, undefined, simulatorBundleId, deviceBundleId);
+            const plistBuddy = getPlistBuddy(
+                appName,
+                iosProjectRoot,
+                undefined,
+                simulatorBundleId,
+                deviceBundleId,
+            );
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Promise.resolve({ reactNativeVersion: "0.58.5", reactNativeWindowsVersion: "" }));
+            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(
+                Promise.resolve({
+                    reactNativeVersion: "0.58.5",
+                    reactNativeWindowsVersion: "",
+                }),
+            );
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
 
             return Promise.all([
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName, "whateverScheme"),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    true,
+                    "Debug",
+                    appName,
+                    "whateverScheme",
+                ),
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName, "whateverScheme"),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    false,
+                    undefined,
+                    appName,
+                    "whateverScheme",
+                ),
             ]).then(([simulatorId1, simulatorId2, deviceId1, deviceId2]) => {
                 assert.strictEqual(simulatorBundleId, simulatorId1);
                 assert.strictEqual(simulatorBundleId, simulatorId2);
@@ -96,9 +140,20 @@ suite("plistBuddy", function () {
             const scheme = "myCustomScheme";
             const simulatorBundleId = "com.contoso.simulator";
             const deviceBundleId = "com.contoso.device";
-            const plistBuddy = getPlistBuddy(appName, iosProjectRoot, "myCustomScheme", simulatorBundleId, deviceBundleId);
+            const plistBuddy = getPlistBuddy(
+                appName,
+                iosProjectRoot,
+                "myCustomScheme",
+                simulatorBundleId,
+                deviceBundleId,
+            );
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(Promise.resolve({ reactNativeVersion: "0.59.0", reactNativeWindowsVersion: "" }));
+            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(
+                Promise.resolve({
+                    reactNativeVersion: "0.59.0",
+                    reactNativeWindowsVersion: "",
+                }),
+            );
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
@@ -106,7 +161,14 @@ suite("plistBuddy", function () {
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName, scheme),
                 plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName, scheme),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    false,
+                    undefined,
+                    appName,
+                    scheme,
+                ),
             ]).then(([simulatorId1, simulatorId2, deviceId1, deviceId2]) => {
                 assert.strictEqual(simulatorBundleId, simulatorId1);
                 assert.strictEqual(simulatorBundleId, simulatorId2);
@@ -116,7 +178,14 @@ suite("plistBuddy", function () {
         });
 
         suite("fetchParameterFromBuildSettings", function () {
-            const buildSettingsFile = path.join(__dirname, "..", "..", "resources", "auxiliaryFiles", "buildSettings.txt");
+            const buildSettingsFile = path.join(
+                __dirname,
+                "..",
+                "..",
+                "resources",
+                "auxiliaryFiles",
+                "buildSettings.txt",
+            );
             const plistBuddy = new PlistBuddy();
             let buildSettings: string | Buffer;
 
@@ -125,20 +194,36 @@ suite("plistBuddy", function () {
             });
 
             test("fetchParameterFromBuildSettings should return parameter value", function () {
-                const targetBuildDirRef = "/Users/user/Library/Developer/Xcode/DerivedData/AwesomeProject0615-btdtcysqbddifyewiiztkumnopik/Build/Products/Debug-iphonesimulator";
+                const targetBuildDirRef =
+                    "/Users/user/Library/Developer/Xcode/DerivedData/AwesomeProject0615-btdtcysqbddifyewiiztkumnopik/Build/Products/Debug-iphonesimulator";
                 const fullProductNameRef = "AwesomeProject0615.app";
 
-                const targetBuildDir = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "TARGET_BUILD_DIR");
-                const fullProductName = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "FULL_PRODUCT_NAME");
+                const targetBuildDir = plistBuddy.fetchParameterFromBuildSettings(
+                    <string>buildSettings,
+                    "TARGET_BUILD_DIR",
+                );
+                const fullProductName = plistBuddy.fetchParameterFromBuildSettings(
+                    <string>buildSettings,
+                    "FULL_PRODUCT_NAME",
+                );
 
                 assert.strictEqual(targetBuildDir, targetBuildDirRef);
                 assert.strictEqual(fullProductName, fullProductNameRef);
             });
 
             test("fetchParameterFromBuildSettings should return null", function () {
-                const targetBuildDir = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "TARGET_BUILD_DIR1");
-                const testNull = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "TEST");
-                const emptyStringCase = plistBuddy.fetchParameterFromBuildSettings(<string>buildSettings, "");
+                const targetBuildDir = plistBuddy.fetchParameterFromBuildSettings(
+                    <string>buildSettings,
+                    "TARGET_BUILD_DIR1",
+                );
+                const testNull = plistBuddy.fetchParameterFromBuildSettings(
+                    <string>buildSettings,
+                    "TEST",
+                );
+                const emptyStringCase = plistBuddy.fetchParameterFromBuildSettings(
+                    <string>buildSettings,
+                    "",
+                );
 
                 assert.strictEqual(targetBuildDir, null);
                 assert.strictEqual(testNull, null);
@@ -153,7 +238,7 @@ suite("plistBuddy", function () {
             configuration: string,
             scheme: string | undefined,
             sdkType: string,
-            oldConfigurationFolder: string
+            oldConfigurationFolder: string,
         ): ConfigurationData {
             return {
                 fullProductName: "",
@@ -161,22 +246,46 @@ suite("plistBuddy", function () {
             };
         }
 
-        function getPlistBuddy(appName: string, iosProjectRoot: string, scheme: string | undefined, simulatorBundleId: string, deviceBundleId: string) {
+        function getPlistBuddy(
+            appName: string,
+            iosProjectRoot: string,
+            scheme: string | undefined,
+            simulatorBundleId: string,
+            deviceBundleId: string,
+        ) {
             const infoPlistPath = (simulator: boolean) =>
                 scheme
-                    ?
-                    path.join(iosProjectRoot, "build", scheme, "Build", "Products",
-                        simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
-                        `${appName}.app`, "Info.plist")
-                    :
-                    path.join(iosProjectRoot, "build", "Build", "Products",
-                        simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
-                        `${appName}.app`, "Info.plist");
+                    ? path.join(
+                          iosProjectRoot,
+                          "build",
+                          scheme,
+                          "Build",
+                          "Products",
+                          simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
+                          `${appName}.app`,
+                          "Info.plist",
+                      )
+                    : path.join(
+                          iosProjectRoot,
+                          "build",
+                          "Build",
+                          "Products",
+                          simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
+                          `${appName}.app`,
+                          "Info.plist",
+                      );
 
-            const printExecCall = (simulator: boolean) => `/usr/libexec/PlistBuddy -c 'Print:CFBundleIdentifier' '${infoPlistPath(simulator)}'`;
+            const printExecCall = (simulator: boolean) =>
+                `/usr/libexec/PlistBuddy -c 'Print:CFBundleIdentifier' '${infoPlistPath(
+                    simulator,
+                )}'`;
             const mockedExecFunc = sandbox.stub();
-            mockedExecFunc.withArgs(printExecCall(true)).returns(Promise.resolve({ outcome: Promise.resolve(simulatorBundleId) }));
-            mockedExecFunc.withArgs(printExecCall(false)).returns(Promise.resolve({ outcome: Promise.resolve(deviceBundleId) }));
+            mockedExecFunc
+                .withArgs(printExecCall(true))
+                .returns(Promise.resolve({ outcome: Promise.resolve(simulatorBundleId) }));
+            mockedExecFunc
+                .withArgs(printExecCall(false))
+                .returns(Promise.resolve({ outcome: Promise.resolve(deviceBundleId) }));
             const mockChildProcess: any = {
                 exec: mockedExecFunc,
             };

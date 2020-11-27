@@ -1,13 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {AppLauncher} from "./appLauncher";
-import {ReactNativeProjectHelper} from "../common/reactNativeProjectHelper";
-import {InternalErrorCode} from "../common/error/internalErrorCode";
-import {ErrorHelper} from "../common/error/errorHelper";
+import { AppLauncher } from "./appLauncher";
+import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { ErrorHelper } from "../common/error/errorHelper";
 import * as path from "path";
 import * as nls from "vscode-nls";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 /* Usage:
@@ -19,7 +22,10 @@ const localize = nls.loadMessageBundle();
 
 {
     if (process.argv.length < 3) {
-        throw localize("WrongNumberOfParametersProvidedReferToTheUsageOfThisScript", "Wrong number of parameters provided. Please refer to the usage of this script for proper use.");
+        throw localize(
+            "WrongNumberOfParametersProvidedReferToTheUsageOfThisScript",
+            "Wrong number of parameters provided. Please refer to the usage of this script for proper use.",
+        );
     }
 
     let fullpath: string;
@@ -47,23 +53,33 @@ const localize = nls.loadMessageBundle();
         lineNumber = parseInt(fileInfo[1], 10);
     }
 
-    getReactNativeWorkspaceForFile(filename, workspace).then(projectRootPath => {
-        const appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
-        return appLauncher.openFileAtLocation(filename, lineNumber);
-    }).catch(reason => {
-        throw ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed,
-            "Unable to communicate with VSCode. Please make sure it is open in the appropriate workspace.");
-    });
+    getReactNativeWorkspaceForFile(filename, workspace)
+        .then(projectRootPath => {
+            const appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
+            return appLauncher.openFileAtLocation(filename, lineNumber);
+        })
+        .catch(reason => {
+            throw ErrorHelper.getNestedError(
+                reason,
+                InternalErrorCode.CommandFailed,
+                "Unable to communicate with VSCode. Please make sure it is open in the appropriate workspace.",
+            );
+        });
 }
 
 function getReactNativeWorkspaceForFile(file: string, workspace: string): Promise<string> {
     if (workspace) {
         return Promise.resolve(workspace);
     }
-    return getPathForRNParentWorkspace(path.dirname(file))
-        .catch((reason) => {
-            return Promise.reject<string>(ErrorHelper.getNestedError(reason, InternalErrorCode.WorkspaceNotFound, `Error while looking at workspace for file: ${file}.`));
-        });
+    return getPathForRNParentWorkspace(path.dirname(file)).catch(reason => {
+        return Promise.reject<string>(
+            ErrorHelper.getNestedError(
+                reason,
+                InternalErrorCode.WorkspaceNotFound,
+                `Error while looking at workspace for file: ${file}.`,
+            ),
+        );
+    });
 }
 
 function getPathForRNParentWorkspace(dir: string): Promise<string> {
@@ -72,7 +88,12 @@ function getPathForRNParentWorkspace(dir: string): Promise<string> {
             return dir;
         }
         if (dir === "" || dir === "." || dir === "/" || dir === path.dirname(dir)) {
-            return Promise.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.WorkspaceNotFound, "React Native project workspace not found."));
+            return Promise.reject<string>(
+                ErrorHelper.getInternalError(
+                    InternalErrorCode.WorkspaceNotFound,
+                    "React Native project workspace not found.",
+                ),
+            );
         }
         return getPathForRNParentWorkspace(path.dirname(dir));
     });

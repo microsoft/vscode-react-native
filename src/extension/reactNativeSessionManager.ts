@@ -8,13 +8,16 @@ import { RNDebugSession } from "../debugger/rnDebugSession";
 import { DebugSessionBase, TerminateEventArgs } from "../debugger/debugSessionBase";
 import { DirectDebugSession } from "../debugger/direct/directDebugSession";
 
-export class ReactNativeSessionManager implements vscode.DebugAdapterDescriptorFactory, vscode.Disposable {
-
+export class ReactNativeSessionManager
+    implements vscode.DebugAdapterDescriptorFactory, vscode.Disposable {
     private servers = new Map<string, Net.Server>();
     private connections = new Map<string, Net.Socket>();
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public createDebugAdapterDescriptor(session: vscode.DebugSession, executable: vscode.DebugAdapterExecutable | undefined): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
+    public createDebugAdapterDescriptor(
+        session: vscode.DebugSession,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        executable: vscode.DebugAdapterExecutable | undefined,
+    ): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
         const debugServer = Net.createServer(socket => {
             let rnDebugSession: DebugSessionBase;
             if (session.type === DEBUG_TYPES.REACT_NATIVE) {
@@ -36,7 +39,10 @@ export class ReactNativeSessionManager implements vscode.DebugAdapterDescriptorF
     }
 
     public terminate(terminateEvent: TerminateEventArgs): void {
-        this.destroyServer(terminateEvent.debugSession.id, this.servers.get(terminateEvent.debugSession.id));
+        this.destroyServer(
+            terminateEvent.debugSession.id,
+            this.servers.get(terminateEvent.debugSession.id),
+        );
 
         let connection = this.connections.get(terminateEvent.debugSession.id);
         if (connection) {

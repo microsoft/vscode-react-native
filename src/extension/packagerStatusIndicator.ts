@@ -4,7 +4,10 @@
 import { window, Disposable, StatusBarItem, StatusBarAlignment } from "vscode";
 import * as nls from "vscode-nls";
 import { SettingsHelper } from "./settingsHelper";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 /**
@@ -53,17 +56,22 @@ export class PackagerStatusIndicator implements Disposable {
         this.restartPackagerItem.tooltip = PackagerStatusIndicator.RESTART_TOOLTIP;
 
         this.togglePackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
-        this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, PackagerStatusIndicator.START_TOOLTIP);
+        this.setupPackagerStatusIndicatorItems(
+            PackagerStatusIndicator.START_ICON,
+            PackagerStatusIndicator.START_COMMAND,
+            PackagerStatusIndicator.START_TOOLTIP,
+        );
     }
 
     public updateDisplayVersion(): void {
         this.displayVersion = PackagerStatusIndicator.FULL_VERSION;
         try {
             if (this.projectRoot) {
-                this.displayVersion = SettingsHelper.getPackagerStatusIndicatorPattern(this.projectRoot);
+                this.displayVersion = SettingsHelper.getPackagerStatusIndicatorPattern(
+                    this.projectRoot,
+                );
             }
-        }
-        catch (e) {
+        } catch (e) {
             // We are trying to read the configuration from settings.json.
             // If this cannot be done, ignore the error and set the default value.
         }
@@ -74,7 +82,11 @@ export class PackagerStatusIndicator implements Disposable {
         this.restartPackagerItem.dispose();
     }
 
-    private setupPackagerStatusIndicatorItems(icon: string, command?: string, tooltip: string = ""): void {
+    private setupPackagerStatusIndicatorItems(
+        icon: string,
+        command?: string,
+        tooltip: string = "",
+    ): void {
         this.updateDisplayVersion();
         this.togglePackagerItem.command = command;
         this.togglePackagerItem.tooltip = tooltip;
@@ -95,16 +107,32 @@ export class PackagerStatusIndicator implements Disposable {
     public updatePackagerStatus(status: PackagerStatus): void {
         switch (status) {
             case PackagerStatus.PACKAGER_STOPPED:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, PackagerStatusIndicator.START_TOOLTIP);
+                this.setupPackagerStatusIndicatorItems(
+                    PackagerStatusIndicator.START_ICON,
+                    PackagerStatusIndicator.START_COMMAND,
+                    PackagerStatusIndicator.START_TOOLTIP,
+                );
                 break;
             case PackagerStatus.PACKAGER_STOPPING:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined, PackagerStatusIndicator.STOPPING_TOOLTIP);
+                this.setupPackagerStatusIndicatorItems(
+                    PackagerStatusIndicator.ACTIVITY_ICON,
+                    undefined,
+                    PackagerStatusIndicator.STOPPING_TOOLTIP,
+                );
                 break;
             case PackagerStatus.PACKAGER_STARTED:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.STOP_ICON, PackagerStatusIndicator.STOP_COMMAND, PackagerStatusIndicator.STOP_TOOLTIP);
+                this.setupPackagerStatusIndicatorItems(
+                    PackagerStatusIndicator.STOP_ICON,
+                    PackagerStatusIndicator.STOP_COMMAND,
+                    PackagerStatusIndicator.STOP_TOOLTIP,
+                );
                 break;
             case PackagerStatus.PACKAGER_STARTING:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined, PackagerStatusIndicator.STARTING_TOOLTIP);
+                this.setupPackagerStatusIndicatorItems(
+                    PackagerStatusIndicator.ACTIVITY_ICON,
+                    undefined,
+                    PackagerStatusIndicator.STARTING_TOOLTIP,
+                );
                 break;
             default:
                 break;

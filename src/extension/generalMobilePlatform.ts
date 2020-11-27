@@ -2,15 +2,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
-import {IRunOptions} from "./launchArgs";
-import {Packager} from "../common/packager";
-import {PackagerStatusIndicator, PackagerStatus} from "./packagerStatusIndicator";
-import {SettingsHelper} from "./settingsHelper";
-import {OutputChannelLogger} from "./log/OutputChannelLogger";
+import { IRunOptions } from "./launchArgs";
+import { Packager } from "../common/packager";
+import { PackagerStatusIndicator, PackagerStatus } from "./packagerStatusIndicator";
+import { SettingsHelper } from "./settingsHelper";
+import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import * as nls from "vscode-nls";
 import { isBoolean } from "util";
 import { IVirtualDevice } from "./VirtualDeviceManager";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 export interface MobilePlatformDeps {
@@ -34,9 +37,19 @@ export class GeneralMobilePlatform {
     constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
-        this.packager = platformDeps.packager || new Packager(this.runOptions.workspaceRoot, this.projectPath, SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot), new PackagerStatusIndicator(this.projectPath));
+        this.packager =
+            platformDeps.packager ||
+            new Packager(
+                this.runOptions.workspaceRoot,
+                this.projectPath,
+                SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot),
+                new PackagerStatusIndicator(this.projectPath),
+            );
         this.packager.setRunOptions(runOptions);
-        this.logger = OutputChannelLogger.getChannel(localize("ReactNativeRunPlatform", "React Native: Run {0}", this.platformName), true);
+        this.logger = OutputChannelLogger.getChannel(
+            localize("ReactNativeRunPlatform", "React Native: Run {0}", this.platformName),
+            true,
+        );
         this.logger.clear();
         this.runArguments = this.getRunArguments();
     }
@@ -47,17 +60,32 @@ export class GeneralMobilePlatform {
     }
 
     public runApp(): Promise<void> {
-        this.logger.info(localize("ConnectedToPackager", "Connected to packager. You can now open your app in the simulator."));
+        this.logger.info(
+            localize(
+                "ConnectedToPackager",
+                "Connected to packager. You can now open your app in the simulator.",
+            ),
+        );
         return Promise.resolve();
     }
 
     public enableJSDebuggingMode(): Promise<void> {
-        this.logger.info(localize("DebuggerReadyEnableRemoteDebuggingInApp", "Debugger ready. Enable remote debugging in app."));
+        this.logger.info(
+            localize(
+                "DebuggerReadyEnableRemoteDebuggingInApp",
+                "Debugger ready. Enable remote debugging in app.",
+            ),
+        );
         return Promise.resolve();
     }
 
     public disableJSDebuggingMode(): Promise<void> {
-        this.logger.info(localize("DebuggerReadyDisableRemoteDebuggingInApp", "Debugger ready. Disable remote debugging in app."));
+        this.logger.info(
+            localize(
+                "DebuggerReadyDisableRemoteDebuggingInApp",
+                "Debugger ready. Disable remote debugging in app.",
+            ),
+        );
         return Promise.resolve();
     }
 
@@ -66,21 +94,29 @@ export class GeneralMobilePlatform {
     }
 
     public startPackager(): Promise<void> {
-        this.logger.info(localize("StartingReactNativePackager", "Starting React Native Packager."));
-        return this.packager.isRunning()
-        .then((running) => {
-            if (running) {
-                if (this.packager.getPackagerStatus() !== PackagerStatus.PACKAGER_STARTED) {
-                    return this.packager.stop();
-                }
+        this.logger.info(
+            localize("StartingReactNativePackager", "Starting React Native Packager."),
+        );
+        return this.packager
+            .isRunning()
+            .then(running => {
+                if (running) {
+                    if (this.packager.getPackagerStatus() !== PackagerStatus.PACKAGER_STARTED) {
+                        return this.packager.stop();
+                    }
 
-                this.logger.info(localize("AttachingToRunningReactNativePackager", "Attaching to running React Native packager"));
-            }
-            return void 0;
-        })
-        .then(() => {
-            return this.packager.start();
-        });
+                    this.logger.info(
+                        localize(
+                            "AttachingToRunningReactNativePackager",
+                            "Attaching to running React Native packager",
+                        ),
+                    );
+                }
+                return void 0;
+            })
+            .then(() => {
+                return this.packager.start();
+            });
     }
 
     public prewarmBundleCache(): Promise<void> {
@@ -93,14 +129,17 @@ export class GeneralMobilePlatform {
         if (optIdx > -1) {
             if (binary) {
                 runArguments.splice(optIdx, 1);
-            }
-            else {
+            } else {
                 runArguments.splice(optIdx, 2);
             }
         }
     }
 
-    public static setRunArgument(runArguments: any[], optName: string, value: string | boolean): void {
+    public static setRunArgument(
+        runArguments: any[],
+        optName: string,
+        value: string | boolean,
+    ): void {
         const isBinary = isBoolean(value);
         const optIdx = runArguments.indexOf(optName);
         if (optIdx > -1) {
@@ -110,8 +149,7 @@ export class GeneralMobilePlatform {
             if (!isBinary) {
                 runArguments[optIdx + 1] = value;
             }
-        }
-        else {
+        } else {
             if (isBinary && value) {
                 runArguments.push(optName);
             }
@@ -122,7 +160,11 @@ export class GeneralMobilePlatform {
         }
     }
 
-    public static getOptFromRunArgs(runArguments: any[], optName: string, binary: boolean = false): any {
+    public static getOptFromRunArgs(
+        runArguments: any[],
+        optName: string,
+        binary: boolean = false,
+    ): any {
         if (runArguments.length > 0) {
             const optIdx = runArguments.indexOf(optName);
             let result: any = undefined;
@@ -214,7 +256,11 @@ export class GeneralMobilePlatform {
                 if (r !== null) {
                     const key = r[1];
                     let value = r[2] || "";
-                    if (value.length > 0 && value.charAt(0) === "\"" && value.charAt(value.length - 1) === "\"") {
+                    if (
+                        value.length > 0 &&
+                        value.charAt(0) === '"' &&
+                        value.charAt(value.length - 1) === '"'
+                    ) {
                         value = value.replace(/\\n/gm, "\n");
                     }
                     result[key] = value.replace(/(^['"]|['"]$)/g, "");
