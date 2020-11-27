@@ -41,7 +41,7 @@ export class CommandPaletteHandler {
         return this.selectProject().then((appLauncher: AppLauncher) => {
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 appLauncher.getPackager().getProjectPath(),
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
             ).then(versions => {
                 return this.executeCommandInContext(
                     "startPackager",
@@ -96,7 +96,7 @@ export class CommandPaletteHandler {
         return this.selectProject().then((appLauncher: AppLauncher) => {
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 appLauncher.getPackager().getProjectPath(),
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
             ).then(versions => {
                 return this.executeCommandInContext(
                     "restartPackager",
