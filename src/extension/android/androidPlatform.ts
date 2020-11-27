@@ -18,6 +18,7 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { isNullOrUndefined } from "util";
 import { PromiseUtil } from "../../common/node/promise";
 import { AndroidEmulatorManager, IAndroidEmulator } from "./androidEmulatorManager";
+import { LogCatMonitorManager } from "./logCatMonitorManager";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -61,9 +62,9 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private debugTarget: IDevice;
     private devices: IDevice[];
     private packageName: string;
-    private logCatMonitor: LogCatMonitor | null = null;
     private adbHelper: AdbHelper;
     private emulatorManager: AndroidEmulatorManager;
+    private logCatMonitor: LogCatMonitor | null = null;
 
     private needsToLaunchApps: boolean = false;
 
@@ -252,6 +253,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return runArguments;
     }
 
+    public dispose(): void {
+        if (this.logCatMonitor) {
+            LogCatMonitorManager.delMonitor(this.logCatMonitor.deviceId);
+            this.logCatMonitor = null;
+        }
+    }
+
     private initializeTargetDevicesAndPackageName(): Promise<void> {
         return this.adbHelper.getConnectedDevices().then(devices => {
             this.devices = devices;
@@ -337,25 +345,19 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return activeDevices && activeDevices[0];
     }
 
-    private startMonitoringLogCat(device: IDevice, logCatArguments: string): void {
-        this.stopMonitoringLogCat(); // Stop previous logcat monitor if it's running
+    private startMonitoringLogCat(device: IDevice, logCatArguments: string[]): void {
+        LogCatMonitorManager.delMonitor(device.id); // Stop previous logcat monitor if it's running
 
         // this.logCatMonitor can be mutated, so we store it locally too
-        this.logCatMonitor = new LogCatMonitor(device.id, logCatArguments, this.adbHelper);
+        this.logCatMonitor = new LogCatMonitor(device.id, this.adbHelper, logCatArguments);
+        LogCatMonitorManager.addMonitor(this.logCatMonitor);
         this.logCatMonitor
             .start() // The LogCat will continue running forever, so we don't wait for it
             .catch(error => {
                 this.logger.warning(error);
                 this.logger.warning(
                     localize("ErrorWhileMonitoringLogCat", "Error while monitoring LogCat"),
-                ); // The LogCatMonitor failing won't stop the debugging experience
-            });
-    }
-
-    private stopMonitoringLogCat(): void {
-        if (this.logCatMonitor) {
-            this.logCatMonitor.dispose();
-            this.logCatMonitor = null;
-        }
+                );
+            }); // The LogCatMonitor failing won't stop the debugging experience
     }
 }

@@ -30,6 +30,7 @@ import { ProjectsStorage } from "./projectsStorage";
 import { AppLauncher } from "./appLauncher";
 import * as nls from "vscode-nls";
 import { getExtensionVersion, getExtensionName } from "../common/extensionHelper";
+import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -163,6 +164,7 @@ export function deactivate(): Promise<void> {
                         return CommandPaletteHandler.stopElementInspector();
                     })
                     .then(() => {
+                        LogCatMonitorManager.cleanUp();
                         // Tell vscode that we are done with deactivation
                         resolve();
                     });
@@ -351,6 +353,18 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
         "publishToExpHost",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost),
         () => CommandPaletteHandler.publishToExpHost(),
+    );
+    registerVSCodeCommand(
+        context,
+        "startLogCatMonitor",
+        ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStartLogCatMonitor),
+        () => CommandPaletteHandler.startLogCatMonitor(),
+    );
+    registerVSCodeCommand(
+        context,
+        "stopLogCatMonitor",
+        ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStopLogCatMonitor),
+        () => CommandPaletteHandler.stopLogCatMonitor(),
     );
     registerVSCodeCommand(
         context,

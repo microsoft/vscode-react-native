@@ -8,6 +8,7 @@ import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { QuickPickOptions, window } from "vscode";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -128,6 +129,20 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
 
     public startSelection(): Promise<string | undefined> {
         return this.selectVirtualDevice();
+    }
+
+    public async selectOnlineDevice(): Promise<string | undefined> {
+        const emulatorsList = (await this.adbHelper.getOnlineDevices()).map(device => device.id);
+        const quickPickOptions: QuickPickOptions = {
+            ignoreFocusOut: true,
+            canPickMany: false,
+            placeHolder: localize("SelectOnlineDevice", "Select online Android device"),
+        };
+        let result: string | undefined = emulatorsList[0];
+        if (emulatorsList.length > 1) {
+            result = await window.showQuickPick(emulatorsList, quickPickOptions);
+        }
+        return result?.toString();
     }
 
     protected async getVirtualDevicesNamesList(): Promise<string[]> {

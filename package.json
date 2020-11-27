@@ -112,6 +112,16 @@
         "command": "reactNative.runInspector",
         "title": "%reactNative.command.runInspector.title%",
         "category": "React Native"
+      },
+      {
+        "command": "reactNative.startLogCatMonitor",
+        "title": "%reactNative.command.startLogCatMonitor.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.stopLogCatMonitor",
+        "title": "%reactNative.command.stopLogCatMonitor.title%",
+        "category": "React Native"
       }
     ],
     "breakpoints": [
@@ -783,6 +793,16 @@
           "type": "string",
           "description": "%reactNative.configuration.properties.react-native.android.envFile.device.description%",
           "scope": "resource"
+        },
+        "react-native.android.logCatArguments": {
+          "type": "array",
+          "description": "%reactNative.launch.logCatArguments.description%",
+          "scope": "resource",
+          "default": [
+            "*:S",
+            "ReactNative:V",
+            "ReactNativeJS:V"
+          ]
         },
         "react-native.packager.port": {
           "description": "%reactNative.configuration.properties.react-native.packager.port.description%",

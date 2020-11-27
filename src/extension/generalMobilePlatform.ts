@@ -54,6 +54,10 @@ export class GeneralMobilePlatform {
         this.runArguments = this.getRunArguments();
     }
 
+    public dispose(): void {
+        return;
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public resolveVirtualDevice(target: string): Promise<IVirtualDevice | null> {
         return Promise.resolve(null);

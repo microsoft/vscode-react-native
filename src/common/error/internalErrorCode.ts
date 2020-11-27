@@ -94,6 +94,9 @@ export enum InternalErrorCode {
     AndroidProjectNotFound = 1203,
     AndroidMoreThanOneDeviceOrEmulator = 1204,
     AndroidFailedToLaunchTheSpecifiedActivity = 1205,
+    AndroidCouldNotStartLogCatMonitor = 1206,
+    AndroidCouldNotStopLogCatMonitor = 1207,
+    AndroidCouldNotFindActiveLogCatMonitor = 1208,
 
     // Windows Phone errors
     WinRNMPPluginIsNotInstalled = 1301,

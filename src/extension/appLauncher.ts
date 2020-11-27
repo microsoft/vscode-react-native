@@ -18,7 +18,6 @@ import { TelemetryHelper } from "../common/telemetryHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
-import { LogCatMonitor } from "./android/logCatMonitor";
 import { ProjectsStorage } from "./projectsStorage";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
 import { generateRandomPortNumber } from "../common/extensionHelper";
@@ -46,7 +45,7 @@ export class AppLauncher {
     private reactNativeVersions?: RNPackageVersions;
     private rnCdpProxy: ReactNativeCDPProxy;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
-    private logCatMonitor: LogCatMonitor | null = null;
+    private mobilePlatform: GeneralMobilePlatform;
     private launchScenariosManager: LaunchScenariosManager;
 
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
@@ -128,17 +127,14 @@ export class AppLauncher {
         return this.appWorker;
     }
 
+    public getMobilePlatform(): GeneralMobilePlatform {
+        return this.mobilePlatform;
+    }
+
     public dispose(): void {
         this.packager.getStatusIndicator().dispose();
         this.packager.stop(true);
-        this.stopMonitoringLogCat();
-    }
-
-    public stopMonitoringLogCat(): void {
-        if (this.logCatMonitor) {
-            this.logCatMonitor.dispose();
-            this.logCatMonitor = null;
-        }
+        this.mobilePlatform.dispose();
     }
 
     public openFileAtLocation(filename: string, lineNumber: number): Promise<void> {
@@ -196,7 +192,7 @@ export class AppLauncher {
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
         };
-        const mobilePlatform = new PlatformResolver().resolveMobilePlatform(
+        this.mobilePlatform = new PlatformResolver().resolveMobilePlatform(
             launchArgs.platform,
             mobilePlatformOptions,
             platformDeps,
@@ -231,11 +227,11 @@ export class AppLauncher {
                     TelemetryHelper.generate("launch", extProps, generator => {
                         generator.step("resolveEmulator");
                         return this.resolveAndSaveVirtualDevice(
-                            mobilePlatform,
+                            this.mobilePlatform,
                             launchArgs,
                             mobilePlatformOptions,
                         )
-                            .then(() => mobilePlatform.beforeStartPackager())
+                            .then(() => this.mobilePlatform.beforeStartPackager())
                             .then(() => {
                                 generator.step("checkPlatformCompatibility");
                                 TargetPlatformHelper.checkTargetPlatformSupport(
@@ -244,7 +240,7 @@ export class AppLauncher {
                             })
                             .then(() => {
                                 generator.step("startPackager");
-                                return mobilePlatform.startPackager();
+                                return this.mobilePlatform.startPackager();
                             })
                             .then(() => {
                                 // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
@@ -256,7 +252,7 @@ export class AppLauncher {
                                         "Prewarming bundle cache. This may take a while ...",
                                     ),
                                 );
-                                return mobilePlatform.prewarmBundleCache();
+                                return this.mobilePlatform.prewarmBundleCache();
                             })
                             .then(() => {
                                 generator
@@ -268,7 +264,7 @@ export class AppLauncher {
                                         "Building and running application.",
                                     ),
                                 );
-                                return mobilePlatform.runApp();
+                                return this.mobilePlatform.runApp();
                             })
                             .then(() => {
                                 if (
@@ -301,13 +297,13 @@ export class AppLauncher {
                                             localize("DisableJSDebugging", "Disable JS Debugging"),
                                         );
                                     }
-                                    return mobilePlatform.disableJSDebuggingMode();
+                                    return this.mobilePlatform.disableJSDebuggingMode();
                                 }
                                 generator.step("mobilePlatform.enableJSDebuggingMode");
                                 this.logger.info(
                                     localize("EnableJSDebugging", "Enable JS Debugging"),
                                 );
-                                return mobilePlatform.enableJSDebuggingMode();
+                                return this.mobilePlatform.enableJSDebuggingMode();
                             })
                             .then(resolve)
                             .catch(error => {
