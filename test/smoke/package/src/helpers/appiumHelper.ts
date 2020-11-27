@@ -6,7 +6,7 @@ import * as wdio from "webdriverio";
 import * as mkdirp from "mkdirp";
 import * as kill from "tree-kill";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
-import { sleep } from "./utilities";
+import { sleep, waitUntil } from "./utilities";
 import * as clipboardy from "clipboardy";
 import { SmokeTestLogger } from "./smokeTestLogger";
 
@@ -84,27 +84,33 @@ export class AppiumHelper {
         });
     }
 
-    public static terminateAppium(): void {
-        if (appiumProcess) {
-            SmokeTestLogger.info(`*** Terminating Appium with PID ${appiumProcess.pid}`);
-            SmokeTestLogger.info(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
-            const errorCallback = (err) => {
-                if (err) {
-                    SmokeTestLogger.error("Error occured while terminating Appium");
-                    throw err;
-                }
-            };
-            kill(appiumProcess.pid, "SIGINT", errorCallback);
-
-            sleep(10 * 1000);
-            // Send a final kill signal to appium process
-            // Explanation: https://github.com/appium/appium/issues/12297#issuecomment-472511676
-            SmokeTestLogger.info(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid} again`);
-            if (!appiumProcess.killed) {
-                kill(appiumProcess.pid, "SIGINT", errorCallback);
+    public static async terminateAppium(): Promise<boolean> {
+        const errorCallback = (err) => {
+            if (err) {
+                SmokeTestLogger.error("Error occured while terminating Appium");
+                throw err;
             }
-        }
+        };
 
+        const condition = () => {
+            if (appiumProcess && cp.execSync("tasklist").toString().indexOf(String(appiumProcess.pid)) > 0) {
+                SmokeTestLogger.info(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
+                kill(appiumProcess.pid, "SIGINT", errorCallback);
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+        return waitUntil(condition, 5 * 60 * 1000, 10 * 1000)
+            .then((result) => {
+                if (result) {
+                    SmokeTestLogger.success(`*** Appium process was killed`);
+                } else {
+                    SmokeTestLogger.error(`*** Could not kill Appium process`);
+                }
+                return result;
+            });
     }
 
     public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName): wdio.RemoteOptions {
