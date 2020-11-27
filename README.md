@@ -91,7 +91,7 @@ The full list of commands is:
 | Show Dev Menu                    | Show development menu for running aplication on iOS or Android device or emulator                                                                                                                                              |
 | ReloadApp                        | Reload an application                                                                                                                                                                                                          |
 | Run Element Inspector            | Load development tools for inspect application UI elements                                                                                                                                                                     |
-| Run React Native LogCat Monitor  | Creates a LogCat Monitor for the chosen online Android device to see the device LogCat logs. Default filtering arguments: ["*:S", "ReactNative:V", "ReactNativeJS:V"]. [How to configure filtering.](#configure-an-Android-LogCat-Monitor) |
+| Run React Native LogCat Monitor  | Creates a LogCat Monitor for the chosen online Android device to see the device LogCat logs. Default filtering arguments: ["*:S", "ReactNative:V", "ReactNativeJS:V"]. [How to configure filtering.](#configure-an-android-logcat-monitor) |
 | Stop React Native LogCat Monitor | Stops an existing LogCat Monitor and removes its output channel                                                                                                                                                                |
 
 # Debugging React Native applications
