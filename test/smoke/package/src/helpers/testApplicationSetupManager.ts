@@ -223,6 +223,12 @@ export class TestApplicationSetupManager {
             this.removeProjectFolder(workspacePath);
             prepareProjectFunc.call(this);
         } else {
+            if (
+                workspacePath.includes(SmokeTestsConstants.RNAppName)
+                || workspacePath.includes(SmokeTestsConstants.HermesAppName)
+            ) {
+                this.execGradlewCleanCommand(workspacePath);
+            }
             SmokeTestLogger.projectInstallLog(`Use the cached project by path ${workspacePath}`);
         }
     }
@@ -255,12 +261,9 @@ export class TestApplicationSetupManager {
         const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
         const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
         this.hermesTestProject.projectMainFilePath = workspaceEntryPointPath;
-        const commandClean = path.join(workspaceDirectory, "android", "gradlew") + " clean";
 
         SmokeTestLogger.projectPatchingLog(`*** Patching React Native project for Hermes debugging`);
-
-        SmokeTestLogger.projectPatchingLog(`*** Executing  ${commandClean} ...`);
-        utilities.execSync(commandClean, { cwd: path.join(workspaceDirectory, "android") }, vscodeManager.getSetupEnvironmentLogDir());
+        this.execGradlewCleanCommand(workspaceDirectory);
 
         if (sampleWorkspaceDirectory) {
             const { customEntryPointPath, testButtonPath } = this.getKeyPathsForSample(sampleWorkspaceDirectory);
@@ -499,5 +502,12 @@ module.exports.watchFolders = ['.vscode'];`;
         }
 
         return useCachedApp;
+    }
+
+    private execGradlewCleanCommand(workspaceDirectory: string): void {
+        const commandClean = path.join(workspaceDirectory, "android", "gradlew") + " clean";
+
+        SmokeTestLogger.projectPatchingLog(`*** Executing  ${commandClean} ...`);
+        utilities.execSync(commandClean, { cwd: path.join(workspaceDirectory, "android") }, vscodeManager.getSetupEnvironmentLogDir());
     }
 }

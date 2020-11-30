@@ -31,21 +31,6 @@ export class LaunchConfigurationManager {
         return this.launchScenarios;
     }
 
-    // private getFirstScenarioIndexByParams(scenario: IConfiguration): number | null {
-    //     if (this.launchScenarios.configurations) {
-    //         for (let i = 0; i < this.launchScenarios.configurations.length; i++) {
-    //             const config = this.launchScenarios.configurations[i];
-    //             if (scenario.name === config.name &&
-    //                 scenario.platform === config.platform &&
-    //                 scenario.type === config.type &&
-    //                 scenario.request === config.request) {
-    //                 return i;
-    //             }
-    //         }
-    //     }
-    //     return null;
-    // }
-
     private getScenarioByName(scenarioName: string): number | null{
         if (this.launchScenarios.configurations) {
             for (let i = 0; i < this.launchScenarios.configurations.length; i++) {
