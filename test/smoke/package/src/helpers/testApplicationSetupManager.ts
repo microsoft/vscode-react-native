@@ -14,6 +14,7 @@ export interface TestProject {
     workspaceDirectory: string;
     sampleDirectory: string;
     projectMainFilePath: string;
+
 }
 
 export class TestApplicationSetupManager {
@@ -21,12 +22,12 @@ export class TestApplicationSetupManager {
     private cacheDirectory: string;
     private testAppsDirectory: string;
 
-    rnTestProject: TestProject;
-    hermesTestProject: TestProject;
-    pureRNTestProject: TestProject;
-    windowsTestProject: TestProject;
-    macOSTestProject: TestProject;
-    expoTestProject: TestProject;
+    private rnTestProject: TestProject;
+    private hermesTestProject: TestProject;
+    private pureRNTestProject: TestProject;
+    private windowsTestProject: TestProject;
+    private macOSTestProject: TestProject;
+    private expoTestProject: TestProject;
 
     private launchJsonPath: string;
 
