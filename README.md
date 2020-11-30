@@ -48,6 +48,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Specifying custom arguments for `react-native run-*` command](#specifying-custom-arguments-for-react-native-run--command)
   - [Setting up the React Native packager](#setting-up-the-react-native-packager)
   - [Change project root](#change-project-root)
+  - [Configure an Android LogCat Monitor](#configure-an-android-logcat-monitor)
 - [Developing inside a Docker Container](#developing-inside-a-docker-container)
 - [Contributing](#contributing)
 - [Known Issues](#known-issues)
