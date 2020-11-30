@@ -286,6 +286,7 @@ const runPrettier = (onlyStaged, fix, callback) => {
             "test/**/*.ts",
             "gulpfile.js",
             "*.md",
+            "!CHANGELOG.md",
             "!test/smoke/**",
             "!src/**/*.d.ts",
         ],
