@@ -862,6 +862,7 @@
     "arrowParens": "avoid",
     "printWidth": 100,
     "tabWidth": 4,
+    "endOfLine": "auto",
     "overrides": [
       {
         "files": [
