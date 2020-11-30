@@ -22,12 +22,12 @@ export class TestApplicationSetupManager {
     private cacheDirectory: string;
     private testAppsDirectory: string;
 
-    private rnTestProject: TestProject;
-    private hermesTestProject: TestProject;
-    private pureRNTestProject: TestProject;
-    private windowsTestProject: TestProject;
-    private macOSTestProject: TestProject;
-    private expoTestProject: TestProject;
+    private rnTestProject: TestProject = { workspaceDirectory: "", sampleDirectory: "", projectMainFilePath: "" };
+    private hermesTestProject: TestProject = { workspaceDirectory: "", sampleDirectory: "", projectMainFilePath: "" };
+    private pureRNTestProject: TestProject = { workspaceDirectory: "", sampleDirectory: "", projectMainFilePath: "" };
+    private windowsTestProject: TestProject = { workspaceDirectory: "", sampleDirectory: "", projectMainFilePath: "" };
+    private macOSTestProject: TestProject = { workspaceDirectory: "", sampleDirectory: "", projectMainFilePath: "" };
+    private expoTestProject: TestProject = { workspaceDirectory: "", sampleDirectory: "", projectMainFilePath: "" };
 
     private launchJsonPath: string;
 
