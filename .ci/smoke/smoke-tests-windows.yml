@@ -9,7 +9,6 @@ variables:
   basicOnly: false
   useCachedApplications: true
   expoCLIVersion: latest
-  nightlyBuild: false
   smokeTestDirectory: test/smoke
 
 jobs:

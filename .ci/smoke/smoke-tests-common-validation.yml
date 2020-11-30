@@ -60,9 +60,9 @@ steps:
       export MOCHA_FILE=./ReactNativeSmokeTests.xml
       export BASIC_ONLY=""
       export USE_CACHE=""
-      export NIGHTLY=""
-      if [ $(nightlyBuild) = true ]; then
-        NIGHTLY="true"
+      export SKIP_UNSTABLE_TESTS=""
+      if [ $(Build.SourceBranchName) != "master" ]; then
+        SKIP_UNSTABLE_TESTS="--skip-unstable-tests"
       fi
       if [ $(basicOnly) = true ]; then
         BASIC_ONLY="--basic-only"
@@ -70,7 +70,7 @@ steps:
       if [ $(useCachedApplications) = true ]; then
         USE_CACHE="--use-cache"
       fi
-      yarn smoke-tests $BASIC_ONLY $USE_CACHE
+      yarn smoke-tests $BASIC_ONLY $USE_CACHE $SKIP_UNSTABLE_TESTS
     displayName: "Run smoke tests"
     env:
       DISPLAY: ":99.0"
