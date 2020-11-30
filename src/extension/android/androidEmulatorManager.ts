@@ -15,9 +15,8 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
-/* eslint-disable @typescript-eslint/no-empty-interface */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IAndroidEmulator extends IVirtualDevice {}
-/* eslint-enable @typescript-eslint/no-empty-interface */
 
 export class AndroidEmulatorManager extends VirtualDeviceManager {
     private static readonly EMULATOR_COMMAND = "emulator";

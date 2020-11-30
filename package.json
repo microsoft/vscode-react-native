@@ -864,7 +864,9 @@
     "tabWidth": 4,
     "overrides": [
       {
-        "files": ["*.md"],
+        "files": [
+          "*.md"
+        ],
         "options": {
           "tabWidth": 2,
           "printWidth": 80
