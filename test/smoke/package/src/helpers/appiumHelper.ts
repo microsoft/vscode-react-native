@@ -111,7 +111,7 @@ export class AppiumHelper {
                 } else {
                     return true;
                 }
-            }
+            };
         }
 
         return waitUntil(condition, 5 * 60 * 1000, 10 * 1000)
