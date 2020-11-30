@@ -61,7 +61,7 @@ steps:
       export BASIC_ONLY=""
       export USE_CACHE=""
       export SKIP_UNSTABLE_TESTS=""
-      if [ $(Build.SourceBranchName) != "master" ]; then
+      if [ -z "$(runAllTest)" ]; then
         SKIP_UNSTABLE_TESTS="--skip-unstable-tests"
       fi
       if [ $(basicOnly) = true ]; then

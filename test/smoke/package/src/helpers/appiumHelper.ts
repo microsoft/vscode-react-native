@@ -92,10 +92,10 @@ export class AppiumHelper {
             }
         };
 
-        let condition;
-        if (process.platform == "win32") {
-            condition = () => {
-                if (appiumProcess && cp.execSync("tasklist").toString().includes(String(appiumProcess.pid))) {
+        if (appiumProcess) {
+            const command = process.platform == "win32" ? "tasklist" : `ps -p ${appiumProcess.pid}`;
+            const condition = () => {
+                if (appiumProcess && cp.execSync(command).toString().includes(String(appiumProcess.pid))) {
                     SmokeTestLogger.info(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
                     kill(appiumProcess.pid, "SIGINT", errorCallback);
                     return false;
@@ -103,18 +103,8 @@ export class AppiumHelper {
                     return true;
                 }
             };
-        } else {
-            condition = () => {
-                if (appiumProcess && !appiumProcess.killed) {
-                    SmokeTestLogger.info(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
-                    kill(appiumProcess.pid, "SIGINT", errorCallback);
-                } else {
-                    return true;
-                }
-            };
-        }
 
-        return waitUntil(condition, 5 * 60 * 1000, 10 * 1000)
+            return waitUntil(condition, 5 * 60 * 1000, 10 * 1000)
             .then((result) => {
                 if (result) {
                     SmokeTestLogger.success(`*** Appium process was killed`);
@@ -123,6 +113,9 @@ export class AppiumHelper {
                 }
                 return result;
             });
+        } else {
+            return true;
+        }
     }
 
     public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName): wdio.RemoteOptions {
