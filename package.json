@@ -861,7 +861,16 @@
     "trailingComma": "all",
     "arrowParens": "avoid",
     "printWidth": 100,
-    "tabWidth": 4
+    "tabWidth": 4,
+    "overrides": [
+      {
+        "files": ["*.md"],
+        "options": {
+          "tabWidth": 2,
+          "printWidth": 80
+        }
+      }
+    ]
   },
   "dependencies": {
     "configstore": "^5.0.1",

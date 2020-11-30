@@ -285,6 +285,7 @@ const runPrettier = (onlyStaged, fix, callback) => {
             "src/**/*.ts",
             "test/**/*.ts",
             "gulpfile.js",
+            "*.md",
             "!test/smoke/**",
             "!src/**/*.d.ts",
         ],
@@ -347,7 +348,7 @@ gulp.task("clean", () => {
 // be an issue on Windows platforms)
 gulp.task(
     "build",
-    gulp.series("check-imports", "lint:eslint", function runBuild(done) {
+    gulp.series("check-imports", "lint", function runBuild(done) {
         build(true, true).once("finish", () => {
             done();
         });
@@ -356,7 +357,7 @@ gulp.task(
 
 gulp.task(
     "build-dev",
-    gulp.series("check-imports", "lint:eslint", function runBuild(done) {
+    gulp.series("check-imports", "lint", function runBuild(done) {
         build(false, false).once("finish", () => {
             done();
         });
@@ -377,7 +378,7 @@ gulp.task("prod-build", gulp.series("clean", "webpack-bundle", generateSrcLocBun
 
 gulp.task("default", gulp.series("prod-build"));
 
-gulp.task("test", gulp.series("build", "lint:eslint", test));
+gulp.task("test", gulp.series("build", "lint", test));
 
 gulp.task("coverage:instrument", () => {
     return (
