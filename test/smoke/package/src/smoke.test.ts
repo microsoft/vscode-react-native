@@ -55,24 +55,14 @@ export function startSmokeTests(
         });
 
         startLocalizationTests(testApplicationSetupManager.getRnWorkspaceDirectory());
-        const noSelectArgs = !args.RunAndroidTests && !args.RunIosTests && !args.RunBasicTests && !args.RunMacOSTests && !args.RunWindowsTests;
-        if (noSelectArgs) {
-            SmokeTestLogger.info("*** Android and iOS tests will be run");
-            startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory());
-            startDirectDebugTests(testApplicationSetupManager.getHermesWorkspaceDirectory());
-            startExpoTests(testApplicationSetupManager.getExpoWorkspaceDirectory(), testApplicationSetupManager.getPureRnWorkspaceDirectory());
-            startDebugMacOSTests(testApplicationSetupManager.getMacOSRnWorkspaceDirectory());
-            startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory());
-            startOtherTests(testApplicationSetupManager.getRnWorkspaceDirectory());
-        } else {
-            startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
-            if (!args.RunBasicTests) {
-                startDirectDebugTests(testApplicationSetupManager.getHermesWorkspaceDirectory(), args);
-                startExpoTests(testApplicationSetupManager.getExpoWorkspaceDirectory(), testApplicationSetupManager.getPureRnWorkspaceDirectory(), args);
-                startDebugMacOSTests(testApplicationSetupManager.getMacOSRnWorkspaceDirectory(), args);
-                startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory(), args);
-                startOtherTests(testApplicationSetupManager.getRnWorkspaceDirectory());
-            }
-        }
+
+        SmokeTestLogger.info("*** Smoke tests will be run");
+        startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
+        startDirectDebugTests(testApplicationSetupManager.getHermesWorkspaceDirectory(), args);
+        startExpoTests(testApplicationSetupManager.getExpoWorkspaceDirectory(), testApplicationSetupManager.getPureRnWorkspaceDirectory(), args);
+        startDebugMacOSTests(testApplicationSetupManager.getMacOSRnWorkspaceDirectory(), args);
+        startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory(), args);
+        startOtherTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
+
     });
 }

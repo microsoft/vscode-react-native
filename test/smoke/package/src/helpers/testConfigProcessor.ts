@@ -8,6 +8,7 @@ export interface TestRunArguments {
     RunIosTests: boolean;
     RunMacOSTests: boolean;
     RunWindowsTests: boolean;
+    SkipUnstableTests: boolean;
     RunBasicTests: boolean;
     SkipSetup: boolean;
     DontDeleteVSIX: boolean;
@@ -65,13 +66,13 @@ export class TestConfigProcessor {
         if (variables.EXPO_SDK_MAJOR_VERSION === "skip") {
             delete variables.EXPO_SDK_MAJOR_VERSION;
         }
-        if (variables.RN_VERSION === "skip" || process.env.NIGHTLY) {
+        if (variables.RN_VERSION === "skip") {
             delete variables.RN_VERSION;
         }
-        if (variables.PURE_RN_VERSION === "skip" || process.env.NIGHTLY) {
+        if (variables.PURE_RN_VERSION === "skip") {
             delete variables.PURE_RN_VERSION;
         }
-        if (variables.PURE_EXPO_VERSION === "skip" || process.env.NIGHTLY) {
+        if (variables.PURE_EXPO_VERSION === "skip") {
             delete variables.PURE_EXPO_VERSION;
         }
 
@@ -147,7 +148,7 @@ export class TestConfigProcessor {
     }
 
     public parseTestArguments(): TestRunArguments {
-        return {
+        let config: TestRunArguments = {
             RunAndroidTests: process.argv.includes("--android"),
             RunIosTests: process.argv.includes("--ios"),
             RunWindowsTests: process.argv.includes("--windows"),
@@ -156,6 +157,17 @@ export class TestConfigProcessor {
             SkipSetup: process.argv.includes("--skip-setup"),
             DontDeleteVSIX: process.argv.includes("--dont-delete-vsix"),
             UseCachedApplications: process.argv.includes("--use-cache"),
+            SkipUnstableTests: process.argv.includes("--skip-unstable-tests"),
         };
+
+        if (!config.RunAndroidTests && !config.RunIosTests && !config.RunBasicTests && !config.RunMacOSTests && !config.RunWindowsTests) {
+            config.RunAndroidTests = true;
+            config.RunIosTests = true;
+            config.RunBasicTests = true;
+            config.RunMacOSTests = true;
+            config.RunWindowsTests = true;
+        }
+
+        return config;
     }
 }

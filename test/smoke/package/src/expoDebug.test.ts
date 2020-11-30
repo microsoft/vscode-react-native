@@ -30,7 +30,7 @@ interface ExpoLaunch {
     failed: boolean;
 }
 
-export function startExpoTests(expoWorkspace: string, pureWorkspace: string, testParameters?: TestRunArguments): void {
+export function startExpoTests(expoWorkspace: string, pureWorkspace: string, testParameters: TestRunArguments): void {
 
     describe("Expo tests", () => {
         let app: Application;
@@ -186,7 +186,7 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
             SmokeTestLogger.info(`${testName}: Debugging is stopped`);
         }
 
-        if (!testParameters || !testParameters.RunBasicTests) {
+        if (testParameters.RunAndroidTests) {
             it("Android Expo app Debug test(Tunnel)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest("App.tsx", "Android Expo Debug test(Tunnel)", expoWorkspace, ExpoDebugConfigName, Platform.AndroidExpo, 5);
@@ -206,28 +206,27 @@ export function startExpoTests(expoWorkspace: string, pureWorkspace: string, tes
                 this.timeout(debugExpoTestTime);
                 await expoTest("App.tsx", "Android Expo Debug test(localhost)", expoWorkspace, ExpoLocalDebugConfigName, Platform.AndroidExpo, 1);
             });
+        }
+        if (process.platform === "darwin" && testParameters.RunIosTests) {
+            it("iOS Expo app Debug test(Tunnel)", async function () {
+                this.timeout(debugExpoTestTime);
+                await expoTest("App.tsx", "iOS Expo Debug test(Tunnel)", expoWorkspace, ExpoDebugConfigName, Platform.iOSExpo, 5);
+            });
 
-            if (process.platform === "darwin") {
-                it("iOS Expo app Debug test(Tunnel)", async function () {
-                    this.timeout(debugExpoTestTime);
-                    await expoTest("App.tsx", "iOS Expo Debug test(Tunnel)", expoWorkspace, ExpoDebugConfigName, Platform.iOSExpo, 5);
-                });
+            it("iOS Pure RN app Expo test(LAN)", async function () {
+                this.timeout(debugExpoTestTime);
+                await expoTest("App.js", "iOS pure RN Expo test(LAN)", pureWorkspace, ExpoLanDebugConfigName, Platform.iOSExpo, 1);
+            });
 
-                it("iOS Pure RN app Expo test(LAN)", async function () {
-                    this.timeout(debugExpoTestTime);
-                    await expoTest("App.js", "iOS pure RN Expo test(LAN)", pureWorkspace, ExpoLanDebugConfigName, Platform.iOSExpo, 1);
-                });
+            it("iOS Expo app Debug test(LAN)", async function () {
+                this.timeout(debugExpoTestTime);
+                await expoTest("App.tsx", "iOS Expo Debug test(LAN)", expoWorkspace, ExpoLanDebugConfigName, Platform.iOSExpo, 1);
+            });
 
-                it("iOS Expo app Debug test(LAN)", async function () {
-                    this.timeout(debugExpoTestTime);
-                    await expoTest("App.tsx", "iOS Expo Debug test(LAN)", expoWorkspace, ExpoLanDebugConfigName, Platform.iOSExpo, 1);
-                });
-
-                it("iOS Expo app Debug test(localhost)", async function () {
-                    this.timeout(debugExpoTestTime);
-                    await expoTest("App.tsx", "iOS Expo Debug test(localhost)", expoWorkspace, ExpoLocalDebugConfigName, Platform.iOSExpo, 1);
-                });
-            }
+            it("iOS Expo app Debug test(localhost)", async function () {
+                this.timeout(debugExpoTestTime);
+                await expoTest("App.tsx", "iOS Expo Debug test(localhost)", expoWorkspace, ExpoLocalDebugConfigName, Platform.iOSExpo, 1);
+            });
         }
     });
 }

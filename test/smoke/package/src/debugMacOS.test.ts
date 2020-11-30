@@ -17,7 +17,7 @@ const RNmacOSsetBreakpointOnLine = 1;
 // Time for macOS Debug Test before it reaches timeout
 const debugMacOSTestTime = SmokeTestsConstants.macOSTestTimeout;
 
-export function startDebugMacOSTests(workspace: string, testParameters?: TestRunArguments): void {
+export function startDebugMacOSTests(workspace: string, testParameters: TestRunArguments): void {
     describe("Debugging macOS", () => {
         let app: Application;
 
@@ -62,7 +62,7 @@ export function startDebugMacOSTests(workspace: string, testParameters?: TestRun
             }
         }
 
-        if (process.platform === "darwin" && (!testParameters || testParameters.RunMacOSTests)) {
+        if (process.platform === "darwin" && testParameters.RunMacOSTests) {
             it("RN macOS app Debug test", async function () {
                 this.timeout(debugMacOSTestTime);
                 app = await vscodeManager.runVSCode(workspace, "RN macOS app Debug test");

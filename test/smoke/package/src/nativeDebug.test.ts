@@ -24,7 +24,7 @@ const debugAndroidTestTime = SmokeTestsConstants.androidTestTimeout;
 const debugIosTestTime = SmokeTestsConstants.iosTestTimeout;
 
 
-export function startReactNativeTests(workspace: string, testParameters?: TestRunArguments): void {
+export function startReactNativeTests(workspace: string, testParameters: TestRunArguments): void {
 
     describe("React Native", () => {
         let app: Application;
@@ -42,7 +42,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
         afterEach(disposeAll);
 
         // Android debug tests
-        if (!testParameters || testParameters.RunAndroidTests) {
+        if (testParameters.RunAndroidTests || testParameters.RunBasicTests) {
             it("Android RN app Debug test", async function () {
                 this.timeout(debugAndroidTestTime);
                 app = await vscodeManager.runVSCode(workspace, "Android RN app Debug test");
@@ -72,7 +72,7 @@ export function startReactNativeTests(workspace: string, testParameters?: TestRu
         }
 
         // iOS debug tests
-        if (process.platform === "darwin" && (!testParameters || testParameters.RunIosTests)) {
+        if (process.platform === "darwin" && (testParameters.RunIosTests || testParameters.RunBasicTests)) {
             it("iOS RN app Debug test", async function () {
                 if (process.platform !== "darwin") {
                     SmokeTestLogger.info(`iOS RN app Debug test: skip test if running not on macOS`);

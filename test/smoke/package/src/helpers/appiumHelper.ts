@@ -92,15 +92,27 @@ export class AppiumHelper {
             }
         };
 
-        const condition = () => {
-            if (appiumProcess && cp.execSync("tasklist").toString().indexOf(String(appiumProcess.pid)) > 0) {
-                SmokeTestLogger.info(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
-                kill(appiumProcess.pid, "SIGINT", errorCallback);
-                return false;
-            } else {
-                return true;
+        let condition;
+        if (process.platform == "win32") {
+            condition = () => {
+                if (appiumProcess && cp.execSync("tasklist").toString().includes(String(appiumProcess.pid))) {
+                    SmokeTestLogger.info(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
+                    kill(appiumProcess.pid, "SIGINT", errorCallback);
+                    return false;
+                } else {
+                    return true;
+                }
+            };
+        } else {
+            condition = () => {
+                if (appiumProcess && !appiumProcess.killed) {
+                    SmokeTestLogger.info(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
+                    kill(appiumProcess.pid, "SIGINT", errorCallback);
+                } else {
+                    return true;
+                }
             }
-        };
+        }
 
         return waitUntil(condition, 5 * 60 * 1000, 10 * 1000)
             .then((result) => {

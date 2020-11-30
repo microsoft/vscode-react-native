@@ -19,7 +19,7 @@ const RNHermesSetBreakpointOnLine = 11;
 // Time for Android Debug Test before it reaches timeout
 const debugAndroidTestTime = SmokeTestsConstants.hermesTestTimeout;
 
-export function startDirectDebugTests(workspace: string, testParameters?: TestRunArguments): void {
+export function startDirectDebugTests(workspace: string, testParameters: TestRunArguments): void {
 
     describe("Direct debugging", () => {
         let app: Application | null;
@@ -42,7 +42,7 @@ export function startDirectDebugTests(workspace: string, testParameters?: TestRu
 
         afterEach(disposeAll);
 
-        if (!testParameters || !testParameters.RunBasicTests) {
+        if (testParameters.RunAndroidTests) {
             it("Hermes RN app Debug test", async function () {
                 try {
                     this.timeout(debugAndroidTestTime);
