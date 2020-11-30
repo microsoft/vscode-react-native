@@ -88,7 +88,7 @@ export default class AndroidEmulatorManager {
         try {
             cp.spawnSync("adb", ["shell", "pm", "uninstall", appPackage], { stdio: "inherit" });
         } catch (e) {
-            console.error(`Error occured while uninstalling test app:\n ${e}`);
+            SmokeTestLogger.error(`Error occured while uninstalling test app:\n ${e.toString()}`);
         }
     }
 

@@ -118,7 +118,7 @@ export default class IosSimulatorManager {
     }
 
     public async shutdownSimulator(): Promise<void> {
-        IosSimulatorManager.shutdownSimulator(this.simulator.name);
+        await IosSimulatorManager.shutdownSimulator(this.simulator.name);
         this.updateSimulatorState(this.simulator.name, this.simulator.system);
     }
 
