@@ -93,9 +93,25 @@ export class AppiumHelper {
         };
 
         if (appiumProcess) {
-            const command = process.platform == "win32" ? "tasklist" : `ps -p ${appiumProcess.pid}`;
+            let retrieveProcessesData;
+            if (process.platform == "win32") {
+                retrieveProcessesData = () => cp.execSync("tasklist").toString();
+            } else {
+                retrieveProcessesData = () => {
+                    try {
+                        return appiumProcess ? cp.execSync(`ps -p ${appiumProcess.pid}`).toString() : "";
+                    } catch (err) {
+                        if (err.stdout.toString() && !err.stderr.toString()) {
+                            return err.stdout.toString();
+                        } else {
+                            throw err;
+                        }
+                    }
+                };
+            }
+
             const condition = () => {
-                if (appiumProcess && cp.execSync(command).toString().includes(String(appiumProcess.pid))) {
+                if (appiumProcess && retrieveProcessesData().includes(String(appiumProcess.pid))) {
                     SmokeTestLogger.info(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
                     kill(appiumProcess.pid, "SIGINT", errorCallback);
                     return false;
