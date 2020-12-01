@@ -41,8 +41,10 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
         }
 
         async function stopPackager() {
-            await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
-            await sleep(3000);
+            if (app) {
+                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await sleep(3000);
+            }
         }
 
         afterEach(disposeAll);
