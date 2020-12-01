@@ -85,7 +85,6 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     SmokeTestLogger.info("Android Debug Hermes test: Debugging is stopped");
                 } catch (e) {
                     SmokeTestLogger.error(`Android Debug Hermes test failed: ${e.toString()}`);
-                    await disposeAll();
                     return this.skip();
                 }
             });
