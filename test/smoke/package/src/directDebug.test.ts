@@ -23,7 +23,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
 
     describe("Direct debugging", () => {
         let app: Application | null;
-        let client: AppiumClient;
+        let client: AppiumClient | null;
 
         async function disposeAll() {
             SmokeTestLogger.info("Dispose all ...");
@@ -37,6 +37,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
             if (client) {
                 await client.closeApp();
                 await client.deleteSession();
+                client = null;
             }
         }
 
