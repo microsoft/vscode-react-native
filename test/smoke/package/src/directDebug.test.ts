@@ -29,8 +29,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
             SmokeTestLogger.info("Dispose all ...");
             if (app) {
                 SmokeTestLogger.info("Stopping React Native packager ...");
-                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
-                await sleep(3000);
+                await stopPackager();
                 await app.stop();
                 app = null;
             }
@@ -39,6 +38,11 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                 await client.deleteSession();
                 client = null;
             }
+        }
+
+        async function stopPackager() {
+            await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+            await sleep(3000);
         }
 
         afterEach(disposeAll);
@@ -85,6 +89,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     SmokeTestLogger.info("Android Debug Hermes test: Debugging is stopped");
                 } catch (e) {
                     SmokeTestLogger.error(`Android Debug Hermes test failed: ${e.toString()}`);
+                    await stopPackager();
                     return this.skip();
                 }
             });
