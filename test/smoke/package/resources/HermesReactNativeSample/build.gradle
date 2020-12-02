@@ -129,7 +129,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.latestrnapp"
+        applicationId "com.latesthermesrnapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

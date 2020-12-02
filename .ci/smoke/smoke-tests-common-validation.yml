@@ -10,9 +10,9 @@ steps:
     condition: and(succeeded(), or(eq(variables['Agent.OS'], 'Linux'), eq(variables['Agent.OS'], 'Darwin')))
 
   - task: NodeTool@0
-    displayName: Use Node
+    displayName: Use Node 12.x
     inputs:
-      versionSpec: 10.x
+      versionSpec: 12.x
       checkLatest: true
 
   - task: Npm@1
@@ -59,17 +59,25 @@ steps:
   - bash: |
       export MOCHA_FILE=./ReactNativeSmokeTests.xml
       export BASIC_ONLY=""
-      export NIGHTLY=""
-      if [ $(nightlyBuild) = true ]; then
-        NIGHTLY="true"
+      export USE_CACHE=""
+      export SKIP_UNSTABLE_TESTS=""
+      if [ -z "$(runAllTest)" ]; then
+        SKIP_UNSTABLE_TESTS="--skip-unstable-tests"
       fi
       if [ $(basicOnly) = true ]; then
         BASIC_ONLY="--basic-only"
       fi
-      yarn smoke-tests $BASIC_ONLY
+      if [ $(useCachedApplications) = true ]; then
+        USE_CACHE="--use-cache"
+      fi
+      yarn smoke-tests $BASIC_ONLY $USE_CACHE $SKIP_UNSTABLE_TESTS
     displayName: "Run smoke tests"
     env:
       DISPLAY: ":99.0"
+
+  - powershell: Get-AppxPackage | where-object {$_.InstallLocation –Match "RNWApp"} | Remove-AppxPackage
+    displayName: "Clean up RNW app"
+    condition: and(always(), eq(variables['Agent.OS'], 'Windows_NT'))
 
   - task: PublishTestResults@2
     displayName: "Publish Test Results"
@@ -91,7 +99,3 @@ steps:
     inputs:
       ArtifactName: SmokeTestLogs
     condition: always()
-
-  - powershell: Get-AppxPackage | where-object {$_.InstallLocation –Match "RNWApp"} | Remove-AppxPackage
-    displayName: "Clean up RNW app"
-    condition: and(always(), eq(variables['Agent.OS'], 'Windows_NT'))
