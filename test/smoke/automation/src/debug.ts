@@ -7,6 +7,7 @@ import { Code, findElement } from "./code";
 import { Editors } from "./editors";
 import { Editor } from "./editor";
 import { IElement } from "../src/driver";
+import { QuickAccess } from "./quickaccess";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET}`;
@@ -50,7 +51,7 @@ function toStackFrame(element: IElement): IStackFrame {
 
 export class Debug extends Viewlet {
 
-    constructor(code: Code, private commands: Commands, private editors: Editors, private editor: Editor) {
+    constructor(code: Code, private commands: Commands, private editors: Editors, private editor: Editor, private quickaccess: QuickAccess) {
         super(code);
     }
 
@@ -119,7 +120,7 @@ export class Debug extends Viewlet {
     }
 
     public async disconnectFromDebugger(): Promise<any> {
-        await this.code.waitAndClick(DISCONNECT);
+        await this.quickaccess.runDebugScenario(": Disconnect");
         await this.code.waitForElement(TOOLBAR_HIDDEN);
         await this.code.waitForElement(NOT_DEBUG_STATUS_BAR);
     }
