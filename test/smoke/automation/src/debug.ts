@@ -7,7 +7,6 @@ import { Code, findElement } from "./code";
 import { Editors } from "./editors";
 import { Editor } from "./editor";
 import { IElement } from "../src/driver";
-import { QuickAccess } from "./quickaccess";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET}`;
@@ -17,7 +16,7 @@ const STEP_OVER = `.debug-toolbar .action-label[title*="Step Over"]`;
 const STEP_IN = `.debug-toolbar .action-label[title*="Step Into"]`;
 const STEP_OUT = `.debug-toolbar .action-label[title*="Step Out"]`;
 const CONTINUE = `.debug-toolbar .action-label[title*="Continue"]`;
-const DISCONNECT = `.debug-toolbar .action-label[title*="Disconnect"]`;
+// const DISCONNECT = `.debug-toolbar .action-label[title*="Disconnect"]`;
 const GLYPH_AREA = ".margin-view-overlays>:nth-child";
 const BREAKPOINT_GLYPH = ".codicon-debug-breakpoint";
 const PAUSE = `.debug-toolbar .action-label[title*="Pause"]`;
