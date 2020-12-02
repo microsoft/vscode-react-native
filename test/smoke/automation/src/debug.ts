@@ -16,7 +16,7 @@ const STEP_OVER = `.debug-toolbar .action-label[title*="Step Over"]`;
 const STEP_IN = `.debug-toolbar .action-label[title*="Step Into"]`;
 const STEP_OUT = `.debug-toolbar .action-label[title*="Step Out"]`;
 const CONTINUE = `.debug-toolbar .action-label[title*="Continue"]`;
-// const DISCONNECT = `.debug-toolbar .action-label[title*="Disconnect"]`;
+const DISCONNECT = `.debug-toolbar .action-label[title*="Disconnect"]`;
 const GLYPH_AREA = ".margin-view-overlays>:nth-child";
 const BREAKPOINT_GLYPH = ".codicon-debug-breakpoint";
 const PAUSE = `.debug-toolbar .action-label[title*="Pause"]`;
@@ -119,7 +119,7 @@ export class Debug extends Viewlet {
     }
 
     public async disconnectFromDebugger(): Promise<any> {
-        await this.commands.runCommand("Debug: Disconnect");
+        await this.code.waitAndClick(DISCONNECT);
         await this.code.waitForElement(TOOLBAR_HIDDEN);
         await this.code.waitForElement(NOT_DEBUG_STATUS_BAR);
     }
