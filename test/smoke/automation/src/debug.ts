@@ -51,7 +51,7 @@ function toStackFrame(element: IElement): IStackFrame {
 
 export class Debug extends Viewlet {
 
-    constructor(code: Code, private commands: Commands, private editors: Editors, private editor: Editor, private quickaccess: QuickAccess) {
+    constructor(code: Code, private commands: Commands, private editors: Editors, private editor: Editor) {
         super(code);
     }
 
@@ -120,7 +120,7 @@ export class Debug extends Viewlet {
     }
 
     public async disconnectFromDebugger(): Promise<any> {
-        await this.quickaccess.runDebugScenario(": Disconnect");
+        await this.commands.runCommand("Debug: Disconnect");
         await this.code.waitForElement(TOOLBAR_HIDDEN);
         await this.code.waitForElement(NOT_DEBUG_STATUS_BAR);
     }

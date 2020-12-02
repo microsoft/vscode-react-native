@@ -50,7 +50,7 @@ export class Workbench {
         this.extensions = new Extensions(code);
         this.editor = new Editor(code, this.quickaccess);
         this.scm = new SCM(code);
-        this.debug = new Debug(code, this.quickaccess, this.editors, this.editor, this.quickaccess);
+        this.debug = new Debug(code, this.quickaccess, this.editors, this.editor);
         this.statusbar = new StatusBar(code);
         this.problems = new Problems(code);
         this.settingsEditor = new SettingsEditor(code, userDataPath, this.editors, this.editor, this.quickaccess);
