@@ -1,5 +1,5 @@
 ## 1.2.0
-* Added `Run React Native LogCat Monitor` and `Stop React Native LogCat Monitor` command palette commands. These commands allows to control LogCat outputs monitoring and create monitors for Android devices on demand. See [more information here](https://github.com/microsoft/vscode-react-native#configure-an-android-logcat-monitor) [#1461](https://github.com/microsoft/vscode-react-native/pull/1461)
+* Added `Run React Native LogCat Monitor` and `Stop React Native LogCat Monitor` command palette commands. These commands allow to control LogCat outputs monitoring and create monitors for Android devices on demand. See [more information here](https://github.com/microsoft/vscode-react-native#configure-an-android-logcat-monitor) [#1461](https://github.com/microsoft/vscode-react-native/pull/1461)
 * Updated documentation for cases when React Native projects are opened via symbolic links on Linux. This might cause sourcemaps breakage, so it is not recommended [#1459](https://github.com/microsoft/vscode-react-native/pull/1459)
 * Internal changes:
     * Smoke tests improvements [#1441](https://github.com/microsoft/vscode-react-native/issues/1441)
