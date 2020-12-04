@@ -1,36 +1,52 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {InternalError, NestedError, InternalErrorLevel} from "./internalError";
-import {InternalErrorCode} from "./internalErrorCode";
-import {ERROR_STRINGS} from "./errorStrings";
+import { InternalError, NestedError, InternalErrorLevel } from "./internalError";
+import { InternalErrorCode } from "./internalErrorCode";
+import { ERROR_STRINGS } from "./errorStrings";
 
 export class ErrorHelper {
     public static ERROR_STRINGS = ERROR_STRINGS;
-    public static getInternalError(errorCode: InternalErrorCode, ...optionalArgs: any[]): InternalError {
+    public static getInternalError(
+        errorCode: InternalErrorCode,
+        ...optionalArgs: any[]
+    ): InternalError {
         let message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
-        return new InternalError(<number> errorCode, message);
+        return new InternalError(<number>errorCode, message);
     }
 
-    public static getNestedError(innerError: Error, errorCode: InternalErrorCode, ...optionalArgs: any[]): NestedError {
+    public static getNestedError(
+        innerError: Error,
+        errorCode: InternalErrorCode,
+        ...optionalArgs: any[]
+    ): NestedError {
         let message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
-        return new NestedError(<number> errorCode, message, innerError);
+        return new NestedError(<number>errorCode, message, innerError);
     }
 
     public static wrapError(error: InternalError, innerError: Error): NestedError {
         return NestedError.getWrappedError(error, innerError);
     }
 
-    public static getWarning(message: string, ...optionalArgs: any[]): InternalError {
+    public static getWarning(message: string): InternalError {
         return new InternalError(-1, message, InternalErrorLevel.Warning);
     }
 
-    public static getNestedWarning(innerError: Error, message: string, ...optionalArgs: any[]): NestedError {
-        return new NestedError(-1, message, innerError, null /* extras */, InternalErrorLevel.Warning);
+    public static getNestedWarning(innerError: Error, message: string): NestedError {
+        return new NestedError(
+            -1,
+            message,
+            innerError,
+            null /* extras */,
+            InternalErrorLevel.Warning,
+        );
     }
 
     private static getErrorMessage(errorCode: InternalErrorCode, ...optionalArgs: any[]): string {
-        return ErrorHelper.formatErrorMessage(ErrorHelper.ERROR_STRINGS[errorCode], ...optionalArgs);
+        return ErrorHelper.formatErrorMessage(
+            ErrorHelper.ERROR_STRINGS[errorCode],
+            ...optionalArgs,
+        );
     }
 
     private static formatErrorMessage(errorMessage: string, ...optionalArgs: any[]): string {
@@ -38,27 +54,11 @@ export class ErrorHelper {
             return errorMessage;
         }
 
-        let result: string = <string> errorMessage;
-        /* eslint-disable prefer-rest-params */
-        let args: string[] = ErrorHelper.getOptionalArgsArrayFromFunctionCall(arguments, 1);
-        if (args) {
-            for (let i: number = 0; i < args.length; i++) {
-                result = result.replace(new RegExp("\\{" + i + "\\}", "g"), args[i]);
-            }
+        let result: string = <string>errorMessage;
+        for (let i: number = 0; i < optionalArgs.length; i++) {
+            result = result.replace(new RegExp("\\{" + i + "\\}", "g"), optionalArgs[i]);
         }
 
         return result;
-    }
-
-    private static getOptionalArgsArrayFromFunctionCall(functionArguments: IArguments, startIndex: number): any[] {
-        if (functionArguments.length <= startIndex) {
-            return [];
-        }
-
-        if (Array.isArray(functionArguments[startIndex])) {
-            return functionArguments[startIndex];
-        }
-
-        return Array.prototype.slice.apply(functionArguments, [startIndex]);
     }
 }

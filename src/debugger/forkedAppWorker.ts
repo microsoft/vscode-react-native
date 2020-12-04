@@ -14,7 +14,11 @@ import { getLoggingDirectory } from "../extension/log/LogHelper";
 import { generateRandomPortNumber } from "../common/extensionHelper";
 
 function printDebuggingError(error: Error, reason: any) {
-    const nestedError = ErrorHelper.getNestedError(error, InternalErrorCode.DebuggingWontWorkReloadJSAndReconnect, reason);
+    const nestedError = ErrorHelper.getNestedError(
+        error,
+        InternalErrorCode.DebuggingWontWorkReloadJSAndReconnect,
+        reason,
+    );
 
     logger.error(nestedError.message);
 }
@@ -27,7 +31,6 @@ function printDebuggingError(error: Error, reason: any) {
  * to let importScripts function take this file.
  */
 export class ForkedAppWorker implements IDebuggeeWorker {
-
     protected scriptImporter: ScriptImporter;
     protected debuggeeProcess: cp.ChildProcess | null = null;
     /** A promise that we use to make sure that worker has been loaded completely before start sending IPC messages */
@@ -43,12 +46,18 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         private projectRootPath: string,
         private postReplyToApp: (message: any) => void,
         private packagerRemoteRoot?: string,
-        private packagerLocalRoot?: string
+        private packagerLocalRoot?: string,
     ) {
-        this.scriptImporter = new ScriptImporter(this.packagerAddress, this.packagerPort, this.sourcesStoragePath, this.packagerRemoteRoot, this.packagerLocalRoot);
+        this.scriptImporter = new ScriptImporter(
+            this.packagerAddress,
+            this.packagerPort,
+            this.sourcesStoragePath,
+            this.packagerRemoteRoot,
+            this.packagerLocalRoot,
+        );
     }
 
-    public stop() {
+    public stop(): void {
         if (this.debuggeeProcess) {
             logger.verbose(`About to kill debuggee with pid ${this.debuggeeProcess.pid}`);
             this.debuggeeProcess.kill();
@@ -57,7 +66,10 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     }
 
     public start(): Promise<number> {
-        let scriptToRunPath = path.resolve(this.sourcesStoragePath, ScriptImporter.DEBUGGER_WORKER_FILENAME);
+        let scriptToRunPath = path.resolve(
+            this.sourcesStoragePath,
+            ScriptImporter.DEBUGGER_WORKER_FILENAME,
+        );
         const port = generateRandomPortNumber();
 
         // Note that we set --inspect-brk flag to pause the process on the first line - this is
@@ -69,11 +81,11 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         // Start child Node process in debugging mode
         // Using fork instead of spawn causes breakage of piping between app worker and VS Code debug console, e.g. console.log() in application
         // wouldn't work. Please see https://github.com/microsoft/vscode-react-native/issues/758
-        this.debuggeeProcess = cp.spawn("node", nodeArgs, {
-            stdio: ["pipe", "pipe", "pipe", "ipc"],
-        })
+        this.debuggeeProcess = cp
+            .spawn("node", nodeArgs, {
+                stdio: ["pipe", "pipe", "pipe", "ipc"],
+            })
             .on("message", (message: any) => {
-
                 // 'workerLoaded' is a special message that indicates that worker is done with loading.
                 // We need to wait for it before doing any IPC because process.send doesn't seems to care
                 // about whether the message has been received or not and the first messages are often get
@@ -86,16 +98,27 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                 this.postReplyToApp(message);
             })
             .on("error", (error: Error) => {
-                printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.ReactNativeWorkerProcessThrownAnError), error);
+                printDebuggingError(
+                    ErrorHelper.getInternalError(
+                        InternalErrorCode.ReactNativeWorkerProcessThrownAnError,
+                    ),
+                    error,
+                );
             });
 
         // If special env variables are defined, then write process outputs to file
         this.logDirectory = getLoggingDirectory();
 
         if (this.logDirectory) {
-            this.logWriteStream = fs.createWriteStream(path.join(this.logDirectory, "nodeProcessLog.txt"));
+            this.logWriteStream = fs.createWriteStream(
+                path.join(this.logDirectory, "nodeProcessLog.txt"),
+            );
             this.logWriteStream.on("error", err => {
-                logger.error(`Error creating log file at path: ${this.logDirectory}. Error: ${err.toString()}\n`);
+                logger.error(
+                    `Error creating log file at path: ${
+                        this.logDirectory
+                    }. Error: ${err.toString()}\n`,
+                );
             });
             this.debuggeeProcess.stdout.pipe(this.logWriteStream);
             this.debuggeeProcess.stderr.pipe(this.logWriteStream);
@@ -106,13 +129,15 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
         // Resolve with port debugger server is listening on
         // This will be sent to subscribers of MLAppWorker in "connected" event
-        logger.verbose(`Spawned debuggee process with pid ${this.debuggeeProcess.pid} listening to ${port}`);
+        logger.verbose(
+            `Spawned debuggee process with pid ${this.debuggeeProcess.pid} listening to ${port}`,
+        );
 
         return Promise.resolve(port);
     }
 
     public postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage> {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             if (this.workerLoaded) {
                 resolve();
             } else {
@@ -123,56 +148,69 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                     }
                 }, 1000);
             }
-
         }).then(() => {
             // Before sending messages, make sure that the worker is loaded
-            const promise = this.workerLoaded
-                .then(() => {
-                    if (rnMessage.method !== "executeApplicationScript") {
-                        // Before sending messages, make sure that the app script executed
-                        if (this.bundleLoaded) {
-                            return this.bundleLoaded.then(() => {
-                                return rnMessage;
-                            });
-                        } else {
+            const promise = this.workerLoaded.then(() => {
+                if (rnMessage.method !== "executeApplicationScript") {
+                    // Before sending messages, make sure that the app script executed
+                    if (this.bundleLoaded) {
+                        return this.bundleLoaded.then(() => {
                             return rnMessage;
-                        }
+                        });
                     } else {
-                        // When packager asks worker to load bundle we download that bundle and
-                        // then set url field to point to that downloaded bundle, so the worker
-                        // will take our modified bundle
-                        if (rnMessage.url) {
-                            const packagerUrl = url.parse(rnMessage.url);
-                            packagerUrl.host = `${this.packagerAddress}:${this.packagerPort}`;
-                            rnMessage = {
-                                ...rnMessage,
-                                url: url.format(packagerUrl),
-                            };
-                            logger.verbose(`Packager requested runtime to load script from ${rnMessage.url}`);
-                            return this.scriptImporter.downloadAppScript(<string>rnMessage.url, this.projectRootPath)
-                                .then((downloadedScript: DownloadedScript) => {
-                                    this.bundleLoaded = Promise.resolve();
-                                    return Object.assign({}, rnMessage, { url: `${this.pathToFileUrl(downloadedScript.filepath)}` });
-                                });
-                        } else {
-                            throw ErrorHelper.getInternalError(InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty);
-                        }
+                        return rnMessage;
                     }
-                });
+                } else {
+                    // When packager asks worker to load bundle we download that bundle and
+                    // then set url field to point to that downloaded bundle, so the worker
+                    // will take our modified bundle
+                    if (rnMessage.url) {
+                        const packagerUrl = url.parse(rnMessage.url);
+                        packagerUrl.host = `${this.packagerAddress}:${this.packagerPort}`;
+                        rnMessage = {
+                            ...rnMessage,
+                            url: url.format(packagerUrl),
+                        };
+                        logger.verbose(
+                            `Packager requested runtime to load script from ${rnMessage.url}`,
+                        );
+                        return this.scriptImporter
+                            .downloadAppScript(<string>rnMessage.url, this.projectRootPath)
+                            .then((downloadedScript: DownloadedScript) => {
+                                this.bundleLoaded = Promise.resolve();
+                                return Object.assign({}, rnMessage, {
+                                    url: `${this.pathToFileUrl(downloadedScript.filepath)}`,
+                                });
+                            });
+                    } else {
+                        throw ErrorHelper.getInternalError(
+                            InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty,
+                        );
+                    }
+                }
+            });
             promise.then(
                 (message: RNAppMessage) => {
                     if (this.debuggeeProcess) {
                         this.debuggeeProcess.send({ data: message });
                     }
                 },
-                (reason) => printDebuggingError(ErrorHelper.getInternalError(InternalErrorCode.CouldntImportScriptAt, rnMessage.url), reason));
+                reason =>
+                    printDebuggingError(
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.CouldntImportScriptAt,
+                            rnMessage.url,
+                        ),
+                        reason,
+                    ),
+            );
 
             return promise;
         });
     }
 
     // TODO: Replace by url.pathToFileURL method when Node 10 LTS become deprecated
-    public pathToFileUrl(url: string) {
+    public pathToFileUrl(url: string): string {
         const filePrefix = process.platform === "win32" ? "file:///" : "file://";
         return filePrefix + url;
     }

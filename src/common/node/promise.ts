@@ -6,9 +6,11 @@
  */
 export class PromiseUtil {
     public forEach<T>(sources: T[], promiseGenerator: (source: T) => Promise<void>): Promise<void> {
-            return Promise.all(sources.map(source => {
+        return Promise.all(
+            sources.map(source => {
                 return promiseGenerator(source);
-            })).then(() => { });
+            }),
+        ).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
     }
     /**
      * Retries an operation a given number of times. For each retry, a condition is checked.
@@ -21,23 +23,32 @@ export class PromiseUtil {
      * @param delay - time between iterations, in milliseconds.
      * @param failure - error description.
      */
-    public retryAsync<T>(operation: () => Promise<T>, condition: (result: T) => boolean | Promise<boolean>, maxRetries: number, delay: number, failure: string): Promise<T> {
+    public retryAsync<T>(
+        operation: () => Promise<T>,
+        condition: (result: T) => boolean | Promise<boolean>,
+        maxRetries: number,
+        delay: number,
+        failure: string,
+    ): Promise<T> {
         return this.retryAsyncIteration(operation, condition, maxRetries, 0, delay, failure);
     }
 
-    public reduce<T>(sources: T[] | Promise<T[]>, generateAsyncOperation: (value: T) => Promise<void>): Promise<void> {
+    public reduce<T>(
+        sources: T[] | Promise<T[]>,
+        generateAsyncOperation: (value: T) => Promise<void>,
+    ): Promise<void> {
         let promisedSources: Promise<T[]>;
         if (sources instanceof Promise) {
             promisedSources = sources;
         } else {
             promisedSources = Promise.resolve(sources);
         }
-        return promisedSources.then((resolvedSources) => {
-                return resolvedSources.reduce((previousReduction: Promise<void>, newSource: T) => {
-                    return previousReduction.then(() => {
-                        return generateAsyncOperation(newSource);
-                    });
-                }, Promise.resolve());
+        return promisedSources.then(resolvedSources => {
+            return resolvedSources.reduce((previousReduction: Promise<void>, newSource: T) => {
+                return previousReduction.then(() => {
+                    return generateAsyncOperation(newSource);
+                });
+            }, Promise.resolve());
         });
     }
 
@@ -45,21 +56,37 @@ export class PromiseUtil {
         return new Promise<void>(resolve => setTimeout(resolve, duration));
     }
 
-    private retryAsyncIteration<T>(operation: () => Promise<T>, condition: (result: T) => boolean | Promise<boolean>, maxRetries: number, iteration: number, delay: number, failure: string): Promise<T> {
-        return operation()
-            .then(result => {
-                return Promise.resolve(result).then(condition).then((conditionResult => {
-
+    private retryAsyncIteration<T>(
+        operation: () => Promise<T>,
+        condition: (result: T) => boolean | Promise<boolean>,
+        maxRetries: number,
+        iteration: number,
+        delay: number,
+        failure: string,
+    ): Promise<T> {
+        return operation().then(result => {
+            return Promise.resolve(result)
+                .then(condition)
+                .then(conditionResult => {
                     if (conditionResult) {
                         return result;
                     }
 
                     if (iteration < maxRetries) {
-                        return PromiseUtil.delay(delay).then(() => this.retryAsyncIteration(operation, condition, maxRetries, iteration + 1, delay, failure));
+                        return PromiseUtil.delay(delay).then(() =>
+                            this.retryAsyncIteration(
+                                operation,
+                                condition,
+                                maxRetries,
+                                iteration + 1,
+                                delay,
+                                failure,
+                            ),
+                        );
                     }
 
                     throw new Error(failure);
-                }));
-            });
+                });
+        });
     }
 }

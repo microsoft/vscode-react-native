@@ -8,7 +8,10 @@ import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ExecutionsFilterBeforeTimestamp } from "../../common/executionsLimiter";
 import { AdbHelper } from "./adb";
 import * as nls from "vscode-nls";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 /* This class will print the LogCat messages to an Output Channel. The configuration for logcat can be cutomized in
@@ -22,7 +25,6 @@ export class LogCatMonitor implements vscode.Disposable {
     private static DEFAULT_PARAMETERS = ["*:S", "ReactNative:V", "ReactNativeJS:V"];
 
     private _logger: OutputChannelLogger;
-
 
     private _userProvidedLogCatArguments: any; // This is user input, we don't know what's here
 
@@ -41,7 +43,9 @@ export class LogCatMonitor implements vscode.Disposable {
     public start(): Promise<void> {
         const logCatArguments = this.getLogCatArguments();
         const adbParameters = ["-s", this.deviceId, "logcat"].concat(logCatArguments);
-        this._logger.debug(`Monitoring LogCat for device ${this.deviceId} with arguments: ${logCatArguments}`);
+        this._logger.debug(
+            `Monitoring LogCat for device ${this.deviceId} with arguments: ${logCatArguments}`,
+        );
 
         this._logCatSpawn = this.adbHelper.startLogCat(adbParameters);
 
@@ -55,17 +59,31 @@ export class LogCatMonitor implements vscode.Disposable {
         this._logCatSpawn.stdout.on("data", (data: Buffer) => {
             filter.execute(() => this._logger.info(data.toString()));
         });
-        return this._logCatSpawn.outcome.then(
-            () =>
-                this._logger.info(localize("LogCatMonitoringStoppedBecauseTheProcessExited", "LogCat monitoring stopped because the process exited.")),
-            (reason) => {
-                if (!this._logCatSpawn) { // We stopped log cat ourselves
-                    this._logger.info(localize("LogCatMonitoringStoppedBecauseTheDebuggingSessionFinished", "LogCat monitoring stopped because the debugging session finished"));
-                    return Promise.resolve();
-                } else {
-                    return Promise.reject(reason); // Unknown error. Pass it up the promise chain
-                }
-            }).finally(() => {
+        return this._logCatSpawn.outcome
+            .then(
+                () =>
+                    this._logger.info(
+                        localize(
+                            "LogCatMonitoringStoppedBecauseTheProcessExited",
+                            "LogCat monitoring stopped because the process exited.",
+                        ),
+                    ),
+                reason => {
+                    if (!this._logCatSpawn) {
+                        // We stopped log cat ourselves
+                        this._logger.info(
+                            localize(
+                                "LogCatMonitoringStoppedBecauseTheDebuggingSessionFinished",
+                                "LogCat monitoring stopped because the debugging session finished",
+                            ),
+                        );
+                        return Promise.resolve();
+                    } else {
+                        return Promise.reject(reason); // Unknown error. Pass it up the promise chain
+                    }
+                },
+            )
+            .finally(() => {
                 this._logCatSpawn = null;
             });
     }

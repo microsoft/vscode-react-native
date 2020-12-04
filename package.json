@@ -857,6 +857,24 @@
     "smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install && yarn --cwd ./vscode/test/smoke mocha",
     "quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
   },
+  "prettier": {
+    "trailingComma": "all",
+    "arrowParens": "avoid",
+    "printWidth": 100,
+    "tabWidth": 4,
+    "endOfLine": "auto",
+    "overrides": [
+      {
+        "files": [
+          "*.md"
+        ],
+        "options": {
+          "tabWidth": 2,
+          "printWidth": 80
+        }
+      }
+    ]
+  },
   "dependencies": {
     "configstore": "^5.0.1",
     "extract-opts": "2.2.0",
@@ -876,6 +894,7 @@
     "ws": "^7.3.0"
   },
   "devDependencies": {
+    "@mixer/parallel-prettier": "^2.0.0",
     "@types/configstore": "^4.0.0",
     "@types/ip": "^1.1.0",
     "@types/mkdirp": "^1.0.0",
@@ -915,6 +934,7 @@
     "mocha-multi-reporters": "^1.1.7",
     "ncp": "^2.0.0",
     "plugin-error": "^1.0.1",
+    "prettier": "^2.2.0",
     "remap-istanbul": "^0.13.0",
     "rimraf": "^3.0.2",
     "should": "^8.3.0",

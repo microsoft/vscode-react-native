@@ -64,7 +64,8 @@ function getLogLevel() {
     try {
         const SettingsHelper = require("../settingsHelper").SettingsHelper;
         return SettingsHelper.getLogLevel();
-    } catch (err) { // Debugger context
+    } catch (err) {
+        // Debugger context
         return LogLevel.Info; // Default
     }
 }

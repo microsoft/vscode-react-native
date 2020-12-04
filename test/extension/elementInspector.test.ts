@@ -4,10 +4,8 @@
 import { CommandPaletteHandler } from "../../src/extension/commandPaletteHandler";
 import * as assert from "assert";
 
-
-suite("elementInspector", function() {
+suite("elementInspector", function () {
     suite("extensionContext", function () {
-
         test("element inspector should run and closed without errors", function (done: Mocha.Done) {
             CommandPaletteHandler.runElementInspector();
             assert.notStrictEqual(CommandPaletteHandler.elementInspector, null);
@@ -36,5 +34,4 @@ suite("elementInspector", function() {
             }
         });
     });
-
 });

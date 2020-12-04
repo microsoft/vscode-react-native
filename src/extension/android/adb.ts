@@ -8,14 +8,17 @@ import * as fs from "fs";
 import { ILogger } from "../log/LogHelper";
 import * as os from "os";
 import * as nls from "vscode-nls";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 // See android versions usage at: http://developer.android.com/about/dashboards/index.html
 export enum AndroidAPILevel {
     Marshmallow = 23,
     LOLLIPOP_MR1 = 22,
-    LOLLIPOP = 21, /* Supports adb reverse */
+    LOLLIPOP = 21 /* Supports adb reverse */,
     KITKAT = 19,
     JELLY_BEAN_MR2 = 18,
     JELLY_BEAN_MR1 = 17,
@@ -60,10 +63,9 @@ export class AdbHelper {
      * Gets the list of Android connected devices and emulators.
      */
     public getConnectedDevices(): Promise<IDevice[]> {
-        return this.childProcess.execToString(`${this.adbExecutable} devices`)
-            .then(output => {
-                return this.parseConnectedDevices(output);
-            });
+        return this.childProcess.execToString(`${this.adbExecutable} devices`).then(output => {
+            return this.parseConnectedDevices(output);
+        });
     }
 
     public setLaunchActivity(launchActivity: string): void {
@@ -73,16 +75,24 @@ export class AdbHelper {
     /**
      * Broadcasts an intent to reload the application in debug mode.
      */
-    public switchDebugMode(projectRoot: string, packageName: string, enable: boolean, debugTarget?: string): Promise<void> {
-        let enableDebugCommand = `${this.adbExecutable} ${debugTarget ? "-s " + debugTarget : ""} shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
-        return new CommandExecutor(projectRoot).execute(enableDebugCommand)
-            .then(() => { // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
-                return new Promise((resolve) => {
+    public switchDebugMode(
+        projectRoot: string,
+        packageName: string,
+        enable: boolean,
+        debugTarget?: string,
+    ): Promise<void> {
+        let enableDebugCommand = `${this.adbExecutable} ${
+            debugTarget ? "-s " + debugTarget : ""
+        } shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
+        return new CommandExecutor(projectRoot)
+            .execute(enableDebugCommand)
+            .then(() => {
+                // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
+                return new Promise(resolve => {
                     setTimeout(() => {
-                        this.stopApp(projectRoot, packageName, debugTarget)
-                            .then(() => {
-                                return resolve();
-                            });
+                        this.stopApp(projectRoot, packageName, debugTarget).then(() => {
+                            return resolve();
+                        });
                     }, 200); // We need a little delay after broadcast command
                 });
             })
@@ -94,19 +104,28 @@ export class AdbHelper {
     /**
      * Sends an intent which launches the main activity of the application.
      */
-    public launchApp(projectRoot: string, packageName: string, debugTarget?: string): Promise<void> {
-        let launchAppCommand = `${this.adbExecutable} ${debugTarget ? "-s " + debugTarget : ""} shell am start -n ${packageName}/.${this.launchActivity}`;
+    public launchApp(
+        projectRoot: string,
+        packageName: string,
+        debugTarget?: string,
+    ): Promise<void> {
+        let launchAppCommand = `${this.adbExecutable} ${
+            debugTarget ? "-s " + debugTarget : ""
+        } shell am start -n ${packageName}/.${this.launchActivity}`;
         return new CommandExecutor(projectRoot).execute(launchAppCommand);
     }
 
     public stopApp(projectRoot: string, packageName: string, debugTarget?: string): Promise<void> {
-        let stopAppCommand = `${this.adbExecutable} ${debugTarget ? "-s " + debugTarget : ""} shell am force-stop ${packageName}`;
+        let stopAppCommand = `${this.adbExecutable} ${
+            debugTarget ? "-s " + debugTarget : ""
+        } shell am force-stop ${packageName}`;
         return new CommandExecutor(projectRoot).execute(stopAppCommand);
     }
 
     public apiVersion(deviceId: string): Promise<AndroidAPILevel> {
         return this.executeQuery(deviceId, "shell getprop ro.build.version.sdk").then(output =>
-            parseInt(output, 10));
+            parseInt(output, 10),
+        );
     }
 
     public reverseAdb(deviceId: string, packagerPort: number): Promise<void> {
@@ -114,19 +133,22 @@ export class AdbHelper {
     }
 
     public showDevMenu(deviceId?: string): Promise<void> {
-        let command = `${this.adbExecutable} ${deviceId ? "-s " + deviceId : ""} shell input keyevent ${KeyEvents.KEYCODE_MENU}`;
+        let command = `${this.adbExecutable} ${
+            deviceId ? "-s " + deviceId : ""
+        } shell input keyevent ${KeyEvents.KEYCODE_MENU}`;
         return this.commandExecutor.execute(command);
     }
 
     public reloadApp(deviceId?: string): Promise<void> {
-        let command = `${this.adbExecutable} ${deviceId ? "-s " + deviceId : ""} shell input text "RR"`;
+        let command = `${this.adbExecutable} ${
+            deviceId ? "-s " + deviceId : ""
+        } shell input text "RR"`;
         return this.commandExecutor.execute(command);
     }
 
     public getOnlineDevices(): Promise<IDevice[]> {
         return this.getConnectedDevices().then(devices => {
-            return devices.filter(device =>
-                device.isOnline);
+            return devices.filter(device => device.isOnline);
         });
     }
 
@@ -138,7 +160,12 @@ export class AdbHelper {
         const matches = fileContent.match(/^sdk\.dir=(.+)$/m);
         if (!matches || !matches[1]) {
             if (logger) {
-                logger.info(localize("NoSdkDirFoundInLocalPropertiesFile", "No sdk.dir value found in local.properties file. Using Android SDK location from PATH."));
+                logger.info(
+                    localize(
+                        "NoSdkDirFoundInLocalPropertiesFile",
+                        "No sdk.dir value found in local.properties file. Using Android SDK location from PATH.",
+                    ),
+                );
             }
             return null;
         }
@@ -149,7 +176,13 @@ export class AdbHelper {
             sdkLocation = sdkLocation.replace(/\\\\/g, "\\").replace("\\:", ":");
         }
         if (logger) {
-            logger.info(localize("UsindAndroidSDKLocationDefinedInLocalPropertiesFile", "Using Android SDK location defined in android/local.properties file: {0}.", sdkLocation));
+            logger.info(
+                localize(
+                    "UsindAndroidSDKLocationDefinedInLocalPropertiesFile",
+                    "Using Android SDK location defined in android/local.properties file: {0}.",
+                    sdkLocation,
+                ),
+            );
         }
 
         return sdkLocation;
@@ -167,7 +200,11 @@ export class AdbHelper {
         let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
         let match = regex.exec(input);
         while (match != null) {
-            result.push({ id: match[1], isOnline: match[2] === "device", type: this.extractDeviceType(match[1]) });
+            result.push({
+                id: match[1],
+                isOnline: match[2] === "device",
+                type: this.extractDeviceType(match[1]),
+            });
             match = regex.exec(input);
         }
         return result;
@@ -191,11 +228,19 @@ export class AdbHelper {
         return `${this.adbExecutable} -s "${deviceId}" ${adbCommand}`;
     }
 
-    private getSdkLocationFromLocalPropertiesFile(projectRoot: string, logger?: ILogger): string | null {
+    private getSdkLocationFromLocalPropertiesFile(
+        projectRoot: string,
+        logger?: ILogger,
+    ): string | null {
         const localPropertiesFilePath = path.join(projectRoot, "android", "local.properties");
         if (!fs.existsSync(localPropertiesFilePath)) {
             if (logger) {
-                logger.info(localize("LocalPropertiesFileDoesNotExist", "local.properties file doesn't exist. Using Android SDK location from PATH."));
+                logger.info(
+                    localize(
+                        "LocalPropertiesFileDoesNotExist",
+                        "local.properties file doesn't exist. Using Android SDK location from PATH.",
+                    ),
+                );
             }
             return null;
         }
@@ -205,8 +250,21 @@ export class AdbHelper {
             fileContent = fs.readFileSync(localPropertiesFilePath).toString();
         } catch (e) {
             if (logger) {
-                logger.error(localize("CouldNotReadFrom", "Couldn't read from {0}.", localPropertiesFilePath), e, e.stack);
-                logger.info(localize("UsingAndroidSDKLocationFromPATH", "Using Android SDK location from PATH."));
+                logger.error(
+                    localize(
+                        "CouldNotReadFrom",
+                        "Couldn't read from {0}.",
+                        localPropertiesFilePath,
+                    ),
+                    e,
+                    e.stack,
+                );
+                logger.info(
+                    localize(
+                        "UsingAndroidSDKLocationFromPATH",
+                        "Using Android SDK location from PATH.",
+                    ),
+                );
             }
             return null;
         }

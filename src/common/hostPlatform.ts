@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {ChildProcess} from "./node/childProcess";
-import {TargetPlatformId} from "./targetPlatformHelper";
+import { ChildProcess } from "./node/childProcess";
+import { TargetPlatformId } from "./targetPlatformHelper";
 import * as path from "path";
 
 /**
@@ -94,7 +94,9 @@ abstract class UnixHostPlatform implements IHostPlatform {
  */
 class OSXHostPlatform extends UnixHostPlatform {
     public setEnvironmentVariable(name: string, value: string): Promise<any> {
-        return new ChildProcess().exec(`launchctl setenv ${name} ${value}`).then(res => res.outcome);
+        return new ChildProcess()
+            .exec(`launchctl setenv ${name} ${value}`)
+            .then(res => res.outcome);
     }
 
     public getPlatformId(): HostPlatformId {
@@ -149,7 +151,6 @@ class LinuxHostPlatform extends UnixHostPlatform {
  * Allows platform specific operations based on the user's OS.
  */
 export class HostPlatform {
-
     private static platformInstance: IHostPlatform;
 
     /**
