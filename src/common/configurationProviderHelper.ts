@@ -5,21 +5,23 @@ import {
     MultiStepInput,
     IQuickPickParameters,
 } from "../extension/debuggingConfiguration/multiStepInput";
-import { IAttachRequestArgs } from "../debugger/debugSessionBase";
+import { ILaunchRequestArgs } from "../debugger/debugSessionBase";
+import { ExpoHostType } from "../extension/launchArgs";
 import {
     DebugConfigurationState,
     DebugConfigurationQuickPickItem,
     appTypePickConfig,
+    expoHostTypePickConfig,
 } from "../extension/debuggingConfiguration/debugConfigTypesAndConstants";
 
 export class ConfigurationProviderHelper {
     public async selectPlatform(
         input: MultiStepInput<DebugConfigurationState>,
-        config: Partial<IAttachRequestArgs>,
+        config: Partial<ILaunchRequestArgs>,
         platformTypePickConfig: DebugConfigurationQuickPickItem[],
         step: number,
         totalSteps: number,
-    ): Promise<Partial<IAttachRequestArgs>> {
+    ): Promise<Partial<ILaunchRequestArgs>> {
         let pick = await input.showQuickPick<
             DebugConfigurationQuickPickItem,
             IQuickPickParameters<DebugConfigurationQuickPickItem>
@@ -42,10 +44,10 @@ export class ConfigurationProviderHelper {
 
     public async selectApplicationType(
         input: MultiStepInput<DebugConfigurationState>,
-        config: Partial<IAttachRequestArgs>,
+        config: Partial<ILaunchRequestArgs>,
         step: number,
         totalSteps: number,
-    ): Promise<Partial<IAttachRequestArgs>> {
+    ): Promise<Partial<ILaunchRequestArgs>> {
         let pick = await input.showQuickPick<
             DebugConfigurationQuickPickItem,
             IQuickPickParameters<DebugConfigurationQuickPickItem>
@@ -63,6 +65,32 @@ export class ConfigurationProviderHelper {
         }
 
         config.type = pick.type;
+        return config;
+    }
+
+    public async selectExpoHostType(
+        input: MultiStepInput<DebugConfigurationState>,
+        config: Partial<ILaunchRequestArgs>,
+        step: number,
+        totalSteps: number,
+    ): Promise<Partial<ILaunchRequestArgs>> {
+        let pick = await input.showQuickPick<
+            DebugConfigurationQuickPickItem,
+            IQuickPickParameters<DebugConfigurationQuickPickItem>
+        >({
+            title: "Select type of Expo host parameter",
+            placeholder: "Type of Expo host parameter",
+            step,
+            totalSteps,
+            items: expoHostTypePickConfig,
+            activeItem: expoHostTypePickConfig[0],
+        });
+
+        if (!pick) {
+            throw new Error("Expo host type is not selected");
+        }
+
+        config.expoHostType = pick.type as ExpoHostType;
         return config;
     }
 }

@@ -3,11 +3,76 @@
 
 import { BaseConfigProvider } from "./baseConfigProvider";
 import { MultiStepInput, InputStep } from "../multiStepInput";
-import { DebugConfigurationState } from "../debugConfigTypesAndConstants";
+import {
+    DebugConfigurationState,
+    platformTypeDebugPickConfig,
+    DEBUG_TYPES,
+    DebugScenarioType,
+} from "../debugConfigTypesAndConstants";
+import { PlatformType } from "../../launchArgs";
+import { ILaunchRequestArgs } from "../../../debugger/debugSessionBase";
 
 export class DebugConfigProvider extends BaseConfigProvider {
+    constructor() {
+        super();
+        this.maxStepCount = 2;
+        this.currentStepNumber = 1;
+    }
+
     public async buildConfiguration(
         input: MultiStepInput<DebugConfigurationState>,
         state: DebugConfigurationState,
-    ): Promise<InputStep<DebugConfigurationState> | void> {}
+    ): Promise<InputStep<DebugConfigurationState> | void> {
+        state.config = {
+            name: "Debug application",
+            request: "launch",
+            type: DEBUG_TYPES.REACT_NATIVE,
+            cwd: "${workspaceFolder}",
+        };
+
+        state.scenarioType = DebugScenarioType.DebugApp;
+
+        await this.configurationProviderHelper.selectPlatform(
+            input,
+            state.config,
+            platformTypeDebugPickConfig,
+            this.currentStepNumber++,
+            this.maxStepCount,
+        );
+
+        if (
+            state.config.platform === PlatformType.iOS ||
+            state.config.platform === PlatformType.Android
+        ) {
+            return () => this.configureApplicationType(input, state.config);
+        } else if (state.config.platform === PlatformType.Exponent) {
+            return () => this.configureExpoHostType(input, state.config);
+        } else {
+            return;
+        }
+    }
+
+    private async configureApplicationType(
+        input: MultiStepInput<DebugConfigurationState>,
+        config: Partial<ILaunchRequestArgs>,
+    ): Promise<InputStep<DebugConfigurationState> | void> {
+        await this.configurationProviderHelper.selectApplicationType(
+            input,
+            config,
+            this.currentStepNumber++,
+            this.maxStepCount,
+        );
+    }
+
+    private async configureExpoHostType(
+        input: MultiStepInput<DebugConfigurationState>,
+        config: Partial<ILaunchRequestArgs>,
+    ): Promise<InputStep<DebugConfigurationState> | void> {
+        await this.configurationProviderHelper.selectExpoHostType(
+            input,
+            config,
+            this.currentStepNumber++,
+            this.maxStepCount,
+        );
+    }
 }

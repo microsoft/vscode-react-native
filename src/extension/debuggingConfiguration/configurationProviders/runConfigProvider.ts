@@ -5,13 +5,12 @@ import { BaseConfigProvider } from "./baseConfigProvider";
 import { MultiStepInput, InputStep } from "../multiStepInput";
 import {
     DebugConfigurationState,
-    platformTypePickConfig,
+    platformTypeRunPickConfig,
     DEBUG_TYPES,
     DebugScenarioType,
 } from "../debugConfigTypesAndConstants";
 import { PlatformType } from "../../launchArgs";
 import { ILaunchRequestArgs } from "../../../debugger/debugSessionBase";
-import { DebugScenarioNameGenerator } from "../debugScenarioNameGenerator";
 
 export class RunConfigProvider extends BaseConfigProvider {
     constructor() {
@@ -37,7 +36,7 @@ export class RunConfigProvider extends BaseConfigProvider {
         await this.configurationProviderHelper.selectPlatform(
             input,
             state.config,
-            platformTypePickConfig,
+            platformTypeRunPickConfig,
             this.currentStepNumber++,
             this.maxStepCount,
         );
@@ -61,11 +60,6 @@ export class RunConfigProvider extends BaseConfigProvider {
             config,
             this.currentStepNumber++,
             this.maxStepCount,
-        );
-        config.name = DebugScenarioNameGenerator.createScenarioName(
-            DebugScenarioType.RunApp,
-            config.type || DEBUG_TYPES.REACT_NATIVE,
-            config.platform,
         );
     }
 }
