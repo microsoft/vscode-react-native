@@ -13,6 +13,12 @@ import {
     appTypePickConfig,
     expoHostTypePickConfig,
 } from "../extension/debuggingConfiguration/debugConfigTypesAndConstants";
+import * as nls from "vscode-nls";
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
+const localize = nls.loadMessageBundle();
 
 export class ConfigurationProviderHelper {
     public async selectPlatform(
@@ -26,8 +32,8 @@ export class ConfigurationProviderHelper {
             DebugConfigurationQuickPickItem,
             IQuickPickParameters<DebugConfigurationQuickPickItem>
         >({
-            title: "Select platform",
-            placeholder: "Platform to run on",
+            title: localize("PlatformSelectionTitle", "Select platform"),
+            placeholder: localize("PlatformSelectionPrompt", "Platform to run on"),
             step,
             totalSteps,
             items: platformTypePickConfig,
@@ -52,8 +58,14 @@ export class ConfigurationProviderHelper {
             DebugConfigurationQuickPickItem,
             IQuickPickParameters<DebugConfigurationQuickPickItem>
         >({
-            title: "Select type of React Native application",
-            placeholder: "Type of React Native application",
+            title: localize(
+                "ApplicationTypeSelectionTitle",
+                "Select type of React Native application",
+            ),
+            placeholder: localize(
+                "ApplicationTypeSelectionPrompt",
+                "Type of React Native application",
+            ),
             step,
             totalSteps,
             items: appTypePickConfig,
@@ -78,8 +90,8 @@ export class ConfigurationProviderHelper {
             DebugConfigurationQuickPickItem,
             IQuickPickParameters<DebugConfigurationQuickPickItem>
         >({
-            title: "Select type of Expo host parameter",
-            placeholder: "Type of Expo host parameter",
+            title: localize("ExpoHostTypeSelectionTitle", "Select type of Expo host parameter"),
+            placeholder: localize("ExpoHostTypeSelectionPrompt", "Type of Expo host parameter"),
             step,
             totalSteps,
             items: expoHostTypePickConfig,

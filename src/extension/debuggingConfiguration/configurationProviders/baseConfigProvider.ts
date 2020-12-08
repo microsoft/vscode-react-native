@@ -7,7 +7,6 @@ import { ConfigurationProviderHelper } from "../../../common/configurationProvid
 
 export abstract class BaseConfigProvider {
     protected configurationProviderHelper: ConfigurationProviderHelper;
-    protected currentStepNumber: number;
     protected maxStepCount: number;
 
     constructor() {

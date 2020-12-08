@@ -16,14 +16,14 @@ export class DebugConfigProvider extends BaseConfigProvider {
     constructor() {
         super();
         this.maxStepCount = 2;
-        this.currentStepNumber = 1;
     }
 
     public async buildConfiguration(
         input: MultiStepInput<DebugConfigurationState>,
         state: DebugConfigurationState,
     ): Promise<InputStep<DebugConfigurationState> | void> {
-        state.config = {
+        state.config = {};
+        const config: Partial<ILaunchRequestArgs> = {
             name: "Debug application",
             request: "launch",
             type: DEBUG_TYPES.REACT_NATIVE,
@@ -34,11 +34,13 @@ export class DebugConfigProvider extends BaseConfigProvider {
 
         await this.configurationProviderHelper.selectPlatform(
             input,
-            state.config,
+            config,
             platformTypeDebugPickConfig,
-            this.currentStepNumber++,
+            1,
             this.maxStepCount,
         );
+
+        Object.assign(state.config, config);
 
         if (
             state.config.platform === PlatformType.iOS ||
@@ -59,7 +61,7 @@ export class DebugConfigProvider extends BaseConfigProvider {
         await this.configurationProviderHelper.selectApplicationType(
             input,
             config,
-            this.currentStepNumber++,
+            2,
             this.maxStepCount,
         );
     }
@@ -71,7 +73,7 @@ export class DebugConfigProvider extends BaseConfigProvider {
         await this.configurationProviderHelper.selectExpoHostType(
             input,
             config,
-            this.currentStepNumber++,
+            2,
             this.maxStepCount,
         );
     }
