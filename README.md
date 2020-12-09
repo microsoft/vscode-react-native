@@ -294,7 +294,7 @@ You can debug UWP and WPF React Native for Windows applications by changing the 
   }
   ```
 
-### How to attach a running React Native for Windows application
+### How to attach to a running React Native for Windows application
 
 1. Add the `Attach to packager` configuration to `.vscode/launch.json` in your project
 
