@@ -31,12 +31,6 @@ export enum PlatformType {
     macOS = "macos",
 }
 
-export enum ExpoHostTypes {
-    Tunnel = "tunnel",
-    LAN = "lan",
-    Local = "local",
-}
-
 export type ExpoHostType = "tunnel" | "lan" | "local";
 
 /**

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { PlatformType, ExpoHostTypes } from "../launchArgs";
+import { PlatformType } from "../launchArgs";
 import { ILaunchRequestArgs } from "../../debugger/debugSessionBase";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
@@ -87,7 +87,7 @@ export const expoHostTypePickConfig: DebugConfigurationQuickPickItem[] = [
             "expoHostTypeTunnel",
             "Allows to deploy and debug an application by means of Expo cloud services",
         ),
-        type: ExpoHostTypes.Tunnel,
+        type: "tunnel",
     },
     {
         label: "LAN",
@@ -95,7 +95,7 @@ export const expoHostTypePickConfig: DebugConfigurationQuickPickItem[] = [
             "expoHostTypeLAN",
             "Allows to deploy and install an application via your LAN",
         ),
-        type: ExpoHostTypes.LAN,
+        type: "lan",
     },
     {
         label: "Local",
@@ -103,6 +103,6 @@ export const expoHostTypePickConfig: DebugConfigurationQuickPickItem[] = [
             "expoHostTypeLocal",
             "Allows to debug an application on an emulator or an Android device without network connection",
         ),
-        type: ExpoHostTypes.Local,
+        type: "local",
     },
 ];
