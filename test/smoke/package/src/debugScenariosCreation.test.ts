@@ -21,7 +21,7 @@ export function startDebugScenariosCreationTests(workspace: string): void {
             await app.workbench.debug.openDebugViewlet();
             await app.workbench.debug.configure();
             SmokeTestLogger.info("Debugging scenarios creation test: launch.json file is opened");
-            await app.workbench.terminal.showTerminal();
+            await app.workbench.terminal.showTerminalWithoutNecessaryFocus();
         });
 
         after(async () => {
