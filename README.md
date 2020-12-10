@@ -266,6 +266,8 @@ If you want to change your app entrypoint (for example, from `index.js` to `inde
 
 ## React Native for Windows
 
+### How to launch and debug a React Native for Windows application
+
 You can debug UWP and WPF React Native for Windows applications by changing the `platform` in your `launch.json` configuration:
 
 - For `UWP` use `windows`:
@@ -292,7 +294,26 @@ You can debug UWP and WPF React Native for Windows applications by changing the 
   }
   ```
 
-  You can find more information on how to setup your application to work with Windows in [React Native for Windows Getting started instruction](https://microsoft.github.io/react-native-windows/docs/getting-started)
+### How to attach to a running React Native for Windows application
+
+1. Add the `Attach to packager` configuration to `.vscode/launch.json` in your project
+
+   ```json
+   {
+     "name": "Attach to packager",
+     "cwd": "${workspaceFolder}",
+     "type": "reactnative",
+     "request": "attach"
+   }
+   ```
+
+1. (**Optional**) Start Metro packager by means of the `React Native: Start Packager` Command Palette command or run `npx react-native start` command in the terminal in the project root folder
+1. Select the `Attach to packager` configuration and click the `play` button. If Metro packager isn't running yet, the extensnion will start it automatically.
+1. Launch your React Native Windows application. Please make sure that the application is on remote debugging mode.
+
+Then the extension should attach to the running application.
+
+You can find more information on how to setup your application to work with Windows in [React Native for Windows Getting started instruction](https://microsoft.github.io/react-native-windows/docs/getting-started)
 
 ## React Native for macOS
 
@@ -305,6 +326,17 @@ You can debug React Native for macOS applications by changing the `platform` in 
   "type": "reactnative",
   "request": "launch",
   "platform": "macos"
+}
+```
+
+To attach to a running macOS application you can use the default `Attach to packager` debugging configuration. Please make sure that the application is on remote debugging mode.
+
+```json
+{
+  "name": "Attach to packager",
+  "cwd": "${workspaceFolder}",
+  "type": "reactnative",
+  "request": "attach"
 }
 ```
 
