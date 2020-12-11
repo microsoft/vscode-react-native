@@ -45,7 +45,7 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                 SmokeTestLogger.info("Debugging scenarios creation test: select iOS option");
                 await app.workbench.quickinput.selectQuickInputElement(1, false);
                 SmokeTestLogger.info("Debugging scenarios creation test: select Classic app option");
-                await app.workbench.quickinput.selectQuickInputElement(1, false);
+                await app.workbench.quickinput.selectQuickInputElement(1);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
                 launchConfigurationManager.readLaunchScenarios();
@@ -65,7 +65,7 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                 SmokeTestLogger.info("Debugging scenarios creation test: select Android option");
                 await app.workbench.quickinput.selectQuickInputElement(0, false);
                 SmokeTestLogger.info("Debugging scenarios creation test: select Direct mode option");
-                await app.workbench.quickinput.selectQuickInputElement(0, false);
+                await app.workbench.quickinput.selectQuickInputElement(0);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
                 launchConfigurationManager.readLaunchScenarios();
@@ -82,7 +82,7 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                 SmokeTestLogger.info("Debugging scenarios creation test: select Exponent option");
                 await app.workbench.quickinput.selectQuickInputElement(4, false);
                 SmokeTestLogger.info("Debugging scenarios creation test: select LAN Expo host type");
-                await app.workbench.quickinput.selectQuickInputElement(1, false);
+                await app.workbench.quickinput.selectQuickInputElement(1);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
                 launchConfigurationManager.readLaunchScenarios();
@@ -105,7 +105,7 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                 SmokeTestLogger.info(`Debugging scenarios creation test: enter ${hostAddress} address`);
                 await app.workbench.quickinput.inputAndSelect(hostAddress);
                 SmokeTestLogger.info("Debugging scenarios creation test: skip port changing");
-                await app.workbench.quickinput.selectQuickInputElement(0, false);
+                await app.workbench.quickinput.selectQuickInputElement(0);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
                 launchConfigurationManager.readLaunchScenarios();
@@ -128,7 +128,7 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                 SmokeTestLogger.info(`Debugging scenarios creation test: skip address changing`);
                 await app.workbench.quickinput.selectQuickInputElement(0, false);
                 SmokeTestLogger.info("Debugging scenarios creation test: skip port changing");
-                await app.workbench.quickinput.selectQuickInputElement(0, false);
+                await app.workbench.quickinput.selectQuickInputElement(0);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
                 launchConfigurationManager.readLaunchScenarios();
