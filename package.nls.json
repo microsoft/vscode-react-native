@@ -2,6 +2,7 @@
   "reactNative.description": "Debugging and integrated commands for React Native",
   "reactNative.license": "SEE LICENSE IN LICENSE.txt",
   "reactNative.command.launchAndroidSimulator.title": "Launch Android Emulator",
+  "reactNative.command.selectAndInsertDebugConfiguration.title": "Select a React Native debug configuration",
   "reactNative.command.runAndroidSimulator.title": "Run Android on Emulator",
   "reactNative.command.runAndroidDevice.title": "Run Android on Device",
   "reactNative.command.runIosSimulator.title": "Run iOS on Simulator",

@@ -17,6 +17,8 @@ import { IAndroidRunOptions, IIOSRunOptions, PlatformType } from "./launchArgs";
 import { ExponentPlatform } from "./exponent/exponentPlatform";
 import { spawn, ChildProcess } from "child_process";
 import { HostPlatform } from "../common/hostPlatform";
+import { LaunchJsonCompletionHelper } from "../common/launchJsonCompletionHelper";
+import { ReactNativeDebugConfigProvider } from "./debuggingConfiguration/reactNativeDebugConfigProvider";
 import { CommandExecutor } from "../common/commandExecutor";
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
@@ -405,6 +407,53 @@ export class CommandPaletteHandler {
         return this.selectLogCatMonitor().then(monitor => {
             LogCatMonitorManager.delMonitor(monitor.deviceId);
         });
+    }
+
+    public static async selectAndInsertDebugConfiguration(
+        configurationProvider: ReactNativeDebugConfigProvider,
+        document: vscode.TextDocument,
+        position: vscode.Position,
+        token: vscode.CancellationToken,
+    ) {
+        if (
+            vscode.window.activeTextEditor &&
+            vscode.window.activeTextEditor.document === document
+        ) {
+            const folder = vscode.workspace.getWorkspaceFolder(document.uri);
+            const config = await configurationProvider.provideDebugConfigurationSequentially!(
+                folder,
+                token,
+            );
+
+            if (!token.isCancellationRequested && config) {
+                // Always use the first available debug configuration.
+                const cursorPosition = LaunchJsonCompletionHelper.getCursorPositionInConfigurationsArray(
+                    document,
+                    position,
+                );
+                if (!cursorPosition) {
+                    return;
+                }
+                const commaPosition = LaunchJsonCompletionHelper.isCommaImmediatelyBeforeCursor(
+                    document,
+                    position,
+                )
+                    ? "BeforeCursor"
+                    : undefined;
+                const formattedJson = LaunchJsonCompletionHelper.getTextForInsertion(
+                    config,
+                    cursorPosition,
+                    commaPosition,
+                );
+                const workspaceEdit = new vscode.WorkspaceEdit();
+                workspaceEdit.insert(document.uri, position, formattedJson);
+                await vscode.workspace.applyEdit(workspaceEdit);
+                vscode.commands.executeCommand("editor.action.formatDocument").then(
+                    () => {},
+                    () => {},
+                );
+            }
+        }
     }
 
     private static createPlatform(

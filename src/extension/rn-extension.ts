@@ -23,7 +23,12 @@ import { ReactDirManager } from "./reactDirManager";
 import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper, ICommandTelemetryProperties } from "../common/telemetryHelper";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
-import { ReactNativeDebugConfigProvider, DEBUG_TYPES } from "./debugConfigurationProvider";
+import { ReactNativeDebugConfigProvider } from "./debuggingConfiguration/reactNativeDebugConfigProvider";
+import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
+import {
+    LaunchJsonCompletionProvider,
+    JsonLanguages,
+} from "./debuggingConfiguration/launchJsonCompletionProvider";
 import { DebugSessionBase } from "../debugger/debugSessionBase";
 import { ReactNativeSessionManager } from "./reactNativeSessionManager";
 import { ProjectsStorage } from "./projectsStorage";
@@ -40,7 +45,7 @@ const localize = nls.loadMessageBundle();
 /* all components use the same packager instance */
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
-let debugConfigProvider: vscode.Disposable;
+let debugConfigProvider: ReactNativeDebugConfigProvider | null;
 
 const APP_NAME = "react-native-tools";
 
@@ -74,7 +79,8 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
         appVersion,
         Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY,
     );
-    const configProvider = new ReactNativeDebugConfigProvider();
+    const configProvider = (debugConfigProvider = new ReactNativeDebugConfigProvider());
+    const completionItemProviderInst = new LaunchJsonCompletionProvider();
     const workspaceFolders: vscode.WorkspaceFolder[] | undefined =
         vscode.workspace.workspaceFolders;
     let extProps: ICommandTelemetryProperties = {};
@@ -99,9 +105,24 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
                 vscode.workspace.onDidChangeConfiguration(() => onChangeConfiguration(context)),
             );
 
-            debugConfigProvider = vscode.debug.registerDebugConfigurationProvider(
-                DEBUG_TYPES.REACT_NATIVE,
-                configProvider,
+            context.subscriptions.push(
+                vscode.debug.registerDebugConfigurationProvider(
+                    DEBUG_TYPES.REACT_NATIVE,
+                    configProvider,
+                ),
+            );
+
+            context.subscriptions.push(
+                vscode.languages.registerCompletionItemProvider(
+                    { language: JsonLanguages.json },
+                    completionItemProviderInst,
+                ),
+            );
+            context.subscriptions.push(
+                vscode.languages.registerCompletionItemProvider(
+                    { language: JsonLanguages.jsonWithComments },
+                    completionItemProviderInst,
+                ),
             );
 
             const sessionManager = new ReactNativeSessionManager();
@@ -158,7 +179,9 @@ export function deactivate(): Promise<void> {
             "extension.deactivate",
             ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
             () => {
-                debugConfigProvider.dispose();
+                if (debugConfigProvider) {
+                    debugConfigProvider = null;
+                }
                 CommandPaletteHandler.stopAllPackagers()
                     .then(() => {
                         return CommandPaletteHandler.stopElementInspector();
@@ -393,16 +416,32 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
         ),
         () => CommandPaletteHandler.runElementInspector(),
     );
+    registerVSCodeCommand(
+        context,
+        "selectAndInsertDebugConfiguration",
+        ErrorHelper.getInternalError(InternalErrorCode.CommandFailed),
+        (commandArgs: any[]) => {
+            if (!debugConfigProvider || commandArgs.length < 3) {
+                throw ErrorHelper.getInternalError(InternalErrorCode.CommandFailed);
+            }
+            return CommandPaletteHandler.selectAndInsertDebugConfiguration(
+                debugConfigProvider,
+                commandArgs[0], // document
+                commandArgs[1], // position
+                commandArgs[2], // token
+            );
+        },
+    );
 }
 
 function registerVSCodeCommand(
     context: vscode.ExtensionContext,
     commandName: string,
     error: InternalError,
-    commandHandler: () => Promise<void>,
+    commandHandler: (commandArgs: any[]) => Promise<void>,
 ): void {
     context.subscriptions.push(
-        vscode.commands.registerCommand(`reactNative.${commandName}`, () => {
+        vscode.commands.registerCommand(`reactNative.${commandName}`, (...args: any[]) => {
             const extProps = {
                 platform: {
                     value: CommandPaletteHandler.getPlatformByCommandName(commandName),
@@ -414,7 +453,7 @@ function registerVSCodeCommand(
                 `commandPalette.${commandName}`,
                 extProps,
                 error,
-                commandHandler,
+                commandHandler.bind(null, args),
             );
         }),
     );

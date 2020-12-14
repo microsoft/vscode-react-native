@@ -2,21 +2,26 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import { TelemetryHelper } from "../common/telemetryHelper";
-import { Telemetry } from "../common/telemetry";
+import { TelemetryHelper } from "../../common/telemetryHelper";
+import { Telemetry } from "../../common/telemetry";
+import { PlatformType } from "../launchArgs";
+import { IWDPHelper } from "../../debugger/direct/IWDPHelper";
+import { DebugScenarioNameGenerator } from "./debugScenarioNameGenerator";
+import { ILaunchRequestArgs } from "../../debugger/debugSessionBase";
+import {
+    DEBUG_TYPES,
+    DebugScenarioType,
+    DebugConfigurationQuickPickItem,
+    DebugConfigurationState,
+} from "./debugConfigTypesAndConstants";
+import { MultiStepInput, IMultiStepInput, InputStep, IQuickPickParameters } from "./multiStepInput";
+import { ConfigProviderFactory } from "./configurationProviders/configProviderFactory";
 import * as nls from "vscode-nls";
-import { PlatformType } from "./launchArgs";
-import { IWDPHelper } from "../debugger/direct/IWDPHelper";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
 })();
 const localize = nls.loadMessageBundle();
-
-export const DEBUG_TYPES = {
-    REACT_NATIVE: "reactnative",
-    REACT_NATIVE_DIRECT: "reactnativedirect",
-};
 
 export class ReactNativeDebugConfigProvider implements vscode.DebugConfigurationProvider {
     private debugConfigurations = {
@@ -124,7 +129,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         },
     };
 
-    private pickConfig: ReadonlyArray<vscode.QuickPickItem> = [
+    private initialPickConfig: ReadonlyArray<vscode.QuickPickItem> = [
         {
             label: "Debug Android",
             description: localize("DebugAndroidConfigDesc", "Run and debug Android application"),
@@ -200,6 +205,30 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         },
     ];
 
+    private sequentialPickConfig: ReadonlyArray<DebugConfigurationQuickPickItem> = [
+        {
+            label: "Run application",
+            description: localize(
+                "RunApplicationScenario",
+                "Run React Native application without debugging",
+            ),
+            type: DebugScenarioType.RunApp,
+        },
+        {
+            label: "Debug application",
+            description: localize("DebugApplicationScenario", "Debug React Native application"),
+            type: DebugScenarioType.DebugApp,
+        },
+        {
+            label: "Attach to application",
+            description: localize(
+                "AttachApplicationScenario",
+                "Attach to running React Native application",
+            ),
+            type: DebugScenarioType.AttachApp,
+        },
+    ];
+
     public async provideDebugConfigurations(
         folder: vscode.WorkspaceFolder | undefined, // eslint-disable-line @typescript-eslint/no-unused-vars
         token?: vscode.CancellationToken, // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -229,6 +258,57 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         });
     }
 
+    public async provideDebugConfigurationSequentially(
+        folder: vscode.WorkspaceFolder | undefined,
+        token?: vscode.CancellationToken,
+    ): Promise<vscode.DebugConfiguration | undefined> {
+        const config: Partial<ILaunchRequestArgs> = {};
+        const state = { config, scenarioType: DebugScenarioType.DebugApp, folder, token };
+
+        const multiStep = new MultiStepInput<DebugConfigurationState>();
+        await multiStep.run((input, s) => this.pickDebugConfiguration(input, s), state);
+
+        if (Object.keys(state.config).length === 0) {
+            return;
+        } else {
+            if (state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
+                state.config.name = DebugScenarioNameGenerator.createScenarioName(
+                    state.scenarioType,
+                    state.config.type,
+                    state.config.platform,
+                    true,
+                );
+            } else {
+                state.config.name = DebugScenarioNameGenerator.createScenarioName(
+                    state.scenarioType,
+                    state.config.type || DEBUG_TYPES.REACT_NATIVE,
+                    state.config.platform,
+                );
+            }
+            return state.config as vscode.DebugConfiguration;
+        }
+    }
+
+    private async pickDebugConfiguration(
+        input: IMultiStepInput<DebugConfigurationState>,
+        state: DebugConfigurationState,
+    ): Promise<InputStep<DebugConfigurationState> | void> {
+        state.config = {};
+        const pick = await input.showQuickPick<
+            DebugConfigurationQuickPickItem,
+            IQuickPickParameters<DebugConfigurationQuickPickItem>
+        >({
+            title: localize("DebugConfigQuickPickSequentialLabel", "Select a debug configuration"),
+            placeholder: "Debug Configuration",
+            activeItem: this.sequentialPickConfig[0],
+            items: this.sequentialPickConfig,
+        });
+        if (pick) {
+            const provider = ConfigProviderFactory.create(pick.type);
+            return provider.buildConfiguration.bind(provider);
+        }
+    }
+
     private gatherDebugScenarios(selectedItems: string[]): vscode.DebugConfiguration[] {
         let launchConfig: vscode.DebugConfiguration[] = selectedItems.map(
             element => this.debugConfigurations[element],
@@ -244,10 +324,10 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "DebugConfigQuickPickLabel",
             "Pick debug configurations",
         );
-        debugConfigPicker.items = this.pickConfig;
+        debugConfigPicker.items = this.initialPickConfig;
         // QuickPickItem property `picked` doesn't work, so this line will check first item in the list
         // which is supposed to be Debug Android
-        debugConfigPicker.selectedItems = [this.pickConfig[0]];
+        debugConfigPicker.selectedItems = [this.initialPickConfig[0]];
         return debugConfigPicker;
     }
 }
