@@ -44,6 +44,7 @@
   },
   "resolutions": {
     "@expo/xdl/analytics-node/axios": "^0.19.0",
-    "lodash": "^4.17.20"
+    "lodash": "^4.17.20",
+    "@expo/xdl/node-forge": "^0.10.0"
   }
 }
