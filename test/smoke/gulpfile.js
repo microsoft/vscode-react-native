@@ -70,7 +70,7 @@ gulp.task("remove-vscode-smoke-tests", done => {
 gulp.task(
     "prepare-smoke-tests",
     gulp.series(
-        "lint:eslint",
+        "lint",
         "prepare-environment",
         "download-vscode-repo",
         "remove-vscode-smoke-tests",
