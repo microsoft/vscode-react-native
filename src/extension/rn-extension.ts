@@ -12,6 +12,7 @@ try {
 // @endif
 import * as vscode from "vscode";
 import * as semver from "semver";
+import * as path from "path";
 import { CommandPaletteHandler } from "./commandPaletteHandler";
 import { EntryPointHandler, ProcessType } from "../common/entryPointHandler";
 import { ErrorHelper } from "../common/error/errorHelper";
@@ -31,6 +32,7 @@ import { AppLauncher } from "./appLauncher";
 import * as nls from "vscode-nls";
 import { getExtensionVersion, getExtensionName } from "../common/extensionHelper";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
+import { ExtensionConfigManager } from "./extensionConfigManager";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -82,6 +84,24 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
         extProps = {
             ["workspaceFoldersCount"]: { value: workspaceFolders.length, isPii: false },
         };
+    }
+
+    if (
+        ExtensionConfigManager.config.has("version") &&
+        ExtensionConfigManager.config.get("version") !== appVersion
+    ) {
+        vscode.window
+            .showInformationMessage(
+                `React Native Tools have been updated to ${appVersion}`,
+                localize("MoreDetails", "More details"),
+            )
+            .then(() => {
+                return vscode.workspace.openTextDocument(
+                    path.join(__dirname, "..", "..", "CHANGELOG.md"),
+                );
+            });
+    } else {
+        ExtensionConfigManager.config.set("version", appVersion);
     }
 
     return entryPointHandler.runApp(
