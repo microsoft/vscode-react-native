@@ -11,6 +11,7 @@ import { IElement } from "../src/driver";
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET}`;
 const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .codicon-gear`;
+const ADD_CONFIGURATION = `.overlayWidgets .floating-click-widget`;
 const STOP = `.debug-toolbar .action-label[title*="Stop"]`;
 const STEP_OVER = `.debug-toolbar .action-label[title*="Step Over"]`;
 const STEP_IN = `.debug-toolbar .action-label[title*="Step Into"]`;
@@ -67,6 +68,12 @@ export class Debug extends Viewlet {
     public async configure(): Promise<any> {
         await this.code.waitAndClick(CONFIGURE);
         await this.editors.waitForEditorFocus("launch.json");
+    }
+
+    public async addConfiguration(): Promise<any> {
+        await this.code.waitAndClick(ADD_CONFIGURATION);
+        await new Promise(c => setTimeout(c, 2000));
+        await this.code.dispatchKeybinding("enter");
     }
 
     public async setBreakpointOnLine(lineNumber: number): Promise<any> {

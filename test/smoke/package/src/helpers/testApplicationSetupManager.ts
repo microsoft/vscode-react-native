@@ -168,6 +168,11 @@ export class TestApplicationSetupManager {
         }
     }
 
+    public copyDebuggingConfigurationsToProject(launchJsonFilePathInProject) {
+        SmokeTestLogger.projectPatchingLog(`*** Copying  ${this.launchJsonPath} into ${launchJsonFilePathInProject}...`);
+        fs.writeFileSync(path.join(launchJsonFilePathInProject, "launch.json"), fs.readFileSync(this.launchJsonPath));
+    }
+
     private static async getLatestSupportedRNVersionForExpo(expoSdkMajorVersion?: string): Promise<any> {
         const printSpecifiedMajorVersion = expoSdkMajorVersion ? `sdk-${expoSdkMajorVersion}` : "";
         const printIsLatest = printSpecifiedMajorVersion ? "" : "latest ";
@@ -332,8 +337,7 @@ export class TestApplicationSetupManager {
             fs.mkdirSync(vsCodeConfigPath);
         }
 
-        SmokeTestLogger.projectPatchingLog(`*** Copying  ${this.launchJsonPath} into ${vsCodeConfigPath}...`);
-        fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(this.launchJsonPath));
+        this.copyDebuggingConfigurationsToProject(vsCodeConfigPath);
 
         this.patchMetroConfig(workspacePath);
     }
@@ -361,8 +365,7 @@ export class TestApplicationSetupManager {
             fs.mkdirSync(vsCodeConfigPath);
         }
 
-        SmokeTestLogger.projectPatchingLog(`*** Copying  ${this.launchJsonPath} into ${vsCodeConfigPath}...`);
-        fs.writeFileSync(path.join(vsCodeConfigPath, "launch.json"), fs.readFileSync(this.launchJsonPath));
+        this.copyDebuggingConfigurationsToProject(vsCodeConfigPath);
 
         this.patchMetroConfig(workspacePath);
         this.patchExpoSettingsFile();

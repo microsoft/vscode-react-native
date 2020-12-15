@@ -122,8 +122,21 @@
         "command": "reactNative.stopLogCatMonitor",
         "title": "%reactNative.command.stopLogCatMonitor.title%",
         "category": "React Native"
+      },
+      {
+        "command": "reactNative.selectAndInsertDebugConfiguration",
+        "title": "%reactNative.command.selectAndInsertDebugConfiguration.title%",
+        "category": "React Native"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "reactNative.selectAndInsertDebugConfiguration",
+          "when": "false"
+        }
+      ]
+    },
     "breakpoints": [
       {
         "language": "javascript"
@@ -143,97 +156,7 @@
         "type": "reactnative",
         "label": "React Native",
         "runtime": "node",
-        "configurationSnippets": [
-          {
-            "label": "React Native: Debug Android",
-            "description": "%reactNative.snippets.debugAndroid.description%",
-            "body": {
-              "name": "Debug Android",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnative",
-              "request": "launch",
-              "platform": "android"
-            }
-          },
-          {
-            "label": "React Native: Run Android",
-            "description": "%reactNative.snippets.runAndroid.description%",
-            "body": {
-              "name": "Run Android",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnative",
-              "request": "launch",
-              "platform": "android",
-              "enableDebug": false
-            }
-          },
-          {
-            "label": "React Native: Debug iOS",
-            "description": "%reactNative.snippets.debugiOS.description%",
-            "body": {
-              "name": "Debug iOS",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnative",
-              "request": "launch",
-              "platform": "ios"
-            }
-          },
-          {
-            "label": "React Native: Run iOS",
-            "description": "%reactNative.snippets.runiOS.description%",
-            "body": {
-              "name": "Run iOS",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnative",
-              "request": "launch",
-              "platform": "ios",
-              "enableDebug": false
-            }
-          },
-          {
-            "label": "React Native: Debug Windows",
-            "description": "%reactNative.snippets.debugWindows.description%",
-            "body": {
-              "name": "Debug Windows",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnative",
-              "request": "launch",
-              "platform": "windows"
-            }
-          },
-          {
-            "label": "React Native: Debug macOS",
-            "description": "%reactNative.snippets.debugmacOS.description%",
-            "body": {
-              "name": "Debug macOS",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnative",
-              "request": "launch",
-              "platform": "macos"
-            }
-          },
-          {
-            "label": "React Native: Attach to packager",
-            "description": "%reactNative.snippets.attachPackager.description%",
-            "body": {
-              "name": "Attach to packager",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnative",
-              "request": "attach"
-            }
-          },
-          {
-            "label": "React Native: Debug in Exponent",
-            "description": "%reactNative.snippets.debugExpo.description%",
-            "body": {
-              "name": "Debug in Exponent",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnative",
-              "request": "launch",
-              "platform": "exponent"
-            }
-          }
-        ],
+        "configurationSnippets": [],
         "configurationAttributes": {
           "attach": {
             "required": [
@@ -449,77 +372,7 @@
         "type": "reactnativedirect",
         "label": "React Native Direct - Experimental",
         "runtime": "node",
-        "configurationSnippets": [
-          {
-            "label": "React Native Direct: Debug Android Hermes - Experimental",
-            "description": "%reactNative.snippets.debugAndroidHermes.description%",
-            "body": {
-              "name": "Debug Android Hermes - Experimental",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnativedirect",
-              "request": "launch",
-              "platform": "android"
-            }
-          },
-          {
-            "label": "React Native Direct: Run Android Hermes- Experimental",
-            "description": "%reactNative.snippets.runAndroidHermes.description%",
-            "body": {
-              "name": "Run Android Hermes - Experimental",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnativedirect",
-              "request": "launch",
-              "platform": "android",
-              "enableDebug": false
-            }
-          },
-          {
-            "label": "React Native Direct: Attach to the React Native Hermes - Experimental",
-            "description": "%reactNative.snippets.directAttach.description%",
-            "body": {
-              "name": "React Native Direct: Attach to the React Native Hermes - Experimental",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnativedirect",
-              "request": "attach"
-            }
-          },
-          {
-            "label": "React Native Direct: Attach to the React Native iOS - Experimental",
-            "description": "%reactNative.snippets.directAttach.description%",
-            "body": {
-              "name": "Attach to the React Native iOS - Experimental",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnativedirect",
-              "request": "attach",
-              "platform": "ios",
-              "port": 9221
-            }
-          },
-          {
-            "label": "React Native Direct: Debug Direct iOS - Experimental",
-            "description": "%reactNative.snippets.debugDirectiOS.description%",
-            "body": {
-              "name": "Debug Direct iOS - Experimental",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnativedirect",
-              "request": "launch",
-              "platform": "ios",
-              "port": 9221
-            }
-          },
-          {
-            "label": "React Native Direct: Run Direct iOS - Experimental",
-            "description": "%reactNative.snippets.runDirectiOS.description%",
-            "body": {
-              "name": "Run Direct iOS - Experimental",
-              "cwd": "^\"\\${workspaceFolder}\"",
-              "type": "reactnativedirect",
-              "request": "launch",
-              "platform": "ios",
-              "enableDebug": false
-            }
-          }
-        ],
+        "configurationSnippets": [],
         "configurationAttributes": {
           "attach": {
             "required": [
@@ -881,6 +734,7 @@
     "flatten-source-map": "0.0.2",
     "glob": "^7.1.6",
     "ip": "^1.1.5",
+    "jsonc-parser": "^3.0.0",
     "mkdirp": "^1.0.3",
     "qr-image": "^3.2.0",
     "semver": "^6.3.0",

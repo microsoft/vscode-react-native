@@ -18,6 +18,11 @@ export class Terminal {
         await this.code.waitForTerminalBuffer(XTERM_SELECTOR, lines => lines.some(line => line.length > 0));
     }
 
+    public async showTerminalWithoutNecessaryFocus(): Promise<void> {
+        await this.quickaccess.runCommand("workbench.action.terminal.toggleTerminal");
+        await new Promise(c => setTimeout(c, 2000));
+    }
+
     public async runCommand(commandText: string): Promise<void> {
         await this.code.writeInTerminal(XTERM_SELECTOR, commandText);
         // hold your horses

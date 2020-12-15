@@ -15,6 +15,7 @@ import { smokeTestFail } from "./helpers/utilities";
 import { startLocalizationTests } from "./localization.test";
 import { testApplicationSetupManager } from "./main";
 import { startReactNativeTests } from "./nativeDebug.test";
+import { startDebugScenariosCreationTests } from "./debugScenariosCreation.test";
 import { startOtherTests } from "./otherTests.test";
 
 
@@ -55,6 +56,7 @@ export function startSmokeTests(
         });
 
         startLocalizationTests(testApplicationSetupManager.getRnWorkspaceDirectory());
+        startDebugScenariosCreationTests(testApplicationSetupManager.getRnWorkspaceDirectory());
 
         SmokeTestLogger.info("*** Smoke tests will be run");
         startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
@@ -63,6 +65,5 @@ export function startSmokeTests(
         startDebugMacOSTests(testApplicationSetupManager.getMacOSRnWorkspaceDirectory(), args);
         startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory(), args);
         startOtherTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
-
     });
 }

@@ -3,7 +3,7 @@
 
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { IExponentRunOptions, PlatformType } from "../launchArgs";
+import { ExpoHostType, IExponentRunOptions, PlatformType } from "../launchArgs";
 import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import { ExponentHelper } from "./exponentHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
@@ -152,7 +152,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         });
     }
 
-    public loginToExponentOrSkip(expoHostType?: "tunnel" | "lan" | "local"): Promise<any> {
+    public loginToExponentOrSkip(expoHostType?: ExpoHostType): Promise<any> {
         if (expoHostType !== "tunnel") {
             return Promise.resolve();
         }

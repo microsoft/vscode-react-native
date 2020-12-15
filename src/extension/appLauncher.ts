@@ -21,7 +21,7 @@ import { TargetPlatformHelper } from "../common/targetPlatformHelper";
 import { ProjectsStorage } from "./projectsStorage";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
 import { generateRandomPortNumber } from "../common/extensionHelper";
-import { DEBUG_TYPES } from "./debugConfigurationProvider";
+import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { PlatformType } from "./launchArgs";
