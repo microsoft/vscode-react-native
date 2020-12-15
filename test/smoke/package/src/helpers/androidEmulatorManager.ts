@@ -23,9 +23,14 @@ export default class AndroidEmulatorManager {
     private emulatorPort: number;
     private emulatorId: string;
 
-    constructor(name: string | undefined = process.env.ANDROID_EMULATOR, port: number = SmokeTestsConstants.defaultTargetAndroidPort) {
+    constructor(
+        name: string | undefined = process.env.ANDROID_EMULATOR,
+        port: number = SmokeTestsConstants.defaultTargetAndroidPort,
+    ) {
         if (!name) {
-            throw new Error("Passed Android emulator name and process.env.ANDROID_EMULATOR is not defined!");
+            throw new Error(
+                "Passed Android emulator name and process.env.ANDROID_EMULATOR is not defined!",
+            );
         }
         this.emulatorName = name;
         this.emulatorPort = port;
@@ -42,11 +47,17 @@ export default class AndroidEmulatorManager {
 
     // Check if appPackage is installed on Android device for waitTime ms
     public async waitUntilAppIsInstalled(appPackage: string): Promise<boolean> {
-
-        SmokeTestLogger.info(`*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${AndroidEmulatorManager.PACKAGE_INSTALL_TIMEOUT / 1000} seconds`);
+        SmokeTestLogger.info(
+            `*** Check if app is being installed with command 'adb shell pm list packages ${appPackage}' for ${
+                AndroidEmulatorManager.PACKAGE_INSTALL_TIMEOUT / 1000
+            } seconds`,
+        );
 
         const condition = () => {
-            const result = cp.execSync(`adb shell pm list packages ${appPackage}`).toString().trim();
+            const result = cp
+                .execSync(`adb shell pm list packages ${appPackage}`)
+                .toString()
+                .trim();
             if (result) {
                 return true;
             }
@@ -54,31 +65,38 @@ export default class AndroidEmulatorManager {
         };
 
         try {
-            const result = await waitUntil(condition, AndroidEmulatorManager.PACKAGE_INSTALL_TIMEOUT);
+            const result = await waitUntil(
+                condition,
+                AndroidEmulatorManager.PACKAGE_INSTALL_TIMEOUT,
+            );
             if (result) {
-                SmokeTestLogger.success(`*** Installed ${appPackage} app found, await ${AndroidEmulatorManager.PACKAGE_INIT_TIMEOUT}ms for initializing...`);
+                SmokeTestLogger.success(
+                    `*** Installed ${appPackage} app found, await ${AndroidEmulatorManager.PACKAGE_INIT_TIMEOUT}ms for initializing...`,
+                );
                 await sleep(AndroidEmulatorManager.PACKAGE_INIT_TIMEOUT);
-            }
-            else {
-                SmokeTestLogger.error(`${appPackage} not found after ${AndroidEmulatorManager.PACKAGE_INSTALL_TIMEOUT} ms`);
+            } else {
+                SmokeTestLogger.error(
+                    `${appPackage} not found after ${AndroidEmulatorManager.PACKAGE_INSTALL_TIMEOUT} ms`,
+                );
             }
             return result;
-        }
-        catch(e) {
+        } catch (e) {
             return Promise.reject(`Error occured while check app is installed:\n ${e}`);
         }
     }
 
     // Installs Expo app on Android device using XDL function
     public async installExpoAppOnAndroid(): Promise<void> {
-        SmokeTestLogger.projectPatchingLog(`*** Installing Expo app on Android emulator using Expo XDL function`);
+        SmokeTestLogger.projectPatchingLog(
+            `*** Installing Expo app on Android emulator using Expo XDL function`,
+        );
         await XDL.Android.installExpoAsync({
             device: {
                 name: this.emulatorId,
                 type: "emulator",
                 isBooted: true,
                 isAuthorized: true,
-            }
+            },
         });
         return this.enableDrawPermitForApp(SmokeTestsConstants.expoPackageName);
     }
@@ -94,27 +112,35 @@ export default class AndroidEmulatorManager {
 
     private async enableDrawPermitForApp(packageName: string) {
         const drawPermitCommand = `adb -s ${this.emulatorId} shell appops set ${packageName} SYSTEM_ALERT_WINDOW allow`;
-        SmokeTestLogger.projectPatchingLog(`*** Enabling permission for drawing over apps via: ${drawPermitCommand}`);
+        SmokeTestLogger.projectPatchingLog(
+            `*** Enabling permission for drawing over apps via: ${drawPermitCommand}`,
+        );
         cp.execSync(drawPermitCommand, { stdio: "inherit" });
     }
 
     public async runAndroidEmulator(): Promise<boolean> {
         // Boot options for emulator - https://developer.android.com/studio/run/emulator-commandline
         await this.terminateAndroidEmulator();
-        const emulatorOpts = ["-avd",
+        const emulatorOpts = [
+            "-avd",
             <string>this.emulatorName,
-            "-gpu", "swiftshader_indirect",
+            "-gpu",
+            "swiftshader_indirect",
             "-wipe-data",
-            "-port", String(this.emulatorPort),
+            "-port",
+            String(this.emulatorPort),
             "-no-snapshot-save",
             "-no-boot-anim",
-            "-no-audio"];
-        SmokeTestLogger.info(`*** Executing Android emulator with 'emulator ${emulatorOpts.join(" ")}' command...`);
+            "-no-audio",
+        ];
+        SmokeTestLogger.info(
+            `*** Executing Android emulator with 'emulator ${emulatorOpts.join(" ")}' command...`,
+        );
         const proc = cp.spawn("emulator", emulatorOpts, { stdio: "pipe" });
-        proc.stdout.on("data", (chunk) => {
+        proc.stdout.on("data", chunk => {
             process.stdout.write(chunk);
         });
-        proc.stderr.on("data", (chunk) => {
+        proc.stderr.on("data", chunk => {
             process.stderr.write(chunk);
         });
         return this.waitUntilEmulatorStarting();
@@ -123,7 +149,7 @@ export default class AndroidEmulatorManager {
     public async terminateAndroidEmulator(): Promise<boolean> {
         let devices = AndroidEmulatorManager.getOnlineDevices();
         SmokeTestLogger.info(`*** Checking for running emulator with id ${this.emulatorId}...`);
-        if (devices.find((it) => it.id === this.emulatorId)) {
+        if (devices.find(it => it.id === this.emulatorId)) {
             cp.execSync(`adb -s ${this.emulatorId} emu kill`, { stdio: "inherit" });
         } else {
             SmokeTestLogger.warn("*** No running android emulators found");
@@ -135,7 +161,7 @@ export default class AndroidEmulatorManager {
         let devices = AndroidEmulatorManager.getOnlineDevices();
         SmokeTestLogger.info("*** Checking for running android emulators...");
         if (devices.length !== 0) {
-            devices.forEach((device) => {
+            devices.forEach(device => {
                 SmokeTestLogger.info(`*** Terminating Android '${device.id}'...`);
                 cp.execSync(`adb -s ${device.id} emu kill`, { stdio: "inherit" });
             });
@@ -150,22 +176,22 @@ export default class AndroidEmulatorManager {
 
         const condition = () => {
             const runningEmulators = AndroidEmulatorManager.getOnlineDevices();
-            if (runningEmulators.find((it) => it.id === this.emulatorId)) {
+            if (runningEmulators.find(it => it.id === this.emulatorId)) {
                 return true;
             }
             return false;
         };
 
-        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_START_TIMEOUT)
-            .then((result) => {
-                if (result) {
-                    SmokeTestLogger.success(`*** Android emulator has been started.`);
-                }
-                else {
-                    SmokeTestLogger.error(`*** Could not start Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`);
-                }
-                return result;
-            });
+        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_START_TIMEOUT).then(result => {
+            if (result) {
+                SmokeTestLogger.success(`*** Android emulator has been started.`);
+            } else {
+                SmokeTestLogger.error(
+                    `*** Could not start Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
+                );
+            }
+            return result;
+        });
     }
 
     public async waitUntilEmulatorTerminating(): Promise<boolean> {
@@ -173,22 +199,24 @@ export default class AndroidEmulatorManager {
 
         const condition = () => {
             const runningEmulators = AndroidEmulatorManager.getOnlineDevices();
-            if (!runningEmulators.find((it) => it.id === this.emulatorId)) {
+            if (!runningEmulators.find(it => it.id === this.emulatorId)) {
                 return true;
             }
             return false;
         };
 
-        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT)
-            .then((result) => {
+        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT).then(
+            result => {
                 if (result) {
                     SmokeTestLogger.success(`*** Android emulator has been terminated.`);
-                }
-                else {
-                    SmokeTestLogger.error(`*** Could not terminate Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`);
+                } else {
+                    SmokeTestLogger.error(
+                        `*** Could not terminate Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
+                    );
                 }
                 return result;
-            });
+            },
+        );
     }
 
     public static async waitUntilSomeEmulatorStarting(): Promise<boolean> {
@@ -202,16 +230,16 @@ export default class AndroidEmulatorManager {
             return false;
         };
 
-        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_START_TIMEOUT)
-            .then((result) => {
-                if (result) {
-                    SmokeTestLogger.success(`*** Some Android emulator has been started.`);
-                }
-                else {
-                    SmokeTestLogger.error(`*** Could not start any Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`);
-                }
-                return result;
-            });
+        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_START_TIMEOUT).then(result => {
+            if (result) {
+                SmokeTestLogger.success(`*** Some Android emulator has been started.`);
+            } else {
+                SmokeTestLogger.error(
+                    `*** Could not start any Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
+                );
+            }
+            return result;
+        });
     }
 
     public static async waitUntilAllEmulatorTerminating(): Promise<boolean> {
@@ -224,16 +252,18 @@ export default class AndroidEmulatorManager {
             return false;
         };
 
-        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT)
-            .then((result) => {
+        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT).then(
+            result => {
                 if (result) {
                     SmokeTestLogger.success(`*** All Android emulators has been terminated.`);
-                }
-                else {
-                    SmokeTestLogger.error(`*** Could not terminate all Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`);
+                } else {
+                    SmokeTestLogger.error(
+                        `*** Could not terminate all Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
+                    );
                 }
                 return result;
-            });
+            },
+        );
     }
 
     private static getOnlineDevices(): IDevice[] {

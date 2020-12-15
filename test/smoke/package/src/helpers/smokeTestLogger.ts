@@ -36,7 +36,10 @@ export class SmokeTestLogger {
     }
 
     private static colorize(str: string, color: ansiСolors.StyleType) {
-        return str.split("\n").map(line => SmokeTestLogger.colorizeLine(line, color)).join("\n");
+        return str
+            .split("\n")
+            .map(line => SmokeTestLogger.colorizeLine(line, color))
+            .join("\n");
     }
 
     private static colorizeLine(str: string, color: ansiСolors.StyleType) {
