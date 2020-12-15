@@ -21,7 +21,7 @@ export class LaunchJsonCompletionHelper {
         config: DebugConfiguration,
         cursorPosition: PositionOfCursor,
         commaPosition?: PositionOfComma,
-    ) {
+    ): string {
         const json = JSON.stringify(config);
         if (cursorPosition === "AfterItem") {
             // If we already have a comma immediatley before the cursor, then no need of adding a comma.
@@ -53,7 +53,10 @@ export class LaunchJsonCompletionHelper {
         return;
     }
 
-    public static isCommaImmediatelyBeforeCursor(document: TextDocument, position: Position) {
+    public static isCommaImmediatelyBeforeCursor(
+        document: TextDocument,
+        position: Position,
+    ): boolean {
         const line = document.lineAt(position.line);
         // Get text from start of line until the cursor.
         const currentLine = document.getText(new Range(line.range.start, position));
