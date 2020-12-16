@@ -25,7 +25,9 @@ There are currently 2 components to our extension: The extension running in the 
 
 ## Testing
 
-There is a set of Mocha tests for the extesnion which can be run with `npm test`. Also there are e2e smoke tests placed in [`test/smoke`](https://github.com/microsoft/vscode-react-native/tree/master/test/smoke) folder that can be launched by `npm smoke-tests` command. Make sure to [prepare test environment](https://github.com/microsoft/vscode-react-native/blob/master/test/smoke/docs/run-locally.md) before launching e2e tests. Also run `gulp lint` to check your code against our linting rules.
+There is a set of Mocha tests for the extesnion and extension localization which can be run with `npm test` or by `Launch Extension Tests`. Also there are e2e smoke tests placed in [`test/smoke`](https://github.com/microsoft/vscode-react-native/tree/master/test/smoke) folder that can be launched by `npm smoke-tests` command or by `Launch Smoke Tests` command. Make sure to [prepare test environment](https://github.com/microsoft/vscode-react-native/blob/master/test/smoke/docs/run-locally.md) before launching e2e tests. Test
+
+Run `gulp lint` to check your code against our linting rules or `gulp format` to try to autofix all linting problems with Prettier.
 
 ## Legal
 

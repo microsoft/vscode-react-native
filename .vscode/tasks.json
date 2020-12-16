@@ -6,11 +6,9 @@
             "type": "process",
             "command": ["yarn"],
             "windows": {
-                "command": "yarn.cmd",
+                "command": "yarn.cmd"
             },
-            "args": [
-                "prepare-smoke-tests"
-            ],
+            "args": ["prepare-smoke-tests"],
             "presentation": {
                 "echo": true,
                 "reveal": "silent",
@@ -18,14 +16,14 @@
                 "panel": "shared",
                 "showReuseMessage": false,
                 "clear": false
-            },
+            }
         },
         {
             "label": "compile-smoke-tests",
             "type": "process",
             "command": ["./node_modules/.bin/tsc"],
             "windows": {
-                "command": ".\\node_modules\\.bin\\tsc.cmd",
+                "command": ".\\node_modules\\.bin\\tsc.cmd"
             },
             "options": {
                 "cwd": "${workspaceRoot}/test/smoke/vscode/test/smoke"
@@ -37,7 +35,7 @@
                 "panel": "shared",
                 "showReuseMessage": false,
                 "clear": false
-            },
+            }
         },
         {
             "label": "Prepare Smoke Tests",
@@ -47,5 +45,5 @@
             "label": "Build Smoke Tests",
             "dependsOn": ["compile-smoke-tests"]
         }
-    ],
+    ]
 }
