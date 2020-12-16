@@ -2,7 +2,7 @@
 
 We welcome any quality bugfixes or contributions!
 
-To avoid a conflicts with your existing installation, delete the installed extension at `~/.vscode/extensions/msjsdiag.vscode-react-native`.
+To avoid conflicts with your existing installation, delete the installed extension at `~/.vscode/extensions/msjsdiag.vscode-react-native`.
 
 ### Windows
 
