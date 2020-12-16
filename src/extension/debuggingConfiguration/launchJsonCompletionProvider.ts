@@ -23,6 +23,7 @@ export class LaunchJsonCompletionProvider implements vscode.CompletionItemProvid
         document: vscode.TextDocument,
         position: vscode.Position,
         token: vscode.CancellationToken,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         context: vscode.CompletionContext,
     ): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList> {
         if (!this.canProvideCompletions(document, position)) {

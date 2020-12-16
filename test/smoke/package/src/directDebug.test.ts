@@ -20,7 +20,6 @@ const RNHermesSetBreakpointOnLine = 11;
 const debugAndroidTestTime = SmokeTestsConstants.hermesTestTimeout;
 
 export function startDirectDebugTests(workspace: string, testParameters: TestRunArguments): void {
-
     describe("Direct debugging", () => {
         let app: Application | null;
         let client: AppiumClient | null;
@@ -56,13 +55,23 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     app = await vscodeManager.runVSCode(workspace, "Hermes RN app Debug test");
                     await app.workbench.quickaccess.openFile("AppTestButton.js");
                     await app.workbench.editors.scrollTop();
-                    SmokeTestLogger.info("Android Debug Hermes test: AppTestButton.js file is opened");
+                    SmokeTestLogger.info(
+                        "Android Debug Hermes test: AppTestButton.js file is opened",
+                    );
                     await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
-                    SmokeTestLogger.info(`Android Debug Hermes test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`);
-                    SmokeTestLogger.info(`Android Debug Hermes test: Chosen debug configuration: ${RNHermesDebugConfigName}`);
+                    SmokeTestLogger.info(
+                        `Android Debug Hermes test: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`,
+                    );
+                    SmokeTestLogger.info(
+                        `Android Debug Hermes test: Chosen debug configuration: ${RNHermesDebugConfigName}`,
+                    );
                     SmokeTestLogger.info("Android Debug Hermes test: Starting debugging");
                     await app.workbench.quickaccess.runDebugScenario(RNHermesDebugConfigName);
-                    const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(HERMES_APP_PACKAGE_NAME, HERMES_APP_ACTIVITY_NAME, androidEmulatorManager.getEmulatorId());
+                    const opts = AppiumHelper.prepareAttachOptsForAndroidActivity(
+                        HERMES_APP_PACKAGE_NAME,
+                        HERMES_APP_ACTIVITY_NAME,
+                        androidEmulatorManager.getEmulatorId(),
+                    );
                     await androidEmulatorManager.waitUntilAppIsInstalled(HERMES_APP_PACKAGE_NAME);
                     client = await AppiumHelper.webdriverAttach(opts);
                     await app.workbench.debug.waitForDebuggingToStart();
@@ -77,15 +86,29 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     await sleep(7000);
                     SmokeTestLogger.info("Android Debug Hermes test: Click Test Button");
                     await AppiumHelper.clickTestButtonHermes(client);
-                    await app.workbench.debug.waitForStackFrame(sf => sf.name === "AppTestButton.js" && sf.lineNumber === RNHermesSetBreakpointOnLine, `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`);
+                    await app.workbench.debug.waitForStackFrame(
+                        sf =>
+                            sf.name === "AppTestButton.js" &&
+                            sf.lineNumber === RNHermesSetBreakpointOnLine,
+                        `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`,
+                    );
                     SmokeTestLogger.info("Android Debug Hermes test: Stack frame found");
                     await app.workbench.debug.continue();
                     // await for our debug string renders in debug console
                     await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-                    let found = vscodeManager.findStringInLogs("Test output from Hermes debuggee", SmokeTestsConstants.ReactNativeLogFileName);
-                    assert.notStrictEqual(found, false, "\"Test output from Hermes debuggee\" string is missing in output file");
+                    let found = vscodeManager.findStringInLogs(
+                        "Test output from Hermes debuggee",
+                        SmokeTestsConstants.ReactNativeLogFileName,
+                    );
+                    assert.notStrictEqual(
+                        found,
+                        false,
+                        '"Test output from Hermes debuggee" string is missing in output file',
+                    );
                     if (found) {
-                        SmokeTestLogger.success("Android Debug test: \"Test output from Hermes debuggee\" string is found");
+                        SmokeTestLogger.success(
+                            'Android Debug test: "Test output from Hermes debuggee" string is found',
+                        );
                     }
                     await app.workbench.debug.disconnectFromDebugger();
                     SmokeTestLogger.info("Android Debug Hermes test: Debugging is stopped");

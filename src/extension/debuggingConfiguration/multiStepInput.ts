@@ -82,7 +82,7 @@ export class MultiStepInput<S> implements IMultiStepInput<S> {
     private current?: QuickInput;
     private steps: InputStep<S>[] = [];
 
-    public run(start: InputStep<S>, state: S) {
+    public run(start: InputStep<S>, state: S): Promise<void> {
         return this.stepThrough(start, state);
     }
 

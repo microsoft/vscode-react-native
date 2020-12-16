@@ -22,13 +22,20 @@ if (parseInt(process.version.substr(1), 10) < 10) {
 //Paths
 const repoRoot = path.join(__dirname, "..", "..", "..", "..", "..", "..");
 const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
-const envConfigFilePathDev = path.resolve(__dirname, "..", SmokeTestsConstants.EnvDevConfigFileName);
+const envConfigFilePathDev = path.resolve(
+    __dirname,
+    "..",
+    SmokeTestsConstants.EnvDevConfigFileName,
+);
 const vscodeTestPath = path.resolve(__dirname, "..", ".vscode-test");
 const resourcesPath = path.resolve(__dirname, "..", "resources");
 const cachePath = path.resolve(os.homedir(), "SmokeTestsCache");
 
 const configProcessor = new TestConfigProcessor(envConfigFilePath, envConfigFilePathDev);
-export const testApplicationSetupManager = new TestApplicationSetupManager(resourcesPath, cachePath);
+export const testApplicationSetupManager = new TestApplicationSetupManager(
+    resourcesPath,
+    cachePath,
+);
 export const androidEmulatorManager = new AndroidEmulatorManager();
 export const iosSimulatorManager = new IosSimulatorManager();
 export const vscodeManager = new VsCodeManager(vscodeTestPath, resourcesPath, cachePath, repoRoot);

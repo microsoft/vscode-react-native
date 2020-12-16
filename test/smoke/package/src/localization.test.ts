@@ -30,8 +30,13 @@ export function startLocalizationTests(workspace: string): void {
                 SmokeTestLogger.info("Localization test: Starting packager");
                 await app.workbench.quickaccess.runCommand(startPackagerCommand);
                 await sleep(10 * 1000);
-                SmokeTestLogger.info(`Localization test: Search for '${packagerStartedCheck}' string output`);
-                const found = vscodeManager.findStringInLogs(packagerStartedCheck, SmokeTestsConstants.ReactNativeLogFileName);
+                SmokeTestLogger.info(
+                    `Localization test: Search for '${packagerStartedCheck}' string output`,
+                );
+                const found = vscodeManager.findStringInLogs(
+                    packagerStartedCheck,
+                    SmokeTestsConstants.ReactNativeLogFileName,
+                );
                 if (found) {
                     SmokeTestLogger.success(`Localization test: Output found`);
                 } else {

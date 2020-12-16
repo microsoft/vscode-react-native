@@ -43,18 +43,25 @@ export function startDebugMacOSTests(workspace: string, testParameters: TestRunA
             // 40959 ??         0:10.36 /Users/user/.nvm/versions/node/v10.19.0/bin/node /Users/user/Documents/rn_for_mac_proj/node_modules/metro/node_modules/jest-worker/build/workers/processChild.js
             // 41004 ??         0:21.34 /Users/user/Library/Developer/Xcode/DerivedData/rn_for_mac_proj-ghuavabiztosiqfqkrityjoxqfmv/Build/Products/Debug/rn_for_mac_proj.app/Contents/MacOS/rn_for_mac_proj
             // 75514 ttys007    0:00.00 grep --color=auto --exclude-dir=.bzr --exclude-dir=CVS --exclude-dir=.git --exclude-dir=.hg --exclude-dir=.svn rn_for_mac_proj
-            SmokeTestLogger.info(`*** Searching for ${appName} macOS application process: results ${JSON.stringify(searchResults)}`);
+            SmokeTestLogger.info(
+                `*** Searching for ${appName} macOS application process: results ${JSON.stringify(
+                    searchResults,
+                )}`,
+            );
 
             if (searchResults) {
                 const processIdRgx = /(^\d*)\s\?\?/g;
                 //  We are looking for a process whose path contains the "appName.app" part
-                const processData = searchResults.split("\n")
+                const processData = searchResults
+                    .split("\n")
                     .find(str => str.includes(`${appName}.app`));
 
                 if (processData) {
                     const match = processIdRgx.exec(processData);
                     if (match && match[1]) {
-                        SmokeTestLogger.info(`*** Terminating ${appName} macOS application process with PID ${match[1]}`);
+                        SmokeTestLogger.info(
+                            `*** Terminating ${appName} macOS application process with PID ${match[1]}`,
+                        );
                         const terminateMacOSappProcessCommand = `kill ${match[1]}`;
                         cp.execSync(terminateMacOSappProcessCommand);
                     }
@@ -70,21 +77,38 @@ export function startDebugMacOSTests(workspace: string, testParameters: TestRunA
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("macOS Debug test: App.js file is opened");
                 await app.workbench.debug.setBreakpointOnLine(RNmacOSsetBreakpointOnLine);
-                SmokeTestLogger.info(`macOS Debug test: Breakpoint is set on line ${RNmacOSsetBreakpointOnLine}`);
-                SmokeTestLogger.info(`macOS Debug test: Chosen debug configuration: ${RNmacOSDebugConfigName}`);
+                SmokeTestLogger.info(
+                    `macOS Debug test: Breakpoint is set on line ${RNmacOSsetBreakpointOnLine}`,
+                );
+                SmokeTestLogger.info(
+                    `macOS Debug test: Chosen debug configuration: ${RNmacOSDebugConfigName}`,
+                );
                 SmokeTestLogger.info("macOS Debug test: Starting debugging");
                 await app.workbench.quickaccess.runDebugScenario(RNmacOSDebugConfigName);
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("macOS Debug test: Debugging started");
-                await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNmacOSsetBreakpointOnLine, `looking for App.js and line ${RNmacOSsetBreakpointOnLine}`);
+                await app.workbench.debug.waitForStackFrame(
+                    sf => sf.name === "App.js" && sf.lineNumber === RNmacOSsetBreakpointOnLine,
+                    `looking for App.js and line ${RNmacOSsetBreakpointOnLine}`,
+                );
                 SmokeTestLogger.info("macOS Debug test: Stack frame found");
                 await app.workbench.debug.stepOver();
                 // Wait for our debug string to render in debug console
                 await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-                SmokeTestLogger.info("macOS Debug test: Searching for \"Test output from debuggee\" string in console");
-                let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
-                assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-                SmokeTestLogger.success("macOS Debug test: \"Test output from debuggee\" string is found");
+                SmokeTestLogger.info(
+                    'macOS Debug test: Searching for "Test output from debuggee" string in console',
+                );
+                let found = await app.workbench.debug.waitForOutput(output =>
+                    output.some(line => line.indexOf("Test output from debuggee") >= 0),
+                );
+                assert.notStrictEqual(
+                    found,
+                    false,
+                    '"Test output from debuggee" string is missing in debug console',
+                );
+                SmokeTestLogger.success(
+                    'macOS Debug test: "Test output from debuggee" string is found',
+                );
                 await app.workbench.debug.disconnectFromDebugger();
                 SmokeTestLogger.info("macOS Debug test: Debugging is stopped");
             });
