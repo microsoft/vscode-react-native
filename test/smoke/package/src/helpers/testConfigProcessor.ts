@@ -31,7 +31,6 @@ interface TestEnvVariables {
 }
 
 export class TestConfigProcessor {
-
     private configVariables: TestEnvVariables;
 
     constructor(envConfigFilePath: string, envConfigFilePathDev?: string) {
@@ -46,11 +45,9 @@ export class TestConfigProcessor {
         let configPath = "";
         if (envConfigFilePathDev && fs.existsSync(envConfigFilePathDev)) {
             configPath = envConfigFilePathDev;
-        }
-        else if (fs.existsSync(envConfigFilePath)) {
+        } else if (fs.existsSync(envConfigFilePath)) {
             configPath = envConfigFilePath;
-        }
-        else {
+        } else {
             throw new Error("Could not find config file.");
         }
 
@@ -58,7 +55,6 @@ export class TestConfigProcessor {
     }
 
     private getConfiguration(variables: any): TestEnvVariables {
-
         // Hack for Azure DevOps, because it doesn't implicitly support optional parameters for task group
         if (variables.EXPO_XDL_VERSION === "skip") {
             delete variables.EXPO_XDL_VERSION;
@@ -102,7 +98,9 @@ export class TestConfigProcessor {
             SmokeTestLogger.warn("Optional EXPO_XDL_VERSION variable is not set");
         }
         if (!variables.EXPO_SDK_MAJOR_VERSION) {
-            SmokeTestLogger.warn("Optional EXPO_SDK_MAJOR_VERSION variable is not set. Use latest.");
+            SmokeTestLogger.warn(
+                "Optional EXPO_SDK_MAJOR_VERSION variable is not set. Use latest.",
+            );
         }
         if (!variables.RN_VERSION) {
             SmokeTestLogger.warn("Optional RN_VERSION variable is not set");
@@ -160,7 +158,13 @@ export class TestConfigProcessor {
             SkipUnstableTests: process.argv.includes("--skip-unstable-tests"),
         };
 
-        if (!config.RunAndroidTests && !config.RunIosTests && !config.RunBasicTests && !config.RunMacOSTests && !config.RunWindowsTests) {
+        if (
+            !config.RunAndroidTests &&
+            !config.RunIosTests &&
+            !config.RunBasicTests &&
+            !config.RunMacOSTests &&
+            !config.RunWindowsTests
+        ) {
             config.RunAndroidTests = true;
             config.RunIosTests = true;
             config.RunBasicTests = true;

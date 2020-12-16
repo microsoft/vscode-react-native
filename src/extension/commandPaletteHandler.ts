@@ -414,12 +414,13 @@ export class CommandPaletteHandler {
         document: vscode.TextDocument,
         position: vscode.Position,
         token: vscode.CancellationToken,
-    ) {
+    ): Promise<void> {
         if (
             vscode.window.activeTextEditor &&
             vscode.window.activeTextEditor.document === document
         ) {
             const folder = vscode.workspace.getWorkspaceFolder(document.uri);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const config = await configurationProvider.provideDebugConfigurationSequentially!(
                 folder,
                 token,
@@ -449,8 +450,8 @@ export class CommandPaletteHandler {
                 workspaceEdit.insert(document.uri, position, formattedJson);
                 await vscode.workspace.applyEdit(workspaceEdit);
                 vscode.commands.executeCommand("editor.action.formatDocument").then(
-                    () => {},
-                    () => {},
+                    () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
+                    () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
                 );
             }
         }

@@ -18,20 +18,22 @@ import { startReactNativeTests } from "./nativeDebug.test";
 import { startDebugScenariosCreationTests } from "./debugScenariosCreation.test";
 import { startOtherTests } from "./otherTests.test";
 
-
 export function startSmokeTests(
     args: TestRunArguments,
     setup: (useCachedApplications: boolean) => Promise<void>,
-    cleanUp: (saveCache: boolean) => Promise<void>
+    cleanUp: (saveCache: boolean) => Promise<void>,
 ): void {
     before(async function () {
         if (args.UseCachedApplications) {
-            SmokeTestLogger.info("*** --use-cache parameter is set, skipping reinstallation of test projects");
+            SmokeTestLogger.info(
+                "*** --use-cache parameter is set, skipping reinstallation of test projects",
+            );
         }
         if (args.SkipSetup) {
-            SmokeTestLogger.info("*** --skip-setup parameter is set, skipping clean up and apps installation");
-        }
-        else {
+            SmokeTestLogger.info(
+                "*** --skip-setup parameter is set, skipping clean up and apps installation",
+            );
+        } else {
             try {
                 this.timeout(SmokeTestsConstants.smokeTestSetupAwaitTimeout);
                 await cleanUp(args.UseCachedApplications);
@@ -61,7 +63,11 @@ export function startSmokeTests(
         SmokeTestLogger.info("*** Smoke tests will be run");
         startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
         startDirectDebugTests(testApplicationSetupManager.getHermesWorkspaceDirectory(), args);
-        startExpoTests(testApplicationSetupManager.getExpoWorkspaceDirectory(), testApplicationSetupManager.getPureRnWorkspaceDirectory(), args);
+        startExpoTests(
+            testApplicationSetupManager.getExpoWorkspaceDirectory(),
+            testApplicationSetupManager.getPureRnWorkspaceDirectory(),
+            args,
+        );
         startDebugMacOSTests(testApplicationSetupManager.getMacOSRnWorkspaceDirectory(), args);
         startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory(), args);
         startOtherTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
