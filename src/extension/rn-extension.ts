@@ -101,6 +101,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
             ExtensionConfigManager.config.get("version") !== appVersion) &&
         changelogFile
     ) {
+        ExtensionConfigManager.config.set("version", appVersion);
         vscode.window
             .showInformationMessage(
                 `React Native Tools have been updated to ${appVersion}`,
@@ -112,8 +113,6 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
                     vscode.Uri.file(changelogFile),
                 );
             });
-    } else {
-        ExtensionConfigManager.config.set("version", appVersion);
     }
 
     return entryPointHandler.runApp(
