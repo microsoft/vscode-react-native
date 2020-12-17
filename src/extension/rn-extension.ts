@@ -95,25 +95,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
         };
     }
 
-    const changelogFile = findFileInFolderHierarchy(__dirname, "CHANGELOG.md");
-    if (
-        (!ExtensionConfigManager.config.has("version") ||
-            ExtensionConfigManager.config.get("version") !== appVersion) &&
-        changelogFile
-    ) {
-        ExtensionConfigManager.config.set("version", appVersion);
-        vscode.window
-            .showInformationMessage(
-                `React Native Tools have been updated to ${appVersion}`,
-                localize("MoreDetails", "More details"),
-            )
-            .then(() => {
-                vscode.commands.executeCommand(
-                    "markdown.showPreview",
-                    vscode.Uri.file(changelogFile),
-                );
-            });
-    }
+    showChangelogNotificationOnUpdate(appVersion);
 
     return entryPointHandler.runApp(
         APP_NAME,
@@ -457,6 +439,28 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
             );
         },
     );
+}
+
+function showChangelogNotificationOnUpdate(currentVersion: string) {
+    const changelogFile = findFileInFolderHierarchy(__dirname, "CHANGELOG.md");
+    if (
+        (!ExtensionConfigManager.config.has("version") ||
+            ExtensionConfigManager.config.get("version") !== currentVersion) &&
+        changelogFile
+    ) {
+        ExtensionConfigManager.config.set("version", currentVersion);
+        vscode.window
+            .showInformationMessage(
+                `React Native Tools have been updated to ${currentVersion}`,
+                localize("MoreDetails", "More details"),
+            )
+            .then(() => {
+                vscode.commands.executeCommand(
+                    "markdown.showPreview",
+                    vscode.Uri.file(changelogFile),
+                );
+            });
+    }
 }
 
 function registerVSCodeCommand(
