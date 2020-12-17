@@ -12,7 +12,6 @@ try {
 // @endif
 import * as vscode from "vscode";
 import * as semver from "semver";
-import * as path from "path";
 import { CommandPaletteHandler } from "./commandPaletteHandler";
 import { EntryPointHandler, ProcessType } from "../common/entryPointHandler";
 import { ErrorHelper } from "../common/error/errorHelper";
@@ -30,7 +29,11 @@ import { ReactNativeSessionManager } from "./reactNativeSessionManager";
 import { ProjectsStorage } from "./projectsStorage";
 import { AppLauncher } from "./appLauncher";
 import * as nls from "vscode-nls";
-import { getExtensionVersion, getExtensionName } from "../common/extensionHelper";
+import {
+    getExtensionVersion,
+    getExtensionName,
+    findFileInFolderHierarchy,
+} from "../common/extensionHelper";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { ExtensionConfigManager } from "./extensionConfigManager";
 nls.config({
@@ -86,9 +89,11 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
         };
     }
 
+    const changelogFile = findFileInFolderHierarchy(__dirname, "CHANGELOG.md");
     if (
-        ExtensionConfigManager.config.has("version") &&
-        ExtensionConfigManager.config.get("version") !== appVersion
+        (!ExtensionConfigManager.config.has("version") ||
+            ExtensionConfigManager.config.get("version") !== appVersion) &&
+        changelogFile
     ) {
         vscode.window
             .showInformationMessage(
@@ -96,8 +101,9 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
                 localize("MoreDetails", "More details"),
             )
             .then(() => {
-                return vscode.workspace.openTextDocument(
-                    path.join(__dirname, "..", "..", "CHANGELOG.md"),
+                vscode.commands.executeCommand(
+                    "markdown.showPreview",
+                    vscode.Uri.file(changelogFile),
                 );
             });
     } else {
