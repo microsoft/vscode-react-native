@@ -18,7 +18,7 @@ export const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
 // eslint-disable-next-line
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
-    return new Promise<R>((c, e) => fn(...args, (err, r) => err ? e(err) : c(r)));
+    return new Promise<R>((c, e) => fn(...args, (err, r) => (err ? e(err) : c(r))));
 }
 
 export async function mkdirp(path: string, mode?: number): Promise<boolean> {
@@ -76,7 +76,11 @@ export function spawnSync(command: string, args?: string[], options?: SpawnSyncO
     }
 }
 
-export function execSync(command: string, options?: cp.ExecSyncOptions | undefined, logFilePath?: string): string {
+export function execSync(
+    command: string,
+    options?: cp.ExecSyncOptions | undefined,
+    logFilePath?: string,
+): string {
     options = Object.assign(options, { stdio: "pipe" });
     let output = "";
     try {
@@ -114,20 +118,32 @@ export function runInParallel(promises: Promise<any>[]): Promise<any[]> {
                 resolve(results);
             }
         };
-        promises.forEach((promise) => {
-            promise.then((result) => {
-                saveResult(result);
-            }).catch((e) => {
-                reject(e);
-            });
+        promises.forEach(promise => {
+            promise
+                .then(result => {
+                    saveResult(result);
+                })
+                .catch(e => {
+                    reject(e);
+                });
         });
     });
 }
 
-export function getContents(url: string, token: string | null, headers: any, callback: (error: Error, versionsContent: string) => void): void {
+export function getContents(
+    url: string,
+    token: string | null,
+    headers: any,
+    callback: (error: Error, versionsContent: string) => void,
+): void {
     request.get(toRequestOptions(url, token, headers), function (error, response, body) {
         if (!error && response && response.statusCode >= 400) {
-            error = new Error("Request returned status code: " + response.statusCode + "\nDetails: " + response.body);
+            error = new Error(
+                "Request returned status code: " +
+                    response.statusCode +
+                    "\nDetails: " +
+                    response.body,
+            );
         }
 
         callback(error, body);
@@ -177,7 +193,7 @@ export async function sleep(time: number): Promise<void> {
 
 export function findFile(directoryToSearch: string, filePattern: RegExp): string | null {
     const dirFiles = fs.readdirSync(directoryToSearch);
-    let extensionFile = dirFiles.find((elem) => {
+    let extensionFile = dirFiles.find(elem => {
         return filePattern.test(elem);
     });
     if (extensionFile) {
@@ -201,7 +217,7 @@ export function findStringInFile(filePath: string, strToFind: string): boolean {
 }
 
 export function objectsContains(object: any, subObject: any): boolean {
-    for (let i = 0; i < Object.keys(subObject).length ; i++) {
+    for (let i = 0; i < Object.keys(subObject).length; i++) {
         const key = Object.keys(subObject)[i];
         if (typeof subObject[key] === "object" && subObject[key] !== null) {
             if (typeof object[key] === "object" && object[key] !== null) {
@@ -211,16 +227,19 @@ export function objectsContains(object: any, subObject: any): boolean {
             } else {
                 return false;
             }
-        }
-        else if (subObject[key] !== object[key]) {
+        } else if (subObject[key] !== object[key]) {
             return false;
         }
     }
     return true;
 }
 
-export function waitUntil(condition: () => boolean, timeout: number = 30000, interval: number = 1000): Promise<boolean> {
-    return new Promise((resolve) => {
+export function waitUntil(
+    condition: () => boolean,
+    timeout: number = 30000,
+    interval: number = 1000,
+): Promise<boolean> {
+    return new Promise(resolve => {
         const rejectTimeout = setTimeout(() => {
             cleanup();
             resolve(false);
@@ -241,21 +260,18 @@ export function waitUntil(condition: () => boolean, timeout: number = 30000, int
 }
 
 export async function waitForRunningPackager(filePath: string): Promise<boolean> {
-
     const condition = () => {
         return findStringInFile(filePath, SmokeTestsConstants.PackagerStartedPattern);
     };
 
-    return waitUntil(condition)
-        .then((result) => {
-            if (result) {
-                SmokeTestLogger.success(`Packager started pattern is found`);
-            }
-            else {
-                SmokeTestLogger.warn(`Packager started logging pattern is not found`);
-            }
-            return result;
-        });
+    return waitUntil(condition).then(result => {
+        if (result) {
+            SmokeTestLogger.success(`Packager started pattern is found`);
+        } else {
+            SmokeTestLogger.warn(`Packager started logging pattern is not found`);
+        }
+        return result;
+    });
 }
 
 export async function smokeTestFail(message: string): Promise<void> {

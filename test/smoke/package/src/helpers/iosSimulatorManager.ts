@@ -35,9 +35,14 @@ export default class IosSimulatorManager {
     private static readonly APP_INIT_TIMEOUT = 40_000;
     private simulator: IiOSSimulator;
 
-    constructor(name: string | undefined = process.env.IOS_SIMULATOR, iosVersion: string | undefined = process.env.IOS_VERSION) {
+    constructor(
+        name: string | undefined = process.env.IOS_SIMULATOR,
+        iosVersion: string | undefined = process.env.IOS_VERSION,
+    ) {
         if (!name) {
-            throw new Error("Passed iOS simulator name and process.env.IOS_SIMULATOR is not defined!");
+            throw new Error(
+                "Passed iOS simulator name and process.env.IOS_SIMULATOR is not defined!",
+            );
         }
         if (process.platform === "darwin") {
             if (iosVersion) {
@@ -57,7 +62,7 @@ export default class IosSimulatorManager {
         projectWorkspaceConfigName: string,
         configuration: string,
         scheme: string,
-        sdkType: string
+        sdkType: string,
     ): string {
         const buildSettings = cp.execFileSync(
             "xcodebuild",
@@ -75,7 +80,7 @@ export default class IosSimulatorManager {
             {
                 encoding: "utf8",
                 cwd: iosProjectRoot,
-            }
+            },
         );
 
         const targetBuildDir = this.getTargetBuildDir(<string>buildSettings);
@@ -90,7 +95,11 @@ export default class IosSimulatorManager {
         const simulators = IosSimulatorManager.collectSimulators();
         const simulator = this.findSimulator(simulators, name, iosVersion);
         if (!simulator) {
-            throw new Error(`Could not find simulator with name: '${name}'${iosVersion ? ` and iOS version: '${iosVersion}'` : ""} in system. Exiting...`);
+            throw new Error(
+                `Could not find simulator with name: '${name}'${
+                    iosVersion ? ` and iOS version: '${iosVersion}'` : ""
+                } in system. Exiting...`,
+            );
         }
         this.simulator = simulator;
     }
@@ -99,7 +108,9 @@ export default class IosSimulatorManager {
         await this.shutdownSimulator();
         // Wipe data on simulator
         await this.eraseSimulator();
-        SmokeTestLogger.info(`*** Executing iOS simulator with 'xcrun simctl boot "${this.simulator.name}"' command...`);
+        SmokeTestLogger.info(
+            `*** Executing iOS simulator with 'xcrun simctl boot "${this.simulator.name}"' command...`,
+        );
         await this.bootSimulator();
         await sleep(15 * 1000);
     }
@@ -132,47 +143,49 @@ export default class IosSimulatorManager {
     }
 
     public async waitUntilIosSimulatorStarting(): Promise<boolean> {
-
         const condition = () => {
             this.updateSimulatorState(this.simulator.name, this.simulator.system);
             if (this.simulator.state === DeviceState.Booted) {
                 return true;
-            }
-            else return false;
+            } else return false;
         };
 
-        return waitUntil(condition, IosSimulatorManager.SIMULATOR_START_TIMEOUT)
-            .then((result) => {
-                if (result) {
-                    SmokeTestLogger.success(`*** iOS simulator ${this.simulator.name} has been started.`);
-                }
-                else {
-                    SmokeTestLogger.error(`*** Could not start iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_START_TIMEOUT}.`);
-                }
-                return result;
-            });
+        return waitUntil(condition, IosSimulatorManager.SIMULATOR_START_TIMEOUT).then(result => {
+            if (result) {
+                SmokeTestLogger.success(
+                    `*** iOS simulator ${this.simulator.name} has been started.`,
+                );
+            } else {
+                SmokeTestLogger.error(
+                    `*** Could not start iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_START_TIMEOUT}.`,
+                );
+            }
+            return result;
+        });
     }
 
     public async waitUntilIosSimulatorTerminating(): Promise<boolean> {
-
         const condition = () => {
             this.updateSimulatorState(this.simulator.name, this.simulator.system);
             if (this.simulator.state === DeviceState.Shutdown) {
                 return true;
-            }
-            else return false;
+            } else return false;
         };
 
-        return waitUntil(condition, IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT)
-            .then((result) => {
+        return waitUntil(condition, IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT).then(
+            result => {
                 if (result) {
-                    SmokeTestLogger.success(`*** iOS simulator ${this.simulator.name} has been terminated.`);
-                }
-                else {
-                    SmokeTestLogger.error(`*** Could not terminate iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`);
+                    SmokeTestLogger.success(
+                        `*** iOS simulator ${this.simulator.name} has been terminated.`,
+                    );
+                } else {
+                    SmokeTestLogger.error(
+                        `*** Could not terminate iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`,
+                    );
                 }
                 return result;
-            });
+            },
+        );
     }
 
     public async waitUntilIosAppIsInstalled(appBundleId: string): Promise<void> {
@@ -180,7 +193,15 @@ export default class IosSimulatorManager {
         // TODO is not compatible with parallel test run (race condition)
         let launched = false;
         const predicate = `eventMessage contains "Launch successful for '${appBundleId}'"`;
-        const args = ["simctl", "spawn", this.simulator.name, "log", "stream", "--predicate", predicate];
+        const args = [
+            "simctl",
+            "spawn",
+            this.simulator.name,
+            "log",
+            "stream",
+            "--predicate",
+            predicate,
+        ];
         const proc = spawn("xcrun", args, { stdio: "pipe" });
         proc.stdout.on("data", (data: string) => {
             data = data.toString();
@@ -196,7 +217,7 @@ export default class IosSimulatorManager {
         proc.stderr.on("error", (data: string) => {
             SmokeTestLogger.error(data.toString());
         });
-        proc.on("error", (err) => {
+        proc.on("error", err => {
             SmokeTestLogger.error(err);
             kill(proc.pid);
         });
@@ -206,12 +227,16 @@ export default class IosSimulatorManager {
         await new Promise((resolve, reject) => {
             const check = setInterval(async () => {
                 if (retry % 5 === 0) {
-                    SmokeTestLogger.info(`*** Check if app with bundleId ${appBundleId} is installed, ${retry} attempt`);
+                    SmokeTestLogger.info(
+                        `*** Check if app with bundleId ${appBundleId} is installed, ${retry} attempt`,
+                    );
                 }
                 if (launched) {
                     clearInterval(check);
                     const initTimeout = IosSimulatorManager.APP_INIT_TIMEOUT || 10000;
-                    SmokeTestLogger.success(`*** Installed ${appBundleId} app found, await ${initTimeout}ms for initializing...`);
+                    SmokeTestLogger.success(
+                        `*** Installed ${appBundleId} app found, await ${initTimeout}ms for initializing...`,
+                    );
                     await sleep(initTimeout);
                     resolve();
                 } else {
@@ -219,7 +244,9 @@ export default class IosSimulatorManager {
                     if (retry >= awaitRetries) {
                         clearInterval(check);
                         kill(proc.pid, () => {
-                            reject(`${appBundleId} not found after ${IosSimulatorManager.APP_INSTALL_AND_BUILD_TIMEOUT}ms`);
+                            reject(
+                                `${appBundleId} not found after ${IosSimulatorManager.APP_INSTALL_AND_BUILD_TIMEOUT}ms`,
+                            );
                         });
                     }
                 }
@@ -230,21 +257,30 @@ export default class IosSimulatorManager {
     public async installExpoAppOnIos(): Promise<void> {
         this.updateSimulatorState(this.simulator.name, this.simulator.system);
         if (this.simulator.state === DeviceState.Booted) {
-            SmokeTestLogger.projectPatchingLog(`*** Installing Expo app on iOS simulator using Expo XDL function`);
+            SmokeTestLogger.projectPatchingLog(
+                `*** Installing Expo app on iOS simulator using Expo XDL function`,
+            );
             await XDL.Simulator.installExpoOnSimulatorAsync({
                 simulator: {
                     name: this.simulator.name || "",
-                    udid: this.simulator.id || ""
-                }
+                    udid: this.simulator.id || "",
+                },
             });
-        }
-        else {
-            throw new Error("*** Could not install Expo app on iOS simulator because it is not booted");
+        } else {
+            throw new Error(
+                "*** Could not install Expo app on iOS simulator because it is not booted",
+            );
         }
     }
 
-    private findSimulator(simulators: IiOSSimulator[], name: string, system?: string): IiOSSimulator | null {
-        const foundSimulator = simulators.find((value) => value.name === name && (!system || value.system === system));
+    private findSimulator(
+        simulators: IiOSSimulator[],
+        name: string,
+        system?: string,
+    ): IiOSSimulator | null {
+        const foundSimulator = simulators.find(
+            value => value.name === name && (!system || value.system === system),
+        );
         if (!foundSimulator) {
             return null;
         }
@@ -253,7 +289,7 @@ export default class IosSimulatorManager {
 
     private static getBootedDevices(): IiOSSimulator[] {
         const simulators = this.collectSimulators();
-        const bootedSimulators = simulators.filter((sim) => sim.state === DeviceState.Booted);
+        const bootedSimulators = simulators.filter(sim => sim.state === DeviceState.Booted);
         return bootedSimulators;
     }
 
@@ -261,7 +297,7 @@ export default class IosSimulatorManager {
         const simulators: IiOSSimulator[] = [];
         const res = execSync("xcrun simctl list --json devices available").toString();
         const simulatorsJson = JSON.parse(res);
-        Object.keys(simulatorsJson.devices).forEach((rawSystem) => {
+        Object.keys(simulatorsJson.devices).forEach(rawSystem => {
             let system = rawSystem.split(".").slice(-1)[0]; // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> "iOS-11-4"
             simulatorsJson.devices[rawSystem].forEach((device: any) => {
                 simulators.push({
@@ -283,7 +319,7 @@ export default class IosSimulatorManager {
             const commandArgs = ["simctl"].concat(args);
             const cp = spawn(command, commandArgs);
             cp.on("close", () => {
-                const lines = stderr.split("\n").filter((value) => value); // filter empty lines
+                const lines = stderr.split("\n").filter(value => value); // filter empty lines
                 if (lines.length === 0) {
                     // No error output
                     resolve({
@@ -295,7 +331,11 @@ export default class IosSimulatorManager {
                 if (lastLine.startsWith(`Unable to ${args[0]}`)) {
                     const match = lastLine.match(/in current state: (.+)/);
                     if (!match || match.length !== 2) {
-                        reject(new Error(`Error parsing ${[command].concat(commandArgs).join(" ")} output`));
+                        reject(
+                            new Error(
+                                `Error parsing ${[command].concat(commandArgs).join(" ")} output`,
+                            ),
+                        );
                     }
                     const state = DeviceState[match![1]];
                     if (!state) {
@@ -314,7 +354,13 @@ export default class IosSimulatorManager {
                         Successful: true,
                     });
                 } else {
-                    reject(new Error(`Error occurred while running ${[command].concat(commandArgs).join(" ")}`));
+                    reject(
+                        new Error(
+                            `Error occurred while running ${[command]
+                                .concat(commandArgs)
+                                .join(" ")}`,
+                        ),
+                    );
                 }
             });
             cp.stderr.on("data", (chunk: string | Buffer) => {
@@ -328,12 +374,16 @@ export default class IosSimulatorManager {
     }
 
     private static getRunError(command: string, failedState?: DeviceState) {
-        return new Error(`Couldn't run ${command} simulator` + (failedState) ? `, because it in ${failedState} state` : "");
+        return new Error(
+            `Couldn't run ${command} simulator` + failedState
+                ? `, because it in ${failedState} state`
+                : "",
+        );
     }
 
     public static async shutdownAllSimulators(): Promise<boolean> {
         const promises: Promise<void>[] = [];
-        IosSimulatorManager.getBootedDevices().forEach((device) => {
+        IosSimulatorManager.getBootedDevices().forEach(device => {
             promises.push(IosSimulatorManager.shutdownSimulator(device.name));
         });
         await Promise.all(promises);
@@ -353,37 +403,35 @@ export default class IosSimulatorManager {
     }
 
     public static async waitUntilAllIosSimulatorsTerminating(): Promise<boolean> {
-
         const condition = () => {
             if (IosSimulatorManager.getBootedDevices().length === 0) {
                 return true;
-            }
-            else return false;
+            } else return false;
         };
 
-        return waitUntil(condition, IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT)
-            .then((result) => {
+        return waitUntil(condition, IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT).then(
+            result => {
                 if (result) {
                     SmokeTestLogger.success(`*** All iOS simulators has been terminated.`);
-                }
-                else {
-                    SmokeTestLogger.error(`*** Could not terminate all iOS simulators after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`);
+                } else {
+                    SmokeTestLogger.error(
+                        `*** Could not terminate all iOS simulators after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`,
+                    );
                 }
                 return result;
-            });
+            },
+        );
     }
 
     /**
-    *
-    * The function was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
-    *
-    * @param {string} buildSettings
-    * @returns {string | null}
-    */
+     *
+     * The function was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.ts#L369-L374
+     *
+     * @param {string} buildSettings
+     * @returns {string | null}
+     */
     private static getTargetBuildDir(buildSettings: string) {
         const targetBuildMatch = /TARGET_BUILD_DIR = (.+)$/m.exec(buildSettings);
-        return targetBuildMatch && targetBuildMatch[1]
-            ? targetBuildMatch[1].trim()
-            : null;
+        return targetBuildMatch && targetBuildMatch[1] ? targetBuildMatch[1].trim() : null;
     }
 }
