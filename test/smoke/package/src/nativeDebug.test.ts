@@ -23,9 +23,7 @@ const debugAndroidTestTime = SmokeTestsConstants.androidTestTimeout;
 // Time for iOS Debug Test before it reaches timeout
 const debugIosTestTime = SmokeTestsConstants.iosTestTimeout;
 
-
 export function startReactNativeTests(workspace: string, testParameters: TestRunArguments): void {
-
     describe("React Native", () => {
         let app: Application;
 
@@ -50,32 +48,54 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("Android Debug test: App.js file is opened");
                 await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
-                SmokeTestLogger.info(`Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
-                SmokeTestLogger.info(`Android Debug test: Chosen debug configuration: ${AndroidRNDebugConfigName}`);
+                SmokeTestLogger.info(
+                    `Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`,
+                );
+                SmokeTestLogger.info(
+                    `Android Debug test: Chosen debug configuration: ${AndroidRNDebugConfigName}`,
+                );
                 SmokeTestLogger.info("Android Debug test: Starting debugging");
                 await app.workbench.quickaccess.runDebugScenario(AndroidRNDebugConfigName);
                 await androidEmulatorManager.waitUntilAppIsInstalled(RN_APP_PACKAGE_NAME);
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("Android Debug test: Debugging started");
-                await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
+                await app.workbench.debug.waitForStackFrame(
+                    sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine,
+                    `looking for App.js and line ${RNSetBreakpointOnLine}`,
+                );
                 SmokeTestLogger.info("Android Debug test: Stack frame found");
                 await app.workbench.debug.stepOver();
                 // await for our debug string renders in debug console
                 await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-                SmokeTestLogger.info("Android Debug test: Searching for \"Test output from debuggee\" string in console");
-                let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
-                assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-                SmokeTestLogger.success("Android Debug test: \"Test output from debuggee\" string is found");
+                SmokeTestLogger.info(
+                    'Android Debug test: Searching for "Test output from debuggee" string in console',
+                );
+                let found = await app.workbench.debug.waitForOutput(output =>
+                    output.some(line => line.indexOf("Test output from debuggee") >= 0),
+                );
+                assert.notStrictEqual(
+                    found,
+                    false,
+                    '"Test output from debuggee" string is missing in debug console',
+                );
+                SmokeTestLogger.success(
+                    'Android Debug test: "Test output from debuggee" string is found',
+                );
                 await app.workbench.debug.disconnectFromDebugger();
                 SmokeTestLogger.info("Android Debug test: Debugging is stopped");
             });
         }
 
         // iOS debug tests
-        if (process.platform === "darwin" && (testParameters.RunIosTests || testParameters.RunBasicTests)) {
+        if (
+            process.platform === "darwin" &&
+            (testParameters.RunIosTests || testParameters.RunBasicTests)
+        ) {
             it("iOS RN app Debug test", async function () {
                 if (process.platform !== "darwin") {
-                    SmokeTestLogger.info(`iOS RN app Debug test: skip test if running not on macOS`);
+                    SmokeTestLogger.info(
+                        `iOS RN app Debug test: skip test if running not on macOS`,
+                    );
                     return this.skip();
                 }
                 this.timeout(debugIosTestTime);
@@ -86,24 +106,43 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("iOS Debug test: App.js file is opened");
                 await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
-                SmokeTestLogger.info(`iOS Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`);
-                SmokeTestLogger.info(`iOS Debug test: Chosen debug configuration: ${IosRNDebugConfigName}`);
+                SmokeTestLogger.info(
+                    `iOS Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`,
+                );
+                SmokeTestLogger.info(
+                    `iOS Debug test: Chosen debug configuration: ${IosRNDebugConfigName}`,
+                );
                 // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
-                launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, { target: deviceName });
+                launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, {
+                    target: deviceName,
+                });
                 SmokeTestLogger.info("iOS Debug test: Starting debugging");
                 await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
                 await iosSimulatorManager.waitUntilIosAppIsInstalled(RnAppBundleId);
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("iOS Debug test: Debugging started");
-                await app.workbench.debug.waitForStackFrame(sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine, `looking for App.js and line ${RNSetBreakpointOnLine}`);
+                await app.workbench.debug.waitForStackFrame(
+                    sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine,
+                    `looking for App.js and line ${RNSetBreakpointOnLine}`,
+                );
                 SmokeTestLogger.info("iOS Debug test: Stack frame found");
                 await app.workbench.debug.stepOver();
                 // Wait for our debug string to render in debug console
                 await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-                SmokeTestLogger.info("iOS Debug test: Searching for \"Test output from debuggee\" string in console");
-                let found = await app.workbench.debug.waitForOutput(output => output.some(line => line.indexOf("Test output from debuggee") >= 0));
-                assert.notStrictEqual(found, false, "\"Test output from debuggee\" string is missing in debug console");
-                SmokeTestLogger.success("iOS Debug test: \"Test output from debuggee\" string is found");
+                SmokeTestLogger.info(
+                    'iOS Debug test: Searching for "Test output from debuggee" string in console',
+                );
+                let found = await app.workbench.debug.waitForOutput(output =>
+                    output.some(line => line.indexOf("Test output from debuggee") >= 0),
+                );
+                assert.notStrictEqual(
+                    found,
+                    false,
+                    '"Test output from debuggee" string is missing in debug console',
+                );
+                SmokeTestLogger.success(
+                    'iOS Debug test: "Test output from debuggee" string is found',
+                );
                 await app.workbench.debug.disconnectFromDebugger();
                 SmokeTestLogger.info("iOS Debug test: Debugging is stopped");
             });

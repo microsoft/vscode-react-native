@@ -12,7 +12,7 @@ import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { InternalError, NestedError } from "../common/error/internalError";
-import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
+import { IRunOptions, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
 import * as nls from "vscode-nls";
@@ -45,7 +45,10 @@ export interface TerminateEventArgs {
     args: any;
 }
 
-export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments, ILaunchArgs {
+export interface IAttachRequestArgs
+    extends DebugProtocol.AttachRequestArguments,
+        IRunOptions,
+        vscode.DebugConfiguration {
     webkitRangeMax: number;
     webkitRangeMin: number;
     cwd: string /* Automatically set by VS Code to the currently opened folder */;

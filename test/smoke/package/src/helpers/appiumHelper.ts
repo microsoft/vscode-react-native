@@ -27,7 +27,7 @@ export class AppiumHelper {
     private static waitUntilEnableRemoteDebugOptions: wdio.WaitUntilOptions = {
         timeout: SmokeTestsConstants.enableRemoteJSTimeout,
         timeoutMsg: `Remote debugging UI element not found after ${SmokeTestsConstants.enableRemoteJSTimeout}ms`,
-        interval: 1000
+        interval: 1000,
     };
 
     // Paths for searching UI elements
@@ -47,7 +47,8 @@ export class AppiumHelper {
         RN_STOP_REMOTE_DEBUGGING_BUTTON: {
             [Platform.Android]: "//*[@text='Stop Remote JS Debugging' or @text='Stop Debugging']",
             [Platform.AndroidExpo]: "//*[@text='Stop Remote Debugging']",
-            [Platform.iOS]: "//XCUIElementTypeButton[@name='Stop Remote JS Debugging' or @name='Stop Debugging']",
+            [Platform.iOS]:
+                "//XCUIElementTypeButton[@name='Stop Remote JS Debugging' or @name='Stop Debugging']",
             [Platform.iOSExpo]: "//XCUIElementTypeOther[@name=' Stop Remote Debugging']",
         },
         RN_DEV_MENU_CANCEL: {
@@ -75,17 +76,19 @@ export class AppiumHelper {
         let appiumCommand = process.platform === "win32" ? "appium.cmd" : "appium";
         // We need to inherit stdio streams because, otherwise, on Windows appium is stuck at the middle of the Expo test.
         // We ignore stdout because --log already does the trick, but keeps stdin and stderr.
-        appiumProcess = cp.spawn(appiumCommand, ["--log", appiumLogPath], { stdio: ["inherit", "ignore", "inherit"] });
+        appiumProcess = cp.spawn(appiumCommand, ["--log", appiumLogPath], {
+            stdio: ["inherit", "ignore", "inherit"],
+        });
         appiumProcess.on("exit", () => {
             SmokeTestLogger.info("*** Appium terminated");
         });
-        appiumProcess.on("error", (error) => {
+        appiumProcess.on("error", error => {
             SmokeTestLogger.error(`Error occurred in Appium process: ${error.toString()}`);
         });
     }
 
     public static async terminateAppium(): Promise<boolean> {
-        const errorCallback = (err) => {
+        const errorCallback = err => {
             if (err) {
                 SmokeTestLogger.error("Error occured while terminating Appium");
                 throw err;
@@ -99,7 +102,9 @@ export class AppiumHelper {
             } else {
                 retrieveProcessesData = () => {
                     try {
-                        return appiumProcess ? cp.execSync(`ps -p ${appiumProcess.pid}`).toString() : "";
+                        return appiumProcess
+                            ? cp.execSync(`ps -p ${appiumProcess.pid}`).toString()
+                            : "";
                     } catch (err) {
                         if (err.stdout.toString() && !err.stderr.toString()) {
                             return err.stdout.toString();
@@ -112,7 +117,9 @@ export class AppiumHelper {
 
             const condition = () => {
                 if (appiumProcess && retrieveProcessesData().includes(String(appiumProcess.pid))) {
-                    SmokeTestLogger.info(`*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`);
+                    SmokeTestLogger.info(
+                        `*** Sending SIGINT to Appium process with PID ${appiumProcess.pid}`,
+                    );
                     kill(appiumProcess.pid, "SIGINT", errorCallback);
                     return false;
                 } else {
@@ -120,8 +127,7 @@ export class AppiumHelper {
                 }
             };
 
-            return waitUntil(condition, 5 * 60 * 1000, 10 * 1000)
-            .then((result) => {
+            return waitUntil(condition, 5 * 60 * 1000, 10 * 1000).then(result => {
                 if (result) {
                     SmokeTestLogger.success(`*** Appium process was killed`);
                 } else {
@@ -134,12 +140,20 @@ export class AppiumHelper {
         }
     }
 
-    public static prepareAttachOptsForAndroidActivity(applicationPackage: string, applicationActivity: string, deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName): wdio.RemoteOptions {
-        SmokeTestLogger.info(`*** process.env.WEBDRIVER_IO_LOGS_DIR: ${process.env.WEBDRIVER_IO_LOGS_DIR}`);
+    public static prepareAttachOptsForAndroidActivity(
+        applicationPackage: string,
+        applicationActivity: string,
+        deviceName: string = SmokeTestsConstants.defaultTargetAndroidDeviceName,
+    ): wdio.RemoteOptions {
+        SmokeTestLogger.info(
+            `*** process.env.WEBDRIVER_IO_LOGS_DIR: ${process.env.WEBDRIVER_IO_LOGS_DIR}`,
+        );
         return {
             capabilities: {
                 platformName: "Android",
-                platformVersion: process.env.ANDROID_VERSION || SmokeTestsConstants.defaultTargetAndroidPlatformVersion,
+                platformVersion:
+                    process.env.ANDROID_VERSION ||
+                    SmokeTestsConstants.defaultTargetAndroidPlatformVersion,
                 deviceName: deviceName,
                 appActivity: applicationActivity,
                 appPackage: applicationPackage,
@@ -153,12 +167,18 @@ export class AppiumHelper {
         };
     }
 
-    public static prepareAttachOptsForIosApp(deviceName: string, appPath: string): wdio.RemoteOptions {
-        SmokeTestLogger.info(`*** process.env.WEBDRIVER_IO_LOGS_DIR: ${process.env.WEBDRIVER_IO_LOGS_DIR}`);
+    public static prepareAttachOptsForIosApp(
+        deviceName: string,
+        appPath: string,
+    ): wdio.RemoteOptions {
+        SmokeTestLogger.info(
+            `*** process.env.WEBDRIVER_IO_LOGS_DIR: ${process.env.WEBDRIVER_IO_LOGS_DIR}`,
+        );
         return {
             capabilities: {
                 platformName: "iOS",
-                platformVersion: process.env.IOS_VERSION || SmokeTestsConstants.defaultTargetIosPlatformVersion,
+                platformVersion:
+                    process.env.IOS_VERSION || SmokeTestsConstants.defaultTargetIosPlatformVersion,
                 deviceName: deviceName,
                 app: appPath,
                 automationName: "XCUITest",
@@ -176,11 +196,17 @@ export class AppiumHelper {
         return wdio.remote(attachArgs);
     }
 
-    public static createWebdriverIOLogDir(webdriverIOLogDir: string) {
+    public static createWebdriverIOLogDir(webdriverIOLogDir: string): void {
         mkdirp.sync(webdriverIOLogDir);
     }
 
-    public static async openExpoApplication(platform: Platform, client: AppiumClient, expoURL: string, projectFolder: string, firstLaunch?: boolean): Promise<void> {
+    public static async openExpoApplication(
+        platform: Platform,
+        client: AppiumClient,
+        expoURL: string,
+        projectFolder: string,
+        firstLaunch?: boolean,
+    ): Promise<void> {
         // There are two ways to run app in Expo app:
         // - via clipboard
         // - via expo XDL function
@@ -212,7 +238,9 @@ export class AppiumHelper {
         switch (platform) {
             case Platform.Android:
             case Platform.AndroidExpo:
-                SmokeTestLogger.info("*** Opening DevMenu by calling 'adb shell input keyevent 82'...");
+                SmokeTestLogger.info(
+                    "*** Opening DevMenu by calling 'adb shell input keyevent 82'...",
+                );
                 const devMenuCallCommand = "adb shell input keyevent 82";
                 cp.exec(devMenuCallCommand);
                 await sleep(10 * 1000);
@@ -232,52 +260,61 @@ export class AppiumHelper {
     public static async reloadRNApp(client: AppiumClient, platform: Platform): Promise<void> {
         SmokeTestLogger.info("*** Reloading React Native application with DevMenu...");
         const reloadButton = await client.$(this.XPATH.RN_RELOAD_BUTTON[platform]);
-        await client
-            .waitUntil(async () => {
-                await this.callRNDevMenu(client, platform);
-                if (await reloadButton.isExisting()) {
-                    SmokeTestLogger.info("*** Reload button found...");
-                    await reloadButton.click();
-                    SmokeTestLogger.info("*** Reload button clicked...");
-                    return true;
-                }
-                return false;
-            }, this.waitUntilEnableRemoteDebugOptions);
+        await client.waitUntil(async () => {
+            await this.callRNDevMenu(client, platform);
+            if (await reloadButton.isExisting()) {
+                SmokeTestLogger.info("*** Reload button found...");
+                await reloadButton.click();
+                SmokeTestLogger.info("*** Reload button clicked...");
+                return true;
+            }
+            return false;
+        }, this.waitUntilEnableRemoteDebugOptions);
     }
 
-    public static async enableRemoteDebugJS(client: AppiumClient, platform: Platform): Promise<void> {
+    public static async enableRemoteDebugJS(
+        client: AppiumClient,
+        platform: Platform,
+    ): Promise<void> {
         SmokeTestLogger.info("*** Enabling Remote JS Debugging for application with DevMenu...");
 
-        const enableRemoteDebugButton = await client.$(this.XPATH.RN_ENABLE_REMOTE_DEBUGGING_BUTTON[platform]);
-        const enableRemoteDebugStopButton = await client.$(this.XPATH.RN_STOP_REMOTE_DEBUGGING_BUTTON[platform]);
-        const enableRemoteDebugCancelButton = await client.$(this.XPATH.RN_DEV_MENU_CANCEL[platform]);
-        await client
-            .waitUntil(async () => {
+        const enableRemoteDebugButton = await client.$(
+            this.XPATH.RN_ENABLE_REMOTE_DEBUGGING_BUTTON[platform],
+        );
+        const enableRemoteDebugStopButton = await client.$(
+            this.XPATH.RN_STOP_REMOTE_DEBUGGING_BUTTON[platform],
+        );
+        const enableRemoteDebugCancelButton = await client.$(
+            this.XPATH.RN_DEV_MENU_CANCEL[platform],
+        );
+        await client.waitUntil(async () => {
+            if (await enableRemoteDebugButton.isExisting()) {
+                SmokeTestLogger.info("*** Debug JS Remotely button found...");
+                await enableRemoteDebugButton.click();
+                SmokeTestLogger.info("*** Debug JS Remotely button clicked...");
+                await sleep(1000);
                 if (await enableRemoteDebugButton.isExisting()) {
-                    SmokeTestLogger.info("*** Debug JS Remotely button found...");
                     await enableRemoteDebugButton.click();
-                    SmokeTestLogger.info("*** Debug JS Remotely button clicked...");
-                    await sleep(1000);
-                    if (await enableRemoteDebugButton.isExisting()) {
-                        await enableRemoteDebugButton.click();
-                        SmokeTestLogger.info("*** Debug JS Remotely button clicked second time...");
-                    }
-                    return true;
-                } else if (await enableRemoteDebugStopButton.isExisting()) {
-                    SmokeTestLogger.info("*** Stop Remote JS Debugging button found, closing Dev Menu...");
-                    if (await enableRemoteDebugCancelButton.isExisting()) {
-                        SmokeTestLogger.info("*** Cancel button found...");
-                        await enableRemoteDebugCancelButton.click();
-                        SmokeTestLogger.info("*** Cancel button clicked...");
-                        return true;
-                    } else {
-                        await this.callRNDevMenu(client, platform);
-                        return false;
-                    }
+                    SmokeTestLogger.info("*** Debug JS Remotely button clicked second time...");
                 }
-                await this.callRNDevMenu(client, platform);
-                return false;
-            }, this.waitUntilEnableRemoteDebugOptions);
+                return true;
+            } else if (await enableRemoteDebugStopButton.isExisting()) {
+                SmokeTestLogger.info(
+                    "*** Stop Remote JS Debugging button found, closing Dev Menu...",
+                );
+                if (await enableRemoteDebugCancelButton.isExisting()) {
+                    SmokeTestLogger.info("*** Cancel button found...");
+                    await enableRemoteDebugCancelButton.click();
+                    SmokeTestLogger.info("*** Cancel button clicked...");
+                    return true;
+                } else {
+                    await this.callRNDevMenu(client, platform);
+                    return false;
+                }
+            }
+            await this.callRNDevMenu(client, platform);
+            return false;
+        }, this.waitUntilEnableRemoteDebugOptions);
     }
 
     // Expo 32 has an error on iOS application start up
@@ -292,7 +329,10 @@ export class AppiumHelper {
 
     // New Expo versions shows DevMenu at first launch with informational message,
     // it is better to disable this message and then call DevMenu ourselves
-    public static async disableDevMenuInformationalMsg(client: AppiumClient, platform: Platform): Promise<void> {
+    public static async disableDevMenuInformationalMsg(
+        client: AppiumClient,
+        platform: Platform,
+    ): Promise<void> {
         const gotItButton = await client.$(this.XPATH.GOT_IT_BUTTON[platform]);
         if (await gotItButton.isExisting()) {
             SmokeTestLogger.info("*** Expo DevMenu informational message found, disabling...");
@@ -308,16 +348,16 @@ export class AppiumHelper {
 
     public static async isHermesWorking(client: AppiumClient): Promise<boolean> {
         const hermesMark = await client.$("//*[@text='Engine: Hermes']");
-        return await hermesMark
-            .waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
+        return await hermesMark.waitForExist({
+            timeout: SmokeTestsConstants.waitForElementTimeout,
+        });
     }
 
     private static async openExpoAppViaClipboardAndroid(client: AppiumClient, expoURL: string) {
         // Expo application automatically detects Expo URLs in the clipboard
         // So we are copying expoURL to system clipboard and click on the special "Open from Clipboard" UI element
         const exploreElement = await client.$("//android.widget.TextView[@text='Projects']");
-        await exploreElement
-            .waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
+        await exploreElement.waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
         await exploreElement.click();
 
         SmokeTestLogger.info(`*** Pressing "Projects" icon...`);
@@ -326,43 +366,53 @@ export class AppiumHelper {
         SmokeTestLogger.info(`*** Copying ${expoURL} to system clipboard...`);
         clipboardy.writeSync(expoURL);
         const expoOpenFromClipboard = await client.$("//*[@text='Open from Clipboard']");
-        SmokeTestLogger.info(`*** Searching for ${expoOpenFromClipboard.selector} element for click...`);
+        SmokeTestLogger.info(
+            `*** Searching for ${expoOpenFromClipboard.selector} element for click...`,
+        );
         // Run Expo app by expoURL
-        await expoOpenFromClipboard
-            .waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
+        await expoOpenFromClipboard.waitForExist({
+            timeout: SmokeTestsConstants.waitForElementTimeout,
+        });
 
         await expoOpenFromClipboard.click();
         SmokeTestLogger.info(`*** ${expoOpenFromClipboard.selector} clicked...`);
     }
 
-    private static async openExpoAppViaExpoXDLAndroidFunction(client: AppiumClient, projectFolder: string) {
+    private static async openExpoAppViaExpoXDLAndroidFunction(
+        client: AppiumClient,
+        projectFolder: string,
+    ) {
         SmokeTestLogger.info(`*** Opening Expo app via XDL.Android function`);
         SmokeTestLogger.info(`*** Searching for the "Explore" button...`);
         const exploreElement = await client.$("//android.widget.TextView[@text='Projects']");
-        await exploreElement
-            .waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
+        await exploreElement.waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
 
         await XDL.Android.openProjectAsync({ projectRoot: projectFolder });
     }
 
-    private static async openExpoAppViaExpoXDLSimulatorFunction(client: AppiumClient, projectFolder: string, firstLaunch?: boolean) {
+    private static async openExpoAppViaExpoXDLSimulatorFunction(
+        client: AppiumClient,
+        projectFolder: string,
+        firstLaunch?: boolean,
+    ) {
         SmokeTestLogger.info(`*** Opening Expo app via XDL.Simulator function`);
         SmokeTestLogger.info(`*** Searching for the "Explore" button...`);
 
-        const exploreElement = await client.$(`//XCUIElementTypeButton[@name="Explore, tab, 2 of 4"]`);
-        await exploreElement
-            .waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
+        const exploreElement = await client.$(
+            `//XCUIElementTypeButton[@name="Explore, tab, 2 of 4"]`,
+        );
+        await exploreElement.waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
 
         await XDL.Simulator.openProjectAsync({ projectRoot: projectFolder });
 
-        if (firstLaunch) { // it's required to allow launch of an Expo application when it's launched for the first time
+        if (firstLaunch) {
+            // it's required to allow launch of an Expo application when it's launched for the first time
             SmokeTestLogger.info(`*** First launch of Expo app`);
             SmokeTestLogger.info(`*** Pressing "Open" button...`);
 
             const openButton = await client.$(`//XCUIElementTypeButton[@name="Open"]`);
 
-            await openButton
-                .waitForExist({ timeout: 10 * 1000 });
+            await openButton.waitForExist({ timeout: 10 * 1000 });
             await openButton.click();
         }
     }

@@ -31,7 +31,11 @@ export class LaunchConfigurationManager {
         return this.launchScenarios;
     }
 
-    private getScenarioByName(scenarioName: string): number | null{
+    public getConfigurationsCount(): number {
+        return this.launchScenarios.configurations ? this.launchScenarios.configurations.length : 0;
+    }
+
+    private getScenarioByName(scenarioName: string): number | null {
         if (this.launchScenarios.configurations) {
             for (let i = 0; i < this.launchScenarios.configurations.length; i++) {
                 const config = this.launchScenarios.configurations[i];
@@ -76,9 +80,8 @@ export class LaunchConfigurationManager {
                     if (index !== null) {
                         return objectsContains(configs[index], updates);
                     }
-                }
-                else {
-                    configs.forEach((config) => {
+                } else {
+                    configs.forEach(config => {
                         if (objectsContains(config, updates)) {
                             return true;
                         }
