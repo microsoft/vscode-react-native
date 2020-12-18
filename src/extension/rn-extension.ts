@@ -67,7 +67,9 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
 
     if (extensionName) {
         if (extensionName.includes("preview")) {
-            showTwoVersionFoundNotification(extensionName);
+            if (showTwoVersionFoundNotification(extensionName)) {
+                return Promise.resolve();
+            }
         }
         else {
             showChangelogNotificationOnUpdate(appVersion);
@@ -437,7 +439,7 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     );
 }
 
-function showTwoVersionFoundNotification(extensionName: string) {
+function showTwoVersionFoundNotification(extensionName: string): boolean {
     if (extensionName.includes("preview")) {
         if (vscode.extensions.getExtension("msjsdiag.vscode-react-native")) {
             vscode.window.showInformationMessage(
@@ -446,9 +448,10 @@ function showTwoVersionFoundNotification(extensionName: string) {
                     "React Native Tools: Both Stable and Preview extensions are installed. Stable will be used. Disable or remove it to work with Preview version.",
                 ),
             );
-            return Promise.resolve();
+            return true;
         }
     }
+    return false;
 }
 
 function showChangelogNotificationOnUpdate(currentVersion: string) {
