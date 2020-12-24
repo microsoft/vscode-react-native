@@ -461,7 +461,7 @@ function showChangelogNotificationOnUpdate(currentVersion: string) {
         ExtensionConfigManager.config.set("version", currentVersion);
         vscode.window
             .showInformationMessage(
-                `React Native Tools have been updated to ${currentVersion}`,
+                `React Native Tools has been updated to ${currentVersion}`,
                 localize("MoreDetails", "More details"),
             )
             .then(() => {
