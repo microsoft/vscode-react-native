@@ -70,8 +70,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
             if (showTwoVersionFoundNotification(extensionName)) {
                 return Promise.resolve();
             }
-        }
-        else {
+        } else {
             showChangelogNotificationOnUpdate(appVersion);
         }
     }
@@ -464,7 +463,11 @@ function showChangelogNotificationOnUpdate(currentVersion: string) {
         ExtensionConfigManager.config.set("version", currentVersion);
         vscode.window
             .showInformationMessage(
-                `React Native Tools have been updated to ${currentVersion}`,
+                localize(
+                    "RNTHaveBeenUpdatedToVersion",
+                    "React Native Tools have been updated to {0}",
+                    currentVersion,
+                ),
                 localize("MoreDetails", "More details"),
             )
             .then(() => {
