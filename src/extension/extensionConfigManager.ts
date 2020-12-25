@@ -5,5 +5,5 @@ import * as Configstore from "configstore";
 
 export class ExtensionConfigManager {
     private static configName = "reactNativeToolsConfig";
-    public static config = new Configstore(ExtensionConfigManager.configName);
+    public static readonly config = new Configstore(ExtensionConfigManager.configName);
 }
