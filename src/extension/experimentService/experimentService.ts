@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Configstore from "configstore";
 import * as https from "https";
 import * as vscode from "vscode";
 import { IExperiment } from "./IExperiment";
 import { PromiseUtil } from "../../common/node/promise";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { Telemetry } from "../../common/telemetry";
+import { ExtensionConfigManager } from "../extensionConfigManager";
 
 export enum ExperimentStatuses {
     ENABLED = "enabled",
@@ -36,8 +36,6 @@ export class ExperimentService implements vscode.Disposable {
     private static instance: ExperimentService;
 
     private readonly endpointURL: string;
-    private readonly configName: string;
-    private config: Configstore;
     private downloadedExperimentsConfig: Array<ExperimentConfig> | null;
     private experimentsInstances: Map<string, IExperiment>;
     private downloadConfigRequest: Promise<ExperimentConfig[]>;
@@ -72,9 +70,6 @@ export class ExperimentService implements vscode.Disposable {
     private constructor() {
         this.endpointURL =
             "https://microsoft.github.io/vscode-react-native/experiments/experimentsConfig.json";
-        this.configName = "reactNativeToolsConfig";
-
-        this.config = new Configstore(this.configName);
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
         this.downloadedExperimentsConfig = null;
 
@@ -82,14 +77,17 @@ export class ExperimentService implements vscode.Disposable {
     }
 
     private async executeExperiment(expConfig: ExperimentConfig): Promise<ExperimentResult> {
-        let curExperimentParameters = this.config.get(expConfig.experimentName);
+        let curExperimentParameters = ExtensionConfigManager.config.get(expConfig.experimentName);
         let expInstance = this.experimentsInstances.get(expConfig.experimentName);
 
         let expResult: ExperimentResult;
         if (expInstance && expConfig.enabled) {
             try {
                 expResult = await expInstance.run(expConfig, curExperimentParameters);
-                this.config.set(expConfig.experimentName, expResult.updatedExperimentParameters);
+                ExtensionConfigManager.config.set(
+                    expConfig.experimentName,
+                    expResult.updatedExperimentParameters,
+                );
             } catch (err) {
                 expResult = {
                     resultStatus: ExperimentStatuses.FAILED,

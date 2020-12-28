@@ -34,8 +34,13 @@ import { ReactNativeSessionManager } from "./reactNativeSessionManager";
 import { ProjectsStorage } from "./projectsStorage";
 import { AppLauncher } from "./appLauncher";
 import * as nls from "vscode-nls";
-import { getExtensionVersion, getExtensionName } from "../common/extensionHelper";
+import {
+    getExtensionVersion,
+    getExtensionName,
+    findFileInFolderHierarchy,
+} from "../common/extensionHelper";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
+import { ExtensionConfigManager } from "./extensionConfigManager";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -55,23 +60,22 @@ interface ISetupableDisposable extends vscode.Disposable {
 
 export function activate(context: vscode.ExtensionContext): Promise<void> {
     const extensionName = getExtensionName();
-    if (extensionName && extensionName.includes("preview")) {
-        if (vscode.extensions.getExtension("msjsdiag.vscode-react-native")) {
-            vscode.window.showInformationMessage(
-                localize(
-                    "RNTTwoVersionsFound",
-                    "React Native Tools: Both Stable and Preview extensions are installed. Stable will be used. Disable or remove it to work with Preview version.",
-                ),
-            );
-            return Promise.resolve();
-        }
-    }
-
-    outputChannelLogger.debug("Begin to activate...");
     const appVersion = getExtensionVersion();
     if (!appVersion) {
         throw new Error(localize("ExtensionVersionNotFound", "Extension version is not found"));
     }
+
+    if (extensionName) {
+        if (extensionName.includes("preview")) {
+            if (showTwoVersionFoundNotification()) {
+                return Promise.resolve();
+            }
+        } else {
+            showChangelogNotificationOnUpdate(appVersion);
+        }
+    }
+
+    outputChannelLogger.debug("Begin to activate...");
     outputChannelLogger.debug(`Extension version: ${appVersion}`);
     const ExtensionTelemetryReporter = require("vscode-extension-telemetry").default;
     const reporter = new ExtensionTelemetryReporter(
@@ -432,6 +436,45 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
             );
         },
     );
+}
+
+function showTwoVersionFoundNotification(): boolean {
+    if (vscode.extensions.getExtension("msjsdiag.vscode-react-native")) {
+        vscode.window.showInformationMessage(
+            localize(
+                "RNTTwoVersionsFound",
+                "React Native Tools: Both Stable and Preview extensions are installed. Stable will be used. Disable or remove it to work with Preview version.",
+            ),
+        );
+        return true;
+    }
+    return false;
+}
+
+function showChangelogNotificationOnUpdate(currentVersion: string) {
+    const changelogFile = findFileInFolderHierarchy(__dirname, "CHANGELOG.md");
+    if (
+        (!ExtensionConfigManager.config.has("version") ||
+            ExtensionConfigManager.config.get("version") !== currentVersion) &&
+        changelogFile
+    ) {
+        ExtensionConfigManager.config.set("version", currentVersion);
+        vscode.window
+            .showInformationMessage(
+                localize(
+                    "RNTHaveBeenUpdatedToVersion",
+                    "React Native Tools have been updated to {0}",
+                    currentVersion,
+                ),
+                localize("MoreDetails", "More details"),
+            )
+            .then(() => {
+                vscode.commands.executeCommand(
+                    "markdown.showPreview",
+                    vscode.Uri.file(changelogFile),
+                );
+            });
+    }
 }
 
 function registerVSCodeCommand(
