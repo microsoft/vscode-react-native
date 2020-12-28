@@ -149,12 +149,12 @@ export class FileSystem {
             const stats = await this.stat(p);
             if (stats.isDirectory()) {
                 const childPaths = await this.readDir(p);
-                childPaths.forEach(childPath => {
-                    return new Promise(() =>
+                await Promise.all(
+                    childPaths.map(childPath =>
                         this.removePathRecursivelyAsync(path.join(p, childPath)),
-                    );
-                });
-                this.rmdir(p);
+                    ),
+                );
+                await this.rmdir(p);
             } else {
                 /* file */
                 return this.unlink(p);
