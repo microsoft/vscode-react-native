@@ -42,7 +42,7 @@ export class AppiumHelper {
             [Platform.Android]: "//*[@text='Debug JS Remotely' or @text='Debug']",
             [Platform.AndroidExpo]: "//*[@text='Debug Remote JS']",
             [Platform.iOS]: "//XCUIElementTypeButton[@name='Debug JS Remotely' or @name='Debug']",
-            [Platform.iOSExpo]: "//XCUIElementTypeOther[@name=' Debug Remote JS']",
+            [Platform.iOSExpo]: "//XCUIElementTypeOther[@name='󰢹 Debug Remote JS']",
         },
         RN_STOP_REMOTE_DEBUGGING_BUTTON: {
             [Platform.Android]: "//*[@text='Stop Remote JS Debugging' or @text='Stop Debugging']",
