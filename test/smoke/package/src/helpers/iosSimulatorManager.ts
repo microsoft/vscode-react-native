@@ -6,6 +6,7 @@ import { sleep, waitUntil } from "./utilities";
 import * as kill from "tree-kill";
 import * as cp from "child_process";
 import { SmokeTestLogger } from "./smokeTestLogger";
+import { ExpoClientData } from "./androidEmulatorManager";
 
 const XDL = require("@expo/xdl");
 
@@ -254,17 +255,32 @@ export default class IosSimulatorManager {
         });
     }
 
+    public async getExpoAndroidClientForSDK(expoSdkMajorVersion: string): Promise<ExpoClientData> {
+        const sdkVersion = (await XDL.Versions.sdkVersionsAsync())[`${expoSdkMajorVersion}.0.0`];
+        return {
+            url: sdkVersion.iosClientUrl,
+            version: sdkVersion.iosClientVersion,
+        };
+    }
+
     public async installExpoAppOnIos(): Promise<void> {
         this.updateSimulatorState(this.simulator.name, this.simulator.system);
         if (this.simulator.state === DeviceState.Booted) {
             SmokeTestLogger.projectPatchingLog(
                 `*** Installing Expo app on iOS simulator using Expo XDL function`,
             );
+
+            const expoClientData = await this.getExpoAndroidClientForSDK(
+                process.env.EXPO_SDK_MAJOR_VERSION || "",
+            );
+
             await XDL.Simulator.installExpoOnSimulatorAsync({
                 simulator: {
                     name: this.simulator.name || "",
                     udid: this.simulator.id || "",
                 },
+                url: expoClientData.url,
+                version: expoClientData.version,
             });
         } else {
             throw new Error(
