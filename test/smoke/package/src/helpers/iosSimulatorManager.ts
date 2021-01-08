@@ -266,12 +266,12 @@ export default class IosSimulatorManager {
     public async installExpoAppOnIos(): Promise<void> {
         this.updateSimulatorState(this.simulator.name, this.simulator.system);
         if (this.simulator.state === DeviceState.Booted) {
-            SmokeTestLogger.projectPatchingLog(
-                `*** Installing Expo app on iOS simulator using Expo XDL function`,
-            );
-
             const expoClientData = await this.getExpoAndroidClientForSDK(
                 process.env.EXPO_SDK_MAJOR_VERSION || "",
+            );
+
+            SmokeTestLogger.projectPatchingLog(
+                `*** Installing Expo app v${expoClientData.version} on iOS simulator using Expo XDL function`,
             );
 
             await XDL.Simulator.installExpoOnSimulatorAsync({

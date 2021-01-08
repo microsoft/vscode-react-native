@@ -100,12 +100,12 @@ export default class AndroidEmulatorManager {
 
     // Installs Expo app on Android device using XDL function
     public async installExpoAppOnAndroid(): Promise<void> {
-        SmokeTestLogger.projectPatchingLog(
-            `*** Installing Expo app on Android emulator using Expo XDL function`,
-        );
-
         const expoClientData = await this.getExpoAndroidClientForSDK(
             process.env.EXPO_SDK_MAJOR_VERSION || "",
+        );
+
+        SmokeTestLogger.projectPatchingLog(
+            `*** Installing Expo app v${expoClientData.version} on Android emulator using Expo XDL function`,
         );
 
         await XDL.Android.installExpoAsync({
