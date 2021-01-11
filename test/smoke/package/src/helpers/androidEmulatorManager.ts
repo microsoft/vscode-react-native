@@ -12,6 +12,11 @@ export interface IDevice {
     isOnline: boolean;
 }
 
+export interface ExpoClientData {
+    url: string;
+    version: string;
+}
+
 export default class AndroidEmulatorManager {
     private static readonly EMULATOR_START_TIMEOUT = 120_000;
     private static readonly EMULATOR_TERMINATING_TIMEOUT = 30_000;
@@ -85,11 +90,24 @@ export default class AndroidEmulatorManager {
         }
     }
 
+    public async getExpoAndroidClientForSDK(expoSdkMajorVersion: string): Promise<ExpoClientData> {
+        const sdkVersion = (await XDL.Versions.sdkVersionsAsync())[`${expoSdkMajorVersion}.0.0`];
+        return {
+            url: sdkVersion.androidClientUrl,
+            version: sdkVersion.androidClientVersion,
+        };
+    }
+
     // Installs Expo app on Android device using XDL function
     public async installExpoAppOnAndroid(): Promise<void> {
-        SmokeTestLogger.projectPatchingLog(
-            `*** Installing Expo app on Android emulator using Expo XDL function`,
+        const expoClientData = await this.getExpoAndroidClientForSDK(
+            process.env.EXPO_SDK_MAJOR_VERSION || "",
         );
+
+        SmokeTestLogger.projectPatchingLog(
+            `*** Installing Expo app v${expoClientData.version} on Android emulator using Expo XDL function`,
+        );
+
         await XDL.Android.installExpoAsync({
             device: {
                 name: this.emulatorId,
@@ -97,6 +115,8 @@ export default class AndroidEmulatorManager {
                 isBooted: true,
                 isAuthorized: true,
             },
+            url: expoClientData.url,
+            version: expoClientData.version,
         });
         return this.enableDrawPermitForApp(SmokeTestsConstants.expoPackageName);
     }

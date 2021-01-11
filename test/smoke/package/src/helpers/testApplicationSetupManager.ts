@@ -261,6 +261,13 @@ export class TestApplicationSetupManager {
             );
             rimraf.sync(SmokeTestsConstants.iOSExpoAppsCacheDir);
         }
+
+        if (fs.existsSync(SmokeTestsConstants.ExpoVersionsJsonFilePath)) {
+            SmokeTestLogger.info(
+                `*** Deleting Expo versions.json file: ${SmokeTestsConstants.ExpoVersionsJsonFilePath}`,
+            );
+            fs.unlinkSync(SmokeTestsConstants.ExpoVersionsJsonFilePath);
+        }
     }
 
     public copyDebuggingConfigurationsToProject(launchJsonFilePathInProject: string): void {

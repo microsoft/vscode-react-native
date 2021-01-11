@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as os from "os";
+import { join } from "path";
+const XDL = require("@expo/xdl");
 
 export class SmokeTestsConstants {
     // Default code of android platform version which is being targeted during the tests.
@@ -14,7 +16,9 @@ export class SmokeTestsConstants {
     // Default target emulator name "emulator-" + port
     public static defaultTargetAndroidDeviceName = `emulator-${SmokeTestsConstants.defaultTargetAndroidPort}`;
     // Expo application cache for iOS platform
-    public static iOSExpoAppsCacheDir = `${os.homedir()}/.expo/ios-simulator-app-cache`;
+    public static iOSExpoAppsCacheDir = join(os.homedir(), ".expo", "ios-simulator-app-cache");
+    // Expo versions cache
+    public static ExpoVersionsJsonFilePath = join(XDL.FsCache.getCacheDir(), "versions.json");
     // Timeout for driver to wait for UI elements response to interaction (in seconds)
     public static elementResponseTimeout = 250;
     // Timeout for enabling Remote JS Debugging while testing RN app
