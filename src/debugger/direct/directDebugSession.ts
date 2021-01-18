@@ -16,6 +16,7 @@ import * as nls from "vscode-nls";
 import { IOSDirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/iOSDirectCDPMessageHandler";
 import { PlatformType } from "../../extension/launchArgs";
 import { IWDPHelper } from "./IWDPHelper";
+import { BaseCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/baseCDPMessageHandler";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -152,27 +153,45 @@ export class DirectDebugSession extends DebugSessionBase {
 
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     return TelemetryHelper.generate("attach", extProps, generator => {
-                        attachArgs.port =
-                            attachArgs.platform === PlatformType.iOS
-                                ? attachArgs.port || IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT
-                                : attachArgs.port ||
-                                  this.appLauncher.getPackagerPort(attachArgs.cwd);
+                        const port = attachArgs.useHermesEngine
+                            ? attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd)
+                            : attachArgs.platform === PlatformType.iOS
+                            ? attachArgs.port || IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT
+                            : null;
+                        if (port === null) {
+                            return Promise.reject(
+                                ErrorHelper.getInternalError(
+                                    InternalErrorCode.AndroidCouldNotDirectDebugWithoutHermesEngine,
+                                ),
+                            );
+                        }
                         logger.log(`Connecting to ${attachArgs.port} port`);
                         return this.appLauncher
                             .getRnCdpProxy()
                             .stopServer()
-                            .then(() =>
-                                this.appLauncher
-                                    .getRnCdpProxy()
-                                    .initializeServer(
-                                        attachArgs.platform === PlatformType.iOS
-                                            ? new IOSDirectCDPMessageHandler()
-                                            : new HermesCDPMessageHandler(),
-                                        this.cdpProxyLogLevel,
-                                    ),
-                            )
                             .then(() => {
-                                if (attachArgs.platform === PlatformType.iOS) {
+                                const cdpProxy: BaseCDPMessageHandler | null = attachArgs.useHermesEngine
+                                    ? new HermesCDPMessageHandler()
+                                    : attachArgs.platform === PlatformType.iOS
+                                    ? new IOSDirectCDPMessageHandler()
+                                    : null;
+
+                                if (!cdpProxy) {
+                                    return Promise.reject(
+                                        ErrorHelper.getInternalError(
+                                            InternalErrorCode.AndroidCouldNotDirectDebugWithoutHermesEngine,
+                                        ),
+                                    );
+                                }
+                                return this.appLauncher
+                                    .getRnCdpProxy()
+                                    .initializeServer(cdpProxy, this.cdpProxyLogLevel);
+                            })
+                            .then(() => {
+                                if (
+                                    !attachArgs.useHermesEngine &&
+                                    attachArgs.platform === PlatformType.iOS
+                                ) {
                                     return this.iOSWKDebugProxyHelper
                                         .startiOSWebkitDebugProxy(
                                             attachArgs.port,
@@ -272,5 +291,13 @@ export class DirectDebugSession extends DebugSessionBase {
         ) {
             vscode.commands.executeCommand(this.stopCommand, this.session);
         }
+    }
+
+    protected async initializeSettings(args: any): Promise<any> {
+        return super.initializeSettings(args).then(() => {
+            if (args.useHermesEngine === undefined) {
+                args.useHermesEngine = true;
+            }
+        });
     }
 }

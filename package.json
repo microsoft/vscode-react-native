@@ -384,6 +384,11 @@
                 "description": "%reactNative.attach.cwd.description%",
                 "default": "${workspaceFolder}"
               },
+              "useHermesEngine": {
+                "type": "boolean",
+                "description": "%reactNative.direct.attach.useHermesEngine.description%",
+                "default": true
+              },
               "sourceMaps": {
                 "type": "boolean",
                 "description": "%reactNative.attach.sourceMaps.description%",
@@ -456,6 +461,11 @@
                   "ios"
                 ],
                 "description": "%reactNative.launch.direct.platform.description%"
+              },
+              "useHermesEngine": {
+                "type": "boolean",
+                "description": "%reactNative.direct.attach.useHermesEngine.description%",
+                "default": true
               },
               "cwd": {
                 "type": "string",

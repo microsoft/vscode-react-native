@@ -326,4 +326,8 @@ export const ERROR_STRINGS = {
         "ErrorWhileSelectMonitoringLogCat",
         "No active Android LogCat monitors found",
     ),
+    [InternalErrorCode.AndroidCouldNotDirectDebugWithoutHermesEngine]: localize(
+        "AndroidCouldNotDirectDebugWithoutHermesEngine",
+        "Could not direct debug Android without the Hermes engine. Please switch 'useHermesEngine' option to 'true'",
+    ),
 };

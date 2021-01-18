@@ -64,6 +64,10 @@ export const platformTypeDirectPickConfig: DebugConfigurationQuickPickItem[] = [
         type: PlatformType.Android,
     },
     {
+        label: "iOS Hermes - Experimental",
+        type: PlatformType.iOS,
+    },
+    {
         label: "Direct iOS - Experimental",
         type: PlatformType.iOS,
     },
