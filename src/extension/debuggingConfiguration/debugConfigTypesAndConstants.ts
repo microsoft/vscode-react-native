@@ -64,10 +64,6 @@ export const platformTypeDirectPickConfig: DebugConfigurationQuickPickItem[] = [
         type: PlatformType.Android,
     },
     {
-        label: "iOS Hermes - Experimental",
-        type: PlatformType.iOS,
-    },
-    {
         label: "Direct iOS - Experimental",
         type: PlatformType.iOS,
     },
@@ -81,6 +77,17 @@ export const appTypePickConfig: DebugConfigurationQuickPickItem[] = [
     {
         label: "Classic application",
         type: DEBUG_TYPES.REACT_NATIVE,
+    },
+];
+
+export const shouldUseHermesEngine: DebugConfigurationQuickPickItem[] = [
+    {
+        label: "Yes",
+        type: "yes",
+    },
+    {
+        label: "No",
+        type: "no",
     },
 ];
 
