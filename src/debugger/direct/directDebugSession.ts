@@ -82,9 +82,6 @@ export class DirectDebugSession extends DebugSessionBase {
                     return TelemetryHelper.generate("launch", extProps, generator => {
                         return this.appLauncher.launch(launchArgs).then(() => {
                             if (launchArgs.enableDebug) {
-                                launchArgs.port =
-                                    launchArgs.port ||
-                                    this.appLauncher.getPackagerPort(launchArgs.cwd);
                                 this.attachRequest(response, launchArgs)
                                     .then(() => {
                                         resolve();
@@ -165,6 +162,7 @@ export class DirectDebugSession extends DebugSessionBase {
                                 ),
                             );
                         }
+                        attachArgs.port = port;
                         logger.log(`Connecting to ${attachArgs.port} port`);
                         return this.appLauncher
                             .getRnCdpProxy()
