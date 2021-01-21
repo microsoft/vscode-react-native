@@ -60,7 +60,7 @@ export const platformTypeDebugPickConfig: DebugConfigurationQuickPickItem[] = [
 
 export const platformTypeDirectPickConfig: DebugConfigurationQuickPickItem[] = [
     {
-        label: "Hermes - Experimental",
+        label: "Hermes engine - Experimental",
         type: "",
     },
     {
