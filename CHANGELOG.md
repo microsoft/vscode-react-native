@@ -1,5 +1,15 @@
+## 1.3.0
+* Enhanced creation of debugging configurations. Now debugging configurations are generated interactively. You just need to click on `React Native` button in the IntelliSense prompt in `launch.json` file and then select required parameters in selection panels [#1468](https://github.com/microsoft/vscode-react-native/pull/1468)
+* Added a notification with a link to the CHANGELOG after the extension update [#1476](https://github.com/microsoft/vscode-react-native/pull/1476)
+* Fixed the bug with incorrect recursive deletion of paths when activating the extension [#1481](https://github.com/microsoft/vscode-react-native/pull/1481)
+* Improved extension security [#1472](https://github.com/microsoft/vscode-react-native/pull/1472)
+* Enhanced contributing guide and documentation about debugging React Native for Windows and macOS applications [#1477](https://github.com/microsoft/vscode-react-native/pull/1477), [#1469](https://github.com/microsoft/vscode-react-native/pull/1469)
+* Internal changes:
+    * Fixed ESLint issues in the code and added Prettier support [#1463](https://github.com/microsoft/vscode-react-native/pull/1463), [#1475](https://github.com/microsoft/vscode-react-native/pull/1475)
+
+
 ## 1.2.0
-* Added `Run React Native LogCat Monitor` and `Stop React Native LogCat Monitor` command palette commands. These commands allow to control LogCat outputs monitoring and create monitors for Android devices on demand. See [more information here](https://github.com/microsoft/vscode-react-native#configure-an-android-logcat-monitor) [#1461](https://github.com/microsoft/vscode-react-native/pull/1461)
+* Added `Run React Native LogCat Monitor` and `Stop React Native LogCat Monitor` Command Palette commands. These commands allow to control LogCat outputs monitoring and create monitors for Android devices on demand. See [more information here](https://github.com/microsoft/vscode-react-native#configure-an-android-logcat-monitor) [#1461](https://github.com/microsoft/vscode-react-native/pull/1461)
 * Updated documentation for cases when React Native projects are opened via symbolic links on Linux. This might cause sourcemaps breakage, so it is not recommended [#1459](https://github.com/microsoft/vscode-react-native/pull/1459)
 * Internal changes:
     * Smoke tests improvements [#1441](https://github.com/microsoft/vscode-react-native/issues/1441)
