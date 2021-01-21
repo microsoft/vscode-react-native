@@ -74,15 +74,11 @@ export class AttachConfigProvider extends BaseConfigProvider {
             this.maxStepCount,
         );
 
-        if (config.platform === PlatformType.iOS) {
+        if (!config.platform) {
+            delete config.platform;
             delete config.useHermesEngine;
-            this.maxStepCount = this.maxStepCount + 1;
-            await this.configurationProviderHelper.shouldUseHermesEngine(
-                input,
-                config,
-                3,
-                this.maxStepCount,
-            );
+        } else {
+            config.useHermesEngine = false;
         }
 
         return () => this.configureAddress(input, config);
@@ -95,12 +91,7 @@ export class AttachConfigProvider extends BaseConfigProvider {
         delete config.address;
         let address = await input.showInputBox({
             title: localize("AddressInputTitle", "The address of the host"),
-            step:
-                config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT
-                    ? config.platform === PlatformType.iOS
-                        ? 4
-                        : 3
-                    : 2,
+            step: config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT ? 3 : 2,
             totalSteps: this.maxStepCount,
             value: this.defaultAddress,
             prompt: localize("AddressInputPrompt", "Enter the address of the host"),
@@ -135,12 +126,7 @@ export class AttachConfigProvider extends BaseConfigProvider {
 
         let portStr = await input.showInputBox({
             title: localize("PortInputTitle", "The port of the host"),
-            step:
-                config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT
-                    ? config.platform === PlatformType.iOS
-                        ? 5
-                        : 4
-                    : 3,
+            step: config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT ? 4 : 3,
             totalSteps: this.maxStepCount,
             value: defaultPort,
             prompt: localize(
@@ -160,7 +146,7 @@ export class AttachConfigProvider extends BaseConfigProvider {
             portNumber = parseInt(portStr, 10);
         }
 
-        if (portNumber) {
+        if (portNumber && portNumber !== Packager.DEFAULT_PORT) {
             config.port = portNumber;
         }
     }

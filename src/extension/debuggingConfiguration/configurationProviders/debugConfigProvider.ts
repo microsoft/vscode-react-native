@@ -64,6 +64,23 @@ export class DebugConfigProvider extends BaseConfigProvider {
             2,
             this.maxStepCount,
         );
+
+        if (
+            config.platform === PlatformType.iOS &&
+            config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT
+        ) {
+            delete config.useHermesEngine;
+            this.maxStepCount = this.maxStepCount + 1;
+            await this.configurationProviderHelper.shouldUseHermesEngine(
+                input,
+                config,
+                3,
+                this.maxStepCount,
+            );
+            if (config.useHermesEngine) {
+                delete config.useHermesEngine;
+            }
+        }
     }
 
     private async configureExpoHostType(

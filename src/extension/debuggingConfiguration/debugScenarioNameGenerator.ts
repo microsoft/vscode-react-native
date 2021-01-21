@@ -102,6 +102,8 @@ export class DebugScenarioNameGenerator {
                     debugScenarioName.prePlatformTypeDescription = "Direct";
                 }
                 break;
+            default:
+                debugScenarioName.platformType = "Hermes";
         }
     }
 
