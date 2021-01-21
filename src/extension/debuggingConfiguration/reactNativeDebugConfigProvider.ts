@@ -25,6 +25,27 @@ const localize = nls.loadMessageBundle();
 
 export class ReactNativeDebugConfigProvider implements vscode.DebugConfigurationProvider {
     private debugConfigurations = {
+        "Attach to Hermes application - Experimental": {
+            name: "Attach to Hermes application - Experimental",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            request: "attach",
+        },
+        "Attach to Direct iOS - Experimental": {
+            name: "Attach to the React Native iOS - Experimental",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            request: "attach",
+            platform: PlatformType.iOS,
+            useHermesEngine: false,
+            port: IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT, // 9221
+        },
+        "Attach to packager": {
+            name: "Attach to packager",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE,
+            request: "attach",
+        },
         "Debug Android": {
             name: "Debug Android",
             cwd: "${workspaceFolder}",
@@ -32,28 +53,12 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             request: "launch",
             platform: PlatformType.Android,
         },
-        "Run Android": {
-            name: "Run Android",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "launch",
-            platform: PlatformType.Android,
-            enableDebug: false,
-        },
         "Debug iOS": {
             name: "Debug iOS",
             cwd: "${workspaceFolder}",
             type: DEBUG_TYPES.REACT_NATIVE,
             request: "launch",
             platform: PlatformType.iOS,
-        },
-        "Run iOS": {
-            name: "Run iOS",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "launch",
-            platform: PlatformType.iOS,
-            enableDebug: false,
         },
         "Debug Windows": {
             name: "Debug Windows",
@@ -69,12 +74,6 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             request: "launch",
             platform: PlatformType.macOS,
         },
-        "Attach to packager": {
-            name: "Attach to packager",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "attach",
-        },
         "Debug in Exponent": {
             name: "Debug in Exponent",
             cwd: "${workspaceFolder}",
@@ -89,6 +88,38 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             request: "launch",
             platform: PlatformType.Android,
         },
+        "Debug Direct iOS - Experimental": {
+            name: "Debug Direct iOS - Experimental",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            request: "launch",
+            platform: PlatformType.iOS,
+            useHermesEngine: false,
+            port: IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT, // 9221
+        },
+        "Debug iOS Hermes - Experimental": {
+            name: "Debug iOS Hermes - Experimental",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            request: "launch",
+            platform: PlatformType.iOS,
+        },
+        "Run Android": {
+            name: "Run Android",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE,
+            request: "launch",
+            platform: PlatformType.Android,
+            enableDebug: false,
+        },
+        "Run iOS": {
+            name: "Run iOS",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE,
+            request: "launch",
+            platform: PlatformType.iOS,
+            enableDebug: false,
+        },
         "Run Android Hermes - Experimental": {
             name: "Run Android Hermes - Experimental",
             cwd: "${workspaceFolder}",
@@ -97,27 +128,13 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             platform: PlatformType.Android,
             enableDebug: false,
         },
-        "Attach to the React Native Hermes - Experimental": {
-            name: "Attach to the React Native Hermes - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "attach",
-        },
-        "Attach to the React Native iOS - Experimental": {
-            name: "Attach to the React Native iOS - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "attach",
-            platform: PlatformType.iOS,
-            port: IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT, // 9221
-        },
-        "Debug Direct iOS - Experimental": {
-            name: "Debug Direct iOS - Experimental",
+        "Run iOS Hermes - Experimental": {
+            name: "Run iOS Hermes - Experimental",
             cwd: "${workspaceFolder}",
             type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
             request: "launch",
             platform: PlatformType.iOS,
-            port: IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT, // 9221
+            enableDebug: false,
         },
         "Run Direct iOS - Experimental": {
             name: "Run Direct iOS - Experimental",
@@ -126,6 +143,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             request: "launch",
             platform: PlatformType.iOS,
             enableDebug: false,
+            useHermesEngine: false,
         },
     };
 
