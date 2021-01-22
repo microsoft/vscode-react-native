@@ -47,7 +47,17 @@ export class RunConfigProvider extends BaseConfigProvider {
             state.config.platform === PlatformType.iOS ||
             state.config.platform === PlatformType.Android
         ) {
-            return () => this.configureApplicationType(input, state.config);
+            return () =>
+                this.configureApplicationType(input, state.config).then(() => {
+                    if (
+                        state.config.platform === PlatformType.iOS &&
+                        state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT
+                    ) {
+                        this.maxStepCount = 3;
+                        return this.configureUseHermesEngine(input, state.config);
+                    }
+                    return Promise.resolve();
+                });
         } else {
             return;
         }
@@ -63,22 +73,21 @@ export class RunConfigProvider extends BaseConfigProvider {
             2,
             this.maxStepCount,
         );
+    }
 
-        if (
-            config.platform === PlatformType.iOS &&
-            config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT
-        ) {
+    private async configureUseHermesEngine(
+        input: MultiStepInput<DebugConfigurationState>,
+        config: Partial<ILaunchRequestArgs>,
+    ): Promise<InputStep<DebugConfigurationState> | void> {
+        delete config.useHermesEngine;
+        await this.configurationProviderHelper.shouldUseHermesEngine(
+            input,
+            config,
+            3,
+            this.maxStepCount,
+        );
+        if (config.useHermesEngine) {
             delete config.useHermesEngine;
-            this.maxStepCount = this.maxStepCount + 1;
-            await this.configurationProviderHelper.shouldUseHermesEngine(
-                input,
-                config,
-                3,
-                this.maxStepCount,
-            );
-            if (config.useHermesEngine) {
-                delete config.useHermesEngine;
-            }
         }
     }
 }

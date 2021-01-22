@@ -292,10 +292,9 @@ export class DirectDebugSession extends DebugSessionBase {
     }
 
     protected async initializeSettings(args: any): Promise<any> {
-        return super.initializeSettings(args).then(() => {
-            if (args.useHermesEngine === undefined) {
-                args.useHermesEngine = true;
-            }
-        });
+        await super.initializeSettings(args);
+        if (args.useHermesEngine === undefined) {
+            args.useHermesEngine = true;
+        }
     }
 }

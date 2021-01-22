@@ -194,17 +194,25 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             ),
         },
         {
-            label: "Attach to the React Native Hermes - Experimental",
+            label: "Run Android Hermes - Experimental",
+            description: localize("RunAndroidHermesConfigDesc", "Run Android Hermes application"),
+        },
+        {
+            label: "Debug iOS Hermes - Experimental",
             description: localize(
-                "AttachToPackagerHermesConfigDesc",
-                "Attach to already working React Native Hermes application on Android directly",
+                "DebugIosHermesConfigDesc",
+                "Run and debug iOS Hermes application",
             ),
         },
         {
-            label: "Attach to the React Native iOS - Experimental",
+            label: "Run iOS Hermes - Experimental",
+            description: localize("RunIosHermesConfigDesc", "Run iOS Hermes application"),
+        },
+        {
+            label: "Attach to Hermes application - Experimental",
             description: localize(
-                "AttachToPackageriOSConfigDesc",
-                "Attach to already working React Native iOS application directly",
+                "AttachToPackagerHermesConfigDesc",
+                "Attach to already working React Native Hermes application on Android directly",
             ),
         },
         {
@@ -219,6 +227,13 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             description: localize(
                 "RunDirectiOSConfigDesc",
                 "Run iOS application with direct debugging support",
+            ),
+        },
+        {
+            label: "Attach to Direct iOS - Experimental",
+            description: localize(
+                "AttachToPackageriOSConfigDesc",
+                "Attach to already working React Native iOS application directly",
             ),
         },
     ];
@@ -302,7 +317,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
                     state.scenarioType,
                     state.config.type || DEBUG_TYPES.REACT_NATIVE,
                     state.config.platform,
-                    state.config.useHermesEngine !== false,
+                    false,
                 );
             }
             return state.config as vscode.DebugConfiguration;

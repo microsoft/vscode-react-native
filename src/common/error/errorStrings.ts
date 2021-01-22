@@ -328,6 +328,6 @@ export const ERROR_STRINGS = {
     ),
     [InternalErrorCode.AndroidCouldNotDirectDebugWithoutHermesEngine]: localize(
         "AndroidCouldNotDirectDebugWithoutHermesEngine",
-        "Could not direct debug Android without the Hermes engine. Please switch 'useHermesEngine' option to 'true'",
+        "Could not start direct debugging of the Android application without Hermes engine enabled. Please check if Hermes engine is enabled in your project and your debugging configuration contains 'useHermesEngine' prop set to 'true'",
     ),
 };
