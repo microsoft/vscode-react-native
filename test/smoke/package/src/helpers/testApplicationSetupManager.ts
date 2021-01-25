@@ -436,7 +436,8 @@ export class TestApplicationSetupManager {
             );
             fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
 
-            this.copyGradleFilesToHermesApp(workspaceDirectory, customEntryPointPath);
+            this.copyGradleFilesFromSample(workspaceDirectory, sampleWorkspaceDirectory);
+            this.copyPodfileFromSample(workspaceDirectory, sampleWorkspaceDirectory);
 
             SmokeTestLogger.projectPatchingLog(
                 `*** Copying ${testButtonPath} into ${workspaceDirectory}`,
@@ -660,14 +661,24 @@ export class TestApplicationSetupManager {
         }
     }
 
-    private copyGradleFilesToHermesApp(workspacePath: string, customEntryPointPath: string) {
+    private copyGradleFilesFromSample(workspacePath: string, sampleWorkspace: string) {
         const appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
-        const resGradleBuildFilePath = path.join(customEntryPointPath, "..", "build.gradle");
+        const resGradleBuildFilePath = path.join(sampleWorkspace, "build.gradle");
 
         SmokeTestLogger.projectPatchingLog(
             `*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`,
         );
         fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
+    }
+
+    private copyPodfileFromSample(workspacePath: string, sampleWorkspace: string) {
+        const appPodfilePath = path.join(workspacePath, "ios", "Podfile");
+        const resPodfilePath = path.join(sampleWorkspace, "Podfile");
+
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying  ${resPodfilePath} into ${appPodfilePath}...`,
+        );
+        fs.writeFileSync(appPodfilePath, fs.readFileSync(resPodfilePath));
     }
 
     private patchMetroConfig(appPath: string) {
