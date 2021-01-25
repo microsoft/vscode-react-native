@@ -92,7 +92,10 @@ export class ConfigurationProviderHelper {
             IQuickPickParameters<DebugConfigurationQuickPickItem>
         >({
             title: localize("UseHermesEngine", "Use Hermes engine"),
-            placeholder: localize("UseHermesEnginePrompt", "Use Hermes engine for direct debugging?"),
+            placeholder: localize(
+                "UseHermesEnginePrompt",
+                "Use Hermes engine for direct debugging?",
+            ),
             step,
             totalSteps,
             items: shouldUseHermesEngine,

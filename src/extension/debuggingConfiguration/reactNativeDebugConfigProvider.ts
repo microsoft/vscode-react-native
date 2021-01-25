@@ -95,6 +95,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             request: "launch",
             platform: PlatformType.iOS,
             useHermesEngine: false,
+            target: "device",
             port: IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT, // 9221
         },
         "Debug iOS Hermes - Experimental": {
@@ -144,6 +145,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             platform: PlatformType.iOS,
             enableDebug: false,
             useHermesEngine: false,
+            target: "device",
         },
     };
 
