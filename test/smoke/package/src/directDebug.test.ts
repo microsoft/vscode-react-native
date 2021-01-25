@@ -163,14 +163,14 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
         if (testParameters.RunAndroidTests) {
             it("Android Hermes app Debug test", async function () {
                 this.timeout(hermesTestTime);
-                hermesApplicationTest("Android Hermes app Debug test", Platform.Android);
+                await hermesApplicationTest("Android Hermes app Debug test", Platform.Android);
             });
         }
 
         if (process.platform === "darwin" && testParameters.RunIosTests) {
             it("iOS Hermes app Debug test", async function () {
                 this.timeout(hermesTestTime);
-                hermesApplicationTest("iOS Hermes app Debug test", Platform.iOS);
+                await hermesApplicationTest("iOS Hermes app Debug test", Platform.iOS);
             });
         }
     });
