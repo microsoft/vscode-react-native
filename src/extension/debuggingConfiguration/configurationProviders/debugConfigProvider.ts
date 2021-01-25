@@ -53,7 +53,13 @@ export class DebugConfigProvider extends BaseConfigProvider {
                         state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT
                     ) {
                         this.maxStepCount = 3;
-                        return this.configureUseHermesEngine(input, state.config);
+                        return this.configureUseHermesEngine(input, state.config).then(() => {
+                            // Direct iOS debugging using ios-webkit-debug-proxy is supported
+                            // only with applications running on the device
+                            if (state.config.useHermesEngine === false) {
+                                state.config.target = "device";
+                            }
+                        });
                     }
                     return Promise.resolve();
                 });
