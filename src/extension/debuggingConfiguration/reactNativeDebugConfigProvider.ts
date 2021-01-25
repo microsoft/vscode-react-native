@@ -319,7 +319,6 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
                     state.scenarioType,
                     state.config.type || DEBUG_TYPES.REACT_NATIVE,
                     state.config.platform,
-                    false,
                 );
             }
             return state.config as vscode.DebugConfiguration;
