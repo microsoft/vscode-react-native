@@ -440,7 +440,7 @@ export class TestApplicationSetupManager {
 
             this.execGradlewCleanCommand(workspaceDirectory);
             if (process.platform === "darwin") {
-                this.execPodInstallCommand(workspaceDirectory);
+                // this.execPodInstallCommand(workspaceDirectory);
             }
 
             SmokeTestLogger.projectPatchingLog(
@@ -788,14 +788,14 @@ module.exports.watchFolders = ['.vscode'];`;
         );
     }
 
-    private execPodInstallCommand(workspaceDirectory: string): void {
-        const command = "LANG=en_US.UTF-8 pod install";
+    // private execPodInstallCommand(workspaceDirectory: string): void {
+    //     const command = "LANG=en_US.UTF-8 pod install";
 
-        SmokeTestLogger.projectPatchingLog(`*** Executing  ${command} ...`);
-        utilities.execSync(
-            command,
-            { cwd: path.join(workspaceDirectory, "ios") },
-            vscodeManager.getSetupEnvironmentLogDir(),
-        );
-    }
+    //     SmokeTestLogger.projectPatchingLog(`*** Executing  ${command} ...`);
+    //     utilities.execSync(
+    //         command,
+    //         { cwd: path.join(workspaceDirectory, "ios"), env: process.env },
+    //         vscodeManager.getSetupEnvironmentLogDir(),
+    //     );
+    // }
 }
