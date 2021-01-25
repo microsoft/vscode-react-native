@@ -789,7 +789,7 @@ module.exports.watchFolders = ['.vscode'];`;
     }
 
     private execPodInstallCommand(workspaceDirectory: string): void {
-        const command = path.join(workspaceDirectory, "ios", "pod") + " install";
+        const command = "LANG=en_US.UTF-8 pod install";
 
         SmokeTestLogger.projectPatchingLog(`*** Executing  ${command} ...`);
         utilities.execSync(
