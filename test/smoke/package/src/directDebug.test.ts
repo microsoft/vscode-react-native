@@ -12,7 +12,7 @@ import { sleep } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 
 const HERMES_APP_PACKAGE_NAME = `com.${SmokeTestsConstants.HermesAppName.toLocaleLowerCase()}`;
-const HERMES_APP_BUNDLE_ID = "org.reactjs.native.example.latestHermesRNApp";
+const HERMES_APP_BUNDLE_ID = `org.reactjs.native.example.${SmokeTestsConstants.HermesAppName}`;
 const HERMES_APP_ACTIVITY_NAME = `com.${SmokeTestsConstants.HermesAppName.toLocaleLowerCase()}.MainActivity`;
 const RNAndroidHermesDebugConfigName = "Debug Android Hermes - Experimental";
 const RNIosHermesDebugConfigName = "Debug iOS Hermes - Experimental";
