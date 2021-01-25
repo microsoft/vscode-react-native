@@ -72,16 +72,12 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                 app = await vscodeManager.runVSCode(workspace, testname);
                 await app.workbench.quickaccess.openFile("AppTestButton.js");
                 await app.workbench.editors.scrollTop();
-                SmokeTestLogger.info(
-                    `${testname}: AppTestButton.js file is opened`,
-                );
+                SmokeTestLogger.info(`${testname}: AppTestButton.js file is opened`);
                 await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
                 SmokeTestLogger.info(
                     `${testname}: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`,
                 );
-                SmokeTestLogger.info(
-                    `${testname}: Chosen debug configuration: ${debugConfigName}`,
-                );
+                SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
                 SmokeTestLogger.info(`${testname}: Starting debugging`);
                 await app.workbench.quickaccess.runDebugScenario(debugConfigName);
 
@@ -93,7 +89,9 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                             HERMES_APP_ACTIVITY_NAME,
                             androidEmulatorManager.getEmulatorId(),
                         );
-                        await androidEmulatorManager.waitUntilAppIsInstalled(HERMES_APP_PACKAGE_NAME);
+                        await androidEmulatorManager.waitUntilAppIsInstalled(
+                            HERMES_APP_PACKAGE_NAME,
+                        );
                         break;
                     }
                     case Platform.iOS: {
@@ -102,14 +100,14 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                             `${SmokeTestsConstants.HermesAppName}.xcworkspace`,
                             "Debug",
                             SmokeTestsConstants.HermesAppName,
-                            "iphonesimulator"
-                        )
+                            "iphonesimulator",
+                        );
                         const appPath = `${buildPath}/${SmokeTestsConstants.HermesAppName}.app`;
                         opts = AppiumHelper.prepareAttachOptsForIosApp(
                             iosSimulatorManager.getSimulator().name,
-                            appPath
+                            appPath,
                         );
-                        await iosSimulatorManager.waitUntilIosAppIsInstalled(HERMES_APP_BUNDLE_ID)
+                        await iosSimulatorManager.waitUntilIosAppIsInstalled(HERMES_APP_BUNDLE_ID);
                         break;
                     }
                 }

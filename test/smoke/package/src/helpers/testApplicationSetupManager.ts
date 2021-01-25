@@ -424,7 +424,6 @@ export class TestApplicationSetupManager {
         SmokeTestLogger.projectPatchingLog(
             `*** Patching React Native project for Hermes debugging`,
         );
-        this.execGradlewCleanCommand(workspaceDirectory);
 
         if (sampleWorkspaceDirectory) {
             const { customEntryPointPath, testButtonPath } = this.getKeyPathsForSample(
@@ -438,6 +437,11 @@ export class TestApplicationSetupManager {
 
             this.copyGradleFilesFromSample(workspaceDirectory, sampleWorkspaceDirectory);
             this.copyPodfileFromSample(workspaceDirectory, sampleWorkspaceDirectory);
+
+            this.execGradlewCleanCommand(workspaceDirectory);
+            if (process.platform === "darwin") {
+                this.execPodInstallCommand(workspaceDirectory);
+            }
 
             SmokeTestLogger.projectPatchingLog(
                 `*** Copying ${testButtonPath} into ${workspaceDirectory}`,
@@ -780,6 +784,17 @@ module.exports.watchFolders = ['.vscode'];`;
         utilities.execSync(
             commandClean,
             { cwd: path.join(workspaceDirectory, "android") },
+            vscodeManager.getSetupEnvironmentLogDir(),
+        );
+    }
+
+    private execPodInstallCommand(workspaceDirectory: string): void {
+        const command = "pod install";
+
+        SmokeTestLogger.projectPatchingLog(`*** Executing  ${command} ...`);
+        utilities.execSync(
+            command,
+            { cwd: path.join(workspaceDirectory, "ios") },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
     }
