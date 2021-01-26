@@ -792,6 +792,15 @@ module.exports.watchFolders = ['.vscode'];`;
     }
 
     private execPodInstallCommand(workspaceDirectory: string): void {
+        const command1 = "LANG=en_US.UTF-8 pod repo update --verbose";
+
+        SmokeTestLogger.projectPatchingLog(`*** Executing  ${command1} ...`);
+        utilities.execSync(
+            command1,
+            { cwd: path.join(workspaceDirectory, "ios") },
+            vscodeManager.getSetupEnvironmentLogDir(),
+        );
+
         const command = "LANG=en_US.UTF-8 pod install --verbose";
 
         SmokeTestLogger.projectPatchingLog(`*** Executing  ${command} ...`);
