@@ -97,7 +97,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     case Platform.iOS: {
                         const buildPath = IosSimulatorManager.getIOSBuildPath(
                             `${workspace}/ios`,
-                            `${SmokeTestsConstants.HermesAppName}.xcodeproj`,
+                            `${SmokeTestsConstants.HermesAppName}.xcworkspace`,
                             "Debug",
                             SmokeTestsConstants.HermesAppName,
                             "iphonesimulator",
