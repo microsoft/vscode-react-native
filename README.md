@@ -219,7 +219,7 @@ You can use the following debug scenarios to debug iOS apps directly:
 
 You can enable Hermes engine for an iOS application by editing `ios/Podfile` file the following way:
 
-```json
+```diff
 -  use_react_native!(:path => config[:reactNativePath])
 +  use_react_native!(:path => config[:reactNativePath], :hermes_enabled => true)
 ```
