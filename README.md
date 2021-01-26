@@ -224,7 +224,7 @@ You can enable Hermes engine for an iOS application by editing `ios/Podfile` fil
 +  use_react_native!(:path => config[:reactNativePath], :hermes_enabled => true)
 ```
 
-After this changes you need to execute `pod install` in `ios` folder. And now you can use `Debug iOS Hermes - Experimental` launch configuration to debug iOS Hermes application:
+After this change you need to execute `pod install` command in `ios` folder. After that you can use `Debug iOS Hermes - Experimental` launch configuration to debug an iOS Hermes application:
 
 ```json
 {
