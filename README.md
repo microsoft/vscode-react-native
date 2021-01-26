@@ -118,7 +118,7 @@ The extension allows you to debug multiple devices and configurations, please re
 
 ## Hermes engine
 
-Hermes is the new JavaScript engine optimized for running React Native apps on Android. It improves app performance and decreases app size.
+Hermes is the new JavaScript engine optimized for running React Native apps on Android and iOS. It improves app performance and decreases app size.
 
 Click [here](https://reactnative.dev/docs/hermes) to learn more about Hermes and how to enable it for your application.
 
