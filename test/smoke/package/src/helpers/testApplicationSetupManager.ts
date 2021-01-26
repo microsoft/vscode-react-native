@@ -365,6 +365,9 @@ export class TestApplicationSetupManager {
                 workspacePath.includes(SmokeTestsConstants.HermesAppName)
             ) {
                 this.execGradlewCleanCommand(workspacePath);
+                if (process.platform === "darwin") {
+                    this.execPodInstallCommand(workspacePath);
+                }
             }
             SmokeTestLogger.projectInstallLog(`Use the cached project by path ${workspacePath}`);
         }
@@ -789,14 +792,13 @@ module.exports.watchFolders = ['.vscode'];`;
     }
 
     private execPodInstallCommand(workspaceDirectory: string): void {
-        const command = "LANG=en_US.UTF-8 pod install";
+        const command = "LANG=en_US.UTF-8 pod install --verbose";
 
         SmokeTestLogger.projectPatchingLog(`*** Executing  ${command} ...`);
-        utilities.spawnSync(command, undefined, { cwd: path.join(workspaceDirectory, "ios") });
-        // utilities.execSync(
-        //     command,
-        //     { cwd: path.join(workspaceDirectory, "ios") },
-        //     vscodeManager.getSetupEnvironmentLogDir(),
-        // );
+        utilities.execSync(
+            command,
+            { cwd: path.join(workspaceDirectory, "ios") },
+            vscodeManager.getSetupEnvironmentLogDir(),
+        );
     }
 }
