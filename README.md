@@ -144,7 +144,7 @@ The extension provides experimental support of debugging iOS Hermes applications
 
 ### Attach to Hermes application
 
-To attach to the running Hermes application use `Attach to Hermes application - Experimental` launch configuration:
+To attach to a running Hermes application use `Attach to Hermes application - Experimental` launch configuration:
 
 ```json
 {
