@@ -140,7 +140,7 @@ To debug while using Hermes engine use `Debug Android Hermes - Experimental` lau
 
 ### iOS Hermes
 
-The extension allows you to debug iOS Hermes applications. See [iOS Hermes debugging](#ios-hermes-debugging) for more details.
+The extension provides experimental support of debugging iOS Hermes applications. See [iOS Hermes debugging](#ios-hermes-debugging) for more details.
 
 ### Attach to Hermes application
 
