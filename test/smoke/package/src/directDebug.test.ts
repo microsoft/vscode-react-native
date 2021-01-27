@@ -158,8 +158,6 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
             }
         }
 
-        afterEach(disposeAll);
-
         if (testParameters.RunAndroidTests) {
             it("Android Hermes app Debug test", async function () {
                 this.timeout(hermesTestTime);
