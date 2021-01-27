@@ -77,8 +77,14 @@ export class QuickAccess {
         }
     }
 
-    public async runDebugScenario(scenario: string): Promise<void> {
+    public async runDebugScenario(scenario: string, index?: number): Promise<void> {
         await this.openQuickAccess(`debug ${scenario}`);
+
+        if (index) {
+            for (let from = 0; from < index; from++) {
+                await this.code.dispatchKeybinding("down");
+            }
+        }
 
         // wait for the best choice to be focused
         await this.code.waitForTextContent(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT, scenario);

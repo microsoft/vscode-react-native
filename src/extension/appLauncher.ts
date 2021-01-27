@@ -268,7 +268,9 @@ export class AppLauncher {
                             })
                             .then(() => {
                                 if (
-                                    mobilePlatformOptions.isDirect ||
+                                    (mobilePlatformOptions.isDirect &&
+                                        (launchArgs.platform === PlatformType.Android ||
+                                            !launchArgs.useHermesEngine)) ||
                                     !mobilePlatformOptions.enableDebug
                                 ) {
                                     if (
