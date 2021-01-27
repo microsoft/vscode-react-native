@@ -783,7 +783,12 @@ module.exports.watchFolders = ['.vscode'];`;
     private execGradlewCleanCommand(workspaceDirectory: string): void {
         const commandClean = path.join(workspaceDirectory, "android", "gradlew") + " clean";
 
-        SmokeTestLogger.projectPatchingLog(`*** Executing '${commandClean}' command in path ${path.join(workspaceDirectory, "android")}`);
+        SmokeTestLogger.projectPatchingLog(
+            `*** Executing '${commandClean}' command in path ${path.join(
+                workspaceDirectory,
+                "android",
+            )}`,
+        );
         utilities.execSync(
             commandClean,
             { cwd: path.join(workspaceDirectory, "android") },
@@ -794,7 +799,12 @@ module.exports.watchFolders = ['.vscode'];`;
     private execPodInstallCommand(workspaceDirectory: string): void {
         const commandInstall = "LANG=en_US.UTF-8 pod install --verbose";
 
-        SmokeTestLogger.projectPatchingLog(`*** Executing '${commandInstall}' command in path ${path.join(workspaceDirectory, "ios")}`);
+        SmokeTestLogger.projectPatchingLog(
+            `*** Executing '${commandInstall}' command in path ${path.join(
+                workspaceDirectory,
+                "ios",
+            )}`,
+        );
         utilities.execSync(
             commandInstall,
             { cwd: path.join(workspaceDirectory, "ios") },
