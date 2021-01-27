@@ -792,20 +792,20 @@ module.exports.watchFolders = ['.vscode'];`;
     }
 
     private execPodInstallCommand(workspaceDirectory: string): void {
-        const command1 = "LANG=en_US.UTF-8 pod repo update --verbose";
+        const commandDeintegrate = "LANG=en_US.UTF-8 pod deintegrate --verbose";
 
-        SmokeTestLogger.projectPatchingLog(`*** Executing  ${command1} ...`);
+        SmokeTestLogger.projectPatchingLog(`*** Executing  ${commandDeintegrate} ...`);
         utilities.execSync(
-            command1,
+            commandDeintegrate,
             { cwd: path.join(workspaceDirectory, "ios") },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
 
-        const command = "LANG=en_US.UTF-8 pod install --verbose";
+        const commandInstall = "LANG=en_US.UTF-8 pod install --verbose";
 
-        SmokeTestLogger.projectPatchingLog(`*** Executing  ${command} ...`);
+        SmokeTestLogger.projectPatchingLog(`*** Executing  ${commandInstall} ...`);
         utilities.execSync(
-            command,
+            commandInstall,
             { cwd: path.join(workspaceDirectory, "ios") },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
