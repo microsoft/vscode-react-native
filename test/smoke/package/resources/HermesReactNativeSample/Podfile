@@ -27,11 +27,3 @@ target 'latestHermesRNApp' do
   end
 end
 
-target 'latestHermesRNApp-tvOS' do
-  # Pods for latestHermesRNApp-tvOS
-
-  target 'latestHermesRNApp-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-end
