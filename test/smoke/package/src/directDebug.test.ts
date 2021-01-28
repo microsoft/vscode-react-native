@@ -5,6 +5,7 @@ import * as assert from "assert";
 import { Application } from "../../automation";
 import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
 import IosSimulatorManager from "./helpers/iosSimulatorManager";
+import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
@@ -78,6 +79,16 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     `${testname}: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`,
                 );
                 SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
+
+                switch (platform) {
+                    case Platform.iOS: {
+                        // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
+                        new LaunchConfigurationManager(workspace).updateLaunchScenario(RNIosHermesDebugConfigName, {
+                            target: iosSimulatorManager.getSimulator().name,
+                        });
+                    }
+                }
+
                 SmokeTestLogger.info(`${testname}: Starting debugging`);
                 await app.workbench.quickaccess.runDebugScenario(debugConfigName);
 
