@@ -3,6 +3,7 @@
 
 import * as assert from "assert";
 import * as WebSocket from "ws";
+import * as vscode from "vscode";
 import * as path from "path";
 import * as sinon from "sinon";
 import * as child_process from "child_process";
@@ -382,6 +383,7 @@ suite("appWorker", function () {
                     attachRequestArguments,
                     sourcesStoragePath,
                     "",
+                    new vscode.CancellationTokenSource().token,
                     {
                         webSocketConstructor: webSocketConstructor,
                     },
