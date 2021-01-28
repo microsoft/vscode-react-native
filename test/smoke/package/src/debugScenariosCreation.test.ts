@@ -195,7 +195,7 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                 let configurations = launchConfigurationManager.getLaunchScenarios().configurations;
                 assert.strictEqual(
                     configurations && configurations[0].name,
-                    "Attach to the React Native iOS - Experimental",
+                    "Attach to Direct iOS - Experimental",
                 );
                 assert.strictEqual(configurations && (configurations[0] as any).port, 9221);
 
