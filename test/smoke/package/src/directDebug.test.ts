@@ -147,7 +147,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                 SmokeTestLogger.info(`${testname}: Reattached successfully`);
                 await sleep(7000);
                 SmokeTestLogger.info(`${testname}: Click Test Button`);
-                await AppiumHelper.clickTestButtonHermes(client);
+                await AppiumHelper.clickTestButtonHermes(client, platform);
                 await app.workbench.debug.waitForStackFrame(
                     sf =>
                         sf.name === "AppTestButton.js" &&
