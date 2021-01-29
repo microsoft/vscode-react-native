@@ -346,8 +346,12 @@ export class AppiumHelper {
         await testButton.click();
     }
 
-    public static async isHermesWorking(client: AppiumClient): Promise<boolean> {
-        const hermesMark = await client.$("//*[@text='Engine: Hermes']");
+    public static async isHermesWorking(client: AppiumClient, platform: Platform): Promise<boolean> {
+        let hermesMark: any;
+        switch (platform) {
+            case Platform.Android: hermesMark = await client.$("//*[@text='Engine: Hermes']");
+            case Platform.iOS: hermesMark = await client.$('//XCUIElementTypeStaticText[@name="Engine: Hermes"]');
+        }
         return await hermesMark.waitForExist({
             timeout: SmokeTestsConstants.waitForElementTimeout,
         });

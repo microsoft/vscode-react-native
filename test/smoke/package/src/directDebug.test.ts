@@ -31,10 +31,6 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
         async function disposeAll() {
             try {
                 SmokeTestLogger.info("Dispose all ...");
-                SmokeTestLogger.info("Application:");
-                SmokeTestLogger.info(String(app));
-                SmokeTestLogger.info("AppiumClient:");
-                SmokeTestLogger.info(String(client));
                 if (app) {
                     SmokeTestLogger.info("Stopping React Native packager ...");
                     await stopPackager();
@@ -52,6 +48,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
             } catch (error) {
                 SmokeTestLogger.error("Error while disposeAll:");
                 SmokeTestLogger.error(error);
+                throw error;
             }
         }
 
@@ -142,7 +139,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info(`${testname}: Debugging started`);
                 SmokeTestLogger.info(`${testname}: Checking for Hermes mark`);
-                let isHermesWorking = await AppiumHelper.isHermesWorking(client);
+                let isHermesWorking = await AppiumHelper.isHermesWorking(client, platform);
                 assert.strictEqual(isHermesWorking, true);
                 SmokeTestLogger.info(`${testname}: Reattaching to Hermes app`);
                 await app.workbench.debug.disconnectFromDebugger();
