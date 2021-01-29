@@ -98,6 +98,14 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     configurations && configurations[0].name,
                     "Debug iOS Hermes - Experimental",
                 );
+                assert.strictEqual(
+                    configurations && configurations[0].type,
+                    "reactnativedirect",
+                );
+                assert.strictEqual(
+                    configurations && configurations[0].platform,
+                    "ios",
+                );
                 SmokeTestLogger.success(
                     "Debugging scenarios creation test: Debug iOS Hermes - Experimental debugging scenario has been added successfully",
                 );
@@ -129,7 +137,15 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     configurations && configurations[0].name,
                     "Debug Direct iOS - Experimental",
                 );
-                assert.strictEqual(configurations && configurations[0].useHermesEngine, "false");
+                assert.strictEqual(
+                    configurations && configurations[0].type,
+                    "reactnativedirect",
+                );
+                assert.strictEqual(
+                    configurations && configurations[0].platform,
+                    "ios",
+                );
+                assert.strictEqual(configurations && configurations[0].useHermesEngine, false);
                 assert.strictEqual(configurations && configurations[0].target, "device");
                 SmokeTestLogger.success(
                     "Debugging scenarios creation test: Debug Direct iOS - Experimental debugging scenario has been added successfully",
@@ -262,6 +278,10 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                 assert.strictEqual(
                     configurations && configurations[0].name,
                     "Attach to Hermes application - Experimental",
+                );
+                assert.strictEqual(
+                    configurations && configurations[0].type,
+                    "reactnativedirect",
                 );
 
                 SmokeTestLogger.success(
