@@ -340,8 +340,10 @@ export class AppiumHelper {
         }
     }
 
-    public static async clickTestButtonHermes(client: AppiumClient,
-        platform: Platform,): Promise<void> {
+    public static async clickTestButtonHermes(
+        client: AppiumClient,
+        platform: Platform,
+    ): Promise<void> {
         SmokeTestLogger.info(`*** Pressing button with text "Test Button"...`);
         let testButton: any;
         switch (platform) {
