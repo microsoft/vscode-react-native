@@ -285,9 +285,6 @@ export class AppLauncher {
                                                 ),
                                             );
                                         }
-                                        if (launchArgs.platform === PlatformType.iOS) {
-                                            return;
-                                        }
                                     } else if (launchArgs.platform === PlatformType.iOS) {
                                         generator.step(
                                             "mobilePlatform.enableIosDirectDebuggingMode",
