@@ -340,9 +340,18 @@ export class AppiumHelper {
         }
     }
 
-    public static async clickTestButtonHermes(client: AppiumClient): Promise<void> {
+    public static async clickTestButtonHermes(client: AppiumClient,
+        platform: Platform,): Promise<void> {
         SmokeTestLogger.info(`*** Pressing button with text "Test Button"...`);
-        const testButton = await client.$("//*[@text='TEST BUTTON']");
+        let testButton: any;
+        switch (platform) {
+            case Platform.Android:
+                testButton = await client.$("//*[@text='TEST BUTTON']");
+                break;
+            case Platform.iOS:
+                testButton = await client.$('//XCUIElementTypeButton[@name="Test Button"]');
+                break;
+        }
         await testButton.click();
     }
 
@@ -354,8 +363,10 @@ export class AppiumHelper {
         switch (platform) {
             case Platform.Android:
                 hermesMark = await client.$("//*[@text='Engine: Hermes']");
+                break;
             case Platform.iOS:
                 hermesMark = await client.$('//XCUIElementTypeStaticText[@name="Engine: Hermes"]');
+                break;
         }
         return await hermesMark.waitForExist({
             timeout: SmokeTestsConstants.waitForElementTimeout,
