@@ -83,9 +83,7 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     "Debugging scenarios creation test: select Direct mode option",
                 );
                 await app.workbench.quickinput.selectQuickInputElement(0, false);
-                SmokeTestLogger.info(
-                    "Debugging scenarios creation test: select Yes option",
-                );
+                SmokeTestLogger.info("Debugging scenarios creation test: select Yes option");
                 await app.workbench.quickinput.selectQuickInputElement(0);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
@@ -116,9 +114,7 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     "Debugging scenarios creation test: select Direct mode option",
                 );
                 await app.workbench.quickinput.selectQuickInputElement(0, false);
-                SmokeTestLogger.info(
-                    "Debugging scenarios creation test: select No option",
-                );
+                SmokeTestLogger.info("Debugging scenarios creation test: select No option");
                 await app.workbench.quickinput.selectQuickInputElement(1);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
@@ -133,14 +129,8 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     configurations && configurations[0].name,
                     "Debug Direct iOS - Experimental",
                 );
-                assert.strictEqual(
-                    configurations && configurations[0].useHermesEngine,
-                    "false",
-                );
-                assert.strictEqual(
-                    configurations && configurations[0].target,
-                    "device",
-                );
+                assert.strictEqual(configurations && configurations[0].useHermesEngine, "false");
+                assert.strictEqual(configurations && configurations[0].target, "device");
                 SmokeTestLogger.success(
                     "Debugging scenarios creation test: Debug Direct iOS - Experimental debugging scenario has been added successfully",
                 );
@@ -252,7 +242,9 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     "Debugging scenarios creation test: select Direct mode option",
                 );
                 await app.workbench.quickinput.selectQuickInputElement(0, false);
-                SmokeTestLogger.info("Debugging scenarios creation test: select Hermes engine option");
+                SmokeTestLogger.info(
+                    "Debugging scenarios creation test: select Hermes engine option",
+                );
                 await app.workbench.quickinput.selectQuickInputElement(0, false);
                 SmokeTestLogger.info(`Debugging scenarios creation test: skip address changing`);
                 await app.workbench.quickinput.selectQuickInputElement(0, false);
