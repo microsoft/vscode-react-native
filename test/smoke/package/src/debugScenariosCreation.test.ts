@@ -64,6 +64,8 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                 );
                 let configurations = launchConfigurationManager.getLaunchScenarios().configurations;
                 assert.strictEqual(configurations && configurations[0].name, "Run iOS");
+                assert.strictEqual(configurations && configurations[0].type, "reactnative");
+                assert.strictEqual(configurations && configurations[0].platform, "ios");
 
                 SmokeTestLogger.success(
                     "Debugging scenarios creation test: Run iOS debugging scenario has been added successfully",
@@ -98,14 +100,8 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     configurations && configurations[0].name,
                     "Debug iOS Hermes - Experimental",
                 );
-                assert.strictEqual(
-                    configurations && configurations[0].type,
-                    "reactnativedirect",
-                );
-                assert.strictEqual(
-                    configurations && configurations[0].platform,
-                    "ios",
-                );
+                assert.strictEqual(configurations && configurations[0].type, "reactnativedirect");
+                assert.strictEqual(configurations && configurations[0].platform, "ios");
                 SmokeTestLogger.success(
                     "Debugging scenarios creation test: Debug iOS Hermes - Experimental debugging scenario has been added successfully",
                 );
@@ -137,14 +133,8 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     configurations && configurations[0].name,
                     "Debug Direct iOS - Experimental",
                 );
-                assert.strictEqual(
-                    configurations && configurations[0].type,
-                    "reactnativedirect",
-                );
-                assert.strictEqual(
-                    configurations && configurations[0].platform,
-                    "ios",
-                );
+                assert.strictEqual(configurations && configurations[0].type, "reactnativedirect");
+                assert.strictEqual(configurations && configurations[0].platform, "ios");
                 assert.strictEqual(configurations && configurations[0].useHermesEngine, false);
                 assert.strictEqual(configurations && configurations[0].target, "device");
                 SmokeTestLogger.success(
@@ -176,6 +166,8 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     configurations && configurations[0].name,
                     "Debug Android Hermes - Experimental",
                 );
+                assert.strictEqual(configurations && configurations[0].type, "reactnativedirect");
+                assert.strictEqual(configurations && configurations[0].platform, "android");
                 SmokeTestLogger.success(
                     "Debugging scenarios creation test: Debug Android Hermes - Experimental debugging scenario has been added successfully",
                 );
@@ -206,6 +198,8 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     configurations && (configurations[0] as any).expoHostType,
                     "lan",
                 );
+                assert.strictEqual(configurations && configurations[0].type, "reactnative");
+                assert.strictEqual(configurations && configurations[0].platform, "exponent");
                 SmokeTestLogger.success(
                     "Debugging scenarios creation test: Debug in Exponent debugging scenario has been added successfully",
                 );
@@ -243,6 +237,7 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     configurations && (configurations[0] as any).address,
                     hostAddress,
                 );
+                assert.strictEqual(configurations && configurations[0].type, "reactnative");
 
                 SmokeTestLogger.success(
                     "Debugging scenarios creation test: Attach to packager debugging scenario has been added successfully",
@@ -279,17 +274,14 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     configurations && configurations[0].name,
                     "Attach to Hermes application - Experimental",
                 );
-                assert.strictEqual(
-                    configurations && configurations[0].type,
-                    "reactnativedirect",
-                );
+                assert.strictEqual(configurations && configurations[0].type, "reactnativedirect");
 
                 SmokeTestLogger.success(
                     "Debugging scenarios creation test: Attach to Hermes application - Experimental debugging scenario has been added successfully",
                 );
             });
 
-            it("Add Attach to the React Native iOS - Experimental debugging scenario", async function () {
+            it("Add Attach to Direct iOS - Experimental debugging scenario", async function () {
                 SmokeTestLogger.info(
                     "Debugging scenarios creation test: select Attach to application scenario",
                 );
@@ -318,9 +310,12 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                     "Attach to Direct iOS - Experimental",
                 );
                 assert.strictEqual(configurations && (configurations[0] as any).port, 9221);
+                assert.strictEqual(configurations && configurations[0].type, "reactnativedirect");
+                assert.strictEqual(configurations && configurations[0].platform, "ios");
+                assert.strictEqual(configurations && configurations[0].useHermesEngine, false);
 
                 SmokeTestLogger.success(
-                    "Debugging scenarios creation test: Attach to the React Native iOS - Experimental debugging scenario has been added successfully",
+                    "Debugging scenarios creation test: Attach to Direct iOS - Experimental debugging scenario has been added successfully",
                 );
             });
         });

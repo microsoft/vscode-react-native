@@ -32,7 +32,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             request: "attach",
         },
         "Attach to Direct iOS - Experimental": {
-            name: "Attach to the React Native iOS - Experimental",
+            name: "Attach to Direct iOS - Experimental",
             cwd: "${workspaceFolder}",
             type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
             request: "attach",
