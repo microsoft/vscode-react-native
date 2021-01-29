@@ -12,6 +12,7 @@ export interface IConfiguration {
     target?: string;
     type?: string;
     request?: string;
+    useHermesEngine?: boolean;
 }
 export interface ILaunchScenarios {
     configurations?: IConfiguration[];
