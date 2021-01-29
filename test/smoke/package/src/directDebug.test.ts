@@ -29,24 +29,29 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
         let client: AppiumClient | null;
 
         async function disposeAll() {
-            SmokeTestLogger.info("Dispose all ...");
-            SmokeTestLogger.info("Application:");
-            SmokeTestLogger.info(app);
-            SmokeTestLogger.info("AppiumClient:");
-            SmokeTestLogger.info(client);
-            if (app) {
-                SmokeTestLogger.info("Stopping React Native packager ...");
-                await stopPackager();
-                SmokeTestLogger.info("Stopping application ...");
-                await app.stop();
-                app = null;
-            }
-            if (client) {
-                SmokeTestLogger.info("Closing application ...");
-                await client.closeApp();
-                SmokeTestLogger.info("Deleting session ...");
-                await client.deleteSession();
-                client = null;
+            try {
+                SmokeTestLogger.info("Dispose all ...");
+                SmokeTestLogger.info("Application:");
+                SmokeTestLogger.info(app);
+                SmokeTestLogger.info("AppiumClient:");
+                SmokeTestLogger.info(client);
+                if (app) {
+                    SmokeTestLogger.info("Stopping React Native packager ...");
+                    await stopPackager();
+                    SmokeTestLogger.info("Stopping application ...");
+                    await app.stop();
+                    app = null;
+                }
+                if (client) {
+                    SmokeTestLogger.info("Closing application ...");
+                    await client.closeApp();
+                    SmokeTestLogger.info("Deleting session ...");
+                    await client.deleteSession();
+                    client = null;
+                }
+            } catch (error) {
+                SmokeTestLogger.error("Error while disposeAll:");
+                SmokeTestLogger.error(error);
             }
         }
 
