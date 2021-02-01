@@ -119,7 +119,13 @@ export class PlistBuddy {
     }
 
     public deletePlistProperty(plistFile: string, property: string): Promise<void> {
-        return this.invokePlistBuddy(`Delete ${property}`, plistFile).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+        return this.invokePlistBuddy(`Delete ${property}`, plistFile)
+            .catch(err => {
+                if (!err.toString().includes("Does Not Exist")) {
+                    throw err;
+                }
+            })
+            .then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
     }
 
     public readPlistProperty(plistFile: string, property: string): Promise<string> {

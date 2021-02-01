@@ -365,6 +365,9 @@ export class TestApplicationSetupManager {
                 workspacePath.includes(SmokeTestsConstants.HermesAppName)
             ) {
                 this.execGradlewCleanCommand(workspacePath);
+                if (process.platform === "darwin") {
+                    this.execPodInstallCommand(workspacePath);
+                }
             }
             SmokeTestLogger.projectInstallLog(`Use the cached project by path ${workspacePath}`);
         }
@@ -424,7 +427,6 @@ export class TestApplicationSetupManager {
         SmokeTestLogger.projectPatchingLog(
             `*** Patching React Native project for Hermes debugging`,
         );
-        this.execGradlewCleanCommand(workspaceDirectory);
 
         if (sampleWorkspaceDirectory) {
             const { customEntryPointPath, testButtonPath } = this.getKeyPathsForSample(
@@ -436,7 +438,13 @@ export class TestApplicationSetupManager {
             );
             fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
 
-            this.copyGradleFilesToHermesApp(workspaceDirectory, customEntryPointPath);
+            this.copyGradleFilesFromSample(workspaceDirectory, sampleWorkspaceDirectory);
+            this.copyPodfileFromSample(workspaceDirectory, sampleWorkspaceDirectory);
+
+            this.execGradlewCleanCommand(workspaceDirectory);
+            if (process.platform === "darwin") {
+                this.execPodInstallCommand(workspaceDirectory);
+            }
 
             SmokeTestLogger.projectPatchingLog(
                 `*** Copying ${testButtonPath} into ${workspaceDirectory}`,
@@ -660,14 +668,24 @@ export class TestApplicationSetupManager {
         }
     }
 
-    private copyGradleFilesToHermesApp(workspacePath: string, customEntryPointPath: string) {
+    private copyGradleFilesFromSample(workspacePath: string, sampleWorkspace: string) {
         const appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
-        const resGradleBuildFilePath = path.join(customEntryPointPath, "..", "build.gradle");
+        const resGradleBuildFilePath = path.join(sampleWorkspace, "build.gradle");
 
         SmokeTestLogger.projectPatchingLog(
             `*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`,
         );
         fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
+    }
+
+    private copyPodfileFromSample(workspacePath: string, sampleWorkspace: string) {
+        const appPodfilePath = path.join(workspacePath, "ios", "Podfile");
+        const resPodfilePath = path.join(sampleWorkspace, "Podfile");
+
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying  ${resPodfilePath} into ${appPodfilePath}...`,
+        );
+        fs.writeFileSync(appPodfilePath, fs.readFileSync(resPodfilePath));
     }
 
     private patchMetroConfig(appPath: string) {
@@ -765,10 +783,31 @@ module.exports.watchFolders = ['.vscode'];`;
     private execGradlewCleanCommand(workspaceDirectory: string): void {
         const commandClean = path.join(workspaceDirectory, "android", "gradlew") + " clean";
 
-        SmokeTestLogger.projectPatchingLog(`*** Executing  ${commandClean} ...`);
+        SmokeTestLogger.projectPatchingLog(
+            `*** Executing '${commandClean}' command in path ${path.join(
+                workspaceDirectory,
+                "android",
+            )}`,
+        );
         utilities.execSync(
             commandClean,
             { cwd: path.join(workspaceDirectory, "android") },
+            vscodeManager.getSetupEnvironmentLogDir(),
+        );
+    }
+
+    private execPodInstallCommand(workspaceDirectory: string): void {
+        const commandInstall = "LANG=en_US.UTF-8 pod install --verbose";
+
+        SmokeTestLogger.projectPatchingLog(
+            `*** Executing '${commandInstall}' command in path ${path.join(
+                workspaceDirectory,
+                "ios",
+            )}`,
+        );
+        utilities.execSync(
+            commandInstall,
+            { cwd: path.join(workspaceDirectory, "ios") },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
     }

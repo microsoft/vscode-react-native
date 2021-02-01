@@ -267,15 +267,9 @@ export class AppLauncher {
                                 return this.mobilePlatform.runApp();
                             })
                             .then(() => {
-                                if (
-                                    mobilePlatformOptions.isDirect ||
-                                    !mobilePlatformOptions.enableDebug
-                                ) {
-                                    if (
-                                        mobilePlatformOptions.isDirect &&
-                                        launchArgs.platform === PlatformType.Android
-                                    ) {
-                                        generator.step("mobilePlatform.enableDirectDebuggingMode");
+                                if (mobilePlatformOptions.isDirect) {
+                                    if (launchArgs.useHermesEngine) {
+                                        generator.step("mobilePlatform.enableHermesDebuggingMode");
                                         if (mobilePlatformOptions.enableDebug) {
                                             this.logger.info(
                                                 localize(
@@ -291,19 +285,38 @@ export class AppLauncher {
                                                 ),
                                             );
                                         }
-                                    } else {
-                                        generator.step("mobilePlatform.disableJSDebuggingMode");
-                                        this.logger.info(
-                                            localize("DisableJSDebugging", "Disable JS Debugging"),
+                                    } else if (launchArgs.platform === PlatformType.iOS) {
+                                        generator.step(
+                                            "mobilePlatform.enableIosDirectDebuggingMode",
                                         );
+                                        if (mobilePlatformOptions.enableDebug) {
+                                            this.logger.info(
+                                                localize(
+                                                    "PrepareDirectIosDebugging",
+                                                    "Prepare direct iOS debugging (experimental)",
+                                                ),
+                                            );
+                                        } else {
+                                            this.logger.info(
+                                                localize(
+                                                    "PrepareDirectIosLaunch",
+                                                    "Prepare direct iOS launch (experimental)",
+                                                ),
+                                            );
+                                        }
                                     }
+                                    generator.step("mobilePlatform.disableJSDebuggingMode");
+                                    this.logger.info(
+                                        localize("DisableJSDebugging", "Disable JS Debugging"),
+                                    );
                                     return this.mobilePlatform.disableJSDebuggingMode();
+                                } else {
+                                    generator.step("mobilePlatform.enableJSDebuggingMode");
+                                    this.logger.info(
+                                        localize("EnableJSDebugging", "Enable JS Debugging"),
+                                    );
+                                    return this.mobilePlatform.enableJSDebuggingMode();
                                 }
-                                generator.step("mobilePlatform.enableJSDebuggingMode");
-                                this.logger.info(
-                                    localize("EnableJSDebugging", "Enable JS Debugging"),
-                                );
-                                return this.mobilePlatform.enableJSDebuggingMode();
                             })
                             .then(resolve)
                             .catch(error => {

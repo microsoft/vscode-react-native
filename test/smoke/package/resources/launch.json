@@ -17,7 +17,14 @@
       "platform": "windows"
     },
     {
-      "name": "Debug Android (Hermes) - Experimental",
+      "name": "Debug iOS Hermes - Experimental",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnativedirect",
+      "request": "launch",
+      "platform": "ios"
+    },
+    {
+      "name": "Debug Android Hermes - Experimental",
       "cwd": "${workspaceFolder}",
       "type": "reactnativedirect",
       "request": "launch",
