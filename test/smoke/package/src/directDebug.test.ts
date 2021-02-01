@@ -75,6 +75,13 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     }
                     case Platform.iOS: {
                         debugConfigName = RNIosHermesDebugConfigName;
+                        // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
+                        new LaunchConfigurationManager(workspace).updateLaunchScenario(
+                            RNIosHermesDebugConfigName,
+                            {
+                                target: iosSimulatorManager.getSimulator().name,
+                            },
+                        );
                         break;
                     }
                 }
@@ -88,19 +95,6 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     `${testname}: Breakpoint is set on line ${RNHermesSetBreakpointOnLine}`,
                 );
                 SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
-
-                switch (platform) {
-                    case Platform.iOS: {
-                        // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
-                        new LaunchConfigurationManager(workspace).updateLaunchScenario(
-                            RNIosHermesDebugConfigName,
-                            {
-                                target: iosSimulatorManager.getSimulator().name,
-                            },
-                        );
-                    }
-                }
-
                 SmokeTestLogger.info(`${testname}: Starting debugging`);
                 await app.workbench.quickaccess.runDebugScenario(debugConfigName);
 
