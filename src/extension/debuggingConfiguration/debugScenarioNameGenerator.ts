@@ -90,7 +90,8 @@ export class DebugScenarioNameGenerator {
         platformType?: PlatformType | string,
     ) {
         if (useHermesEngine) {
-            debugScenarioName.postPlatformTypeDescription = debugScenarioType === DebugScenarioType.AttachApp ? "Hermes application" : "Hermes";
+            debugScenarioName.postPlatformTypeDescription =
+                debugScenarioType === DebugScenarioType.AttachApp ? "Hermes application" : "Hermes";
         }
         switch (platformType) {
             case PlatformType.iOS:
