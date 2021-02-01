@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
+import * as vscode from "vscode";
 import * as WebSocket from "ws";
 import { EventEmitter } from "events";
 import { ensurePackagerRunning } from "../common/packagerStatus";
@@ -214,6 +215,7 @@ function fetch(url) {
     private packagerLocalRoot?: string;
     private debuggerWorkerUrlPath?: string;
     private socketToApp: WebSocket;
+    private cancellationToken: vscode.CancellationToken;
     private singleLifetimeWorker: IDebuggeeWorker | null;
     private webSocketConstructor: (url: string) => WebSocket;
 
@@ -225,6 +227,7 @@ function fetch(url) {
         attachRequestArguments: any,
         sourcesStoragePath: string,
         projectRootPath: string,
+        cancellationToken: vscode.CancellationToken,
         { webSocketConstructor = (url: string) => new WebSocket(url) } = {},
     ) {
         super();
@@ -235,6 +238,7 @@ function fetch(url) {
         this.debuggerWorkerUrlPath = attachRequestArguments.debuggerWorkerUrlPath;
         this.sourcesStoragePath = sourcesStoragePath;
         this.projectRootPath = projectRootPath;
+        this.cancellationToken = cancellationToken;
         if (!this.sourcesStoragePath)
             throw ErrorHelper.getInternalError(InternalErrorCode.SourcesStoragePathIsNullOrEmpty);
         this.webSocketConstructor = webSocketConstructor;
@@ -362,9 +366,11 @@ function fetch(url) {
                         ),
                     );
                 });
-                setTimeout(() => {
-                    this.start(true /* retryAttempt */);
-                }, 100);
+                if (!this.cancellationToken.isCancellationRequested) {
+                    setTimeout(() => {
+                        this.start(true /* retryAttempt */);
+                    }, 100);
+                }
             });
             this.socketToApp.on("message", (message: any) => this.onMessage(message));
             this.socketToApp.on("error", (error: Error) => {

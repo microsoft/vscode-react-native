@@ -176,6 +176,7 @@ export class RNDebugSession extends DebugSessionBase {
                                     attachArgs,
                                     sourcesStoragePath,
                                     this.projectRootPath,
+                                    this.cancellationTokenSource.token,
                                     undefined,
                                 );
                                 this.appLauncher.setAppWorker(this.appWorker);
