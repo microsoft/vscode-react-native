@@ -54,27 +54,14 @@ export class PlistBuddy {
             } else {
                 productsFolder = path.join(iosProjectRoot, "build", "Build", "Products");
             }
-            const sdkType = simulator ? "iphonesimulator" : "iphoneos";
+            const sdkSuffix = simulator ? "simulator" : "os";
+            let sdkType = `iphone${sdkSuffix}`;
             let configurationFolder = path.join(productsFolder, `${configuration}-${sdkType}`);
             let executable = "";
             if (productName) {
                 executable = `${productName}.app`;
                 if (!fs.existsSync(path.join(configurationFolder, executable))) {
-                    const configurationData = this.getConfigurationData(
-                        projectRoot,
-                        rnVersions.reactNativeVersion,
-                        iosProjectRoot,
-                        configuration,
-                        scheme,
-                        sdkType,
-                        configurationFolder,
-                    );
-                    configurationFolder = configurationData.configurationFolder;
-                }
-            } else {
-                const executableList = this.findExecutable(configurationFolder);
-                if (!executableList.length) {
-                    const configurationData = this.getConfigurationData(
+                    let configurationData = this.getConfigurationData(
                         projectRoot,
                         rnVersions.reactNativeVersion,
                         iosProjectRoot,
@@ -85,6 +72,52 @@ export class PlistBuddy {
                     );
 
                     configurationFolder = configurationData.configurationFolder;
+
+                    if (!fs.existsSync(configurationFolder)) {
+                        // maybe it's an AppleTV project
+                        sdkType = `appletv${sdkSuffix}`;
+                        configurationData = this.getConfigurationData(
+                            projectRoot,
+                            rnVersions.reactNativeVersion,
+                            iosProjectRoot,
+                            configuration,
+                            scheme,
+                            sdkType,
+                            configurationFolder,
+                        );
+                        configurationFolder = configurationData.configurationFolder;
+                    }
+                }
+            } else {
+                const executableList = this.findExecutable(configurationFolder);
+                if (!executableList.length) {
+                    let configurationData = this.getConfigurationData(
+                        projectRoot,
+                        rnVersions.reactNativeVersion,
+                        iosProjectRoot,
+                        configuration,
+                        scheme,
+                        sdkType,
+                        configurationFolder,
+                    );
+
+                    configurationFolder = configurationData.configurationFolder;
+
+                    if (!fs.existsSync(configurationFolder)) {
+                        // maybe it's an AppleTV project
+                        sdkType = `appletv${sdkSuffix}`;
+                        configurationData = this.getConfigurationData(
+                            projectRoot,
+                            rnVersions.reactNativeVersion,
+                            iosProjectRoot,
+                            configuration,
+                            scheme,
+                            sdkType,
+                            configurationFolder,
+                        );
+                        configurationFolder = configurationData.configurationFolder;
+                    }
+
                     executableList.push(configurationData.fullProductName);
                 } else if (executableList.length > 1) {
                     throw ErrorHelper.getInternalError(
