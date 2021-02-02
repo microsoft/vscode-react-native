@@ -74,6 +74,13 @@ export class AttachConfigProvider extends BaseConfigProvider {
             this.maxStepCount,
         );
 
+        if (!config.platform) {
+            delete config.platform;
+            delete config.useHermesEngine;
+        } else {
+            config.useHermesEngine = false;
+        }
+
         return () => this.configureAddress(input, config);
     }
 
@@ -109,7 +116,9 @@ export class AttachConfigProvider extends BaseConfigProvider {
     ): Promise<InputStep<DebugConfigurationState> | void> {
         delete config.port;
         const defaultPort = String(
-            config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT && config.platform === PlatformType.iOS
+            config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT &&
+                config.platform === PlatformType.iOS &&
+                !config.useHermesEngine
                 ? IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT
                 : Packager.DEFAULT_PORT,
         );

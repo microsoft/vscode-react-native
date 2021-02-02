@@ -31,11 +31,12 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [Getting started](#getting-started)
 - [React Native commands in the Command Palette](#react-native-commands-in-the-command-palette)
 - [Debugging React Native applications](#debugging-react-native-applications)
-  - [Hermes (Android) applications](#hermes-android)
+  - [Hermes engine](#hermes-engine)
   - [iOS applications](#ios-applications)
     - [iOS devices](#ios-devices)
     - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
     - [iOS direct debugging](#iOS-direct-debugging)
+    - [iOS Hermes debugging](#ios-hermes-debugging)
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
   - [Windows applications](#react-native-for-windows)
@@ -115,17 +116,17 @@ Once app is loaded and running, [open the developer menu](https://reactnative.de
 
 The extension allows you to debug multiple devices and configurations, please read the following sections for more information for your particular use case.
 
-## Hermes (Android)
+## Hermes engine
 
-Hermes is the new JavaScript engine optimized for running React Native apps on Android. It improves app performance and decreases app size.
+Hermes is the new JavaScript engine optimized for running React Native apps on Android and iOS. It improves app performance and decreases app size.
 
-Click [here](https://reactnative.dev/docs/hermes) to learn more about Hermes.
+Click [here](https://reactnative.dev/docs/hermes) to learn more about Hermes and how to enable it for your application.
 
 Debugging apps with Hermes enabled is currently experimental. Please, see [this issue](https://github.com/microsoft/vscode-react-native/issues/1073) for current known issues on Hermes support.
 
-To debug while using Hermes engine, please choose one of the following debug configurations:
+### Android Hermes
 
-- React Native Direct: Debug Android Hermes - Experimental
+To debug while using Hermes engine use `Debug Android Hermes - Experimental` launch configuration:
 
 ```json
 {
@@ -137,11 +138,17 @@ To debug while using Hermes engine, please choose one of the following debug con
 }
 ```
 
-- "React Native Direct: Attach to the React Native Hermes - Experimental
+### iOS Hermes
+
+The extension provides experimental support of debugging iOS Hermes applications. See [iOS Hermes debugging](#ios-hermes-debugging) for more details.
+
+### Attach to Hermes application
+
+To attach to a running Hermes application use `Attach to Hermes application - Experimental` launch configuration:
 
 ```json
 {
-  "name": "Attach to the React Native Hermes - Experimental",
+  "name": "Attach to Hermes application - Experimental",
   "cwd": "${workspaceFolder}",
   "type": "reactnativedirect",
   "request": "attach"
@@ -178,6 +185,8 @@ Please be aware, specifying the scheme value as a part of the `runArguments` par
 
 The extension provides experimental support of iOS direct debugging. See more info here: [react-native-community/discussions-and-proposals#40](https://github.com/react-native-community/discussions-and-proposals/issues/40), [react-native-community/discussions-and-proposals#206](https://github.com/react-native-community/discussions-and-proposals/issues/206)
 
+For now the extension supports iOS direct debugging only on real iOS devices.
+
 To be able to debug an iOS app directly, you need to instal [ios-webkit-debug-proxy](https://github.com/google/ios-webkit-debug-proxy):
 
 - Install [HomeBrew](https://brew.sh) on your Mac.
@@ -193,7 +202,8 @@ You can use the following debug scenarios to debug iOS apps directly:
     "type": "reactnativedirect",
     "request": "launch",
     "platform": "ios",
-    "port": 9221
+    "port": 9221,
+    "target": "device"
 ```
 
 - React Native Direct: Attach to the React Native iOS - Experimental
@@ -205,6 +215,27 @@ You can use the following debug scenarios to debug iOS apps directly:
     "request": "attach",
     "platform": "ios",
     "port": 9221
+```
+
+### iOS Hermes debugging
+
+You can enable Hermes engine for an iOS application by editing `ios/Podfile` file the following way:
+
+```diff
+-  use_react_native!(:path => config[:reactNativePath])
++  use_react_native!(:path => config[:reactNativePath], :hermes_enabled => true)
+```
+
+After this change you need to execute `pod install` command in `ios` folder. After that you can use `Debug iOS Hermes - Experimental` launch configuration to debug an iOS Hermes application:
+
+```json
+{
+  "name": "Debug iOS Hermes - Experimental",
+  "cwd": "${workspaceFolder}",
+  "type": "reactnativedirect",
+  "request": "launch",
+  "platform": "ios"
+}
 ```
 
 ## Expo applications

@@ -18,6 +18,7 @@ export class DebugScenarioNameGenerator {
         debugScenarioType: DebugScenarioType,
         debugType: string,
         platformType?: PlatformType | string,
+        useHermesEngine: boolean = false,
         isExperimental: boolean = false,
     ): string {
         let debugScenarioName: DebugScenarioName = this.createScenarioAccordingToDebugScenarioType(
@@ -36,6 +37,7 @@ export class DebugScenarioNameGenerator {
                 debugScenarioName,
                 debugScenarioType,
                 debugType,
+                useHermesEngine,
                 platformType,
             );
         }
@@ -84,21 +86,16 @@ export class DebugScenarioNameGenerator {
         debugScenarioName: DebugScenarioName,
         debugScenarioType: DebugScenarioType,
         debugType: string,
+        useHermesEngine: boolean,
         platformType?: PlatformType | string,
     ) {
+        if (useHermesEngine) {
+            debugScenarioName.postPlatformTypeDescription =
+                debugScenarioType === DebugScenarioType.AttachApp ? "Hermes application" : "Hermes";
+        }
         switch (platformType) {
-            case PlatformType.Android:
-                if (debugScenarioType === DebugScenarioType.AttachApp) {
-                    debugScenarioName.prePlatformTypeDescription = "the React Native";
-                    debugScenarioName.platformType = "Hermes";
-                } else {
-                    debugScenarioName.postPlatformTypeDescription = "Hermes";
-                }
-                break;
             case PlatformType.iOS:
-                if (debugScenarioType === DebugScenarioType.AttachApp) {
-                    debugScenarioName.prePlatformTypeDescription = "the React Native";
-                } else {
+                if (!useHermesEngine) {
                     debugScenarioName.prePlatformTypeDescription = "Direct";
                 }
                 break;

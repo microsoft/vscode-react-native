@@ -12,6 +12,7 @@ import {
     DebugConfigurationQuickPickItem,
     appTypePickConfig,
     expoHostTypePickConfig,
+    shouldUseHermesEngine,
 } from "../extension/debuggingConfiguration/debugConfigTypesAndConstants";
 import * as nls from "vscode-nls";
 nls.config({
@@ -77,6 +78,38 @@ export class ConfigurationProviderHelper {
         }
 
         config.type = pick.type;
+        return config;
+    }
+
+    public async shouldUseHermesEngine(
+        input: MultiStepInput<DebugConfigurationState>,
+        config: Partial<ILaunchRequestArgs>,
+        step: number,
+        totalSteps: number,
+    ): Promise<Partial<ILaunchRequestArgs>> {
+        let shouldUseHermes = await input.showQuickPick<
+            DebugConfigurationQuickPickItem,
+            IQuickPickParameters<DebugConfigurationQuickPickItem>
+        >({
+            title: localize("UseHermesEngine", "Use Hermes engine"),
+            placeholder: localize(
+                "UseHermesEnginePrompt",
+                "Use Hermes engine for direct debugging?",
+            ),
+            step,
+            totalSteps,
+            items: shouldUseHermesEngine,
+            activeItem: shouldUseHermesEngine[0],
+        });
+
+        if (!shouldUseHermes) {
+            throw new Error(
+                localize("UseHermesEngineInvalid", "Using Hermes engine is not confirmed"),
+            );
+        }
+
+        config.useHermesEngine = shouldUseHermes.type === "yes";
+
         return config;
     }
 

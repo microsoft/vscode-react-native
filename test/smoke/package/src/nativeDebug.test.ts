@@ -117,7 +117,7 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                     target: deviceName,
                 });
                 SmokeTestLogger.info("iOS Debug test: Starting debugging");
-                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
+                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName, 1);
                 await iosSimulatorManager.waitUntilIosAppIsInstalled(RnAppBundleId);
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("iOS Debug test: Debugging started");
