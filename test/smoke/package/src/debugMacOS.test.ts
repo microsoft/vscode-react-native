@@ -73,7 +73,7 @@ export function startDebugMacOSTests(
             }
         }
 
-        async function macOSApplicationTest(testname: string, workspace: string) {
+        async function macOSApplicationTest(testname: string, workspace: string): Promise<void> {
             app = await vscodeManager.runVSCode(workspace, testname);
             await app.workbench.quickaccess.openFile("App.js");
             await app.workbench.editors.scrollTop();

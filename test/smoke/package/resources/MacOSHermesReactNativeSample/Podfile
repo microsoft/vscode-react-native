@@ -78,7 +78,7 @@ abstract_target 'Shared' do
   pod 'boost-for-react-native', :podspec => '../node_modules/react-native-macos/third-party-podspecs/boost-for-react-native.podspec'
 
   target 'latestRNmacOSHermesApp-macOS' do
-    platform :macos, '10.13'
+    platform :macos, '10.14'
     use_native_modules!
 
     # Enables Hermes
