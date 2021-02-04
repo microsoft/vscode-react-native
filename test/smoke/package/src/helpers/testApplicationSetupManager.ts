@@ -107,7 +107,7 @@ export class TestApplicationSetupManager {
             resourcesDirectory,
             SmokeTestsConstants.sampleRNmacOSAppName,
         );
-        this.macOSTestProject.sampleDirectory = path.join(
+        this.macOSHermesTestProject.sampleDirectory = path.join(
             resourcesDirectory,
             SmokeTestsConstants.sampleRNmacOSHermesAppName,
         );
@@ -413,12 +413,13 @@ export class TestApplicationSetupManager {
     }
 
     private prepareReactNativeProjectForMacOSApplication(
+        macosTestProject: TestProject,
         workspacePath?: string,
         sampleWorkspace?: string,
     ): void {
         const workspaceDirectory = workspacePath
             ? workspacePath
-            : this.macOSTestProject.workspaceDirectory;
+            : macosTestProject.workspaceDirectory;
         const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
 
         const macOSinitCommand = "npx react-native-macos-init";
@@ -434,7 +435,7 @@ export class TestApplicationSetupManager {
         if (sampleWorkspaceDirectory) {
             const { customEntryPointPath } = this.getKeyPathsForSample(sampleWorkspaceDirectory);
             const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
-            this.macOSTestProject.projectMainFilePath = workspaceEntryPointPath;
+            macosTestProject.projectMainFilePath = workspaceEntryPointPath;
             SmokeTestLogger.projectPatchingLog(
                 `*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`,
             );
@@ -678,7 +679,10 @@ export class TestApplicationSetupManager {
             : this.macOSHermesTestProject.sampleDirectory;
 
         this.prepareReactNativeApplication(workspacePath, sampleWorkspaceDirectory, rnVersion);
-        this.prepareReactNativeProjectForMacOSApplication(workspacePath);
+        this.prepareReactNativeProjectForMacOSApplication(
+            prepareHermes ? this.macOSHermesTestProject : this.macOSTestProject,
+            workspacePath,
+        );
 
         if (prepareHermes) {
             this.prepareReactNativeProjectForMacOSHermesApplication(
