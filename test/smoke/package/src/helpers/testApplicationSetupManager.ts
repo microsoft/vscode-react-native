@@ -45,6 +45,11 @@ export class TestApplicationSetupManager {
         sampleDirectory: "",
         projectMainFilePath: "",
     };
+    private macOSHermesTestProject: TestProject = {
+        workspaceDirectory: "",
+        sampleDirectory: "",
+        projectMainFilePath: "",
+    };
     private expoTestProject: TestProject = {
         workspaceDirectory: "",
         sampleDirectory: "",
@@ -73,6 +78,10 @@ export class TestApplicationSetupManager {
             this.testAppsDirectory,
             SmokeTestsConstants.RNmacOSAppName,
         );
+        this.macOSHermesTestProject.workspaceDirectory = path.join(
+            this.testAppsDirectory,
+            SmokeTestsConstants.RNmacOSHermesAppName,
+        );
         this.windowsTestProject.workspaceDirectory = path.join(
             this.testAppsDirectory,
             SmokeTestsConstants.RNWAppName,
@@ -98,6 +107,10 @@ export class TestApplicationSetupManager {
             resourcesDirectory,
             SmokeTestsConstants.sampleRNmacOSAppName,
         );
+        this.macOSTestProject.sampleDirectory = path.join(
+            resourcesDirectory,
+            SmokeTestsConstants.sampleRNmacOSHermesAppName,
+        );
         this.windowsTestProject.sampleDirectory = path.join(
             resourcesDirectory,
             SmokeTestsConstants.sampleRNWAppName,
@@ -112,6 +125,10 @@ export class TestApplicationSetupManager {
 
     public getMacOSRnWorkspaceDirectory(): string {
         return this.macOSTestProject.workspaceDirectory;
+    }
+
+    public getMacOSRnHermesWorkspaceDirectory(): string {
+        return this.macOSHermesTestProject.workspaceDirectory;
     }
 
     public getWindowsRnWorkspaceDirectory(): string {
@@ -226,6 +243,21 @@ export class TestApplicationSetupManager {
                         this.macOSTestProject.workspaceDirectory,
                         this.macOSTestProject.sampleDirectory,
                         macOSrnVersion,
+                    );
+                },
+            );
+
+            this.prepareWithCacheMiddleware(
+                this.macOSHermesTestProject.workspaceDirectory,
+                macOSrnVersion,
+                useCachedApplications,
+                false,
+                () => {
+                    this.prepareMacOSApplication(
+                        this.macOSHermesTestProject.workspaceDirectory,
+                        this.macOSHermesTestProject.sampleDirectory,
+                        macOSrnVersion,
+                        true,
                     );
                 },
             );
@@ -365,9 +397,6 @@ export class TestApplicationSetupManager {
                 workspacePath.includes(SmokeTestsConstants.HermesAppName)
             ) {
                 this.execGradlewCleanCommand(workspacePath);
-                if (process.platform === "darwin") {
-                    this.execPodInstallCommand(workspacePath);
-                }
             }
             SmokeTestLogger.projectInstallLog(`Use the cached project by path ${workspacePath}`);
         }
@@ -413,6 +442,31 @@ export class TestApplicationSetupManager {
         }
     }
 
+    private prepareReactNativeProjectForMacOSHermesApplication(
+        workspacePath?: string,
+        sampleWorkspace?: string,
+    ): void {
+        const workspaceDirectory = workspacePath
+            ? workspacePath
+            : this.macOSTestProject.workspaceDirectory;
+
+        const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : "";
+
+        const hermesEngineDarwinInstallCommand = "yarn add hermes-engine-darwin@^0.4.3";
+        SmokeTestLogger.projectPatchingLog(
+            `*** Installing the hermes-engine-darwin package via '${hermesEngineDarwinInstallCommand}' in ${workspaceDirectory}...`,
+        );
+        utilities.execSync(
+            hermesEngineDarwinInstallCommand,
+            { cwd: workspaceDirectory },
+            vscodeManager.getSetupEnvironmentLogDir(),
+        );
+
+        this.copyPodfileFromSample(workspaceDirectory, sampleWorkspaceDirectory, "macos");
+
+        this.execPodInstallCommand(path.join(workspaceDirectory, "macos"));
+    }
+
     private prepareReactNativeProjectForHermesTesting(
         workspacePath?: string,
         sampleWorkspace?: string,
@@ -439,11 +493,11 @@ export class TestApplicationSetupManager {
             fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
 
             this.copyGradleFilesFromSample(workspaceDirectory, sampleWorkspaceDirectory);
-            this.copyPodfileFromSample(workspaceDirectory, sampleWorkspaceDirectory);
+            this.copyPodfileFromSample(workspaceDirectory, sampleWorkspaceDirectory, "ios");
 
             this.execGradlewCleanCommand(workspaceDirectory);
             if (process.platform === "darwin") {
-                this.execPodInstallCommand(workspaceDirectory);
+                this.execPodInstallCommand(path.join(workspaceDirectory, "ios"));
             }
 
             SmokeTestLogger.projectPatchingLog(
@@ -613,6 +667,7 @@ export class TestApplicationSetupManager {
         workspacePath: string,
         sampleWorkspace?: string,
         rnVersion?: string,
+        prepareHermes?: boolean,
     ) {
         const sampleWorkspaceDirectory = sampleWorkspace
             ? sampleWorkspace
@@ -620,6 +675,10 @@ export class TestApplicationSetupManager {
 
         this.prepareReactNativeApplication(workspacePath, sampleWorkspaceDirectory, rnVersion);
         this.prepareReactNativeProjectForMacOSApplication(workspacePath);
+
+        if (prepareHermes) {
+            this.prepareReactNativeProjectForMacOSHermesApplication(workspacePath, sampleWorkspace);
+        }
     }
 
     private prepareHermesApplication(
@@ -678,8 +737,12 @@ export class TestApplicationSetupManager {
         fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
     }
 
-    private copyPodfileFromSample(workspacePath: string, sampleWorkspace: string) {
-        const appPodfilePath = path.join(workspacePath, "ios", "Podfile");
+    private copyPodfileFromSample(
+        workspacePath: string,
+        sampleWorkspace: string,
+        platform: string,
+    ) {
+        const appPodfilePath = path.join(workspacePath, platform, "Podfile");
         const resPodfilePath = path.join(sampleWorkspace, "Podfile");
 
         SmokeTestLogger.projectPatchingLog(
@@ -796,18 +859,15 @@ module.exports.watchFolders = ['.vscode'];`;
         );
     }
 
-    private execPodInstallCommand(workspaceDirectory: string): void {
+    private execPodInstallCommand(pathToInstall: string): void {
         const commandInstall = "LANG=en_US.UTF-8 pod install --verbose";
 
         SmokeTestLogger.projectPatchingLog(
-            `*** Executing '${commandInstall}' command in path ${path.join(
-                workspaceDirectory,
-                "ios",
-            )}`,
+            `*** Executing '${commandInstall}' command in path ${pathToInstall}`,
         );
         utilities.execSync(
             commandInstall,
-            { cwd: path.join(workspaceDirectory, "ios") },
+            { cwd: pathToInstall },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
     }
