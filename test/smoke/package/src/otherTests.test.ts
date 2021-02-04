@@ -114,7 +114,7 @@ export function startOtherTests(workspace: string, testParameters?: TestRunArgum
                 SmokeTestLogger.info(
                     "iOS simulator save test: Starting debugging at the first time",
                 );
-                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
+                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName, 1);
                 SmokeTestLogger.info(
                     "iOS simulator save test: Debugging started at the first time",
                 );
@@ -150,7 +150,7 @@ export function startOtherTests(workspace: string, testParameters?: TestRunArgum
                 SmokeTestLogger.info(
                     "iOS simulator save test: Starting debugging at the second time",
                 );
-                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
+                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName, 1);
                 SmokeTestLogger.info(
                     "iOS simulator save test: Debugging started at the second time",
                 );

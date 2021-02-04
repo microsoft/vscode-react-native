@@ -100,7 +100,11 @@ export function startDebugMacOSTests(
             SmokeTestLogger.info(`${testname}: Breakpoint is set on line ${setBreakpointOnLine}`);
             SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
             SmokeTestLogger.info(`${testname}: Starting debugging`);
-            await app.workbench.quickaccess.runDebugScenario(debugConfigName);
+            if (isHermesProject) {
+                await app.workbench.quickaccess.runDebugScenario(debugConfigName);
+            } else {
+                await app.workbench.quickaccess.runDebugScenario(debugConfigName, 0);
+            }
             await app.workbench.debug.waitForDebuggingToStart();
             SmokeTestLogger.info(`${testname}: Debugging started`);
             await app.workbench.debug.waitForStackFrame(
