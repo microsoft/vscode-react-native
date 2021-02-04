@@ -11,8 +11,10 @@ import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
 
 const RNmacOSDebugConfigName = "Debug macOS";
+const RNmacOSHermesDebugConfigName = "Debug macOS Hermes - Experimental";
 
 const RNmacOSsetBreakpointOnLine = 1;
+const RNmacOSHermesSetBreakpointOnLine = 28;
 
 // Time for macOS Debug Test before it reaches timeout
 const debugMacOSTestTime = SmokeTestsConstants.macOSTestTimeout;
@@ -24,6 +26,7 @@ export function startDebugMacOSTests(
 ): void {
     describe("Debugging macOS", () => {
         let app: Application;
+        let currentMacOSAppName: string = "";
 
         async function disposeAll() {
             SmokeTestLogger.info("Dispose all ...");
@@ -33,7 +36,7 @@ export function startDebugMacOSTests(
                 await sleep(3000);
                 await app.stop();
             }
-            terminateMacOSapp(SmokeTestsConstants.RNmacOSAppName);
+            terminateMacOSapp(currentMacOSAppName);
         }
 
         afterEach(disposeAll);
@@ -73,25 +76,36 @@ export function startDebugMacOSTests(
             }
         }
 
-        async function macOSApplicationTest(testname: string, workspace: string): Promise<void> {
+        async function macOSApplicationTest(
+            testname: string,
+            workspace: string,
+            isHermesProject = false,
+        ): Promise<void> {
             app = await vscodeManager.runVSCode(workspace, testname);
             await app.workbench.quickaccess.openFile("App.js");
             await app.workbench.editors.scrollTop();
             SmokeTestLogger.info(`${testname}: App.js file is opened`);
-            await app.workbench.debug.setBreakpointOnLine(RNmacOSsetBreakpointOnLine);
-            SmokeTestLogger.info(
-                `${testname}: Breakpoint is set on line ${RNmacOSsetBreakpointOnLine}`,
-            );
-            SmokeTestLogger.info(
-                `${testname}: Chosen debug configuration: ${RNmacOSDebugConfigName}`,
-            );
+
+            let debugConfigName: string;
+            let setBreakpointOnLine: number;
+            if (isHermesProject) {
+                debugConfigName = RNmacOSHermesDebugConfigName;
+                setBreakpointOnLine = RNmacOSHermesSetBreakpointOnLine;
+            } else {
+                debugConfigName = RNmacOSDebugConfigName;
+                setBreakpointOnLine = RNmacOSsetBreakpointOnLine;
+            }
+
+            await app.workbench.debug.setBreakpointOnLine(setBreakpointOnLine);
+            SmokeTestLogger.info(`${testname}: Breakpoint is set on line ${setBreakpointOnLine}`);
+            SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
             SmokeTestLogger.info(`${testname}: Starting debugging`);
-            await app.workbench.quickaccess.runDebugScenario(RNmacOSDebugConfigName);
+            await app.workbench.quickaccess.runDebugScenario(debugConfigName);
             await app.workbench.debug.waitForDebuggingToStart();
             SmokeTestLogger.info(`${testname}: Debugging started`);
             await app.workbench.debug.waitForStackFrame(
-                sf => sf.name === "App.js" && sf.lineNumber === RNmacOSsetBreakpointOnLine,
-                `looking for App.js and line ${RNmacOSsetBreakpointOnLine}`,
+                sf => sf.name === "App.js" && sf.lineNumber === setBreakpointOnLine,
+                `looking for App.js and line ${setBreakpointOnLine}`,
             );
             SmokeTestLogger.info(`${testname}: Stack frame found`);
             await app.workbench.debug.stepOver();
@@ -116,12 +130,18 @@ export function startDebugMacOSTests(
         if (process.platform === "darwin" && testParameters.RunMacOSTests) {
             it("RN macOS app Debug test", async function () {
                 this.timeout(debugMacOSTestTime);
+                currentMacOSAppName = SmokeTestsConstants.RNmacOSAppName;
                 await macOSApplicationTest("RN macOS app Debug test", macosWorkspace);
             });
 
             it("RN macOS Hermes app Debug test", async function () {
                 this.timeout(debugMacOSTestTime);
-                await macOSApplicationTest("RN macOS Hermes app Debug test", macosHermesWorkspace);
+                currentMacOSAppName = SmokeTestsConstants.RNmacOSHermesAppName;
+                await macOSApplicationTest(
+                    "RN macOS Hermes app Debug test",
+                    macosHermesWorkspace,
+                    true,
+                );
             });
         }
     });

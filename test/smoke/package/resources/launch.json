@@ -78,6 +78,13 @@
       "type": "reactnative",
       "request": "launch",
       "platform": "macos"
+    },
+    {
+      "name": "Debug macOS Hermes - Experimental",
+      "request": "launch",
+      "type": "reactnativedirect",
+      "cwd": "${workspaceFolder}",
+      "platform": "macos"
     }
   ]
 }
