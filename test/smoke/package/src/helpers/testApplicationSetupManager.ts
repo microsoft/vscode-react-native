@@ -450,7 +450,9 @@ export class TestApplicationSetupManager {
             ? workspacePath
             : this.macOSTestProject.workspaceDirectory;
 
-        const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : "";
+        const sampleWorkspaceDirectory = sampleWorkspace
+            ? sampleWorkspace
+            : this.macOSHermesTestProject.sampleDirectory;
 
         const hermesEngineDarwinInstallCommand = "yarn add hermes-engine-darwin@^0.4.3";
         SmokeTestLogger.projectPatchingLog(
@@ -671,13 +673,18 @@ export class TestApplicationSetupManager {
     ) {
         const sampleWorkspaceDirectory = sampleWorkspace
             ? sampleWorkspace
-            : this.macOSTestProject.sampleDirectory;
+            : !prepareHermes
+            ? this.macOSTestProject.sampleDirectory
+            : this.macOSHermesTestProject.sampleDirectory;
 
         this.prepareReactNativeApplication(workspacePath, sampleWorkspaceDirectory, rnVersion);
         this.prepareReactNativeProjectForMacOSApplication(workspacePath);
 
         if (prepareHermes) {
-            this.prepareReactNativeProjectForMacOSHermesApplication(workspacePath, sampleWorkspace);
+            this.prepareReactNativeProjectForMacOSHermesApplication(
+                workspacePath,
+                sampleWorkspaceDirectory,
+            );
         }
     }
 
@@ -746,7 +753,7 @@ export class TestApplicationSetupManager {
         const resPodfilePath = path.join(sampleWorkspace, "Podfile");
 
         SmokeTestLogger.projectPatchingLog(
-            `*** Copying  ${resPodfilePath} into ${appPodfilePath}...`,
+            `*** Copying ${resPodfilePath} into ${appPodfilePath}...`,
         );
         fs.writeFileSync(appPodfilePath, fs.readFileSync(resPodfilePath));
     }
