@@ -14,7 +14,7 @@ const RNmacOSDebugConfigName = "Debug macOS";
 const RNmacOSHermesDebugConfigName = "Debug macOS Hermes - Experimental";
 
 const RNmacOSsetBreakpointOnLine = 1;
-const RNmacOSHermesSetBreakpointOnLine = 28;
+const RNmacOSHermesSetBreakpointOnLine = 14;
 
 // Time for macOS Debug Test before it reaches timeout
 const debugMacOSTestTime = SmokeTestsConstants.macOSTestTimeout;
