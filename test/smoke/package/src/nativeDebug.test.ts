@@ -14,7 +14,7 @@ const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const AndroidRNDebugConfigName = "Debug Android";
 
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
-const IosRNDebugConfigName = "Debug iOS";
+const IosRNDebugConfigName = "Debug classic iOS";
 
 const RNSetBreakpointOnLine = 1;
 
@@ -117,7 +117,7 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                     target: deviceName,
                 });
                 SmokeTestLogger.info("iOS Debug test: Starting debugging");
-                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName, 1);
+                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
                 await iosSimulatorManager.waitUntilIosAppIsInstalled(RnAppBundleId);
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("iOS Debug test: Debugging started");

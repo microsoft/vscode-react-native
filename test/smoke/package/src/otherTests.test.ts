@@ -14,7 +14,7 @@ import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./ma
 
 const AndroidRNDebugConfigName = "Debug Android";
 
-const IosRNDebugConfigName = "Debug iOS";
+const IosRNDebugConfigName = "Debug classic iOS";
 
 // Time for Android Debug Test before it reaches timeout
 const debugAndroidTestTime = SmokeTestsConstants.androidTestTimeout;
@@ -114,7 +114,7 @@ export function startOtherTests(workspace: string, testParameters?: TestRunArgum
                 SmokeTestLogger.info(
                     "iOS simulator save test: Starting debugging at the first time",
                 );
-                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName, 1);
+                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
                 SmokeTestLogger.info(
                     "iOS simulator save test: Debugging started at the first time",
                 );
@@ -150,7 +150,7 @@ export function startOtherTests(workspace: string, testParameters?: TestRunArgum
                 SmokeTestLogger.info(
                     "iOS simulator save test: Starting debugging at the second time",
                 );
-                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName, 1);
+                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
                 SmokeTestLogger.info(
                     "iOS simulator save test: Debugging started at the second time",
                 );

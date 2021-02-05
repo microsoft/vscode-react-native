@@ -37,7 +37,7 @@
       "request": "attach"
     },
     {
-      "name": "Debug iOS",
+      "name": "Debug classic iOS",
       "cwd": "${workspaceFolder}",
       "type": "reactnative",
       "request": "launch",
