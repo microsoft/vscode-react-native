@@ -48,7 +48,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
             } catch (error) {
                 SmokeTestLogger.error("Error while disposeAll:");
                 SmokeTestLogger.error(error);
-                throw error;
+                // throw error;
             }
         }
 
