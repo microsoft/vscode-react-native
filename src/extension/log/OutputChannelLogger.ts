@@ -40,6 +40,7 @@ export class OutputChannelLogger implements ILogger {
         lazy?: boolean,
         preserveFocus?: boolean,
         logTimestamps?: boolean,
+        initialHiddenMode?: boolean,
     ): OutputChannelLogger {
         if (!channels[channelName]) {
             channels[channelName] = new OutputChannelLogger(
@@ -47,6 +48,7 @@ export class OutputChannelLogger implements ILogger {
                 lazy,
                 preserveFocus,
                 logTimestamps,
+                initialHiddenMode,
             );
         }
         return channels[channelName];
@@ -57,6 +59,7 @@ export class OutputChannelLogger implements ILogger {
         lazy: boolean = false,
         private preserveFocus: boolean = false,
         logTimestamps: boolean = false,
+        initialHiddenMode: boolean = false,
     ) {
         this.logTimestamps = logTimestamps;
         const channelLogFolder = getLoggingDirectory();
@@ -75,6 +78,8 @@ export class OutputChannelLogger implements ILogger {
         if (!lazy) {
             this.channel = vscode.window.createOutputChannel(this.channelName);
             this.channel.show(this.preserveFocus);
+        } else if (initialHiddenMode) {
+            this.channel.hide();
         }
     }
 

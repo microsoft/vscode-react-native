@@ -253,11 +253,10 @@ export class TestApplicationSetupManager {
                 useCachedApplications,
                 false,
                 () => {
-                    this.prepareMacOSApplication(
+                    this.prepareMacOSHermesApplication(
                         this.macOSHermesTestProject.workspaceDirectory,
                         this.macOSHermesTestProject.sampleDirectory,
                         macOSrnVersion,
-                        true,
                     );
                 },
             );
@@ -444,30 +443,22 @@ export class TestApplicationSetupManager {
     }
 
     private prepareReactNativeProjectForMacOSHermesApplication(
-        workspacePath?: string,
-        sampleWorkspace?: string,
+        workspacePath: string,
+        sampleWorkspace: string,
     ): void {
-        const workspaceDirectory = workspacePath
-            ? workspacePath
-            : this.macOSHermesTestProject.workspaceDirectory;
-
-        const sampleWorkspaceDirectory = sampleWorkspace
-            ? sampleWorkspace
-            : this.macOSHermesTestProject.sampleDirectory;
-
         const hermesEngineDarwinInstallCommand = "yarn add hermes-engine-darwin@^0.4.3";
         SmokeTestLogger.projectPatchingLog(
-            `*** Installing the hermes-engine-darwin package via '${hermesEngineDarwinInstallCommand}' in ${workspaceDirectory}...`,
+            `*** Installing the hermes-engine-darwin package via '${hermesEngineDarwinInstallCommand}' in ${workspacePath}...`,
         );
         utilities.execSync(
             hermesEngineDarwinInstallCommand,
-            { cwd: workspaceDirectory },
+            { cwd: workspacePath },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
 
-        this.copyPodfileFromSample(workspaceDirectory, sampleWorkspaceDirectory, "macos");
+        this.copyPodfileFromSample(workspacePath, sampleWorkspace, "macos");
 
-        this.execPodInstallCommand(path.join(workspaceDirectory, "macos"));
+        this.execPodInstallCommand(path.join(workspacePath, "macos"));
     }
 
     private prepareReactNativeProjectForHermesTesting(
@@ -668,28 +659,25 @@ export class TestApplicationSetupManager {
 
     private prepareMacOSApplication(
         workspacePath: string,
-        sampleWorkspace?: string,
+        sampleWorkspace: string,
         rnVersion?: string,
-        prepareHermes?: boolean,
     ) {
-        const sampleWorkspaceDirectory = sampleWorkspace
-            ? sampleWorkspace
-            : !prepareHermes
-            ? this.macOSTestProject.sampleDirectory
-            : this.macOSHermesTestProject.sampleDirectory;
-
-        this.prepareReactNativeApplication(workspacePath, sampleWorkspaceDirectory, rnVersion);
+        this.prepareReactNativeApplication(workspacePath, sampleWorkspace, rnVersion);
         this.prepareReactNativeProjectForMacOSApplication(
-            prepareHermes ? this.macOSHermesTestProject : this.macOSTestProject,
+            workspacePath === this.macOSHermesTestProject.workspaceDirectory
+                ? this.macOSHermesTestProject
+                : this.macOSTestProject,
             workspacePath,
         );
+    }
 
-        if (prepareHermes) {
-            this.prepareReactNativeProjectForMacOSHermesApplication(
-                workspacePath,
-                sampleWorkspaceDirectory,
-            );
-        }
+    private prepareMacOSHermesApplication(
+        workspacePath: string,
+        sampleWorkspace: string,
+        rnVersion?: string,
+    ) {
+        this.prepareMacOSApplication(workspacePath, sampleWorkspace, rnVersion);
+        this.prepareReactNativeProjectForMacOSHermesApplication(workspacePath, sampleWorkspace);
     }
 
     private prepareHermesApplication(
