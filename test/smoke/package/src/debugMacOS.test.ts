@@ -138,15 +138,17 @@ export function startDebugMacOSTests(
                 await macOSApplicationTest("RN macOS app Debug test", macosWorkspace);
             });
 
-            it("RN macOS Hermes app Debug test", async function () {
-                this.timeout(debugMacOSTestTime);
-                currentMacOSAppName = SmokeTestsConstants.RNmacOSHermesAppName;
-                await macOSApplicationTest(
-                    "RN macOS Hermes app Debug test",
-                    macosHermesWorkspace,
-                    true,
-                );
-            });
+            if (!testParameters.SkipUnstableTests) {
+                it("RN macOS Hermes app Debug test", async function () {
+                    this.timeout(debugMacOSTestTime);
+                    currentMacOSAppName = SmokeTestsConstants.RNmacOSHermesAppName;
+                    await macOSApplicationTest(
+                        "RN macOS Hermes app Debug test",
+                        macosHermesWorkspace,
+                        true,
+                    );
+                });
+            }
         }
     });
 }
