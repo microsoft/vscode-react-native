@@ -103,7 +103,7 @@ export function startDebugMacOSTests(
             if (isHermesProject) {
                 await app.workbench.quickaccess.runDebugScenario(debugConfigName);
             } else {
-                await app.workbench.quickaccess.runDebugScenario(debugConfigName, 0);
+                await app.workbench.quickaccess.runDebugScenario(debugConfigName);
             }
             await app.workbench.debug.waitForDebuggingToStart();
             SmokeTestLogger.info(`${testname}: Debugging started`);

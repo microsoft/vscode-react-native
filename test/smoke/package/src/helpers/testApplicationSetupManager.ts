@@ -449,7 +449,7 @@ export class TestApplicationSetupManager {
     ): void {
         const workspaceDirectory = workspacePath
             ? workspacePath
-            : this.macOSTestProject.workspaceDirectory;
+            : this.macOSHermesTestProject.workspaceDirectory;
 
         const sampleWorkspaceDirectory = sampleWorkspace
             ? sampleWorkspace
