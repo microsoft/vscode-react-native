@@ -79,7 +79,7 @@ export function startDebugMacOSTests(
         async function macOSApplicationTest(
             testname: string,
             workspace: string,
-            isHermesProject = false,
+            isHermesProject: boolean = false,
         ): Promise<void> {
             app = await vscodeManager.runVSCode(workspace, testname);
             await app.workbench.quickaccess.openFile("App.js");
@@ -100,11 +100,7 @@ export function startDebugMacOSTests(
             SmokeTestLogger.info(`${testname}: Breakpoint is set on line ${setBreakpointOnLine}`);
             SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
             SmokeTestLogger.info(`${testname}: Starting debugging`);
-            if (isHermesProject) {
-                await app.workbench.quickaccess.runDebugScenario(debugConfigName);
-            } else {
-                await app.workbench.quickaccess.runDebugScenario(debugConfigName);
-            }
+            await app.workbench.quickaccess.runDebugScenario(debugConfigName);
             await app.workbench.debug.waitForDebuggingToStart();
             SmokeTestLogger.info(`${testname}: Debugging started`);
             await app.workbench.debug.waitForStackFrame(
