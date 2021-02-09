@@ -42,10 +42,9 @@ export class ReactNativeCDPProxy {
         this.hostAddress = hostAddress;
         this.logger = OutputChannelLogger.getChannel(
             "React Native Chrome Proxy",
-            true,
+            process.env.REACT_NATIVE_TOOLS_LAZY_LOGS === "false" ? false : true,
             false,
             true,
-            false,
         );
         this.logLevel = logLevel;
         this.browserInspectUri = "";
