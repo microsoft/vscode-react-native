@@ -45,7 +45,7 @@ export class ReactNativeCDPProxy {
             true,
             false,
             true,
-            true,
+            false,
         );
         this.logLevel = logLevel;
         this.browserInspectUri = "";
