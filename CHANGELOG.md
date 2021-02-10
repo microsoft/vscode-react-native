@@ -1,3 +1,9 @@
+## 1.4.0
+* Added support of debugging of React Native macOS Hermes applications: [more info](https://github.com/microsoft/vscode-react-native#macos-hermes-debugging) [#1495](https://github.com/microsoft/vscode-react-native/pull/1495)
+* Added support of debugging of React Native iOS Hermes applications: [more info](https://github.com/microsoft/vscode-react-native#ios-hermes-debugging) [#1488](https://github.com/microsoft/vscode-react-native/pull/1488)
+* Fixed attachment to the packager after a previous failed attempt to attach to it [#1489](https://github.com/microsoft/vscode-react-native/pull/1489)
+
+
 ## 1.3.0
 * Enhanced creation of debugging configurations. Now debugging configurations are generated interactively. You just need to click on `React Native` button in the IntelliSense prompt in `launch.json` file and then select required parameters in selection panels [#1468](https://github.com/microsoft/vscode-react-native/pull/1468)
 * Added a notification with a link to the CHANGELOG after the extension update [#1476](https://github.com/microsoft/vscode-react-native/pull/1476)
