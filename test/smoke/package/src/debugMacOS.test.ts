@@ -11,15 +11,22 @@ import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
 
 const RNmacOSDebugConfigName = "Debug macOS";
+const RNmacOSHermesDebugConfigName = "Debug macOS Hermes - Experimental";
 
 const RNmacOSsetBreakpointOnLine = 1;
+const RNmacOSHermesSetBreakpointOnLine = 14;
 
 // Time for macOS Debug Test before it reaches timeout
 const debugMacOSTestTime = SmokeTestsConstants.macOSTestTimeout;
 
-export function startDebugMacOSTests(workspace: string, testParameters: TestRunArguments): void {
+export function startDebugMacOSTests(
+    macosWorkspace: string,
+    macosHermesWorkspace: string,
+    testParameters: TestRunArguments,
+): void {
     describe("Debugging macOS", () => {
         let app: Application;
+        let currentMacOSAppName: string = "";
 
         async function disposeAll() {
             SmokeTestLogger.info("Dispose all ...");
@@ -29,12 +36,12 @@ export function startDebugMacOSTests(workspace: string, testParameters: TestRunA
                 await sleep(3000);
                 await app.stop();
             }
-            terminateMacOSapp(SmokeTestsConstants.RNmacOSAppName);
+            terminateMacOSapp(currentMacOSAppName);
         }
 
         afterEach(disposeAll);
 
-        function terminateMacOSapp(appName: string) {
+        function terminateMacOSapp(appName: string): void {
             SmokeTestLogger.info(`*** Searching for ${appName} macOS application process`);
             const searchForMacOSappProcessCommand = `ps -ax | grep ${appName}`;
             const searchResults = cp.execSync(searchForMacOSappProcessCommand).toString();
@@ -69,49 +76,75 @@ export function startDebugMacOSTests(workspace: string, testParameters: TestRunA
             }
         }
 
+        async function macOSApplicationTest(
+            testname: string,
+            workspace: string,
+            isHermesProject: boolean = false,
+        ): Promise<void> {
+            app = await vscodeManager.runVSCode(workspace, testname);
+            await app.workbench.quickaccess.openFile("App.js");
+            await app.workbench.editors.scrollTop();
+            SmokeTestLogger.info(`${testname}: App.js file is opened`);
+
+            let debugConfigName: string;
+            let setBreakpointOnLine: number;
+            if (isHermesProject) {
+                debugConfigName = RNmacOSHermesDebugConfigName;
+                setBreakpointOnLine = RNmacOSHermesSetBreakpointOnLine;
+            } else {
+                debugConfigName = RNmacOSDebugConfigName;
+                setBreakpointOnLine = RNmacOSsetBreakpointOnLine;
+            }
+
+            await app.workbench.debug.setBreakpointOnLine(setBreakpointOnLine);
+            SmokeTestLogger.info(`${testname}: Breakpoint is set on line ${setBreakpointOnLine}`);
+            SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
+            SmokeTestLogger.info(`${testname}: Starting debugging`);
+            await app.workbench.quickaccess.runDebugScenario(debugConfigName);
+            await app.workbench.debug.waitForDebuggingToStart();
+            SmokeTestLogger.info(`${testname}: Debugging started`);
+            await app.workbench.debug.waitForStackFrame(
+                sf => sf.name === "App.js" && sf.lineNumber === setBreakpointOnLine,
+                `looking for App.js and line ${setBreakpointOnLine}`,
+            );
+            SmokeTestLogger.info(`${testname}: Stack frame found`);
+            await app.workbench.debug.stepOver();
+            // Wait for our debug string to render in debug console
+            await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
+            SmokeTestLogger.info(
+                `${testname}: Searching for "Test output from debuggee" string in console`,
+            );
+            let found = await app.workbench.debug.waitForOutput(output =>
+                output.some(line => line.indexOf("Test output from debuggee") >= 0),
+            );
+            assert.notStrictEqual(
+                found,
+                false,
+                '"Test output from debuggee" string is missing in debug console',
+            );
+            SmokeTestLogger.success(`${testname}: "Test output from debuggee" string is found`);
+            await app.workbench.debug.disconnectFromDebugger();
+            SmokeTestLogger.info(`${testname}: Debugging is stopped`);
+        }
+
         if (process.platform === "darwin" && testParameters.RunMacOSTests) {
             it("RN macOS app Debug test", async function () {
                 this.timeout(debugMacOSTestTime);
-                app = await vscodeManager.runVSCode(workspace, "RN macOS app Debug test");
-                await app.workbench.quickaccess.openFile("App.js");
-                await app.workbench.editors.scrollTop();
-                SmokeTestLogger.info("macOS Debug test: App.js file is opened");
-                await app.workbench.debug.setBreakpointOnLine(RNmacOSsetBreakpointOnLine);
-                SmokeTestLogger.info(
-                    `macOS Debug test: Breakpoint is set on line ${RNmacOSsetBreakpointOnLine}`,
-                );
-                SmokeTestLogger.info(
-                    `macOS Debug test: Chosen debug configuration: ${RNmacOSDebugConfigName}`,
-                );
-                SmokeTestLogger.info("macOS Debug test: Starting debugging");
-                await app.workbench.quickaccess.runDebugScenario(RNmacOSDebugConfigName);
-                await app.workbench.debug.waitForDebuggingToStart();
-                SmokeTestLogger.info("macOS Debug test: Debugging started");
-                await app.workbench.debug.waitForStackFrame(
-                    sf => sf.name === "App.js" && sf.lineNumber === RNmacOSsetBreakpointOnLine,
-                    `looking for App.js and line ${RNmacOSsetBreakpointOnLine}`,
-                );
-                SmokeTestLogger.info("macOS Debug test: Stack frame found");
-                await app.workbench.debug.stepOver();
-                // Wait for our debug string to render in debug console
-                await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-                SmokeTestLogger.info(
-                    'macOS Debug test: Searching for "Test output from debuggee" string in console',
-                );
-                let found = await app.workbench.debug.waitForOutput(output =>
-                    output.some(line => line.indexOf("Test output from debuggee") >= 0),
-                );
-                assert.notStrictEqual(
-                    found,
-                    false,
-                    '"Test output from debuggee" string is missing in debug console',
-                );
-                SmokeTestLogger.success(
-                    'macOS Debug test: "Test output from debuggee" string is found',
-                );
-                await app.workbench.debug.disconnectFromDebugger();
-                SmokeTestLogger.info("macOS Debug test: Debugging is stopped");
+                currentMacOSAppName = SmokeTestsConstants.RNmacOSAppName;
+                await macOSApplicationTest("RN macOS app Debug test", macosWorkspace);
             });
+
+            if (!testParameters.SkipUnstableTests) {
+                it("RN macOS Hermes app Debug test", async function () {
+                    this.timeout(debugMacOSTestTime);
+                    currentMacOSAppName = SmokeTestsConstants.RNmacOSHermesAppName;
+                    await macOSApplicationTest(
+                        "RN macOS Hermes app Debug test",
+                        macosHermesWorkspace,
+                        true,
+                    );
+                });
+            }
         }
     });
 }

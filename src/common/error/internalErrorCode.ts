@@ -97,7 +97,6 @@ export enum InternalErrorCode {
     AndroidCouldNotStartLogCatMonitor = 1206,
     AndroidCouldNotStopLogCatMonitor = 1207,
     AndroidCouldNotFindActiveLogCatMonitor = 1208,
-    AndroidCouldNotDirectDebugWithoutHermesEngine = 1209,
 
     // Windows Phone errors
     WinRNMPPluginIsNotInstalled = 1301,
@@ -113,6 +112,7 @@ export enum InternalErrorCode {
     CouldntImportScriptAt = 1408,
     RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty = 1409,
     CouldNotAttachToDebugger = 1410,
+    CouldNotDirectDebugWithoutHermesEngine = 1411,
 
     // CDP Proxy errors
     CouldNotConnectToDebugTarget = 1501,

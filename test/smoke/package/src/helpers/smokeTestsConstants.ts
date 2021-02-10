@@ -68,6 +68,8 @@ export class SmokeTestsConstants {
     public static RNWAppName = "RNWApp";
     // Default React Native macOS app name
     public static RNmacOSAppName = "latestRNmacOSApp";
+    // Default React Native macOS Hermes app name
+    public static RNmacOSHermesAppName = "latestRNmacOSHermesApp";
 
     // Default React Native app name
     public static sampleRNAppName = "ReactNativeSample";
@@ -81,6 +83,8 @@ export class SmokeTestsConstants {
     public static sampleRNWAppName = "RNWSample";
     // Default React Native macOS app name
     public static sampleRNmacOSAppName = "MacOSReactNativeSample";
+    // Default React Native macOS Hermes app name
+    public static sampleRNmacOSHermesAppName = "MacOSHermesReactNativeSample";
 
     // Name of artifacts (test logs) directory
     public static artifactsDir = "SmokeTestLogs";

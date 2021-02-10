@@ -14,7 +14,7 @@ import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./ma
 
 const AndroidRNDebugConfigName = "Debug Android";
 
-const IosRNDebugConfigName = "Debug iOS";
+const IosRNDebugConfigName = "Debug classic iOS";
 
 // Time for Android Debug Test before it reaches timeout
 const debugAndroidTestTime = SmokeTestsConstants.androidTestTimeout;
