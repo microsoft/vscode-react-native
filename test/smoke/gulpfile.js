@@ -27,11 +27,14 @@ const runPrettier = (onlyStaged, fix, callback) => {
 };
 
 const runEslint = (fix, callback) => {
-    const child = cp.fork(
-        "../../node_modules/eslint/bin/eslint.js",
-        ["--color", "package/src/**/*.ts", "automation/src/**/*.ts", fix ? "--fix" : ""],
-        { stdio: "inherit" },
-    );
+    let args = ["--color", "package/src/**/*.ts", "automation/src/**/*.ts"];
+    if (fix) {
+        args.push("--fix");
+    }
+    const child = cp.fork("../../node_modules/eslint/bin/eslint.js", args, {
+        stdio: "inherit",
+        cwd: __dirname,
+    });
 
     child.on("exit", code => (code ? callback(`Eslint exited with code ${code}`) : callback()));
 };
