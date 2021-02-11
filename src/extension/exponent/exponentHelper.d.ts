@@ -17,6 +17,5 @@ declare interface ExpConfig {
 }
 
 declare interface ExpMetroConfig {
-    public assetExts?: string[];
     public sourceExts?: string[];
 }

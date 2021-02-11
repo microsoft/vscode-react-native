@@ -127,10 +127,7 @@ export class ExponentHelper {
 
     private async getArgumentsFromExpoMetroConfig(projectRoot: string): Promise<ExpMetroConfig> {
         return XDL.getMetroConfig(projectRoot).then(config => {
-            return {
-                sourceExts: config.resolver.sourceExts,
-                assetExts: config.resolver.assetExts,
-            };
+            return { sourceExts: config.resolver.sourceExts };
         });
     }
 
