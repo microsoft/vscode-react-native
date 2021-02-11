@@ -125,9 +125,20 @@ export class ExponentHelper {
             });
     }
 
-    public getExpPackagerOptions(): Promise<ExpConfigPackager> {
+    private async getArgumentsFromExpoMetroConfig(projectRoot: string): Promise<ExpMetroConfig> {
+        return XDL.getMetroConfig(projectRoot).then(config => {
+            return {
+                sourceExts: config.resolver.sourceExts,
+                assetExts: config.resolver.assetExts,
+            };
+        });
+    }
+
+    public async getExpPackagerOptions(projectRoot: string): Promise<any> {
         this.lazilyInitialize();
-        return this.getFromExpConfig("packagerOpts").then(opts => opts || {});
+        const options = await this.getFromExpConfig("packagerOpts").then(opts => opts || {});
+        const metroConfig = await this.getArgumentsFromExpoMetroConfig(projectRoot);
+        return { ...options, ...metroConfig };
     }
 
     public appHasExpoInstalled(): Promise<boolean> {

@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-declare class AppJson {
+declare type AppJson = {
     public name: string;
     public displayName?: string;
     public expo: ExpConfig;
 }
 
-declare class ExpConfig {
+declare interface ExpConfig {
     public name: string;
     public slug: string;
     public sdkVersion: string;
@@ -16,6 +16,7 @@ declare class ExpConfig {
     public packagerOpts?: ExpConfigPackager;
 }
 
-declare class ExpConfigPackager {
+declare interface ExpMetroConfig {
     public assetExts?: string[];
+    public sourceExts?: string[];
 }
