@@ -158,7 +158,8 @@ export class DirectDebugSession extends DebugSessionBase {
                         if (port === null) {
                             return Promise.reject(
                                 ErrorHelper.getInternalError(
-                                    InternalErrorCode.AndroidCouldNotDirectDebugWithoutHermesEngine,
+                                    InternalErrorCode.CouldNotDirectDebugWithoutHermesEngine,
+                                    attachArgs.platform,
                                 ),
                             );
                         }
@@ -177,7 +178,8 @@ export class DirectDebugSession extends DebugSessionBase {
                                 if (!cdpProxy) {
                                     return Promise.reject(
                                         ErrorHelper.getInternalError(
-                                            InternalErrorCode.AndroidCouldNotDirectDebugWithoutHermesEngine,
+                                            InternalErrorCode.CouldNotDirectDebugWithoutHermesEngine,
+                                            attachArgs.platform,
                                         ),
                                     );
                                 }
