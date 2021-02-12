@@ -55,7 +55,9 @@ export class PlistBuddy {
                 productsFolder = path.join(iosProjectRoot, "build", "Build", "Products");
             }
             const sdkSuffix = simulator ? "simulator" : "os";
-            let sdkType = `iphone${sdkSuffix}`;
+            const deviceType = (scheme?.indexOf("-tvOS") ?? -1) > -1 ? "appletv" : "iphone";
+            const sdkType = `${deviceType}${sdkSuffix}`;
+
             let configurationFolder = path.join(productsFolder, `${configuration}-${sdkType}`);
             let executable = "";
             if (productName) {
@@ -72,21 +74,6 @@ export class PlistBuddy {
                     );
 
                     configurationFolder = configurationData.configurationFolder;
-
-                    if (!fs.existsSync(configurationFolder)) {
-                        // maybe it's an AppleTV project
-                        sdkType = `appletv${sdkSuffix}`;
-                        configurationData = this.getConfigurationData(
-                            projectRoot,
-                            rnVersions.reactNativeVersion,
-                            iosProjectRoot,
-                            configuration,
-                            scheme,
-                            sdkType,
-                            configurationFolder,
-                        );
-                        configurationFolder = configurationData.configurationFolder;
-                    }
                 }
             } else {
                 const executableList = this.findExecutable(configurationFolder);
@@ -102,22 +89,6 @@ export class PlistBuddy {
                     );
 
                     configurationFolder = configurationData.configurationFolder;
-
-                    if (!fs.existsSync(configurationFolder)) {
-                        // maybe it's an AppleTV project
-                        sdkType = `appletv${sdkSuffix}`;
-                        configurationData = this.getConfigurationData(
-                            projectRoot,
-                            rnVersions.reactNativeVersion,
-                            iosProjectRoot,
-                            configuration,
-                            scheme,
-                            sdkType,
-                            configurationFolder,
-                        );
-                        configurationFolder = configurationData.configurationFolder;
-                    }
-
                     executableList.push(configurationData.fullProductName);
                 } else if (executableList.length > 1) {
                     throw ErrorHelper.getInternalError(
