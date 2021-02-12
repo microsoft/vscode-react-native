@@ -45,7 +45,8 @@ export class RunConfigProvider extends BaseConfigProvider {
 
         if (
             state.config.platform === PlatformType.iOS ||
-            state.config.platform === PlatformType.Android
+            state.config.platform === PlatformType.Android ||
+            state.config.platform === PlatformType.macOS
         ) {
             return () =>
                 this.configureApplicationType(input, state.config).then(() => {

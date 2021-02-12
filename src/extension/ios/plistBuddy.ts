@@ -121,7 +121,7 @@ export class PlistBuddy {
     public deletePlistProperty(plistFile: string, property: string): Promise<void> {
         return this.invokePlistBuddy(`Delete ${property}`, plistFile)
             .catch(err => {
-                if (!err.toString().includes("Does Not Exist")) {
+                if (!err.toString().toLowerCase().includes("does not exist")) {
                     throw err;
                 }
             })

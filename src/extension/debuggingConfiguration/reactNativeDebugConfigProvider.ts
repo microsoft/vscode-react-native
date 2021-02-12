@@ -105,6 +105,13 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             request: "launch",
             platform: PlatformType.iOS,
         },
+        "Debug macOS Hermes - Experimental": {
+            name: "Debug macOS Hermes - Experimental",
+            cwd: "${workspaceFolder}",
+            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            request: "launch",
+            platform: PlatformType.macOS,
+        },
         "Run Android": {
             name: "Run Android",
             cwd: "${workspaceFolder}",
@@ -209,6 +216,13 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         {
             label: "Run iOS Hermes - Experimental",
             description: localize("RunIosHermesConfigDesc", "Run iOS Hermes application"),
+        },
+        {
+            label: "Debug macOS Hermes - Experimental",
+            description: localize(
+                "DebugMacOSHermesConfigDesc",
+                "Run and debug macOS Hermes application",
+            ),
         },
         {
             label: "Attach to Hermes application - Experimental",

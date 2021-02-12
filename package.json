@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "images/icon.png",
@@ -402,7 +402,8 @@
                 "type": "string",
                 "enum": [
                   "ios",
-                  "android"
+                  "android",
+                  "macos"
                 ],
                 "description": "%reactNative.launch.direct.platform.description%"
               },
@@ -458,7 +459,8 @@
                 "type": "string",
                 "enum": [
                   "android",
-                  "ios"
+                  "ios",
+                  "macos"
                 ],
                 "description": "%reactNative.launch.direct.platform.description%"
               },
@@ -774,14 +776,14 @@
     "@types/vscode": "^1.40.0",
     "@types/websocket": "0.0.33",
     "@types/ws": "^0.0.39",
-    "@typescript-eslint/eslint-plugin": "^3.7.1",
-    "@typescript-eslint/parser": "^3.7.1",
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
     "ansi-colors": "^3.2.4",
     "copy-webpack-plugin": "^6.0.2",
     "del": "^2.2.0",
     "devtools-protocol": "0.0.762508",
-    "eslint": "^6.8.0",
-    "eslint-plugin-header": "^3.0.0",
+    "eslint": "^7.19.0",
+    "eslint-plugin-header": "^3.1.1",
     "event-stream": "3.3.4",
     "fancy-log": "^1.3.3",
     "gulp": "^4.0.2",
