@@ -136,7 +136,7 @@ export class Packager {
 
                 return this.getExponentHelper()
                     .getExpPackagerOptions(projectRoot)
-                    .then((options: any) => {
+                    .then((options: ExpMetroConfig) => {
                         Object.keys(options).forEach(key => {
                             args = args.concat([`--${key}`, options[key]]);
                         });
