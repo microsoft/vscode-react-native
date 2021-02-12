@@ -15,32 +15,35 @@ const logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
 const XDL_PACKAGE = "@expo/xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
-const EXPO_DEPS: string[] = [
-    XDL_PACKAGE,
-    "@expo/ngrok", // devDependencies for xdl
-    METRO_CONFIG_PACKAGE,
-];
+const NGROK_PACKAGE = "@expo/ngrok";
 
 let getXDLPackage: () => Promise<typeof XDLPackage> = generateGetPackageFunction<typeof XDLPackage>(
     XDL_PACKAGE,
+    NGROK_PACKAGE,
 );
 let getMetroConfigPackage: () => Promise<typeof MetroConfigPackage> = generateGetPackageFunction<
     typeof MetroConfigPackage
 >(METRO_CONFIG_PACKAGE);
 
-async function installPackages(): Promise<void> {
+async function installPackages(
+    packageName: string,
+    ...additionalDependencies: string[]
+): Promise<void> {
     let commandExecutor = new CommandExecutor(
         path.dirname(findFileInFolderHierarchy(__dirname, "package.json") || __dirname),
         logger,
     );
     return commandExecutor.spawnWithProgress(
         HostPlatform.getNpmCliCommand("npm"),
-        ["install", ...EXPO_DEPS, "--verbose", "--no-save"],
+        ["install", packageName, ...additionalDependencies, "--verbose", "--no-save"],
         { verbosity: CommandVerbosity.PROGRESS },
     );
 }
 
-async function getPackage<T>(packageName: string): Promise<T> {
+async function loadPackage<T>(
+    packageName: string,
+    ...additionalDependencies: string[]
+): Promise<T> {
     try {
         logger.debug("Getting exponent dependency.");
         const module = customRequire(packageName);
@@ -52,20 +55,24 @@ async function getPackage<T>(packageName: string): Promise<T> {
             throw e;
         }
     }
-    return installPackages().then(
+    return installPackages(packageName, ...additionalDependencies).then(
         (): T => {
             return customRequire(packageName);
         },
     );
 }
 
-function generateGetPackageFunction<T>(packageName: string): () => Promise<T> {
+function generateGetPackageFunction<T>(
+    packageName: string,
+    ...additionalDependencies: string[]
+): () => Promise<T> {
     let promise: Promise<T>;
     return (): Promise<T> => {
+        // Using the promise saved in lexical environment to prevent module reloading
         if (promise) {
             return promise;
         } else {
-            promise = getPackage<T>(packageName);
+            promise = loadPackage<T>(packageName, ...additionalDependencies);
             return promise;
         }
     };
@@ -147,7 +154,7 @@ export function stopAdbReverse(projectRoot: string): Promise<void> {
     return getXDLPackage().then(xdl => xdl.Android.stopAdbReverseAsync(projectRoot));
 }
 
-export function getMetroConfig(projectRoot: string): Promise<any> {
+export function getMetroConfig(projectRoot: string): Promise<MetroConfigPackage.IMetroConfig> {
     return getMetroConfigPackage().then(metroConfigPackage =>
         metroConfigPackage.loadAsync(projectRoot),
     );

@@ -131,9 +131,9 @@ export class ExponentHelper {
         });
     }
 
-    public async getExpPackagerOptions(projectRoot: string): Promise<any> {
+    public async getExpPackagerOptions(projectRoot: string): Promise<ExpMetroConfig> {
         this.lazilyInitialize();
-        const options = await this.getFromExpConfig("packagerOpts").then(opts => opts || {});
+        const options = await this.getFromExpConfig<any>("packagerOpts").then(opts => opts || {});
         const metroConfig = await this.getArgumentsFromExpoMetroConfig(projectRoot);
         return { ...options, ...metroConfig };
     }
@@ -342,7 +342,7 @@ var entryPoint = require('${entryPoint}');`;
         });
     }
 
-    private getFromExpConfig(key: string): Promise<any> {
+    private getFromExpConfig<T>(key: string): Promise<T> {
         return this.getExpConfig().then((config: ExpConfig) => config[key]);
     }
 

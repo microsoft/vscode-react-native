@@ -1,3 +1,6 @@
+// Type definitions for @expo/metro-config v0.1.54
+// Project: https://github.com/expo/expo-cli/tree/master/packages/metro-config
+
 declare module metroConfig {
 
     interface ILoadOptions {
@@ -9,11 +12,15 @@ declare module metroConfig {
         target?: ProjectTarget;
     }
 
-    interface IMetroConfig {
-
+    interface IResolver {
+        sourceExts: string[];
     }
 
-    var loadAsync: (projectRoot: string, { reporter, target, ...metroOptions }?: ILoadOptions) => Promise<any>
+    interface IMetroConfig {
+        resolver: IResolver;
+    }
+
+    var loadAsync: (projectRoot: string, { reporter, target, ...metroOptions }?: ILoadOptions) => Promise<IMetroConfig>
 
 }
 
