@@ -237,7 +237,8 @@ export class VsCodeManager {
             if (!sessionName) {
                 sessionName = "UnknownTest";
             }
-            //const date = new Date().toLocaleString(locale).split("/").join(".").split(":").join("-");
+
+            process.env.REACT_NATIVE_TOOLS_LAZY_LOGS = "false";
             const dirName = sessionName;
             if (this.artifactDirectory) {
                 const extensionLogsDir = path.join(

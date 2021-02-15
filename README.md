@@ -41,6 +41,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
     - [Configuring Expo](#configuring-expo)
   - [Windows applications](#react-native-for-windows)
   - [macOS applications](#react-native-for-macos)
+    - [macOS Hermes debugging](#macos-hermes-debugging)
   - [TypeScript and Haul based applications](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
 - [Customization](#customization)
@@ -118,7 +119,7 @@ The extension allows you to debug multiple devices and configurations, please re
 
 ## Hermes engine
 
-Hermes is the new JavaScript engine optimized for running React Native apps on Android and iOS. It improves app performance and decreases app size.
+The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.
 
 Click [here](https://reactnative.dev/docs/hermes) to learn more about Hermes and how to enable it for your application.
 
@@ -141,6 +142,10 @@ To debug while using Hermes engine use `Debug Android Hermes - Experimental` lau
 ### iOS Hermes
 
 The extension provides experimental support of debugging iOS Hermes applications. See [iOS Hermes debugging](#ios-hermes-debugging) for more details.
+
+### macOS Hermes
+
+The extension provides experimental support of debugging macOS Hermes applications. See [macOS Hermes debugging](#macos-hermes-debugging) for more details.
 
 ### Attach to Hermes application
 
@@ -372,6 +377,22 @@ To attach to a running macOS application you can use the default `Attach to pack
 ```
 
 You can find more information on how to setup your application to work with macOS in [React Native for macOS Getting started instruction](https://microsoft.github.io/react-native-windows/docs/rnm-getting-started)
+
+### macOS Hermes debugging
+
+Please follow [the official guide](https://microsoft.github.io/react-native-windows/docs/hermes#available-on-macos) to enable Hermes engine for a macOS application.
+
+To debug a macOS Hermes application you can use `Debug macOS Hermes - Experimental` debugging scenario:
+
+```json
+{
+  "name": "Debug macOS Hermes - Experimental",
+  "request": "launch",
+  "type": "reactnativedirect",
+  "cwd": "${workspaceFolder}",
+  "platform": "macos"
+}
+```
 
 ## TypeScript and Haul
 

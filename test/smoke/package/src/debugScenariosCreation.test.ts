@@ -142,6 +142,38 @@ export function startDebugScenariosCreationTests(workspace: string): void {
                 );
             });
 
+            it("Add Debug macOS Hermes - Experimental debugging scenario", async function () {
+                SmokeTestLogger.info(
+                    "Debugging scenarios creation test: select Debug application scenario",
+                );
+                await app.workbench.quickinput.selectQuickInputElement(1, false);
+                SmokeTestLogger.info("Debugging scenarios creation test: select macOS option");
+                await app.workbench.quickinput.selectQuickInputElement(2, false);
+                SmokeTestLogger.info(
+                    "Debugging scenarios creation test: select Direct mode option",
+                );
+                await app.workbench.quickinput.selectQuickInputElement(0);
+                SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
+                await app.workbench.editors.saveOpenedFile();
+                launchConfigurationManager.readLaunchScenarios();
+
+                assert.strictEqual(
+                    previousConfigurationsCount + 1,
+                    launchConfigurationManager.getConfigurationsCount(),
+                );
+                let configurations = launchConfigurationManager.getLaunchScenarios().configurations;
+                assert.strictEqual(
+                    configurations && configurations[0].name,
+                    "Debug macOS Hermes - Experimental",
+                );
+                assert.strictEqual(configurations && configurations[0].type, "reactnativedirect");
+                assert.strictEqual(configurations && configurations[0].platform, "macos");
+
+                SmokeTestLogger.success(
+                    "Debugging scenarios creation test: Debug macOS Hermes - Experimental debugging scenario has been added successfully",
+                );
+            });
+
             it("Add Debug Android Hermes - Experimental debugging scenario", async function () {
                 SmokeTestLogger.info(
                     "Debugging scenarios creation test: select Debug application scenario",

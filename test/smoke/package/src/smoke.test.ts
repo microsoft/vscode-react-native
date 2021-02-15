@@ -68,7 +68,11 @@ export function startSmokeTests(
             testApplicationSetupManager.getPureRnWorkspaceDirectory(),
             args,
         );
-        startDebugMacOSTests(testApplicationSetupManager.getMacOSRnWorkspaceDirectory(), args);
+        startDebugMacOSTests(
+            testApplicationSetupManager.getMacOSRnWorkspaceDirectory(),
+            testApplicationSetupManager.getMacOSRnHermesWorkspaceDirectory(),
+            args,
+        );
         startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory(), args);
         startOtherTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
     });
