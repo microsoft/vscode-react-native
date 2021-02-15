@@ -195,6 +195,7 @@ Also, it supports the following parameters:
 |Parameter|Explanation|
 |---|---|
 |`--skip-setup`|Skip pre-tests setup|
+|`--use-cache`|Skip reinstallation of test projects|
 |`--ios`|Run iOS tests only|
 |`--android`|Run Android tests only|
 |`--basic-only`|Run basic tests only (Debug Android, Debug iOS)|
