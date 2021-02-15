@@ -1,82 +1,25 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { CommandExecutor, CommandVerbosity } from "../../common/commandExecutor";
-import { HostPlatform } from "../../common/hostPlatform";
-import { OutputChannelLogger } from "../log/OutputChannelLogger";
-
 import * as XDLPackage from "xdl";
 import * as MetroConfigPackage from "metro-config";
-import * as path from "path";
-import { findFileInFolderHierarchy } from "../../common/extensionHelper";
-import customRequire from "../../common/customRequire";
-
-const logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
+import PackageLoader from "../../common/packageLoader";
 
 const XDL_PACKAGE = "@expo/xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
 const NGROK_PACKAGE = "@expo/ngrok";
 
-let getXDLPackage: () => Promise<typeof XDLPackage> = generateGetPackageFunction<typeof XDLPackage>(
-    XDL_PACKAGE,
-    NGROK_PACKAGE,
-);
-let getMetroConfigPackage: () => Promise<typeof MetroConfigPackage> = generateGetPackageFunction<
+const EXPO_DEPS: string[] = [XDL_PACKAGE, METRO_CONFIG_PACKAGE, NGROK_PACKAGE];
+
+let getXDLPackage: () => Promise<typeof XDLPackage> = PackageLoader.generateGetPackageFunction<
+    typeof XDLPackage
+>(XDL_PACKAGE, ...EXPO_DEPS);
+let getMetroConfigPackage: () => Promise<
     typeof MetroConfigPackage
->(METRO_CONFIG_PACKAGE);
-
-async function installPackages(
-    packageName: string,
-    ...additionalDependencies: string[]
-): Promise<void> {
-    let commandExecutor = new CommandExecutor(
-        path.dirname(findFileInFolderHierarchy(__dirname, "package.json") || __dirname),
-        logger,
-    );
-    return commandExecutor.spawnWithProgress(
-        HostPlatform.getNpmCliCommand("npm"),
-        ["install", packageName, ...additionalDependencies, "--verbose", "--no-save"],
-        { verbosity: CommandVerbosity.PROGRESS },
-    );
-}
-
-async function loadPackage<T>(
-    packageName: string,
-    ...additionalDependencies: string[]
-): Promise<T> {
-    try {
-        logger.debug("Getting exponent dependency.");
-        const module = customRequire(packageName);
-        return Promise.resolve(module);
-    } catch (e) {
-        if (e.code === "MODULE_NOT_FOUND") {
-            logger.debug("Dependency not present. Installing it...");
-        } else {
-            throw e;
-        }
-    }
-    return installPackages(packageName, ...additionalDependencies).then(
-        (): T => {
-            return customRequire(packageName);
-        },
-    );
-}
-
-function generateGetPackageFunction<T>(
-    packageName: string,
-    ...additionalDependencies: string[]
-): () => Promise<T> {
-    let promise: Promise<T>;
-    return (): Promise<T> => {
-        // Using the promise saved in lexical environment to prevent module reloading
-        if (promise) {
-            return promise;
-        } else {
-            promise = loadPackage<T>(packageName, ...additionalDependencies);
-            return promise;
-        }
-    };
-}
+> = PackageLoader.generateGetPackageFunction<typeof MetroConfigPackage>(
+    METRO_CONFIG_PACKAGE,
+    ...EXPO_DEPS,
+);
 
 export type IUser = XDLPackage.IUser;
 
