@@ -11,11 +11,7 @@ import * as path from "path";
 export default class PackageLoader {
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private static packagesQueue: string[] = [];
-    private static requireQueue: (() => boolean)[] = [];
-    // private static resolveByPackageName = new Map<
-    //     string,
-    //     (value: any | PromiseLike<any>) => void
-    // >();
+    private static requireQueue: ((load?: string[]) => boolean)[] = [];
     private static isCommandsExecuting: boolean = false;
 
     private static getUniquePackages(packages: string[]): string[] {
@@ -25,45 +21,48 @@ export default class PackageLoader {
     private static getTryToRequireFunction<T>(
         packageName: string,
         resolve: (value: T | PromiseLike<T>) => void,
+        reject: (reason?: any) => void,
     ) {
-        return () => {
-            return this.tryToRequire<T>(packageName, resolve);
+        return (load?: string[]) => {
+            let itWasInstalled = false;
+            // Throw exception if we could not find package after installing
+            if (load && load.includes(packageName)) {
+                itWasInstalled = true;
+            }
+            return this.tryToRequire<T>(packageName, resolve, reject, itWasInstalled);
         };
     }
 
     private static tryToRequire<T>(
         packageName: string,
         resolve: (value: T | PromiseLike<T>) => void,
+        reject: (reason?: any) => void,
+        itWasInstalled: boolean,
     ) {
         try {
-            console.log("Try to require " + packageName);
             this.logger.debug("Getting dependency.");
             const module = customRequire(packageName);
-            console.log("Try to require " + packageName + " : Success");
             resolve(module);
             return true;
         } catch (e) {
-            console.log("Try to require " + packageName + " : Failed");
-            console.log(e.code);
+            if (itWasInstalled) {
+                reject(e);
+            }
             if (e.code === "MODULE_NOT_FOUND") {
                 this.logger.debug("Dependency not present. Installing it...");
             } else {
-                throw e;
+                reject(e);
             }
             return false;
         }
     }
 
-    private static async tryToRequireAfterInstall<T>(
-        // resolve: (value: T | PromiseLike<T>) => void,
-        tryToRequire: () => boolean,
+    private static async tryToRequireAfterInstall(
+        tryToRequire: (load?: string[]) => boolean,
         packageName: string,
         ...additionalDependencies: string[]
     ) {
         this.packagesQueue.push(packageName, ...additionalDependencies);
-        // if (!this.resolveByPackageName.has(packageName)) {
-        //     this.resolveByPackageName.set(packageName, resolve);
-        // }
         this.requireQueue.push(tryToRequire);
         if (!this.isCommandsExecuting) {
             this.isCommandsExecuting = true;
@@ -71,34 +70,24 @@ export default class PackageLoader {
                 path.dirname(findFileInFolderHierarchy(__dirname, "package.json") || __dirname),
                 this.logger,
             );
-            console.log("this.packagesQueue");
-            console.log(this.packagesQueue);
             while (this.packagesQueue.length) {
                 // Install all packages in queue
                 this.packagesQueue = this.getUniquePackages(this.packagesQueue);
                 const load = this.packagesQueue.length;
                 const packagesForInstall = this.packagesQueue.slice(0, load);
-                console.log("packagesForInstall");
-                console.log(packagesForInstall);
-                await commandExecutor
-                    .spawnWithProgress(
-                        HostPlatform.getNpmCliCommand("npm"),
-                        ["install", ...packagesForInstall, "--verbose", "--no-save"],
-                        {
-                            verbosity: CommandVerbosity.PROGRESS,
-                        },
-                    )
-                    .then(() => {
-                        // this.resolveByPackageName.forEach((resolve, module) => {
-                        //     resolve(customRequire(module));
-                        //     this.resolveByPackageName.delete(module)
-                        // });
-                        this.requireQueue.forEach((tryToRequire, index) => {
-                            if (tryToRequire()) {
-                                this.requireQueue.splice(index, 1);
-                            }
-                        });
-                    });
+                await commandExecutor.spawnWithProgress(
+                    HostPlatform.getNpmCliCommand("npm"),
+                    ["install", ...packagesForInstall, "--verbose", "--no-save"],
+                    {
+                        verbosity: CommandVerbosity.PROGRESS,
+                    },
+                );
+                // Try to require all pending packages after every 'npm install ...' command
+                this.requireQueue.forEach((tryToRequire, index) => {
+                    if (tryToRequire(packagesForInstall)) {
+                        this.requireQueue.splice(index, 1);
+                    }
+                });
                 this.packagesQueue = this.getUniquePackages(this.packagesQueue);
                 packagesForInstall.forEach(module => {
                     const index = this.packagesQueue.findIndex(el => el === module);
@@ -106,13 +95,8 @@ export default class PackageLoader {
                         this.packagesQueue.splice(index, 1);
                     }
                 });
-                console.log("this.packagesQueue");
-                console.log(this.packagesQueue);
             }
-            console.log("endOfWhile");
             this.isCommandsExecuting = false;
-            console.log("this.isCommandsExecuting");
-            console.log(this.isCommandsExecuting);
         }
     }
 
@@ -120,15 +104,8 @@ export default class PackageLoader {
         packageName: string,
         ...additionalDependencies: string[]
     ): Promise<T> {
-        return new Promise(async resolve => {
-            // if (!this.tryToRequire(packageName, resolve)) {
-            //     await this.tryToRequireAfterInstall(
-            //         resolve,
-            //         packageName,
-            //         ...additionalDependencies,
-            //     );
-            // }
-            const tryToRequire = this.getTryToRequireFunction(packageName, resolve);
+        return new Promise(async (resolve, reject) => {
+            const tryToRequire = this.getTryToRequireFunction(packageName, resolve, reject);
             if (!tryToRequire()) {
                 await this.tryToRequireAfterInstall(
                     tryToRequire,
