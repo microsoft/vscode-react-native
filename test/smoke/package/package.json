@@ -8,7 +8,7 @@
     "mocha": "tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters --reporter-options configFile=./mochaReporterConfig.json"
   },
   "devDependencies": {
-    "@expo/xdl": "59.0.14",
+    "@expo/xdl": "59.0.17",
     "@types/clipboardy": "^2.0.1",
     "@types/gulp-filter": "^3.0.33",
     "@types/mkdirp": "^1.0.0",
