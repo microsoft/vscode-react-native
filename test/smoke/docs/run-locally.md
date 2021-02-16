@@ -5,7 +5,7 @@ Please, be aware that automated tests don't cover debugging cases on real device
 
 ## Prerequisites
 
-Make sure you are on `Node.JS 10.x`.
+Make sure you are on `Node.JS >=10.x and <=12.x` or `14.x`.
 
 Tests are running using [VS Code automation package](https://github.com/microsoft/vscode/tree/master/test/automation), so before the tests runs the VS Code build tools are required to be installed. Please make sure that [instructions for building VS Code from sources](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed before running the tests.
 
