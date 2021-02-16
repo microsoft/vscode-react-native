@@ -11,12 +11,15 @@ const NGROK_PACKAGE = "@expo/ngrok";
 
 const EXPO_DEPS: string[] = [XDL_PACKAGE, METRO_CONFIG_PACKAGE, NGROK_PACKAGE];
 
-let getXDLPackage: () => Promise<typeof XDLPackage> = PackageLoader.generateGetPackageFunction<
+let getXDLPackage: () => Promise<
     typeof XDLPackage
->(XDL_PACKAGE, ...EXPO_DEPS);
+> = PackageLoader.getInstance().generateGetPackageFunction<typeof XDLPackage>(
+    XDL_PACKAGE,
+    ...EXPO_DEPS,
+);
 let getMetroConfigPackage: () => Promise<
     typeof MetroConfigPackage
-> = PackageLoader.generateGetPackageFunction<typeof MetroConfigPackage>(
+> = PackageLoader.getInstance().generateGetPackageFunction<typeof MetroConfigPackage>(
     METRO_CONFIG_PACKAGE,
     ...EXPO_DEPS,
 );

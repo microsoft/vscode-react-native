@@ -9,16 +9,32 @@ import { HostPlatform } from "./hostPlatform";
 import * as path from "path";
 
 export default class PackageLoader {
-    private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
-    private static packagesQueue: string[] = [];
-    private static requireQueue: ((load?: string[]) => boolean)[] = [];
-    private static isCommandsExecuting: boolean = false;
+    private logger: OutputChannelLogger;
+    private packagesQueue: string[];
+    private requireQueue: ((load?: string[]) => boolean)[];
+    private isCommandsExecuting: boolean;
 
-    private static getUniquePackages(packages: string[]): string[] {
+    private static instance: PackageLoader;
+
+    private constructor() {
+        this.logger = OutputChannelLogger.getMainChannel();
+        this.packagesQueue = [];
+        this.requireQueue = [];
+        this.isCommandsExecuting = false;
+    }
+
+    public static getInstance(): PackageLoader {
+        if (!this.instance) {
+            this.instance = new PackageLoader();
+        }
+        return this.instance;
+    }
+
+    private getUniquePackages(packages: string[]): string[] {
         return [...new Set(packages).values()];
     }
 
-    private static getTryToRequireFunction<T>(
+    private getTryToRequireFunction<T>(
         packageName: string,
         resolve: (value: T | PromiseLike<T>) => void,
         reject: (reason?: any) => void,
@@ -33,7 +49,7 @@ export default class PackageLoader {
         };
     }
 
-    private static tryToRequire<T>(
+    private tryToRequire<T>(
         packageName: string,
         resolve: (value: T | PromiseLike<T>) => void,
         reject: (reason?: any) => void,
@@ -59,7 +75,7 @@ export default class PackageLoader {
         }
     }
 
-    private static async tryToRequireAfterInstall(
+    private async tryToRequireAfterInstall(
         tryToRequire: (load?: string[]) => boolean,
         packageName: string,
         ...additionalDependencies: string[]
@@ -90,6 +106,8 @@ export default class PackageLoader {
                         this.requireQueue.splice(index, 1);
                     }
                 });
+                console.log("requireQueue");
+                console.log(this.requireQueue);
                 this.packagesQueue = this.getUniquePackages(this.packagesQueue);
                 packagesForInstall.forEach(module => {
                     const index = this.packagesQueue.findIndex(el => el === module);
@@ -102,7 +120,7 @@ export default class PackageLoader {
         }
     }
 
-    private static async loadPackage<T>(
+    private async loadPackage<T>(
         packageName: string,
         ...additionalDependencies: string[]
     ): Promise<T> {
@@ -118,7 +136,7 @@ export default class PackageLoader {
         });
     }
 
-    public static generateGetPackageFunction<T>(
+    public generateGetPackageFunction<T>(
         packageName: string,
         ...additionalDependencies: string[]
     ): () => Promise<T> {
