@@ -149,7 +149,7 @@ Tests require several environment variables to be set up before starting:
 |`CODE_VERSION`|`*`, `1.50.1`, `insiders`|Version of VS Code to download and run while running tests|
 |`EXPO_XDL_VERSION` (optional)|`59.0.14`, `skip`|Version of @expo/xdl package to install to the extension directory. If set to "skip" then package installation will be skipped|
 |`EXPO_SDK_MAJOR_VERSION` (optional)|`40`, `skip`|Version of `expo-sdk` for Expo applications. If set to "skip" then the latest `expo-sdk` version will be used|
-|`RN_VERSION` (optional)|`0.64.0-rc.2`, `skip`|Version of a React Native application to debug while running tests. If set to "skip" then the latest version will be installed|
+|`RN_VERSION` (optional)|`0.63.4`, `skip`|Version of a React Native application to debug while running tests. If set to "skip" then the latest version will be installed|
 |`PURE_RN_VERSION` (optional)|`0.62.2`, `skip`|Version of React Native while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
 |`PURE_EXPO_VERSION` (optional)|`38.0.10`, `skip`|Version of Expo while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
 |`RN_MAC_OS_VERSION` (optional)|`0.62.0`, `skip`|(**Only for macOS tests**) Version of a React Native application for RN macOS tests. If set to "skip" then the latest version will be installed|
