@@ -9,52 +9,19 @@ import * as utilities from "./utilities";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { SmokeTestLogger } from "./smokeTestLogger";
 import { vscodeManager } from "../main";
-
-export interface TestProject {
-    workspaceDirectory: string;
-    sampleDirectory: string;
-    projectMainFilePath: string;
-}
+import TestProject from "./testProject";
 
 export class TestApplicationSetupManager {
     private cacheDirectory: string;
     private testAppsDirectory: string;
 
-    private rnTestProject: TestProject = {
-        workspaceDirectory: "",
-        sampleDirectory: "",
-        projectMainFilePath: "",
-    };
-    private hermesTestProject: TestProject = {
-        workspaceDirectory: "",
-        sampleDirectory: "",
-        projectMainFilePath: "",
-    };
-    private pureRNTestProject: TestProject = {
-        workspaceDirectory: "",
-        sampleDirectory: "",
-        projectMainFilePath: "",
-    };
-    private windowsTestProject: TestProject = {
-        workspaceDirectory: "",
-        sampleDirectory: "",
-        projectMainFilePath: "",
-    };
-    private macOSTestProject: TestProject = {
-        workspaceDirectory: "",
-        sampleDirectory: "",
-        projectMainFilePath: "",
-    };
-    private macOSHermesTestProject: TestProject = {
-        workspaceDirectory: "",
-        sampleDirectory: "",
-        projectMainFilePath: "",
-    };
-    private expoTestProject: TestProject = {
-        workspaceDirectory: "",
-        sampleDirectory: "",
-        projectMainFilePath: "",
-    };
+    private rnTestProject: TestProject;
+    private hermesTestProject: TestProject;
+    private pureRNTestProject: TestProject;
+    private windowsTestProject: TestProject;
+    private macOSTestProject: TestProject;
+    private macOSHermesTestProject: TestProject;
+    private expoTestProject: TestProject;
 
     private launchJsonPath: string;
 
@@ -62,62 +29,33 @@ export class TestApplicationSetupManager {
         this.testAppsDirectory = path.join(cacheDirectory, "TestApps");
         this.cacheDirectory = cacheDirectory;
 
-        this.rnTestProject.workspaceDirectory = path.join(
-            this.testAppsDirectory,
-            SmokeTestsConstants.RNAppName,
+        this.rnTestProject = new TestProject(
+            path.join(this.testAppsDirectory, SmokeTestsConstants.RNAppName),
+            path.join(resourcesDirectory, SmokeTestsConstants.sampleRNAppName),
         );
-        this.hermesTestProject.workspaceDirectory = path.join(
-            this.testAppsDirectory,
-            SmokeTestsConstants.HermesAppName,
+        this.hermesTestProject = new TestProject(
+            path.join(this.testAppsDirectory, SmokeTestsConstants.HermesAppName),
+            path.join(resourcesDirectory, SmokeTestsConstants.sampleHermesAppName),
         );
-        this.pureRNTestProject.workspaceDirectory = path.join(
-            this.testAppsDirectory,
-            SmokeTestsConstants.pureRNExpoAppName,
+        this.pureRNTestProject = new TestProject(
+            path.join(this.testAppsDirectory, SmokeTestsConstants.pureRNExpoAppName),
+            path.join(resourcesDirectory, SmokeTestsConstants.samplePureRNExpoAppName),
         );
-        this.macOSTestProject.workspaceDirectory = path.join(
-            this.testAppsDirectory,
-            SmokeTestsConstants.RNmacOSAppName,
+        this.macOSTestProject = new TestProject(
+            path.join(this.testAppsDirectory, SmokeTestsConstants.RNmacOSAppName),
+            path.join(resourcesDirectory, SmokeTestsConstants.sampleRNmacOSAppName),
         );
-        this.macOSHermesTestProject.workspaceDirectory = path.join(
-            this.testAppsDirectory,
-            SmokeTestsConstants.RNmacOSHermesAppName,
+        this.macOSHermesTestProject = new TestProject(
+            path.join(this.testAppsDirectory, SmokeTestsConstants.RNmacOSHermesAppName),
+            path.join(resourcesDirectory, SmokeTestsConstants.sampleRNmacOSHermesAppName),
         );
-        this.windowsTestProject.workspaceDirectory = path.join(
-            this.testAppsDirectory,
-            SmokeTestsConstants.RNWAppName,
+        this.windowsTestProject = new TestProject(
+            path.join(this.testAppsDirectory, SmokeTestsConstants.RNWAppName),
+            path.join(resourcesDirectory, SmokeTestsConstants.sampleRNWAppName),
         );
-        this.expoTestProject.workspaceDirectory = path.join(
-            this.testAppsDirectory,
-            SmokeTestsConstants.ExpoAppName,
-        );
-
-        this.rnTestProject.sampleDirectory = path.join(
-            resourcesDirectory,
-            SmokeTestsConstants.sampleRNAppName,
-        );
-        this.hermesTestProject.sampleDirectory = path.join(
-            resourcesDirectory,
-            SmokeTestsConstants.sampleHermesAppName,
-        );
-        this.pureRNTestProject.sampleDirectory = path.join(
-            resourcesDirectory,
-            SmokeTestsConstants.samplePureRNExpoAppName,
-        );
-        this.macOSTestProject.sampleDirectory = path.join(
-            resourcesDirectory,
-            SmokeTestsConstants.sampleRNmacOSAppName,
-        );
-        this.macOSHermesTestProject.sampleDirectory = path.join(
-            resourcesDirectory,
-            SmokeTestsConstants.sampleRNmacOSHermesAppName,
-        );
-        this.windowsTestProject.sampleDirectory = path.join(
-            resourcesDirectory,
-            SmokeTestsConstants.sampleRNWAppName,
-        );
-        this.expoTestProject.sampleDirectory = path.join(
-            resourcesDirectory,
-            SmokeTestsConstants.sampleExpoAppName,
+        this.expoTestProject = new TestProject(
+            path.join(this.testAppsDirectory, SmokeTestsConstants.ExpoAppName),
+            path.join(resourcesDirectory, SmokeTestsConstants.sampleExpoAppName),
         );
 
         this.launchJsonPath = path.join(resourcesDirectory, "launch.json");
@@ -179,100 +117,68 @@ export class TestApplicationSetupManager {
         const rnwVersion = process.env.RNW_VERSION || "";
 
         this.prepareWithCacheMiddleware(
-            this.rnTestProject.workspaceDirectory,
+            this.rnTestProject,
             rnVersion,
             useCachedApplications,
-            false,
             () => {
-                this.prepareReactNativeApplication(
-                    this.rnTestProject.workspaceDirectory,
-                    this.rnTestProject.sampleDirectory,
-                    rnVersion,
-                );
+                this.prepareReactNativeApplication(this.rnTestProject, rnVersion);
             },
         );
         this.prepareWithCacheMiddleware(
-            this.expoTestProject.workspaceDirectory,
+            this.expoTestProject,
             expoSdkVersion,
             useCachedApplications,
-            true,
             () => {
-                this.prepareExpoApplication(
-                    this.expoTestProject.workspaceDirectory,
-                    this.expoTestProject.sampleDirectory,
-                    expoSdkVersion,
-                );
+                this.prepareExpoApplication(this.expoTestProject, expoSdkVersion);
             },
         );
         this.prepareWithCacheMiddleware(
-            this.pureRNTestProject.workspaceDirectory,
+            this.pureRNTestProject,
             pureRnVersion,
             useCachedApplications,
-            false,
             () => {
                 this.preparePureExpoApplication(
-                    this.pureRNTestProject.workspaceDirectory,
-                    this.pureRNTestProject.sampleDirectory,
+                    this.pureRNTestProject,
                     pureRnVersion,
                     pureExpoSdkVersion,
                 );
             },
         );
         this.prepareWithCacheMiddleware(
-            this.hermesTestProject.workspaceDirectory,
+            this.hermesTestProject,
             rnVersion,
             useCachedApplications,
-            false,
             () => {
-                this.prepareHermesApplication(
-                    this.hermesTestProject.workspaceDirectory,
-                    this.hermesTestProject.sampleDirectory,
-                    rnVersion,
-                );
+                this.prepareHermesApplication(this.hermesTestProject, rnVersion);
             },
         );
 
         if (process.platform === "darwin") {
             this.prepareWithCacheMiddleware(
-                this.macOSTestProject.workspaceDirectory,
+                this.macOSTestProject,
                 macOSrnVersion,
                 useCachedApplications,
-                false,
                 () => {
-                    this.prepareMacOSApplication(
-                        this.macOSTestProject.workspaceDirectory,
-                        this.macOSTestProject.sampleDirectory,
-                        macOSrnVersion,
-                    );
+                    this.prepareMacOSApplication(this.macOSTestProject, macOSrnVersion);
                 },
             );
 
             this.prepareWithCacheMiddleware(
-                this.macOSHermesTestProject.workspaceDirectory,
+                this.macOSHermesTestProject,
                 macOSrnVersion,
                 useCachedApplications,
-                false,
                 () => {
-                    this.prepareMacOSHermesApplication(
-                        this.macOSHermesTestProject.workspaceDirectory,
-                        this.macOSHermesTestProject.sampleDirectory,
-                        macOSrnVersion,
-                    );
+                    this.prepareMacOSHermesApplication(this.macOSHermesTestProject, macOSrnVersion);
                 },
             );
         }
         if (process.platform === "win32") {
             this.prepareWithCacheMiddleware(
-                this.windowsTestProject.workspaceDirectory,
+                this.windowsTestProject,
                 rnwVersion,
                 useCachedApplications,
-                false,
                 () => {
-                    this.prepareRNWApplication(
-                        this.windowsTestProject.workspaceDirectory,
-                        this.windowsTestProject.sampleDirectory,
-                        rnwVersion,
-                    );
+                    this.prepareRNWApplication(this.windowsTestProject, rnwVersion);
                 },
             );
         }
@@ -301,12 +207,12 @@ export class TestApplicationSetupManager {
         }
     }
 
-    public copyDebuggingConfigurationsToProject(launchJsonFilePathInProject: string): void {
+    public copyDebuggingConfigurationsToProject(project: TestProject): void {
         SmokeTestLogger.projectPatchingLog(
-            `*** Copying  ${this.launchJsonPath} into ${launchJsonFilePathInProject}...`,
+            `*** Copying  ${this.launchJsonPath} into ${project.vsCodeConfigPath}...`,
         );
         fs.writeFileSync(
-            path.join(launchJsonFilePathInProject, "launch.json"),
+            path.join(project.vsCodeConfigPath, "launch.json"),
             fs.readFileSync(this.launchJsonPath),
         );
     }
@@ -379,156 +285,97 @@ export class TestApplicationSetupManager {
     }
 
     private prepareWithCacheMiddleware(
-        workspacePath: string,
+        project: TestProject,
         packageVersion: string,
         useCachedApplications: boolean,
-        isExpoProject: boolean,
         prepareProjectFunc: () => void,
     ): void {
-        if (
-            !this.useCachedApps(workspacePath, packageVersion, useCachedApplications, isExpoProject)
-        ) {
-            this.removeProjectFolder(workspacePath);
+        if (!this.useCachedApps(project, packageVersion, useCachedApplications)) {
+            this.removeProjectFolder(project);
             prepareProjectFunc.call(this);
         } else {
             if (
-                workspacePath.includes(SmokeTestsConstants.RNAppName) ||
-                workspacePath.includes(SmokeTestsConstants.HermesAppName)
+                project.workspaceDirectory.includes(SmokeTestsConstants.RNAppName) ||
+                project.workspaceDirectory.includes(SmokeTestsConstants.HermesAppName)
             ) {
-                this.execGradlewCleanCommand(workspacePath);
+                this.execGradlewCleanCommand(project);
             }
-            SmokeTestLogger.projectInstallLog(`Use the cached project by path ${workspacePath}`);
+            SmokeTestLogger.projectInstallLog(
+                `Use the cached project by path ${project.workspaceDirectory}`,
+            );
         }
     }
 
-    private prepareReactNativeProjectForWindowsApplication(workspacePath: string): void {
+    private prepareReactNativeProjectForWindowsApplication(project: TestProject): void {
         const command = `${utilities.npxCommand} react-native-windows-init --overwrite`;
         SmokeTestLogger.projectPatchingLog(`*** Install additional RNW packages using ${command}`);
         utilities.execSync(
             command,
-            { cwd: workspacePath },
+            { cwd: project.workspaceDirectory },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
     }
 
-    private prepareReactNativeProjectForMacOSApplication(
-        macosTestProject: TestProject,
-        workspacePath?: string,
-        sampleWorkspace?: string,
-    ): void {
-        const workspaceDirectory = workspacePath
-            ? workspacePath
-            : macosTestProject.workspaceDirectory;
-        const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
-
+    private prepareReactNativeProjectForMacOSApplication(project: TestProject): void {
         const macOSinitCommand = "npx react-native-macos-init";
         SmokeTestLogger.projectPatchingLog(
-            `*** Installing the React Native for macOS packages via '${macOSinitCommand}' in ${workspaceDirectory}...`,
+            `*** Installing the React Native for macOS packages via '${macOSinitCommand}' in ${project.workspaceDirectory}...`,
         );
         utilities.execSync(
             macOSinitCommand,
-            { cwd: workspaceDirectory },
+            { cwd: project.workspaceDirectory },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
 
-        if (sampleWorkspaceDirectory) {
-            const { customEntryPointPath } = this.getKeyPathsForSample(sampleWorkspaceDirectory);
-            const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
-            macosTestProject.projectMainFilePath = workspaceEntryPointPath;
-            SmokeTestLogger.projectPatchingLog(
-                `*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`,
-            );
-            fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
-        }
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying  ${project.sampleEntryPointPath} into ${project.projectEntryPointPath}...`,
+        );
+        fs.writeFileSync(project.projectEntryPointPath, project.sampleEntryPointPath);
     }
 
-    private prepareReactNativeProjectForMacOSHermesApplication(
-        workspacePath: string,
-        sampleWorkspace: string,
-    ): void {
+    private prepareReactNativeProjectForMacOSHermesApplication(project: TestProject): void {
         const hermesEngineDarwinInstallCommand = "yarn add hermes-engine-darwin@^0.4.3";
         SmokeTestLogger.projectPatchingLog(
-            `*** Installing the hermes-engine-darwin package via '${hermesEngineDarwinInstallCommand}' in ${workspacePath}...`,
+            `*** Installing the hermes-engine-darwin package via '${hermesEngineDarwinInstallCommand}' in ${project.workspaceDirectory}...`,
         );
         utilities.execSync(
             hermesEngineDarwinInstallCommand,
-            { cwd: workspacePath },
+            { cwd: project.workspaceDirectory },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
 
-        this.copyPodfileFromSample(workspacePath, sampleWorkspace, "macos");
-
-        this.execPodInstallCommand(path.join(workspacePath, "macos"));
+        this.copyPodfileFromSample(project, "macos");
+        this.execPodInstallCommand(project, "macos");
     }
 
-    private prepareReactNativeProjectForHermesTesting(
-        workspacePath?: string,
-        sampleWorkspace?: string,
-    ) {
-        const workspaceDirectory = workspacePath
-            ? workspacePath
-            : this.hermesTestProject.workspaceDirectory;
-        const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
-        const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
-        this.hermesTestProject.projectMainFilePath = workspaceEntryPointPath;
-
+    private prepareReactNativeProjectForHermesTesting(project: TestProject) {
         SmokeTestLogger.projectPatchingLog(
             `*** Patching React Native project for Hermes debugging`,
         );
 
-        if (sampleWorkspaceDirectory) {
-            const { customEntryPointPath, testButtonPath } = this.getKeyPathsForSample(
-                sampleWorkspaceDirectory,
-            );
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying  ${project.sampleEntryPointPath} into ${project.projectEntryPointPath}...`,
+        );
+        fs.writeFileSync(
+            project.projectEntryPointPath,
+            fs.readFileSync(project.sampleEntryPointPath),
+        );
 
-            SmokeTestLogger.projectPatchingLog(
-                `*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`,
-            );
-            fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
+        this.copyGradleFilesFromSample(project);
+        this.copyPodfileFromSample(project, "ios");
 
-            this.copyGradleFilesFromSample(workspaceDirectory, sampleWorkspaceDirectory);
-            this.copyPodfileFromSample(workspaceDirectory, sampleWorkspaceDirectory, "ios");
-
-            this.execGradlewCleanCommand(workspaceDirectory);
-            if (process.platform === "darwin") {
-                this.execPodInstallCommand(path.join(workspaceDirectory, "ios"));
-            }
-
-            SmokeTestLogger.projectPatchingLog(
-                `*** Copying ${testButtonPath} into ${workspaceDirectory}`,
-            );
-            fs.copyFileSync(testButtonPath, path.join(workspaceDirectory, "AppTestButton.js"));
-        }
-    }
-
-    private getKeyPathsForApplication(
-        workspacePath: string,
-    ): {
-        appName: string;
-        parentPathForWorkspace: string;
-        vsCodeConfigPath: string;
-        workspaceEntryPointPath: string;
-    } {
-        const appName = path.basename(workspacePath);
-        const parentPathForWorkspace = path.join(workspacePath, "..");
-        const vsCodeConfigPath = path.join(workspacePath, ".vscode");
-        let workspaceEntryPointPath = path.join(workspacePath, SmokeTestsConstants.ApptsxFileName);
-        if (!fs.existsSync(workspaceEntryPointPath)) {
-            workspaceEntryPointPath = path.join(workspacePath, SmokeTestsConstants.AppjsFileName);
-        }
-        return { appName, parentPathForWorkspace, vsCodeConfigPath, workspaceEntryPointPath };
-    }
-
-    private getKeyPathsForSample(
-        workspacePath: string,
-    ): { testButtonPath: string; customEntryPointPath: string } {
-        const testButtonPath = path.join(workspacePath, "AppTestButton.js");
-        let customEntryPointPath = path.join(workspacePath, SmokeTestsConstants.ApptsxFileName);
-        if (!fs.existsSync(customEntryPointPath)) {
-            customEntryPointPath = path.join(workspacePath, SmokeTestsConstants.AppjsFileName);
+        this.execGradlewCleanCommand(project);
+        if (process.platform === "darwin") {
+            this.execPodInstallCommand(project, "ios");
         }
 
-        return { testButtonPath, customEntryPointPath };
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying ${project.testButtonFileForSample} into ${project.workspaceDirectory}`,
+        );
+        fs.copyFileSync(
+            project.testButtonFileForSample,
+            path.join(project.workspaceDirectory, "AppTestButton.js"),
+        );
     }
 
     private generateReactNativeInitCommand(appName: string, version?: string): string {
@@ -542,193 +389,120 @@ export class TestApplicationSetupManager {
         return command;
     }
 
-    private prepareReactNativeApplication(
-        workspacePath: string,
-        sampleWorkspace?: string,
-        version?: string,
-    ) {
-        const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
-        const {
-            appName,
-            parentPathForWorkspace,
-            vsCodeConfigPath,
-        } = this.getKeyPathsForApplication(workspacePath);
-
-        const command = this.generateReactNativeInitCommand(appName, version);
+    private prepareReactNativeApplication(project: TestProject, version?: string) {
+        const command = this.generateReactNativeInitCommand(project.appName, version);
         SmokeTestLogger.projectInstallLog(
-            `*** Creating RN app via '${command}' in ${workspacePath}...`,
+            `*** Creating RN app via '${command}' in ${project.workspaceDirectory}...`,
         );
         utilities.execSync(
             command,
-            { cwd: parentPathForWorkspace },
+            { cwd: project.parentPathForWorkspace },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
 
-        const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspacePath);
-        this.rnTestProject.projectMainFilePath = workspaceEntryPointPath;
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying  ${project.sampleEntryPointPath} into ${project.projectEntryPointPath}...`,
+        );
+        fs.writeFileSync(
+            project.projectEntryPointPath,
+            fs.readFileSync(project.sampleEntryPointPath),
+        );
 
-        if (sampleWorkspaceDirectory) {
-            const { customEntryPointPath } = this.getKeyPathsForSample(sampleWorkspaceDirectory);
-            SmokeTestLogger.projectPatchingLog(
-                `*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`,
-            );
-            fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
+        if (!fs.existsSync(project.vsCodeConfigPath)) {
+            SmokeTestLogger.projectInstallLog(`*** Creating  ${project.vsCodeConfigPath}...`);
+            fs.mkdirSync(project.vsCodeConfigPath);
         }
 
-        if (!fs.existsSync(vsCodeConfigPath)) {
-            SmokeTestLogger.projectInstallLog(`*** Creating  ${vsCodeConfigPath}...`);
-            fs.mkdirSync(vsCodeConfigPath);
-        }
-
-        this.copyDebuggingConfigurationsToProject(vsCodeConfigPath);
-
-        this.patchMetroConfig(workspacePath);
+        this.copyDebuggingConfigurationsToProject(project);
+        this.patchMetroConfig(project);
     }
 
-    private prepareExpoApplication(
-        workspacePath: string,
-        sampleWorkspace?: string,
-        expoSdkMajorVersion?: string,
-    ) {
-        const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
-        const {
-            appName,
-            parentPathForWorkspace,
-            vsCodeConfigPath,
-        } = this.getKeyPathsForApplication(workspacePath);
+    private prepareExpoApplication(project: TestProject, expoSdkMajorVersion?: string) {
         const useSpecificSdk = expoSdkMajorVersion ? `@sdk-${expoSdkMajorVersion}` : "";
-        const command = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${appName} ${appName}`;
+        const command = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${project.appName} ${project.appName}`;
 
         SmokeTestLogger.projectInstallLog(
-            `*** Creating Expo app via '${command}' in ${workspacePath}...`,
+            `*** Creating Expo app via '${command}' in ${project.workspaceDirectory}...`,
         );
         utilities.execSync(
             command,
-            { cwd: parentPathForWorkspace },
+            { cwd: project.parentPathForWorkspace },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
 
-        const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspacePath);
-        this.expoTestProject.projectMainFilePath = workspaceEntryPointPath;
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying  ${project.sampleEntryPointPath} into ${project.projectEntryPointPath}...`,
+        );
+        fs.writeFileSync(
+            project.projectEntryPointPath,
+            fs.readFileSync(project.sampleEntryPointPath),
+        );
 
-        if (sampleWorkspaceDirectory) {
-            const { customEntryPointPath } = this.getKeyPathsForSample(sampleWorkspaceDirectory);
-            SmokeTestLogger.projectPatchingLog(
-                `*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`,
-            );
-            fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
+        if (!fs.existsSync(project.vsCodeConfigPath)) {
+            SmokeTestLogger.projectInstallLog(`*** Creating  ${project.vsCodeConfigPath}...`);
+            fs.mkdirSync(project.vsCodeConfigPath);
         }
 
-        if (!fs.existsSync(vsCodeConfigPath)) {
-            SmokeTestLogger.projectInstallLog(`*** Creating  ${vsCodeConfigPath}...`);
-            fs.mkdirSync(vsCodeConfigPath);
-        }
+        this.copyDebuggingConfigurationsToProject(project);
 
-        this.copyDebuggingConfigurationsToProject(vsCodeConfigPath);
-
-        this.patchMetroConfig(workspacePath);
-        this.patchExpoSettingsFile();
+        this.patchMetroConfig(project);
+        this.patchExpoSettingsFile(project);
     }
 
     private preparePureExpoApplication(
-        workspacePath: string,
-        sampleWorkspace?: string,
+        project: TestProject,
         rnVersion?: string,
         expoVersion?: string,
     ) {
-        const sampleWorkspaceDirectory = sampleWorkspace
-            ? sampleWorkspace
-            : this.pureRNTestProject.sampleDirectory;
-
-        this.prepareReactNativeApplication(workspacePath, undefined, rnVersion);
-        this.addExpoDependencyToRNProject(workspacePath, sampleWorkspaceDirectory, expoVersion);
+        this.prepareReactNativeApplication(project, rnVersion);
+        this.addExpoDependencyToRNProject(project, expoVersion);
     }
 
-    private prepareRNWApplication(
-        workspacePath: string,
-        sampleWorkspace?: string,
-        rnVersion?: string,
-    ) {
-        const sampleWorkspaceDirectory = sampleWorkspace
-            ? sampleWorkspace
-            : this.windowsTestProject.sampleDirectory;
-
-        this.prepareReactNativeApplication(workspacePath, sampleWorkspaceDirectory, rnVersion);
-        this.prepareReactNativeProjectForWindowsApplication(workspacePath);
+    private prepareRNWApplication(project: TestProject, rnVersion?: string) {
+        this.prepareReactNativeApplication(project, rnVersion);
+        this.prepareReactNativeProjectForWindowsApplication(project);
     }
 
-    private prepareMacOSApplication(
-        workspacePath: string,
-        sampleWorkspace: string,
-        rnVersion?: string,
-    ) {
-        this.prepareReactNativeApplication(workspacePath, sampleWorkspace, rnVersion);
-        this.prepareReactNativeProjectForMacOSApplication(
-            workspacePath === this.macOSHermesTestProject.workspaceDirectory
-                ? this.macOSHermesTestProject
-                : this.macOSTestProject,
-            workspacePath,
-        );
+    private prepareMacOSApplication(project: TestProject, rnVersion?: string) {
+        this.prepareReactNativeApplication(project, rnVersion);
+        this.prepareReactNativeProjectForMacOSApplication(project);
     }
 
-    private prepareMacOSHermesApplication(
-        workspacePath: string,
-        sampleWorkspace: string,
-        rnVersion?: string,
-    ) {
-        this.prepareMacOSApplication(workspacePath, sampleWorkspace, rnVersion);
-        this.prepareReactNativeProjectForMacOSHermesApplication(workspacePath, sampleWorkspace);
+    private prepareMacOSHermesApplication(project: TestProject, rnVersion?: string) {
+        this.prepareMacOSApplication(project, rnVersion);
+        this.prepareReactNativeProjectForMacOSHermesApplication(project);
     }
 
-    private prepareHermesApplication(
-        workspacePath: string,
-        sampleWorkspace?: string,
-        rnVersion?: string,
-    ) {
-        const sampleWorkspaceDirectory = sampleWorkspace
-            ? sampleWorkspace
-            : this.hermesTestProject.sampleDirectory;
-
-        this.prepareReactNativeApplication(workspacePath, undefined, rnVersion);
-        this.prepareReactNativeProjectForHermesTesting(workspacePath, sampleWorkspaceDirectory);
+    private prepareHermesApplication(project: TestProject, rnVersion?: string) {
+        this.prepareReactNativeApplication(project, rnVersion);
+        this.prepareReactNativeProjectForHermesTesting(project);
     }
 
-    private addExpoDependencyToRNProject(
-        workspacePath?: string,
-        sampleWorkspace?: string,
-        version?: string,
-    ) {
-        const workspaceDirectory = workspacePath
-            ? workspacePath
-            : this.pureRNTestProject.workspaceDirectory;
-        const sampleWorkspaceDirectory = sampleWorkspace ? sampleWorkspace : null;
-        const { workspaceEntryPointPath } = this.getKeyPathsForApplication(workspaceDirectory);
-        this.pureRNTestProject.projectMainFilePath = workspaceEntryPointPath;
-
+    private addExpoDependencyToRNProject(project: TestProject, version?: string) {
         let expoPackage: string = version ? `expo@${version}` : "expo";
         const command = `${utilities.npmCommand} install ${expoPackage} --save-dev`;
 
         SmokeTestLogger.projectPatchingLog(
-            `*** Adding expo dependency to ${workspaceDirectory} via '${command}' command...`,
+            `*** Adding expo dependency to ${project.workspaceDirectory} via '${command}' command...`,
         );
         utilities.execSync(
             command,
-            { cwd: workspaceDirectory },
+            { cwd: project.workspaceDirectory },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
 
-        if (sampleWorkspaceDirectory) {
-            const { customEntryPointPath } = this.getKeyPathsForSample(sampleWorkspaceDirectory);
-            SmokeTestLogger.projectPatchingLog(
-                `*** Copying  ${customEntryPointPath} into ${workspaceEntryPointPath}...`,
-            );
-            fs.writeFileSync(workspaceEntryPointPath, fs.readFileSync(customEntryPointPath));
-        }
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying  ${project.sampleEntryPointPath} into ${project.projectEntryPointPath}...`,
+        );
+        fs.writeFileSync(
+            project.projectEntryPointPath,
+            fs.readFileSync(project.sampleEntryPointPath),
+        );
     }
 
-    private copyGradleFilesFromSample(workspacePath: string, sampleWorkspace: string) {
-        const appGradleBuildFilePath = path.join(workspacePath, "android", "app", "build.gradle");
-        const resGradleBuildFilePath = path.join(sampleWorkspace, "build.gradle");
+    private copyGradleFilesFromSample(project: TestProject) {
+        const appGradleBuildFilePath = project.gradleBuildFilePathForWorkspace;
+        const resGradleBuildFilePath = project.gradleBuildFilePathForSample;
 
         SmokeTestLogger.projectPatchingLog(
             `*** Copying  ${resGradleBuildFilePath} into ${appGradleBuildFilePath}...`,
@@ -736,22 +510,21 @@ export class TestApplicationSetupManager {
         fs.writeFileSync(appGradleBuildFilePath, fs.readFileSync(resGradleBuildFilePath));
     }
 
-    private copyPodfileFromSample(
-        workspacePath: string,
-        sampleWorkspace: string,
-        platform: string,
-    ) {
-        const appPodfilePath = path.join(workspacePath, platform, "Podfile");
-        const resPodfilePath = path.join(sampleWorkspace, "Podfile");
+    private copyPodfileFromSample(project: TestProject, platform: string) {
+        const appPodfilePath = project.getPodfileByPlatformForWorkspace(platform);
+        const resPodfilePath = project.getPodfileByPlatformForSample(platform);
 
-        SmokeTestLogger.projectPatchingLog(
-            `*** Copying ${resPodfilePath} into ${appPodfilePath}...`,
-        );
-        fs.writeFileSync(appPodfilePath, fs.readFileSync(resPodfilePath));
+        if (resPodfilePath) {
+            SmokeTestLogger.projectPatchingLog(
+                `*** Copying ${resPodfilePath} into ${appPodfilePath}...`,
+            );
+            fs.writeFileSync(appPodfilePath, fs.readFileSync(resPodfilePath));
+        } else {
+        }
     }
 
-    private patchMetroConfig(appPath: string) {
-        const metroConfigPath = path.join(appPath, "metro.config.js");
+    private patchMetroConfig(project: TestProject) {
+        const metroConfigPath = project.metroConfigPath;
         SmokeTestLogger.projectPatchingLog(`*** Patching  ${metroConfigPath}`);
         const patchContent = `
 // Sometimes on Windows Metro fails to resolve files located at .vscode\.react directory and throws EPERM errors
@@ -782,21 +555,17 @@ module.exports.watchFolders = ['.vscode'];`;
         );
     }
 
-    private removeProjectFolder(projectPath: string) {
-        if (fs.existsSync(projectPath)) {
-            SmokeTestLogger.info(`*** Deleting project directory: ${projectPath}`);
-            rimraf.sync(projectPath);
+    private removeProjectFolder(project: TestProject) {
+        if (fs.existsSync(project.workspaceDirectory)) {
+            SmokeTestLogger.info(`*** Deleting project directory: ${project.workspaceDirectory}`);
+            rimraf.sync(project.workspaceDirectory);
         }
     }
 
     // Fix for https://github.com/expo/expo-cli/issues/951
     // TODO: Delete when bug will be fixed
-    private patchExpoSettingsFile() {
-        const settingsJsonPath = path.join(
-            this.expoTestProject.workspaceDirectory,
-            ".expo",
-            "settings.json",
-        );
+    private patchExpoSettingsFile(project: TestProject) {
+        const settingsJsonPath = project.expoSettingsPath;
         if (fs.existsSync(settingsJsonPath)) {
             SmokeTestLogger.projectPatchingLog(`*** Patching ${settingsJsonPath}...`);
             let content = JSON.parse(fs.readFileSync(settingsJsonPath).toString());
@@ -810,22 +579,17 @@ module.exports.watchFolders = ['.vscode'];`;
     }
 
     private useCachedApps(
-        workspacePath: string,
+        project: TestProject,
         packageVersion: string,
         useCachedApplications: boolean,
-        isExpoProject: boolean,
     ): boolean {
-        const packageJsonPath = path.join(workspacePath, "package.json");
-        if (!useCachedApplications || !fs.existsSync(packageJsonPath)) {
+        if (!useCachedApplications || !fs.existsSync(project.packageJsonPath)) {
             return false;
         }
-
         let useCachedApp = false;
-
         try {
-            const packageJsonData = JSON.parse(fs.readFileSync(packageJsonPath).toString());
-
-            if (isExpoProject) {
+            const packageJsonData = JSON.parse(fs.readFileSync(project.packageJsonPath).toString());
+            if (project.isExpoProject()) {
                 if (
                     packageJsonData.dependencies.expo.includes(packageVersion) ||
                     packageJsonData.devDependencies.expo.includes(packageVersion)
@@ -838,35 +602,35 @@ module.exports.watchFolders = ['.vscode'];`;
         } catch (err) {
             // Do nothing
         }
-
         return useCachedApp;
     }
 
-    private execGradlewCleanCommand(workspaceDirectory: string): void {
-        const commandClean = path.join(workspaceDirectory, "android", "gradlew") + " clean";
+    private execGradlewCleanCommand(project: TestProject): void {
+        const commandClean = path.join(project.getPlatformFolder("android"), "gradlew") + " clean";
 
         SmokeTestLogger.projectPatchingLog(
-            `*** Executing '${commandClean}' command in path ${path.join(
-                workspaceDirectory,
+            `*** Executing '${commandClean}' command in path ${project.getPlatformFolder(
                 "android",
             )}`,
         );
         utilities.execSync(
             commandClean,
-            { cwd: path.join(workspaceDirectory, "android") },
+            { cwd: project.getPlatformFolder("android") },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
     }
 
-    private execPodInstallCommand(pathToInstall: string): void {
+    private execPodInstallCommand(project: TestProject, platform: string): void {
         const commandInstall = "LANG=en_US.UTF-8 pod install --verbose";
 
         SmokeTestLogger.projectPatchingLog(
-            `*** Executing '${commandInstall}' command in path ${pathToInstall}`,
+            `*** Executing '${commandInstall}' command in path ${project.getPlatformFolder(
+                platform,
+            )}`,
         );
         utilities.execSync(
             commandInstall,
-            { cwd: pathToInstall },
+            { cwd: project.getPlatformFolder(platform) },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
     }
