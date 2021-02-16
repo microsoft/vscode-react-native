@@ -5,7 +5,7 @@ Please, be aware that automated tests don't cover debugging cases on real device
 
 ## Prerequisites
 
-Make sure you are on `Node.JS 10.x`.
+Make sure you are on `Node.JS >=10.x and <=12.x` or `14.x`.
 
 Tests are running using [VS Code automation package](https://github.com/microsoft/vscode/tree/master/test/automation), so before the tests runs the VS Code build tools are required to be installed. Please make sure that [instructions for building VS Code from sources](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed before running the tests.
 
@@ -142,14 +142,14 @@ Tests require several environment variables to be set up before starting:
 
 |Variable|Examples|Explanation|
 |---|---|---|
-|`ANDROID_EMULATOR`|`Nexus_5X_API_28`|Name of the emulated device|
-|`ANDROID_VERSION`|9|Version of Android installed on emulated device|
-|`IOS_SIMULATOR`|`iPhone 11`|(**Only for iOS tests**) Name of the simulated device|
-|`IOS_VERSION`|13.5|(**Only for iOS tests**) Version of iOS on the simulated device|
+|`ANDROID_EMULATOR`|`Nexus_5X_API_29`|Name of the emulated device|
+|`ANDROID_VERSION`|10|Version of Android installed on emulated device|
+|`IOS_SIMULATOR`|`iPhone8`|(**Only for iOS tests**) Name of the simulated device|
+|`IOS_VERSION`|14.4|(**Only for iOS tests**) Version of iOS on the simulated device|
 |`CODE_VERSION`|`*`, `1.50.1`, `insiders`|Version of VS Code to download and run while running tests|
-|`EXPO_XDL_VERSION` (optional)|`58.0.11`, `skip`|Version of @expo/xdl package to install to the extension directory. If set to "skip" then package installation will be skipped|
-|`EXPO_SDK_MAJOR_VERSION` (optional)|`38`, `skip`|Version of `expo-sdk` for Expo applications. If set to "skip" then the latest `expo-sdk` version will be used|
-|`RN_VERSION` (optional)|`0.63.2`, `skip`|Version of a React Native application to debug while running tests. If set to "skip" then the latest version will be installed|
+|`EXPO_XDL_VERSION` (optional)|`59.0.14`, `skip`|Version of @expo/xdl package to install to the extension directory. If set to "skip" then package installation will be skipped|
+|`EXPO_SDK_MAJOR_VERSION` (optional)|`40`, `skip`|Version of `expo-sdk` for Expo applications. If set to "skip" then the latest `expo-sdk` version will be used|
+|`RN_VERSION` (optional)|`0.63.4`, `skip`|Version of a React Native application to debug while running tests. If set to "skip" then the latest version will be installed|
 |`PURE_RN_VERSION` (optional)|`0.62.2`, `skip`|Version of React Native while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
 |`PURE_EXPO_VERSION` (optional)|`38.0.10`, `skip`|Version of Expo while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
 |`RN_MAC_OS_VERSION` (optional)|`0.62.0`, `skip`|(**Only for macOS tests**) Version of a React Native application for RN macOS tests. If set to "skip" then the latest version will be installed|
@@ -195,6 +195,7 @@ Also, it supports the following parameters:
 |Parameter|Explanation|
 |---|---|
 |`--skip-setup`|Skip pre-tests setup|
+|`--use-cache`|Skip reinstallation of test projects|
 |`--ios`|Run iOS tests only|
 |`--android`|Run Android tests only|
 |`--basic-only`|Run basic tests only (Debug Android, Debug iOS)|
