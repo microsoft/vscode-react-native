@@ -143,12 +143,16 @@ export function startExpoTests(
             app = await vscodeManager.runVSCode(workspacePath, testName);
             SmokeTestLogger.info(`${testName}: ${workspacePath} directory is opened in VS Code`);
             await app.workbench.quickaccess.openFile(appFileName);
+            await sleep(1);
             await app.workbench.editors.scrollTop();
             SmokeTestLogger.info(`${testName}: ${appFileName} file is opened`);
+
+            await sleep(1);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
             SmokeTestLogger.info(
                 `${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`,
             );
+
             SmokeTestLogger.info(`${testName}: Chosen debug configuration: ${debugConfigName}`);
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                 logFilePath = path.join(
@@ -158,6 +162,7 @@ export function startExpoTests(
             } else {
                 assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
             }
+
             await runExpoDebugScenario(
                 logFilePath,
                 testName,
@@ -166,8 +171,11 @@ export function startExpoTests(
                 triesToLaunchApp,
             );
 
+            await sleep(1);
             await app.workbench.editors.waitForTab("Expo QR Code", false, true);
+            await sleep(1);
             await app.workbench.editors.waitForActiveTab("Expo QR Code", false, true);
+            await sleep(1);
             SmokeTestLogger.info(`${testName}: 'Expo QR Code' tab found`);
 
             let expoURL = findExpoURLInLogFile();
@@ -236,7 +244,10 @@ export function startExpoTests(
                 `looking for ${appFileName} and line ${ExpoSetBreakpointOnLine}`,
             );
             SmokeTestLogger.info(`${testName}: Stack frame found`);
+
+            await sleep(1);
             await app.workbench.debug.stepOver();
+
             // Wait for debug string to be rendered in debug console
             await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
             SmokeTestLogger.info(
@@ -245,6 +256,7 @@ export function startExpoTests(
             let found = await app.workbench.debug.waitForOutput(output =>
                 output.some(line => line.indexOf("Test output from debuggee") >= 0),
             );
+
             assert.notStrictEqual(
                 found,
                 false,
