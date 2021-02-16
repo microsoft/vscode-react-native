@@ -47,11 +47,13 @@ export default class PackageLoader {
         } catch (e) {
             if (itWasInstalled) {
                 reject(e);
+                return true;
             }
             if (e.code === "MODULE_NOT_FOUND") {
                 this.logger.debug("Dependency not present. Installing it...");
             } else {
                 reject(e);
+                return true;
             }
             return false;
         }
