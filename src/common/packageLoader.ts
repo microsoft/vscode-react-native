@@ -38,7 +38,7 @@ export default class PackageLoader {
         packageName: string,
         resolve: (value: T | PromiseLike<T>) => void,
         reject: (reason?: any) => void,
-    ) {
+    ): (load?: string[]) => boolean {
         return (load?: string[]) => {
             let itWasInstalled = false;
             // Throw exception if we could not find package after installing
@@ -54,7 +54,7 @@ export default class PackageLoader {
         resolve: (value: T | PromiseLike<T>) => void,
         reject: (reason?: any) => void,
         itWasInstalled: boolean,
-    ) {
+    ): boolean {
         try {
             this.logger.debug("Getting dependency.");
             const module = customRequire(packageName);
@@ -106,8 +106,6 @@ export default class PackageLoader {
                         this.requireQueue.splice(index, 1);
                     }
                 });
-                console.log("requireQueue");
-                console.log(this.requireQueue);
                 this.packagesQueue = this.getUniquePackages(this.packagesQueue);
                 packagesForInstall.forEach(module => {
                     const index = this.packagesQueue.findIndex(el => el === module);
