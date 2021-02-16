@@ -16,7 +16,7 @@ const AndroidRNDebugConfigName = "Debug Android";
 const RnAppBundleId = "org.reactjs.native.example.latestRNApp";
 const IosRNDebugConfigName = "Debug classic iOS";
 
-const appFileName = "App.js";
+const APP_FILE_NAME = "App.js";
 const RNSetBreakpointOnLine = 1;
 
 // Time for Android Debug Test before it reaches timeout
@@ -45,10 +45,10 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
             it("Android RN app Debug test", async function () {
                 this.timeout(debugAndroidTestTime);
                 app = await vscodeManager.runVSCode(workspace, "Android RN app Debug test");
-                await app.workbench.quickaccess.openFile(appFileName);
+                await app.workbench.quickaccess.openFile(APP_FILE_NAME);
                 await sleep(1);
                 await app.workbench.editors.scrollTop();
-                SmokeTestLogger.info(`Android Debug test: ${appFileName} file is opened`);
+                SmokeTestLogger.info(`Android Debug test: ${APP_FILE_NAME} file is opened`);
 
                 await sleep(1);
                 await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
@@ -69,8 +69,8 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 SmokeTestLogger.info("Android Debug test: Debugging started");
 
                 await app.workbench.debug.waitForStackFrame(
-                    sf => sf.name === appFileName && sf.lineNumber === RNSetBreakpointOnLine,
-                    `looking for ${appFileName} and line ${RNSetBreakpointOnLine}`,
+                    sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
+                    `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
                 );
                 SmokeTestLogger.info("Android Debug test: Stack frame found");
                 await app.workbench.debug.stepOver();
@@ -112,9 +112,9 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 const launchConfigurationManager = new LaunchConfigurationManager(workspace);
                 const deviceName = iosSimulatorManager.getSimulator().name;
                 app = await vscodeManager.runVSCode(workspace, "iOS RN app Debug test");
-                await app.workbench.quickaccess.openFile(appFileName);
+                await app.workbench.quickaccess.openFile(APP_FILE_NAME);
                 await app.workbench.editors.scrollTop();
-                SmokeTestLogger.info(`iOS Debug test: ${appFileName} file is opened`);
+                SmokeTestLogger.info(`iOS Debug test: ${APP_FILE_NAME} file is opened`);
                 await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
                 SmokeTestLogger.info(
                     `iOS Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`,
@@ -132,8 +132,8 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("iOS Debug test: Debugging started");
                 await app.workbench.debug.waitForStackFrame(
-                    sf => sf.name === appFileName && sf.lineNumber === RNSetBreakpointOnLine,
-                    `looking for ${appFileName} and line ${RNSetBreakpointOnLine}`,
+                    sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
+                    `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
                 );
                 SmokeTestLogger.info("iOS Debug test: Stack frame found");
                 await app.workbench.debug.stepOver();
