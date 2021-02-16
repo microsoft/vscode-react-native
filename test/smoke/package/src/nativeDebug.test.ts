@@ -45,20 +45,28 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 this.timeout(debugAndroidTestTime);
                 app = await vscodeManager.runVSCode(workspace, "Android RN app Debug test");
                 await app.workbench.quickaccess.openFile("App.js");
+                await sleep(1);
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("Android Debug test: App.js file is opened");
+
+                await sleep(1);
                 await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
                 SmokeTestLogger.info(
                     `Android Debug test: Breakpoint is set on line ${RNSetBreakpointOnLine}`,
                 );
+
                 SmokeTestLogger.info(
                     `Android Debug test: Chosen debug configuration: ${AndroidRNDebugConfigName}`,
                 );
                 SmokeTestLogger.info("Android Debug test: Starting debugging");
                 await app.workbench.quickaccess.runDebugScenario(AndroidRNDebugConfigName);
+                await sleep(1);
+
                 await androidEmulatorManager.waitUntilAppIsInstalled(RN_APP_PACKAGE_NAME);
+                await sleep(1);
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("Android Debug test: Debugging started");
+
                 await app.workbench.debug.waitForStackFrame(
                     sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine,
                     `looking for App.js and line ${RNSetBreakpointOnLine}`,
@@ -73,6 +81,7 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 let found = await app.workbench.debug.waitForOutput(output =>
                     output.some(line => line.indexOf("Test output from debuggee") >= 0),
                 );
+
                 assert.notStrictEqual(
                     found,
                     false,
