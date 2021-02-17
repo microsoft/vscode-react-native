@@ -5,7 +5,7 @@ import * as XDLPackage from "xdl";
 import * as MetroConfigPackage from "metro-config";
 import PackageLoader from "../../common/packageLoader";
 
-const XDL_PACKAGE = "@expo/xdl";
+const XDL_PACKAGE = "@expo/xdl@59.0.17";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
 const NGROK_PACKAGE = "@expo/ngrok";
 

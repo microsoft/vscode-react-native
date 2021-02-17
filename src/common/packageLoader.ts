@@ -74,16 +74,20 @@ export default class PackageLoader {
         try {
             this.logger.debug("Getting dependency.");
             console.log(`tryToRequire ${packageName}`);
-            if (packageName === "@expo/xdl@59.0.17") {
-                packageName = "@expo/xdl";
+            // Remove version pointer from package name
+            const versionSeparatorIndex = packageName.lastIndexOf("@");
+            if (versionSeparatorIndex > 0) {
+                packageName = packageName.slice(0, versionSeparatorIndex);
             }
             const module = customRequire(packageName);
             console.log(`tryToRequire ${packageName}: Success`);
             resolve(module);
+            console.log(`tryToRequire ${packageName}: Success2`);
             return true;
         } catch (e) {
             console.log(`tryToRequire ${packageName}: Failed (${e.code})`);
             if (itWasInstalled) {
+                console.log(`tryToRequire ${packageName}: Reject (${e.code})`);
                 reject(e);
                 return true;
             }
@@ -124,15 +128,18 @@ export default class PackageLoader {
                     },
                 );
                 // Try to require all pending packages after every 'npm install ...' command
-                const resolvedInedxes: number[] = [];
-                this.requireQueue.forEach((tryToRequire, index) => {
+                const requiresToRemove: ((load?: string[]) => boolean)[] = [];
+                this.requireQueue.forEach(tryToRequire => {
                     if (tryToRequire(packagesForInstall)) {
-                        resolvedInedxes.push(index);
+                        requiresToRemove.push(tryToRequire);
                     }
                 });
                 // Remove resolved requires from queue
-                resolvedInedxes.forEach(index => {
-                    this.requireQueue.splice(index, 1);
+                requiresToRemove.forEach(tryToRequire => {
+                    const index = this.requireQueue.indexOf(tryToRequire);
+                    if (index > -1) {
+                        this.requireQueue.splice(index, 1);
+                    }
                 });
                 // If we resolved all requires, we should not install any other packages
                 if (this.requireQueue.length) {
@@ -146,6 +153,10 @@ export default class PackageLoader {
                 } else {
                     this.packagesQueue = [];
                 }
+                console.log("this.packagesQueue");
+                console.log(this.packagesQueue);
+                console.log("this.requireQueue");
+                console.log(this.requireQueue);
             }
             this.isCommandsExecuting = false;
         }
@@ -158,11 +169,7 @@ export default class PackageLoader {
         return new Promise(async (resolve: (value: T) => void, reject) => {
             const tryToRequire = this.getTryToRequireFunction(packageName, resolve, reject);
             if (!tryToRequire()) {
-                await this.tryToRequireAfterInstall(
-                    tryToRequire,
-                    packageName,
-                    ...additionalDependencies,
-                );
+                this.tryToRequireAfterInstall(tryToRequire, packageName, ...additionalDependencies);
             }
         }).then(result => {
             console.log(result);
