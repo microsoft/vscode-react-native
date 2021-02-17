@@ -519,7 +519,6 @@ export class TestApplicationSetupManager {
                 `*** Copying ${resPodfilePath} into ${appPodfilePath}...`,
             );
             fs.writeFileSync(appPodfilePath, fs.readFileSync(resPodfilePath));
-        } else {
         }
     }
 
