@@ -90,6 +90,7 @@ export default class PackageLoader {
             if (e.code === "MODULE_NOT_FOUND") {
                 this.logger.debug("Dependency not present. Installing it...");
             } else {
+                console.log(`tryToRequire ${packageName}: Reject (${e.code})`);
                 reject(e);
                 return true;
             }
@@ -133,13 +134,18 @@ export default class PackageLoader {
                 resolvedInedxes.forEach(index => {
                     this.requireQueue.splice(index, 1);
                 });
-                this.packagesQueue = this.getUniquePackages(this.packagesQueue);
-                packagesForInstall.forEach(module => {
-                    const index = this.packagesQueue.findIndex(el => el === module);
-                    if (index !== -1) {
-                        this.packagesQueue.splice(index, 1);
-                    }
-                });
+                // If we resolved all requires, we should not install any other packages
+                if (this.requireQueue.length) {
+                    this.packagesQueue = this.getUniquePackages(this.packagesQueue);
+                    packagesForInstall.forEach(module => {
+                        const index = this.packagesQueue.findIndex(el => el === module);
+                        if (index !== -1) {
+                            this.packagesQueue.splice(index, 1);
+                        }
+                    });
+                } else {
+                    this.packagesQueue = [];
+                }
             }
             this.isCommandsExecuting = false;
         }
