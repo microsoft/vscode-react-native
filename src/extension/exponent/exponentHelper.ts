@@ -127,8 +127,6 @@ export class ExponentHelper {
 
     private async getArgumentsFromExpoMetroConfig(projectRoot: string): Promise<ExpMetroConfig> {
         return XDL.getMetroConfig(projectRoot).then(config => {
-            console.log("Metro config");
-            console.log(config);
             return { sourceExts: config.resolver.sourceExts };
         });
     }

@@ -5,11 +5,15 @@ import * as XDLPackage from "xdl";
 import * as MetroConfigPackage from "metro-config";
 import PackageLoader from "../../common/packageLoader";
 
-const XDL_PACKAGE = "@expo/xdl@59.0.17";
+const XDL_PACKAGE = "@expo/xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
 const NGROK_PACKAGE = "@expo/ngrok";
 
-const EXPO_DEPS: string[] = [XDL_PACKAGE, NGROK_PACKAGE];
+const EXPO_DEPS: string[] = [
+    XDL_PACKAGE,
+    NGROK_PACKAGE,
+    /** Remove after fixing error (https://github.com/microsoft/vscode-react-native/issues/1496) */ "glob",
+];
 
 let getXDLPackage: () => Promise<
     typeof XDLPackage
@@ -27,168 +31,84 @@ let getMetroConfigPackage: () => Promise<
 export type IUser = XDLPackage.IUser;
 
 export function configReactNativeVersionWargnings(): Promise<void> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => {
-            xdl.Config.validation.reactNativeVersionWarnings = false;
-        });
+    return getXDLPackage().then(xdl => {
+        xdl.Config.validation.reactNativeVersionWarnings = false;
+    });
 }
 
 export function attachLoggerStream(
     rootPath: string,
     options?: XDLPackage.IBunyanStream | any,
 ): Promise<void> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => xdl.ProjectUtils.attachLoggerStream(rootPath, options));
+    return getXDLPackage().then(xdl => xdl.ProjectUtils.attachLoggerStream(rootPath, options));
 }
 
 export function supportedVersions(): Promise<string[]> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => xdl.Versions.facebookReactNativeVersionsAsync());
+    return getXDLPackage().then(xdl => xdl.Versions.facebookReactNativeVersionsAsync());
 }
 
 export function currentUser(): Promise<XDLPackage.IUser> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl =>
-            xdl.User ? xdl.User.getCurrentUserAsync() : xdl.UserManager.getCurrentUserAsync(),
-        );
+    return getXDLPackage().then(xdl =>
+        xdl.User ? xdl.User.getCurrentUserAsync() : xdl.UserManager.getCurrentUserAsync(),
+    );
 }
 
 export function login(username: string, password: string): Promise<XDLPackage.IUser> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl =>
-            xdl.User
-                ? xdl.User.loginAsync("user-pass", { username: username, password: password })
-                : xdl.UserManager.loginAsync("user-pass", {
-                      username: username,
-                      password: password,
-                  }),
-        );
+    return getXDLPackage().then(xdl =>
+        xdl.User
+            ? xdl.User.loginAsync("user-pass", { username: username, password: password })
+            : xdl.UserManager.loginAsync("user-pass", {
+                  username: username,
+                  password: password,
+              }),
+    );
 }
 
 export function mapVersion(reactNativeVersion: string): Promise<string> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => xdl.Versions.facebookReactNativeVersionToExpoVersionAsync(reactNativeVersion));
+    return getXDLPackage().then(xdl =>
+        xdl.Versions.facebookReactNativeVersionToExpoVersionAsync(reactNativeVersion),
+    );
 }
 
 export function publish(
     projectRoot: string,
     options?: XDLPackage.IPublishOptions,
 ): Promise<XDLPackage.IPublishResponse> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => xdl.Project.publishAsync(projectRoot, options));
+    return getXDLPackage().then(xdl => xdl.Project.publishAsync(projectRoot, options));
 }
 
 export function setOptions(projectRoot: string, options?: XDLPackage.IOptions): Promise<void> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => xdl.Project.setOptionsAsync(projectRoot, options));
+    return getXDLPackage().then(xdl => xdl.Project.setOptionsAsync(projectRoot, options));
 }
 
 export function startExponentServer(projectRoot: string): Promise<void> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => xdl.Project.startExpoServerAsync(projectRoot));
+    return getXDLPackage().then(xdl => xdl.Project.startExpoServerAsync(projectRoot));
 }
 
 export function startTunnels(projectRoot: string): Promise<void> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => xdl.Project.startTunnelsAsync(projectRoot));
+    return getXDLPackage().then(xdl => xdl.Project.startTunnelsAsync(projectRoot));
 }
 
 export function getUrl(projectRoot: string, options?: XDLPackage.IUrlOptions): Promise<string> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => xdl.UrlUtils.constructManifestUrlAsync(projectRoot, options));
+    return getXDLPackage().then(xdl =>
+        xdl.UrlUtils.constructManifestUrlAsync(projectRoot, options),
+    );
 }
 
 export function stopAll(projectRoot: string): Promise<void> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => xdl.Project.stopAsync(projectRoot));
+    return getXDLPackage().then(xdl => xdl.Project.stopAsync(projectRoot));
 }
 
 export function startAdbReverse(projectRoot: string): Promise<boolean> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => xdl.Android.startAdbReverseAsync(projectRoot));
+    return getXDLPackage().then(xdl => xdl.Android.startAdbReverseAsync(projectRoot));
 }
 
 export function stopAdbReverse(projectRoot: string): Promise<void> {
-    return getXDLPackage()
-        .then(xdl => {
-            console.log("Handled");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(xdl => xdl.Android.stopAdbReverseAsync(projectRoot));
+    return getXDLPackage().then(xdl => xdl.Android.stopAdbReverseAsync(projectRoot));
 }
 
 export function getMetroConfig(projectRoot: string): Promise<MetroConfigPackage.IMetroConfig> {
-    return getMetroConfigPackage()
-        .then(xdl => {
-            console.log("Handled metroConfig");
-            console.log(xdl);
-            return xdl;
-        })
-        .then(metroConfigPackage => metroConfigPackage.loadAsync(projectRoot));
+    return getMetroConfigPackage().then(metroConfigPackage =>
+        metroConfigPackage.loadAsync(projectRoot),
+    );
 }

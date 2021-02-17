@@ -73,31 +73,20 @@ export default class PackageLoader {
     ): boolean {
         try {
             this.logger.debug("Getting dependency.");
-            console.log(`tryToRequire ${packageName}`);
             // Remove version pointer from package name
             const versionSeparatorIndex = packageName.lastIndexOf("@");
             if (versionSeparatorIndex > 0) {
                 packageName = packageName.slice(0, versionSeparatorIndex);
             }
             const module = customRequire(packageName);
-            console.log(`tryToRequire ${packageName}: Success`);
             resolve(module);
-            console.log(`tryToRequire ${packageName}: Success2`);
             return true;
         } catch (e) {
-            console.log(`tryToRequire ${packageName}: Failed (${e.code})`);
-            if (itWasInstalled) {
-                console.log(`tryToRequire ${packageName}: Reject (${e.code})`);
+            if (itWasInstalled || e.code !== "MODULE_NOT_FOUND") {
                 reject(e);
                 return true;
             }
-            if (e.code === "MODULE_NOT_FOUND") {
-                this.logger.debug("Dependency not present. Installing it...");
-            } else {
-                console.log(`tryToRequire ${packageName}: Reject (${e.code})`);
-                reject(e);
-                return true;
-            }
+            this.logger.debug("Dependency not present. Retry after install...");
             return false;
         }
     }
@@ -153,10 +142,6 @@ export default class PackageLoader {
                 } else {
                     this.packagesQueue = [];
                 }
-                console.log("this.packagesQueue");
-                console.log(this.packagesQueue);
-                console.log("this.requireQueue");
-                console.log(this.requireQueue);
             }
             this.isCommandsExecuting = false;
         }
@@ -171,9 +156,6 @@ export default class PackageLoader {
             if (!tryToRequire()) {
                 this.tryToRequireAfterInstall(tryToRequire, packageName, ...additionalDependencies);
             }
-        }).then(result => {
-            console.log(result);
-            return result;
         });
     }
 }
