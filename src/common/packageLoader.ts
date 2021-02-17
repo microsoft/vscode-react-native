@@ -30,6 +30,22 @@ export default class PackageLoader {
         return this.instance;
     }
 
+    public generateGetPackageFunction<T>(
+        packageName: string,
+        ...additionalDependencies: string[]
+    ): () => Promise<T> {
+        let promise: Promise<T>;
+        return (): Promise<T> => {
+            // Using the promise saved in lexical environment to prevent module reloading
+            if (promise) {
+                return promise;
+            } else {
+                promise = this.loadPackage<T>(packageName, ...additionalDependencies);
+                return promise;
+            }
+        };
+    }
+
     private getUniquePackages(packages: string[]): string[] {
         return [...new Set(packages).values()];
     }
@@ -57,10 +73,16 @@ export default class PackageLoader {
     ): boolean {
         try {
             this.logger.debug("Getting dependency.");
+            console.log(`tryToRequire ${packageName}`);
+            if (packageName === "@expo/xdl@59.0.17") {
+                packageName = "@expo/xdl";
+            }
             const module = customRequire(packageName);
+            console.log(`tryToRequire ${packageName}: Success`);
             resolve(module);
             return true;
         } catch (e) {
+            console.log(`tryToRequire ${packageName}: Failed (${e.code})`);
             if (itWasInstalled) {
                 reject(e);
                 return true;
@@ -101,10 +123,15 @@ export default class PackageLoader {
                     },
                 );
                 // Try to require all pending packages after every 'npm install ...' command
+                const resolvedInedxes: number[] = [];
                 this.requireQueue.forEach((tryToRequire, index) => {
                     if (tryToRequire(packagesForInstall)) {
-                        this.requireQueue.splice(index, 1);
+                        resolvedInedxes.push(index);
                     }
+                });
+                // Remove resolved requires from queue
+                resolvedInedxes.forEach(index => {
+                    this.requireQueue.splice(index, 1);
                 });
                 this.packagesQueue = this.getUniquePackages(this.packagesQueue);
                 packagesForInstall.forEach(module => {
@@ -122,7 +149,7 @@ export default class PackageLoader {
         packageName: string,
         ...additionalDependencies: string[]
     ): Promise<T> {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve: (value: T) => void, reject) => {
             const tryToRequire = this.getTryToRequireFunction(packageName, resolve, reject);
             if (!tryToRequire()) {
                 await this.tryToRequireAfterInstall(
@@ -131,22 +158,9 @@ export default class PackageLoader {
                     ...additionalDependencies,
                 );
             }
+        }).then(result => {
+            console.log(result);
+            return result;
         });
-    }
-
-    public generateGetPackageFunction<T>(
-        packageName: string,
-        ...additionalDependencies: string[]
-    ): () => Promise<T> {
-        let promise: Promise<T>;
-        return (): Promise<T> => {
-            // Using the promise saved in lexical environment to prevent module reloading
-            if (promise) {
-                return promise;
-            } else {
-                promise = this.loadPackage<T>(packageName, ...additionalDependencies);
-                return promise;
-            }
-        };
     }
 }
