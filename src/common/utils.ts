@@ -25,31 +25,6 @@ export function getFormattedDatetimeString(date: Date): string {
     return `${getFormattedDateString(date)} ${getFormattedTimeString(date)}`;
 }
 
-export function waitUntil(
-    condition: () => boolean,
-    timeout: number = 30000,
-    interval: number = 1000,
-): Promise<boolean> {
-    return new Promise(resolve => {
-        const rejectTimeout = setTimeout(() => {
-            cleanup();
-            resolve(false);
-        }, timeout);
-
-        const сheckInterval = setInterval(async () => {
-            if (condition()) {
-                cleanup();
-                resolve(true);
-            }
-        }, interval);
-
-        const cleanup = () => {
-            clearTimeout(rejectTimeout);
-            clearInterval(сheckInterval);
-        };
-    });
-}
-
 function padZeroes(minDesiredLength: number, numberToPad: string): string {
     if (numberToPad.length >= minDesiredLength) {
         return numberToPad;
