@@ -3,6 +3,7 @@
 
 import * as path from "path";
 import * as fs from "fs";
+import { SmokeTestsConstants } from "./smokeTestsConstants";
 
 export default class TestProject {
     private _appName: string;
@@ -41,14 +42,6 @@ export default class TestProject {
         this._gradleBuildFilePathForSample = path.join(this.workspaceDirectory, "build.gradle");
     }
 
-    private getEntryPoint(diretory: string): string {
-        let entryPoint = path.join(diretory, "App.tsx");
-        if (!fs.existsSync(entryPoint)) {
-            entryPoint = path.join(diretory, "App.js");
-        }
-        return entryPoint;
-    }
-
     public getPlatformFolder(platform: string): string {
         return path.join(this.workspaceDirectory, platform);
     }
@@ -63,6 +56,14 @@ export default class TestProject {
     }
     public getPodfileByPlatformForSample(platform: string): string {
         return path.join(this.sampleDirectory, platform, "Podfile");
+    }
+
+    private getEntryPoint(diretory: string): string {
+        let entryPoint = path.join(diretory, SmokeTestsConstants.ApptsxFileName);
+        if (!fs.existsSync(entryPoint)) {
+            entryPoint = path.join(diretory, SmokeTestsConstants.AppjsFileName);
+        }
+        return entryPoint;
     }
 
     get appName(): string {

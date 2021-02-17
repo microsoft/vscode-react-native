@@ -599,7 +599,7 @@ module.exports.watchFolders = ['.vscode'];`;
                 useCachedApp = true;
             }
         } catch (err) {
-            // Do nothing
+            SmokeTestLogger.warn(`There is error while reading 'package.json' file by path ${project.packageJsonPath}.\nContinue without using cache...`);
         }
         return useCachedApp;
     }

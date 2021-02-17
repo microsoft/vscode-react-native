@@ -90,6 +90,10 @@ export class SmokeTestsConstants {
     public static artifactsDir = "SmokeTestLogs";
     // Name of the VS Code user data directory
     public static VSCodeUserDataDir = "VSCodeUserData";
+    // Name of application entry point .js file
+    public static AppjsFileName = "App.js";
+    // Name of application entry point .tsx file
+    public static ApptsxFileName = "App.tsx";
     // Name of file where tests environment variables are stored
     public static EnvConfigFileName = "config.json";
     // Name of file where tests environment variables are stored for development environment
