@@ -73,11 +73,6 @@ export default class PackageLoader {
     ): boolean {
         try {
             this.logger.debug("Getting dependency.");
-            // Remove version pointer from package name
-            const versionSeparatorIndex = packageName.lastIndexOf("@");
-            if (versionSeparatorIndex > 0) {
-                packageName = packageName.slice(0, versionSeparatorIndex);
-            }
             const module = customRequire(packageName);
             resolve(module);
             return true;

@@ -9,11 +9,7 @@ const XDL_PACKAGE = "@expo/xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
 const NGROK_PACKAGE = "@expo/ngrok";
 
-const EXPO_DEPS: string[] = [
-    XDL_PACKAGE,
-    NGROK_PACKAGE,
-    /** Remove after fixing error (https://github.com/microsoft/vscode-react-native/issues/1496) */ "glob",
-];
+const EXPO_DEPS: string[] = [XDL_PACKAGE, NGROK_PACKAGE];
 
 let getXDLPackage: () => Promise<
     typeof XDLPackage
