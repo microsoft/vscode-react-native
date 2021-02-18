@@ -90,7 +90,7 @@ export class TestApplicationSetupManager {
     }
 
     public async prepareTestApplications(useCachedApplications: boolean): Promise<void> {
-        SmokeTestLogger.projectInstallLog("*** Preparing smoke tests applications...");
+        SmokeTestLogger.projectInstallLog(`*** Preparing smoke tests applications${useCachedApplications ? "using cache" : ""}...`);
 
         if (!fs.existsSync(this.cacheDirectory)) {
             SmokeTestLogger.projectInstallLog(
