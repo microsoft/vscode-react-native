@@ -57,23 +57,23 @@ export function startSmokeTests(
             await AppiumHelper.terminateAppium();
         });
 
-        startLocalizationTests(testApplicationSetupManager.getRnWorkspaceDirectory());
-        startDebugScenariosCreationTests(testApplicationSetupManager.getRnWorkspaceDirectory());
+        startLocalizationTests(testApplicationSetupManager.getRnProject());
+        startDebugScenariosCreationTests(testApplicationSetupManager.getRnProject());
 
         SmokeTestLogger.info("*** Smoke tests will be run");
-        startReactNativeTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
-        startDirectDebugTests(testApplicationSetupManager.getHermesWorkspaceDirectory(), args);
+        startReactNativeTests(testApplicationSetupManager.getRnProject(), args);
+        startDirectDebugTests(testApplicationSetupManager.getHermesProject(), args);
         startExpoTests(
-            testApplicationSetupManager.getExpoWorkspaceDirectory(),
-            testApplicationSetupManager.getPureRnWorkspaceDirectory(),
+            testApplicationSetupManager.getExpoProject(),
+            testApplicationSetupManager.getPureRnProject(),
             args,
         );
         startDebugMacOSTests(
-            testApplicationSetupManager.getMacOSRnWorkspaceDirectory(),
-            testApplicationSetupManager.getMacOSRnHermesWorkspaceDirectory(),
+            testApplicationSetupManager.getMacOSRnProject(),
+            testApplicationSetupManager.getMacOSRnHermesProject(),
             args,
         );
-        startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory(), args);
-        startOtherTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
+        startDebugRNWTests(testApplicationSetupManager.getWindowsRnProject(), args);
+        startOtherTests(testApplicationSetupManager.getRnProject(), args);
     });
 }

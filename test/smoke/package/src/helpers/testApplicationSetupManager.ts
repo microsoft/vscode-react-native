@@ -61,32 +61,32 @@ export class TestApplicationSetupManager {
         this.launchJsonPath = path.join(resourcesDirectory, "launch.json");
     }
 
-    public getMacOSRnWorkspaceDirectory(): string {
-        return this.macOSTestProject.workspaceDirectory;
+    public getMacOSRnProject(): TestProject {
+        return this.macOSTestProject;
     }
 
-    public getMacOSRnHermesWorkspaceDirectory(): string {
-        return this.macOSHermesTestProject.workspaceDirectory;
+    public getMacOSRnHermesProject(): TestProject {
+        return this.macOSHermesTestProject;
     }
 
-    public getWindowsRnWorkspaceDirectory(): string {
-        return this.windowsTestProject.workspaceDirectory;
+    public getWindowsRnProject(): TestProject {
+        return this.windowsTestProject;
     }
 
-    public getRnWorkspaceDirectory(): string {
-        return this.rnTestProject.workspaceDirectory;
+    public getRnProject(): TestProject {
+        return this.rnTestProject;
     }
 
-    public getHermesWorkspaceDirectory(): string {
-        return this.hermesTestProject.workspaceDirectory;
+    public getHermesProject(): TestProject {
+        return this.hermesTestProject;
     }
 
-    public getPureRnWorkspaceDirectory(): string {
-        return this.pureRNTestProject.workspaceDirectory;
+    public getPureRnProject(): TestProject {
+        return this.pureRNTestProject;
     }
 
-    public getExpoWorkspaceDirectory(): string {
-        return this.expoTestProject.workspaceDirectory;
+    public getExpoProject(): TestProject {
+        return this.expoTestProject;
     }
 
     public async prepareTestApplications(useCachedApplications: boolean): Promise<void> {

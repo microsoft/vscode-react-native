@@ -9,6 +9,7 @@ import { sleep } from "./helpers/utilities";
 import { Application } from "../../automation";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
+import TestProject from "./helpers/testProject";
 
 const RNmacOSDebugConfigName = "Debug macOS";
 const RNmacOSHermesDebugConfigName = "Debug macOS Hermes - Experimental";
@@ -20,8 +21,8 @@ const RNmacOSHermesSetBreakpointOnLine = 14;
 const debugMacOSTestTime = SmokeTestsConstants.macOSTestTimeout;
 
 export function startDebugMacOSTests(
-    macosWorkspace: string,
-    macosHermesWorkspace: string,
+    macosProject: TestProject,
+    macosHermesProject: TestProject,
     testParameters: TestRunArguments,
 ): void {
     describe("Debugging macOS", () => {
@@ -78,10 +79,10 @@ export function startDebugMacOSTests(
 
         async function macOSApplicationTest(
             testname: string,
-            workspace: string,
+            project: TestProject,
             isHermesProject: boolean = false,
         ): Promise<void> {
-            app = await vscodeManager.runVSCode(workspace, testname);
+            app = await vscodeManager.runVSCode(project.workspaceDirectory, testname);
             await app.workbench.quickaccess.openFile("App.js");
             await app.workbench.editors.scrollTop();
             SmokeTestLogger.info(`${testname}: App.js file is opened`);
@@ -131,7 +132,7 @@ export function startDebugMacOSTests(
             it("RN macOS app Debug test", async function () {
                 this.timeout(debugMacOSTestTime);
                 currentMacOSAppName = SmokeTestsConstants.RNmacOSAppName;
-                await macOSApplicationTest("RN macOS app Debug test", macosWorkspace);
+                await macOSApplicationTest("RN macOS app Debug test", macosProject);
             });
 
             if (!testParameters.SkipUnstableTests) {
@@ -140,7 +141,7 @@ export function startDebugMacOSTests(
                     currentMacOSAppName = SmokeTestsConstants.RNmacOSHermesAppName;
                     await macOSApplicationTest(
                         "RN macOS Hermes app Debug test",
-                        macosHermesWorkspace,
+                        macosHermesProject,
                         true,
                     );
                 });

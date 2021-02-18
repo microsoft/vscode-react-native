@@ -9,6 +9,7 @@ import { vscodeManager } from "./main";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { Application } from "../../automation";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
+import TestProject from "./helpers/testProject";
 
 const RNwindowsSetBreakpointOnLine = 1;
 const RNWDebugConfigName = "Debug RN Wind";
@@ -16,7 +17,7 @@ const RNWDebugConfigName = "Debug RN Wind";
 // Time for macOS Debug Test before it reaches timeout
 const debugWindowsTestTime = SmokeTestsConstants.windowsTestTimeout;
 
-export function startDebugRNWTests(workspace: string, testParameters: TestRunArguments): void {
+export function startDebugRNWTests(project: TestProject, testParameters: TestRunArguments): void {
     describe("Debugging Windows", () => {
         let app: Application;
         SmokeTestLogger.info(JSON.stringify(testParameters));
@@ -66,7 +67,10 @@ export function startDebugRNWTests(workspace: string, testParameters: TestRunArg
             it("RN Windows app Debug test", async function () {
                 try {
                     this.timeout(debugWindowsTestTime);
-                    app = await vscodeManager.runVSCode(workspace, "RN Windows app Debug test");
+                    app = await vscodeManager.runVSCode(
+                        project.workspaceDirectory,
+                        "RN Windows app Debug test",
+                    );
                     await app.workbench.quickaccess.openFile("App.js");
                     await app.workbench.editors.scrollTop();
                     SmokeTestLogger.info("Windows Debug test: App.js file is opened");

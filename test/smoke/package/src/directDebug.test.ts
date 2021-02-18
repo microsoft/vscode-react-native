@@ -9,6 +9,7 @@ import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
+import TestProject from "./helpers/testProject";
 import { sleep } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 
@@ -23,7 +24,10 @@ const RNHermesSetBreakpointOnLine = 11;
 // Time for Android Debug Test before it reaches timeout
 const hermesTestTime = SmokeTestsConstants.hermesTestTimeout;
 
-export function startDirectDebugTests(workspace: string, testParameters: TestRunArguments): void {
+export function startDirectDebugTests(
+    project: TestProject,
+    testParameters: TestRunArguments,
+): void {
     describe("Direct debugging", () => {
         let app: Application | null;
         let client: AppiumClient | null;
@@ -76,17 +80,16 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     case Platform.iOS: {
                         debugConfigName = RNIosHermesDebugConfigName;
                         // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
-                        new LaunchConfigurationManager(workspace).updateLaunchScenario(
-                            RNIosHermesDebugConfigName,
-                            {
-                                target: iosSimulatorManager.getSimulator().name,
-                            },
-                        );
+                        new LaunchConfigurationManager(
+                            project.workspaceDirectory,
+                        ).updateLaunchScenario(RNIosHermesDebugConfigName, {
+                            target: iosSimulatorManager.getSimulator().name,
+                        });
                         break;
                     }
                 }
 
-                app = await vscodeManager.runVSCode(workspace, testname);
+                app = await vscodeManager.runVSCode(project.workspaceDirectory, testname);
                 await app.workbench.quickaccess.openFile("AppTestButton.js");
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info(`${testname}: AppTestButton.js file is opened`);
@@ -113,7 +116,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     }
                     case Platform.iOS: {
                         const buildPath = IosSimulatorManager.getIOSBuildPath(
-                            `${workspace}/ios`,
+                            `${project.workspaceDirectory}/ios`,
                             `${SmokeTestsConstants.HermesAppName}.xcworkspace`,
                             "Debug",
                             SmokeTestsConstants.HermesAppName,

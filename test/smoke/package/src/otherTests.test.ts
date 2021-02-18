@@ -9,6 +9,7 @@ import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
+import TestProject from "./helpers/testProject";
 import { sleep } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 
@@ -21,7 +22,7 @@ const debugAndroidTestTime = SmokeTestsConstants.androidTestTimeout;
 // Time for iOS Debug Test before it reaches timeout
 const debugIosTestTime = SmokeTestsConstants.iosTestTimeout;
 
-export function startOtherTests(workspace: string, testParameters?: TestRunArguments): void {
+export function startOtherTests(project: TestProject, testParameters?: TestRunArguments): void {
     describe("React Native", () => {
         let app: Application;
 
@@ -41,9 +42,11 @@ export function startOtherTests(workspace: string, testParameters?: TestRunArgum
         if (!testParameters || testParameters.RunAndroidTests) {
             it("Save Android emulator test", async function () {
                 this.timeout(debugAndroidTestTime);
-                const launchConfigurationManager = new LaunchConfigurationManager(workspace);
+                const launchConfigurationManager = new LaunchConfigurationManager(
+                    project.workspaceDirectory,
+                );
                 app = await vscodeManager.runVSCode(
-                    workspace,
+                    project.workspaceDirectory,
                     `Save Android emulator test (first launch)`,
                 );
                 SmokeTestLogger.info(
@@ -74,7 +77,7 @@ export function startOtherTests(workspace: string, testParameters?: TestRunArgum
                 SmokeTestLogger.info("Android emulator save test: Dispose all");
                 await disposeAll();
                 app = await vscodeManager.runVSCode(
-                    workspace,
+                    project.workspaceDirectory,
                     `Save Android emulator test (second launch)`,
                 );
                 SmokeTestLogger.info(
@@ -102,10 +105,12 @@ export function startOtherTests(workspace: string, testParameters?: TestRunArgum
             it("Save iOS simulator test", async function () {
                 let simulator = iosSimulatorManager.getSimulator();
                 this.timeout(debugIosTestTime);
-                const launchConfigurationManager = new LaunchConfigurationManager(workspace);
+                const launchConfigurationManager = new LaunchConfigurationManager(
+                    project.workspaceDirectory,
+                );
                 await IosSimulatorManager.shutdownAllSimulators();
                 app = await vscodeManager.runVSCode(
-                    workspace,
+                    project.workspaceDirectory,
                     `Save iOS simulator test (first launch)`,
                 );
                 launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, {
@@ -144,7 +149,7 @@ export function startOtherTests(workspace: string, testParameters?: TestRunArgum
                 await disposeAll();
                 await IosSimulatorManager.shutdownAllSimulators();
                 app = await vscodeManager.runVSCode(
-                    workspace,
+                    project.workspaceDirectory,
                     `Save iOS simulator test (second launch)`,
                 );
                 SmokeTestLogger.info(

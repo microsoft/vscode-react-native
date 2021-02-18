@@ -7,6 +7,7 @@ import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
+import TestProject from "./helpers/testProject";
 import { sleep } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 
@@ -23,7 +24,10 @@ const debugAndroidTestTime = SmokeTestsConstants.androidTestTimeout;
 // Time for iOS Debug Test before it reaches timeout
 const debugIosTestTime = SmokeTestsConstants.iosTestTimeout;
 
-export function startReactNativeTests(workspace: string, testParameters: TestRunArguments): void {
+export function startReactNativeTests(
+    project: TestProject,
+    testParameters: TestRunArguments,
+): void {
     describe("React Native", () => {
         let app: Application;
 
@@ -43,7 +47,10 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
         if (testParameters.RunAndroidTests || testParameters.RunBasicTests) {
             it("Android RN app Debug test", async function () {
                 this.timeout(debugAndroidTestTime);
-                app = await vscodeManager.runVSCode(workspace, "Android RN app Debug test");
+                app = await vscodeManager.runVSCode(
+                    project.workspaceDirectory,
+                    "Android RN app Debug test",
+                );
                 await app.workbench.quickaccess.openFile("App.js");
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("Android Debug test: App.js file is opened");
@@ -99,9 +106,14 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                     return this.skip();
                 }
                 this.timeout(debugIosTestTime);
-                const launchConfigurationManager = new LaunchConfigurationManager(workspace);
+                const launchConfigurationManager = new LaunchConfigurationManager(
+                    project.workspaceDirectory,
+                );
                 const deviceName = iosSimulatorManager.getSimulator().name;
-                app = await vscodeManager.runVSCode(workspace, "iOS RN app Debug test");
+                app = await vscodeManager.runVSCode(
+                    project.workspaceDirectory,
+                    "iOS RN app Debug test",
+                );
                 await app.workbench.quickaccess.openFile("App.js");
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("iOS Debug test: App.js file is opened");

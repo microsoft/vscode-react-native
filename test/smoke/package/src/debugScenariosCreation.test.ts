@@ -2,22 +2,25 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
-import * as path from "path";
 import { vscodeManager } from "./main";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { Application } from "../../automation";
 import { testApplicationSetupManager } from "./main";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
+import TestProject from "./helpers/testProject";
 
-export function startDebugScenariosCreationTests(workspace: string): void {
+export function startDebugScenariosCreationTests(project: TestProject): void {
     describe("Debugging scenarios creation test", () => {
         let app: Application;
         let launchConfigurationManager: LaunchConfigurationManager;
         let previousConfigurationsCount: number;
 
         before(async () => {
-            app = await vscodeManager.runVSCode(workspace, "DebuggingScenariosCreationTest");
-            launchConfigurationManager = new LaunchConfigurationManager(workspace);
+            app = await vscodeManager.runVSCode(
+                project.workspaceDirectory,
+                "DebuggingScenariosCreationTest",
+            );
+            launchConfigurationManager = new LaunchConfigurationManager(project.workspaceDirectory);
             await app.workbench.debug.openDebugViewlet();
             await app.workbench.debug.configure();
             SmokeTestLogger.info("Debugging scenarios creation test: launch.json file is opened");
@@ -28,9 +31,7 @@ export function startDebugScenariosCreationTests(workspace: string): void {
             if (app) {
                 await app.stop();
             }
-            testApplicationSetupManager.copyDebuggingConfigurationsToProject(
-                path.join(workspace, ".vscode"),
-            );
+            testApplicationSetupManager.copyDebuggingConfigurationsToProject(project);
         });
 
         beforeEach(async () => {

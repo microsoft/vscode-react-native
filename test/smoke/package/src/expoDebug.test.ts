@@ -10,6 +10,7 @@ import { findFile, findStringInFile, sleep, waitUntil } from "./helpers/utilitie
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
+import TestProject from "./helpers/testProject";
 
 const EXPO_APP_LAUNCH_TIMEOUT = 120_000;
 const ExpoSuccessPattern = "Tunnel ready";
@@ -31,8 +32,8 @@ interface ExpoLaunch {
 }
 
 export function startExpoTests(
-    expoWorkspace: string,
-    pureWorkspace: string,
+    expoProject: TestProject,
+    pureProject: TestProject,
     testParameters: TestRunArguments,
 ): void {
     describe("Expo tests", () => {
@@ -102,7 +103,6 @@ export function startExpoTests(
         async function runExpoDebugScenario(
             logFilePath: string,
             testName: string,
-            workspacePath: string,
             debugConfigName: string,
             triesToLaunchApp: number,
         ) {
@@ -132,19 +132,20 @@ export function startExpoTests(
         }
 
         async function expoTest(
-            appFileName: string,
+            project: TestProject,
             testName: string,
-            workspacePath: string,
             debugConfigName: string,
             platform: Platform.AndroidExpo | Platform.iOSExpo,
             triesToLaunchApp: number,
         ) {
             let logFilePath = "";
-            app = await vscodeManager.runVSCode(workspacePath, testName);
-            SmokeTestLogger.info(`${testName}: ${workspacePath} directory is opened in VS Code`);
-            await app.workbench.quickaccess.openFile(appFileName);
+            app = await vscodeManager.runVSCode(project.workspaceDirectory, testName);
+            SmokeTestLogger.info(
+                `${testName}: ${project.workspaceDirectory} directory is opened in VS Code`,
+            );
+            await app.workbench.quickaccess.openFile(project.projectEntryPointPath);
             await app.workbench.editors.scrollTop();
-            SmokeTestLogger.info(`${testName}: ${appFileName} file is opened`);
+            SmokeTestLogger.info(`${testName}: ${project.projectEntryPointPath} file is opened`);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
             SmokeTestLogger.info(
                 `${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`,
@@ -158,13 +159,7 @@ export function startExpoTests(
             } else {
                 assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
             }
-            await runExpoDebugScenario(
-                logFilePath,
-                testName,
-                workspacePath,
-                debugConfigName,
-                triesToLaunchApp,
-            );
+            await runExpoDebugScenario(logFilePath, testName, debugConfigName, triesToLaunchApp);
 
             await app.workbench.editors.waitForTab("Expo QR Code", false, true);
             await app.workbench.editors.waitForActiveTab("Expo QR Code", false, true);
@@ -191,7 +186,7 @@ export function startExpoTests(
                     Platform.iOS,
                     client,
                     expoURL,
-                    workspacePath,
+                    project.workspaceDirectory,
                     expoFirstLaunch,
                 );
                 expoFirstLaunch = false;
@@ -217,7 +212,7 @@ export function startExpoTests(
                     Platform.Android,
                     client,
                     expoURL,
-                    workspacePath,
+                    project.workspaceDirectory,
                 );
                 // TODO Add listener to trigger that child expo app has been ran instead of using timeout
                 SmokeTestLogger.info(
@@ -232,8 +227,10 @@ export function startExpoTests(
 
             SmokeTestLogger.info(`${testName}: Debugging started`);
             await app.workbench.debug.waitForStackFrame(
-                sf => sf.name === appFileName && sf.lineNumber === ExpoSetBreakpointOnLine,
-                `looking for ${appFileName} and line ${ExpoSetBreakpointOnLine}`,
+                sf =>
+                    sf.name === project.projectEntryPointPath &&
+                    sf.lineNumber === ExpoSetBreakpointOnLine,
+                `looking for ${project.projectEntryPointPath} and line ${ExpoSetBreakpointOnLine}`,
             );
             SmokeTestLogger.info(`${testName}: Stack frame found`);
             await app.workbench.debug.stepOver();
@@ -259,9 +256,8 @@ export function startExpoTests(
             it("Android Expo app Debug test(Tunnel)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
-                    "App.tsx",
+                    expoProject,
                     "Android Expo Debug test(Tunnel)",
-                    expoWorkspace,
                     ExpoDebugConfigName,
                     Platform.AndroidExpo,
                     5,
@@ -271,9 +267,8 @@ export function startExpoTests(
             it("Android Pure RN app Expo test(LAN)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
-                    "App.js",
+                    pureProject,
                     "Android pure RN Expo test(LAN)",
-                    pureWorkspace,
                     ExpoLanDebugConfigName,
                     Platform.AndroidExpo,
                     1,
@@ -283,9 +278,8 @@ export function startExpoTests(
             it("Android Expo app Debug test(LAN)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
-                    "App.tsx",
+                    expoProject,
                     "Android Expo Debug test(LAN)",
-                    expoWorkspace,
                     ExpoLanDebugConfigName,
                     Platform.AndroidExpo,
                     1,
@@ -295,9 +289,8 @@ export function startExpoTests(
             it("Android Expo app Debug test(localhost)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
-                    "App.tsx",
+                    expoProject,
                     "Android Expo Debug test(localhost)",
-                    expoWorkspace,
                     ExpoLocalDebugConfigName,
                     Platform.AndroidExpo,
                     1,
@@ -308,9 +301,8 @@ export function startExpoTests(
             it("iOS Expo app Debug test(Tunnel)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
-                    "App.tsx",
+                    expoProject,
                     "iOS Expo Debug test(Tunnel)",
-                    expoWorkspace,
                     ExpoDebugConfigName,
                     Platform.iOSExpo,
                     5,
@@ -320,9 +312,8 @@ export function startExpoTests(
             it("iOS Pure RN app Expo test(LAN)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
-                    "App.js",
+                    pureProject,
                     "iOS pure RN Expo test(LAN)",
-                    pureWorkspace,
                     ExpoLanDebugConfigName,
                     Platform.iOSExpo,
                     1,
@@ -332,9 +323,8 @@ export function startExpoTests(
             it("iOS Expo app Debug test(LAN)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
-                    "App.tsx",
+                    expoProject,
                     "iOS Expo Debug test(LAN)",
-                    expoWorkspace,
                     ExpoLanDebugConfigName,
                     Platform.iOSExpo,
                     1,
@@ -344,9 +334,8 @@ export function startExpoTests(
             it("iOS Expo app Debug test(localhost)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
-                    "App.tsx",
+                    expoProject,
                     "iOS Expo Debug test(localhost)",
-                    expoWorkspace,
                     ExpoLocalDebugConfigName,
                     Platform.iOSExpo,
                     1,

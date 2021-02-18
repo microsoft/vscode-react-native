@@ -7,10 +7,11 @@ import * as assert from "assert";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
+import TestProject from "./helpers/testProject";
 
 const startPackagerCommand = "Start Packager";
 const packagerStartedCheck = "Запуск упаковщика";
-export function startLocalizationTests(workspace: string): void {
+export function startLocalizationTests(project: TestProject): void {
     describe("Localization test", () => {
         let app: Application;
 
@@ -26,7 +27,11 @@ export function startLocalizationTests(workspace: string): void {
 
         it("Test localization", async function () {
             try {
-                app = await vscodeManager.runVSCode(workspace, "LocalizationTest", "ru");
+                app = await vscodeManager.runVSCode(
+                    project.workspaceDirectory,
+                    "LocalizationTest",
+                    "ru",
+                );
                 SmokeTestLogger.info("Localization test: Starting packager");
                 await app.workbench.quickaccess.runCommand(startPackagerCommand);
                 await sleep(10 * 1000);
