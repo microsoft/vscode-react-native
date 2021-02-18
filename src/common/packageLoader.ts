@@ -81,7 +81,7 @@ export default class PackageLoader {
                 reject(e);
                 return true;
             }
-            this.logger.debug("Dependency not present. Retry after install...");
+            this.logger.debug(`Dependency ${packageName} is not present. Retry after install...`);
             return false;
         }
     }
