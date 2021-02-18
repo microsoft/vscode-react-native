@@ -55,7 +55,7 @@ export class PlistBuddy {
                 productsFolder = path.join(iosProjectRoot, "build", "Build", "Products");
             }
             const sdkSuffix = simulator ? "simulator" : "os";
-            const deviceType = 
+            const deviceType =
                 (scheme?.toLowerCase().indexOf("tvos") ?? -1) > -1 ? "appletv" : "iphone";
             const sdkType = `${deviceType}${sdkSuffix}`;
 
