@@ -127,6 +127,11 @@
         "command": "reactNative.selectAndInsertDebugConfiguration",
         "title": "%reactNative.command.selectAndInsertDebugConfiguration.title%",
         "category": "React Native"
+      },
+      {
+        "command": "reactNative.startNetworkInspector",
+        "title": "%reactNative.command.startNetworkInspector.title%",
+        "category": "React Native"
       }
     ],
     "menus": {
@@ -748,11 +753,16 @@
     "ip": "^1.1.5",
     "jsonc-parser": "^3.0.0",
     "mkdirp": "^1.0.3",
+    "openssl-wrapper": "^0.3.4",
     "qr-image": "^3.2.0",
+    "rsocket-core": "0.0.23",
+    "rsocket-tcp-server": "0.0.23",
     "semver": "^6.3.0",
     "source-map": "0.5.2",
     "source-map-resolve": "^0.5.3",
     "strip-json-comments": "2.0.1",
+    "tmp-promise": "^3.0.2",
+    "uuid": "^8.3.2",
     "vscode-cdp-proxy": "^0.2.0",
     "vscode-debugadapter": "^1.39.1",
     "vscode-extension-telemetry": "0.0.5",
@@ -769,10 +779,13 @@
     "@types/node": "^10.17.26",
     "@types/qr-image": "^3.2.3",
     "@types/rimraf": "^3.0.0",
+    "@types/rsocket-core": "0.0.6",
+    "@types/rsocket-tcp-server": "0.0.2",
     "@types/semver": "^6.2.1",
     "@types/shelljs": "^0.7.0",
     "@types/source-map": "0.5.2",
     "@types/source-map-support": "^0.2.28",
+    "@types/uuid": "^8.3.0",
     "@types/vscode": "^1.40.0",
     "@types/websocket": "0.0.33",
     "@types/ws": "^0.0.39",

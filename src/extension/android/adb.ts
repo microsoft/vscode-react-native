@@ -128,8 +128,8 @@ export class AdbHelper {
         );
     }
 
-    public reverseAdb(deviceId: string, packagerPort: number): Promise<void> {
-        return this.execute(deviceId, `reverse tcp:${packagerPort} tcp:${packagerPort}`);
+    public reverseAdb(deviceId: string, port: number): Promise<void> {
+        return this.execute(deviceId, `reverse tcp:${port} tcp:${port}`);
     }
 
     public showDevMenu(deviceId?: string): Promise<void> {
@@ -193,6 +193,10 @@ export class AdbHelper {
         // we would run adb from inside it, otherwise we would rely to PATH
         const sdkLocation = this.getSdkLocationFromLocalPropertiesFile(projectRoot, logger);
         return sdkLocation ? `"${path.join(sdkLocation, "platform-tools", "adb")}"` : "adb";
+    }
+
+    public executeShellCommand(deviceId: string, command: string): Promise<string> {
+        return this.executeQuery(deviceId, `shell '${command}'`);
     }
 
     private parseConnectedDevices(input: string): IDevice[] {

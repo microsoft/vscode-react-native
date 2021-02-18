@@ -56,6 +56,21 @@ export class PromiseUtil {
         return new Promise<void>(resolve => setTimeout(resolve, duration));
     }
 
+    public static promiseCacheDecaorator<T>(
+        func: (...args: any[]) => Promise<T>,
+        context: Record<string, any> | null = null,
+    ): (...args: any[]) => Promise<T> {
+        let promise: Promise<T>;
+        return (...args: any[]): Promise<T> => {
+            if (promise) {
+                return promise;
+            } else {
+                promise = func.apply(context, args);
+                return promise;
+            }
+        };
+    }
+
     private retryAsyncIteration<T>(
         operation: () => Promise<T>,
         condition: (result: T) => boolean | Promise<boolean>,

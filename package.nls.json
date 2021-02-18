@@ -17,6 +17,7 @@
   "reactNative.command.runInspector.title": "Run Element Inspector",
   "reactNative.command.startLogCatMonitor.title": "Run React Native LogCat Monitor",
   "reactNative.command.stopLogCatMonitor.title": "Stop React Native LogCat Monitor",
+  "reactNative.command.startNetworkInspector.title": "Run Network Inspector",
   "reactNative.snippets.debugAndroid.description": "A new configuration for launching React Native app on Android with debugging enabled",
   "reactNative.snippets.runAndroid.description": "A new configuration for launching React Native app on Android without debugging",
   "reactNative.snippets.debugAndroidHermes.description": "A new configuration for launching React Native Hermes app on Android with debugging enabled",

@@ -330,4 +330,8 @@ export const ERROR_STRINGS = {
         "CouldNotDirectDebugWithoutHermesEngine",
         "Could not start direct debugging of the {0} application without Hermes engine enabled. Please check if Hermes engine is enabled in your project and your debugging configuration contains 'useHermesEngine' prop set to 'true'",
     ),
+    [InternalErrorCode.CouldNotStartNetworkInspector]: localize(
+        "ErrorWhileStartNetworkInspector",
+        "Error while starting Network inspector",
+    ),
 };
