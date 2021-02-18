@@ -63,7 +63,7 @@ export class PlistBuddy {
             if (productName) {
                 executable = `${productName}.app`;
                 if (!fs.existsSync(path.join(configurationFolder, executable))) {
-                    let configurationData = this.getConfigurationData(
+                    const configurationData = this.getConfigurationData(
                         projectRoot,
                         rnVersions.reactNativeVersion,
                         iosProjectRoot,
