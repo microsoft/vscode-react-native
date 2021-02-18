@@ -78,7 +78,7 @@ export class PlistBuddy {
             } else {
                 const executableList = this.findExecutable(configurationFolder);
                 if (!executableList.length) {
-                    let configurationData = this.getConfigurationData(
+                    const configurationData = this.getConfigurationData(
                         projectRoot,
                         rnVersions.reactNativeVersion,
                         iosProjectRoot,
