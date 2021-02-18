@@ -35,7 +35,7 @@ export class SmokeTestsConstants {
     // Timeout for iOS testing
     public static iosTestTimeout = 700 * 1000;
     // Timeout for Android testing
-    public static androidTestTimeout = 400 * 1000;
+    public static androidTestTimeout = 700 * 1000;
     // Timeout for Android testing
     public static hermesTestTimeout = 15 * 60 * 1000;
     // Timeout for smoke tests setup
