@@ -72,7 +72,7 @@ export default class PackageLoader {
         itWasInstalled: boolean,
     ): boolean {
         try {
-            this.logger.debug("Getting dependency.");
+            this.logger.debug(`Getting ${packageName} dependency.`);
             const module = customRequire(packageName);
             resolve(module);
             return true;
