@@ -77,7 +77,7 @@ suite("packager", function () {
             const rnVersion = "0.56.0";
             const expected = ["--port", "10001"];
             new Packager("/workspace", "/workspace", 10001)
-                .getPackagerArgs(rnVersion)
+                .getPackagerArgs("/workspace", rnVersion)
                 .then(args => {
                     assert.deepEqual(args, expected);
                     done();
@@ -92,7 +92,7 @@ suite("packager", function () {
             const rnVersion = "0.57.0";
             const expected = ["--port", "10001", "--resetCache"];
             new Packager("/workspace", "/workspace", 10001)
-                .getPackagerArgs(rnVersion, true)
+                .getPackagerArgs("/workspace", rnVersion, true)
                 .then(args => {
                     assert.deepEqual(args, expected);
                     done();
@@ -108,7 +108,7 @@ suite("packager", function () {
             const rnVersion = "0.56.0";
             const expected = ["--port", "10001", "--resetCache", "--root", ".vscode"];
             new Packager("/workspace", "/workspace", 10001)
-                .getPackagerArgs(rnVersion, true)
+                .getPackagerArgs("/workspace", rnVersion, true)
                 .then(args => {
                     assert.deepEqual(args, expected);
                     done();
@@ -128,7 +128,7 @@ suite("packager", function () {
             const rnVersion = "0.57.0";
             const expected = ["--port", "10001", "--assetExts", ["txt", "md"]];
             new Packager("/workspace", "/workspace", 10001)
-                .getPackagerArgs(rnVersion)
+                .getPackagerArgs("/workspace", rnVersion)
                 .then(args => {
                     assert.deepEqual(args, expected);
                     done();
