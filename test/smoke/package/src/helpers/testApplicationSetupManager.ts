@@ -516,7 +516,7 @@ export class TestApplicationSetupManager {
 
     private copyPodfileFromSample(project: TestProject, platform: string) {
         const appPodfilePath = project.getPodfileByPlatformForWorkspace(platform);
-        const resPodfilePath = project.getPodfileByPlatformForSample(platform);
+        const resPodfilePath = project.getPodfileByPlatformForSample();
 
         if (resPodfilePath) {
             SmokeTestLogger.projectPatchingLog(

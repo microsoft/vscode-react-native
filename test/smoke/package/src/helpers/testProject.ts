@@ -23,12 +23,12 @@ export default class TestProject {
     private _gradleBuildFilePathForSample: string;
 
     constructor(private _workspaceDirectory: string, private _sampleDirectory: string) {
-        this._appName = path.basename(_workspaceDirectory);
-        this._vsCodeConfigPath = path.join(_workspaceDirectory, ".vscode");
-        this._parentPathForWorkspace = path.join(_workspaceDirectory, "..");
-        this._projectEntryPointPath = this.getEntryPoint(_workspaceDirectory);
-        this._sampleEntryPointPath = this.getEntryPoint(_sampleDirectory);
-        this._packageJsonPath = path.join(_workspaceDirectory, "package.json");
+        this._appName = path.basename(this.workspaceDirectory);
+        this._vsCodeConfigPath = path.join(this.workspaceDirectory, ".vscode");
+        this._parentPathForWorkspace = path.join(this.workspaceDirectory, "..");
+        this._projectEntryPointPath = this.getEntryPoint(this.workspaceDirectory);
+        this._sampleEntryPointPath = this.getEntryPoint(this.sampleDirectory);
+        this._packageJsonPath = path.join(this.workspaceDirectory, "package.json");
         this._testButtonFileForWorkspace = path.join(this.workspaceDirectory, "AppTestButton.js");
         this._testButtonFileForSample = path.join(this.sampleDirectory, "AppTestButton.js");
         this._metroConfigPath = path.join(this.workspaceDirectory, "metro.config.js");
@@ -54,8 +54,8 @@ export default class TestProject {
     public getPodfileByPlatformForWorkspace(platform: string): string {
         return path.join(this.workspaceDirectory, platform, "Podfile");
     }
-    public getPodfileByPlatformForSample(platform: string): string {
-        return path.join(this.sampleDirectory, platform, "Podfile");
+    public getPodfileByPlatformForSample(): string {
+        return path.join(this.sampleDirectory, "Podfile");
     }
 
     private getEntryPoint(diretory: string): string {
