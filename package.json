@@ -132,6 +132,11 @@
         "command": "reactNative.startNetworkInspector",
         "title": "%reactNative.command.startNetworkInspector.title%",
         "category": "React Native"
+      },
+      {
+        "command": "reactNative.stopNetworkInspector",
+        "title": "%reactNative.command.stopNetworkInspector.title%",
+        "category": "React Native"
       }
     ],
     "menus": {

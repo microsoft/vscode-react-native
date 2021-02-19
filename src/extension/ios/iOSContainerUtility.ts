@@ -25,7 +25,7 @@ export type DeviceTarget = {
     name: string;
 };
 
-const isIdbAvailable = PromiseUtil.promiseCacheDecaorator<boolean>(isAvailable);
+const isIdbAvailable = PromiseUtil.promiseCacheDecorator<boolean>(isAvailable);
 
 function isAvailable(): Promise<boolean> {
     if (!idbPath) {

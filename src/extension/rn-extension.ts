@@ -401,6 +401,12 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     );
     registerVSCodeCommand(
         context,
+        "stopNetworkInspector",
+        ErrorHelper.getInternalError(InternalErrorCode.CouldNotStopNetworkInspector),
+        () => CommandPaletteHandler.stopNetworkInspector(),
+    );
+    registerVSCodeCommand(
+        context,
         "showDevMenu",
         ErrorHelper.getInternalError(
             InternalErrorCode.CommandFailed,

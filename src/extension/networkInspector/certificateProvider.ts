@@ -217,10 +217,9 @@ export class CertificateProvider {
 
     private ensureOpenSSLIsAvailable(): void {
         if (!opensslInstalled()) {
-            const e = Error(
+            throw new Error(
                 "It looks like you don't have OpenSSL installed. Please install it to continue.",
             );
-            throw e;
         }
     }
 
@@ -322,7 +321,7 @@ export class CertificateProvider {
         return Promise.reject(new Error(`Unsupported device os: ${os}`));
     }
 
-    pushFileToiOSDevice(
+    private pushFileToiOSDevice(
         udid: string,
         bundleId: string,
         destination: string,
@@ -385,7 +384,11 @@ export class CertificateProvider {
         });
     }
 
-    getTargetiOSDeviceId(appName: string, deviceCsrFilePath: string, csr: string): Promise<string> {
+    private getTargetiOSDeviceId(
+        appName: string,
+        deviceCsrFilePath: string,
+        csr: string,
+    ): Promise<string> {
         const matches = /\/Devices\/([^/]+)\//.exec(deviceCsrFilePath);
         if (matches && matches.length == 2) {
             // It's a simulator, the deviceId is in the filepath.
@@ -553,7 +556,8 @@ export class CertificateProvider {
             .then(() => undefined);
     }
 
-    private ensureServerCertExists(): Promise<void> {
+    private async ensureServerCertExists(): Promise<void> {
+        this.ensureOpenSSLIsAvailable();
         if (!(fs.existsSync(serverKey) && fs.existsSync(serverCert) && fs.existsSync(caCert))) {
             return this.generateServerCertificate();
         }

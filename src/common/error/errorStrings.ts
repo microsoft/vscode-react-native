@@ -334,4 +334,8 @@ export const ERROR_STRINGS = {
         "ErrorWhileStartNetworkInspector",
         "Error while starting Network inspector",
     ),
+    [InternalErrorCode.CouldNotStopNetworkInspector]: localize(
+        "ErrorWhileStopNetworkInspector",
+        "Error while stopping Network inspector",
+    ),
 };

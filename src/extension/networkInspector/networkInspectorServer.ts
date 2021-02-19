@@ -47,11 +47,17 @@ export class NetworkInspectorServer {
 
     public async start(adbHelper: AdbHelper): Promise<void> {
         this.logger.info("Starting Network inspector");
-        this.initialisePromise = new Promise(async resolve => {
+        this.initialisePromise = new Promise(async (resolve, reject) => {
             this.certificateProvider = new CertificateProvider(adbHelper);
-            let options = await this.certificateProvider.loadSecureServerConfig();
-            this.secureServer = await this.startServer(this.secureServerPort, options);
-            this.insecureServer = await this.startServer(this.insecureServerPort);
+
+            try {
+                let options = await this.certificateProvider.loadSecureServerConfig();
+                this.secureServer = await this.startServer(this.secureServerPort, options);
+                this.insecureServer = await this.startServer(this.insecureServerPort);
+            } catch (err) {
+                reject(err);
+            }
+
             this.logger.info("Network inspector is working");
             resolve();
         });
@@ -60,7 +66,11 @@ export class NetworkInspectorServer {
 
     public async stop(): Promise<void> {
         if (this.initialisePromise) {
-            await this.initialisePromise;
+            try {
+                await this.initialisePromise;
+            } catch (err) {
+                this.logger.debug(err.toString());
+            }
             if (this.secureServer) {
                 this.secureServer.stop();
             }

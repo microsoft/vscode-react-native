@@ -56,7 +56,7 @@ export class PromiseUtil {
         return new Promise<void>(resolve => setTimeout(resolve, duration));
     }
 
-    public static promiseCacheDecaorator<T>(
+    public static promiseCacheDecorator<T>(
         func: (...args: any[]) => Promise<T>,
         context: Record<string, any> | null = null,
     ): (...args: any[]) => Promise<T> {

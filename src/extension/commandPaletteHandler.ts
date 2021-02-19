@@ -357,7 +357,12 @@ export class CommandPaletteHandler {
             const appLauncher = await this.selectProject();
             const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
             CommandPaletteHandler.networkInspector = new NetworkInspectorServer();
-            await CommandPaletteHandler.networkInspector.start(adbHelper);
+            try {
+                await CommandPaletteHandler.networkInspector.start(adbHelper);
+            } catch (err) {
+                await CommandPaletteHandler.stopNetworkInspector();
+                throw err;
+            }
         } else {
             this.logger.info(
                 localize(
@@ -365,6 +370,13 @@ export class CommandPaletteHandler {
                     "Another Network inspector is already running",
                 ),
             );
+        }
+    }
+
+    public static async stopNetworkInspector(): Promise<void> {
+        if (CommandPaletteHandler.networkInspector) {
+            await CommandPaletteHandler.networkInspector.stop();
+            CommandPaletteHandler.networkInspector = null;
         }
     }
 
