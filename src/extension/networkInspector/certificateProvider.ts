@@ -12,6 +12,7 @@ import * as androidUtil from "../android/androidContainerUtility";
 import iosUtil from "../ios/iOSContainerUtility";
 import { v4 as uuid } from "uuid";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
+import { NETWORK_INSPECTOR_LOG_CHANNEL_NAME } from "./networkInspectorServer";
 
 export type CertificateExchangeMedium = "FS_ACCESS" | "WWW";
 
@@ -67,7 +68,7 @@ export class CertificateProvider {
     constructor(adbHelper: AdbHelper) {
         this.adbHelper = adbHelper;
         this.certificateSetup = this.ensureServerCertExists();
-        this.logger = OutputChannelLogger.getMainChannel();
+        this.logger = OutputChannelLogger.getChannel(NETWORK_INSPECTOR_LOG_CHANNEL_NAME);
     }
 
     public loadSecureServerConfig(): Promise<SecureServerConfig> {

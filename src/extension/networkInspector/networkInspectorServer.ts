@@ -29,6 +29,8 @@ function transformCertificateExchangeMediumToType(
     }
 }
 
+export const NETWORK_INSPECTOR_LOG_CHANNEL_NAME = "Network Inspector";
+
 export class NetworkInspectorServer {
     private readonly secureServerPort = 8088;
     private readonly insecureServerPort = 8089;
@@ -42,7 +44,7 @@ export class NetworkInspectorServer {
 
     constructor() {
         this.connections = new Map<string, ClientDevice>();
-        this.logger = OutputChannelLogger.getMainChannel();
+        this.logger = OutputChannelLogger.getChannel(NETWORK_INSPECTOR_LOG_CHANNEL_NAME);
     }
 
     public async start(adbHelper: AdbHelper): Promise<void> {
@@ -55,7 +57,7 @@ export class NetworkInspectorServer {
                 this.secureServer = await this.startServer(this.secureServerPort, options);
                 this.insecureServer = await this.startServer(this.insecureServerPort);
             } catch (err) {
-                reject(err);
+                return reject(err);
             }
 
             this.logger.info("Network inspector is working");
