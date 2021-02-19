@@ -17,6 +17,8 @@ import {
 import * as net from "net";
 import * as tls from "tls";
 
+// The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/server.tsx
+
 function transformCertificateExchangeMediumToType(
     medium: number | undefined,
 ): CertificateExchangeMedium {

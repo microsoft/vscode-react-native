@@ -8,6 +8,9 @@ const appNotApplicationRegex = /not an application/;
 const appNotDebuggableRegex = /debuggable/;
 const operationNotPermittedRegex = /not permitted/;
 
+// The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/androidContainerUtility.tsx,
+// https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/androidContainerUtilityInternal.tsx
+
 enum RunAsErrorCode {
     NotAnApp = 1,
     NotDebuggable = 2,

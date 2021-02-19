@@ -6,6 +6,8 @@ import { notNullOrUndefined } from "../../common/utils";
 import { PromiseUtil } from "../../common/node/promise";
 import { promises, constants } from "fs";
 
+// The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/iOSContainerUtility.tsx
+
 export const idbPath = "/usr/local/bin/idb";
 // Use debug to get helpful logs when idb fails
 const idbLogLevel = "DEBUG";

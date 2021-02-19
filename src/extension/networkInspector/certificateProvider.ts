@@ -14,6 +14,8 @@ import { v4 as uuid } from "uuid";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { NETWORK_INSPECTOR_LOG_CHANNEL_NAME } from "./networkInspectorServer";
 
+// The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/CertificateProvider.tsx
+
 export type CertificateExchangeMedium = "FS_ACCESS" | "WWW";
 
 // Desktop file paths
