@@ -39,7 +39,7 @@ export default class TestProject {
             "app",
             "build.gradle",
         );
-        this._gradleBuildFilePathForSample = path.join(this.workspaceDirectory, "build.gradle");
+        this._gradleBuildFilePathForSample = path.join(this.sampleDirectory, "build.gradle");
     }
 
     public getPlatformFolder(platform: string): string {
