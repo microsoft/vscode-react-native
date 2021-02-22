@@ -28,6 +28,7 @@ import { AndroidEmulatorManager } from "./android/androidEmulatorManager";
 import { AdbHelper } from "./android/adb";
 import { LogCatMonitor } from "./android/logCatMonitor";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
+import { NetworkInspectorServer } from "./networkInspector/networkInspectorServer";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -36,6 +37,7 @@ const localize = nls.loadMessageBundle();
 
 export class CommandPaletteHandler {
     public static elementInspector: ChildProcess | null;
+    private static networkInspector: NetworkInspectorServer | null;
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     /**
@@ -348,6 +350,34 @@ export class CommandPaletteHandler {
         return CommandPaletteHandler.elementInspector
             ? CommandPaletteHandler.elementInspector.kill()
             : void 0;
+    }
+
+    public static async startNetworkInspector(): Promise<void> {
+        if (!CommandPaletteHandler.networkInspector) {
+            const appLauncher = await this.selectProject();
+            const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
+            CommandPaletteHandler.networkInspector = new NetworkInspectorServer();
+            try {
+                await CommandPaletteHandler.networkInspector.start(adbHelper);
+            } catch (err) {
+                await CommandPaletteHandler.stopNetworkInspector();
+                throw err;
+            }
+        } else {
+            this.logger.info(
+                localize(
+                    "AnotherNetworkInspectorAlreadyRun",
+                    "Another Network inspector is already running",
+                ),
+            );
+        }
+    }
+
+    public static async stopNetworkInspector(): Promise<void> {
+        if (CommandPaletteHandler.networkInspector) {
+            await CommandPaletteHandler.networkInspector.stop();
+            CommandPaletteHandler.networkInspector = null;
+        }
     }
 
     public static getPlatformByCommandName(commandName: string): string {
