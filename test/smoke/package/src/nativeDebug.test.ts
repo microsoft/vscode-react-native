@@ -71,10 +71,34 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 await sleep(1);
                 SmokeTestLogger.info("Android Debug test: Debugging started");
 
-                await app.workbench.debug.waitForStackFrame(
-                    sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
-                    `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
-                );
+                function waitForStackFrameFunc(maxExecutionTime) {
+                    return new Promise(resolve => {
+                        app.workbench.debug.waitForStackFrame(
+                            sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
+                            `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
+                        ).then(() => resolve(true));
+                        setTimeout(() => resolve(false), maxExecutionTime);
+                    });
+                }
+
+                async function retryFunc(maxExecutionTime) {
+                    var exced = await waitForStackFrameFunc(maxExecutionTime);
+                    if (exced) {
+                        // Doesn't exced max time
+                    } else {
+                        // Exced max time
+                        await app.workbench.quickinput.inputAndSelect("React Native: Reload App");
+
+                        await app.workbench.debug.waitForStackFrame(
+                            sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
+                            `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
+                        );
+                    }
+                }
+
+                const maxExecutionTime = 150_000;
+                retryFunc(maxExecutionTime);
+
                 await sleep(1);
                 SmokeTestLogger.info("Android Debug test: Stack frame found");
                 await app.workbench.debug.stepOver();
