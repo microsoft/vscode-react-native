@@ -15,6 +15,7 @@ export default class TestProject {
 
     private _parentPathForWorkspace: string;
     private _projectEntryPointPath: string;
+    private _projectEntryPointFile: string;
     private _testButtonFileForWorkspace: string;
     private _gradleBuildFilePathForWorkspace: string;
 
@@ -27,6 +28,7 @@ export default class TestProject {
         this._vsCodeConfigPath = path.join(this.workspaceDirectory, ".vscode");
         this._parentPathForWorkspace = path.join(this.workspaceDirectory, "..");
         this._projectEntryPointPath = this.getEntryPoint(this.workspaceDirectory);
+        this._projectEntryPointFile = path.basename(this.projectEntryPointPath);
         this._sampleEntryPointPath = this.getEntryPoint(this.sampleDirectory);
         this._packageJsonPath = path.join(this.workspaceDirectory, "package.json");
         this._testButtonFileForWorkspace = path.join(this.workspaceDirectory, "AppTestButton.js");
@@ -107,5 +109,8 @@ export default class TestProject {
     }
     get gradleBuildFilePathForSample(): string {
         return this._gradleBuildFilePathForSample;
+    }
+    get projectEntryPointFile(): string {
+        return this._projectEntryPointFile;
     }
 }

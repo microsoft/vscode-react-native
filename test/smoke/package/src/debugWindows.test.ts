@@ -71,7 +71,7 @@ export function startDebugRNWTests(project: TestProject, testParameters: TestRun
                         project.workspaceDirectory,
                         "RN Windows app Debug test",
                     );
-                    await app.workbench.quickaccess.openFile("App.js");
+                    await app.workbench.quickaccess.openFile(project.projectEntryPointFile);
                     await app.workbench.editors.scrollTop();
                     SmokeTestLogger.info("Windows Debug test: App.js file is opened");
                     await app.workbench.debug.setBreakpointOnLine(RNwindowsSetBreakpointOnLine);
@@ -91,7 +91,7 @@ export function startDebugRNWTests(project: TestProject, testParameters: TestRun
                     SmokeTestLogger.info("Windows Debug test: Debugging started");
                     await app.workbench.debug.waitForStackFrame(
                         sf =>
-                            sf.name === "App.js" && sf.lineNumber === RNwindowsSetBreakpointOnLine,
+                            sf.name === project.projectEntryPointFile && sf.lineNumber === RNwindowsSetBreakpointOnLine,
                         `looking for App.js and line ${RNwindowsSetBreakpointOnLine}`,
                     );
                     SmokeTestLogger.info("Windows Debug test: Stack frame found");

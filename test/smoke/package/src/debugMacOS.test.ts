@@ -83,7 +83,7 @@ export function startDebugMacOSTests(
             isHermesProject: boolean = false,
         ): Promise<void> {
             app = await vscodeManager.runVSCode(project.workspaceDirectory, testname);
-            await app.workbench.quickaccess.openFile("App.js");
+            await app.workbench.quickaccess.openFile(project.projectEntryPointFile);
             await app.workbench.editors.scrollTop();
             SmokeTestLogger.info(`${testname}: App.js file is opened`);
 
@@ -105,7 +105,7 @@ export function startDebugMacOSTests(
             await app.workbench.debug.waitForDebuggingToStart();
             SmokeTestLogger.info(`${testname}: Debugging started`);
             await app.workbench.debug.waitForStackFrame(
-                sf => sf.name === "App.js" && sf.lineNumber === setBreakpointOnLine,
+                sf => sf.name === project.projectEntryPointFile && sf.lineNumber === setBreakpointOnLine,
                 `looking for App.js and line ${setBreakpointOnLine}`,
             );
             SmokeTestLogger.info(`${testname}: Stack frame found`);

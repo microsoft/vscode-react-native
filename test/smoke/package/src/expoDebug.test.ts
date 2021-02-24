@@ -143,9 +143,9 @@ export function startExpoTests(
             SmokeTestLogger.info(
                 `${testName}: ${project.workspaceDirectory} directory is opened in VS Code`,
             );
-            await app.workbench.quickaccess.openFile(project.projectEntryPointPath);
+            await app.workbench.quickaccess.openFile(path.basename(project.projectEntryPointFile));
             await app.workbench.editors.scrollTop();
-            SmokeTestLogger.info(`${testName}: ${project.projectEntryPointPath} file is opened`);
+            SmokeTestLogger.info(`${testName}: ${project.projectEntryPointFile} file is opened`);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
             SmokeTestLogger.info(
                 `${testName}: Breakpoint is set on line ${ExpoSetBreakpointOnLine}`,
@@ -228,9 +228,9 @@ export function startExpoTests(
             SmokeTestLogger.info(`${testName}: Debugging started`);
             await app.workbench.debug.waitForStackFrame(
                 sf =>
-                    sf.name === project.projectEntryPointPath &&
+                    sf.name === project.projectEntryPointFile &&
                     sf.lineNumber === ExpoSetBreakpointOnLine,
-                `looking for ${project.projectEntryPointPath} and line ${ExpoSetBreakpointOnLine}`,
+                `looking for ${project.projectEntryPointFile} and line ${ExpoSetBreakpointOnLine}`,
             );
             SmokeTestLogger.info(`${testName}: Stack frame found`);
             await app.workbench.debug.stepOver();

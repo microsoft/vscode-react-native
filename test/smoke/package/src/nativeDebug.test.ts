@@ -51,7 +51,7 @@ export function startReactNativeTests(
                     project.workspaceDirectory,
                     "Android RN app Debug test",
                 );
-                await app.workbench.quickaccess.openFile("App.js");
+                await app.workbench.quickaccess.openFile(project.projectEntryPointFile);
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("Android Debug test: App.js file is opened");
                 await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
@@ -67,7 +67,7 @@ export function startReactNativeTests(
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("Android Debug test: Debugging started");
                 await app.workbench.debug.waitForStackFrame(
-                    sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine,
+                    sf => sf.name === project.projectEntryPointFile && sf.lineNumber === RNSetBreakpointOnLine,
                     `looking for App.js and line ${RNSetBreakpointOnLine}`,
                 );
                 SmokeTestLogger.info("Android Debug test: Stack frame found");
@@ -114,7 +114,7 @@ export function startReactNativeTests(
                     project.workspaceDirectory,
                     "iOS RN app Debug test",
                 );
-                await app.workbench.quickaccess.openFile("App.js");
+                await app.workbench.quickaccess.openFile(project.projectEntryPointFile);
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("iOS Debug test: App.js file is opened");
                 await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
@@ -134,7 +134,7 @@ export function startReactNativeTests(
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("iOS Debug test: Debugging started");
                 await app.workbench.debug.waitForStackFrame(
-                    sf => sf.name === "App.js" && sf.lineNumber === RNSetBreakpointOnLine,
+                    sf => sf.name === project.projectEntryPointFile && sf.lineNumber === RNSetBreakpointOnLine,
                     `looking for App.js and line ${RNSetBreakpointOnLine}`,
                 );
                 SmokeTestLogger.info("iOS Debug test: Stack frame found");
