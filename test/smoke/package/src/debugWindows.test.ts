@@ -91,7 +91,8 @@ export function startDebugRNWTests(project: TestProject, testParameters: TestRun
                     SmokeTestLogger.info("Windows Debug test: Debugging started");
                     await app.workbench.debug.waitForStackFrame(
                         sf =>
-                            sf.name === project.projectEntryPointFile && sf.lineNumber === RNwindowsSetBreakpointOnLine,
+                            sf.name === project.projectEntryPointFile &&
+                            sf.lineNumber === RNwindowsSetBreakpointOnLine,
                         `looking for App.js and line ${RNwindowsSetBreakpointOnLine}`,
                     );
                     SmokeTestLogger.info("Windows Debug test: Stack frame found");

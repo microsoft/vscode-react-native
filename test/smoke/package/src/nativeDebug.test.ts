@@ -67,7 +67,9 @@ export function startReactNativeTests(
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("Android Debug test: Debugging started");
                 await app.workbench.debug.waitForStackFrame(
-                    sf => sf.name === project.projectEntryPointFile && sf.lineNumber === RNSetBreakpointOnLine,
+                    sf =>
+                        sf.name === project.projectEntryPointFile &&
+                        sf.lineNumber === RNSetBreakpointOnLine,
                     `looking for App.js and line ${RNSetBreakpointOnLine}`,
                 );
                 SmokeTestLogger.info("Android Debug test: Stack frame found");
@@ -134,7 +136,9 @@ export function startReactNativeTests(
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("iOS Debug test: Debugging started");
                 await app.workbench.debug.waitForStackFrame(
-                    sf => sf.name === project.projectEntryPointFile && sf.lineNumber === RNSetBreakpointOnLine,
+                    sf =>
+                        sf.name === project.projectEntryPointFile &&
+                        sf.lineNumber === RNSetBreakpointOnLine,
                     `looking for App.js and line ${RNSetBreakpointOnLine}`,
                 );
                 SmokeTestLogger.info("iOS Debug test: Stack frame found");

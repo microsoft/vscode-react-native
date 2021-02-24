@@ -105,7 +105,9 @@ export function startDebugMacOSTests(
             await app.workbench.debug.waitForDebuggingToStart();
             SmokeTestLogger.info(`${testname}: Debugging started`);
             await app.workbench.debug.waitForStackFrame(
-                sf => sf.name === project.projectEntryPointFile && sf.lineNumber === setBreakpointOnLine,
+                sf =>
+                    sf.name === project.projectEntryPointFile &&
+                    sf.lineNumber === setBreakpointOnLine,
                 `looking for App.js and line ${setBreakpointOnLine}`,
             );
             SmokeTestLogger.info(`${testname}: Stack frame found`);
