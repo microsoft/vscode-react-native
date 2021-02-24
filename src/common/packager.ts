@@ -105,7 +105,11 @@ export class Packager {
         return this.projectPath;
     }
 
-    public getPackagerArgs(rnVersion: string, resetCache: boolean = false): Promise<string[]> {
+    public getPackagerArgs(
+        projectRoot: string,
+        rnVersion: string,
+        resetCache: boolean = false,
+    ): Promise<string[]> {
         let args: string[] = ["--port", this.getPort().toString()];
 
         if (resetCache) {
@@ -131,8 +135,8 @@ export class Packager {
                 }
 
                 return this.getExponentHelper()
-                    .getExpPackagerOptions()
-                    .then((options: ExpConfigPackager) => {
+                    .getExpPackagerOptions(projectRoot)
+                    .then((options: ExpMetroConfig) => {
                         Object.keys(options).forEach(key => {
                             args = args.concat([`--${key}`, options[key]]);
                         });
@@ -171,7 +175,7 @@ export class Packager {
                         return this.monkeyPatchOpnForRNPackager(rnVersion);
                     })
                     .then(() => {
-                        return this.getPackagerArgs(rnVersion, resetCache);
+                        return this.getPackagerArgs(this.projectPath, rnVersion, resetCache);
                     })
                     .then(args => {
                         //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
@@ -204,16 +208,6 @@ export class Packager {
                         // wait for this command to finish
 
                         let spawnOptions = { env: reactEnv };
-
-                        // Since Expo 37, you must specify the sourceExts parameter so that the packager can load additional files, such as custom fonts:
-                        // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1720).
-                        // Related to https://github.com/microsoft/vscode-react-native/issues/1252
-                        if (this.runOptions && this.runOptions.platform === PlatformType.Exponent) {
-                            const managedExtensions = this.getSourceExtensions();
-
-                            // In order for the arguments to be processed normally, it is necessary to pass an array as an argument
-                            args.push("--sourceExts", <any>managedExtensions);
-                        }
 
                         const packagerSpawnResult = new CommandExecutor(
                             this.projectPath,
@@ -548,28 +542,5 @@ export class Packager {
         }
 
         return atomScript;
-    }
-
-    // Since Expo 37, the packager in expo scripts has stopped correctly finding additional resources, such as custom fonts.
-    // In order to solve this problem, you need to configure the packager to work with additional file extensions,
-    // similar to how it was done in `expo/xdl`
-    private getSourceExtensions(): Array<string> {
-        // Since the array is determined by parameters (as pointed by link below)
-        // (https://github.com/expo/expo-cli/blob/master/packages/xdl/src/Project.ts#L1719),
-        // which are always the same, since the array that we receive in `expo/xdl`
-        // (https://github.com/expo/expo-cli/blob/30844f1083d0b0804478a7dc6c7cbd19dc7254df/packages/config/src/paths/extensions.ts#L54)
-        // is always the same, return constant here
-        return [
-            "expo.ts",
-            "expo.tsx",
-            "expo.js",
-            "expo.jsx",
-            "ts",
-            "tsx",
-            "js",
-            "jsx",
-            "json",
-            "wasm",
-        ];
     }
 }
