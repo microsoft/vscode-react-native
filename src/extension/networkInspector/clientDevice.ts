@@ -2,10 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { ReactiveSocket } from "rsocket-types";
+import { ClientOS } from "./clientUtils";
 
 export interface ClientIdConstituents {
     app: string;
-    os: string;
+    os: ClientOS;
     device: string;
     device_id: string;
 }

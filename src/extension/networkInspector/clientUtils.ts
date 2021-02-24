@@ -3,9 +3,11 @@
 
 import { ClientIdConstituents, ClientQuery } from "./clientDevice";
 
+export type ClientOS = "iOS" | "Android" | "Windows" | "MacOS";
+
 export function buildClientId(clientInfo: {
     app: string;
-    os: string;
+    os: ClientOS;
     device: string;
     device_id: string;
 }): string {

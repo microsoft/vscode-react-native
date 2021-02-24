@@ -34,8 +34,8 @@ function transformCertificateExchangeMediumToType(
 export const NETWORK_INSPECTOR_LOG_CHANNEL_NAME = "Network Inspector";
 
 export class NetworkInspectorServer {
-    private readonly secureServerPort = 8088;
-    private readonly insecureServerPort = 8089;
+    public static readonly SecureServerPort = 8088;
+    public static readonly InsecureServerPort = 8089;
 
     private connections: Map<string, ClientDevice>;
     private secureServer: RSocketServer<any, any> | null;
@@ -56,8 +56,13 @@ export class NetworkInspectorServer {
 
             try {
                 let options = await this.certificateProvider.loadSecureServerConfig();
-                this.secureServer = await this.startServer(this.secureServerPort, options);
-                this.insecureServer = await this.startServer(this.insecureServerPort);
+                this.secureServer = await this.startServer(
+                    NetworkInspectorServer.SecureServerPort,
+                    options,
+                );
+                this.insecureServer = await this.startServer(
+                    NetworkInspectorServer.InsecureServerPort,
+                );
             } catch (err) {
                 return reject(err);
             }

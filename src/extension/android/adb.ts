@@ -3,6 +3,7 @@
 
 import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
 import { CommandExecutor } from "../../common/commandExecutor";
+import { IDevice } from "../../common/device";
 import * as path from "path";
 import * as fs from "fs";
 import { ILogger } from "../log/LogHelper";
@@ -35,15 +36,14 @@ enum KeyEvents {
     KEYCODE_MENU = 82,
 }
 
-export enum DeviceType {
+export enum AdbDeviceType {
     AndroidSdkEmulator, // These seem to have emulator-<port> ids
     Other,
 }
 
-export interface IDevice {
-    id: string;
+export interface IAdbDevice extends IDevice {
     isOnline: boolean;
-    type: DeviceType;
+    type: AdbDeviceType;
 }
 
 const AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
@@ -62,7 +62,7 @@ export class AdbHelper {
     /**
      * Gets the list of Android connected devices and emulators.
      */
-    public getConnectedDevices(): Promise<IDevice[]> {
+    public getConnectedDevices(): Promise<IAdbDevice[]> {
         return this.childProcess.execToString(`${this.adbExecutable} devices`).then(output => {
             return this.parseConnectedDevices(output);
         });
@@ -146,7 +146,7 @@ export class AdbHelper {
         return this.commandExecutor.execute(command);
     }
 
-    public getOnlineDevices(): Promise<IDevice[]> {
+    public getOnlineDevices(): Promise<IAdbDevice[]> {
         return this.getConnectedDevices().then(devices => {
             return devices.filter(device => device.isOnline);
         });
@@ -199,8 +199,8 @@ export class AdbHelper {
         return this.executeQuery(deviceId, `shell '${command}'`);
     }
 
-    private parseConnectedDevices(input: string): IDevice[] {
-        let result: IDevice[] = [];
+    private parseConnectedDevices(input: string): IAdbDevice[] {
+        let result: IAdbDevice[] = [];
         let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
         let match = regex.exec(input);
         while (match != null) {
@@ -214,10 +214,10 @@ export class AdbHelper {
         return result;
     }
 
-    private extractDeviceType(id: string): DeviceType {
+    private extractDeviceType(id: string): AdbDeviceType {
         return id.match(AndroidSDKEmulatorPattern)
-            ? DeviceType.AndroidSdkEmulator
-            : DeviceType.Other;
+            ? AdbDeviceType.AndroidSdkEmulator
+            : AdbDeviceType.Other;
     }
 
     private executeQuery(deviceId: string, command: string): Promise<string> {
