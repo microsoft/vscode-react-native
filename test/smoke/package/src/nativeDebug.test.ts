@@ -73,16 +73,20 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
 
                 function waitForStackFrameFunc(maxExecutionTime) {
                     return new Promise(resolve => {
-                        app.workbench.debug.waitForStackFrame(
-                            sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
-                            `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
-                        ).then(() => resolve(true));
+                        app.workbench.debug
+                            .waitForStackFrame(
+                                sf =>
+                                    sf.name === APP_FILE_NAME &&
+                                    sf.lineNumber === RNSetBreakpointOnLine,
+                                `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
+                            )
+                            .then(() => resolve(true));
                         setTimeout(() => resolve(false), maxExecutionTime);
                     });
                 }
 
                 async function retryFunc(maxExecutionTime) {
-                    var exced = await waitForStackFrameFunc(maxExecutionTime);
+                    let exced = await waitForStackFrameFunc(maxExecutionTime);
                     if (exced) {
                         // Doesn't exced max time
                     } else {
@@ -90,7 +94,9 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                         await app.workbench.quickinput.inputAndSelect("React Native: Reload App");
 
                         await app.workbench.debug.waitForStackFrame(
-                            sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
+                            sf =>
+                                sf.name === APP_FILE_NAME &&
+                                sf.lineNumber === RNSetBreakpointOnLine,
                             `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
                         );
                     }
