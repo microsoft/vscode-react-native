@@ -91,6 +91,7 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                         // Doesn't exced max time
                     } else {
                         // Exced max time
+                        SmokeTestLogger.info("Reloading React Native app...");
                         await app.workbench.quickinput.inputAndSelect("React Native: Reload App");
 
                         await app.workbench.debug.waitForStackFrame(
