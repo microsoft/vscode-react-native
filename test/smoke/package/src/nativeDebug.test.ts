@@ -106,21 +106,29 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 // const maxExecutionTime = 150_000;
                 // retryFunc(maxExecutionTime);
 
-                try {
-                    await app.workbench.debug.waitForStackFrame(
-                        sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
-                        `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
-                    );
-                } catch (error) {
-                    SmokeTestLogger.error(`Error: ${error}`);
-                    SmokeTestLogger.info("Reloading React Native app...");
-                    await app.workbench.quickinput.inputAndSelect("React Native: Reload App");
+                const maxExecutionTime = 150_000;
 
-                    await app.workbench.debug.waitForStackFrame(
-                        sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
-                        `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
-                    );
-                }
+                let p1 = new Promise(function (resolve) {
+                    setTimeout(resolve, maxExecutionTime, "timeout");
+                });
+
+                let p2 = app.workbench.debug.waitForStackFrame(
+                    sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
+                    `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
+                );
+
+                Promise.race([p1, p2]).then(async function (value) {
+                    if (value === "timeout") {
+                        SmokeTestLogger.info("Reloading React Native app...");
+                        await app.workbench.quickinput.inputAndSelect("React Native: Reload App");
+                        await app.workbench.debug.waitForStackFrame(
+                            sf =>
+                                sf.name === APP_FILE_NAME &&
+                                sf.lineNumber === RNSetBreakpointOnLine,
+                            `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
+                        );
+                    }
+                });
 
                 await sleep(1);
                 SmokeTestLogger.info("Android Debug test: Stack frame found");
