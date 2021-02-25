@@ -324,11 +324,12 @@ export class NetworkInspectorServer {
                 device: query.device,
                 device_id: csrId,
             });
-            this.logger.debug(`Device connected: ${id}`);
+            this.logger.info(`Device connected: ${id}`);
 
-            const client = new ClientDevice(id, query, conn);
+            const client = new ClientDevice(id, query, conn, this.logger);
 
             client.init().then(() => {
+                this.logger.debug(`Device client initialised: ${id}`);
                 /* If a device gets disconnected without being cleaned up properly,
                  * Flipper won't be aware until it attempts to reconnect.
                  * When it does we need to terminate the zombie connection.
