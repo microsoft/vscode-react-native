@@ -34,9 +34,9 @@ export abstract class VirtualDeviceManager {
         return result?.toString();
     }
 
-    public abstract async startSelection(): Promise<string | undefined>;
+    public abstract startSelection(): Promise<string | undefined>;
 
-    protected abstract async getVirtualDevicesNamesList(
+    protected abstract getVirtualDevicesNamesList(
         filter?: (el: IVirtualDevice) => unknown,
     ): Promise<string[]>;
 }

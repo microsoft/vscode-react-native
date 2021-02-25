@@ -2,20 +2,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { AdbDeviceType, AdbHelper } from "./adb";
-import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { DeviceStorage } from "../networkInspector/devices/deviceStorage";
 import { AndroidClientDevice } from "../networkInspector/devices/androidClientDevice";
 import { NetworkInspectorServer } from "../networkInspector/networkInspectorServer";
+import { DeviceStatus } from "../networkInspector/devices/baseClientDevice";
+import { AbstractDeviceTracker } from "../abstractDeviceTracker";
 
-export class AndroidDeviceTracker {
-    private logger: OutputChannelLogger;
+export class AndroidDeviceTracker extends AbstractDeviceTracker {
     private adbHelper: AdbHelper;
-    private isStop: boolean;
 
     constructor(adbHelper: AdbHelper) {
-        this.logger = OutputChannelLogger.getMainChannel();
+        super();
         this.adbHelper = adbHelper;
-        this.isStop = false;
     }
 
     public async start(): Promise<void> {
@@ -28,21 +26,8 @@ export class AndroidDeviceTracker {
         this.isStop = true;
     }
 
-    private async queryDevicesLoop(): Promise<void> {
-        try {
-            await this.queryDevices();
-            if (!this.isStop) {
-                // It's important to schedule the next check AFTER the current one has completed
-                // to avoid simultaneous queries which can cause multiple user input prompts.
-                setTimeout(() => this.queryDevicesLoop(), 3000);
-            }
-        } catch (err) {
-            this.logger.error(err.toString());
-        }
-    }
-
-    private async queryDevices(): Promise<void> {
-        let onlineDevices = await this.adbHelper.getOnlineDevices();
+    protected async queryDevices(): Promise<void> {
+        const onlineDevices = await this.adbHelper.getOnlineDevices();
         let currentDevicesIds = new Set(
             [...DeviceStorage.devices.keys()].filter(
                 key => DeviceStorage.devices.get(key) instanceof AndroidClientDevice,
@@ -58,15 +43,7 @@ export class AndroidDeviceTracker {
                     onlineDevice.type === AdbDeviceType.AndroidSdkEmulator ? "simulator" : "device",
                     "Android",
                 );
-
-                await this.adbHelper.reverseAdb(
-                    androidDevice.id,
-                    NetworkInspectorServer.InsecureServerPort,
-                );
-                await this.adbHelper.reverseAdb(
-                    androidDevice.id,
-                    NetworkInspectorServer.SecureServerPort,
-                );
+                await this.initAndroidDevice(androidDevice);
                 DeviceStorage.devices.set(androidDevice.id, androidDevice);
             }
         }
@@ -74,5 +51,14 @@ export class AndroidDeviceTracker {
         currentDevicesIds.forEach(oldDeviceId => {
             DeviceStorage.devices.delete(oldDeviceId);
         });
+    }
+
+    private async initAndroidDevice(androidDevice: AndroidClientDevice) {
+        await this.adbHelper.reverseAdb(
+            androidDevice.id,
+            NetworkInspectorServer.InsecureServerPort,
+        );
+        await this.adbHelper.reverseAdb(androidDevice.id, NetworkInspectorServer.SecureServerPort);
+        androidDevice.deviceStatus = DeviceStatus.Prepared;
     }
 }

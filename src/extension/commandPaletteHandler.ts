@@ -26,6 +26,7 @@ import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { AppLauncher } from "./appLauncher";
 import { AndroidEmulatorManager } from "./android/androidEmulatorManager";
 import { AndroidDeviceTracker } from "./android/androidDeviceTracker";
+import { IOSDeviceTracker } from "./ios/iOSDeviceTracker";
 import { AdbHelper } from "./android/adb";
 import { LogCatMonitor } from "./android/logCatMonitor";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
@@ -39,6 +40,7 @@ const localize = nls.loadMessageBundle();
 interface NetworkInspectorModule {
     networkInspector: NetworkInspectorServer;
     androidDeviceTracker: AndroidDeviceTracker;
+    iOSDeviceTracker: IOSDeviceTracker | null;
 }
 
 export class CommandPaletteHandler {
@@ -364,11 +366,19 @@ export class CommandPaletteHandler {
             const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
             const networkInspector = new NetworkInspectorServer();
             const androidDeviceTracker = new AndroidDeviceTracker(adbHelper);
+            let iOSDeviceTracker = null;
+            if (process.platform === "darwin") {
+                iOSDeviceTracker = new IOSDeviceTracker();
+            }
             CommandPaletteHandler.networkInspectorModule = {
                 networkInspector,
                 androidDeviceTracker,
+                iOSDeviceTracker,
             };
             try {
+                if (iOSDeviceTracker) {
+                    await iOSDeviceTracker.start();
+                }
                 await androidDeviceTracker.start();
                 await networkInspector.start(adbHelper);
             } catch (err) {
@@ -388,6 +398,9 @@ export class CommandPaletteHandler {
     public static async stopNetworkInspector(): Promise<void> {
         if (CommandPaletteHandler.networkInspectorModule) {
             CommandPaletteHandler.networkInspectorModule.androidDeviceTracker.stop();
+            if (CommandPaletteHandler.networkInspectorModule.iOSDeviceTracker) {
+                CommandPaletteHandler.networkInspectorModule.iOSDeviceTracker.stop();
+            }
             await CommandPaletteHandler.networkInspectorModule.networkInspector.stop();
             CommandPaletteHandler.networkInspectorModule = null;
         }

@@ -402,9 +402,9 @@ export class CertificateProvider {
                 throw new Error("No iOS devices found");
             }
             const deviceMatchList = targets.map(target =>
-                this.iOSDeviceHasMatchingCSR(deviceCsrFilePath, target.udid, appName, csr).then(
+                this.iOSDeviceHasMatchingCSR(deviceCsrFilePath, target.id, appName, csr).then(
                     isMatch => {
-                        return { id: target.udid, isMatch };
+                        return { id: target.id, isMatch };
                     },
                 ),
             );

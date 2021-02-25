@@ -4,6 +4,8 @@
 import { ChildProcess } from "../../common/node/childProcess";
 import { notNullOrUndefined } from "../../common/utils";
 import { PromiseUtil } from "../../common/node/promise";
+import { IVirtualDevice } from "../VirtualDeviceManager";
+import { DeviceType } from "../launchArgs";
 import { promises, constants } from "fs";
 
 // The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/iOSContainerUtility.tsx
@@ -21,11 +23,10 @@ type IdbTarget = {
     architecture: string;
 };
 
-export type DeviceTarget = {
-    udid: string;
-    type: "physical" | "emulator";
-    name: string;
-};
+export interface DeviceTarget extends IVirtualDevice {
+    type: DeviceType;
+    state: string;
+}
 
 const isIdbAvailable = PromiseUtil.promiseCacheDecorator<boolean>(isAvailable);
 
@@ -66,7 +67,12 @@ async function targets(): Promise<Array<DeviceTarget>> {
                 .map(line => JSON.parse(line))
                 .filter(({ type }: IdbTarget) => type !== "simulator")
                 .map((target: IdbTarget) => {
-                    return { udid: target.udid, type: "physical", name: target.name };
+                    return {
+                        id: target.udid,
+                        type: "device",
+                        name: target.name,
+                        state: target.state,
+                    };
                 }),
         );
     } else {
@@ -81,7 +87,12 @@ async function targets(): Promise<Array<DeviceTarget>> {
                 .filter(notNullOrUndefined)
                 .filter(([_match, _name, _udid, isSim]) => !isSim)
                 .map(([_match, name, udid]) => {
-                    return { udid: udid, type: "physical", name: name };
+                    return {
+                        id: udid,
+                        type: "device",
+                        name,
+                        state: "active",
+                    };
                 }),
         );
     }
