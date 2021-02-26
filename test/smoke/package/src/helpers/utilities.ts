@@ -288,10 +288,7 @@ export async function smokeTestFail(message: string): Promise<void> {
     process.exit(1);
 }
 
-export async function retryAsyncFunction(
-    fn: any,
-    retryCount: number = 1,
-): Promise<void> {
+export async function retryAsyncFunction(fn: any, retryCount: number = 1): Promise<void> {
     let success: boolean;
     let tryTimes: number = retryCount + 1;
 
