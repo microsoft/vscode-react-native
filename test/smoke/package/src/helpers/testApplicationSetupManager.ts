@@ -120,9 +120,25 @@ export class TestApplicationSetupManager {
         const macOSrnVersion = process.env.RN_MAC_OS_VERSION || "";
         const rnwVersion = process.env.RNW_VERSION || "";
 
+        const packagesForReactNativeProjects = new Map<string, string>(
+            Object.entries({ "react-native": rnVersion }),
+        );
+        const packagesForPureReactNativeProjects = new Map<string, string>(
+            Object.entries({ "react-native": pureRnVersion, expo: pureExpoSdkVersion }),
+        );
+        const packagesForExpoProjects = new Map<string, string>(
+            Object.entries({ expo: expoSdkVersion }),
+        );
+        const packagesForMacOsReactNativeProjects = new Map<string, string>(
+            Object.entries({ "react-native": macOSrnVersion }),
+        );
+        const packagesForReactNativeWindowsProjects = new Map<string, string>(
+            Object.entries({ "react-native": rnwVersion }),
+        );
+
         this.prepareWithCacheMiddleware(
             this.rnTestProject,
-            rnVersion,
+            packagesForReactNativeProjects,
             useCachedApplications,
             () => {
                 this.prepareReactNativeApplication(this.rnTestProject, rnVersion);
@@ -130,7 +146,7 @@ export class TestApplicationSetupManager {
         );
         this.prepareWithCacheMiddleware(
             this.expoTestProject,
-            expoSdkVersion,
+            packagesForExpoProjects,
             useCachedApplications,
             () => {
                 this.prepareExpoApplication(this.expoTestProject, expoSdkVersion);
@@ -138,7 +154,7 @@ export class TestApplicationSetupManager {
         );
         this.prepareWithCacheMiddleware(
             this.pureRNTestProject,
-            pureRnVersion,
+            packagesForPureReactNativeProjects,
             useCachedApplications,
             () => {
                 this.preparePureExpoApplication(
@@ -150,7 +166,7 @@ export class TestApplicationSetupManager {
         );
         this.prepareWithCacheMiddleware(
             this.hermesTestProject,
-            rnVersion,
+            packagesForReactNativeProjects,
             useCachedApplications,
             () => {
                 this.prepareHermesApplication(this.hermesTestProject, rnVersion);
@@ -160,7 +176,7 @@ export class TestApplicationSetupManager {
         if (process.platform === "darwin") {
             this.prepareWithCacheMiddleware(
                 this.macOSTestProject,
-                macOSrnVersion,
+                packagesForMacOsReactNativeProjects,
                 useCachedApplications,
                 () => {
                     this.prepareMacOSApplication(this.macOSTestProject, macOSrnVersion);
@@ -169,7 +185,7 @@ export class TestApplicationSetupManager {
 
             this.prepareWithCacheMiddleware(
                 this.macOSHermesTestProject,
-                macOSrnVersion,
+                packagesForMacOsReactNativeProjects,
                 useCachedApplications,
                 () => {
                     this.prepareMacOSHermesApplication(this.macOSHermesTestProject, macOSrnVersion);
@@ -179,7 +195,7 @@ export class TestApplicationSetupManager {
         if (process.platform === "win32") {
             this.prepareWithCacheMiddleware(
                 this.windowsTestProject,
-                rnwVersion,
+                packagesForReactNativeWindowsProjects,
                 useCachedApplications,
                 () => {
                     this.prepareRNWApplication(this.windowsTestProject, rnwVersion);
@@ -290,11 +306,11 @@ export class TestApplicationSetupManager {
 
     private prepareWithCacheMiddleware(
         project: TestProject,
-        packageVersion: string,
+        packagesVersions: Map<string, string>,
         useCachedApplications: boolean,
         prepareProjectFunc: () => void,
     ): void {
-        if (!this.useCachedApps(project, packageVersion, useCachedApplications)) {
+        if (!this.useCachedApps(project, packagesVersions, useCachedApplications)) {
             this.removeProjectFolder(project);
             prepareProjectFunc.call(this);
         } else {
@@ -583,25 +599,23 @@ module.exports.watchFolders = ['.vscode'];`;
 
     private useCachedApps(
         project: TestProject,
-        packageVersion: string,
+        packagesVersions: Map<string, string>,
         useCachedApplications: boolean,
     ): boolean {
         if (!useCachedApplications || !fs.existsSync(project.packageJsonPath)) {
             return false;
         }
-        let useCachedApp = false;
+        let useCachedApp = true;
         try {
-            const packageJsonData = JSON.parse(fs.readFileSync(project.packageJsonPath).toString());
-            if (project.isExpoProject()) {
+            const packageJsonData = JSON.parse(String(fs.readFileSync(project.packageJsonPath)));
+            packagesVersions.forEach((version: string, packageName: string) => {
                 if (
-                    packageJsonData.dependencies.expo.includes(packageVersion) ||
-                    packageJsonData.devDependencies.expo.includes(packageVersion)
+                    !packageJsonData.dependencies[packageName].includes(version) &&
+                    !packageJsonData.devDependencies[packageName].includes(version)
                 ) {
-                    useCachedApp = true;
+                    useCachedApp = false;
                 }
-            } else if (packageJsonData.dependencies["react-native"].includes(packageVersion)) {
-                useCachedApp = true;
-            }
+            });
         } catch (err) {
             SmokeTestLogger.warn(
                 `There is error while reading 'package.json' file by path ${project.packageJsonPath}.\nContinue without using cache...`,
