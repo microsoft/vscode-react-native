@@ -65,11 +65,9 @@ steps:
         SKIP_UNSTABLE_TESTS="--skip-unstable-tests"
       fi
       if [ -n "$(basicOnly)" ]; then
-      else
         BASIC_ONLY="--basic-only"
       fi
       if [ -n "$(resetApplicationCache)" ]; then
-      else
         RESET_CACHE="--reset-cache"
       fi
       yarn smoke-tests $BASIC_ONLY $RESET_CACHE $SKIP_UNSTABLE_TESTS
