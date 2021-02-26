@@ -613,13 +613,17 @@ module.exports.watchFolders = ['.vscode'];`;
             packagesVersions.forEach((version: string, packageName: string) => {
                 if (
                     (!packageJsonData.dependencies[packageName] &&
-                    !packageJsonData.devDependencies[packageName]) ||
+                        !packageJsonData.devDependencies[packageName]) ||
                     (!packageJsonData.dependencies[packageName].includes(version) &&
-                    !packageJsonData.devDependencies[packageName].includes(version))
+                        !packageJsonData.devDependencies[packageName].includes(version))
                 ) {
                     useCachedApp = false;
-                    const actualVersion = packageJsonData.dependencies[packageName] || packageJsonData.devDependencies[packageName];
-                    SmokeTestLogger.error(packageName + ": " + version + " ✘. " + "Actual version: " + actualVersion);
+                    const actualVersion =
+                        packageJsonData.dependencies[packageName] ||
+                        packageJsonData.devDependencies[packageName];
+                    SmokeTestLogger.error(
+                        packageName + ": " + version + " ✘. " + "Actual version: " + actualVersion,
+                    );
                 } else {
                     SmokeTestLogger.success(packageName + ": " + version + " ✓");
                 }
