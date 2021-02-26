@@ -118,7 +118,7 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 });
 
                 let p2 = app.workbench.debug.waitForStackFrame(
-                    sf => sf.name === "Test.js" && sf.lineNumber === RNSetBreakpointOnLine,
+                    sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
                     `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
                 );
 
