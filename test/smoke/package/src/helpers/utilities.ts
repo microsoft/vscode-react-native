@@ -304,10 +304,13 @@ export async function retryAsyncFunction(
             SmokeTestLogger.error(`Error: ${error}`);
             success = false;
             tryTimes--;
+            if (tryTimes === 0) {
+                throw error;
+            }
         }
 
         if (success) {
-            return;
+            break;
         }
     }
 }
