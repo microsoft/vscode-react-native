@@ -607,19 +607,28 @@ module.exports.watchFolders = ['.vscode'];`;
         }
         let useCachedApp = true;
         try {
+            SmokeTestLogger.projectInstallLog("Check for require packages versions:");
+            SmokeTestLogger.info(String(fs.readFileSync(project.packageJsonPath)));
             const packageJsonData = JSON.parse(String(fs.readFileSync(project.packageJsonPath)));
             packagesVersions.forEach((version: string, packageName: string) => {
                 if (
-                    !packageJsonData.dependencies[packageName].includes(version) &&
-                    !packageJsonData.devDependencies[packageName].includes(version)
+                    (!packageJsonData.dependencies[packageName] &&
+                    !packageJsonData.devDependencies[packageName]) ||
+                    (!packageJsonData.dependencies[packageName].includes(version) &&
+                    !packageJsonData.devDependencies[packageName].includes(version))
                 ) {
                     useCachedApp = false;
+                    const actualVersion = packageJsonData.dependencies[packageName] || packageJsonData.devDependencies[packageName];
+                    SmokeTestLogger.error(packageName + ": " + version + " ✘. " + "Actual version: " + actualVersion);
+                } else {
+                    SmokeTestLogger.success(packageName + ": " + version + " ✓");
                 }
             });
         } catch (err) {
             SmokeTestLogger.warn(
                 `There is error while reading 'package.json' file by path ${project.packageJsonPath}.\nContinue without using cache...`,
             );
+            useCachedApp = false;
         }
         return useCachedApp;
     }
