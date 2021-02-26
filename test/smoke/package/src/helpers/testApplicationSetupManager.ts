@@ -608,7 +608,6 @@ module.exports.watchFolders = ['.vscode'];`;
         let useCachedApp = true;
         try {
             SmokeTestLogger.projectInstallLog("Check for require packages versions:");
-            SmokeTestLogger.info(String(fs.readFileSync(project.packageJsonPath)));
             const packageJsonData = JSON.parse(String(fs.readFileSync(project.packageJsonPath)));
             packagesVersions.forEach((version: string, packageName: string) => {
                 if (
