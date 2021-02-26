@@ -7,7 +7,7 @@ import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
-import { sleep } from "./helpers/utilities";
+import { retryAsyncFunction, sleep } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 
 const RN_APP_PACKAGE_NAME = "com.latestrnapp";
@@ -48,7 +48,7 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 SmokeTestLogger.info(`Android Debug test: Timeout is over`);
                 app = await vscodeManager.runVSCode(workspace, "Android RN app Debug test");
                 SmokeTestLogger.info(`Android Debug test: VS code is running`);
-                await app.workbench.quickaccess.openFile(APP_FILE_NAME);
+                await retryAsyncFunction(app.workbench.quickaccess.openFile(APP_FILE_NAME));
                 SmokeTestLogger.info(`Android Debug test: ${APP_FILE_NAME} is opened`);
                 await sleep(1);
                 await app.workbench.editors.scrollTop();
@@ -76,64 +76,12 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 await sleep(1);
                 SmokeTestLogger.info("Android Debug test: Debugging started");
 
-                // function waitForStackFrameFunc(maxExecutionTime) {
-                //     return new Promise(resolve => {
-                //         app.workbench.debug
-                //             .waitForStackFrame(
-                //                 sf =>
-                //                     sf.name === APP_FILE_NAME &&
-                //                     sf.lineNumber === RNSetBreakpointOnLine,
-                //                 `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
-                //             )
-                //             .then(() => resolve(true));
-                //         setTimeout(() => resolve(false), maxExecutionTime);
-                //     });
-                // }
-
-                // async function retryFunc(maxExecutionTime) {
-                //     let exced = await waitForStackFrameFunc(maxExecutionTime);
-                //     if (exced) {
-                //         // Doesn't exced max time
-                //     } else {
-                //         // Exced max time
-                //         SmokeTestLogger.info("Reloading React Native app...");
-                //         await app.workbench.quickinput.inputAndSelect("React Native: Reload App");
-
-                //         await app.workbench.debug.waitForStackFrame(
-                //             sf =>
-                //                 sf.name === APP_FILE_NAME &&
-                //                 sf.lineNumber === RNSetBreakpointOnLine,
-                //             `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
-                //         );
-                //     }
-                // }
-
-                // const maxExecutionTime = 150_000;
-                // retryFunc(maxExecutionTime);
-
-                const maxExecutionTime = 150_000;
-
-                let p1 = new Promise(function (resolve) {
-                    setTimeout(resolve, maxExecutionTime, "timeout");
-                });
-
-                let p2 = app.workbench.debug.waitForStackFrame(
-                    sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
-                    `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
+                await retryAsyncFunction(
+                    app.workbench.debug.waitForStackFrame(
+                        sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
+                        `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
+                    ),
                 );
-
-                Promise.race([p1, p2]).then(async function (value) {
-                    if (value === "timeout") {
-                        SmokeTestLogger.info("Reloading React Native app...");
-                        await app.workbench.quickinput.inputAndSelect("React Native: Reload App");
-                        await app.workbench.debug.waitForStackFrame(
-                            sf =>
-                                sf.name === APP_FILE_NAME &&
-                                sf.lineNumber === RNSetBreakpointOnLine,
-                            `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
-                        );
-                    }
-                });
 
                 await sleep(1);
                 SmokeTestLogger.info("Android Debug test: Stack frame found");

@@ -287,3 +287,24 @@ export async function smokeTestFail(message: string): Promise<void> {
     await AppiumHelper.terminateAppium();
     process.exit(1);
 }
+
+export async function retryAsyncFunction(fn: Function, retryCount: number = 1): Promise<void> {
+    let success: boolean;
+    let tryTimes: number = retryCount + 1;
+
+    while (tryTimes > 0) {
+        success = true;
+
+        try {
+            await fn();
+        } catch (error) {
+            SmokeTestLogger.error(`Error: ${error}`);
+            success = false;
+            tryTimes--;
+        }
+
+        if (success) {
+            return;
+        }
+    }
+}
