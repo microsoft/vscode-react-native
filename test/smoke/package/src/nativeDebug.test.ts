@@ -43,11 +43,16 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
         // Android debug tests
         if (testParameters.RunAndroidTests || testParameters.RunBasicTests) {
             it("Android RN app Debug test", async function () {
+                SmokeTestLogger.info(`Android Debug test: Starting testing`);
                 this.timeout(debugAndroidTestTime);
+                SmokeTestLogger.info(`Android Debug test: Timeout is over`);
                 app = await vscodeManager.runVSCode(workspace, "Android RN app Debug test");
+                SmokeTestLogger.info(`Android Debug test: VS code is running`);
                 await app.workbench.quickaccess.openFile(APP_FILE_NAME);
+                SmokeTestLogger.info(`Android Debug test: ${APP_FILE_NAME} is opened`);
                 await sleep(1);
                 await app.workbench.editors.scrollTop();
+                SmokeTestLogger.info(`Android Debug test: Scrolled to the top`);
                 await sleep(1);
                 SmokeTestLogger.info(`Android Debug test: ${APP_FILE_NAME} file is opened`);
 
