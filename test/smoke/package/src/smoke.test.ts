@@ -24,11 +24,6 @@ export function startSmokeTests(
     cleanUp: (saveCache: boolean) => Promise<void>,
 ): void {
     before(async function () {
-        if (args.UseCachedApplications) {
-            SmokeTestLogger.info(
-                "*** --use-cache parameter is set, skipping reinstallation of test projects",
-            );
-        }
         if (args.SkipSetup) {
             SmokeTestLogger.info(
                 "*** --skip-setup parameter is set, skipping clean up and apps installation",
