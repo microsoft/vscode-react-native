@@ -48,7 +48,7 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 SmokeTestLogger.info(`Android Debug test: Timeout is over`);
                 app = await vscodeManager.runVSCode(workspace, "Android RN app Debug test");
                 SmokeTestLogger.info(`Android Debug test: VS code is running`);
-                await retryAsyncFunction(app.workbench.quickaccess.openFile(APP_FILE_NAME));
+                await retryAsyncFunction(() => app.workbench.quickaccess.openFile(APP_FILE_NAME));
                 SmokeTestLogger.info(`Android Debug test: ${APP_FILE_NAME} is opened`);
                 await sleep(1);
                 await app.workbench.editors.scrollTop();
@@ -76,7 +76,7 @@ export function startReactNativeTests(workspace: string, testParameters: TestRun
                 await sleep(1);
                 SmokeTestLogger.info("Android Debug test: Debugging started");
 
-                await retryAsyncFunction(
+                await retryAsyncFunction(() =>
                     app.workbench.debug.waitForStackFrame(
                         sf => sf.name === APP_FILE_NAME && sf.lineNumber === RNSetBreakpointOnLine,
                         `looking for ${APP_FILE_NAME} and line ${RNSetBreakpointOnLine}`,
