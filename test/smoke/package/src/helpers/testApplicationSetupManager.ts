@@ -92,7 +92,7 @@ export class TestApplicationSetupManager {
     public async prepareTestApplications(useCachedApplications: boolean): Promise<void> {
         SmokeTestLogger.projectInstallLog(
             `*** Preparing smoke tests applications${
-                useCachedApplications ? "using cache" : ""
+                useCachedApplications ? " using cache" : ""
             }...`,
         );
 
