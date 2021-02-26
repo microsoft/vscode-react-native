@@ -612,8 +612,10 @@ module.exports.watchFolders = ['.vscode'];`;
             const packageJsonData = JSON.parse(String(fs.readFileSync(project.packageJsonPath)));
             packagesVersions.forEach((version: string, packageName: string) => {
                 if (
-                    (!packageJsonData.dependencies[packageName] || !packageJsonData.dependencies[packageName].includes(version)) &&
-                    (!packageJsonData.devDependencies[packageName] || !packageJsonData.devDependencies[packageName].includes(version))
+                    (!packageJsonData.dependencies[packageName] ||
+                        !packageJsonData.dependencies[packageName].includes(version)) &&
+                    (!packageJsonData.devDependencies[packageName] ||
+                        !packageJsonData.devDependencies[packageName].includes(version))
                 ) {
                     useCachedApp = false;
                     const actualVersion =
