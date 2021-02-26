@@ -289,9 +289,9 @@ export async function smokeTestFail(message: string): Promise<void> {
 }
 
 export async function retryAsyncFunction(
-    fn: typeof Function,
+    fn: any,
     retryCount: number = 1,
-): Promise<any> {
+): Promise<void> {
     let success: boolean;
     let tryTimes: number = retryCount + 1;
 
