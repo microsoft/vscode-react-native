@@ -64,10 +64,10 @@ steps:
       if [ -z "$(runAllTest)" ]; then
         SKIP_UNSTABLE_TESTS="--skip-unstable-tests"
       fi
-      if [ -z "$(basicOnly)" ]; then
+      if [[ -z "$(basicOnly)" ]]; then
         BASIC_ONLY="--basic-only"
       fi
-      if [ ! -z "$(resetApplicationCache)" ]; then
+      if [[ -z "$(resetApplicationCache)" ]]; then
         RESET_CACHE="--reset-cache"
       fi
       yarn smoke-tests $BASIC_ONLY $RESET_CACHE $SKIP_UNSTABLE_TESTS
