@@ -350,7 +350,7 @@ export class TestApplicationSetupManager {
         SmokeTestLogger.projectPatchingLog(
             `*** Copying  ${project.sampleEntryPointPath} into ${project.projectEntryPointPath}...`,
         );
-        fs.writeFileSync(project.projectEntryPointPath, project.sampleEntryPointPath);
+        fs.writeFileSync(project.projectEntryPointPath, fs.readFileSync(project.sampleEntryPointPath));
     }
 
     private prepareReactNativeProjectForMacOSHermesApplication(project: TestProject): void {
@@ -394,7 +394,7 @@ export class TestApplicationSetupManager {
         );
         fs.copyFileSync(
             project.testButtonFileForSample,
-            path.join(project.workspaceDirectory, "AppTestButton.js"),
+            project.testButtonFileForWorkspace,
         );
     }
 
