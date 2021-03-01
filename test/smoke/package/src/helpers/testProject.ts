@@ -14,12 +14,10 @@ export default class TestProject {
     private _expoSettingsPath: string;
 
     private _parentPathForWorkspace: string;
-    private _projectEntryPointPath: string;
     private _projectEntryPointFile: string;
     private _testButtonFileForWorkspace: string;
     private _gradleBuildFilePathForWorkspace: string;
 
-    private _sampleEntryPointPath: string;
     private _testButtonFileForSample: string;
     private _gradleBuildFilePathForSample: string;
 
@@ -27,9 +25,7 @@ export default class TestProject {
         this._appName = path.basename(this.workspaceDirectory);
         this._vsCodeConfigPath = path.join(this.workspaceDirectory, ".vscode");
         this._parentPathForWorkspace = path.join(this.workspaceDirectory, "..");
-        this._projectEntryPointPath = this.getEntryPoint(this.workspaceDirectory);
         this._projectEntryPointFile = path.basename(this.projectEntryPointPath);
-        this._sampleEntryPointPath = this.getEntryPoint(this.sampleDirectory);
         this._packageJsonPath = path.join(this.workspaceDirectory, "package.json");
         this._testButtonFileForWorkspace = path.join(this.workspaceDirectory, "AppTestButton.js");
         this._testButtonFileForSample = path.join(this.sampleDirectory, "AppTestButton.js");
@@ -78,10 +74,10 @@ export default class TestProject {
         return this._parentPathForWorkspace;
     }
     get projectEntryPointPath(): string {
-        return this._projectEntryPointPath;
+        return this.getEntryPoint(this.workspaceDirectory);
     }
     get sampleEntryPointPath(): string {
-        return this._sampleEntryPointPath;
+        return this.getEntryPoint(this.sampleDirectory);
     }
     get workspaceDirectory(): string {
         return this._workspaceDirectory;
