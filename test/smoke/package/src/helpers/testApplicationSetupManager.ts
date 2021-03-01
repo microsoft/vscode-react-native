@@ -350,7 +350,10 @@ export class TestApplicationSetupManager {
         SmokeTestLogger.projectPatchingLog(
             `*** Copying  ${project.sampleEntryPointPath} into ${project.projectEntryPointPath}...`,
         );
-        fs.writeFileSync(project.projectEntryPointPath, fs.readFileSync(project.sampleEntryPointPath));
+        fs.writeFileSync(
+            project.projectEntryPointPath,
+            fs.readFileSync(project.sampleEntryPointPath),
+        );
     }
 
     private prepareReactNativeProjectForMacOSHermesApplication(project: TestProject): void {
@@ -392,10 +395,7 @@ export class TestApplicationSetupManager {
         SmokeTestLogger.projectPatchingLog(
             `*** Copying ${project.testButtonFileForSample} into ${project.workspaceDirectory}`,
         );
-        fs.copyFileSync(
-            project.testButtonFileForSample,
-            project.testButtonFileForWorkspace,
-        );
+        fs.copyFileSync(project.testButtonFileForSample, project.testButtonFileForWorkspace);
     }
 
     private generateReactNativeInitCommand(appName: string, version?: string): string {
