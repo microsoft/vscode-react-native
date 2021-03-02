@@ -98,7 +98,7 @@ export class Search extends Viewlet {
 
         await retry(
             () => this.code.waitAndClick(fileMatch),
-            () => this.code.waitForElement(`${fileMatch} .action-label.codicon.codicon-search-replace-all`, el => !!el && el.top > 0 && el.left > 0, 10)
+            async() => await executeWithSpecifiedPollRetryParameters(async() => await this.code.waitForElement(`${fileMatch} .action-label.codicon.codicon-search-replace-all`, el => !!el && el.top > 0 && el.left > 0), 10)
         );
 
         // ¯\_(ツ)_/¯
