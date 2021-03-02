@@ -197,14 +197,10 @@ export function setPollRetryParameters(retryCount: number = 2000, retryInterval:
 }
 
 export async function executeWithSpecifiedPollRetryParameters<T>(fn: () => Promise<T>, retryCount: number = pollRetryCount, retryInterval: number = pollRetryInterval): Promise<T> {
-    const pollRetryCountBefore = pollRetryCount;
-    const pollRetryIntervalBefore = pollRetryInterval;
     setPollRetryParameters(retryCount, retryInterval);
-    return fn()
-    .then((res) => {
-        setPollRetryParameters(pollRetryCountBefore, pollRetryIntervalBefore);
-        return res;
-    });
+    const res = await fn();
+    setPollRetryParameters();
+    return res;
 }
 
 async function poll<T>(
