@@ -623,7 +623,7 @@ module.exports.watchFolders = ['.vscode'];`;
                         packageJsonData.dependencies[packageName] ||
                         packageJsonData.devDependencies[packageName];
                     SmokeTestLogger.error(
-                        `${packageName}: ${version} ✘. Actual version: ${actualVersion}`
+                        `${packageName}: ${version} ✘. Actual version: ${actualVersion}`,
                     );
                 } else {
                     SmokeTestLogger.success(`${packageName}: ${version} ✓`);
