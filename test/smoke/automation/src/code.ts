@@ -275,14 +275,14 @@ export class Code {
         await this.driver.exitApplication();
     }
 
-    public async waitForTextContent(selector: string, textContent?: string, accept?: (result: string) => boolean): Promise<string> {
+    public async waitForTextContent(selector: string, textContent?: string, accept?: (result: string) => boolean, retryCount: number = 2000, retryInterval: number = 100): Promise<string> {
         const windowId = await this.getActiveWindowId();
         accept = accept || (result => textContent !== undefined ? textContent === result : !!result);
 
         return await poll(
             () => this.driver.getElements(windowId, selector).then(els => els.length > 0 ? Promise.resolve(els[0].textContent) : Promise.reject(new Error("Element not found for textContent"))),
             s => accept!(typeof s === "string" ? s : ""),
-            `get text content '${selector}'`
+            `get text content '${selector}'`, retryCount, retryInterval
         );
     }
 
@@ -306,14 +306,14 @@ export class Code {
         return await poll(() => this.driver.getElements(windowId, selector, recursive), accept, `get elements '${selector}'`, retryCount, retryInterval);
     }
 
-    public async waitForElement(selector: string, accept: (result: IElement | undefined) => boolean = result => !!result, retryCount: number = 2000): Promise<IElement> {
+    public async waitForElement(selector: string, accept: (result: IElement | undefined) => boolean = result => !!result, retryCount: number = 2000, retryInterval: number = 100): Promise<IElement> {
         const windowId = await this.getActiveWindowId();
         return await poll<IElement>(() => this.driver.getElements(windowId, selector).then(els => els[0]), accept, `get element '${selector}'`, retryCount);
     }
 
-    public async waitForActiveElement(selector: string, retryCount: number = 2000): Promise<void> {
+    public async waitForActiveElement(selector: string, retryCount: number = 2000, retryInterval: number = 100): Promise<void> {
         const windowId = await this.getActiveWindowId();
-        await poll(() => this.driver.isActiveElement(windowId, selector), r => r, `is active element '${selector}'`, retryCount);
+        await poll(() => this.driver.isActiveElement(windowId, selector), r => r, `is active element '${selector}'`, retryCount, retryInterval);
     }
 
     public async waitForTitle(fn: (title: string) => boolean): Promise<void> {

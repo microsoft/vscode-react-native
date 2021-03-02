@@ -608,11 +608,7 @@ module.exports.watchFolders = ['.vscode'];`;
         let useCachedApp = true;
         try {
             SmokeTestLogger.projectInstallLog(
-                "Check for required packages versions for project by path " +
-                    "'" +
-                    project.workspaceDirectory +
-                    "'" +
-                    " :",
+                `Check for required packages versions for project by path '${project.workspaceDirectory}' :`,
             );
             const packageJsonData = JSON.parse(String(fs.readFileSync(project.packageJsonPath)));
             packagesVersions.forEach((version: string, packageName: string) => {
@@ -627,10 +623,10 @@ module.exports.watchFolders = ['.vscode'];`;
                         packageJsonData.dependencies[packageName] ||
                         packageJsonData.devDependencies[packageName];
                     SmokeTestLogger.error(
-                        packageName + ": " + version + " ✘. " + "Actual version: " + actualVersion,
+                        `${packageName}: ${version} ✘. Actual version: ${actualVersion}`
                     );
                 } else {
-                    SmokeTestLogger.success(packageName + ": " + version + " ✓");
+                    SmokeTestLogger.success(`${packageName}: ${version} ✓`);
                 }
             });
         } catch (err) {

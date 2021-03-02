@@ -19,23 +19,23 @@ export class QuickInput {
         await this.waitForQuickInputClosed();
     }
 
-    public async waitForQuickInputOpened(retryCount?: number): Promise<void> {
-        await this.code.waitForActiveElement(QuickInput.QUICK_INPUT_INPUT, retryCount);
+    public async waitForQuickInputOpened(retryCount: number = 2000, retryInterval: number = 100): Promise<void> {
+        await this.code.waitForActiveElement(QuickInput.QUICK_INPUT_INPUT, retryCount, retryInterval);
     }
 
-    public async selectQuickInputElement(index: number, close: boolean = true): Promise<void> {
-        await this.waitForQuickInputOpened();
+    public async selectQuickInputElement(index: number, close: boolean = true, retryCount: number = 2000, retryInterval: number = 100): Promise<void> {
+        await this.waitForQuickInputOpened(retryCount, retryInterval);
         for (let from = 0; from < index; from++) {
             await this.code.dispatchKeybinding("down");
         }
         await this.code.dispatchKeybinding("enter");
         if (close) {
-            await this.waitForQuickInputClosed();
+            await this.waitForQuickInputClosed(retryCount, retryInterval);
         }
     }
 
-    private async waitForQuickInputClosed(): Promise<void> {
-        await this.code.waitForElement(QuickInput.QUICK_INPUT, r => !!r && r.attributes.style.indexOf("display: none;") !== -1);
+    private async waitForQuickInputClosed(retryCount: number = 2000, retryInterval: number = 100): Promise<void> {
+        await this.code.waitForElement(QuickInput.QUICK_INPUT, r => !!r && r.attributes.style.indexOf("display: none;") !== -1, retryCount, retryInterval);
     }
 
     public async inputAndSelect(text: string): Promise<void> {
@@ -49,8 +49,8 @@ export class QuickInput {
         await this.waitForQuickInputClosed();
     }
 
-    public async waitForQuickInputElements(accept: (names: string[]) => boolean): Promise<void> {
-        await this.code.waitForElements(QuickInput.QUICK_INPUT_ENTRY_LABEL, false, els => accept(els.map(e => e.textContent)), 10, 1000);
+    public async waitForQuickInputElements(accept: (names: string[]) => boolean, retryCount: number = 2000, retryInterval: number = 100): Promise<void> {
+        await this.code.waitForElements(QuickInput.QUICK_INPUT_ENTRY_LABEL, false, els => accept(els.map(e => e.textContent)), retryCount, retryInterval);
     }
 
 }

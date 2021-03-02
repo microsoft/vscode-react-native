@@ -36,16 +36,20 @@ export class QuickAccess {
         }
     }
 
-    public async openFile(fileName: string): Promise<void> {
+    public async openFile(fileName: string, retryCount: number = 10): Promise<void> {
         // await this.openQuickAccess(fileName);
 
-        let tryes = 10;
+        let tryes = retryCount;
         while (tryes > 0) {
             try {
                 await this.openQuickAccess(fileName);
-                await this.quickInput.waitForQuickInputElements(names => names[0] === fileName);
+                await this.quickInput.waitForQuickInputElements(names => names[0] === fileName, 10, 1000);
+                await this.code.dispatchKeybinding("enter");
+                await this.editors.waitForActiveTab(fileName, false, false, 10, 1000);
+                await this.editors.waitForEditorFocus(fileName, 10, 1000);
                 break;
             } catch (e) {
+                await this.code.dispatchKeybinding("escape");
                 tryes--;
             }
         }
@@ -58,19 +62,23 @@ export class QuickAccess {
         //     return await poll(() => this.driver.getElements(windowId, selector, recursive), accept, `get elements '${selector}'`);
         // }
 
-        await this.code.dispatchKeybinding("enter");
-        await this.editors.waitForActiveTab(fileName);
-        await this.editors.waitForEditorFocus(fileName);
     }
 
-    public async runCommand(commandId: string): Promise<void> {
-        await this.openQuickAccess(`>${commandId}`);
-
-        // wait for best choice to be focused
-        await this.code.waitForTextContent(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT);
-
-        // wait and click on best choice
-        await this.quickInput.selectQuickInputElement(0);
+    public async runCommand(commandId: string, retryCount: number = 10): Promise<void> {
+        let tryes = retryCount;
+        while (tryes > 0) {
+            try {
+                await this.openQuickAccess(`>${commandId}`);
+                // wait for best choice to be focused
+                await this.code.waitForTextContent(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT, undefined, undefined, 10, 1000);
+                // wait and click on best choice
+                await this.quickInput.selectQuickInputElement(0, true, 10, 1000);
+                break;
+            } catch (e) {
+                await this.code.dispatchKeybinding("escape");
+                tryes--;
+            }
+        }
     }
 
     public async openQuickOutline(): Promise<void> {
@@ -94,19 +102,25 @@ export class QuickAccess {
         }
     }
 
-    public async runDebugScenario(scenario: string, index?: number): Promise<void> {
-        await this.openQuickAccess(`debug ${scenario}`);
-
-        if (index) {
-            for (let from = 0; from < index; from++) {
-                await this.code.dispatchKeybinding("down");
+    public async runDebugScenario(scenario: string, index?: number, retryCount: number = 10): Promise<void> {
+        let tryes = retryCount;
+        while (tryes > 0) {
+            try {
+                await this.openQuickAccess(`debug ${scenario}`);
+                if (index) {
+                    for (let from = 0; from < index; from++) {
+                        await this.code.dispatchKeybinding("down");
+                    }
+                }
+                // wait for the best choice to be focused
+                await this.code.waitForTextContent(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT, scenario, undefined, 10, 1000);
+                // wait and click on the best choice
+                await this.code.waitAndClick(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT, 10, 1000);
+                break;
+            } catch (e) {
+                await this.code.dispatchKeybinding("escape");
+                tryes--;
             }
         }
-
-        // wait for the best choice to be focused
-        await this.code.waitForTextContent(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT, scenario);
-
-        // wait and click on the best choice
-        await this.code.waitAndClick(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT);
     }
 }
