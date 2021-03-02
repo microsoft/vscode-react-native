@@ -44,6 +44,7 @@ export class QuickAccess {
             try {
                 await this.openQuickAccess(fileName);
                 await this.quickInput.waitForQuickInputElements(names => names[0] === fileName);
+                break;
             } catch (e) {
                 tryes--;
             }
