@@ -6,7 +6,6 @@ import { Code } from "./code";
 import { QuickInput } from "./quickinput";
 
 export class QuickAccess {
-
     constructor(private code: Code, private editors: Editors, private quickInput: QuickInput) { }
 
     public async openQuickAccess(value: string): Promise<void> {
@@ -38,9 +37,26 @@ export class QuickAccess {
     }
 
     public async openFile(fileName: string): Promise<void> {
-        await this.openQuickAccess(fileName);
+        // await this.openQuickAccess(fileName);
 
-        await this.quickInput.waitForQuickInputElements(names => names[0] === fileName);
+        let tryes = 10;
+        while (tryes > 0) {
+            try {
+                await this.openQuickAccess(fileName);
+                await this.quickInput.waitForQuickInputElements(names => names[0] === fileName);
+            } catch (e) {
+                tryes--;
+            }
+        }
+        // els => accept(els.map(e => e.textContent))
+
+        // const code = this.code;
+
+        // const wait = async function waitForElements(selector: string, recursive: boolean, accept: (result: IElement[]) => boolean = result => result.length > 0): Promise<IElement[]> {
+        //     const windowId = await code.getActiveWindowId();
+        //     return await poll(() => this.driver.getElements(windowId, selector, recursive), accept, `get elements '${selector}'`);
+        // }
+
         await this.code.dispatchKeybinding("enter");
         await this.editors.waitForActiveTab(fileName);
         await this.editors.waitForEditorFocus(fileName);

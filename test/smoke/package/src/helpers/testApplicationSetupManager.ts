@@ -607,7 +607,13 @@ module.exports.watchFolders = ['.vscode'];`;
         }
         let useCachedApp = true;
         try {
-            SmokeTestLogger.projectInstallLog("Check for require packages versions:");
+            SmokeTestLogger.projectInstallLog(
+                "Check for required packages versions for project by path " +
+                    "'" +
+                    project.workspaceDirectory +
+                    "'" +
+                    " :",
+            );
             const packageJsonData = JSON.parse(String(fs.readFileSync(project.packageJsonPath)));
             packagesVersions.forEach((version: string, packageName: string) => {
                 if (
