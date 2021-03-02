@@ -322,9 +322,9 @@ export class Code {
         return await poll(() => this.driver.getElements(windowId, selector, recursive), accept, `get elements '${selector}'`);
     }
 
-    public async waitForElement(selector: string, accept: (result: IElement | undefined) => boolean = result => !!result, retryCount: number = 2000): Promise<IElement> {
+    public async waitForElement(selector: string, accept: (result: IElement | undefined) => boolean = result => !!result): Promise<IElement> {
         const windowId = await this.getActiveWindowId();
-        return await poll<IElement>(() => this.driver.getElements(windowId, selector).then(els => els[0]), accept, `get element '${selector}'`, retryCount);
+        return await poll<IElement>(() => this.driver.getElements(windowId, selector).then(els => els[0]), accept, `get element '${selector}'`);
     }
 
     public async waitForActiveElement(selector: string, retryCount: number = 2000): Promise<void> {
