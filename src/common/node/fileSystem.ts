@@ -3,6 +3,7 @@
 
 import * as nodeFs from "fs";
 import * as path from "path";
+import * as mkdirp from "mkdirp";
 
 export class FileSystem {
     private fs: typeof nodeFs;
@@ -109,6 +110,13 @@ export class FileSystem {
 
     public writeFile(filename: string, data: any): Promise<void> {
         return this.fs.promises.writeFile(filename, data);
+    }
+
+    public static writeFileToFolder(folder: string, basename: string, data: any): Promise<void> {
+        if (!nodeFs.existsSync(folder)) {
+            mkdirp.sync(folder);
+        }
+        return nodeFs.promises.writeFile(path.join(folder, basename), data);
     }
 
     public unlink(filename: string): Promise<void> {

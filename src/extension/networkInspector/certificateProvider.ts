@@ -5,6 +5,7 @@ import { openssl, isInstalled as opensslInstalled } from "../../common/opensslWr
 import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
+import { FileSystem as fsUtils } from "../../common/node/fileSystem";
 import * as mkdirp from "mkdirp";
 import * as tmp from "tmp-promise";
 import { AdbHelper } from "../android/adb";
@@ -97,7 +98,7 @@ export class CertificateProvider {
         }
         this.ensureOpenSSLIsAvailable();
         const rootFolder = (await tmp.dir()).path;
-        const certFolder = rootFolder + "/FlipperCerts/";
+        const certFolder = path.join(rootFolder, "FlipperCerts");
         return this.certificateSetup
             .then(() => this.getCACertificate())
             .then(caCert =>
@@ -271,11 +272,7 @@ export class CertificateProvider {
         const appNamePromise = this.extractAppNameFromCSR(csr);
 
         if (medium === "WWW") {
-            const certPathExists = fs.existsSync(certFolder);
-            if (!certPathExists) {
-                mkdirp.sync(certFolder);
-            }
-            return fs.promises.writeFile(certFolder + filename, contents).catch(e => {
+            return fsUtils.writeFileToFolder(certFolder, filename, contents).catch(e => {
                 throw new Error(`Failed to write ${filename} to temporary folder. Error: ${e}`);
             });
         }
@@ -284,15 +281,30 @@ export class CertificateProvider {
             const deviceIdPromise = appNamePromise.then(app =>
                 this.getTargetAndroidDeviceId(app, destination, csr),
             );
-            return Promise.all([deviceIdPromise, appNamePromise]).then(([deviceId, appName]) =>
-                androidUtil.push(
+            return Promise.all([deviceIdPromise, appNamePromise]).then(([deviceId, appName]) => {
+                if (process.platform === "win32") {
+                    return fsUtils
+                        .writeFileToFolder(certFolder, filename, contents)
+                        .then(() =>
+                            androidUtil.pushFile(
+                                this.adbHelper,
+                                deviceId,
+                                appName,
+                                destination + filename,
+                                path.join(certFolder, filename),
+                                this.logger,
+                            ),
+                        );
+                }
+                return androidUtil.push(
                     this.adbHelper,
                     deviceId,
                     appName,
                     destination + filename,
                     contents,
-                ),
-            );
+                    this.logger,
+                );
+            });
         }
         if (os === "iOS" || os === "windows" || os == "MacOS") {
             return fs.promises.writeFile(destination + filename, contents).catch(err => {
@@ -425,7 +437,7 @@ export class CertificateProvider {
         csr: string,
     ): Promise<{ isMatch: boolean; foundCsr: string }> {
         return androidUtil
-            .pull(this.adbHelper, deviceId, processName, directory + csrFileName)
+            .pull(this.adbHelper, deviceId, processName, directory + csrFileName, this.logger)
             .then(deviceCsr => {
                 // Santitize both of the string before comparation
                 // The csr string extraction on client side return string in both way

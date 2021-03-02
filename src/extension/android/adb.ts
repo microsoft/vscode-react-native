@@ -199,6 +199,10 @@ export class AdbHelper {
         return this.executeQuery(deviceId, `shell "${command}"`);
     }
 
+    public executeQuery(deviceId: string, command: string): Promise<string> {
+        return this.childProcess.execToString(this.generateCommandForDevice(deviceId, command));
+    }
+
     private parseConnectedDevices(input: string): IAdbDevice[] {
         let result: IAdbDevice[] = [];
         let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
@@ -218,10 +222,6 @@ export class AdbHelper {
         return id.match(AndroidSDKEmulatorPattern)
             ? AdbDeviceType.AndroidSdkEmulator
             : AdbDeviceType.Other;
-    }
-
-    private executeQuery(deviceId: string, command: string): Promise<string> {
-        return this.childProcess.execToString(this.generateCommandForDevice(deviceId, command));
     }
 
     private execute(deviceId: string, command: string): Promise<void> {
