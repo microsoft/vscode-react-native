@@ -31,8 +31,8 @@ const csrFileName = "app.csr";
 const deviceCAcertFile = "sonarCA.crt";
 const deviceClientCertFile = "device.crt";
 
-const caSubject = "/C=US/ST=CA/L=Menlo Park/O=Test/CN=TestCA";
-const serverSubject = "/C=US/ST=CA/L=Menlo Park/O=Test/CN=localhost";
+const caSubject = "/C=US/ST=CA/L=Test/O=Test/CN=TestCA";
+const serverSubject = "/C=US/ST=CA/L=Test/O=Test/CN=localhost";
 const minCertExpiryWindowSeconds = 24 * 60 * 60;
 const allowedAppNameRegex = /^[\w.-]+$/;
 
@@ -604,4 +604,5 @@ export class CertificateProvider {
 
 function getFilePath(fileName: string): string {
     return path.resolve(os.homedir(), ".config", "vscode-react-native", "certs", fileName);
+    // return path.resolve(os.homedir(), ".flipper", "certs", fileName);
 }

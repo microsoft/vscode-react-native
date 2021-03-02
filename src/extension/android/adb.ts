@@ -196,7 +196,7 @@ export class AdbHelper {
     }
 
     public executeShellCommand(deviceId: string, command: string): Promise<string> {
-        return this.executeQuery(deviceId, `shell '${command}'`);
+        return this.executeQuery(deviceId, `shell "${command}"`);
     }
 
     private parseConnectedDevices(input: string): IAdbDevice[] {

@@ -81,7 +81,7 @@ function _push(
     filename: string,
     contents: string,
 ): Promise<void> {
-    const command = `echo \\"${contents}\\" > '${filename}' && chmod 644 '${filename}'`;
+    const command = `echo \\"${contents}\\" > "${filename}" && chmod 644 "${filename}"`;
     return executeCommandAsApp(adbHelper, deviceId, app, command)
         .then(res => {
             console.log(res);
@@ -101,7 +101,7 @@ function _push(
 }
 
 function _pull(adbHelper: AdbHelper, deviceId: string, app: string, path: string): Promise<string> {
-    const command = `cat '${path}'`;
+    const command = `cat "${path}"`;
     return executeCommandAsApp(adbHelper, deviceId, app, command).catch(error => {
         if (error instanceof RunAsError) {
             // Fall back to running the command directly. This will work if adb is running as root.
@@ -141,7 +141,7 @@ function _executeCommandWithRunner(
     command: string,
     runner: string,
 ): Promise<string> {
-    return adbHelper.executeShellCommand(deviceId, `echo "${command}" | ${runner}`).then(output => {
+    return adbHelper.executeShellCommand(deviceId, `echo '${command}' | ${runner}`).then(output => {
         if (output.match(appNotApplicationRegex)) {
             throw new RunAsError(
                 RunAsErrorCode.NotAnApp,
