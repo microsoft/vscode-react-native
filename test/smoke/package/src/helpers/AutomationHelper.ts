@@ -22,7 +22,7 @@ export default class AutomationHelper {
         let tryes = retryCount;
         while (tryes > 0) {
             try {
-                await this.app.workbench.code.wexecuteWithSpecifiedPollRetryParameters(
+                await this.app.workbench.code.executeWithSpecifiedPollRetryParameters(
                     fun,
                     pollRetryCount,
                     pollRetryInterval,
