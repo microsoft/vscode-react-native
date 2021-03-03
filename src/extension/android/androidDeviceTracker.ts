@@ -6,6 +6,7 @@ import { DeviceStorage } from "../networkInspector/devices/deviceStorage";
 import { AndroidClientDevice } from "../networkInspector/devices/androidClientDevice";
 import { NetworkInspectorServer } from "../networkInspector/networkInspectorServer";
 import { DeviceStatus } from "../networkInspector/devices/baseClientDevice";
+import { ClientOS } from "../networkInspector/clientUtils";
 import { AbstractDeviceTracker } from "../abstractDeviceTracker";
 
 export class AndroidDeviceTracker extends AbstractDeviceTracker {
@@ -41,7 +42,7 @@ export class AndroidDeviceTracker extends AbstractDeviceTracker {
                 const androidDevice = new AndroidClientDevice(
                     onlineDevice.id,
                     onlineDevice.type === AdbDeviceType.AndroidSdkEmulator ? "simulator" : "device",
-                    "Android",
+                    ClientOS.Android,
                 );
                 await this.initAndroidDevice(androidDevice);
                 DeviceStorage.devices.set(androidDevice.id, androidDevice);

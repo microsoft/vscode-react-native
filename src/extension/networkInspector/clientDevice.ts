@@ -5,6 +5,8 @@ import { ReactiveSocket } from "rsocket-types";
 import { ClientOS } from "./clientUtils";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 
+// The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/Client.tsx
+
 export interface ClientIdConstituents {
     app: string;
     os: ClientOS;
@@ -13,7 +15,7 @@ export interface ClientIdConstituents {
 }
 
 export interface UninitializedClient {
-    os: string;
+    os: ClientOS;
     deviceName: string;
     appName: string;
 }

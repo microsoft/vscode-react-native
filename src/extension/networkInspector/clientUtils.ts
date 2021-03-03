@@ -3,7 +3,12 @@
 
 import { ClientIdConstituents, ClientQuery } from "./clientDevice";
 
-export type ClientOS = "iOS" | "Android" | "Windows" | "MacOS";
+export enum ClientOS {
+    iOS = "iOS",
+    Android = "Android",
+    Windows = "Windows",
+    MacOS = "MacOS",
+}
 
 export function buildClientId(clientInfo: {
     app: string;
@@ -25,7 +30,7 @@ export function appNameWithUpdateHint(query: ClientQuery): string {
     // section because it refers to the name given by client which is not fixed
     // for android emulators, so it is indicated as outdated so that developers
     // might want to update SDK to get rid of this connection swap problem
-    if (query.os === "Android" && (!query.sdk_version || query.sdk_version < 3)) {
+    if (query.os === ClientOS.Android && (!query.sdk_version || query.sdk_version < 3)) {
         return query.app + " (Outdated SDK)";
     }
     return query.app;

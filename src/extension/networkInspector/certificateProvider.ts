@@ -14,6 +14,7 @@ import iosUtil from "../ios/iOSContainerUtility";
 import { v4 as uuid } from "uuid";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { NETWORK_INSPECTOR_LOG_CHANNEL_NAME } from "./networkInspectorServer";
+import { ClientOS } from "./clientUtils";
 
 // The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/CertificateProvider.tsx
 
@@ -88,7 +89,7 @@ export class CertificateProvider {
 
     public async processCertificateSigningRequest(
         unsanitizedCsr: string,
-        os: string,
+        os: ClientOS,
         appDirectory: string,
         medium: CertificateExchangeMedium,
     ): Promise<{ deviceId: string }> {
@@ -204,16 +205,16 @@ export class CertificateProvider {
     }
 
     public getTargetDeviceId(
-        os: string,
+        os: ClientOS,
         appName: string,
         appDirectory: string,
         csr: string,
     ): Promise<string> {
-        if (os === "Android") {
+        if (os === ClientOS.Android) {
             return this.getTargetAndroidDeviceId(appName, appDirectory, csr);
-        } else if (os === "iOS") {
+        } else if (os === ClientOS.iOS) {
             return this.getTargetiOSDeviceId(appName, appDirectory, csr);
-        } else if (os == "MacOS") {
+        } else if (os == ClientOS.MacOS) {
             return Promise.resolve("");
         }
         return Promise.resolve("unknown");
@@ -265,7 +266,7 @@ export class CertificateProvider {
         filename: string,
         contents: string,
         csr: string,
-        os: string,
+        os: ClientOS,
         medium: CertificateExchangeMedium,
         certFolder: string,
     ): Promise<void> {
@@ -277,7 +278,7 @@ export class CertificateProvider {
             });
         }
 
-        if (os === "Android") {
+        if (os === ClientOS.Android) {
             const deviceIdPromise = appNamePromise.then(app =>
                 this.getTargetAndroidDeviceId(app, destination, csr),
             );
@@ -306,9 +307,9 @@ export class CertificateProvider {
                 );
             });
         }
-        if (os === "iOS" || os === "windows" || os == "MacOS") {
+        if (os === ClientOS.iOS || os === ClientOS.Windows || os === ClientOS.MacOS) {
             return fs.promises.writeFile(destination + filename, contents).catch(err => {
-                if (os === "iOS") {
+                if (os === ClientOS.iOS) {
                     // Writing directly to FS failed. It's probably a physical device.
                     const relativePathInsideApp = this.getRelativePathInAppContainer(destination);
                     return appNamePromise

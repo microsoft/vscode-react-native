@@ -6,6 +6,7 @@ import { IOSSimulatorManager, IiOSSimulator } from "./iOSSimulatorManager";
 import { DeviceType } from "../launchArgs";
 import iosUtil, { DeviceTarget } from "./iOSContainerUtility";
 import { DeviceStorage } from "../networkInspector/devices/deviceStorage";
+import { ClientOS } from "../networkInspector/clientUtils";
 import { IOSClienDevice } from "../networkInspector/devices/iOSClienDevice";
 
 export class IOSDeviceTracker extends AbstractDeviceTracker {
@@ -50,7 +51,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
                 const androidDevice = new IOSClienDevice(
                     activeDevice.id,
                     type,
-                    "iOS",
+                    ClientOS.iOS,
                     activeDevice.state || "active",
                     activeDevice.name,
                 );
@@ -70,7 +71,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
 
     private getActiveDevices(): Promise<Array<DeviceTarget>> {
         return iosUtil.targets().catch(e => {
-            console.error(e.message);
+            this.logger.error(e.message);
             return [];
         });
     }

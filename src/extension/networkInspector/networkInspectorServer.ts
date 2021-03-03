@@ -14,6 +14,7 @@ import {
     SecureServerConfig,
     CertificateExchangeMedium,
 } from "./certificateProvider";
+import { ClientOS } from "./clientUtils";
 import * as net from "net";
 import * as tls from "tls";
 
@@ -288,7 +289,7 @@ export class NetworkInspectorServer {
                             transformCertificateExchangeMediumToType(medium),
                         )
                         .catch(e => {
-                            console.error(e);
+                            this.logger.error(e.toString());
                         });
                 }
             },
@@ -304,7 +305,7 @@ export class NetworkInspectorServer {
         // otherwise, use given device_id
         const { csr_path, csr } = csrQuery;
         // For iOS we do not need to confirm the device id, as it never changes unlike android.
-        return (csr_path && csr && query.os != "iOS"
+        return (csr_path && csr && query.os !== ClientOS.iOS
             ? this.certificateProvider.extractAppNameFromCSR(csr).then(appName => {
                   return this.certificateProvider.getTargetDeviceId(
                       query.os,
