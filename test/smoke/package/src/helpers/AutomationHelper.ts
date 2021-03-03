@@ -31,6 +31,9 @@ export default class AutomationHelper {
             } catch (e) {
                 await catchFun();
                 tryes--;
+                if (tryes === 0) {
+                    throw e;
+                }
             }
         }
     }

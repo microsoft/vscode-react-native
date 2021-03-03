@@ -327,9 +327,9 @@ export class Code {
         return await poll<IElement>(() => this.driver.getElements(windowId, selector).then(els => els[0]), accept, `get element '${selector}'`);
     }
 
-    public async waitForActiveElement(selector: string, retryCount: number = 2000): Promise<void> {
+    public async waitForActiveElement(selector: string): Promise<void> {
         const windowId = await this.getActiveWindowId();
-        await poll(() => this.driver.isActiveElement(windowId, selector), r => r, `is active element '${selector}'`, retryCount);
+        await poll(() => this.driver.isActiveElement(windowId, selector), r => r, `is active element '${selector}'`);
     }
 
     public async waitForTitle(fn: (title: string) => boolean): Promise<void> {
