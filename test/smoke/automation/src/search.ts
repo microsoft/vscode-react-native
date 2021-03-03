@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { Viewlet } from "./viewlet";
-import { Code, executeWithSpecifiedPollRetryParameters } from "./code";
+import { Code } from "./code";
 
 const VIEWLET = ".search-view";
 const INPUT = `${VIEWLET} .search-widget .search-container .monaco-inputbox textarea`;
@@ -72,7 +72,7 @@ export class Search extends Viewlet {
 
         await retry(
             () => this.code.waitAndClick(fileMatch),
-            async() => await executeWithSpecifiedPollRetryParameters(async() => await this.code.waitForElement(`${fileMatch} .action-label.codicon-search-remove`, el => !!el && el.top > 0 && el.left > 0), 10)
+            async() => await this.code.executeWithSpecifiedPollRetryParameters(async() => await this.code.waitForElement(`${fileMatch} .action-label.codicon-search-remove`, el => !!el && el.top > 0 && el.left > 0), 10)
         );
 
         // ¯\_(ツ)_/¯
@@ -98,7 +98,7 @@ export class Search extends Viewlet {
 
         await retry(
             () => this.code.waitAndClick(fileMatch),
-            async() => await executeWithSpecifiedPollRetryParameters(async() => await this.code.waitForElement(`${fileMatch} .action-label.codicon.codicon-search-replace-all`, el => !!el && el.top > 0 && el.left > 0), 10)
+            async() => await this.code.executeWithSpecifiedPollRetryParameters(async() => await this.code.waitForElement(`${fileMatch} .action-label.codicon.codicon-search-replace-all`, el => !!el && el.top > 0 && el.left > 0), 10)
         );
 
         // ¯\_(ツ)_/¯

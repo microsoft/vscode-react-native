@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { Code, executeWithSpecifiedPollRetryParameters } from "./code";
+import { Code } from "./code";
 
 export class References {
 
@@ -38,7 +38,7 @@ export class References {
             await this.code.dispatchKeybinding("escape");
 
             try {
-                await executeWithSpecifiedPollRetryParameters(async() => await this.code.waitForElement(References.REFERENCES_WIDGET, el => !el), 10);
+                await this.code.executeWithSpecifiedPollRetryParameters(async() => await this.code.waitForElement(References.REFERENCES_WIDGET, el => !el), 10);
                 return;
             } catch (err) {
                 if (++count > 5) {

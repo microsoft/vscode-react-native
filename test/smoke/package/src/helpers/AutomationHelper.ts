@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { executeWithSpecifiedPollRetryParameters } from "../../../automation/src/code";
 import { Application } from "../../../automation";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 
@@ -23,7 +22,7 @@ export default class AutomationHelper {
         let tryes = retryCount;
         while (tryes > 0) {
             try {
-                await executeWithSpecifiedPollRetryParameters(
+                await this.app.workbench.code.executeWithSpecifiedPollRetryParameters(
                     fun,
                     pollRetryCount,
                     pollRetryInterval,
