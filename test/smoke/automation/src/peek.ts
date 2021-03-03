@@ -38,7 +38,7 @@ export class References {
             await this.code.dispatchKeybinding("escape");
 
             try {
-                await this.code.executeWithSpecifiedPollRetryParameters(async() => await this.code.waitForElement(References.REFERENCES_WIDGET, el => !el), 10);
+                await this.code.executeWithSpecifiedPollRetryParameters(async() => await this.code.waitForElement(References.REFERENCES_WIDGET, el => !el), 10, 100);
                 return;
             } catch (err) {
                 if (++count > 5) {
