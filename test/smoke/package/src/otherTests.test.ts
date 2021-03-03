@@ -28,9 +28,10 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
         let app: Application;
         let automationHelper: AutomationHelper;
 
-        async function initApp(workspaceOrFolder: string, sessionName?: string, locale?: string) {
+        async function initApp(workspaceOrFolder: string, sessionName?: string, locale?: string): Promise<Application> {
             app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
             automationHelper = new AutomationHelper(app);
+            return app;
         }
 
         async function disposeAll() {
