@@ -15,7 +15,11 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
         let launchConfigurationManager: LaunchConfigurationManager;
         let previousConfigurationsCount: number;
 
-        async function initApp(workspaceOrFolder: string, sessionName?: string, locale?: string): Promise<Application> {
+        async function initApp(
+            workspaceOrFolder: string,
+            sessionName?: string,
+            locale?: string,
+        ): Promise<Application> {
             app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
             return app;
         }

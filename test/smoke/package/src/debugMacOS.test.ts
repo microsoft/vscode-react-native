@@ -31,7 +31,11 @@ export function startDebugMacOSTests(
         let currentMacOSAppName: string = "";
         let automationHelper: AutomationHelper;
 
-        async function initApp(workspaceOrFolder: string, sessionName?: string, locale?: string): Promise<Application> {
+        async function initApp(
+            workspaceOrFolder: string,
+            sessionName?: string,
+            locale?: string,
+        ): Promise<Application> {
             app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
             automationHelper = new AutomationHelper(app);
             return app;
