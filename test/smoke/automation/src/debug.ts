@@ -131,18 +131,8 @@ export class Debug extends Viewlet {
         await this.code.waitForElement(NOT_DEBUG_STATUS_BAR);
     }
 
-    public async waitForStackFrame(func: (stackFrame: IStackFrame) => boolean, message: string, retryCount: number = 50, retryInterval: number = 1000): Promise<IStackFrame> {
-        let elements: any[] = [];
-        const ReloadAppCommand = "Reload App";
-        const fun = async () => {
-            elements = await this.code.waitForElements(STACK_FRAME, true, elements => elements.some(e => func(toStackFrame(e))));
-        };
-        const catchFun = async () => {
-            await this.commands.runCommand(ReloadAppCommand);
-        };
-
-        await retryWithSpecifiedPollRetryParameters(fun, catchFun, 5, retryCount, retryInterval);
-
+    public async waitForStackFrame(func: (stackFrame: IStackFrame) => boolean, message: string): Promise<IStackFrame> {
+        const elements = await this.code.waitForElements(STACK_FRAME, true, elements => elements.some(e => func(toStackFrame(e))));
         return elements.map(toStackFrame).filter(s => func(s))[0];
     }
 
