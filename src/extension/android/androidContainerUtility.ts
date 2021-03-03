@@ -142,11 +142,8 @@ function _pushFile(
         })
         .then(res => {
             logger?.debug(res);
-            return adbHelper.executeShellCommand(deviceId, `rm ${tmpFilePath}`);
         })
-        .then(res => {
-            logger?.debug(res);
-        });
+        .finally(() => adbHelper.executeShellCommand(deviceId, `rm ${tmpFilePath}`));
 }
 
 function _pull(

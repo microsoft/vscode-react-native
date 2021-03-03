@@ -40,10 +40,6 @@ function isAvailable(): Promise<boolean> {
         .catch(() => false);
 }
 
-// function safeExec(command: string): Promise<{ stdout: string; stderr: string } | Output> {
-//     return mutex.acquire().then(release => unsafeExec(command).finally(release));
-// }
-
 async function targets(): Promise<Array<DeviceTarget>> {
     const cp = new ChildProcess();
     if (process.platform !== "darwin") {

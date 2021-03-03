@@ -54,7 +54,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
                     activeDevice.state || "active",
                     activeDevice.name,
                 );
-                // await this.initIOSDevice(androidDevice);
+                // await this.initIOSDevice(androidDevice); // prepare real iOS devices
                 DeviceStorage.devices.set(androidDevice.id, androidDevice);
             }
         }

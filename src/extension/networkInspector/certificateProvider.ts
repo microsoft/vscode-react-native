@@ -616,5 +616,4 @@ export class CertificateProvider {
 
 function getFilePath(fileName: string): string {
     return path.resolve(os.homedir(), ".config", "vscode-react-native", "certs", fileName);
-    // return path.resolve(os.homedir(), ".flipper", "certs", fileName);
 }
