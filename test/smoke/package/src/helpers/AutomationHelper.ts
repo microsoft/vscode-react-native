@@ -76,8 +76,10 @@ export default class AutomationHelper {
         pollRetryCount: number = 30,
         pollRetryInterval: number = 1000,
     ): Promise<any> {
-        const fun = async () =>
+        const fun = async () => {
             await this.app.workbench.quickaccess.runDebugScenario(scenario, index);
+            await this.app.workbench.debug.waitForDebugToolbarExist();
+        };
         const catchFun = async () => await this.app.workbench.code.dispatchKeybinding("escape");
         await this.retryWithSpecifiedPollRetryParameters(
             fun,

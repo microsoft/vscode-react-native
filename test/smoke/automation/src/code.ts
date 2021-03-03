@@ -192,8 +192,8 @@ let pollRetryCount: number = 2000;
 let pollRetryInterval: number = 100;
 
 export function setPollRetryParameters(retryCount: number = 2000, retryInterval: number = 100): void {
-    pollRetryCount = retryCount;
-    pollRetryInterval = retryInterval;
+    pollRetryCount = Number(retryCount);
+    pollRetryInterval = Number(retryInterval);
 }
 
 async function poll<T>(
