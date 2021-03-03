@@ -3,7 +3,7 @@
 
 import { Viewlet } from "./viewlet";
 import { Commands } from "./workbench";
-import { Code, executeWithSpecifiedPollRetryParameters, findElement, retryWithSpecifiedPollRetryParameters } from "./code";
+import { Code, findElement} from "./code";
 import { Editors } from "./editors";
 import { Editor } from "./editor";
 import { IElement } from "../src/driver";
