@@ -54,7 +54,7 @@ export function startReactNativeTests(
         if (testParameters.RunAndroidTests || testParameters.RunBasicTests) {
             it("Android RN app Debug test", async function () {
                 this.timeout(debugAndroidTestTime);
-                await initApp(project.workspaceDirectory, "Android RN app Debug test");
+                app = await initApp(project.workspaceDirectory, "Android RN app Debug test");
                 await automationHelper.openFileWithRetry(project.projectEntryPointFile);
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("Android Debug test: App.js file is opened");
@@ -116,7 +116,7 @@ export function startReactNativeTests(
                     project.workspaceDirectory,
                 );
                 const deviceName = iosSimulatorManager.getSimulator().name;
-                await initApp(project.workspaceDirectory, "iOS RN app Debug test");
+                app = await initApp(project.workspaceDirectory, "iOS RN app Debug test");
                 await automationHelper.openFileWithRetry(project.projectEntryPointFile);
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("iOS Debug test: App.js file is opened");

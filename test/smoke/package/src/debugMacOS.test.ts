@@ -89,7 +89,7 @@ export function startDebugMacOSTests(
             project: TestProject,
             isHermesProject: boolean = false,
         ): Promise<void> {
-            await initApp(project.workspaceDirectory, testname);
+            app = await initApp(project.workspaceDirectory, testname);
             await automationHelper.openFileWithRetry(project.projectEntryPointFile);
             await app.workbench.editors.scrollTop();
             SmokeTestLogger.info(`${testname}: App.js file is opened`);

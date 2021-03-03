@@ -34,7 +34,7 @@ export function startLocalizationTests(project: TestProject): void {
 
         it("Test localization", async function () {
             try {
-                await initApp(project.workspaceDirectory, "LocalizationTest", "ru");
+                app = await initApp(project.workspaceDirectory, "LocalizationTest", "ru");
                 SmokeTestLogger.info("Localization test: Starting packager");
                 await automationHelper.runCommandWithRetry(startPackagerCommand);
                 await sleep(10 * 1000);

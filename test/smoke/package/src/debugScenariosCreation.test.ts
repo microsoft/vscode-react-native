@@ -8,22 +8,19 @@ import { Application } from "../../automation";
 import { testApplicationSetupManager } from "./main";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import TestProject from "./helpers/testProject";
-import AutomationHelper from "./helpers/AutomationHelper";
 
 export function startDebugScenariosCreationTests(project: TestProject): void {
     describe("Debugging scenarios creation test", () => {
         let app: Application;
         let launchConfigurationManager: LaunchConfigurationManager;
         let previousConfigurationsCount: number;
-        let automationHelper: AutomationHelper;
 
         async function initApp(workspaceOrFolder: string, sessionName?: string, locale?: string) {
             app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
-            automationHelper = new AutomationHelper(app);
         }
 
         before(async () => {
-            await initApp(project.workspaceDirectory, "DebuggingScenariosCreationTest");
+            app = await initApp(project.workspaceDirectory, "DebuggingScenariosCreationTest");
             launchConfigurationManager = new LaunchConfigurationManager(project.workspaceDirectory);
             await app.workbench.debug.openDebugViewlet();
             await app.workbench.debug.configure();

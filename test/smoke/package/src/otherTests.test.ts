@@ -52,7 +52,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 const launchConfigurationManager = new LaunchConfigurationManager(
                     project.workspaceDirectory,
                 );
-                await initApp(
+                app = await initApp(
                     project.workspaceDirectory,
                     `Save Android emulator test (first launch)`,
                 );
@@ -83,7 +83,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 );
                 SmokeTestLogger.info("Android emulator save test: Dispose all");
                 await disposeAll();
-                await initApp(
+                app = await initApp(
                     project.workspaceDirectory,
                     `Save Android emulator test (second launch)`,
                 );
@@ -116,7 +116,10 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                     project.workspaceDirectory,
                 );
                 await IosSimulatorManager.shutdownAllSimulators();
-                await initApp(project.workspaceDirectory, `Save iOS simulator test (first launch)`);
+                app = await initApp(
+                    project.workspaceDirectory,
+                    `Save iOS simulator test (first launch)`,
+                );
                 launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, {
                     target: "simulator",
                 });
@@ -152,7 +155,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 );
                 await disposeAll();
                 await IosSimulatorManager.shutdownAllSimulators();
-                await initApp(
+                app = await initApp(
                     project.workspaceDirectory,
                     `Save iOS simulator test (second launch)`,
                 );

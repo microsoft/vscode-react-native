@@ -34,9 +34,14 @@ export function startDirectDebugTests(
         let client: AppiumClient | null;
         let automationHelper: AutomationHelper;
 
-        async function initApp(workspaceOrFolder: string, sessionName?: string, locale?: string) {
+        async function initApp(
+            workspaceOrFolder: string,
+            sessionName?: string,
+            locale?: string,
+        ): Promise<Application> {
             app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
             automationHelper = new AutomationHelper(app);
+            return app;
         }
 
         async function disposeAll() {
@@ -96,7 +101,7 @@ export function startDirectDebugTests(
                     }
                 }
 
-                await initApp(project.workspaceDirectory, testname);
+                app = await initApp(project.workspaceDirectory, testname);
                 await automationHelper.openFileWithRetry("AppTestButton.js");
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info(`${testname}: AppTestButton.js file is opened`);

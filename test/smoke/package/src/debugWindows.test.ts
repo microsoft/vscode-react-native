@@ -73,7 +73,7 @@ export function startDebugRNWTests(project: TestProject, testParameters: TestRun
             it("RN Windows app Debug test", async function () {
                 try {
                     this.timeout(debugWindowsTestTime);
-                    await initApp(project.workspaceDirectory, "RN Windows app Debug test");
+                    app = await initApp(project.workspaceDirectory, "RN Windows app Debug test");
                     await automationHelper.openFileWithRetry(project.projectEntryPointFile);
                     await app.workbench.editors.scrollTop();
                     SmokeTestLogger.info("Windows Debug test: App.js file is opened");

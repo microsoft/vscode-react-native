@@ -146,7 +146,7 @@ export function startExpoTests(
             triesToLaunchApp: number,
         ) {
             let logFilePath = "";
-            await initApp(project.workspaceDirectory, testName);
+            app = await initApp(project.workspaceDirectory, testName);
             SmokeTestLogger.info(
                 `${testName}: ${project.workspaceDirectory} directory is opened in VS Code`,
             );
